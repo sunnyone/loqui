@@ -63,7 +63,6 @@ GtkType remark_entry_get_type (void) G_GNUC_CONST;
 GtkWidget* remark_entry_new(LoquiApp *app, GtkToggleAction *toggle_command_action);
 G_CONST_RETURN gchar *remark_entry_get_text(RemarkEntry *entry);
 void remark_entry_clear_text(RemarkEntry *entry);
-void remark_entry_grab_focus(RemarkEntry *entry);
 
 void remark_entry_set_multiline(RemarkEntry *entry, gboolean is_multiline);
 gboolean remark_entry_get_multiline(RemarkEntry *entry);
