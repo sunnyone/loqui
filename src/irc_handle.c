@@ -689,7 +689,7 @@ irc_handle_command_join(IRCHandle *handle, IRCMessage *msg)
 			loqui_channel_set_is_joined(channel, TRUE);
 		}
 		if(send_status_commands_mode)
-			account_get_channel_mode(handle->priv->account, loqui_channel_entry_get_name(LOQUI_CHANNEL_ENTRY(channel)));
+			loqui_sender_irc_get_channel_mode(account_get_sender(handle->priv->account), channel);
 	} else {
 		if(!channel) {
 			g_warning(_("Why do you know that the user join the channel?"));

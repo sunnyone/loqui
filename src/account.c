@@ -919,27 +919,6 @@ void account_change_channel_user_mode(Account *account, LoquiChannel *channel,
 	g_object_unref(msg);
 }
 void
-account_get_channel_mode(Account *account, const gchar *channel_name)
-{
-	IRCMessage *msg;
-	AccountPrivate *priv;
-
-        g_return_if_fail(account != NULL);
-        g_return_if_fail(IS_ACCOUNT(account));
-	g_return_if_fail(channel_name != NULL);
-
-	if(!account_is_connected(account)) {
-		g_warning(_("Account is not connected."));
-		return;
-	}
-
-	priv = account->priv;
-
-	msg = irc_message_create(IRCCommandMode, channel_name, NULL);
-	irc_connection_push_message(priv->connection, msg);
-	g_object_unref(msg);
-}
-void
 account_get_updated_number(Account *account, gint *updated_private_talk_number, gint *updated_channel_number)
 {
 	LoquiChannel *channel;

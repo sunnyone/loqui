@@ -463,3 +463,24 @@ void loqui_sender_irc_send_raw(LoquiSenderIRC *sender, const gchar *str)
 	irc_connection_push_message(conn, msg);
 	g_object_unref(msg);
 }
+void
+loqui_sender_irc_get_channel_mode(LoquiSender *sender, LoquiChannel *channel)
+{
+	IRCMessage *msg;
+	IRCConnection *conn;
+
+        g_return_if_fail(sender != NULL);
+        g_return_if_fail(LOQUI_IS_SENDER_IRC(sender));
+
+	if (!account_is_connected(sender->account)) {
+		g_warning("Not connected");
+		return;
+	}
+
+	conn = account_get_connection(sender->account);
+	g_return_if_fail(conn != NULL);
+
+	msg = irc_message_create(IRCCommandMode, loqui_channel_entry_get_name(LOQUI_CHANNEL_ENTRY(channel)), NULL);
+	irc_connection_push_message(conn, msg);
+	g_object_unref(msg);
+}

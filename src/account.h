@@ -113,7 +113,6 @@ void account_join(Account *account, const gchar *target, const gchar *key);
 void account_start_private_talk(Account *account, const gchar *target);
 void account_part(Account *account, const gchar *target, const gchar *part_message);
 void account_set_topic(Account *account, const gchar *target, const gchar *topic);
-void account_get_channel_mode(Account *account, const gchar *channel_name);
 
 void account_send_ctcp_request(Account *account, const gchar *target, const gchar *command);
 
