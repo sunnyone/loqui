@@ -175,11 +175,28 @@ account_set(Account *account,
 
 	priv = account->priv;
 
+	if(account->name)
+		g_free(account->name);
 	account->name = g_strdup(name);
+
+	if(account->nick)
+		g_free(account->nick);
 	account->nick = g_strdup(nick);
+
+	if(account->username)
+		g_free(account->username);
 	account->username = g_strdup(username);
+
+	if(account->realname)
+		g_free(account->realname);
 	account->realname = g_strdup(realname);
+
+	if(account->userinfo)
+		g_free(account->userinfo);
 	account->userinfo = g_strdup(userinfo);
+
+	if(account->userinfo)
+		g_free(account->autojoin);
 	account->autojoin = g_strdup(autojoin);
 }
 
