@@ -24,7 +24,7 @@
 #include "loqui_app_info.h"
 #include "loqui_statusbar.h"
 #include "loqui_channelbar.h"
-#include "intl.h"
+#include <glib/gi18n.h>
 #include <string.h>
 #include "loqui_app_actions.h"
 #include <loqui.h>

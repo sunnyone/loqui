@@ -20,7 +20,7 @@
 #include "config.h"
 
 #include "loqui_transfer_window.h"
-#include "intl.h"
+#include <glib/gi18n.h>
 
 enum {
         LAST_SIGNAL

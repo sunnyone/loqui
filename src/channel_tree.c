@@ -26,7 +26,7 @@
 #include "channel_tree.h"
 #include "gtkutils.h"
 
-#include "intl.h"
+#include <glib/gi18n.h>
 #include "loqui_account_manager_store.h"
 #include "loqui_stock.h"
 

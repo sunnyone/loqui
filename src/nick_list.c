@@ -18,10 +18,10 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 #include "config.h"
+#include <glib/gi18n.h>
 
 #include "nick_list.h"
 #include "gtkutils.h"
-#include "intl.h"
 #include "main.h"
 #include <irc_constants.h>
 #include <loqui_account_manager.h>

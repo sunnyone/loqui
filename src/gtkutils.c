@@ -27,7 +27,7 @@
 #include "gtkutils.h"
 #include <stdarg.h>
 #include <string.h>
-#include "intl.h"
+#include <glib/gi18n.h>
 #include <utils.h>
 
 void

@@ -20,7 +20,7 @@
 #include "config.h"
 
 #include "loqui_statusbar.h"
-#include "intl.h"
+#include <glib/gi18n.h>
 #include "loqui_stock.h"
 #include "gtkutils.h"
 #include <loqui_account_manager.h>

@@ -30,7 +30,7 @@
 #include <loqui_sender_irc.h>
 
 #include "main.h"
-#include "intl.h"
+#include <glib/gi18n.h>
 
 #include <string.h>
 

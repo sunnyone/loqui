@@ -25,7 +25,7 @@
 
 #include "loqui-core-gtk.h"
 
-#include "intl.h"
+#include <glib/gi18n.h>
 #include "loqui-core-gtk.h"
 
 #include <string.h>

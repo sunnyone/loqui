@@ -21,7 +21,7 @@
 
 #include "loqui_channel_text_view.h"
 #include "gtkutils.h"
-#include "intl.h"
+#include <glib/gi18n.h>
 
 #include <gdk/gdkkeysyms.h>
 

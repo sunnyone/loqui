@@ -25,7 +25,7 @@
 
 #include "loqui_app_actions.h"
 #include "loqui_stock.h"
-#include "intl.h"
+#include <glib/gi18n.h>
 
 #include "about.h"
 #include "remark_entry.h"

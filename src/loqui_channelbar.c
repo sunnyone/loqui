@@ -25,7 +25,7 @@
 #include "gtkutils.h"
 #include "loqui_dropdown_box.h"
 #include "command_dialog.h"
-#include "intl.h"
+#include <glib/gi18n.h>
 #include "gtkutils.h"
 #include "loqui_stock.h"
 

@@ -20,7 +20,7 @@
 #include "config.h"
 #include "command_dialog.h"
 #include "gtkutils.h"
-#include "intl.h"
+#include <glib/gi18n.h>
 #include <string.h>
 
 static gboolean check_account_connected(LoquiAccount *account);

@@ -20,7 +20,7 @@
 #include "config.h"
 
 #include "account_dialog.h"
-#include "intl.h"
+#include <glib/gi18n.h>
 #include "gtkutils.h"
 
 #include <loqui_account_manager.h>

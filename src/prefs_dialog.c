@@ -22,7 +22,7 @@
 #include <utils.h>
 
 #include "prefs_dialog.h"
-#include "intl.h"
+#include <glib/gi18n.h>
 #include "gtkutils.h"
 #include "loqui_app.h"
 

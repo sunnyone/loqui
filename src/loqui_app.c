@@ -51,7 +51,7 @@
 #include "icons/pixbufs.h"
 #include "loqui_stock.h"
 
-#include "intl.h"
+#include <glib/gi18n.h>
 
 #include <string.h>
 #include <time.h>

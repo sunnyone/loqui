@@ -20,7 +20,7 @@
 #include "config.h"
 
 #include "loqui_select_dialog.h"
-#include "intl.h"
+#include <glib/gi18n.h>
 
 #include <loqui_channel_entry.h>
 #include <loqui_account_manager_iter.h>
