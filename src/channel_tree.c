@@ -165,7 +165,7 @@ channel_tree_new(void)
 
 	priv = tree->priv;
 
-        gtk_tree_view_set_headers_visible(GTK_TREE_VIEW(tree), TRUE);
+        gtk_tree_view_set_headers_visible(GTK_TREE_VIEW(tree), FALSE);
 	selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(tree));
 
 	model = gtk_tree_store_new(COLUMN_NUMBER, 
