@@ -147,10 +147,7 @@ irc_handle_finalize(GObject *object)
         handle = IRC_HANDLE(object);
 	priv = handle->priv;
 
-	if(priv->connection) {
-		g_object_unref(priv->connection);
-		priv->connection = NULL;
-	}
+	irc_handle_disconnect(handle);
 
         if (G_OBJECT_CLASS(parent_class)->finalize)
                 (* G_OBJECT_CLASS(parent_class)->finalize) (object);
