@@ -384,9 +384,14 @@ static void
 loqui_app_actions_toggle_scroll_cb(GtkAction *action, LoquiApp *app)
 {
 	gboolean is_active;
+	GtkWidget *view;
 
-	is_active = gtk_toggle_action_get_active(GTK_TOGGLE_ACTION(action));
-	loqui_channel_text_view_set_is_scroll(LOQUI_CHANNEL_TEXT_VIEW(loqui_app_get_current_channel_text_view(app)), is_active);
+	view = loqui_app_get_current_channel_text_view(app);
+
+	if (view) {
+		is_active = gtk_toggle_action_get_active(GTK_TOGGLE_ACTION(action));
+		loqui_channel_text_view_set_is_scroll(LOQUI_CHANNEL_TEXT_VIEW(view), is_active);
+	}
 }
 static void
 loqui_app_actions_toggle_command_mode_cb(GtkAction *action, LoquiApp *app)
