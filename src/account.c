@@ -932,27 +932,6 @@ account_get_channel_mode(Account *account, const gchar *channel_name)
 	g_object_unref(msg);
 }
 void
-account_notice(Account *account, const gchar *target, const gchar *str)
-{
-	IRCMessage *msg;
-	AccountPrivate *priv;
-
-        g_return_if_fail(account != NULL);
-        g_return_if_fail(IS_ACCOUNT(account));
-	g_return_if_fail(str != NULL);
-
-	priv = account->priv;
-
-	if(!account_is_connected(account)) {
-		g_warning(_("Account is not connected."));
-		return;
-	}
-
-	msg = irc_message_create(IRCCommandNotice, target, str, NULL);
-	irc_connection_push_message(priv->connection, msg);
-	g_object_unref(msg);
-}
-void
 account_fetch_away_information(Account *account, LoquiChannel *channel)
 {
 	IRCMessage *msg;

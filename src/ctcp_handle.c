@@ -23,6 +23,7 @@
 #include "ctcp_message.h"
 #include "intl.h"
 #include "loqui_profile_account_irc.h"
+#include "loqui_sender_irc.h"
 
 #include <string.h>
 
@@ -207,6 +208,7 @@ ctcp_handle_send_ctcp_reply(CTCPHandle *ctcp_handle, CTCPMessage *ctcp_msg, cons
 {
 	CTCPHandlePrivate *priv;
 	gchar *buf, *tmp;
+	LoquiSender *sender;
 
         g_return_if_fail(ctcp_handle != NULL);
         g_return_if_fail(IS_CTCP_HANDLE(ctcp_handle));
@@ -214,7 +216,8 @@ ctcp_handle_send_ctcp_reply(CTCPHandle *ctcp_handle, CTCPMessage *ctcp_msg, cons
 	priv = ctcp_handle->priv;
 
 	buf = ctcp_message_to_str(ctcp_msg);
-	account_notice(priv->account, target, buf);
+	sender = account_get_sender(priv->account);
+	loqui_sender_irc_notice_raw(LOQUI_SENDER_IRC(sender), target, buf);
 	g_free(buf);
 
 	if(ctcp_msg->argument)
