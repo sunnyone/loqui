@@ -53,6 +53,8 @@ typedef enum {
 	ELEMENT_USERINFO,
 	ELEMENT_AUTOJOIN,
 	ELEMENT_REALNAME,
+	ELEMENT_NICKLIST,
+	ELEMENT_NICKLIST_LI,
 } ElementType;
 
 ElementType current_element = ELEMENT_NONE;
@@ -215,19 +217,20 @@ start_element_handler  (GMarkupParseContext *context,
 	if(current_account == NULL) {
 		return;
 	}
+#define CURRENT_ELEMENT_SET_IF_MATCHED(str, en) \
+ if(g_strcasecmp(element_name, str) == 0) { \
+   current_element = en; \
+   return; \
+ }
+	CURRENT_ELEMENT_SET_IF_MATCHED("autojoin", ELEMENT_AUTOJOIN);
+	CURRENT_ELEMENT_SET_IF_MATCHED("userinfo", ELEMENT_USERINFO);
+	CURRENT_ELEMENT_SET_IF_MATCHED("realname", ELEMENT_REALNAME);
+	CURRENT_ELEMENT_SET_IF_MATCHED("nicklist", ELEMENT_NICKLIST);
+	if(g_strcasecmp(element_name, "li") == 0 && current_element == ELEMENT_NICKLIST) {
+		current_element = ELEMENT_NICKLIST_LI;
+		return;
+	}
 
-	if(g_strcasecmp(element_name, "autojoin") == 0) {
-		current_element = ELEMENT_AUTOJOIN;
-		return;
-	}
-	if(g_strcasecmp(element_name, "userinfo") == 0) {
-		current_element = ELEMENT_USERINFO;
-		return;
-	}
-	if(g_strcasecmp(element_name, "realname") == 0) {
-		current_element = ELEMENT_REALNAME;
-		return;
-	}
 	if(g_strcasecmp(element_name, "server") == 0) {
 		add_server(attribute_names, attribute_values);
 		return;
@@ -253,6 +256,11 @@ end_element_handler    (GMarkupParseContext *context,
 		}
 		current_account = NULL;
 	}
+	if(current_element == ELEMENT_NICKLIST_LI && g_ascii_strcasecmp(element_name, "li") == 0) {
+		current_element = ELEMENT_NICKLIST;
+		return;
+	}
+
 	current_element = ELEMENT_NONE;
 }
 
@@ -278,6 +286,10 @@ text_handler           (GMarkupParseContext *context,
 	case ELEMENT_AUTOJOIN:
 		account_set_autojoin(current_account, text);
 		/* debug_puts("  autojoin: \"%s\"", text); */
+		break;
+	case ELEMENT_NICKLIST_LI:
+		if(text != NULL && strlen(text) > 0)
+			current_account->nick_list = g_slist_append(current_account->nick_list, g_strdup(text));
 		break;
 	default:
 		break;
@@ -341,7 +353,7 @@ void prefs_account_save(GSList *account_list)
 	gchar *tmp1, *tmp2, *tmp3;
 	gchar *escaped;
 	FILE *fp;
-	GSList *cur, *cur2;
+	GSList *cur, *cur2, *cur_n;
 	Account *account;
 	Server *server;
 	CodeConv *codeconv;
@@ -398,6 +410,15 @@ void prefs_account_save(GSList *account_list)
 			}
 			fprintf(fp, " />\n");
 		}
+		fprintf(fp, " <nicklist>\n");
+		for(cur_n = account->nick_list; cur_n != NULL; cur_n = cur_n->next) {
+			tmp1 = (gchar *) cur_n->data;
+			escaped = g_markup_escape_text(tmp1, -1);
+
+			fprintf(fp, " <li>%s</li>\n", escaped);
+			g_free(escaped);
+		}
+		fprintf(fp, " </nicklist>\n");
 
 		for(cur2 = account->server_list; cur2 != NULL; cur2 = cur2->next) {
 			server = (Server *) cur2->data;
