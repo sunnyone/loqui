@@ -498,6 +498,7 @@ loqui_app_new(AccountManager *account_manager)
 
 	app->channel_notebook = gtk_notebook_new();
 	gtk_notebook_set_show_tabs(GTK_NOTEBOOK(app->channel_notebook), FALSE);
+	gtk_notebook_set_show_border(GTK_NOTEBOOK(app->channel_notebook), FALSE);
 	gtk_box_pack_start_defaults(GTK_BOX(vbox), app->channel_notebook);
 
 	app->remark_entry = remark_entry_new(app, GTK_TOGGLE_ACTION(toggle_command_action));
