@@ -77,6 +77,8 @@ PrefElement prefs_general_defs[] = {
 	
 	{"nick_list_sort_type", "2", PREF_TYPE_UINT, &prefs_general.nick_list_sort_type},
 
+	{"select_channel_joined", "true", PREF_TYPE_BOOLEAN, &prefs_general.select_channel_joined},
+
 	{NULL, NULL, 0, NULL}
 };
 

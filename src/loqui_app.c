@@ -990,7 +990,8 @@ loqui_app_add_channel_after_cb(Account *account, LoquiChannel *channel, LoquiApp
 	loqui_channel_entry_set_sort_func(LOQUI_CHANNEL_ENTRY(channel), priv->sort_func);
 
 	loqui_app_update_channel_entry_accel_key(app);
-	loqui_app_set_current_channel_lazy(app, channel);
+	if (prefs_general.select_channel_joined)
+		loqui_app_set_current_channel_lazy(app, channel);
 }
 static void
 loqui_app_remove_channel_cb(Account *account, LoquiChannel *channel, LoquiApp *app)

@@ -37,6 +37,7 @@ struct _PrefsDialogPrivate
 	GtkWidget *check_parse_plum_recent;
 	GtkWidget *check_auto_reconnect;
 	GtkWidget *check_connect_startup;
+	GtkWidget *check_select_channel_joined;
 	GtkWidget *entry_away_message;
 	GtkWidget *entry_time_format;
 	
@@ -165,6 +166,7 @@ prefs_dialog_load_settings(PrefsDialog *dialog)
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(priv->check_use_transparent_ignore), prefs_general.use_transparent_ignore);
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(priv->check_auto_reconnect), prefs_general.auto_reconnect);
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(priv->check_connect_startup), prefs_general.connect_startup);
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(priv->check_select_channel_joined), prefs_general.select_channel_joined);
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(priv->check_auto_command_mode), prefs_general.auto_command_mode);
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(priv->check_save_log), prefs_general.save_log);
 
@@ -199,6 +201,7 @@ prefs_dialog_save_settings(PrefsDialog *dialog)
 	prefs_general.use_notification = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(priv->check_use_notification));
 	prefs_general.auto_reconnect = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(priv->check_auto_reconnect));
 	prefs_general.connect_startup = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(priv->check_connect_startup));
+	prefs_general.select_channel_joined = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(priv->check_select_channel_joined));
 	prefs_general.auto_command_mode = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(priv->check_auto_command_mode));
 	prefs_general.save_log = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(priv->check_save_log));
 
@@ -286,6 +289,8 @@ prefs_dialog_new(LoquiApp *app)
 
 	priv->check_connect_startup = gtk_check_button_new_with_label(_("Connect default accounts when the program started"));
 	gtk_box_pack_start(GTK_BOX(vbox), priv->check_connect_startup, FALSE, FALSE, 0);
+	priv->check_select_channel_joined = gtk_check_button_new_with_label(_("Select a channel automatically when joined."));
+	gtk_box_pack_start(GTK_BOX(vbox), priv->check_select_channel_joined, FALSE, FALSE, 0);
 
 	gtkutils_add_label_entry(vbox, _("Away message: "), &priv->entry_away_message, "");
 	gtkutils_add_label_entry(vbox, _("Format of time in buffers: "), &priv->entry_time_format, "");
