@@ -410,8 +410,10 @@ irc_message_format(IRCMessage *msg, const gchar *format)
 	string = g_string_new_len(NULL, strlen(format));
 	cur = format;
 	while((tmp = strchr(cur, '%')) != NULL) {
-		string = g_string_append_len(string, cur, tmp - cur);
-		cur = tmp;
+		if(tmp != cur) {
+			string = g_string_append_len(string, cur, tmp - cur);
+			cur = tmp;
+		}
 		cur++;
 
 		if(*cur == '\0')
@@ -459,6 +461,7 @@ irc_message_format(IRCMessage *msg, const gchar *format)
 			cur++;
 			break;
 		default:
+			cur++;
 			break;
 		}
 	}
