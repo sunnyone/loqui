@@ -251,7 +251,7 @@ loqui_app_actions_update_sensitivity_related_channel(LoquiApp *app)
 	}
 
 	account = loqui_app_get_current_account(app);
-	is_connected = (account != NULL && loqui_account_is_connected(account));
+	is_connected = (account != NULL && loqui_account_get_is_connected(account));
 
 	ACTION_GROUP_ACTION_SET_SENSITIVE(app->action_group, LOQUI_ACTION_JOIN, is_connected);
 	ACTION_GROUP_ACTION_SET_SENSITIVE(app->action_group, LOQUI_ACTION_CHANGE_NICK, is_connected);
@@ -629,7 +629,7 @@ loqui_app_actions_refresh_cb(GtkAction *action, LoquiApp *app)
 	
 	channel = loqui_app_get_current_channel(app);
 	if (channel) {
-		if (!loqui_account_is_connected(channel->account)) {
+		if (!loqui_account_get_is_connected(channel->account)) {
 			gtkutils_msgbox_info(GTK_MESSAGE_ERROR, _("The account is not connected"));
 			return;
 		}

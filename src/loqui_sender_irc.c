@@ -78,7 +78,7 @@ static gboolean check_target_valid(LoquiAccount *account, const gchar *str);
 #define WARN_AND_RETURN_UNLESS_CONNECTED(sender) { \
 	LoquiAccount *ac; \
 	ac = LOQUI_SENDER(sender)->account; \
-	if (!loqui_account_is_connected(ac)) { \
+	if (!loqui_account_get_is_connected(ac)) { \
 		loqui_account_warning(ac, _("Not connected")); \
 		return; \
 	} \

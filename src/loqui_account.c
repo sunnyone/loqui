@@ -46,6 +46,7 @@ enum {
 	PROP_PROFILE,
 	PROP_SENDER,
 	PROP_RECEIVER,
+	PROP_IS_CONNECTED,
 	LAST_PROP
 };
 
@@ -151,6 +152,12 @@ loqui_account_class_init(LoquiAccountClass *klass)
 							    _("Command receiver"),
 							    LOQUI_TYPE_RECEIVER,
 							    G_PARAM_READWRITE));
+	g_object_class_install_property(object_class,
+					PROP_IS_CONNECTED,
+					g_param_spec_boolean("is_connected",
+							     _("IsConnected"),
+							     _("Connected or not"),
+							     FALSE, G_PARAM_READWRITE));
 
 	account_signals[SIGNAL_CONNECT] = g_signal_new("connect",
 						       G_OBJECT_CLASS_TYPE(object_class),
@@ -221,6 +228,8 @@ loqui_account_init(LoquiAccount *account)
 
 	account->user_identifier_table = g_hash_table_new_full(g_direct_hash, g_direct_equal, NULL, g_free);
 	account->identifier_user_table = g_hash_table_new_full(utils_strcase_hash, utils_strcase_equal, g_free, NULL);
+
+	account->is_connected = FALSE;
 }
 static void 
 loqui_account_finalize(GObject *object)
@@ -280,6 +289,9 @@ loqui_account_set_property(GObject *object,
 	case PROP_RECEIVER:
 		loqui_account_set_receiver(account, g_value_get_object(value));
 		break;
+	case PROP_IS_CONNECTED:
+		loqui_account_set_is_connected(account, g_value_get_boolean(value));
+		break;
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, param_id, pspec);
 		break;
@@ -308,6 +320,9 @@ loqui_account_get_property(GObject  *object,
 		break;
 	case PROP_RECEIVER:
 		g_value_set_object(value, account->receiver);
+		break;
+	case PROP_IS_CONNECTED:
+		g_value_set_boolean(value, account->is_connected);
 		break;
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, param_id, pspec);
@@ -457,22 +472,6 @@ loqui_account_disconnect(LoquiAccount *account)
         g_return_if_fail(LOQUI_IS_ACCOUNT(account));
 
 	g_signal_emit(G_OBJECT(account), account_signals[SIGNAL_DISCONNECT], 0);
-}
-gboolean
-loqui_account_is_connected(LoquiAccount *account)
-{
-	LoquiAccountClass *account_class;
-
-        g_return_val_if_fail(account != NULL, FALSE);
-        g_return_val_if_fail(LOQUI_IS_ACCOUNT(account), FALSE);
-	
-	account_class = LOQUI_ACCOUNT_GET_CLASS(account);
-
-	if (account_class->is_connected) {
-		return (* account_class->is_connected)(account);
-	}
-
-	return FALSE;
 }
 static void
 loqui_account_channel_notify_identifier_cb(LoquiChannel *channel, GParamSpec *pspec, LoquiAccount *account)
@@ -704,4 +703,25 @@ loqui_account_warning(LoquiAccount *account, const gchar *format, ...)
 	g_signal_emit(G_OBJECT(account), account_signals[SIGNAL_WARN], 0, str);
 
 	g_free(str);	
+}
+void
+loqui_account_set_is_connected(LoquiAccount *account, gboolean is_connected)
+{
+	g_return_if_fail(account != NULL);
+        g_return_if_fail(LOQUI_IS_ACCOUNT(account));
+
+	if (account->is_connected == is_connected)
+		return;
+
+	account->is_connected = is_connected;
+
+	g_object_notify(G_OBJECT(account), "is_connected");
+}
+gboolean
+loqui_account_get_is_connected(LoquiAccount *account)
+{
+        g_return_val_if_fail(account != NULL, 0);
+        g_return_val_if_fail(LOQUI_IS_ACCOUNT(account), 0);
+
+	return account->is_connected;
 }

@@ -33,7 +33,7 @@ check_account_connected(LoquiAccount *account)
                gtkutils_msgbox_info(GTK_MESSAGE_ERROR, _("Account is not selected."));
                return FALSE;
        }
-       if(!loqui_account_is_connected(account)) {
+       if(!loqui_account_get_is_connected(account)) {
                gtkutils_msgbox_info(GTK_MESSAGE_ERROR, _("Account is not connected."));
                return FALSE;
        }

@@ -567,7 +567,7 @@ remark_entry_send_text(RemarkEntry *remark_entry, gboolean is_notice)
 		return;
 	}
 	
-	if(!loqui_account_is_connected(account)) {
+	if(!loqui_account_get_is_connected(account)) {
 		gtkutils_msgbox_info(GTK_MESSAGE_WARNING,
 				     _("Not connected with this account"));
 		g_free(str);

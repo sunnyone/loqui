@@ -375,7 +375,7 @@ account_manager_connect_all_default(AccountManager *manager)
 
 	for (cur = priv->account_list; cur != NULL; cur = cur->next) {
 		account = LOQUI_ACCOUNT(cur->data);
-		if (loqui_account_is_connected(account))
+		if (loqui_account_get_is_connected(account))
 			continue;
 		if (!loqui_profile_account_get_use(loqui_account_get_profile(account)))
 			continue;

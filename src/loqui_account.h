@@ -58,6 +58,8 @@ struct _LoquiAccount
 	LoquiSender *sender;
 	LoquiReceiver *receiver;
 
+	gboolean is_connected;
+
         LoquiAccountPrivate *priv;
 };
 
@@ -68,8 +70,6 @@ struct _LoquiAccountClass
 	/* must implement */
 	void (* connect)          (LoquiAccount *account);
 	void (* disconnect)       (LoquiAccount *account);
-	gboolean (* is_connected) (LoquiAccount *account);
-
 
 	void (* warn) (LoquiAccount *account, const gchar *str);
 
@@ -90,7 +90,6 @@ LoquiUser* loqui_account_get_user_self(LoquiAccount *account);
 
 void loqui_account_connect(LoquiAccount *account);
 void loqui_account_disconnect(LoquiAccount *account);
-gboolean loqui_account_is_connected(LoquiAccount *account);
 
 LoquiSender *loqui_account_get_sender(LoquiAccount *account);
 void loqui_account_set_sender(LoquiAccount *account, LoquiSender *sender);
@@ -115,6 +114,9 @@ void loqui_account_add_user(LoquiAccount *account, LoquiUser *user);
 LoquiUser* loqui_account_peek_user(LoquiAccount *account, const gchar *identifier);
 
 void loqui_account_warning(LoquiAccount *account, const gchar *format, ...) G_GNUC_PRINTF(2, 3);
+
+void loqui_account_set_is_connected(LoquiAccount *account, gboolean is_connected);
+gboolean loqui_account_get_is_connected(LoquiAccount *account);
 
 G_END_DECLS
 

@@ -127,6 +127,7 @@ static void loqui_app_channel_text_view_notify_is_scroll_common_buffer_cb(LoquiC
 
 static void loqui_app_account_changed_cb(GObject *object, gpointer data);
 static void loqui_app_channel_changed_cb(GObject *object, gpointer data);
+static void loqui_app_account_notify_is_connected_cb(LoquiAccount *account, GParamSpec *pspec, gpointer data);
 static void loqui_app_channel_entry_notify_cb(LoquiChannelEntry *chent, GParamSpec *pspec, gpointer data);
 static void loqui_app_channel_entry_notify_is_updated_cb(LoquiChannelEntry *chent, GParamSpec *pspec, LoquiApp *app);
 static void loqui_app_channel_entry_notify_number_cb(LoquiChannelEntry *chent, GParamSpec *pspec, LoquiApp *app);
@@ -923,8 +924,8 @@ loqui_app_set_current_channel_entry(LoquiApp *app, LoquiChannelEntry *chent)
 
 	g_signal_connect(G_OBJECT(account), "user_self_changed",
 			 G_CALLBACK(loqui_app_account_changed_cb), app);
-	g_signal_connect(G_OBJECT(account), "disconnected",
-			 G_CALLBACK(loqui_app_account_changed_cb), app);
+	g_signal_connect(G_OBJECT(account), "notify::is-connected",
+			 G_CALLBACK(loqui_app_account_notify_is_connected_cb), app);
 
 	channel_tree_select_channel_entry(app->channel_tree, chent);
 
@@ -1258,6 +1259,11 @@ loqui_app_account_changed_cb(GObject *object, gpointer data)
 		priv->is_pending_update_account_info = TRUE;
 		g_idle_add((GSourceFunc) loqui_app_update_account_info, app);
 	}
+}
+static void
+loqui_app_account_notify_is_connected_cb(LoquiAccount *account, GParamSpec *pspec, gpointer data)
+{
+	loqui_app_account_changed_cb(G_OBJECT(account), data);
 }
 static void
 loqui_app_channel_entry_notify_cb(LoquiChannelEntry *chent, GParamSpec *pspec, gpointer data)

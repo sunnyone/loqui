@@ -198,7 +198,7 @@ loqui_statusbar_preset_menuitem_activated_cb(GtkWidget *widget, LoquiStatusbar *
 
 	account = loqui_app_get_current_account(priv->app);
 	if (account)
-		if (loqui_account_is_connected(account))
+		if (loqui_account_get_is_connected(account))
 			loqui_sender_nick(loqui_account_get_sender(account), nick);
 	        else
 			gtkutils_msgbox_info(GTK_MESSAGE_ERROR, _("The account is not connected!"));
@@ -222,7 +222,7 @@ loqui_statusbar_away_menuitem_activated_cb(GtkWidget *widget, LoquiStatusbar *st
 
 	account = loqui_app_get_current_account(priv->app);
 	if (account) {
-		if (loqui_account_is_connected(account))
+		if (loqui_account_get_is_connected(account))
 			loqui_sender_away(loqui_account_get_sender(account), away_type, NULL);
 		else
 			gtkutils_msgbox_info(GTK_MESSAGE_ERROR, _("The account is not connected!"));
@@ -447,7 +447,7 @@ loqui_statusbar_set_current_account(LoquiStatusbar *statusbar, LoquiAccount *acc
         	gtk_widget_set_sensitive(priv->dbox_preset, FALSE);
         	gtk_widget_set_sensitive(priv->dbox_away, FALSE);        	
         	gtk_label_set(GTK_LABEL(priv->label_nick), STRING_UNSELECTED);
-        } else if (!loqui_account_is_connected(account)) {
+        } else if (!loqui_account_get_is_connected(account)) {
       	 	gtk_widget_set_sensitive(priv->dbox_preset, FALSE);
         	gtk_widget_set_sensitive(priv->dbox_away, FALSE);
         	gtk_label_set(GTK_LABEL(priv->label_nick), STRING_DISCONNECTED);

@@ -146,7 +146,7 @@ channel_tree_row_activated_cb(ChannelTree *tree, GtkTreePath *path, GtkTreeViewC
 	gtk_tree_model_get_iter(model, &iter, path);
 	gtk_tree_model_get(model, &iter,
 			   LOQUI_ACCOUNT_MANAGER_STORE_COLUMN_CHANNEL_ENTRY, &chent, -1);
-	if (chent && LOQUI_IS_ACCOUNT(chent) && !loqui_account_is_connected(LOQUI_ACCOUNT(chent))) {
+	if (chent && LOQUI_IS_ACCOUNT(chent) && !loqui_account_get_is_connected(LOQUI_ACCOUNT(chent))) {
 		loqui_account_connect(LOQUI_ACCOUNT(chent));
 	}
 
