@@ -142,7 +142,7 @@ static GtkActionEntry loqui_action_entries[] =
 	{LOQUI_ACTION_END_PRIVATE_TALK, NULL, N_("_End Current Private Talk"), NULL, NULL, G_CALLBACK(loqui_app_actions_end_private_talk_cb)},
 
         {"PreviousUnreadChannel", GTK_STOCK_GOTO_TOP, N_("_Previous Unread Channel Buffer"), ALT "Up", NULL, G_CALLBACK(loqui_app_actions_previous_unread_channel_buffer_cb)},
-        {"NextUnreadChannel",     GTK_STOCK_GOTO_BOTTOM, N_("_Next Unread Channel Buffer"), CTRL "Down", NULL, G_CALLBACK(loqui_app_actions_next_unread_channel_buffer_cb)},
+        {"NextUnreadChannel",     GTK_STOCK_GOTO_BOTTOM, N_("_Next Unread Channel Buffer"), ALT "Down", NULL, G_CALLBACK(loqui_app_actions_next_unread_channel_buffer_cb)},
         {"PreviousChannel",        GTK_STOCK_GO_UP, N_("Previous Channel Buffer"), CTRL "Up", NULL, G_CALLBACK(loqui_app_actions_previous_channel_buffer_cb)},
         {"NextChannel",            GTK_STOCK_GO_DOWN, N_("Next Channel Buffer"), CTRL "Down", NULL, G_CALLBACK(loqui_app_actions_next_channel_buffer_cb)},
         {"GeneralSettings",        NULL, N_("_General Settings"), NULL, NULL, G_CALLBACK(loqui_app_actions_common_settings_cb)},
