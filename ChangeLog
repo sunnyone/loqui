@@ -1,3 +1,44 @@
+2003-02-25 00:33  y-imai
+
+	* src/: loqui_menu.c, loqui_toolbar.c: next/prev button
+
+2003-02-25 00:11  y-imai
+
+	* po/: ja.po, loqui.pot: updated po
+
+2003-02-25 00:08  y-imai
+
+	* src/: account.c, account.h, command_dialog.c, command_dialog.h,
+	loqui_menu.c: implemented topic command
+
+2003-02-24 23:55  y-imai
+
+	* src/: Makefile.am, account.c, account.h, channel.c, channel.h,
+	channel_input_dialog.c, channel_input_dialog.h, loqui_menu.c:
+	implemented join/part dialog
+
+2003-02-24 22:44  y-imai
+
+	* src/: Makefile.am, channel_input_dialog.c,
+	channel_input_dialog.h, loqui_menu.c: channel input dialog
+
+2003-02-23 23:10  y-imai
+
+	* src/loqui_menu.c: cancel fresh shortcut
+
+2003-02-23 23:03  y-imai
+
+	* src/loqui_menu.c: shortcut for next/prev fresh
+
+2003-02-23 22:42  y-imai
+
+	* debian/: changelog, changelog: updated debian changelog
+
+2003-02-23 22:24  y-imai
+
+	* ChangeLog, NEWS, NEWS.ja, configure.in, debian/loqui.substvars:
+	0.1.7
+
 2003-02-23 22:22  y-imai
 
 	* po/: POTFILES.in, ja.po, loqui.pot: updated po
