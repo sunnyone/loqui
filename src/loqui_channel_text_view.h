@@ -51,6 +51,8 @@ struct _LoquiChannelTextView
 struct _LoquiChannelTextViewClass
 {
         GtkTextViewClass parent_class;
+
+	void (* scrolled_to_end) (LoquiChannelTextView *chview);
 };
 
 
