@@ -68,6 +68,8 @@ struct _LoquiAccountClass
 	void (* disconnect)       (LoquiAccount *account);
 	gboolean (* is_connected) (LoquiAccount *account);
 
+	void (* warn) (LoquiAccount *account, const gchar *str);
+
 	/* signals */
 	void (* disconnected)     (LoquiAccount *account);
 	void (* add_channel)      (LoquiAccount *account,
@@ -99,12 +101,14 @@ GList *loqui_account_get_channel_list(LoquiAccount *account);
 LoquiChannel* loqui_account_get_channel_by_identifier(LoquiAccount *account, const gchar *channel_identifier);
 GSList *loqui_account_search_joined_channel(LoquiAccount *account, gchar *user_identifier);
 
-void loqui_account_console_buffer_append(LoquiAccount *account, TextType type, gchar *str);
+void loqui_account_console_buffer_append(LoquiAccount *account, TextType type, const gchar *str);
 
 void loqui_account_get_updated_number(LoquiAccount *account, gint *updated_private_talk_number, gint *updated_channel_number); 
 
 void loqui_account_add_user(LoquiAccount *account, LoquiUser *user);
 LoquiUser* loqui_account_peek_user(LoquiAccount *account, const gchar *identifier);
+
+void loqui_account_warning(LoquiAccount *account, const gchar *format, ...) G_GNUC_PRINTF(2, 3);
 
 G_END_DECLS
 

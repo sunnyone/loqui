@@ -36,6 +36,7 @@ enum {
 	SIGNAL_ADD_CHANNEL,
 	SIGNAL_REMOVE_CHANNEL,
 	SIGNAL_USER_SELF_CHANGED,
+	SIGNAL_WARN,
 	LAST_SIGNAL
 };
 
@@ -69,6 +70,7 @@ static void loqui_account_set_property(GObject *object,
 				 guint param_id,
 				 const GValue *value,
 				 GParamSpec *pspec);
+static void loqui_account_warn_real(LoquiAccount *account, const gchar *str);
 
 static void loqui_account_set_profile(LoquiAccount *account, LoquiProfileAccount *profile);
 static void loqui_account_set_user_self(LoquiAccount *account, LoquiUser *user_self);
@@ -117,6 +119,7 @@ loqui_account_class_init (LoquiAccountClass *klass)
 	object_class->get_property = loqui_account_get_property;
 
 	klass->remove_channel = loqui_account_remove_channel_real;
+	klass->warn = loqui_account_warn_real;
 
 	g_object_class_install_property(object_class,
 					PROP_USER_SELF,
@@ -150,7 +153,7 @@ loqui_account_class_init (LoquiAccountClass *klass)
 	account_signals[SIGNAL_DISCONNECT] = g_signal_new("disconnect",
 						       G_OBJECT_CLASS_TYPE(object_class),
 						       G_SIGNAL_RUN_LAST,
-						       G_STRUCT_OFFSET(LoquiAccountClass, connect),
+						       G_STRUCT_OFFSET(LoquiAccountClass, disconnect),
 						       NULL, NULL,
 						       g_cclosure_marshal_VOID__VOID,
 						       G_TYPE_NONE, 0);
@@ -177,6 +180,14 @@ loqui_account_class_init (LoquiAccountClass *klass)
 							  NULL, NULL,
 							  g_cclosure_marshal_VOID__VOID,
 							  G_TYPE_NONE, 0);
+	account_signals[SIGNAL_WARN] = g_signal_new("warn",
+						    G_OBJECT_CLASS_TYPE(object_class),
+						    G_SIGNAL_RUN_LAST,
+						    G_STRUCT_OFFSET(LoquiAccountClass, warn),
+						    NULL, NULL,
+						    g_cclosure_marshal_VOID__OBJECT,
+						    G_TYPE_NONE, 1,
+						    G_TYPE_STRING);
 
 	account_signals[DISCONNECTED] = g_signal_new("disconnected",
 						     G_OBJECT_CLASS_TYPE(object_class),
@@ -281,6 +292,15 @@ loqui_account_get_property(GObject  *object,
 		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, param_id, pspec);
 		break;
 	}
+}
+static void
+loqui_account_warn_real(LoquiAccount *account, const gchar *str)
+{
+	gchar *tmp;
+
+	tmp = g_strconcat("+++ ", str, NULL);
+	loqui_account_console_buffer_append(account, TEXT_TYPE_ERROR, tmp);
+	g_free(tmp);
 }
 LoquiAccount*
 loqui_account_new(LoquiProfileAccount *profile)
@@ -482,7 +502,7 @@ loqui_account_get_channel_by_identifier(LoquiAccount *account, const gchar *iden
 	return NULL;
 }
 void
-loqui_account_console_buffer_append(LoquiAccount *account, TextType type, gchar *str)
+loqui_account_console_buffer_append(LoquiAccount *account, TextType type, const gchar *str)
 {
 	MessageText *msgtext;
 	ChannelBuffer *buffer;
@@ -599,4 +619,18 @@ loqui_account_peek_user(LoquiAccount *account, const gchar *identifier)
         g_return_val_if_fail(LOQUI_IS_ACCOUNT(account), NULL);
 
 	return g_hash_table_lookup(account->identifier_user_table, identifier);
+}
+void
+loqui_account_warning(LoquiAccount *account, const gchar *format, ...)
+{
+	va_list args;
+	gchar *str;
+	
+	va_start(args, format);
+	str = g_strdup_vprintf(format, args);
+	va_end(args);
+
+	g_signal_emit(G_OBJECT(account), account_signals[SIGNAL_WARN], 0, str);
+
+	g_free(str);	
 }
