@@ -27,6 +27,7 @@
 #include "account_manager.h"
 #include "prefs_general.h"
 #include "loqui_toolbar.h"
+#include "gtkutils.h"
 
 #include "intl.h"
 #include "utils.h"
@@ -218,6 +219,8 @@ loqui_app_entry_activate_cb(GtkWidget *widget, gpointer data)
 	account = account_manager_get_current_account(account_manager_get());
 	if(account)
 		account_speak(account, account_manager_get_current_channel(account_manager_get()), str);
+	else
+		gtkutils_msgbox_info(GTK_MESSAGE_ERROR, _("No accounts are selected!"));
 
 	gtk_entry_set_text(GTK_ENTRY(widget), "");
 }
