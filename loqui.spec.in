@@ -33,7 +33,7 @@ rm -rf $RPM_BUILD_ROOT
 %files
 %defattr (-,root,root)
 %doc README COPYING INSTALL ChangeLog ABOUT-NLS AUTHORS
-%{_bindir}/bin/loqui
+%{_bindir}/loqui
 %{_datadir}/locale/*/LC_MESSAGES/loqui.mo
 
 %changelog
