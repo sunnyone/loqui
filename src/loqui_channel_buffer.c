@@ -74,7 +74,7 @@ loqui_channel_buffer_get_type(void)
 }
 
 void
-loqui_channel_buffer_append_message_text(LoquiChannelBuffer *chbuf, LoquiMessageText *msgtext)
+loqui_channel_buffer_append(LoquiChannelBuffer *chbuf, LoquiMessageText *msgtext)
 {
 	g_signal_emit(chbuf, loqui_channel_buffer_signals[SIGNAL_APPEND], 0, msgtext);
 }

@@ -43,7 +43,7 @@ struct _LoquiChannelBufferIface
 
 GType loqui_channel_buffer_get_type(void) G_GNUC_CONST;
 
-void loqui_channel_buffer_append_message_text(LoquiChannelBuffer *chbuf, LoquiMessageText *msgtext);
+void loqui_channel_buffer_append(LoquiChannelBuffer *chbuf, LoquiMessageText *msgtext);
 
 G_END_DECLS
 
