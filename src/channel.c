@@ -145,6 +145,7 @@ channel_append_text(Channel *channel, TextType type, gchar *str)
 
 	channel_text_append(CHANNEL_TEXT(channel->text), type, str);
 }
+/* TODO: reflect the main window */
 void channel_set_topic(Channel *channel, const gchar *topic)
 {
 	ChannelPrivate *priv;

@@ -65,6 +65,7 @@ static void irc_handle_account_console_append(IRCHandle *handle, IRCMessage *msg
 static void irc_handle_channel_append(IRCHandle *handle, IRCMessage *msg, gint receiver_num, TextType type, gchar *format);
 
 static void irc_handle_reply_names(IRCHandle *handle, IRCMessage *msg);
+static void irc_handle_reply_topic(IRCHandle *handle, IRCMessage *msg);
 
 GType
 irc_handle_get_type(void)
@@ -244,10 +245,35 @@ irc_handle_inspect_message(IRCHandle *handle, IRCMessage *msg)
 	
 	g_free(str);
 }
+/* TODO: reading nicks with this function */
 static void
 irc_handle_reply_names(IRCHandle *handle, IRCMessage *msg)
 {
 	irc_handle_channel_append(handle, msg, 3, TEXT_TYPE_NORMAL, "%3: %t");
+}
+static void
+irc_handle_reply_topic(IRCHandle *handle, IRCMessage *msg)
+{
+	Channel *channel;
+	gchar *topic;
+	gchar *name;
+	gchar *str;
+
+	name = irc_message_get_param(msg, 2);
+	channel = account_search_channel_by_name(handle->priv->account, name);
+	if(channel == NULL)
+		return;
+
+	topic = irc_message_get_trailing(msg);
+	channel_set_topic(channel, topic);
+
+	str = irc_message_format(msg, "Topic for %2: %t");
+
+	gdk_threads_enter();
+	channel_append_text(channel, TEXT_TYPE_NORMAL, str);
+	gdk_threads_leave();
+
+	g_free(str);
 }
 static void /* utility function for threading*/
 irc_handle_account_console_append(IRCHandle *handle, IRCMessage *msg, TextType type, gchar *format)
@@ -309,8 +335,19 @@ irc_handle_reply(IRCHandle *handle, IRCMessage *msg)
 	case IRC_RPL_LUSERCHANNELS:
 		irc_handle_account_console_append(handle, msg, TEXT_TYPE_INFO, "%2 %3");
 		return TRUE;
+	case IRC_RPL_MOTDSTART:
+	case IRC_RPL_MOTD:
+		irc_handle_account_console_append(handle, msg, TEXT_TYPE_INFO, "%t");
+		return TRUE;
+	case IRC_RPL_ENDOFMOTD:
+		irc_handle_account_console_append(handle, msg, TEXT_TYPE_INFO, "%t");
+		handle->priv->end_motd = TRUE;
+		return TRUE;
 	case IRC_RPL_NAMREPLY: /* <nick> = <channel> :... */
 		irc_handle_reply_names(handle, msg);
+		return TRUE;
+	case IRC_RPL_TOPIC:
+		irc_handle_reply_topic(handle, msg);
 		return TRUE;
 	case IRC_RPL_ENDOFNAMES:
 		return TRUE;
