@@ -198,7 +198,6 @@ void ctcp_handle_message(CTCPHandle *ctcp_handle, CTCPMessage *ctcp_msg, gboolea
 		}
 	}
 
-	g_timer_stop(priv->interval_timer);
 	g_timer_reset(priv->interval_timer);
 	g_timer_start(priv->interval_timer);
 }
