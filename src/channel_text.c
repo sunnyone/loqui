@@ -22,10 +22,18 @@
 #include "channel_text.h"
 #include "account_manager.h"
 #include <time.h>
+#include <string.h>
+#include <ctype.h>
 
 struct _ChannelTextPrivate
 {
 };
+
+typedef struct _URIChunk {
+	gboolean is_uri;
+
+	gchar *str;
+} URIChunk;
 
 static GtkScrolledWindowClass *parent_class = NULL;
 #define PARENT_TYPE GTK_TYPE_SCROLLED_WINDOW
@@ -36,6 +44,7 @@ static void channel_text_finalize(GObject *object);
 static void channel_text_destroy(GtkObject *object);
 
 static void channel_text_insert_current_time(ChannelText *channel_text, GtkTextBuffer *textbuf, GtkTextIter *iter);
+static GSList* channel_text_get_uri_chunk(const gchar *buf);
 
 #define TIME_LEN 11
 
@@ -167,6 +176,80 @@ channel_text_insert_current_time(ChannelText *channel_text, GtkTextBuffer *textb
 
 	gtk_text_buffer_insert_with_tags_by_name(textbuf, iter, buf, -1, "time", NULL);
 }
+
+static GSList *
+channel_text_get_uri_chunk(const gchar *buf)
+{
+	GSList *chunk_list = NULL;
+	gchar *tmp, *str;
+	const gchar *cur;
+	URIChunk *chunk;
+	GSList *cl;
+	gsize len;
+
+	g_return_val_if_fail(buf != NULL, NULL);
+
+	cur = buf;
+	while(*cur) {
+		if((tmp = strstr(cur, "http://")) == NULL &&
+		   (tmp = strstr(cur, "https://")) == NULL &&
+		   (tmp = strstr(cur, "ftp://")) == NULL)
+			break;
+		if(cur < tmp) {
+			len = tmp - cur;
+			str = g_malloc0(len + 1);
+			memmove(str, cur, len);
+
+			chunk = g_new0(URIChunk, 1);
+			chunk->str = str;
+			chunk->is_uri = FALSE;
+
+			chunk_list = g_slist_append(chunk_list, chunk);
+		}
+		cur = tmp;
+		
+		while(*cur) {
+			if(!isascii(*cur) ||
+			   !g_ascii_isgraph(*cur) ||
+			   strchr("()<>\"", *cur))
+				break;
+			   
+			cur++;
+		}
+		if(cur > tmp) {
+			len = cur - tmp;
+			str = g_malloc0(len + 1);
+			memmove(str, tmp, len);
+
+			chunk = g_new0(URIChunk, 1);
+			chunk->str = str;
+			chunk->is_uri = TRUE;
+			
+			chunk_list = g_slist_append(chunk_list, chunk);
+		}
+	}
+	if(*cur != '\0') {
+		chunk = g_new0(URIChunk, 1);
+		chunk->str = g_strdup(cur);
+		chunk->is_uri = FALSE;
+
+		chunk_list = g_slist_append(chunk_list, chunk);
+	}
+
+#if 0
+	for(cl = chunk_list; cl != NULL; cl = cl->next) {
+		chunk = (URIChunk *) cl->data;
+		if(chunk->is_uri)
+			g_print("uri: ");
+		else
+			g_print("nonuri: ");
+		
+		g_print("%s\n", chunk->str);
+	}
+#endif
+
+	return chunk_list;
+}
 void
 channel_text_append(ChannelText *channel_text, TextType type, gchar *str)
 {
@@ -186,6 +269,7 @@ channel_text_append(ChannelText *channel_text, TextType type, gchar *str)
 	gtk_text_buffer_get_end_iter(textbuf, &iter);
 
 	channel_text_insert_current_time(channel_text, textbuf, &iter);
+	channel_text_get_uri_chunk(str);
 
 	switch(type) {
 	case TEXT_TYPE_NOTICE:
