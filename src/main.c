@@ -30,6 +30,7 @@
 
 #include "loqui_protocol_manager.h"
 #include "loqui_protocol_irc.h"
+#include "loqui_protocol_ipmsg.h"
 
 #include <string.h>
 #include <stdlib.h>
@@ -119,6 +120,7 @@ main(int argc, char *argv[])
 	pmanag = loqui_protocol_manager_new();
 
 	loqui_protocol_manager_register(pmanag, loqui_protocol_irc_get());
+	loqui_protocol_manager_register(pmanag, loqui_protocol_ipmsg_get());
 
 	prefs_general_load();
 	loqui_gtk_start_main_loop(pmanag);
