@@ -228,7 +228,8 @@ void channel_append_user(Channel *channel, const gchar *nick, UserPower power, U
 }
 gboolean channel_find_user(Channel *channel, const gchar *nick, GtkTreeIter *iter_ptr)
 {
-	GtkTreeIter iter;
+	GtkTreeIter *iter;
+	GtkTreeIter tmp_iter;
 	GtkTreeModel *model;
 	gchar *tmp;
 
@@ -239,25 +240,24 @@ gboolean channel_find_user(Channel *channel, const gchar *nick, GtkTreeIter *ite
 	model = GTK_TREE_MODEL(channel->user_list);
 
 	if(iter_ptr != NULL)
-		iter_ptr = NULL;
+		iter = iter_ptr;
+	else
+		iter = &tmp_iter;
 
-	if(!gtk_tree_model_get_iter_first(model, &iter))
+	if(!gtk_tree_model_get_iter_first(model, iter))
 		return FALSE;
 
 	do {
-		gtk_tree_model_get(model, &iter, USERLIST_COLUMN_NICK, &tmp, -1);
+		gtk_tree_model_get(model, iter, USERLIST_COLUMN_NICK, &tmp, -1);
 		if(tmp == NULL) {
 			g_warning("NULL user!");
 			continue;
 		}
 		
-		if(g_ascii_strcasecmp(tmp, nick) == 0) {
-			if(iter_ptr)
-				*iter_ptr = iter;
+		if(g_ascii_strcasecmp(tmp, nick) == 0)
 			return TRUE;
-		}
 
-	} while(gtk_tree_model_iter_next(model, &iter));
+	} while(gtk_tree_model_iter_next(model, iter));
 
 	return FALSE;
 }
