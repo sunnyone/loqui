@@ -248,6 +248,7 @@ account_manager_load_accounts(AccountManager *account_manager)
 		g_object_unref(account);
 	}
 	g_list_free(list);
+	g_object_unref(handle);
 }
 
 void
@@ -269,6 +270,7 @@ account_manager_save_accounts(AccountManager *account_manager)
 	handle = loqui_profile_handle_new();
 	loqui_profile_handle_register_type(handle, "IRC", LOQUI_TYPE_PROFILE_ACCOUNT_IRC);
 	loqui_profile_handle_write_to_file(handle, list, path);
+	g_object_unref(handle);
 	g_list_free(list);
 }
 void account_manager_disconnect_all(AccountManager *manager)
