@@ -1,4 +1,4 @@
-SUBDIRS = icons
+SUBDIRS = icons libegg
 
 bin_PROGRAMS = loqui
 
@@ -44,4 +44,4 @@ loqui_SOURCES = \
 	loqui_channelbar.c loqui_channelbar.h
 
 loqui_LDADD = \
-        $(GTK_LIBS) $(GNET_LIBS)
+        $(GTK_LIBS) $(GNET_LIBS) libegg/libegg.la
