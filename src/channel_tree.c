@@ -139,6 +139,7 @@ channel_tree_destroy(GtkObject *object)
 static void /* double click */
 channel_tree_row_activated_cb(ChannelTree *tree, GtkTreePath *path, GtkTreeViewColumn *col, gpointer data)
 {
+	gtk_widget_grab_focus(tree->priv->app->remark_entry);
 }
 static void
 channel_tree_row_selected_cb(GtkTreeSelection *selection, gpointer data)
