@@ -177,7 +177,7 @@ loqui_statusbar_set_away(LoquiStatusbar *statusbar, LoquiAwayType away)
 
 	stock_id = loqui_stock_get_id_from_basic_away_type(awinfo->basic_away_type);
 	if (stock_id == NULL) {
-		g_warning("Invalid AwayState.");
+		g_warning("Invalid BasicAwayType.");
 		return;
 	}
 
@@ -208,7 +208,7 @@ static void
 loqui_statusbar_away_menuitem_activated_cb(GtkWidget *widget, LoquiStatusbar *statusbar)
 {
 	LoquiStatusbarPrivate *priv;
-	gint away_state;
+	LoquiAwayType away_type;
 	Account *account;
 
 	g_return_if_fail(GTK_IS_MENU_ITEM(widget));
@@ -217,24 +217,14 @@ loqui_statusbar_away_menuitem_activated_cb(GtkWidget *widget, LoquiStatusbar *st
 
         priv = statusbar->priv;		
 
-	away_state = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(widget), "away-state"));
+	away_type = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(widget), "away-type"));
 
 	account = loqui_app_get_current_account(priv->app);
 	if (account) {
-		if (account_is_connected(account)) {
-			switch (away_state) {
-			case LOQUI_BASIC_AWAY_TYPE_ONLINE:
-				account_set_away(account, FALSE);
-				break;
-			case LOQUI_BASIC_AWAY_TYPE_AWAY:
-				account_set_away(account, TRUE);
-				break;
-			default:
-				break;
-			}
-		} else {
+		if (account_is_connected(account))
+			account_set_away_type(account, away_type);
+		else
 			gtkutils_msgbox_info(GTK_MESSAGE_ERROR, _("The account is not connected!"));
-		}
 	} else {
 		gtkutils_msgbox_info(GTK_MESSAGE_ERROR, _("Not selected an account!"));	
 	}
@@ -294,19 +284,6 @@ loqui_statusbar_set_away_menu(LoquiStatusbar *statusbar)
 		gtk_container_remove(GTK_CONTAINER(priv->menu_preset), cur->data);
 	}
 
-#define ADD_MENU_ITEM(title, stock_id, state, usable) { \
-	menuitem = gtk_image_menu_item_new_with_label(title); \
-	image = gtk_image_new_from_stock(stock_id, GTK_ICON_SIZE_MENU); \
-	gtk_widget_show(image); \
-	gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(menuitem), image); \
-	g_object_set_data(G_OBJECT(menuitem), "away-state", GINT_TO_POINTER(state)); \
-	g_signal_connect(G_OBJECT(menuitem), "activate", \
-			 G_CALLBACK(loqui_statusbar_away_menuitem_activated_cb), statusbar); \
-	gtk_widget_show(menuitem); \
-	gtk_widget_set_sensitive(menuitem, usable); \
-	gtk_menu_shell_append(GTK_MENU_SHELL(priv->menu_away), menuitem); \
-}
-
 	user_class = g_type_class_ref(LOQUI_TYPE_USER);
 	tmp_list = loqui_user_class_get_away_type_list(user_class);
 	for (cur = tmp_list; cur != NULL; cur = cur->next) {
@@ -323,9 +300,23 @@ loqui_statusbar_set_away_menu(LoquiStatusbar *statusbar)
 
 		stock_id = loqui_stock_get_id_from_basic_away_type(awinfo->basic_away_type);
 		g_assert(stock_id != NULL);
-		g_assert(awinfo->nick != NULL);
 
-		ADD_MENU_ITEM(awinfo->nick, stock_id, awinfo->basic_away_type, TRUE);
+		g_assert(awinfo->nick != NULL);
+		menuitem = gtk_image_menu_item_new_with_label(awinfo->nick);
+
+		image = gtk_image_new_from_stock(stock_id, GTK_ICON_SIZE_MENU);
+		gtk_widget_show(image);
+		gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(menuitem), image);
+
+		g_object_set_data(G_OBJECT(menuitem), "away-type", GINT_TO_POINTER(awinfo->away_type));
+		g_signal_connect(G_OBJECT(menuitem), "activate",
+				 G_CALLBACK(loqui_statusbar_away_menuitem_activated_cb), statusbar);
+		
+		if (awinfo->basic_away_type == LOQUI_BASIC_AWAY_TYPE_OFFLINE)
+			gtk_widget_set_sensitive(menuitem, FALSE);
+
+		gtk_widget_show(menuitem);
+		gtk_menu_shell_append(GTK_MENU_SHELL(priv->menu_away), menuitem);
 	}
 
 	g_type_class_unref(user_class);

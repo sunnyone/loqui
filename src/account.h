@@ -99,7 +99,7 @@ void account_speak(Account *account, LoquiChannel *channel, const gchar *str, gb
 
 gboolean account_is_current_nick(Account *account, const gchar *str);
 
-void account_set_away(Account *account, gboolean is_away);
+void account_set_away_type(Account *account, LoquiAwayType away_type);
 void account_set_away_message(Account *account, const gchar *away_message);
 
 void account_change_nick(Account *account, const gchar *nick);

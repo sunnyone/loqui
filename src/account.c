@@ -738,7 +738,7 @@ account_is_current_nick(Account *account, const gchar *str)
 	return (strcmp(loqui_user_get_nick(account->user_self), str) == 0 ? TRUE : FALSE);
 }
 void
-account_set_away(Account *account, gboolean is_away)
+account_set_away_type(Account *account, LoquiAwayType away_type)
 {
         g_return_if_fail(account != NULL);
         g_return_if_fail(IS_ACCOUNT(account));
@@ -746,7 +746,7 @@ account_set_away(Account *account, gboolean is_away)
 	if(!account_is_connected(account))
 		return;
 
-	if(is_away)
+	if (away_type == LOQUI_AWAY_TYPE_AWAY)
 		account_set_away_message(account, prefs_general.away_message);
 	else
 		account_set_away_message(account, NULL);
