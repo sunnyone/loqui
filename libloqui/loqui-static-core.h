@@ -18,11 +18,20 @@
  * write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  */
-#ifndef __LOQUI_H__
-#define __LOQUI_H__
+#ifndef __LOQUI_STATIC_CORE_H__
+#define __LOQUI_STATIC_CORE_H__
 
-#include <glib-object.h>
-#include <loqui-core.h>
-#include <loqui-static-core.h>
+#include "loqui-core.h"
 
-#endif /* __LOQUI_H__ */
+/* globally defined macros/functions are in loqui-core-static.h */
+
+#define LOQUI_USER_DIR_DEFAULT_BASENAME ".loqui"
+#define LOQUI_USER_DIR_ENV_KEY "LOQUI_USER_DIR"
+
+void loqui_init(LoquiCore *core);
+LoquiCore *loqui_get_core(void);
+
+/* wrapper */
+LoquiPref *loqui_get_general_pref(void);
+
+#endif /* __LOQUI_STATIC_CORE_H__ */

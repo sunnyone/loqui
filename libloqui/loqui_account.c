@@ -28,6 +28,8 @@
 #include "loqui-general-pref-keys.h"
 #include "loqui-general-pref-default.h"
 
+#include "loqui-static-core.h"
+
 enum {
 	SIGNAL_CONNECT,
 	SIGNAL_DISCONNECT,
@@ -412,11 +414,9 @@ loqui_account_closed_real(LoquiAccount *account)
 
 	priv = account->priv;
 
-	if (loqui_pref_set_default_and_get_boolean(loqui_get_general_pref(),
-						   LOQUI_GENERAL_PREF_GROUP_ACCOUNT,
-						   LOQUI_GENERAL_PREF_KEY_ACCOUNT_AUTO_RECONNECT,
-						   LOQUI_GENERAL_PREF_DEFAULT_ACCOUNT_AUTO_RECONNECT,
-						   NULL)) {
+	if (loqui_pref_get_with_default_boolean(loqui_get_general_pref(),
+						LOQUI_GENERAL_PREF_GROUP_ACCOUNT, "AutoReconnect",
+						LOQUI_GENERAL_PREF_DEFAULT_ACCOUNT_AUTO_RECONNECT, NULL)) {
 		if (account->reconnect_try_count <= LOQUI_ACCOUNT_RECONNECT_COUNT_MAX) {
 			loqui_account_information(LOQUI_ACCOUNT(account), _("Waiting to reconnect..."));
 			loqui_account_set_is_pending_reconnecting(account, TRUE);

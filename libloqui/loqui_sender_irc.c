@@ -29,7 +29,7 @@
 #include "loqui_account_irc.h"
 #include "loqui_channel_irc.h"
 #include "loqui_receiver_irc.h"
-#include "loqui.h"
+#include "loqui-static-core.h"
 
 #include <string.h>
 

@@ -26,8 +26,7 @@
 #include "loqui_profile_handle.h"
 
 #include "loqui_account_manager_iter.h"
-
-#include "loqui.h"
+#include "loqui-static-core.h"
 
 struct _LoquiAccountManagerPrivate
 {

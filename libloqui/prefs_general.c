@@ -27,7 +27,7 @@
 
 #include "intl.h"
 #include "utils.h"
-#include "loqui.h"
+#include "loqui-static-core.h"
 
 PrefsGeneral prefs_general;
 

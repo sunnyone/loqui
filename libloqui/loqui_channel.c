@@ -29,8 +29,7 @@
 #include "loqui_sender_irc.h"
 
 #include "utils.h"
-
-#include "loqui.h"
+#include "loqui-static-core.h"
 
 enum {
 	MODE_CHANGED,
@@ -524,15 +523,13 @@ loqui_channel_append_remark(LoquiChannel *channel, LoquiTextType type, gboolean 
 	is_priv = loqui_channel_get_is_private_talk(channel);
 
 	/* FIXME: should be more efficient */
-	if (loqui_pref_set_default_and_get_boolean(loqui_get_general_pref(),
-						   LOQUI_GENERAL_PREF_GROUP_IGNORE,
-						   LOQUI_GENERAL_PREF_KEY_IGNORE_USE_TRANSPARENT_IGNORE,
-						   LOQUI_GENERAL_PREF_DEFAULT_IGNORE_USE_TRANSPARENT_IGNORE, NULL) && nick != NULL) {
+	if (loqui_pref_get_with_default_boolean(loqui_get_general_pref(),
+						LOQUI_GENERAL_PREF_GROUP_IGNORE, "TransparentIgnore",
+						LOQUI_GENERAL_PREF_DEFAULT_IGNORE_USE_TRANSPARENT_IGNORE, NULL) && nick != NULL) {
 		gchar **ignore_list;
 
 		ignore_list = loqui_pref_get_string_list(loqui_get_general_pref(),
-							 LOQUI_GENERAL_PREF_GROUP_IGNORE,
-							 LOQUI_GENERAL_PREF_KEY_IGNORE_IGNORE_PATTERNS,
+							 LOQUI_GENERAL_PREF_GROUP_IGNORE, "IgnorePatterns",
 							 NULL, NULL);
 
 		if (ignore_list) {
@@ -546,11 +543,9 @@ loqui_channel_append_remark(LoquiChannel *channel, LoquiTextType type, gboolean 
 	}
 
 	if (type == LOQUI_TEXT_TYPE_NOTICE &&
-	    !loqui_pref_set_default_and_get_boolean(loqui_get_general_pref(),
-						    LOQUI_GENERAL_PREF_GROUP_NOTIFICATION,
-						    LOQUI_GENERAL_PREF_KEY_NOTIFICATION_EXEC_NOTIFICATION_BY_NOTICE,
-						    LOQUI_GENERAL_PREF_DEFAULT_EXEC_NOTIFICATION_BY_NOTICE,
-						    NULL))
+	    !loqui_pref_get_with_default_boolean(loqui_get_general_pref(),
+						 LOQUI_GENERAL_PREF_GROUP_NOTIFICATION, "ExecNotificationByNotice",
+						 LOQUI_GENERAL_PREF_DEFAULT_NOTIFICATION_EXEC_NOTIFICATION_BY_NOTICE, NULL))
 		exec_notification = FALSE;
 
 	msgtext = loqui_message_text_new();

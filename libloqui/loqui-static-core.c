@@ -18,11 +18,28 @@
  * write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  */
-#ifndef __LOQUI_H__
-#define __LOQUI_H__
+#include "config.h"
+#include "loqui-static-core.h"
 
-#include <glib-object.h>
-#include <loqui-core.h>
-#include <loqui-static-core.h>
+static LoquiCore *loqui_core = NULL;
 
-#endif /* __LOQUI_H__ */
+void
+loqui_init(LoquiCore *core)
+{
+	if (core)
+		loqui_core = core;
+	else
+		loqui_core = loqui_core_new();
+
+	loqui_core_initialize(loqui_core);
+}
+LoquiCore *
+loqui_get_core(void)
+{
+	return loqui_core;
+}
+LoquiPref *
+loqui_get_general_pref(void)
+{
+	return loqui_core_get_general_pref(loqui_get_core());
+}

@@ -27,7 +27,7 @@
 #include <stdlib.h>
 #include <locale.h>
 #include "intl.h"
-#include "loqui.h"
+#include "loqui-static-core.h"
 
 enum {
 	SIGNAL_WARN,

@@ -76,7 +76,8 @@ SRC_LIBRARY_CORE = \
 	loqui_account_manager_iter.c loqui_account_manager_iter.h \
 	loqui-core.gob loqui-core.c loqui-core.h loqui-core-private.h \
 	loqui-pref.gob loqui-pref.c loqui-pref.h loqui-pref-private.h \
-	loqui.c loqui.h
+	loqui-static-core.c loqui-static-core.h \
+	loqui.h
 
 BUILT_SOURCES := loqui-core.c loqui-core.h loqui-core-private.h \
 	loqui-pref.c loqui-pref.h loqui-pref-private.h

@@ -28,7 +28,7 @@
 
 #include "loqui_utils_irc.h"
 #include "intl.h"
-#include "loqui.h"
+#include "loqui-static-core.h"
 
 #include <string.h>
 #include <gnet.h>

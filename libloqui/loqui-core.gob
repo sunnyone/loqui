@@ -25,7 +25,7 @@ requires 2.0.0
 %{
 #include "intl.h"
 #include "utils.h"
-#include "loqui.h"
+#include "loqui-static-core.h"
 #include "gnet.h"
 %}
 %h{

@@ -37,10 +37,11 @@
 
 #include "loqui_codeconv.h"
 #include "loqui_string_tokenizer.h"
-#include "loqui.h"
 
 #include <string.h>
 #include <time.h>
+
+#include "loqui-static-core.h"
 
 struct _LoquiReceiverIRCPrivate
 {
