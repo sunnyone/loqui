@@ -49,10 +49,11 @@ struct _AccountListDialogClass
         GtkDialogClass parent_class;
 };
 
+#define ACCOUNT_LIST_DIALOG_RESPONSE_CONNECT 1
 
 GtkType account_list_dialog_get_type (void) G_GNUC_CONST;
 
-GtkWidget* account_list_dialog_new(AccountManager *manager);
+GtkWidget* account_list_dialog_new(AccountManager *manager, gboolean with_connect_button);
 
 void account_list_dialog_open(GtkWindow *parent, AccountManager *manager);
 void account_list_dialog_open_for_connect(GtkWindow *parent, AccountManager *manager);
