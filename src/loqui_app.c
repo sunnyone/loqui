@@ -39,6 +39,7 @@ struct _LoquiAppPrivate
 	GtkWidget *common_textview;
 	GtkWidget *entry;
 	GtkWidget *statusbar;
+	GtkWidget *handlebox;
 	GtkWidget *label_user_number;
 	GtkWidget *label_channel;
 	GtkWidget *label_channel_mode;
@@ -349,7 +350,7 @@ loqui_app_new(void)
 	GtkWidget *hpaned;
 	GtkWidget *vpaned;
 	GtkWidget *scrolled_win;
-
+	
 	GtkWidget *hsep;
 
 	app = g_object_new(loqui_app_get_type(), NULL);
@@ -367,8 +368,11 @@ loqui_app_new(void)
 	gtk_box_pack_start(GTK_BOX(vbox), loqui_menu_get_widget(app->menu),
 			   FALSE, FALSE, 0);
 
+	priv->handlebox = gtk_handle_box_new();
+	gtk_box_pack_start(GTK_BOX(vbox), priv->handlebox, FALSE, FALSE, 0);
+
 	app->toolbar = loqui_toolbar_new(app);
-	gtk_box_pack_start(GTK_BOX(vbox), app->toolbar, FALSE, FALSE, 0);
+	gtk_container_add(GTK_CONTAINER(priv->handlebox), app->toolbar);
 
 #define SET_SCROLLED_WINDOW(s, w, vpolicy, hpolicy) \
 { \
