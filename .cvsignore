@@ -1,4 +1,10 @@
 config.*
 *.d
 Makefile
+ltmain.sh
+install-sh
+missing
+mkinstalldirs
+depcomp
+loqui.spec
 
