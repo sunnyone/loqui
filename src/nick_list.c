@@ -26,6 +26,7 @@
 #include "irc_constants.h"
 #include "account_manager.h"
 #include "loqui_stock.h"
+#include "loqui_sender_irc.h"
 
 struct _NickListPrivate
 {
@@ -331,6 +332,7 @@ nick_list_ctcp_selected(NickList *nick_list, const gchar *command)
 	GSList *member_list, *cur;
 	Account *account;
 	LoquiMember *member;
+	LoquiSender *sender;
 
 	priv = nick_list->priv;
 
@@ -338,10 +340,17 @@ nick_list_ctcp_selected(NickList *nick_list, const gchar *command)
 	if(!account)
 		return;
 
+	sender = account_get_sender(account);
+	if (!LOQUI_IS_SENDER_IRC(sender)) {
+		g_warning("The account is not for IRC");
+		return;
+	}
+
 	member_list = nick_list_menu_get_selected_members(nick_list);
 	for(cur = member_list; cur != NULL; cur = cur->next) {
 		member = cur->data;
-		account_send_ctcp_request(account, loqui_user_get_nick(member->user), command);
+		
+		loqui_sender_irc_ctcp_request_raw(LOQUI_SENDER_IRC(sender), loqui_user_get_nick(member->user), command);
 	}
 	g_slist_free(member_list);
 }

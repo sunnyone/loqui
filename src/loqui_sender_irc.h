@@ -59,10 +59,10 @@ void loqui_sender_irc_say_raw(LoquiSenderIRC *sender, const gchar *target, const
 void loqui_sender_irc_notice_raw(LoquiSenderIRC *sender, const gchar *target, const gchar *text);
 
 void loqui_sender_irc_pong_raw(LoquiSenderIRC *sender, const gchar *target);
+void loqui_sender_irc_ctcp_request_raw(LoquiSenderIRC *sender, const gchar *target, const gchar *command);
 void loqui_sender_irc_get_channel_mode(LoquiSender *sender, LoquiChannel *channel);
 
 void loqui_sender_irc_send_raw(LoquiSenderIRC *sender, const gchar *str);
-
 G_END_DECLS
 
 #endif /* __LOQUI_SENDER_IRC_H__ */

@@ -637,7 +637,7 @@ loqui_app_actions_end_private_talk_cb(GtkAction *action, LoquiApp *app)
 	if (!loqui_channel_get_is_private_talk(channel))
 		gtkutils_msgbox_info(GTK_MESSAGE_ERROR, _("Current channel is not private talk"));
 
-	account_remove_channel(loqui_channel_get_account(channel), channel);
+	loqui_sender_end_private_talk(account_get_sender(loqui_channel_get_account(channel)), channel);
 }
 static void
 loqui_app_actions_give_op_selected_cb(GtkAction *action, LoquiApp *app)

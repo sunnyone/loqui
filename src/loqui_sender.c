@@ -229,14 +229,14 @@ loqui_sender_join(LoquiSender *sender, LoquiChannel *channel)
 	(* LOQUI_SENDER_GET_CLASS(sender)->join) (sender, channel);
 }
 void
-loqui_sender_part(LoquiSender *sender, LoquiChannel *channel)
+loqui_sender_part(LoquiSender *sender, LoquiChannel *channel, const gchar *part_message)
 {
         g_return_if_fail(sender != NULL);
         g_return_if_fail(LOQUI_IS_SENDER(sender));
 
 	CHECK_FUNCTION_IS_DEFINED_AND_RETURN_IF_FAIL(sender, part);
 
-	(* LOQUI_SENDER_GET_CLASS(sender)->part) (sender, channel);
+	(* LOQUI_SENDER_GET_CLASS(sender)->part) (sender, channel, part_message);
 }
 void
 loqui_sender_topic(LoquiSender *sender, LoquiChannel *channel, const gchar *topic)
@@ -259,6 +259,16 @@ loqui_sender_start_private_talk(LoquiSender *sender, LoquiUser *user)
 	(* LOQUI_SENDER_GET_CLASS(sender)->start_private_talk) (sender, user);
 }
 void
+loqui_sender_end_private_talk(LoquiSender *sender, LoquiChannel *channel)
+{
+        g_return_if_fail(sender != NULL);
+        g_return_if_fail(LOQUI_IS_SENDER(sender));
+
+	CHECK_FUNCTION_IS_DEFINED_AND_RETURN_IF_FAIL(sender, end_private_talk);
+
+	(* LOQUI_SENDER_GET_CLASS(sender)->end_private_talk) (sender, channel);
+}
+void
 loqui_sender_refresh(LoquiSender *sender, LoquiChannel *channel)
 {
         g_return_if_fail(sender != NULL);
@@ -267,4 +277,14 @@ loqui_sender_refresh(LoquiSender *sender, LoquiChannel *channel)
 	CHECK_FUNCTION_IS_DEFINED_AND_RETURN_IF_FAIL(sender, refresh);
 
 	(* LOQUI_SENDER_GET_CLASS(sender)->refresh) (sender, channel);
+}
+void
+loqui_sender_join_raw(LoquiSender *sender, const gchar *target, const gchar *key)
+{
+        g_return_if_fail(sender != NULL);
+        g_return_if_fail(LOQUI_IS_SENDER(sender));
+
+	CHECK_FUNCTION_IS_DEFINED_AND_RETURN_IF_FAIL(sender, join_raw);
+
+	(* LOQUI_SENDER_GET_CLASS(sender)->join_raw) (sender, target, key);
 }

@@ -107,14 +107,6 @@ void account_console_buffer_append(Account *account, TextType type, gchar *str);
 
 gboolean account_is_current_nick(Account *account, const gchar *str);
 
-void account_change_nick(Account *account, const gchar *nick);
-void account_whois(Account *account, const gchar *target);
-void account_join(Account *account, const gchar *target, const gchar *key);
-void account_part(Account *account, const gchar *target, const gchar *part_message);
-void account_set_topic(Account *account, const gchar *target, const gchar *topic);
-
-void account_send_ctcp_request(Account *account, const gchar *target, const gchar *command);
-
 void account_change_channel_user_mode(Account *account, LoquiChannel *channel, 
 				      gboolean is_give, IRCModeFlag flag, GList *str_list);
 

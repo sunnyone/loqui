@@ -59,10 +59,13 @@ struct _LoquiSenderClass
 	void (*away) (LoquiSender *sender, LoquiAwayType away_type, const gchar *away_message);
 	void (*whois) (LoquiSender *sender, LoquiUser *user);
 	void (*join) (LoquiSender *sender, LoquiChannel *channel);
-	void (*part) (LoquiSender *sender, LoquiChannel *channel);
+	void (*part) (LoquiSender *sender, LoquiChannel *channel, const gchar *part_message);
 	void (*topic) (LoquiSender *sender, LoquiChannel *channel, const gchar *topic);
 	void (*start_private_talk) (LoquiSender *sender, LoquiUser *user);
+	void (*end_private_talk) (LoquiSender *sender, LoquiChannel *channel);
 	void (*refresh) (LoquiSender *sender, LoquiChannel *channel);
+
+	void (*join_raw) (LoquiSender *sender, const gchar *target, const gchar *key);
 };
 
 GType loqui_sender_get_type(void) G_GNUC_CONST;
@@ -78,11 +81,13 @@ void loqui_sender_nick(LoquiSender *sender, const gchar *text);
 void loqui_sender_away(LoquiSender *sender, LoquiAwayType away_type, const gchar *away_message);
 void loqui_sender_whois(LoquiSender *sender, LoquiUser *user);
 void loqui_sender_join(LoquiSender *sender, LoquiChannel *channel);
-void loqui_sender_part(LoquiSender *sender, LoquiChannel *channel);
+void loqui_sender_part(LoquiSender *sender, LoquiChannel *channel, const gchar *part_message);
 void loqui_sender_topic(LoquiSender *sender, LoquiChannel *channel, const gchar *topic);
 void loqui_sender_start_private_talk(LoquiSender *sender, LoquiUser *user);
-
+void loqui_sender_end_private_talk(LoquiSender *sender, LoquiChannel *channel);
 void loqui_sender_refresh(LoquiSender *sender, LoquiChannel *channel);
+
+void loqui_sender_join_raw(LoquiSender *sender, const gchar *target, const gchar *key);
 
 G_END_DECLS
 

@@ -113,10 +113,7 @@ command_dialog_join(LoquiApp *app, Account *account)
 			return;
 		}
 
-		if (strlen(text_key) > 0)
-			account_join(account, text_name, text_key);
-		else
-			account_join(account, text_name, NULL);
+		loqui_sender_join_raw(account_get_sender(account), text_name, text_key);
 	}
 
 	gtk_widget_destroy(dialog);
@@ -210,7 +207,7 @@ command_dialog_part(LoquiApp *app, Account *account, LoquiChannel *channel)
 	if (result == GTK_RESPONSE_OK) {
 		text = gtk_entry_get_text(GTK_ENTRY(entry));
 
-		account_part(account, loqui_channel_entry_get_name(LOQUI_CHANNEL_ENTRY(channel)), text);
+		loqui_sender_part(account_get_sender(account), channel, text);
 	}
 	gtk_widget_destroy(dialog);
 }
