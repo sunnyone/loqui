@@ -236,10 +236,49 @@ channel_tree_add_account(ChannelTree *tree, Account *account)
 			   -1);
 }
 void
+channel_tree_update_account(ChannelTree *tree, Account *account)
+{
+	GtkTreeIter iter;
+	GtkTreeModel *model;
+
+        g_return_if_fail(tree != NULL);
+        g_return_if_fail(IS_CHANNEL_TREE(tree));
+	g_return_if_fail(account != NULL);
+	g_return_if_fail(IS_ACCOUNT(account));
+
+	model = gtk_tree_view_get_model(GTK_TREE_VIEW(tree));
+	if(!gtk_tree_model_find_by_column_data(model, &iter, NULL, COLUMN_ACCOUNT, account)) {
+		return;
+	}
+	gtk_tree_store_set(GTK_TREE_STORE(model), &iter,
+			   COLUMN_TEXT, account->name,
+			   -1);
+	
+}
+
+void
+channel_tree_remove_account(ChannelTree *tree, Account *account)
+{
+	GtkTreeIter iter;
+	GtkTreeModel *model;
+
+        g_return_if_fail(tree != NULL);
+        g_return_if_fail(IS_CHANNEL_TREE(tree));
+	g_return_if_fail(account != NULL);
+	g_return_if_fail(IS_ACCOUNT(account));
+
+	model = gtk_tree_view_get_model(GTK_TREE_VIEW(tree));
+	if(!gtk_tree_model_find_by_column_data(model, &iter, NULL, COLUMN_ACCOUNT, account)) {
+		return;
+	}
+	gtk_tree_store_remove(GTK_TREE_STORE(model), &iter);
+}
+void
 channel_tree_add_channel(ChannelTree *tree, Account *account, Channel *channel)
 {
 	GtkTreeIter iter, parent;
 	GtkTreeModel *model;
+
         g_return_if_fail(tree != NULL);
         g_return_if_fail(IS_CHANNEL_TREE(tree));
 	g_return_if_fail(account != NULL);
