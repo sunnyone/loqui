@@ -148,7 +148,7 @@ void ctcp_handle_message(CTCPHandle *ctcp_handle, CTCPMessage *ctcp_msg, gboolea
 {
 	gint i;
 	CTCPHandlePrivate *priv;
-	gchar *buf, *sender;
+	gchar *buf, *sender, *receiver;
 	
         g_return_if_fail(ctcp_handle != NULL);
         g_return_if_fail(IS_CTCP_HANDLE(ctcp_handle));
@@ -161,12 +161,22 @@ void ctcp_handle_message(CTCPHandle *ctcp_handle, CTCPMessage *ctcp_msg, gboolea
 		return;
 
 	sender = g_object_get_data(G_OBJECT(ctcp_msg), "sender");
-	if(sender == NULL)
+	if(sender == NULL) {
+		g_warning(_("Sender is not set in a CTCP message"));
 		return;
+	}
 
-	buf = g_strdup_printf(_("Received CTCP %s from %s: %s%s%s"), 
+	receiver = g_object_get_data(G_OBJECT(ctcp_msg), "receiver");
+	if(receiver == NULL) {
+		g_warning(_("Receiver is not set in a CTCP message"));
+		return;
+	}
+
+	buf = g_strdup_printf(_("Received CTCP %s from %s to %s: %s%s%s"), 
 			      is_request ? "request" : "reply",
-			      sender, ctcp_msg->command,
+			      sender,
+			      receiver,
+			      ctcp_msg->command,
 			      ctcp_msg->argument ? " " : "",
 			      ctcp_msg->argument ? ctcp_msg->argument : "");
 	account_console_buffer_append(priv->account, TEXT_TYPE_INFO, buf);

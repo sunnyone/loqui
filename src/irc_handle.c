@@ -305,6 +305,7 @@ irc_handle_command_privmsg_notice(IRCHandle *handle, IRCMessage *msg)
 	if(msg->nick != NULL) {
 		if(ctcp_message_parse_line(remark, &ctcp_msg)) {
 			g_object_set_data(G_OBJECT(ctcp_msg), "sender", msg->nick);
+			g_object_set_data(G_OBJECT(ctcp_msg), "receiver", receiver_name);
 			ctcp_handle_message(priv->ctcp_handle, ctcp_msg,
 					    (msg->response == IRC_COMMAND_PRIVMSG) ? TRUE : FALSE);
 			g_object_unref(ctcp_msg);
