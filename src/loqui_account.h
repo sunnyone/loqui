@@ -47,8 +47,7 @@ struct _LoquiAccount
 
 	GList *channel_list;
 
-	/* key: channel identifier(gchar *), value: GList * */
-	GHashTable *channel_identifier_table;
+	GHashTable *identifier_channel_table; /* key: channel identifier(gchar *), value: GList * */
 
 	GHashTable *user_identifier_table; /* key: user, value: identifier */
 	GHashTable *identifier_user_table; /* key: identifier, value: user */

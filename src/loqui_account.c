@@ -206,9 +206,10 @@ loqui_account_init(LoquiAccount *account)
 
 	account->priv = priv;
 	
+	/* FIXME: identifier should be case sensitive */
 	account->channel_list = NULL;
-	account->channel_identifier_table = g_hash_table_new_full(utils_strcase_hash, utils_strcase_equal, g_free, NULL);
-	
+	account->identifier_channel_table = g_hash_table_new_full(utils_strcase_hash, utils_strcase_equal, g_free, NULL);
+
 	account->user_identifier_table = g_hash_table_new_full(g_direct_hash, g_direct_equal, NULL, g_free);
 	account->identifier_user_table = g_hash_table_new_full(utils_strcase_hash, utils_strcase_equal, g_free, NULL);
 }
@@ -228,14 +229,16 @@ loqui_account_finalize(GObject *object)
 
 	loqui_account_remove_all_channel(account);
 
-	if (account->channel_identifier_table) {
-		g_hash_table_destroy(account->channel_identifier_table);
-		account->channel_identifier_table = NULL;
-	}
-	if (account->identifier_user_table) {
-		g_hash_table_destroy(account->identifier_user_table);
-		account->identifier_user_table = NULL;
-	}
+#define DESTROY_HASH_TABLE(table) { \
+  if (table) { \
+	  g_hash_table_destroy(table); \
+	  table = NULL; \
+  } \
+}
+
+	DESTROY_HASH_TABLE(account->identifier_channel_table);
+	DESTROY_HASH_TABLE(account->user_identifier_table);
+	DESTROY_HASH_TABLE(account->identifier_user_table);
 
         if (G_OBJECT_CLASS(parent_class)->finalize)
                 (* G_OBJECT_CLASS(parent_class)->finalize) (object);
@@ -443,14 +446,14 @@ loqui_account_add_channel(LoquiAccount *account, LoquiChannel *channel)
 	l->data = channel;
 
 	account->channel_list = g_list_concat(account->channel_list, l);
-	g_hash_table_insert(account->channel_identifier_table, g_strdup(loqui_channel_get_identifier(channel)), l);
+	g_hash_table_insert(account->identifier_channel_table, g_strdup(loqui_channel_get_identifier(channel)), l);
 
 	g_signal_emit(account, account_signals[SIGNAL_ADD_CHANNEL], 0, channel);
 }
 static void
 loqui_account_remove_channel_real(LoquiAccount *account, LoquiChannel *channel)
 {
-	g_hash_table_remove(account->channel_identifier_table, loqui_channel_get_identifier(channel));
+	g_hash_table_remove(account->identifier_channel_table, loqui_channel_get_identifier(channel));
 
 	account->channel_list = g_list_remove(account->channel_list, channel);
 	g_object_unref(channel);
@@ -495,7 +498,7 @@ loqui_account_get_channel_by_identifier(LoquiAccount *account, const gchar *iden
         g_return_val_if_fail(LOQUI_IS_ACCOUNT(account), NULL);
 	g_return_val_if_fail(identifier != NULL, NULL);
 
-	l = g_hash_table_lookup(account->channel_identifier_table, identifier);
+	l = g_hash_table_lookup(account->identifier_channel_table, identifier);
 	if (l)
 		return l->data;
 
