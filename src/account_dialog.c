@@ -378,6 +378,7 @@ account_dialog_new(Account *account)
 {
         AccountDialog *dialog;
 	AccountDialogPrivate *priv;
+	GtkWidget *notebook;
 	GtkWidget *vbox, *hbox, *vbox_c;
 	GtkWidget *scrolled_win;
 	GtkWidget *frame;
@@ -420,11 +421,20 @@ account_dialog_new(Account *account)
 	gtk_box_pack_start(GTK_BOX(hbox), priv->check_use, TRUE, TRUE, 0);
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(priv->check_use), account->use);
 
+	notebook = gtk_notebook_new();
+	gtk_box_pack_start(GTK_BOX(vbox), notebook, TRUE, TRUE, 0);
+
+	vbox = gtk_vbox_new(FALSE, 0);
+	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), vbox, gtk_label_new(_("Profile")));
+
 	gtkutils_add_label_entry(vbox, _("Nickname:"), &priv->entry_nick, account_get_nick(account));
 	gtkutils_add_label_entry(vbox, _("Username:"), &priv->entry_username, account_get_username(account));
 	gtkutils_add_label_entry(vbox, _("Realname:"), &priv->entry_realname, account_get_realname(account));
 	gtkutils_add_label_entry(vbox, _("User information:"), &priv->entry_userinfo, account_get_userinfo(account));
 	gtkutils_add_label_entry(vbox, _("Auto join channels:"), &priv->entry_autojoin, account_get_autojoin(account));
+
+	vbox = gtk_vbox_new(FALSE, 0);
+	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), vbox, gtk_label_new(_("Code")));
 
 	frame = gtk_frame_new(_("Code convertion"));
 	gtk_box_pack_start(GTK_BOX(vbox), frame, FALSE, FALSE, 2);
@@ -455,6 +465,8 @@ account_dialog_new(Account *account)
 	gtk_option_menu_set_history(GTK_OPTION_MENU(priv->option_codeconv),
 				    codeconv_get_codeset_type(codeconv));
 
+	vbox = gtk_vbox_new(FALSE, 0);
+	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), vbox, gtk_label_new(_("Server")));
 
 	frame = gtk_frame_new(_("Servers (Cells are editable.)"));
 	gtk_box_pack_start(GTK_BOX(vbox), frame, TRUE, TRUE, 0);
@@ -555,6 +567,7 @@ account_dialog_new(Account *account)
 	g_signal_connect(G_OBJECT(button), "clicked",
 			 G_CALLBACK(account_dialog_remove_cb), dialog);
 	gtk_box_pack_start(GTK_BOX(vbox_c), button, FALSE, FALSE, 0);
+
 
 	gtk_widget_show_all(GTK_WIDGET(dialog));
 
