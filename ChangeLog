@@ -1,3 +1,105 @@
+2003-02-23 22:22  y-imai
+
+	* po/: POTFILES.in, ja.po, loqui.pot: updated po
+
+2003-02-23 22:17  y-imai
+
+	* src/loqui_menu.c: fixed typo
+
+2003-02-23 22:01  y-imai
+
+	* debian/: changelog, control, copyright, dirs, docs, files,
+	loqui.substvars, rules: added debian/
+
+2003-02-23 21:37  y-imai
+
+	* src/channel_tree.c: implemented next/prev with goto
+
+2003-02-23 21:22  y-imai
+
+	* src/: channel_tree.c, channel_tree.h, loqui_menu.c: implemented
+	next/prev channel
+
+2003-02-23 13:17  y-imai
+
+	* NEWS, NEWS.ja: added NEWS.ja
+
+2003-02-22 23:53  y-imai
+
+	* src/connect_dialog.c: activatable
+
+2003-02-22 23:33  y-imai
+
+	* src/: account_manager.c, loqui_app.c, loqui_app.h, loqui_menu.c,
+	loqui_menu.h, prefs_general.c, prefs_general.h: toggling whether or
+	not showing toolbar/statusbar
+
+2003-02-22 22:06  y-imai
+
+	* src/loqui_app.c: added handlebox for toolbar
+
+2003-02-22 22:00  y-imai
+
+	* src/: account_manager.c, loqui_menu.c, loqui_menu.h: removed
+	connect submenu
+
+2003-02-22 21:53  y-imai
+
+	* src/: account.c, account.h, account_dialog.c, connect_dialog.c,
+	prefs_account.c: made configurable whether connect account by
+	default or not
+
+2003-02-22 21:00  y-imai
+
+	* src/: Makefile.am, account.c, account.h, account_manager.c,
+	account_manager.h, connect_dialog.c, connect_dialog.h,
+	irc_handle.c, irc_handle.h, loqui_menu.c, loqui_toolbar.c: added
+	connect dialog
+
+2003-02-22 18:47  y-imai
+
+	* src/utils.h: added s
+
+2003-02-22 17:35  y-imai
+
+	* src/utils.h: %.5f to %.7f
+
+2003-02-22 17:29  y-imai
+
+	* src/utils.h: fixed DEBUG_TIMER_STOP
+
+2003-02-22 17:27  y-imai
+
+	* src/utils.h: DEBUG_TIMER_{START,STOP} macro: added
+
+2003-02-22 17:18  y-imai
+
+	* src/: account_manager.c, channel.c: handle topic changing with
+	gobject's signal
+
+2003-02-22 16:23  y-imai
+
+	* src/irc_handle.c: changed the way to handle MODE message
+
+2003-02-20 23:15  y-imai
+
+	* src/irc_message.c: use macro
+
+2003-02-19 23:03  y-imai
+
+	* ChangeLog, NEWS, configure.in: 0.1.6
+
+2003-02-19 22:58  y-imai
+
+	* src/: loqui_app.c, loqui_app.h, loqui_toolbar.c: scroll channel
+	buffer when scroll button is turned on
+
+2003-02-19 22:42  y-imai
+
+	* src/: account_manager.c, gtkutils.c, gtkutils.h, loqui_toolbar.c,
+	loqui_toolbar.h: without_signal_emission ->
+	with_signal_handler_blocked. loqui_toolbar has LoquiApp
+
 2003-02-19 22:34  y-imai
 
 	* po/: ja.po, loqui.pot: updated po

@@ -54,3 +54,8 @@
 * Fix scrollbar behavior.
 * Function to determine whether scrolling or not with scrollbar operation.
 
+2003-02-23     0.1.7
+* Connect dialog.
+* View menu.
+* Next/Previous channel.
+
