@@ -268,7 +268,7 @@ void connection_disconnect(Connection *connection)
 
 	debug_puts("Disconnecting...");
 	g_mutex_lock(priv->mutex);
-	g_io_channel_shutdown(connection->priv->io, TRUE, NULL);
+	g_io_channel_unref(connection->priv->io);
 	connection->priv->io = NULL;
 	gnet_tcp_socket_delete(connection->priv->sock);
 	g_mutex_unlock(priv->mutex);
