@@ -407,6 +407,11 @@ loqui_account_connect(LoquiAccount *account)
         g_return_if_fail(account != NULL);
         g_return_if_fail(LOQUI_IS_ACCOUNT(account));
 	
+	if (!LOQUI_ACCOUNT_GET_CLASS(account)->connect) {
+		g_warning("LoquiAccount#connect is not implemented.");
+		return;
+	}
+
 	g_signal_emit(G_OBJECT(account), account_signals[SIGNAL_CONNECT], 0);
 }
 void
