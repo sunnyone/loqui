@@ -484,7 +484,6 @@ channel_buffer_append_message_text(ChannelBuffer *buffer, LoquiMessageText *msgt
 {
 	gchar *buf;
 	LoquiTextType type;
-	GList *cur;
 
         g_return_if_fail(buffer != NULL);
         g_return_if_fail(IS_CHANNEL_BUFFER(buffer));
@@ -496,13 +495,6 @@ channel_buffer_append_message_text(ChannelBuffer *buffer, LoquiMessageText *msgt
 	type = loqui_message_text_get_text_type(msgtext);
 
 	if(loqui_message_text_get_is_remark(msgtext)) {
-		/* FIXME: should be more efficient */
-		if(prefs_general.use_transparent_ignore && loqui_message_text_get_nick(msgtext) != NULL) {
-			for(cur = prefs_general.transparent_ignore_list; cur != NULL; cur = cur->next) {
-				if(g_pattern_match_simple((gchar *) cur->data, loqui_message_text_get_nick(msgtext)))
-					type = LOQUI_TEXT_TYPE_TRANSPARENT;
-			}
-		}
 		buf = loqui_message_text_get_nick_string(msgtext, channel_buffer_get_show_channel_name(buffer));
 		channel_buffer_append(buffer, type, buf, FALSE, FALSE);
 		g_free(buf);

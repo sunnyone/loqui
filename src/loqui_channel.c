@@ -517,6 +517,14 @@ loqui_channel_append_remark(LoquiChannel *channel, LoquiTextType type, gboolean 
 
 	is_priv = loqui_channel_get_is_private_talk(channel);
 
+	/* FIXME: should be more efficient */
+	if(prefs_general.use_transparent_ignore && nick != NULL) {
+		for(cur = prefs_general.transparent_ignore_list; cur != NULL; cur = cur->next) {
+			if(g_pattern_match_simple((gchar *) cur->data, nick))
+				type = LOQUI_TEXT_TYPE_TRANSPARENT;
+		}
+	}
+
 	msgtext = loqui_message_text_new();
 	g_object_set(G_OBJECT(msgtext),
 		     "is_remark", TRUE,
