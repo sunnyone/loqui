@@ -8,6 +8,7 @@ INCLUDES = $(GTK_CFLAGS) $(EXTRA_WARNING_CFLAGS) -g -I$(includedir) -I../gtk24ba
 SRC_BASE_UTILITIES = \
 	intl.h \
 	utils.c utils.h \
+	loqui_webutils.c loqui_webutils.h \
 	gobject_utils.c gobject_utils.h \
 	loqui_string_tokenizer.c loqui_string_tokenizer.h \
 	loqui_title_format.c loqui_title_format.h \
