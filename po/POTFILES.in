@@ -18,6 +18,8 @@ src/codeconv.c
 src/codeconv.h
 src/command_table.c
 src/command_table.h
+src/connect_dialog.c
+src/connect_dialog.h
 src/connection.c
 src/connection.h
 src/gtkutils.c
@@ -40,7 +42,11 @@ src/nick_list.c
 src/nick_list.h
 src/prefs_account.c
 src/prefs_account.h
+src/prefs_dialog.c
+src/prefs_dialog.h
 src/prefs_general.c
 src/prefs_general.h
+src/prefs_highlight.c
+src/prefs_highlight.h
 src/utils.c
 src/utils.h
