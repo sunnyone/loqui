@@ -5,22 +5,24 @@
       <menuitem name="Quit" action="Quit"/>
     </menu>
     <menu name="EditMenu" action="StockEditMenu">
-      <menuitem name="Cut" action="Cut"/>
-      <menuitem name="Copy" action="Copy"/>
-      <menuitem name="Paste" action="Paste"/>
-      <menuitem name="PasteWithLinefeedsCut" action="PasteWithLinefeedsCut"/>
-      <menuitem name="Clear" action="Clear"/>
-      <separator name="edit-sep1"/>
+      <placeholder name="OrdinaryEditItems">
+       <menuitem name="Cut" action="Cut"/>
+       <menuitem name="Copy" action="Copy"/>
+       <menuitem name="Paste" action="Paste"/>
+       <menuitem name="PasteWithLinefeedsCut" action="PasteWithLinefeedsCut"/>
+       <menuitem name="Clear" action="Clear"/>
+      </placeholder>
       <menuitem name="ToggleCommandMode" action="ToggleCommandMode"/>
-      <separator name="edit-sep2"/>
-      <menuitem name="Find" action="Find"/>
-      <menuitem name="FindAgain" action="FindAgain"/>
+      <placeholder name="FindItems">
+        <menuitem name="Find" action="Find"/>
+        <menuitem name="FindAgain" action="FindAgain"/>
+      </placeholder>
     </menu>
     <menu name="CommandMenu" action="StockCommandMenu">
       <menuitem name="Join" action="Join"/>
       <menuitem name="StartPrivateTalk" action="StartPrivateTalk"/>
       <menuitem name="Part" action="Part"/>
-      <separator name="command-sep1"/>
+      <separator/>
       <menuitem name="SetTopic" action="SetTopic"/>
       <menuitem name="ChangeNick" action="ChangeNick"/>
       <menuitem name="RefreshAway" action="RefreshAway"/>
@@ -28,10 +30,10 @@
     <menu name="ViewMenu" action="StockViewMenu">
       <menuitem name="ToggleChannelbar" action="ToggleChannelbar"/>
       <menuitem name="ToggleStatusbar" action="ToggleStatusbar"/>
-      <separator name="view-sep1"/>
+      <separator/>
       <menuitem name="PreviousUpdatedChannel" action="PreviousUpdatedChannel"/>
       <menuitem name="NextUpdatedChannel" action="NextUpdatedChannel"/>
-      <separator name="view-sep2"/>
+      <separator/>
       <menuitem name="PreviousChannel" action="PreviousChannel"/>
       <menuitem name="NextChannel" action="NextChannel"/>
     </menu>
@@ -51,7 +53,7 @@
     <menu name="ModeMenu" action="StockModeMenu">
       <menuitem name="GiveOpSelected" action="GiveOpSelected"/>
       <menuitem name="GiveVoiceSelected" action="GiveVoiceSelected"/>
-      <separator name="mode-sep1"/>
+      <separator/>
       <menuitem name="DepriveOpSelected" action="DepriveOpSelected"/>
       <menuitem name="DepriveVoiceSelected" action="DepriveVoiceSelected"/>
     </menu>
