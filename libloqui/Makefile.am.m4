@@ -70,7 +70,7 @@ SRC_PROTOCOL_MSN = \
 	loqui_account_msn.c loqui_account_msn.h \
 	msn_constants.h
 
-define(`M4_SRC_LIBRARY_CORE_GOB',`loqui-core.gob loqui-pref.gob loqui-pref-partial.gob')dnl
+define(`M4_SRC_LIBRARY_CORE_GOB',`loqui-core.gob loqui-pref.gob loqui-pref-partial.gob loqui-pref-sequence.gob')dnl
 
 SRC_LIBRARY_CORE = \
 	libloqui-intl.h \
