@@ -25,7 +25,7 @@
 typedef struct _CodeConvDef {
 	gchar *title;
 	gchar *locale;
-	gchar *charset;
+	gchar *codeset;
 } CodeConvDef;
 
 void codeconv_init(void);

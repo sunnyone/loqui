@@ -66,14 +66,14 @@ codeconv_init(void)
 		if(ctype) {
 			while(conv_table[i].title != NULL) {
 				if(strstr(ctype, conv_table[i].locale) != NULL) {
-					server_codeset = conv_table[i].charset;
+					server_codeset = conv_table[i].codeset;
 					break;
 				}
 				i++;
 			}
 		}
 	} else {
-		server_codeset = conv_table[num].charset;
+		server_codeset = conv_table[num].codeset;
 	}
 }
 
