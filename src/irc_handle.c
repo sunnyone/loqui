@@ -1241,6 +1241,9 @@ irc_handle_command(IRCHandle *handle, IRCMessage *msg)
 	case IRC_COMMAND_PING:
 		irc_handle_command_ping(handle, msg);
 		return TRUE;
+	case IRC_COMMAND_PONG:
+		/* do nothing currently */
+		return TRUE;
 	default:
 		break;
 	}
