@@ -153,10 +153,13 @@ irc_handle_finalize(GObject *object)
 
 	g_free(handle->priv);
 }
+
+#define PLUM_ALIAS_OF_PERCENT_PREFIX ":*.jp"
 static gboolean
 irc_handle_parse_plum_recent(IRCHandle *handle, const gchar *line)
 {
 	gchar *buf, *cur, *name;
+	gchar *converted_name;
 	gchar prefix;
 	LoquiChannel *channel;
 	IRCHandlePrivate *priv;
@@ -210,15 +213,22 @@ irc_handle_parse_plum_recent(IRCHandle *handle, const gchar *line)
 	default:
 		g_assert_not_reached();
 	}
-	
-	channel = loqui_account_get_channel_by_identifier(priv->account, name);
+
+	if (*name == '%' && strchr(name, ':') == NULL) {
+		converted_name = g_strconcat(name+1, PLUM_ALIAS_OF_PERCENT_PREFIX, NULL);
+	} else {
+		converted_name = g_strdup(name);
+	}
+
+	channel = loqui_account_get_channel_by_identifier(priv->account, converted_name);
 	if(channel == NULL) {
-		channel = LOQUI_CHANNEL(loqui_channel_irc_new(priv->account, name, FALSE, !LOQUI_UTILS_IRC_STRING_IS_CHANNEL(name)));
+		channel = LOQUI_CHANNEL(loqui_channel_irc_new(priv->account, converted_name, FALSE, !LOQUI_UTILS_IRC_STRING_IS_CHANNEL(converted_name)));
 		loqui_account_add_channel(priv->account, channel);
 		g_object_unref(channel);
 	}
+	g_free(converted_name);
 	g_free(buf);
-
+	
 	buf = g_strdup_printf("[LOG] %s", line);
 	loqui_channel_append_text(channel, TEXT_TYPE_NOTICE, buf);
 	loqui_channel_entry_set_is_updated_weak(LOQUI_CHANNEL_ENTRY(channel), TRUE);
