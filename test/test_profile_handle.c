@@ -9,7 +9,7 @@ test_profile_handle_read_simple_one(void)
 	LoquiProfileAccount *prof;
 	GList *prof_list = NULL, *list;
 
-	const gchar *xml = "<accounts><account type=\"IRC\"><param key=\"name\">name</param><param key=\"nick\">hoge</param><param key=\"username\">user</param><param key=\"servername\">example.com</param><param key=\"port\">3323</param><param key=\"codeset-type\">2</param><param key=\"nick_list\"><list><item>hoge_away</item><item>hoge_zzz</item></list></param></account></accounts>";
+	const gchar *xml = "<accounts><account type=\"IRC\"><param key=\"use\">TRUE</param><param key=\"name\">name</param><param key=\"nick\">hoge</param><param key=\"username\">user</param><param key=\"servername\">example.com</param><param key=\"port\">3323</param><param key=\"codeset-type\">2</param><param key=\"nick_list\"><list><item>hoge_away</item><item>hoge_zzz</item></list></param></account></accounts>";
 	
 	handle = loqui_profile_handle_new();
 	loqui_profile_handle_register_type(handle, "IRC", LOQUI_TYPE_PROFILE_ACCOUNT_IRC);
@@ -21,6 +21,7 @@ test_profile_handle_read_simple_one(void)
 
 	loqui_profile_account_print(prof);
 
+	g_return_val_if_fail(loqui_profile_account_get_use(prof) == TRUE, FALSE);
 	g_return_val_if_fail(strcmp(loqui_profile_account_get_nick(prof), "hoge") == 0, FALSE);
 	g_return_val_if_fail(strcmp(loqui_profile_account_get_username(prof), "user") == 0, FALSE);
 	g_return_val_if_fail(strcmp(loqui_profile_account_get_servername(prof), "example.com") == 0, FALSE);
