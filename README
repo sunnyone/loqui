@@ -16,6 +16,6 @@ I refered this for the GNOME2/GConf development framework.
 http://www.pp.iij4u.or.jp/~tagami/gtk/ircat.html
 Simple IRC client for Gtk1.2
 I learned the implement of IRC client from this, and Loqui borrowed some code from it.
-If this were written in C++, I wouldn't create Loqui if it were written in C.
+If this were written in C++, I wouldn't create Loqui.
 
 
