@@ -236,7 +236,7 @@ loqui_profile_account_class_init(LoquiProfileAccountClass *klass)
 					g_param_spec_string("name",
 							    _("Name"),
 							    _("Account name"),
-							    "Untitled", G_PARAM_READWRITE));
+							    NULL, G_PARAM_READWRITE));
 	g_object_class_install_property(object_class,
 					PROP_NICK,
 					g_param_spec_string("nick",
@@ -299,6 +299,7 @@ loqui_profile_account_init(LoquiProfileAccount *profile)
 	priv = g_new0(LoquiProfileAccountPrivate, 1);
 
 	profile->priv = priv;
+	loqui_profile_account_set_name(profile, _("Untitled"));
 }
 LoquiProfileAccount*
 loqui_profile_account_new(void)
@@ -352,7 +353,6 @@ loqui_profile_account_print(LoquiProfileAccount *profile)
 	const gchar *param_name;
 	gchar *value_str;
 	GValue value = { 0, };
-	GValueArray *value_array;
 	
         g_return_if_fail(profile != NULL);
         g_return_if_fail(LOQUI_IS_PROFILE_ACCOUNT(profile));
