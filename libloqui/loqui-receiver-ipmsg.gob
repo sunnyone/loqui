@@ -36,6 +36,7 @@ requires 2.0.0
 #include "ipmsg.h"
 #include "loqui-account-ipmsg.h"
 #include "loqui-sender-ipmsg.h"
+#include "loqui_message_text.h"
 %}
 
 %{
@@ -246,6 +247,64 @@ class Loqui:Receiver:IPMsg from Loqui:Receiver
 		loqui_channel_entry_remove_member_by_user(LOQUI_CHANNEL_ENTRY(account), user);
 	}
 
+	private void command_sendmsg(self, :IPMsg:Packet *packet) {
+		LoquiAccount *account;
+		LoquiChannel *channel;
+		LoquiMember *member;
+		LoquiUser *user, *user_self;
+		gchar *identifier;
+		LoquiTextType text_type;
+
+		if (!self_validate_and_warn_packet(self, packet))
+			return;
+
+		/* TODO: check broadcast flag and show the message to account buffer */
+
+		account = SELF_GET_ACCOUNT(self);
+		user_self = loqui_account_get_user_self(account);
+
+		identifier = ipmsg_packet_get_identifier(packet);
+		user = loqui_account_peek_user(account, identifier);
+		/* FIXME: conflict with group name? */
+		channel = loqui_account_get_channel_by_identifier(account, identifier);
+
+		if (channel == NULL && user != NULL) {
+			channel = LOQUI_CHANNEL(loqui_channel_new(account, loqui_user_get_nick(user), identifier, FALSE, TRUE));
+
+			member = loqui_member_new(user_self);
+			loqui_channel_entry_add_member(LOQUI_CHANNEL_ENTRY(channel), member);
+			g_object_unref(member);
+
+			if (user_self != user) {
+				member = loqui_member_new(user);
+				loqui_channel_entry_add_member(LOQUI_CHANNEL_ENTRY(channel), member);
+				g_object_unref(member);
+			}
+
+			loqui_account_add_channel(account, channel);
+			g_object_unref(channel);
+		}
+
+		text_type = packet->command_num & IPMSG_AUTORETOPT ? LOQUI_TEXT_TYPE_NOTICE : LOQUI_TEXT_TYPE_NORMAL;
+
+		if (channel && user) {
+			loqui_channel_append_remark(channel,
+						    text_type,
+						    user == user_self ? TRUE : FALSE,
+						    loqui_user_get_nick(user),
+						    packet->extra,
+						    FALSE);
+			
+			if ((member = loqui_channel_entry_get_member_by_user(LOQUI_CHANNEL_ENTRY(channel), user)) != NULL) {
+				loqui_member_set_last_message_time(member, time(NULL));
+			}
+		} else {
+			/* FIXME: the message by not registered user */
+		}
+
+		g_free(identifier);
+	}
+
 	public void handle(self, :IPMsg:Packet *packet (check null type)) {
 		gchar *str;
 
@@ -271,8 +330,8 @@ class Loqui:Receiver:IPMsg from Loqui:Receiver
 			self_command_br_absence(self, packet);
 			return;
 		case IPMSG_SENDMSG:
-//		loqui_receiver_ipmsg_command_sendmsg(self, packet);
-//		return;
+			self_command_sendmsg(self, packet);
+			return;
 		default:
 			break;
 		}
