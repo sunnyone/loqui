@@ -110,6 +110,8 @@ ipmsg_socket_dispose(GObject *object)
 
         sock = IPMSG_SOCKET(object);
 
+	ipmsg_socket_unbind(sock);
+
         if (G_OBJECT_CLASS(parent_class)->dispose)
                 (* G_OBJECT_CLASS(parent_class)->dispose)(object);
 }
@@ -256,4 +258,22 @@ ipmsg_socket_bind(IPMsgSocket *sock)
 					(GIOFunc) ipmsg_socket_watch_in_cb, sock);
 
 	return TRUE;
+}
+void
+ipmsg_socket_unbind(IPMsgSocket *sock)
+{
+	IPMsgSocketPrivate *priv;
+
+	priv = sock->priv;
+
+	if (!priv->udpsock)
+		return;
+
+	if (priv->in_watch) {
+		g_source_remove(priv->in_watch);
+		priv->in_watch = 0;
+	}
+
+	gnet_udp_socket_delete(priv->udpsock);
+	priv->udpsock = NULL;
 }

@@ -52,11 +52,11 @@ struct _IPMsgSocketClass
 	void (* arrive_packet) (IPMsgSocket *socket, IPMsgPacket *packet);
 };
 
-
 GType ipmsg_socket_get_type(void) G_GNUC_CONST;
 
 IPMsgSocket* ipmsg_socket_new(void);
 gboolean ipmsg_socket_bind(IPMsgSocket *sock);
+void ipmsg_socket_unbind(IPMsgSocket *sock);
 
 G_END_DECLS
 

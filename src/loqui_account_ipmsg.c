@@ -54,6 +54,7 @@ static void loqui_account_ipmsg_get_property(GObject *object, guint param_id, GV
 static void loqui_account_ipmsg_set_property(GObject *object, guint param_id, const GValue *value, GParamSpec *pspec);
 
 static void loqui_account_ipmsg_connect(LoquiAccount *account);
+static void loqui_account_ipmsg_disconnect(LoquiAccount *account);
 
 static void loqui_account_ipmsg_socket_arrive_packet_cb(IPMsgSocket *socket, IPMsgPacket *packet, LoquiAccount *account);
 static void loqui_account_ipmsg_socket_warn_cb(IPMsgSocket *socket, const gchar *warn, LoquiAccount *account);
@@ -109,6 +110,8 @@ loqui_account_ipmsg_dispose(GObject *object)
 
         account = LOQUI_ACCOUNT_IPMSG(object);
 
+	loqui_account_disconnect(LOQUI_ACCOUNT(account));
+
         if (G_OBJECT_CLASS(parent_class)->dispose)
                 (* G_OBJECT_CLASS(parent_class)->dispose)(object);
 }
@@ -153,6 +156,7 @@ loqui_account_ipmsg_class_init(LoquiAccountIPMsgClass *klass)
         object_class->set_property = loqui_account_ipmsg_set_property;
 	
 	account_class->connect = loqui_account_ipmsg_connect;
+	account_class->disconnect = loqui_account_ipmsg_disconnect;
 }
 static void 
 loqui_account_ipmsg_init(LoquiAccountIPMsg *account)
@@ -176,13 +180,22 @@ loqui_account_ipmsg_connect(LoquiAccount *account)
         g_return_if_fail(LOQUI_IS_ACCOUNT_IPMSG(account));
 
         priv = LOQUI_ACCOUNT_IPMSG(account)->priv;
+
+	if (loqui_account_get_is_connected(LOQUI_ACCOUNT(account))) {
+		loqui_account_warning(account, _("Already connected."));
+		return;
+	}
+
 	priv->sock = ipmsg_socket_new();
 
 	if (!ipmsg_socket_bind(priv->sock)) {
 		loqui_account_warning(account, _("Failed to create socket. Is used the port?"));
+		G_OBJECT_UNREF_UNLESS_NULL(priv->sock);
 		return;
 	}
 	
+	loqui_account_set_is_connected(LOQUI_ACCOUNT(account), TRUE);
+
 	g_signal_connect(G_OBJECT(priv->sock), "arrive_packet",
 			 G_CALLBACK(loqui_account_ipmsg_socket_arrive_packet_cb), account);
 	g_signal_connect(G_OBJECT(priv->sock), "warn",
@@ -191,6 +204,30 @@ loqui_account_ipmsg_connect(LoquiAccount *account)
 	str = g_strdup_printf(_("Opened the socket."));
 	loqui_account_console_buffer_append(account, TEXT_TYPE_INFO, str);
 	g_free(str);
+
+	loqui_user_set_away(loqui_account_get_user_self(LOQUI_ACCOUNT(account)), LOQUI_AWAY_TYPE_ONLINE);
+}
+static void
+loqui_account_ipmsg_disconnect(LoquiAccount *account)
+{
+	LoquiAccountIPMsgPrivate *priv;
+
+        g_return_if_fail(account != NULL);
+        g_return_if_fail(LOQUI_IS_ACCOUNT_IPMSG(account));
+
+        priv = LOQUI_ACCOUNT_IPMSG(account)->priv;
+	
+	if (!loqui_account_get_is_connected(LOQUI_ACCOUNT(account)))
+		return;
+	
+	if (priv->sock)
+		ipmsg_socket_unbind(priv->sock);
+	G_OBJECT_UNREF_UNLESS_NULL(priv->sock);
+
+	loqui_account_console_buffer_append(account, TEXT_TYPE_INFO, _("Disconnected."));
+
+	loqui_account_set_is_connected(LOQUI_ACCOUNT(account), FALSE);
+	loqui_user_set_away(loqui_account_get_user_self(LOQUI_ACCOUNT(account)), LOQUI_AWAY_TYPE_OFFLINE);
 }
 static void
 loqui_account_ipmsg_socket_arrive_packet_cb(IPMsgSocket *socket, IPMsgPacket *packet, LoquiAccount *account)
