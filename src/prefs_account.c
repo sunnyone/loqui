@@ -402,10 +402,12 @@ void prefs_account_save(GSList *account_list)
 		
 		codeconv = account_get_codeconv(account);
 		if(codeconv) {
+			const gchar *s;
 			num1 = codeconv_get_codeset_type(codeconv);
+			s = codeconv_get_codeset(codeconv);
 			fprintf(fp, " <codeconv type=\"%d\"", num1);
 			if(num1 == CODESET_TYPE_CUSTOM) {
-				escaped = g_markup_escape_text(codeconv_get_codeset(codeconv), -1);
+				escaped = g_markup_escape_text(s ? s : "", -1);
 				fprintf(fp, " codeset=\"%s\"", escaped);
 				g_free(escaped);
 			}

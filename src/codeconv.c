@@ -188,17 +188,21 @@ codeconv_set_codeset_internal(CodeConv *codeconv, const gchar *codeset)
 	priv = codeconv->priv;
 
 	G_FREE_UNLESS_NULL(priv->server_codeset);
+
+	if(priv->cd_from)
+		g_iconv_close(priv->cd_from);
+	priv->cd_from = NULL;
+
+	if(priv->cd_to)
+		g_iconv_close(priv->cd_to);
+	priv->cd_to = NULL;
+
 	if(!codeset)
 		return;
 
 	priv->server_codeset = g_strdup(codeset);
 
-	if(priv->cd_from)
-		g_iconv_close(priv->cd_from);
 	priv->cd_from = g_iconv_open(GTK_CODESET, codeset);
-
-	if(priv->cd_to)
-		g_iconv_close(priv->cd_to);
 	priv->cd_to = g_iconv_open(codeset, GTK_CODESET);
 }
 void
@@ -242,13 +246,8 @@ codeconv_to_server(CodeConv *codeconv, const gchar *input)
 
 	if(input == NULL)
 		return NULL;
-	if(priv->code_type == CODESET_TYPE_NO_CONV)
+	if(priv->code_type == CODESET_TYPE_NO_CONV || !priv->cd_to)
 		return g_strdup(input);
-
-	if(!priv->cd_to) {
-		g_warning(_("Invalid GIconv (cd_to)"));
-		return NULL;
-	}
 
 	output = g_convert_with_iconv(input, strlen(input)+1, priv->cd_to,
 				      NULL, NULL, &error);
@@ -282,13 +281,8 @@ codeconv_to_local(CodeConv *codeconv, const gchar *input)
 
 	if(input == NULL)
 		return NULL;
-	if(priv->code_type == CODESET_TYPE_NO_CONV)
+	if(priv->code_type == CODESET_TYPE_NO_CONV || !priv->cd_from)
 		return g_strdup(input);
-
-	if(!priv->cd_from) {
-		g_warning(_("Invalid GIconv (cd_from)"));
-		return NULL;
-	}
 
 	/* we use a compilicated way to handle broken characters */
 	string = g_string_new(NULL);
