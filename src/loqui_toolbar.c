@@ -126,6 +126,7 @@ loqui_toolbar_new(gpointer data)
         LoquiToolbar *toolbar;
 	LoquiToolbarPrivate *priv;
 	GtkWidget *image;
+	GtkWidget *button;
 
 	toolbar = g_object_new(loqui_toolbar_get_type(), NULL);
 
@@ -134,13 +135,14 @@ loqui_toolbar_new(gpointer data)
 /*	gtk_toolbar_set_style(GTK_TOOLBAR(toolbar), GTK_TOOLBAR_BOTH_HORIZ); */
 
 	image = gtk_image_new_from_stock(GTK_STOCK_JUMP_TO, TOOLBAR_ICON_SIZE);
-	gtk_toolbar_append_element(GTK_TOOLBAR(toolbar),
-				   GTK_TOOLBAR_CHILD_BUTTON,
-				   NULL,
-				   _("Connect"),
-				   _("Connect to IRC server"),
-				   NULL,
-				   image, NULL, NULL);
+	button = gtk_toolbar_append_element(GTK_TOOLBAR(toolbar),
+					    GTK_TOOLBAR_CHILD_BUTTON,
+					    NULL,
+					    _("Connect"),
+					    _("Connect to IRC server"),
+					    NULL,
+					    image, NULL, NULL);
+	gtk_widget_set_sensitive(button, FALSE);
 
 	image = gtk_image_new_from_stock(GTK_STOCK_HOME, TOOLBAR_ICON_SIZE);
 	toolbar->toggle_away = gtk_toolbar_append_element(GTK_TOOLBAR(toolbar),
