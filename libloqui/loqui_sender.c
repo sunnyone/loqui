@@ -176,7 +176,8 @@ loqui_sender_get_account(LoquiSender *sender)
 
 #define CHECK_FUNCTION_IS_DEFINED_AND_RETURN_IF_FAIL(sender, name) { \
 	if (!LOQUI_SENDER_GET_CLASS(sender)->name) { \
-		g_warning("Not defined %s in the class %s", # name, G_OBJECT_TYPE_NAME(sender)); \
+                loqui_account_warning(loqui_sender_get_account(sender), \
+				      "Not defined %s in the class %s", # name, G_OBJECT_TYPE_NAME(sender)); \
 		return; \
 	} \
 }
