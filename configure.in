@@ -42,7 +42,8 @@ fi
 
 AC_PROG_INTLTOOL
 
-AM_PATH_GNET(1.1.4,, AC_MSG_ERROR(Test for GNet failed. See the 'INSTALL' for help.))
+dnl AM_PATH_GNET(1.1.4,, AC_MSG_ERROR(Test for GNet failed. See the 'INSTALL' for help.))
+AM_PATH_GNET_2_0(2.0.0,, AC_MSG_ERROR(Test for GNet failed. See the 'INSTALL' for help.))
 
 AC_SUBST(GNET_CFLAGS)
 AC_SUBST(GNET_LIBS)

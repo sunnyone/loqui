@@ -67,7 +67,6 @@ static void irc_handle_init(IRCHandle *irc_handle);
 static void irc_handle_finalize(GObject *object);
 
 static void irc_handle_connect_cb(GTcpSocket *socket,
-				  GInetAddr *ia,
 				  GTcpSocketConnectAsyncStatus status,
 				  gpointer data);
 static gboolean irc_handle_watch_in_cb(GIOChannel *ioch, 
@@ -1304,7 +1303,6 @@ irc_handle_watch_in_cb(GIOChannel *ioch, GIOCondition condition, gpointer data)
 
 static void
 irc_handle_connect_cb(GTcpSocket *socket,
-		      GInetAddr *ia,
 		      GTcpSocketConnectAsyncStatus status,
 		      gpointer data)
 {
@@ -1333,15 +1331,9 @@ irc_handle_connect_cb(GTcpSocket *socket,
 	priv->socket = socket;
 	account_console_buffer_append(priv->account, TEXT_TYPE_INFO, _("Connected. Sending Initial command..."));
 
-	ioch = gnet_tcp_socket_get_iochannel(socket);
-	/* for old gnet (new gnet do this internally) */
-	if(g_io_channel_get_buffered(ioch)) {
-                g_io_channel_set_encoding(ioch, NULL, NULL);
-                g_io_channel_set_buffered(ioch, FALSE);
-        }
+	ioch = gnet_tcp_socket_get_io_channel(socket);
 	priv->in_watch = g_io_add_watch(ioch, G_IO_IN | G_IO_ERR | G_IO_HUP | G_IO_NVAL,
 					(GIOFunc) irc_handle_watch_in_cb, handle);
-	g_io_channel_unref(ioch);
 
 	if(priv->server->password && strlen(priv->server->password) > 0) {
 		msg = irc_message_create(IRCCommandPass, priv->server->password, NULL);
@@ -1511,9 +1503,8 @@ irc_handle_push_message(IRCHandle *handle, IRCMessage *msg)
 	g_queue_push_tail(priv->msg_queue, msg);
 
 	if(priv->out_watch == 0) {
-		ioch = gnet_tcp_socket_get_iochannel(priv->socket);
+		ioch = gnet_tcp_socket_get_io_channel(priv->socket);
 		priv->out_watch = g_io_add_watch(ioch, G_IO_OUT | G_IO_ERR | G_IO_HUP | G_IO_NVAL,
 						 (GIOFunc) irc_handle_watch_out_cb, handle);
-		g_io_channel_unref(ioch);
 	}
 }

@@ -5,7 +5,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: loqui 0.1.9\n"
-"POT-Creation-Date: 2003-03-26 12:41+0900\n"
+"POT-Creation-Date: 2003-04-17 21:32+0900\n"
 "PO-Revision-Date: 2002-11-10 13:17+0900\n"
 "Last-Translator: Yoichi Imai <yoichi@silver-forest.com>\n"
 "Language-Team: Japanese <ja@li.org>\n"
@@ -22,7 +22,7 @@ msgstr "名前"
 msgid "Account name"
 msgstr "アカウント: "
 
-#: src/account.c:135 src/message_text.c:115 src/nick_list.c:491
+#: src/account.c:135 src/message_text.c:115 src/nick_list.c:533
 msgid "Nick"
 msgstr ""
 
@@ -62,42 +62,47 @@ msgstr "自動joinチャンネル"
 msgid "Channels which are joined automatically"
 msgstr ""
 
-#: src/account.c:511
+#: src/account.c:507
 #, c-format
 msgid "Account '%s' has already connected."
 msgstr "アカウント '%s'はすでに接続されています"
 
-#: src/account.c:542
+#: src/account.c:538
 msgid "Connection terminated."
 msgstr "接続は切断されました。"
 
-#: src/account.c:545
+#: src/account.c:541
 msgid "Trying to reconnect..."
 msgstr "再接続の試行中です..."
 
-#: src/account.c:565
+#: src/account.c:561
 msgid "Disconnected."
 msgstr "切断されました"
 
-#: src/account.c:702
+#: src/account.c:665
 msgid "Not connected with this account"
 msgstr "このアカウントでは接続されていません"
 
-#: src/account.c:720
+#: src/account.c:683
 msgid "No channel is selected"
 msgstr "チャンネルが選択されていません"
 
-#: src/account.c:859 src/account.c:880 src/account.c:907 src/account.c:927
-#: src/account.c:951 src/account.c:973 src/command_dialog.c:42
+#: src/account.c:824 src/account.c:845 src/account.c:872 src/account.c:892
+#: src/account.c:911 src/account.c:932 src/account.c:954
+#: src/command_dialog.c:44
 msgid "Account is not connected."
 msgstr "アカウントが接続されていません"
 
-#: src/account.c:894
+#: src/account.c:859
 #, c-format
 msgid "Sent CTCP request to %s: %s"
 msgstr ""
 
-#: src/account.c:1002
+#: src/account.c:917
+msgid "This nick seems to be channel."
+msgstr ""
+
+#: src/account.c:983
 msgid "Too many users in change mode request!"
 msgstr ""
 
@@ -145,7 +150,7 @@ msgstr ""
 msgid "Account List"
 msgstr "アカウントリスト"
 
-#: src/account_manager.c:488
+#: src/account_manager.c:529
 msgid ""
 "main_account_manager should be created. account_manager_get() may be called "
 "recursively."
@@ -193,47 +198,55 @@ msgstr "コード変換エラー: %s"
 msgid "Unknown error occured in code convertion."
 msgstr "コード変換で不明なエラーが発生しました"
 
-#: src/command_dialog.c:38
+#: src/command_dialog.c:40
 msgid "Account is not selected."
 msgstr "アカウントが選択されていません"
 
-#: src/command_dialog.c:50
+#: src/command_dialog.c:52
 msgid "Input some characters."
 msgstr ""
 
-#: src/command_dialog.c:55
+#: src/command_dialog.c:57
 msgid "Error: space contains"
 msgstr ""
 
-#: src/command_dialog.c:98
+#: src/command_dialog.c:109
 msgid "Join channel/private message"
 msgstr ""
 
-#: src/command_dialog.c:99
-msgid "Type channel name to join or nick to send private message."
+#: src/command_dialog.c:110
+msgid "Type channel name to join."
 msgstr ""
 
-#: src/command_dialog.c:107
-msgid "Part channel"
+#: src/command_dialog.c:118
+msgid "Start private talk"
 msgstr ""
 
-#: src/command_dialog.c:108
-msgid "Type channel name to part and the part message."
-msgstr ""
-
-#: src/command_dialog.c:116
-msgid "Set the topic of the channel"
-msgstr ""
-
-#: src/command_dialog.c:117
-msgid "Type channel name and its topic."
+#: src/command_dialog.c:119
+msgid "Type nick to start private talk."
 msgstr ""
 
 #: src/command_dialog.c:127
-msgid "Change nickname"
+msgid "Part channel"
 msgstr ""
 
 #: src/command_dialog.c:128
+msgid "Type channel name to part and the part message."
+msgstr ""
+
+#: src/command_dialog.c:136
+msgid "Set the topic of the channel"
+msgstr ""
+
+#: src/command_dialog.c:137
+msgid "Type channel name and its topic."
+msgstr ""
+
+#: src/command_dialog.c:147
+msgid "Change nickname"
+msgstr ""
+
+#: src/command_dialog.c:148
 msgid "Type nickname."
 msgstr ""
 
@@ -500,139 +513,143 @@ msgstr "接続されていません"
 msgid "Invalid parameter number"
 msgstr "無効なパラメータ番号"
 
-#: src/loqui_app.c:232
+#: src/loqui_app.c:237
 msgid "No accounts are selected!"
 msgstr "アカウントが選択されていません"
 
-#: src/loqui_menu.c:75
+#: src/loqui_menu.c:76
 msgid "/_File"
 msgstr "/ファイル(_F)"
 
-#: src/loqui_menu.c:76
+#: src/loqui_menu.c:77
 msgid "/File/_Connect"
 msgstr "/File/接続(_C)"
 
-#: src/loqui_menu.c:77
+#: src/loqui_menu.c:78
 msgid "/File/_Quit"
 msgstr "/File/終了(_Q)"
 
-#: src/loqui_menu.c:78
+#: src/loqui_menu.c:79
 msgid "/_Edit"
 msgstr "/編集(_E)"
 
-#: src/loqui_menu.c:79
+#: src/loqui_menu.c:80
 msgid "/Edit/Cut"
 msgstr "/Edit/切り取り"
 
-#: src/loqui_menu.c:80
+#: src/loqui_menu.c:81
 msgid "/Edit/_Copy"
 msgstr "/Edit/コピー(_C)"
 
-#: src/loqui_menu.c:81
+#: src/loqui_menu.c:82
 msgid "/Edit/_Paste"
 msgstr "/Edit/ペースト(_P)"
 
-#: src/loqui_menu.c:82
+#: src/loqui_menu.c:83
 msgid "/Edit/Paste with linefeeds cut"
 msgstr "/Edit/改行を削除してペースト"
 
-#: src/loqui_menu.c:84
+#: src/loqui_menu.c:85
 msgid "/Edit/Clear"
 msgstr "/Edit/クリア"
 
-#: src/loqui_menu.c:86
+#: src/loqui_menu.c:87
 msgid "/Edit/_Find"
 msgstr "/Edit/検索(_F)"
 
-#: src/loqui_menu.c:87
+#: src/loqui_menu.c:88
 msgid "/Edit/_Find again"
 msgstr "/Edit/次を検索"
 
-#: src/loqui_menu.c:88
+#: src/loqui_menu.c:89
 msgid "/_Command"
 msgstr "/コマンド(_C)"
 
-#: src/loqui_menu.c:89
+#: src/loqui_menu.c:90
 msgid "/Command/_Join channel"
 msgstr ""
 
-#: src/loqui_menu.c:90
-msgid "/Command/_Part channel"
+#: src/loqui_menu.c:91
+msgid "/Command/Start private talk"
 msgstr ""
 
 #: src/loqui_menu.c:92
-msgid "/Command/_Set channel topic"
-msgstr ""
-
-#: src/loqui_menu.c:93
-msgid "/Command/_Change nickname"
+msgid "/Command/_Part channel"
 msgstr ""
 
 #: src/loqui_menu.c:94
+msgid "/Command/_Set channel topic"
+msgstr ""
+
+#: src/loqui_menu.c:95
+msgid "/Command/_Change nickname"
+msgstr ""
+
+#: src/loqui_menu.c:96
 msgid "/_View"
 msgstr "/表示(_V)"
 
-#: src/loqui_menu.c:95
+#: src/loqui_menu.c:97
 msgid "/View/Toolbar"
 msgstr "/View/ツールバー"
 
-#: src/loqui_menu.c:96
+#: src/loqui_menu.c:98
 msgid "/View/Toolbar/Icon"
 msgstr "/View/Toolbar/アイコン"
 
-#: src/loqui_menu.c:97
+#: src/loqui_menu.c:99
 msgid "/View/Toolbar/Text"
 msgstr "/View/Toolbar/テキスト"
 
-#: src/loqui_menu.c:98
+#: src/loqui_menu.c:100
 msgid "/View/Toolbar/Both icons and text"
 msgstr "/View/Toolbar/アイコンとテキスト"
 
-#: src/loqui_menu.c:99
+#: src/loqui_menu.c:101
 msgid "/View/Toolbar/Both icons and text horizontally"
 msgstr ""
 
-#: src/loqui_menu.c:100
+#: src/loqui_menu.c:102
 msgid "/View/Toolbar/Hide"
 msgstr "/View/Toolbar/隠す"
 
-#: src/loqui_menu.c:101
+#: src/loqui_menu.c:103
 msgid "/View/Status bar"
 msgstr "/View/ステータスバー"
 
-#: src/loqui_menu.c:103
+#: src/loqui_menu.c:105
 msgid "/View/Previous updated channel"
 msgstr "/View/前の更新されたチャンネル"
 
-#: src/loqui_menu.c:104
+#: src/loqui_menu.c:106
 msgid "/View/Next updated channel"
 msgstr "/View/次の更新されたチャンネル"
 
-#: src/loqui_menu.c:106
+#: src/loqui_menu.c:108
 msgid "/View/Previous channel"
 msgstr "/View/前のチャンネル"
 
-#: src/loqui_menu.c:107
+#: src/loqui_menu.c:109
 msgid "/View/Next channel"
 msgstr "/View/次のチャンネル"
 
-#: src/loqui_menu.c:108
+#: src/loqui_menu.c:110
 msgid "/_Settings"
 msgstr "/設定(_S)"
 
-#: src/loqui_menu.c:109
+#: src/loqui_menu.c:111
 msgid "/Settings/Common preferences..."
 msgstr "/Settings/全般の設定..."
 
-#: src/loqui_menu.c:110
+#: src/loqui_menu.c:112
 msgid "/Settings/Account settings..."
 msgstr "/Settings/アカウント設定..."
 
-#: src/loqui_menu.c:111
+#: src/loqui_menu.c:113
 msgid "/_Help"
 msgstr "/ヘルプ(_H)"
 
-#: src/loqui_menu.c:112
+#: src/loqui_menu.c:114
 msgid "/Help/_About"
 msgstr "/Help/このプログラムについて(_A)"
 
@@ -729,55 +746,61 @@ msgstr ""
 msgid "Text type"
 msgstr ""
 
-#: src/nick_list.c:80
-msgid "/Whois"
-msgstr ""
-
-#: src/nick_list.c:81
-msgid "/Mode"
-msgstr ""
-
 #: src/nick_list.c:82
-msgid "/Mode/Give channel operator privilege (+o)"
-msgstr "/Mode/チャンネルオペレータ権限を与える (+o)"
+msgid "/Start private talk"
+msgstr ""
+
+#: src/nick_list.c:83
+msgid "/Show information [Whois]"
+msgstr ""
 
 #: src/nick_list.c:84
-msgid "/Mode/Give speak ability (+v)"
+msgid "/Change user mode [Mode]"
 msgstr ""
+
+#: src/nick_list.c:85
+#, fuzzy
+msgid "/Change user mode [Mode]/Give channel operator privilege (+o)"
+msgstr "/Mode/チャンネルオペレータ権限を与える (+o)"
 
 #: src/nick_list.c:87
-msgid "/Mode/Deprive channel operator privilege (-o)"
+msgid "/Change user mode [Mode]/Give speak ability (+v)"
 msgstr ""
 
-#: src/nick_list.c:89
-msgid "/Mode/Deprive speak ability (-v)"
-msgstr ""
+#: src/nick_list.c:90
+#, fuzzy
+msgid "/Change user mode [Mode]/Deprive channel operator privilege (-o)"
+msgstr "/Mode/チャンネルオペレータ権限を与える (+o)"
 
 #: src/nick_list.c:92
-msgid "/CTCP"
-msgstr ""
-
-#: src/nick_list.c:93
-msgid "/CTCP/Version"
-msgstr ""
-
-#: src/nick_list.c:94
-msgid "/CTCP/Clientinfo"
+msgid "/Change user mode [Mode]/Deprive speak ability (-v)"
 msgstr ""
 
 #: src/nick_list.c:95
-msgid "/CTCP/Userinfo"
+msgid "/CTCP"
 msgstr ""
 
 #: src/nick_list.c:96
-msgid "/CTCP/Ping"
+msgid "/CTCP/Version"
 msgstr ""
 
 #: src/nick_list.c:97
-msgid "/CTCP/Time"
+msgid "/CTCP/Clientinfo"
 msgstr ""
 
 #: src/nick_list.c:98
+msgid "/CTCP/Userinfo"
+msgstr ""
+
+#: src/nick_list.c:99
+msgid "/CTCP/Ping"
+msgstr ""
+
+#: src/nick_list.c:100
+msgid "/CTCP/Time"
+msgstr ""
+
+#: src/nick_list.c:101
 msgid "/CTCP/Finger"
 msgstr ""
 
@@ -800,7 +823,7 @@ msgstr ""
 msgid "Invalid hostname: %s"
 msgstr ""
 
-#: src/prefs_account.c:198 src/prefs_general.c:136
+#: src/prefs_account.c:198 src/prefs_general.c:139
 #, c-format
 msgid "Invalid element: %s"
 msgstr ""
@@ -810,83 +833,95 @@ msgstr ""
 msgid "Accountrc parse error: %s"
 msgstr "Accountrcパースエラー: %s"
 
-#: src/prefs_account.c:281 src/prefs_general.c:302
+#: src/prefs_account.c:281 src/prefs_general.c:305
 #, c-format
 msgid "Loquirc parse error: %s"
 msgstr ""
 
-#: src/prefs_account.c:309 src/prefs_general.c:324
+#: src/prefs_account.c:309 src/prefs_general.c:327
 #, c-format
 msgid "Can't open %s: %s"
 msgstr "%sが開けませんでした: %s"
 
-#: src/prefs_dialog.c:267
+#: src/prefs_dialog.c:287
 msgid "Common Preferences"
 msgstr "全般の設定..."
 
-#: src/prefs_dialog.c:284
+#: src/prefs_dialog.c:304
 msgid "General"
 msgstr "全般"
 
-#: src/prefs_dialog.c:286
+#: src/prefs_dialog.c:306
 msgid "Save window/widget sizes"
 msgstr "ウィンドウとウィジットのサイズを保存する"
 
-#: src/prefs_dialog.c:288
+#: src/prefs_dialog.c:308
 msgid "Switch whether scrolling or not automatically"
 msgstr ""
 
-#: src/prefs_dialog.c:290
+#: src/prefs_dialog.c:310
 msgid "Parse plum (an irc proxy) recent feature (Experimental)"
 msgstr ""
 
-#: src/prefs_dialog.c:292
+#: src/prefs_dialog.c:312
 msgid "Reconnect automatically when connections are terminated."
 msgstr ""
 
-#: src/prefs_dialog.c:295
+#: src/prefs_dialog.c:315
 msgid "Code convertion"
 msgstr "コード変換"
 
-#: src/prefs_dialog.c:314
+#: src/prefs_dialog.c:334
 msgid "Away message: "
 msgstr "離席メッセージ: "
 
-#: src/prefs_dialog.c:317
+#: src/prefs_dialog.c:337
 msgid "Highlight"
 msgstr "強調"
 
-#: src/prefs_dialog.c:319
+#: src/prefs_dialog.c:339
 msgid "Use notification"
 msgstr "通知を使用する"
 
-#: src/prefs_dialog.c:322
+#: src/prefs_dialog.c:342
 msgid "Highlighting keywords(Separate each words with linefeeds)"
 msgstr "強調するキーワード(改行で区切って下さい)"
 
-#: src/prefs_dialog.c:332
+#: src/prefs_dialog.c:353
+msgid "Ignore"
+msgstr ""
+
+#: src/prefs_dialog.c:355
+msgid "Use ignore (transparent) feature"
+msgstr ""
+
+#: src/prefs_dialog.c:358
+msgid "Nickname list to ignore (transparent) ('*' and '?' can be used)"
+msgstr ""
+
+#: src/prefs_dialog.c:369
 msgid "Command"
 msgstr "コマンド"
 
-#: src/prefs_dialog.c:334
+#: src/prefs_dialog.c:371
 msgid "Browser: "
 msgstr "ブラウザ: "
 
-#: src/prefs_dialog.c:335
+#: src/prefs_dialog.c:372
 msgid "Notification: "
 msgstr "通知: "
 
-#: src/prefs_general.c:145
+#: src/prefs_general.c:148
 #, c-format
 msgid "prefs_general: Invalid attribute for entry: %s"
 msgstr ""
 
-#: src/prefs_general.c:151
+#: src/prefs_general.c:154
 #, c-format
 msgid "Unknown key: %s\n"
 msgstr ""
 
-#: src/prefs_general.c:216 src/prefs_general.c:242
+#: src/prefs_general.c:219 src/prefs_general.c:245
 msgid "Unsupported pref type!"
 msgstr ""
 

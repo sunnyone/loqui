@@ -30,6 +30,8 @@
 #include <string.h>
 #include <stdlib.h>
 
+#include <gnet.h>
+
 #include "intl.h"
 
 int debug_mode;
@@ -70,6 +72,7 @@ main(int argc, char *argv[])
 
 	make_program_dir();
 
+	gnet_init();
 	gtk_init(&argc, &argv);
 
 	for(i = 0; i < argc; i++) {
