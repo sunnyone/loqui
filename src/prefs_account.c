@@ -96,9 +96,11 @@ static void set_current_account(const gchar **attribute_names,
 				const gchar **attribute_values)
 {
 	int i;
+	gboolean use = TRUE;
 	gchar *name = NULL, *nick = NULL, *username = NULL;
 
 	for(i = 0; attribute_names[i] != NULL; i++) {
+		SET_ATTRIBUTE_INT("use", (gint) use);
 		SET_ATTRIBUTE_STR("name", name);
 		SET_ATTRIBUTE_STR("nick", nick);
 		SET_ATTRIBUTE_STR("username", username);
@@ -116,10 +118,10 @@ static void set_current_account(const gchar **attribute_names,
 	CHECK_NULL("username", username);
 
 	current_account = account_new();
-	account_set(current_account, name, nick, username, NULL, NULL, NULL);
+	account_set(current_account, use, name, nick, username, NULL, NULL, NULL);
 
-	debug_puts("account: name => \"%s\", nick => \"%s\", username => \"%s\"",
-		   name, nick, username);
+	debug_puts("account: use => \"%d\", name => \"%s\", nick => \"%s\", username => \"%s\"",
+		   use, name, nick, username);
 #undef CHECK_NULL
 #undef CHECK_SPACE
 }
@@ -314,7 +316,8 @@ void prefs_account_save(GSList *account_list)
 		tmp2 = g_markup_escape_text(account_get_nick(account), -1);
 		tmp3 = g_markup_escape_text(account_get_username(account), -1);
 
-		fprintf(fp, "<account name=\"%s\" nick=\"%s\" username=\"%s\">\n", tmp1, tmp2, tmp3);
+		fprintf(fp, "<account use=\"%d\" name=\"%s\" nick=\"%s\" username=\"%s\">\n",
+			account->use ? 1 : 0, tmp1, tmp2, tmp3);
 
 		g_free(tmp1);
 		g_free(tmp2);

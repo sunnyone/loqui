@@ -189,6 +189,7 @@ DEFINE_STRING_ACCESSOR(autojoin);
 
 void
 account_set(Account *account,
+	    gboolean use,
 	    const gchar *name,
 	    const gchar *nick,
 	    const gchar *username,
@@ -199,6 +200,7 @@ account_set(Account *account,
         g_return_if_fail(account != NULL);
         g_return_if_fail(IS_ACCOUNT(account));
 
+	account->use = use;
 	account_set_name(account, name);
 	account_set_nick(account, nick);
 	account_set_username(account, username);
@@ -216,6 +218,7 @@ account_print(Account *account)
         g_return_if_fail(IS_ACCOUNT(account));
 
 	g_print("ACCOUNT[%s] {\n", account_get_name(account));
+	g_print(" use: %s\n", account->use ? "TRUE" : "FALSE");
 	g_print(" nick: %s\n", account_get_nick(account));
 	g_print(" username: %s\n", account_get_username(account));
 	g_print(" realname: %s\n", account_get_realname(account));

@@ -163,6 +163,7 @@ account_dialog_response_cb(GtkWidget *widget, gint response, gpointer data)
 	switch(response) {
 	case GTK_RESPONSE_OK:
 		account_set(priv->account,
+			    gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(priv->check_use)),
 			    gtk_entry_get_text(GTK_ENTRY(priv->entry_name)),
 			    gtk_entry_get_text(GTK_ENTRY(priv->entry_nick)),
 			    gtk_entry_get_text(GTK_ENTRY(priv->entry_username)),
@@ -357,9 +358,10 @@ account_dialog_new(Account *account)
 	gtk_box_pack_start(GTK_BOX(vbox), hbox, FALSE, TRUE, 0);
 
 	gtkutils_add_label_entry(hbox, _("Account:"), &priv->entry_name, account_get_name(account));
-
-/*	priv->check_use = gtk_check_button_new(_("Use"));
-	gtk_box_pack_start(GTK_BOX(hbox), priv->check_use, TRUE, TRUE, 0); */
+	
+	priv->check_use = gtk_check_button_new_with_label(_("Connect by default"));
+	gtk_box_pack_start(GTK_BOX(hbox), priv->check_use, TRUE, TRUE, 0);
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(priv->check_use), account->use);
 
 	gtkutils_add_label_entry(vbox, _("Nickname:"), &priv->entry_nick, account_get_nick(account));
 	gtkutils_add_label_entry(vbox, _("Username:"), &priv->entry_username, account_get_username(account));

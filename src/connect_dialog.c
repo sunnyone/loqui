@@ -35,6 +35,7 @@ enum {
 	COLUMN_NAME,
 	COLUMN_ACCOUNT,
 	COLUMN_SERVER,
+	COLUMN_VISIBLE,
 	COLUMN_NUMBER
 };
 
@@ -230,6 +231,7 @@ connect_dialog_new(void)
 	GSList *cur, *tmp;
 	Account *account;
 	Server *server;
+	gboolean is_connected;
 
 	dialog = g_object_new(connect_dialog_get_type(), NULL);
 	
@@ -250,12 +252,14 @@ connect_dialog_new(void)
 					      G_TYPE_BOOLEAN,
 					      G_TYPE_STRING,
 					      G_TYPE_OBJECT,
-					      G_TYPE_POINTER);
+					      G_TYPE_POINTER,
+					      G_TYPE_BOOLEAN);
 
 	
 	priv->treeview = gtk_tree_view_new_with_model(GTK_TREE_MODEL(priv->tree_store));
 	selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(priv->treeview));
 	gtk_tree_selection_set_mode(selection, GTK_SELECTION_NONE);
+	gtk_tree_view_set_rules_hint(GTK_TREE_VIEW(priv->treeview), TRUE);
 
 	renderer = gtk_cell_renderer_toggle_new();
 	g_signal_connect(G_OBJECT(renderer), "toggled",
@@ -263,6 +267,7 @@ connect_dialog_new(void)
 	column = gtk_tree_view_column_new_with_attributes("Use",
 							  renderer,
 							  "active", COLUMN_USE,
+							  "activatable", COLUMN_VISIBLE,
 							  NULL);
 	gtk_tree_view_column_set_cell_data_func(column, renderer,
 						connect_dialog_cell_data_func_use,
@@ -280,12 +285,14 @@ connect_dialog_new(void)
 
 	for(cur = account_list; cur != NULL; cur = cur->next) {
 		account = ACCOUNT(cur->data);
+		is_connected = account_is_connected(account);
 
 		gtk_tree_store_append(priv->tree_store, &parent, NULL);
 		gtk_tree_store_set(priv->tree_store, &parent,
-				   COLUMN_USE, TRUE,
+				   COLUMN_USE, is_connected ? FALSE : account->use,
 				   COLUMN_NAME, account_get_name(account),
 				   COLUMN_ACCOUNT, account,
+				   COLUMN_VISIBLE, !is_connected,
 				   -1);
 
 		gtk_tree_store_append(priv->tree_store, &iter, &parent);
@@ -317,6 +324,8 @@ connect_dialog_new(void)
 	gtk_container_add(GTK_CONTAINER(scrolled_win), priv->treeview);
 
 	gtk_widget_show_all(GTK_WIDGET(GTK_DIALOG(dialog)->vbox));
+
+	gtk_widget_set_usize(GTK_WIDGET(dialog), 300, 200);
 
 	return GTK_WIDGET(dialog);
 }

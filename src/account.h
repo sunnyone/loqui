@@ -45,6 +45,8 @@ struct _Account
 
 	gchar *name;
 
+	gboolean use;
+
 	GSList *server_list; /* list of Server */
 	GSList *channel_list; /* list of Channel */
 
@@ -75,6 +77,7 @@ GType account_get_type(void) G_GNUC_CONST;
 
 Account* account_new(void);
 void account_set(Account *account,
+		 gboolean use,
 		 const gchar *name,
 		 const gchar *nick,
 		 const gchar *username,
