@@ -10,6 +10,8 @@ bin_PROGRAMS = loqui
 INCLUDES = -I$(includedir) -I$(top_srcdir)/libloqui -I$(top_builddir)/libloqui -I$(top_srcdir) -I$(top_builddir)
 CPPFLAGS =  $(GTK_CFLAGS) $(EXTRA_WARNING_CFLAGS) -g -DDATADIR=\""$(datadir)"\" $(GNET_CFLAGS) -Wall -Wredundant-decls -Wmissing-declarations -Wmissing-prototypes
 
+define(`M4_SRC_GOB',`loqui-core-gtk.gob loqui-style-entry.gob')dnl
+
 loqui_SOURCES = \
 	eggtrayicon.c eggtrayicon.h \
 	gtkutils.c gtkutils.h \
@@ -39,17 +41,11 @@ loqui_SOURCES = \
 	loqui_channelbar.c loqui_channelbar.h \
 	loqui_select_dialog.c loqui_select_dialog.h \
 	prefs_general_upgrader.c prefs_general_upgrader.h \
-	$(BUILT_SOURCES_FROM_GOB) \
-	loqui-general-pref-gtk.h loqui-general-pref-gtk-groups.h loqui-general-pref-gtk-default.h
-
-define(`M4_SRC_LIBRARY_GOB',`loqui-core-gtk.gob loqui-style-entry.gob')dnl
-
-GOB_SOURCE := M4_SRC_LIBRARY_GOB
-
-BUILT_SOURCES_FROM_GOB := gob_to_built_sources(M4_SRC_LIBRARY_GOB)
+	loqui-general-pref-gtk.h loqui-general-pref-gtk-groups.h loqui-general-pref-gtk-default.h \
+	$(M4_SRC_GOB) gob_to_built_sources(M4_SRC_GOB)
 
 BUILT_SOURCES := \
-	$(BUILT_SOURCES_FROM_GOB)
+	gob_to_built_sources(M4_SRC_GOB)
 
 loqui_LDADD = \
         $(GTK_LIBS) $(GNET_LIBS) ../libloqui/libloqui.la
