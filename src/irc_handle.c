@@ -281,23 +281,30 @@ irc_handle_command_nick(IRCHandle *handle, IRCMessage *msg)
 static void
 irc_handle_command_join(IRCHandle *handle, IRCMessage *msg)
 {
-	GSList *slist, *cur;
-	
+	gchar *name;
+	Channel *channel;
+
 	if(msg->nick == NULL) {
 		g_warning(_("The message does not contain nick"));
 		return;
 	}
-
-	slist = account_search_joined_channel(handle->priv->account, msg->nick);
-	for(cur = slist; cur != NULL; cur = cur->next) {
-		gdk_threads_enter();
-		channel_append_user((Channel *) cur->data, msg->nick, USER_POWER_NOTHING, USER_EXISTENCE_UNKNOWN);
-		gdk_threads_leave();
+	name = irc_message_get_param(msg, 1);
+	if(name == NULL) {
+		g_warning(_("Invalid JOIN command"));
+		return;
 	}
+	
+	channel = account_search_channel_by_name(handle->priv->account, name);
+	if(!channel) {
+		g_warning(_("Why do you know that the user join the channel?"));
+		return;
+	}
+	
+	gdk_threads_enter();
+	channel_append_user(channel, msg->nick, USER_POWER_NOTHING, USER_EXISTENCE_UNKNOWN);
+	gdk_threads_leave();
 
-	irc_handle_joined_channel_append(handle, msg, slist, TEXT_TYPE_INFO, _("*** %n (%u@%h) joined channel %t"));
-
-	g_slist_free(slist);
+	irc_handle_channel_append(handle, msg, FALSE, 1, TEXT_TYPE_INFO, _("*** %n (%u@%h) joined channel %t"));
 }
 static void
 irc_handle_my_command_join(IRCHandle *handle, IRCMessage *msg)
@@ -473,7 +480,7 @@ irc_handle_joined_channel_append(IRCHandle *handle, IRCMessage *msg, GSList *cha
 	} else {
 		slist = channel_slist;
 	}
-			
+
 
 	gdk_threads_enter();
 	if(slist != NULL) {
