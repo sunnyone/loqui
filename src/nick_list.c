@@ -66,7 +66,7 @@ static gint nick_list_button_press_event_cb(GtkWidget *widget, GdkEventButton *e
 static void nick_list_row_activated_cb(NickList *list, GtkTreePath *path, GtkTreeViewColumn *col, gpointer data);
 static gboolean nick_list_key_press_event(GtkWidget *widget, GdkEventKey *event);
 
-static GSList *nick_list_menu_get_selected_nicks(NickList *nick_list);
+static GSList *nick_list_menu_get_selected_members(NickList *nick_list);
 
 GType
 nick_list_get_type(void)
@@ -225,16 +225,16 @@ static void nick_list_cell_data_func_away(GtkTreeViewColumn *tree_column,
 	}
 }
 static GSList *
-nick_list_menu_get_selected_nicks(NickList *nick_list)
+nick_list_menu_get_selected_members(NickList *nick_list)
 {
-	GSList *str_list = NULL;
+	GSList *member_list = NULL;
 	GList *row_list, *cur;
 	GtkTreePath *path;
 	GtkTreeSelection *selection;
 	GtkTreeIter iter;
 	GtkTreeModel *model;
-	gchar *nick;
-
+	LoquiMember *member;
+	
 	selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(nick_list));
 	if(!selection)
 		return NULL;
@@ -251,20 +251,21 @@ nick_list_menu_get_selected_nicks(NickList *nick_list)
 		if(!gtk_tree_model_get_iter(model, &iter, path)) {
 			continue;
                 }
-		gtk_tree_model_get(model, &iter, LOQUI_CHANNEL_ENTRY_STORE_COLUMN_NICK, &nick, -1);
-		str_list = g_slist_append(str_list, nick);
+		gtk_tree_model_get(model, &iter, LOQUI_CHANNEL_ENTRY_STORE_COLUMN_MEMBER, &member, -1);
+		member_list = g_slist_append(member_list, member);
 	}
 	g_list_foreach(row_list, (GFunc) gtk_tree_path_free, NULL);
 	g_list_free(row_list);
 
-	return str_list;
+	return member_list;
 }
 void
 nick_list_start_private_talk_selected(NickList *nick_list)
 {
 	NickListPrivate *priv;
-	GSList *str_list, *cur;
+	GSList *member_list, *cur;
 	Account *account;
+	LoquiMember *member;
 
 	priv = nick_list->priv;
 
@@ -272,19 +273,20 @@ nick_list_start_private_talk_selected(NickList *nick_list)
 	if(!account)
 		return;
 
-	str_list = nick_list_menu_get_selected_nicks(nick_list);
-	for(cur = str_list; cur != NULL; cur = cur->next) {
-		account_start_private_talk(account, (gchar *) cur->data);
-		g_free(cur->data);
+	member_list = nick_list_menu_get_selected_members(nick_list);
+	for(cur = member_list; cur != NULL; cur = cur->next) {
+		member = cur->data;
+		account_start_private_talk(account, loqui_user_get_nick(member->user));
 	}
-	g_slist_free(str_list);
+	g_slist_free(member_list);
 }
 void
 nick_list_whois_selected(NickList *nick_list)
 {
 	NickListPrivate *priv;
-	GSList *str_list, *cur;
+	GSList *member_list, *cur;
 	Account *account;
+	LoquiMember *member;
 
 	priv = nick_list->priv;
 
@@ -292,19 +294,20 @@ nick_list_whois_selected(NickList *nick_list)
 	if(!account)
 		return;
 
-	str_list = nick_list_menu_get_selected_nicks(nick_list);
-	for(cur = str_list; cur != NULL; cur = cur->next) {
-		account_whois(account, (gchar *) cur->data);
-		g_free(cur->data);
+	member_list = nick_list_menu_get_selected_members(nick_list);
+	for(cur = member_list; cur != NULL; cur = cur->next) {
+		member = cur->data;
+		account_whois(account, loqui_user_get_nick(member->user));
 	}
-	g_slist_free(str_list);
+	g_slist_free(member_list);
 }
 void
 nick_list_change_mode_selected(NickList *nick_list, gboolean is_give, IRCModeFlag flag)
 {
 	NickListPrivate *priv;
 	LoquiChannel *channel;
-	GSList *str_list, *cur;
+	GSList *member_list, *cur;
+	LoquiMember *member;
 	
 	priv = nick_list->priv;
 
@@ -312,12 +315,12 @@ nick_list_change_mode_selected(NickList *nick_list, gboolean is_give, IRCModeFla
 	if(!channel)
 		return;
 
-	str_list = nick_list_menu_get_selected_nicks(nick_list);
-	for(cur = str_list; cur != NULL; cur = cur->next) {
-		loqui_channel_push_user_mode_queue(channel, is_give, (IRCModeFlag) flag, (gchar *) cur->data);
-		g_free(cur->data);
+	member_list = nick_list_menu_get_selected_members(nick_list);
+	for(cur = member_list; cur != NULL; cur = cur->next) {
+		member = cur->data;
+		loqui_channel_push_user_mode_queue(channel, is_give, (IRCModeFlag) flag, loqui_user_get_nick(member->user));
 	}
-	g_slist_free(str_list);
+	g_slist_free(member_list);
 	loqui_channel_flush_user_mode_queue(channel);
 	
 }
@@ -325,8 +328,9 @@ void
 nick_list_ctcp_selected(NickList *nick_list, const gchar *command)
 {
 	NickListPrivate *priv;
-	GSList *str_list, *cur;
+	GSList *member_list, *cur;
 	Account *account;
+	LoquiMember *member;
 
 	priv = nick_list->priv;
 
@@ -334,12 +338,12 @@ nick_list_ctcp_selected(NickList *nick_list, const gchar *command)
 	if(!account)
 		return;
 
-	str_list = nick_list_menu_get_selected_nicks(nick_list);
-	for(cur = str_list; cur != NULL; cur = cur->next) {
-		account_send_ctcp_request(account, (gchar *) cur->data, command);
-		g_free(cur->data);
+	member_list = nick_list_menu_get_selected_members(nick_list);
+	for(cur = member_list; cur != NULL; cur = cur->next) {
+		member = cur->data;
+		account_send_ctcp_request(account, loqui_user_get_nick(member->user), command);
 	}
-	g_slist_free(str_list);
+	g_slist_free(member_list);
 }
 static gint
 nick_list_button_press_event_cb(GtkWidget *widget, GdkEventButton *event, gpointer data)
