@@ -386,10 +386,7 @@ loqui_app_actions_toggle_scroll_cb(GtkAction *action, LoquiApp *app)
 	gboolean is_active;
 
 	is_active = gtk_toggle_action_get_active(GTK_TOGGLE_ACTION(action));
-	if(is_active)
-		loqui_channel_text_view_scroll_to_end(LOQUI_CHANNEL_TEXT_VIEW(app->channel_textview));
-
-	app->is_scroll = is_active;
+	loqui_channel_text_view_set_is_scroll(LOQUI_CHANNEL_TEXT_VIEW(app->channel_textview), is_active);
 }
 static void
 loqui_app_actions_toggle_command_mode_cb(GtkAction *action, LoquiApp *app)

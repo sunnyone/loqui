@@ -62,8 +62,6 @@ struct _LoquiAppPrivate
 {
 	GtkWidget *handlebox_channelbar;
 
-	GtkWidget *buffers_menu;
-
 	LoquiChannelEntry *current_chent;
 
 	Account *current_account; /* read only */
@@ -71,9 +69,6 @@ struct _LoquiAppPrivate
 
 	MessageText *last_msgtext;
 	ChannelBuffer *common_buffer;
-
-	guint channel_buffer_inserted_signal_id;
-	guint common_buffer_inserted_signal_id;
 
 	gboolean is_pending_update_account_info;
 	gboolean is_pending_update_channel_info;
@@ -99,17 +94,6 @@ static gint loqui_app_delete_event(GtkWidget *widget, GdkEventAny *event);
 static void loqui_app_restore_size(LoquiApp *app);
 static void loqui_app_save_size(LoquiApp *app);
 static void loqui_app_entry_activate_cb(GtkWidget *widget, gpointer data);
-
-static void loqui_app_channel_textview_inserted_cb(GtkTextBuffer *textbuf,
-						   GtkTextIter *pos,
-						   const gchar *text,
-						   gint length,
-						   gpointer data);
-static void loqui_app_common_textview_inserted_cb(GtkTextBuffer *textbuf,
-						  GtkTextIter *pos,
-						  const gchar *text,
-						  gint length,
-						  gpointer data);
 
 static void loqui_app_add_account_after_cb(AccountManager *manager, Account *account, LoquiApp *app);
 static void loqui_app_remove_account_cb(AccountManager *manager, Account *account, LoquiApp *app);
@@ -139,8 +123,6 @@ static void loqui_app_set_current_channel_lazy(LoquiApp *app, LoquiChannel *chan
 static void loqui_app_update_channel_entry_accel_key(LoquiApp *app);
 
 /* utilities */
-static void set_channel_buffer(LoquiApp *app, GtkWidget *textview, ChannelBuffer *buffer, guint *signal_id_ptr,
-			       GCallback func);
 static void loqui_app_set_channel_entry_accel_key(LoquiApp *app, LoquiChannelEntry *chent);
 
 GType
@@ -189,10 +171,6 @@ loqui_app_init (LoquiApp *app)
 
 	priv = g_new0(LoquiAppPrivate, 1);
 	app->priv = priv;
-
-	priv->channel_buffer_inserted_signal_id = 0;
-	priv->common_buffer_inserted_signal_id = 0;
-	app->is_scroll = TRUE;
 }
 static void
 loqui_app_destroy(GtkObject *object)
@@ -321,34 +299,6 @@ loqui_app_entry_activate_cb(GtkWidget *widget, gpointer data)
 
 	remark_entry_clear_text(remark_entry);
 }
-static void loqui_app_channel_textview_inserted_cb(GtkTextBuffer *textbuf,
-						   GtkTextIter *pos,
-						   const gchar *text,
-						   gint length,
-						   gpointer data)
-{
-	LoquiApp *app;
-
-	app = LOQUI_APP(data);
-
-	if (!app->is_scroll)
-		return;
-
-	loqui_channel_text_view_scroll_to_end(LOQUI_CHANNEL_TEXT_VIEW(app->channel_textview));
-}
-static void loqui_app_common_textview_inserted_cb(GtkTextBuffer *textbuf,
-						  GtkTextIter *pos,
-						  const gchar *text,
-						  gint length,
-						  gpointer data)
-{
-	LoquiApp *app;
-
-	app = LOQUI_APP(data);
-
-	loqui_channel_text_view_scroll_to_end(LOQUI_CHANNEL_TEXT_VIEW(app->common_textview));
-}
-
 static void
 loqui_app_channel_text_view_scrolled_to_end_cb(LoquiChannelTextView *chview, LoquiChannelEntry *chent)
 {
@@ -577,7 +527,7 @@ loqui_app_new(AccountManager *account_manager)
 
 	priv->common_buffer = channel_buffer_new();
 	channel_buffer_set_whether_common_buffer(priv->common_buffer, TRUE);
-	loqui_app_set_common_buffer(app, priv->common_buffer);
+	loqui_channel_text_view_set_channel_buffer(LOQUI_CHANNEL_TEXT_VIEW(app->common_textview), priv->common_buffer);
 
 	loqui_app_update_info(app, TRUE, NULL, TRUE, NULL);
 	loqui_app_restore_size(app);
@@ -620,40 +570,6 @@ loqui_app_scroll_page_common_buffer(LoquiApp *app, gint pages)
 
 	g_signal_emit_by_name(app->common_textview, "move_cursor", GTK_MOVEMENT_PAGES, pages, FALSE);
 }
-
-static void
-set_channel_buffer(LoquiApp *app, GtkWidget *textview, ChannelBuffer *buffer, guint *signal_id_ptr,
-		   GCallback func)
-{
-	GtkTextBuffer *old_buf;
-	GtkStyle *style;
-	GdkColor *transparent_color;
-	GtkTextTag *transparent_tag;
-
-	if(*signal_id_ptr > 0) {
-		old_buf = gtk_text_view_get_buffer(GTK_TEXT_VIEW(textview));
-		g_signal_handler_disconnect(old_buf, *signal_id_ptr);
-	}
-
-	style = gtk_widget_get_style(textview);
-	transparent_color = &style->base[GTK_STATE_NORMAL];
-	transparent_tag = gtk_text_tag_table_lookup(gtk_text_buffer_get_tag_table(GTK_TEXT_BUFFER(buffer)),
-						    "transparent");
-	if(transparent_tag)
-		g_object_set(G_OBJECT(transparent_tag), "foreground-gdk", transparent_color, NULL);
-	gtk_text_view_set_buffer(GTK_TEXT_VIEW(textview), GTK_TEXT_BUFFER(buffer));
-	*signal_id_ptr = g_signal_connect(G_OBJECT(buffer), "insert-text", func, app);
-
-	loqui_channel_text_view_scroll_to_end(LOQUI_CHANNEL_TEXT_VIEW(textview));
-}
-void loqui_app_set_channel_buffer(LoquiApp *app, ChannelBuffer *buffer)
-{
-        g_return_if_fail(app != NULL);
-        g_return_if_fail(LOQUI_IS_APP(app));
-
-	set_channel_buffer(app, app->channel_textview, buffer, &app->priv->channel_buffer_inserted_signal_id,
-			   G_CALLBACK(loqui_app_channel_textview_inserted_cb));
-}
 ChannelBuffer *loqui_app_get_channel_buffer(LoquiApp *app)
 {
 	GtkTextBuffer *buffer;
@@ -666,14 +582,6 @@ ChannelBuffer *loqui_app_get_channel_buffer(LoquiApp *app)
 		return NULL;
 
 	return CHANNEL_BUFFER(buffer);
-}
-void loqui_app_set_common_buffer(LoquiApp *app, ChannelBuffer *buffer)
-{
-        g_return_if_fail(app != NULL);
-        g_return_if_fail(LOQUI_IS_APP(app));
-
-	set_channel_buffer(app, app->common_textview, buffer, &app->priv->common_buffer_inserted_signal_id,
-			   G_CALLBACK(loqui_app_common_textview_inserted_cb));
 }
 void
 loqui_app_set_show_statusbar(LoquiApp *app, gboolean show)
@@ -823,7 +731,8 @@ loqui_app_set_current_channel_entry(LoquiApp *app, LoquiChannelEntry *chent)
 	priv->current_channel = channel;
 	priv->current_chent = chent;
 
-	loqui_app_set_channel_buffer(app, loqui_channel_entry_get_buffer(LOQUI_CHANNEL_ENTRY(chent)));
+	loqui_channel_text_view_set_channel_buffer(LOQUI_CHANNEL_TEXT_VIEW(app->channel_textview),
+						   loqui_channel_entry_get_buffer(LOQUI_CHANNEL_ENTRY(chent)));
 	g_signal_connect(G_OBJECT(app->channel_textview), "scrolled_to_end",
 			 G_CALLBACK(loqui_app_channel_text_view_scrolled_to_end_cb), chent);
 	g_signal_connect(G_OBJECT(app->channel_textview), "notify::is-scroll",
@@ -1195,10 +1104,7 @@ loqui_app_channel_entry_notify_is_updated_cb(LoquiChannelEntry *chent, GParamSpe
 		priv->updated_private_talk_number += delta;
 	else
 		priv->updated_channel_number += delta;
-
-	if (updated && loqui_app_is_current_channel(app, channel) && app->is_scroll)
-		loqui_channel_entry_set_is_updated(LOQUI_CHANNEL_ENTRY(channel), FALSE);
-			
+	
 	if (priv->updated_private_talk_number > 0 && priv->updated_channel_number > 0)
 		str = g_strdup_printf(_("Updated: %d private talk(s), %d channel(s)."),
 					priv->updated_private_talk_number,
@@ -1232,14 +1138,10 @@ loqui_app_channel_buffer_append_cb(ChannelBuffer *buffer, MessageText *msgtext, 
 	if (prefs_general.save_log)
 		loqui_app_append_log(app, msgtext);
 	
-	if (!app->is_scroll) {
-	} else if (priv->current_channel) {
-		if (buffer == loqui_channel_entry_get_buffer(LOQUI_CHANNEL_ENTRY(priv->current_channel)))
-			return;
-	} else if (priv->current_account) {
-		if (buffer == loqui_channel_entry_get_buffer(LOQUI_CHANNEL_ENTRY(priv->current_account)))
-			return;
-	}
+	if (loqui_channel_text_view_get_is_scroll(LOQUI_CHANNEL_TEXT_VIEW(app->channel_textview)) &&
+	    priv->current_chent != NULL &&
+	    buffer == loqui_channel_entry_get_buffer(priv->current_chent))
+		return;
 	
 	channel_buffer_append_message_text(priv->common_buffer, msgtext, TRUE, FALSE);
 

@@ -48,7 +48,7 @@ static GtkTextViewClass *parent_class = NULL;
 static guint channel_text_view_signals[LAST_SIGNAL] = { 0 };
 
 static void loqui_channel_text_view_class_init(LoquiChannelTextViewClass *klass);
-static void loqui_channel_text_view_init(LoquiChannelTextView *view);
+static void loqui_channel_text_view_init(LoquiChannelTextView *chview);
 static void loqui_channel_text_view_finalize(GObject *object);
 static void loqui_channel_text_view_dispose(GObject *object);
 
@@ -60,6 +60,11 @@ static void loqui_channel_text_view_destroy(GtkObject *object);
 static void loqui_channel_text_view_vadj_value_changed_cb(GtkAdjustment *adj, gpointer data);
 static gboolean loqui_channel_text_view_key_press_event(GtkWidget *widget,
 							GdkEventKey *event);
+static void loqui_channel_text_view_buffer_insert_text_cb(GtkTextBuffer *textbuf,
+							  GtkTextIter *pos,
+							  const gchar *text,
+							  gint length,
+							  gpointer data);
 
 GType
 loqui_channel_text_view_get_type(void)
@@ -181,13 +186,15 @@ loqui_channel_text_view_class_init(LoquiChannelTextViewClass *klass)
 									 G_TYPE_NONE, 0);
 }
 static void 
-loqui_channel_text_view_init(LoquiChannelTextView *view)
+loqui_channel_text_view_init(LoquiChannelTextView *chview)
 {
 	LoquiChannelTextViewPrivate *priv;
 
 	priv = g_new0(LoquiChannelTextViewPrivate, 1);
 
-	view->priv = priv;
+	chview->priv = priv;
+	
+	chview->is_scroll = TRUE;
 }
 static void 
 loqui_channel_text_view_destroy(GtkObject *object)
@@ -237,6 +244,25 @@ loqui_channel_text_view_vadj_value_changed_cb(GtkAdjustment *adj, gpointer data)
 		loqui_channel_text_view_set_is_scroll(chview, reached_to_end);
 	}
 }
+
+static void
+loqui_channel_text_view_buffer_insert_text_cb(GtkTextBuffer *textbuf,
+					      GtkTextIter *pos,
+					      const gchar *text,
+					      gint length,
+					      gpointer data)
+{
+        LoquiChannelTextView *chview;
+	LoquiChannelTextViewPrivate *priv;
+	
+        g_return_if_fail(data != NULL);
+        g_return_if_fail(LOQUI_IS_CHANNEL_TEXT_VIEW(data));
+	
+	chview = LOQUI_CHANNEL_TEXT_VIEW(data);
+	priv = chview->priv;
+	
+	loqui_channel_text_view_scroll_to_end_if_enabled(chview);
+}
 GtkWidget *
 loqui_channel_text_view_new(LoquiApp *app)
 {
@@ -260,6 +286,41 @@ loqui_channel_text_view_new(LoquiApp *app)
 
         return GTK_WIDGET(chview);
 }
+
+void
+loqui_channel_text_view_set_channel_buffer(LoquiChannelTextView *chview, ChannelBuffer *buffer)
+{
+	LoquiChannelTextViewPrivate *priv;
+	GtkTextBuffer *old_buf;
+	GtkStyle *style;
+	GdkColor *transparent_color;
+	GtkTextTag *transparent_tag;
+	
+        g_return_if_fail(chview != NULL);
+        g_return_if_fail(LOQUI_IS_CHANNEL_TEXT_VIEW(chview));
+        g_return_if_fail(buffer != NULL);
+        g_return_if_fail(IS_CHANNEL_BUFFER(buffer));
+	
+        priv = chview->priv;
+       
+	old_buf = gtk_text_view_get_buffer(GTK_TEXT_VIEW(chview));
+	if (old_buf)
+		g_signal_handlers_disconnect_by_func(old_buf, loqui_channel_text_view_buffer_insert_text_cb, chview);
+	
+	style = gtk_widget_get_style(GTK_WIDGET(chview));
+	transparent_color = &style->base[GTK_STATE_NORMAL];
+	transparent_tag = gtk_text_tag_table_lookup(gtk_text_buffer_get_tag_table(GTK_TEXT_BUFFER(buffer)),
+						    "transparent");
+	if (transparent_tag)
+		g_object_set(G_OBJECT(transparent_tag), "foreground-gdk", transparent_color, NULL);
+	
+	gtk_text_view_set_buffer(GTK_TEXT_VIEW(chview), GTK_TEXT_BUFFER(buffer));
+	g_signal_connect(G_OBJECT(buffer), "insert-text",
+			 G_CALLBACK(loqui_channel_text_view_buffer_insert_text_cb), chview);
+	
+	loqui_channel_text_view_scroll_to_end(LOQUI_CHANNEL_TEXT_VIEW(chview));
+}
+
 void
 loqui_channel_text_view_scroll_to_end(LoquiChannelTextView *chview)
 {
@@ -269,7 +330,7 @@ loqui_channel_text_view_scroll_to_end(LoquiChannelTextView *chview)
         g_return_if_fail(LOQUI_IS_CHANNEL_TEXT_VIEW(chview));
 
 	buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(chview));
-	if(buffer && IS_CHANNEL_BUFFER(buffer))
+	if (buffer && IS_CHANNEL_BUFFER(buffer))
 		gtk_text_view_scroll_mark_onscreen(GTK_TEXT_VIEW(chview),
 						   gtk_text_buffer_get_mark(buffer, "end"));
 

@@ -60,9 +60,6 @@ struct _LoquiApp
 	guint updated_channel_number;
 	guint updated_private_talk_number;
 
-	/* cache, use action to set */
-	gboolean is_scroll;
-
 	guint channel_entry_id_max;
 
 	GAsyncQueue *error_connections;
