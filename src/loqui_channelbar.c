@@ -28,6 +28,8 @@
 struct _LoquiChannelbarPrivate
 {
 	GtkWidget *option_menu;
+	GtkWidget *label_channel_mode;
+	GtkWidget *label_user_number;
 	GtkWidget *entry_topic;
 	GtkWidget *button_ok;
 	gboolean entry_changed;
@@ -206,6 +208,12 @@ loqui_channelbar_new (void)
 	menu = gtk_menu_new();
 	gtk_option_menu_set_menu(GTK_OPTION_MENU(priv->option_menu), menu);
 
+	priv->label_channel_mode = gtk_label_new("");
+	gtk_box_pack_start(GTK_BOX(channelbar), priv->label_channel_mode, 0, 0, FALSE);
+	
+	priv->label_user_number = gtk_label_new("");
+	gtk_box_pack_start(GTK_BOX(channelbar), priv->label_user_number, 0, 0, FALSE);
+	
 	priv->entry_topic = gtk_entry_new();
 	g_signal_connect(G_OBJECT(priv->entry_topic), "changed",
 			 G_CALLBACK(loqui_channelbar_entry_changed_cb), channelbar);
@@ -343,7 +351,9 @@ loqui_channelbar_set_current_channel(LoquiChannelbar *channelbar, Channel *chann
 	gint i = 0;
 	Channel *tmp_ch;
 	GList *cur;
-
+	gchar *buf, *channel_mode;
+	guint user_num_all, user_num_op;
+	
 	g_return_if_fail(channelbar != NULL);
         g_return_if_fail(LOQUI_IS_CHANNELBAR(channelbar));
 
@@ -360,17 +370,33 @@ loqui_channelbar_set_current_channel(LoquiChannelbar *channelbar, Channel *chann
 	}
 	gtk_option_menu_set_history(GTK_OPTION_MENU(priv->option_menu), i);
 
+	gtk_entry_set_text(GTK_ENTRY(priv->entry_topic), "");
+	
+	gtk_widget_set_sensitive(priv->button_ok, FALSE);
+	gtk_label_set(GTK_LABEL(priv->label_channel_mode), "");
+	gtk_label_set(GTK_LABEL(priv->label_user_number), "");
+			
 	if(channel_is_private_talk(channel)) {
-		gtk_entry_set_text(GTK_ENTRY(priv->entry_topic), "");
 		gtk_widget_set_sensitive(priv->entry_topic, FALSE);
-		gtk_widget_set_sensitive(priv->button_ok, FALSE);
 	} else {
 		topic = channel_get_topic(channel);
-		gtk_entry_set_text(GTK_ENTRY(priv->entry_topic), topic ? topic : "");
+		if(topic)
+			gtk_entry_set_text(GTK_ENTRY(priv->entry_topic), topic);
 		gtk_widget_set_sensitive(priv->entry_topic, TRUE);
-		gtk_widget_set_sensitive(priv->button_ok, FALSE);
-		priv->entry_changed = FALSE;
+		
+		channel_mode = channel_get_mode(channel);
+		buf = g_strdup_printf("[%s]", channel_mode);
+		g_free(channel_mode);
+		gtk_label_set(GTK_LABEL(priv->label_channel_mode), buf);
+		g_free(buf);
+		
+		channel_get_user_number(channel, &user_num_all, &user_num_op);
+		buf = g_strdup_printf("(%d/%d)", user_num_op, user_num_all);
+		gtk_label_set(GTK_LABEL(priv->label_user_number), buf);
+		g_free(buf);
 	}
+	
+	priv->entry_changed = FALSE;
 }
 
 void
@@ -403,4 +429,7 @@ loqui_channelbar_set_current_account(LoquiChannelbar *channelbar, Account *accou
 	gtk_widget_set_sensitive(priv->entry_topic, FALSE);
 	gtk_widget_set_sensitive(priv->button_ok, FALSE);
 	priv->entry_changed = FALSE;
+	
+	gtk_label_set(GTK_LABEL(priv->label_channel_mode), "");
+	gtk_label_set(GTK_LABEL(priv->label_user_number), "");
 }

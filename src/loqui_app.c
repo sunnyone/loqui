@@ -212,7 +212,6 @@ static void loqui_app_restore_size(LoquiApp *app)
         g_return_if_fail(LOQUI_IS_APP(app));
 
 	priv = app->priv;
-
         gtk_window_set_default_size(GTK_WINDOW(app),
 				    prefs_general.window_width,
 				    prefs_general.window_height);

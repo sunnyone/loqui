@@ -451,6 +451,10 @@ void account_manager_set_current_channel(AccountManager *manager, Channel *chann
 			 G_CALLBACK(account_manager_channel_changed_cb), manager);
 	g_signal_connect_swapped(G_OBJECT(channel), "topic-changed",
 				 G_CALLBACK(loqui_channelbar_set_current_channel), priv->app->channelbar);
+	g_signal_connect_swapped(G_OBJECT(channel), "user-number-changed",
+				 G_CALLBACK(loqui_channelbar_set_current_channel), priv->app->channelbar);
+	g_signal_connect_swapped(G_OBJECT(channel), "mode-changed",
+				 G_CALLBACK(loqui_channelbar_set_current_channel), priv->app->channelbar);			 
 	g_signal_connect(G_OBJECT(channel), "user-number-changed",
 			 G_CALLBACK(account_manager_channel_changed_cb), manager);
 	g_signal_connect(G_OBJECT(channel), "mode-changed",

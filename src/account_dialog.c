@@ -611,7 +611,7 @@ void
 account_dialog_open_configure_dialog(GtkWindow *parent, Account *account)
 {
 	GtkWidget *dialog;
-
+	
 	dialog = account_dialog_new(account);
 	gtk_window_set_transient_for(GTK_WINDOW(dialog), parent);
 	gtk_dialog_run(GTK_DIALOG(dialog));

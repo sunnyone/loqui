@@ -381,7 +381,7 @@ irc_connection_new(const gchar *hostname, guint port)
 	priv->msg_queue = g_queue_new();
 	priv->hostname = g_strdup(hostname);
 	priv->port = port;
-
+	
 	return connection;
 }
 
