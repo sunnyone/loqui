@@ -1,0 +1,85 @@
+requires 2.0.0
+%h{
+#include <gtk/gtk.h>
+%}
+
+%{
+#include "intl.h"
+#include "utils.h"
+%}
+
+class Loqui:Style:Entry from G:Object
+{
+	public gboolean is_color_default;
+	public gchar *color_string;
+	property BOOLEAN is_color_default
+	(nick = _("Is color default"),
+	 blurb = _("Is color default or not"),
+	 default_value = TRUE,
+	 export,
+	 link);
+
+	property STRING color_string(
+		nick = _("string as color"),
+		blurb = _("String representation of color"),
+		default_value = NULL)
+		set { self_set_color_string(self, g_value_get_string(VAL)); }
+	        get { g_value_set_string(VAL, self->color_string); };
+
+	public GdkColor color;
+
+	public gboolean is_font_default;
+	property BOOLEAN is_font_default
+	(nick = _("Is font default"),
+	 blurb = _("Is font default or not"),
+	 default_value = TRUE,
+	 export,
+	 link);
+	
+	public PangoFontDescription *font_desc;
+
+        /* various purpose */
+        public gchar *string;
+	property STRING string(
+		nick = "string",
+		blurb = "String",
+		default_value = NULL,
+		link, export);
+	
+	public int i;
+	property INT integer(
+		nick = "integer",
+		blurb = "Integer",
+		default_value = 0, export)
+		set { self->i = g_value_get_int(VAL); }
+	        get { g_value_set_int(VAL, self->i); };
+		
+        public double d;
+	property DOUBLE double(
+		nick = "Double",
+		blurb = "Double",
+		default_value = 0.0, export)
+		set { self->d = g_value_get_double(VAL); }
+	        get { g_value_set_double(VAL, self->d); };
+
+	
+	public gboolean set_color_string(self, const gchar *color_string) {
+	        G_FREE_UNLESS_NULL(self->color_string);
+        
+		if (!color_string)
+			return FALSE;
+
+		if (!gdk_color_parse(color_string, &self->color))
+			return FALSE;
+
+		self->color_string = g_strdup(color_string);
+		return TRUE;
+	}
+
+	/**
+	   return value must not be freed.
+	*/
+	public gchar *get_color_string(self) {
+		return self->color_string;
+	}
+}

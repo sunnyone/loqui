@@ -1,5 +1,8 @@
 SUBDIRS = icons embedtxt
 
+%.c %.h %-private.h: %.gob
+	gob2 --always-private-header $<
+
 bin_PROGRAMS = loqui
 
 INCLUDES = -I$(includedir) -I../libloqui
@@ -34,7 +37,9 @@ loqui_SOURCES = \
 	remark_entry.c remark_entry.h \
 	loqui_channelbar.c loqui_channelbar.h \
 	loqui_select_dialog.c loqui_select_dialog.h \
-	loqui_style_entry.c loqui_style_entry.h
+	loqui-style-entry.gob loqui-style-entry.c loqui-style-entry.h loqui-style-entry-private.h
+
+BUILT_SOURCES := loqui-style-entry.c loqui-style-entry.h loqui-style-entry-private.h
 
 loqui_LDADD = \
         $(GTK_LIBS) $(GNET_LIBS) ../libloqui/libloqui.la
