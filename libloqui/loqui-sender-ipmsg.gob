@@ -98,7 +98,11 @@ class Loqui:Sender:IPMsg from Loqui:Sender
 
 	override (Loqui:Sender)
 	void start_private_talk(Loqui:Sender *sender, Loqui:User *user) {
-		loqui_account_open_private_talk(loqui_sender_get_account(sender), loqui_user_get_nick(user), user);
+		gchar *identifier;
+
+		identifier = loqui_user_get_identifier(user);
+		loqui_account_open_private_talk(loqui_sender_get_account(sender), identifier, user);
+		g_free(identifier);
 	}
 
 	/* helper */
