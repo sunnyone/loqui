@@ -64,6 +64,12 @@ struct _Account
 struct _AccountClass
 {
         GObjectClass parent_class;
+
+	/* signals */
+	void (* add_channel)      (Account *account,
+				   Channel *channel);
+	void (* remove_channel)   (Account *account,
+				   Channel *channel);
 };
 struct _Server
 {

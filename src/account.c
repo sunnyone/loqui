@@ -35,6 +35,8 @@
 enum {
 	NICK_CHANGED,
 	AWAY_CHANGED,
+	ADD_CHANNEL,
+	REMOVE_CHANNEL,
 	LAST_SIGNAL
 };
 
@@ -105,6 +107,22 @@ account_class_init (AccountClass *klass)
 						     NULL, NULL,
 						     g_cclosure_marshal_VOID__VOID,
 						     G_TYPE_NONE, 0);
+	account_signals[ADD_CHANNEL] = g_signal_new("add-channel",
+						    G_OBJECT_CLASS_TYPE(object_class),
+						    G_SIGNAL_RUN_FIRST,
+						    G_STRUCT_OFFSET(AccountClass, add_channel),
+						    NULL, NULL,
+						    g_cclosure_marshal_VOID__OBJECT,
+						    G_TYPE_NONE, 1,
+						    TYPE_CHANNEL);
+	account_signals[REMOVE_CHANNEL] = g_signal_new("remove-channel",
+						       G_OBJECT_CLASS_TYPE(object_class),
+						       G_SIGNAL_RUN_FIRST,
+						       G_STRUCT_OFFSET(AccountClass, remove_channel),
+						       NULL, NULL,
+						       g_cclosure_marshal_VOID__OBJECT,
+						       G_TYPE_NONE, 1,
+						       TYPE_CHANNEL);
 }
 static void 
 account_init (Account *account)
@@ -404,7 +422,8 @@ account_add_channel(Account *account, Channel *channel)
         g_return_if_fail(IS_ACCOUNT(account));
 
 	account->channel_list = g_slist_append(account->channel_list, channel);
-	account_manager_add_channel(account_manager_get(), account, channel);
+
+	g_signal_emit(account, account_signals[ADD_CHANNEL], 0, channel);
 }
 void account_remove_channel(Account *account, Channel *channel)
 {
@@ -412,8 +431,8 @@ void account_remove_channel(Account *account, Channel *channel)
         g_return_if_fail(IS_ACCOUNT(account));
 
 	account->channel_list = g_slist_remove(account->channel_list, channel);
-	account_manager_set_current_account(account_manager_get(), account);
-	account_manager_remove_channel(account_manager_get(), account, channel);
+
+	g_signal_emit(account, account_signals[REMOVE_CHANNEL], 0, channel);
 }
 Channel*
 account_search_channel_by_name(Account *account, gchar *name)

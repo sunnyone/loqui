@@ -55,6 +55,9 @@ static void account_manager_account_changed_cb(GObject *object, gpointer data);
 static void account_manager_channel_changed_cb(GObject *object, gpointer data);
 static void account_manager_channel_updated_cb(Channel *channel, gpointer data);
 
+static void account_manager_add_channel_cb(Account *account, Channel *channel, AccountManager *manager);
+static void account_manager_remove_channel_cb(Account *account, Channel *channel, AccountManager *manager);
+
 static AccountManager *main_account_manager = NULL;
 
 GType
@@ -153,6 +156,11 @@ account_manager_add_account(AccountManager *manager, Account *account)
 	priv = manager->priv;
 
 	priv->account_list = g_slist_append(priv->account_list, account);
+	g_signal_connect(G_OBJECT(account), "add-channel",
+			 G_CALLBACK(account_manager_add_channel_cb), manager);
+	g_signal_connect(G_OBJECT(account), "remove-channel",
+			 G_CALLBACK(account_manager_remove_channel_cb), manager);
+
 	channel_tree_add_account(priv->app->channel_tree, account);
 }
 void
@@ -169,6 +177,7 @@ account_manager_remove_account(AccountManager *manager, Account *account)
 
 	priv->account_list = g_slist_remove(priv->account_list, account);
 	channel_tree_remove_account(priv->app->channel_tree, account);
+	/* FIXME: should disconnect signals? */
 	g_object_unref(account);
 }
 void
@@ -214,8 +223,8 @@ account_manager_save_accounts(AccountManager *account_manager)
 
 	prefs_account_save(account_manager->priv->account_list);
 }
-void
-account_manager_add_channel(AccountManager *manager, Account *account, Channel *channel)
+static void
+account_manager_add_channel_cb(Account *account, Channel *channel, AccountManager *manager)
 {
         g_return_if_fail(manager != NULL);
         g_return_if_fail(IS_ACCOUNT_MANAGER(manager));
@@ -224,16 +233,19 @@ account_manager_add_channel(AccountManager *manager, Account *account, Channel *
 			 G_CALLBACK(account_manager_channel_updated_cb), manager);
 	g_signal_connect_swapped(G_OBJECT(channel), "user-number-changed",
 				 G_CALLBACK(channel_tree_update_user_number), manager->priv->app->channel_tree);
+
 	channel_tree_add_channel(manager->priv->app->channel_tree, account, channel);
 }
-void
-account_manager_remove_channel(AccountManager *manager, Account *account, Channel *channel)
+static void
+account_manager_remove_channel_cb(Account *account, Channel *channel, AccountManager *manager)
 {
         g_return_if_fail(manager != NULL);
         g_return_if_fail(IS_ACCOUNT_MANAGER(manager));
 
+	account_manager_set_current_account(manager, account);
 	g_signal_handlers_disconnect_by_func(channel, account_manager_channel_updated_cb, manager);
 	g_signal_handlers_disconnect_by_func(channel, channel_tree_update_user_number, manager->priv->app->channel_tree);
+
 	channel_tree_remove_channel(manager->priv->app->channel_tree, channel);
 }
 static void account_manager_account_changed_cb(GObject *object, gpointer data)

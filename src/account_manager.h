@@ -62,9 +62,6 @@ void account_manager_add_account(AccountManager *manager, Account *account);
 void account_manager_update_account(AccountManager *manager, Account *account);
 void account_manager_remove_account(AccountManager *manager, Account *account);
 
-void account_manager_add_channel(AccountManager *manager, Account *account, Channel *channel);
-void account_manager_remove_channel(AccountManager *manager, Account *account, Channel *channel);
-
 void account_manager_set_current_channel(AccountManager *manager, Channel *channel);
 Channel *account_manager_get_current_channel(AccountManager *manager);
 
