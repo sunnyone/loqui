@@ -23,7 +23,6 @@
 
 #include <gtk/gtk.h>
 #include <gdk/gdkkeysyms.h>
-#include <gtk24backports.h>
 
 #include "main.h"
 #include "loqui_stock.h"
@@ -41,7 +40,6 @@ loqui_gtk_init(int *argc, char **argv[])
 	gdk_threads_init();
 
 	gtk_init(argc, argv);
-	gtk24backports_init();
 
 	loqui_stock_init();
 

@@ -19,7 +19,6 @@
  */
 
 #include "loqui_app.h"
-#include <gtk24backports.h>
 
 #ifndef __LOQUI_APP_ACTIONS_H__
 #define __LOQUI_APP_ACTIONS_H__

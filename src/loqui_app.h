@@ -22,7 +22,6 @@
 #define __LOQUI_APP_H__
 
 #include <gtk/gtk.h>
-#include <gtk24backports.h>
 
 G_BEGIN_DECLS
 

@@ -21,7 +21,6 @@
 #define __REMARK_ENTRY_H__
 
 #include <gtk/gtk.h>
-#include <gtk24backports.h>
 #include "loqui_app.h"
 
 G_BEGIN_DECLS

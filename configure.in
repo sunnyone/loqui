@@ -18,14 +18,11 @@ AM_CONFIG_HEADER(config.h)
 
 AM_MAINTAINER_MODE
 
-AM_PATH_GLIB_2_0(2.2.0,, AC_MSG_ERROR(Test for GLib failed. See the 'INSTALL' for help.), gobject)
+AM_PATH_GLIB_2_0(2.4.0,, AC_MSG_ERROR(Test for GLib failed. See the 'INSTALL' for help.), gobject)
 
 AC_PATH_PROG(GLIB_GENMARSHAL, glib-genmarshal)
 
-AM_PATH_GTK_2_0(2.2.0,, AC_MSG_ERROR(Test for Gtk failed. See the 'INSTALL' for help.), gthread)
-if test "x${gtk_config_major_version}" = "x2" -a "x${gtk_config_minor_version}" = "x2"; then
-   AC_DEFINE_UNQUOTED(USE_GTK_2_2, 1, [Wheter using gtk 2.2])
-fi
+AM_PATH_GTK_2_0(2.4.0,, AC_MSG_ERROR(Test for Gtk failed. See the 'INSTALL' for help.), gthread)
 
 AC_ISC_POSIX
 AC_PROG_CC
@@ -48,7 +45,6 @@ else
   AC_DEFINE_UNQUOTED(PACKAGE_LOCALE_DIR, "${prefix}/${DATADIRNAME}/locale")
 fi
 
-dnl AM_PATH_GNET(1.1.4,, AC_MSG_ERROR(Test for GNet failed. See the 'INSTALL' for help.))
 AM_PATH_GNET_2_0(2.0.0,, AC_MSG_ERROR(Test for GNet failed. See the 'INSTALL' for help.))
 
 AC_SUBST(GNET_CFLAGS)
@@ -61,7 +57,6 @@ AC_CHECK_FUNCS(localtime_r)
 
 AC_OUTPUT(
 Makefile
-gtk24backports/Makefile
 libloqui/Makefile
 src/Makefile
 src/icons/Makefile

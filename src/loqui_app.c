@@ -56,7 +56,6 @@
 #include <string.h>
 #include <time.h>
 
-#include <gtk24backports.h>
 #include <gdk/gdkkeysyms.h>
 
 #define CHANNEL_ENTRY_STORE_KEY "channel-entry-store"

@@ -35,7 +35,6 @@
 
 #include "loqui_channel_text_view.h"
 
-#include <gtk24backports.h>
 
 #define CTRL "<control>"
 #define ALT  "<alt>"

@@ -2,8 +2,8 @@ SUBDIRS = icons embedtxt
 
 bin_PROGRAMS = loqui
 
-INCLUDES = $(GTK_CFLAGS) $(EXTRA_WARNING_CFLAGS) -g -I$(includedir) -I../gtk24backports -I../libloqui \
-	-DDATADIR=\""$(datadir)"\" $(GNET_CFLAGS) -Wall -Wredundant-decls -Wmissing-declarations -Wmissing-prototypes
+INCLUDES = -I$(includedir) -I../libloqui
+CPPFLAGS =  $(GTK_CFLAGS) $(EXTRA_WARNING_CFLAGS) -g -DDATADIR=\""$(datadir)"\" $(GNET_CFLAGS) -Wall -Wredundant-decls -Wmissing-declarations -Wmissing-prototypes
 
 loqui_SOURCES = \
 	eggtrayicon.c eggtrayicon.h \
@@ -34,4 +34,4 @@ loqui_SOURCES = \
 	loqui_channelbar.c loqui_channelbar.h
 
 loqui_LDADD = \
-        $(GTK_LIBS) $(GNET_LIBS) ../gtk24backports/libgtk24backports.la ../libloqui/libloqui.la
+        $(GTK_LIBS) $(GNET_LIBS) ../libloqui/libloqui.la
