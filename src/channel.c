@@ -350,6 +350,10 @@ void channel_change_user_power(Channel *channel, const gchar *nick, UserPower po
 	
 	gtk_tree_model_get(GTK_TREE_MODEL(channel->user_list), &iter,
 			   USERLIST_COLUMN_OP, &old_power, -1);
+	/* meaningless change */
+	if(old_power == USER_POWER_OP && power == USER_POWER_V)
+		return;
+
 	gtk_list_store_set(channel->user_list, &iter, USERLIST_COLUMN_OP, power, -1);
 
 	if(old_power == USER_POWER_OP && power != USER_POWER_OP)
