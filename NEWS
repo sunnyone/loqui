@@ -82,3 +82,7 @@
 * Changed method to manage Account/Channel.
 * Supports CTCP.
 
+2003-03-26     0.1.13
+* Fixed the bug that some messages are shown when a user that joined some channals quit/parted.
+* Fixed the bug the coming messages are not shown at all.
+
