@@ -162,8 +162,9 @@ class Loqui:Socket:IPMsg from G:Object
 		selfp->udpsock = NULL;
 	}
 	public void send_packet_with_inetaddr(self, IPMsgPacket *packet, GInetAddr *inetaddr) {
-		gchar *buf;
+		gchar *buf, *serv_str;
 		gint len;
+		GError *error = NULL;
 
 		if (!selfp->udpsock)
 			return;
@@ -173,7 +174,15 @@ class Loqui:Socket:IPMsg from G:Object
 			return;
 		}
 
-		gnet_udp_socket_send(selfp->udpsock, buf, len, inetaddr);
+		if ((serv_str = loqui_codeconv_to_server(selfp->codeconv, buf, &error)) == NULL) {
+			loqui_account_warning(SELF_GET_ACCOUNT(self), "Failed to convert codeset(%s): %s.", error->message, buf);
+			g_error_free(error);
+			g_free(buf);
+			return;
+		}
+		g_free(buf);
+
+		gnet_udp_socket_send(selfp->udpsock, serv_str, len, inetaddr);
 
 		if (loqui_core_get_show_msg_mode(loqui_get_core())) {
 			gchar *tmp = ipmsg_packet_inspect(packet);
@@ -181,7 +190,7 @@ class Loqui:Socket:IPMsg from G:Object
 			g_free(tmp);
 		}
 
-		g_free(buf);
+		g_free(serv_str);
 	}
 
 	public void send_packet(self, IPMsgPacket *packet, const gchar *ip_addr, gint port) {

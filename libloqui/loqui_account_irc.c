@@ -502,16 +502,15 @@ loqui_account_irc_conn_writable_cb(GConn *conn, LoquiAccountIRC *account)
 	}
 
 	buf = irc_message_to_string(msg);
-	serv_str = loqui_codeconv_to_server(priv->codeconv, buf, &error);
-	g_free(buf);
-
-	if (serv_str == NULL) {
-		loqui_account_warning(LOQUI_ACCOUNT(account), "Failed to convert codeset: (%s).", error->message);
+	if ((serv_str = loqui_codeconv_to_server(priv->codeconv, buf, &error)) == NULL) {
+		loqui_account_warning(LOQUI_ACCOUNT(account), "Failed to convert codeset(%s): %s.", error->message, buf);
 		g_error_free(error);
+		g_free(buf);
 		g_object_unref(msg);
 		return;
 	}
-	
+	g_free(buf);
+
 	tmp = g_strdup_printf("%s\r\n", serv_str);
 	g_free(serv_str);
 
