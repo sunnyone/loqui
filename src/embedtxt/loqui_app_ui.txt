@@ -2,8 +2,8 @@
 <Root>
   <menu>
     <submenu name="FileMenu" verb="StockFileMenu">
-      <menuitem name="Connect" verb="Connect">
-      <menuitem name="Quit" verb="Quit">
+      <menuitem name="Connect" verb="Connect" />
+      <menuitem name="Quit" verb="Quit" />
     </submenu>
     <submenu name="EditMenu" verb="StockEditMenu">
       <menuitem name="Cut" verb="Cut" />
