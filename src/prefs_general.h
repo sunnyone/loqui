@@ -21,30 +21,40 @@
 #define __PREFS_GENERAL_H__
 
 #include <glib.h>
-#include <glib-object.h>
 
 typedef struct _PrefElement PrefElement;
+
+typedef enum {
+	PREF_TYPE_NONE,
+	PREF_TYPE_BOOLEAN,
+	PREF_TYPE_INT,
+	PREF_TYPE_UINT,
+	PREF_TYPE_STRING,
+	PREF_TYPE_STRING_LIST = 101
+} PrefType;
+
+#define PREF_TYPE_IS_LIST(type) (type >= 100)
 
 struct _PrefElement {
 	gchar *name;
 	gchar *default_value;
-	GType type;
+	PrefType type;
 	gpointer ptr;
 };
 
 typedef struct _PrefsGeneral {
-	gint codeconv;
+	guint codeconv;
 	gchar *codeset;
 	
 	gboolean save_size;
 
-	gint window_height;
-	gint window_width;
+	guint window_height;
+	guint window_width;
 
-	gint common_buffer_height;
+	guint common_buffer_height;
 
-	gint channel_tree_width;
-	gint channel_tree_height;
+	guint channel_tree_width;
+	guint channel_tree_height;
 
 	guint toolbar_style;
 	gboolean show_statusbar;
@@ -58,6 +68,8 @@ typedef struct _PrefsGeneral {
 
 	gboolean auto_switch_scrolling;
 	gboolean parse_plum_recent;
+
+	GList *highlight_allow_list;
 } PrefsGeneral;
 
 void prefs_general_load(void);

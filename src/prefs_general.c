@@ -32,29 +32,31 @@
 PrefsGeneral prefs_general;
 
 PrefElement prefs_general_defs[] = {
-	{"codeconv", "0", G_TYPE_UINT, &prefs_general.codeconv },
-	{"codeset", "", G_TYPE_STRING, &prefs_general.codeset },
+	{"codeconv", "0", PREF_TYPE_UINT, &prefs_general.codeconv },
+	{"codeset", "", PREF_TYPE_STRING, &prefs_general.codeset },
 
-	{"save_size", "true", G_TYPE_BOOLEAN, &prefs_general.save_size },
-	{"window_height","400", G_TYPE_UINT, &prefs_general.window_height},
-	{"window_width", "480", G_TYPE_UINT, &prefs_general.window_width},
-	{"channel_tree_height", "180", G_TYPE_UINT, &prefs_general.channel_tree_height},
-	{"channel_tree_width",  "100", G_TYPE_UINT, &prefs_general.channel_tree_width},
-	{"common_buffer_height", "150", G_TYPE_UINT, &prefs_general.common_buffer_height},
+	{"save_size", "true", PREF_TYPE_BOOLEAN, &prefs_general.save_size },
+	{"window_height","400", PREF_TYPE_UINT, &prefs_general.window_height},
+	{"window_width", "480", PREF_TYPE_UINT, &prefs_general.window_width},
+	{"channel_tree_height", "180", PREF_TYPE_UINT, &prefs_general.channel_tree_height},
+	{"channel_tree_width",  "100", PREF_TYPE_UINT, &prefs_general.channel_tree_width},
+	{"common_buffer_height", "150", PREF_TYPE_UINT, &prefs_general.common_buffer_height},
 
-	{"toolbar_style", "2", G_TYPE_UINT, &prefs_general.toolbar_style},
-	{"show_statusbar", "true", G_TYPE_BOOLEAN, &prefs_general.show_statusbar},
+	{"toolbar_style", "2", PREF_TYPE_UINT, &prefs_general.toolbar_style},
+	{"show_statusbar", "true", PREF_TYPE_BOOLEAN, &prefs_general.show_statusbar},
 
-	{"away_message", "Gone.", G_TYPE_STRING, &prefs_general.away_message},
+	{"away_message", "Gone.", PREF_TYPE_STRING, &prefs_general.away_message},
 
-	{"browser_command", "mozilla %s", G_TYPE_STRING, &prefs_general.browser_command},
+	{"browser_command", "mozilla %s", PREF_TYPE_STRING, &prefs_general.browser_command},
 
-	{"use_notification", "true", G_TYPE_BOOLEAN, &prefs_general.use_notification },
-	{"notification_command", "esdplay /usr/share/sounds/email.wav", G_TYPE_STRING, &prefs_general.notification_command},
+	{"use_notification", "true", PREF_TYPE_BOOLEAN, &prefs_general.use_notification },
+	{"notification_command", "esdplay /usr/share/sounds/email.wav", PREF_TYPE_STRING, &prefs_general.notification_command},
 
-	{"auto_switch_scrolling", "true", G_TYPE_BOOLEAN, &prefs_general.auto_switch_scrolling },
+	{"auto_switch_scrolling", "true", PREF_TYPE_BOOLEAN, &prefs_general.auto_switch_scrolling },
 
-	{"parse_plum_recent", "false", G_TYPE_BOOLEAN, &prefs_general.parse_plum_recent },
+	{"parse_plum_recent", "false", PREF_TYPE_BOOLEAN, &prefs_general.parse_plum_recent },
+	
+	{"highlight_allow_list", "", PREF_TYPE_STRING_LIST, &prefs_general.highlight_allow_list },
 
 	{NULL, NULL, 0, NULL}
 };
@@ -64,6 +66,7 @@ PrefElement prefs_general_defs[] = {
 static gint in_prefs = 0;
 static gboolean prefs_general_initialized = FALSE;
 static PrefElement *current_pref_elem = NULL;
+static gboolean in_li = FALSE;
 
 static void prefs_general_initialize(void);
 static void prefs_general_set_default(void);
@@ -114,11 +117,16 @@ start_element_handler  (GMarkupParseContext *context,
 		return;
 	}
 
-	current_pref_elem = NULL;
-
 	if(in_prefs < 1) {
 		return;
 	}
+
+	if(g_strcasecmp(element_name, "li") == 0) {
+		in_li = TRUE;
+		return;
+	}
+
+	current_pref_elem = NULL;
 
 	if(g_strcasecmp(element_name, "entry") != 0) {
 		g_warning(_("Invalid element: %s"), element_name);
@@ -153,6 +161,8 @@ end_element_handler    (GMarkupParseContext *context,
 		in_prefs--;
 	} else if(g_ascii_strcasecmp(element_name, "entry") == 0) {
 		current_pref_elem = NULL;
+	} else if(g_ascii_strcasecmp(element_name, "li") == 0) {
+		in_li = FALSE;
 	}
 }
 
@@ -163,27 +173,40 @@ text_handler           (GMarkupParseContext *context,
                         gpointer             user_data,
                         GError             **error)
 {
+	GList **list_ptr;
+
 	if(!current_pref_elem)
 		return;
-	prefs_general_set_string(current_pref_elem, text);
+	if(current_pref_elem->type == PREF_TYPE_STRING_LIST) {
+		if(!in_li)
+			return;
+
+		list_ptr = (GList **) current_pref_elem->ptr;
+		*list_ptr = g_list_append(*list_ptr, g_strdup(text));
+	} else {
+		prefs_general_set_string(current_pref_elem, text);
+	}
 }
 
 static void
 prefs_general_set_string(PrefElement *elem, const gchar *str)
 {
 	switch(elem->type) {
-	case G_TYPE_BOOLEAN:
+	case PREF_TYPE_BOOLEAN:
 		if(g_ascii_strcasecmp(str, "true") == 0)
 			*((gboolean *) elem->ptr) = TRUE;
 		else
 			*((gboolean *) elem->ptr) = FALSE;
 		break;
-	case G_TYPE_UINT:
+	case PREF_TYPE_UINT:
 		*((guint *) elem->ptr) = (guint) g_ascii_strtoull(str, NULL, 10);
 		break;
-	case G_TYPE_STRING:
+	case PREF_TYPE_STRING:
 		G_FREE_UNLESS_NULL(*((gchar **) elem->ptr));
 		*((gchar **) elem->ptr) = g_strdup(str);
+		break;
+	case PREF_TYPE_STRING_LIST:
+		G_LIST_FREE_WITH_ELEMENT_FREE_UNLESS_NULL(*((GList **) elem->ptr));
 		break;
 	default:
 		g_warning(_("Unsupported pref type!"));
@@ -196,17 +219,20 @@ prefs_general_get_string(PrefElement *elem)
 	gchar *str;
 
 	switch(elem->type) {
-	case G_TYPE_BOOLEAN:
+	case PREF_TYPE_BOOLEAN:
 		if(*((gboolean *)elem->ptr))
 			str = g_strdup("true");
 		else
 			str = g_strdup("false");
 		break;
-	case G_TYPE_UINT:
+	case PREF_TYPE_UINT:
 		str = g_strdup_printf("%d", *((guint *) elem->ptr));
 		break;
-	case G_TYPE_STRING:
+	case PREF_TYPE_STRING:
 		str = g_strdup(*((gchar **) elem->ptr));
+		break;
+	case PREF_TYPE_STRING_LIST:
+		str = NULL;
 		break;
 	default:
 		g_warning(_("Unsupported pref type!"));
@@ -283,6 +309,7 @@ void prefs_general_save(void)
 {
 	gchar *path;
 	gchar *tmp, *escaped;
+	GList *cur;
 	FILE *fp;
 	gint i;
 
@@ -299,13 +326,23 @@ void prefs_general_save(void)
 	fputs("<prefs>\n", fp);
 
 	for(i = 0; prefs_general_defs[i].name != NULL; i++) {
-		tmp = prefs_general_get_string(&prefs_general_defs[i]);
-		escaped = g_markup_escape_text(tmp, -1);
-		g_free(tmp);
-
-		fprintf(fp, "  <entry key=\"%s\">%s</entry>\n", 
-			prefs_general_defs[i].name, escaped);
-		g_free(escaped);
+		if(prefs_general_defs[i].type == PREF_TYPE_STRING_LIST) {
+			fprintf(fp, "  <entry key=\"%s\">\n", prefs_general_defs[i].name);
+			for(cur = *((GList **) prefs_general_defs[i].ptr); cur != NULL; cur = cur->next) {
+				escaped = g_markup_escape_text((gchar *) cur->data, -1);
+				fprintf(fp, "    <li>%s</li>\n", escaped);
+				g_free(escaped);
+			}
+			fprintf(fp, "  </entry>\n");
+		} else {
+			tmp = prefs_general_get_string(&prefs_general_defs[i]);
+			escaped = g_markup_escape_text(tmp, -1);
+			g_free(tmp);
+			
+			fprintf(fp, "  <entry key=\"%s\">%s</entry>\n", 
+				prefs_general_defs[i].name, escaped);
+			g_free(escaped);
+		}
 	}
 
 	fputs("</prefs>", fp);

@@ -29,6 +29,14 @@
  } \
 }
 
+#define G_LIST_FREE_WITH_ELEMENT_FREE_UNLESS_NULL(list) { \
+ if(list != NULL) { \
+    g_list_foreach(list, (GFunc) g_free, NULL); \
+    g_list_free(list); \
+    list = NULL; \
+ } \
+}
+ 
 #define DEBUG_TIMER_START(timer) { \
    timer = g_timer_new(); \
    g_timer_start(timer); \
