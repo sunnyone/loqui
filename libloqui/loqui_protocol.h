@@ -45,6 +45,7 @@ typedef struct _LoquiProtocolPrivate     LoquiProtocolPrivate;
 #include "loqui_receiver.h"
 #include "loqui_user.h"
 #include "loqui_profile_account.h"
+#include "loqui_codeconv.h"
 
 struct _LoquiProtocol
 {
@@ -52,13 +53,15 @@ struct _LoquiProtocol
         
 	gchar *identifier;
 
+	LoquiCodeConvTableItem *codeconv_table;
+
 	GType type_account;
 	GType type_channel;
 	GType type_sender;
 	GType type_receiver;
 	GType type_user;
 	GType type_profile_account;
-	
+
         LoquiProtocolPrivate *priv;
 };
 
@@ -73,6 +76,9 @@ LoquiProtocol* loqui_protocol_new(void);
 
 void loqui_protocol_set_identifier(LoquiProtocol *protocol, const gchar *identifier);
 G_CONST_RETURN gchar *loqui_protocol_get_identifier(LoquiProtocol *protocol);
+
+void loqui_protocol_set_codeconv_table(LoquiProtocol *protocol, LoquiCodeConvTableItem *codeconv_table);
+LoquiCodeConvTableItem *loqui_protocol_get_codeconv_table(LoquiProtocol *protocol);
 
 /* you must unref classes */
 LoquiAccountClass *loqui_protocol_get_account_class(LoquiProtocol *protocol);

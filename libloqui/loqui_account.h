@@ -41,6 +41,7 @@ typedef struct _LoquiAccountPrivate     LoquiAccountPrivate;
 #include "loqui_sender.h"
 #include "loqui_receiver.h"
 #include "loqui_profile_account.h"
+#include "loqui_codeconv.h"
 
 #define LOQUI_ACCOUNT_USER_SELF_ACCOUNT_KEY "parent-account"
 #define LOQUI_ACCOUNT_RECONNECT_COUNT_MAX 5

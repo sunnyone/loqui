@@ -27,9 +27,10 @@
 #include <utils.h>
 #include <loqui_profile_account.h>
 #include <loqui_profile_account_irc.h>
-#include <codeconv.h>
+#include <loqui_codeconv.h>
 
 #include "loqui_account_irc.h"
+#include <string.h>
 
 struct _AccountDialogPrivate
 {
@@ -50,19 +51,22 @@ struct _AccountDialogPrivate
 	GtkWidget *entry_autojoin;
 	GtkWidget *entry_quit_message;
 
-	GtkWidget *option_codeconv;
+	GtkWidget *radio_automatic;
+	GtkWidget *radio_noconv;
+	GtkWidget *radio_bytable;
+	GtkWidget *combobox_table;
+	GtkWidget *radio_codeset;
 	GtkWidget *entry_codeset;
+	
+	GtkTreeModel *model_codeconv_table;
 
 	GtkWidget *textview_nicklist;
 };
 
 enum {
-	COLUMN_USE,
-	COLUMN_HOSTNAME,
-	COLUMN_PORT,
-	COLUMN_PASSWORD,
-	COLUMN_EDITABLE,
-	COLUMN_NUMBER
+	CODECONV_COLUMN_TITLE,
+	CODECONV_COLUMN_NAME,
+	CODECONV_COLUMN_NUMBER,
 };
 
 static GtkDialogClass *parent_class = NULL;
@@ -74,8 +78,6 @@ static void account_dialog_finalize(GObject *object);
 static void account_dialog_destroy(GtkObject *object);
 
 static void account_dialog_response_cb(GtkWidget *widget, gint response, gpointer data);
-
-static void account_dialog_option_codeconv_changed_cb(GtkWidget *widget, gpointer data);
 
 GType
 account_dialog_get_type(void)
@@ -152,12 +154,53 @@ account_dialog_destroy(GtkObject *object)
                 (* GTK_OBJECT_CLASS(parent_class)->destroy) (object);
 }
 static void
+account_dialog_set_codeconv_mode(AccountDialog *dialog, LoquiCodeConvMode mode)
+{
+	AccountDialogPrivate *priv;
+
+	priv = dialog->priv;
+
+	switch (mode) {
+	case LOQUI_CODECONV_MODE_AUTOMATIC:
+		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(priv->radio_automatic), TRUE);
+		break;
+	case LOQUI_CODECONV_MODE_NO_CONV:
+		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(priv->radio_noconv), TRUE);
+		break;
+	case LOQUI_CODECONV_MODE_BY_TABLE:
+		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(priv->radio_bytable), TRUE);
+		break;
+	case LOQUI_CODECONV_MODE_CODESET:
+		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(priv->radio_codeset), TRUE);
+		break;
+	}
+}
+static LoquiCodeConvMode
+account_dialog_get_codeconv_mode(AccountDialog *dialog)
+{
+	AccountDialogPrivate *priv;
+
+	priv = dialog->priv;
+
+	if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(priv->radio_automatic)))
+		return LOQUI_CODECONV_MODE_AUTOMATIC;
+	if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(priv->radio_noconv)))
+		return LOQUI_CODECONV_MODE_NO_CONV;
+	if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(priv->radio_bytable)))
+		return LOQUI_CODECONV_MODE_BY_TABLE;
+	if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(priv->radio_codeset)))
+		return LOQUI_CODECONV_MODE_CODESET;
+
+	return 0;
+}
+static void
 account_dialog_response_cb(GtkWidget *widget, gint response, gpointer data)
 {
 	AccountDialog *dialog;
 	AccountDialogPrivate *priv;
 	GList *nick_list;
-	gint code_type;
+	GtkTreeIter iter;
+	const gchar *codeconv_item_name;
 
 	dialog = ACCOUNT_DIALOG(data);
 
@@ -165,11 +208,10 @@ account_dialog_response_cb(GtkWidget *widget, gint response, gpointer data)
 
 	switch(response) {
 	case GTK_RESPONSE_OK:
-		code_type = gtk_option_menu_get_history(GTK_OPTION_MENU(priv->option_codeconv));
-		loqui_profile_account_irc_set_codeset_type(LOQUI_PROFILE_ACCOUNT_IRC(priv->profile), code_type);
-		if(code_type == CODESET_TYPE_CUSTOM)
-			loqui_profile_account_irc_set_codeset(LOQUI_PROFILE_ACCOUNT_IRC(priv->profile),
-							      gtk_entry_get_text(GTK_ENTRY(priv->entry_codeset)));
+		if (gtk_combo_box_get_active_iter(GTK_COMBO_BOX(priv->combobox_table), &iter))
+			gtk_tree_model_get(priv->model_codeconv_table, &iter, CODECONV_COLUMN_NAME, &codeconv_item_name, -1);
+		else
+			codeconv_item_name = NULL;
 
 		g_object_set(priv->profile,
 			     "use", gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(priv->check_use)),
@@ -183,6 +225,9 @@ account_dialog_response_cb(GtkWidget *widget, gint response, gpointer data)
 			     "quit_message", gtk_entry_get_text(GTK_ENTRY(priv->entry_quit_message)),
 			     "servername", gtk_entry_get_text(GTK_ENTRY(priv->entry_servername)),
 			     "port", (int) gtk_spin_button_get_value(GTK_SPIN_BUTTON(priv->spin_port)),
+			     "codeconv_mode", account_dialog_get_codeconv_mode(dialog),
+			     "codeconv_item_name", codeconv_item_name,
+			     "codeset", gtk_entry_get_text(GTK_ENTRY(priv->entry_codeset)),
 			     NULL);
 		nick_list = NULL;
 		gtkutils_set_string_list_from_textview(&nick_list, GTK_TEXT_VIEW(priv->textview_nicklist));
@@ -193,31 +238,18 @@ account_dialog_response_cb(GtkWidget *widget, gint response, gpointer data)
 	}
 }
 static void
-account_dialog_option_codeconv_changed_cb(GtkWidget *widget, gpointer data)
+account_dialog_radio_toggled_cb(GtkWidget *radio, AccountDialog *dialog)
 {
-	AccountDialog *dialog;
 	AccountDialogPrivate *priv;
-	const gchar *codeset;
-	gint i;
+	LoquiCodeConvMode mode;
 
-	dialog = ACCOUNT_DIALOG(data);
 	priv = dialog->priv;
 
-	i = gtk_option_menu_get_history(GTK_OPTION_MENU(widget));
-	if (i == CODESET_TYPE_CUSTOM) {
-		gtk_widget_set_sensitive(priv->entry_codeset, TRUE);
-		codeset = loqui_profile_account_irc_get_codeset(LOQUI_PROFILE_ACCOUNT_IRC(priv->profile));
-		if (codeset)
-			gtk_entry_set_text(GTK_ENTRY(priv->entry_codeset), codeset);
-	} else {
-		gtk_widget_set_sensitive(priv->entry_codeset, FALSE);
-		if (conv_table[i].codeset)
-			gtk_entry_set_text(GTK_ENTRY(priv->entry_codeset), conv_table[i].codeset);
-		else
-			gtk_entry_set_text(GTK_ENTRY(priv->entry_codeset), "");
-	}
-}
+	mode = account_dialog_get_codeconv_mode(dialog);
 
+	gtk_widget_set_sensitive(priv->entry_codeset, (mode == LOQUI_CODECONV_MODE_CODESET));
+	gtk_widget_set_sensitive(priv->combobox_table, (mode == LOQUI_CODECONV_MODE_BY_TABLE));
+}
 GtkWidget*
 account_dialog_new(LoquiProfileAccount *profile)
 {
@@ -225,12 +257,17 @@ account_dialog_new(LoquiProfileAccount *profile)
 	AccountDialogPrivate *priv;
 	GtkWidget *notebook;
 	GtkWidget *vbox, *hbox, *vbox_c;
+	GtkWidget *vbox1;
+	GtkWidget *hbox1;
 	GtkWidget *frame;
-	GtkWidget *menu;
-	GtkWidget *menuitem;
 	GtkWidget *label;
+        GSList *group_codeconv = NULL;
+       
 	gint i;
-	const gchar *codeset;
+	const gchar *codeset, *name;
+	LoquiCodeConvTableItem *table;
+	GtkTreeIter iter;
+	GtkCellRenderer *cell;
 
 	dialog = g_object_new(account_dialog_get_type(), NULL);
 	
@@ -303,34 +340,77 @@ account_dialog_new(LoquiProfileAccount *profile)
 	frame = gtk_frame_new(_("Code convertion"));
 	gtk_box_pack_start(GTK_BOX(vbox), frame, FALSE, FALSE, 2);
 	
-	hbox = gtk_hbox_new(FALSE, 0);
-	gtk_container_add(GTK_CONTAINER(frame), hbox);
+        vbox1 = gtk_vbox_new(FALSE, 0);
+        gtk_container_add(GTK_CONTAINER(frame), vbox1);
 
-	priv->option_codeconv = gtk_option_menu_new();
-	gtk_box_pack_start(GTK_BOX(hbox), priv->option_codeconv, FALSE, FALSE, 0);
+        priv->radio_automatic = gtk_radio_button_new_with_mnemonic(NULL, _("Automatic detection by locale"));
+        gtk_box_pack_start(GTK_BOX(vbox1), priv->radio_automatic, FALSE, FALSE, 0);
+        group_codeconv = gtk_radio_button_get_group(GTK_RADIO_BUTTON(priv->radio_automatic));
+	g_signal_connect(G_OBJECT(priv->radio_automatic), "toggled",
+			 G_CALLBACK(account_dialog_radio_toggled_cb), dialog);
 
-	menu = gtk_menu_new();
-	gtk_option_menu_set_menu(GTK_OPTION_MENU(priv->option_codeconv), menu);
-	g_signal_connect(G_OBJECT(priv->option_codeconv), "changed",
-			 G_CALLBACK(account_dialog_option_codeconv_changed_cb), dialog);
+        priv->radio_noconv = gtk_radio_button_new_with_mnemonic(NULL, _("No convertion"));
+        gtk_box_pack_start(GTK_BOX(vbox1), priv->radio_noconv, FALSE, FALSE, 0);
+        gtk_radio_button_set_group(GTK_RADIO_BUTTON(priv->radio_noconv), group_codeconv);
+        group_codeconv = gtk_radio_button_get_group(GTK_RADIO_BUTTON(priv->radio_noconv));
+	g_signal_connect(G_OBJECT(priv->radio_noconv), "toggled",
+			 G_CALLBACK(account_dialog_radio_toggled_cb), dialog);
+
+        priv->radio_bytable = gtk_radio_button_new_with_mnemonic(NULL, _("Select from the table"));
+        gtk_box_pack_start(GTK_BOX(vbox1), priv->radio_bytable, FALSE, FALSE, 0);
+        gtk_radio_button_set_group(GTK_RADIO_BUTTON(priv->radio_bytable), group_codeconv);
+        group_codeconv = gtk_radio_button_get_group(GTK_RADIO_BUTTON(priv->radio_bytable));
+	g_signal_connect(G_OBJECT(priv->radio_bytable), "toggled",
+			 G_CALLBACK(account_dialog_radio_toggled_cb), dialog);
+
+	priv->model_codeconv_table = GTK_TREE_MODEL(gtk_list_store_new(CODECONV_COLUMN_NUMBER,
+								       G_TYPE_STRING,
+								       G_TYPE_STRING));
 	
-	priv->entry_codeset = gtk_entry_new();
-	gtk_box_pack_end(GTK_BOX(hbox), priv->entry_codeset, FALSE, FALSE, 0);
-	codeset = loqui_profile_account_irc_get_codeset(LOQUI_PROFILE_ACCOUNT_IRC(profile));
+        priv->combobox_table = gtk_combo_box_new_with_model(priv->model_codeconv_table);
+        gtk_box_pack_start(GTK_BOX(vbox1), priv->combobox_table, FALSE, FALSE, 0);
+
+	cell = gtk_cell_renderer_text_new();
+	gtk_cell_layout_pack_start(GTK_CELL_LAYOUT(priv->combobox_table), cell, TRUE);
+	gtk_cell_layout_set_attributes(GTK_CELL_LAYOUT(priv->combobox_table), cell,
+				       "text", 0,
+				       NULL);
+
+	table = loqui_protocol_get_codeconv_table(loqui_profile_account_get_protocol(profile));
+	name = loqui_profile_account_get_codeconv_item_name(profile);
+
+	for (i = 0; table[i].name != NULL; i++) {
+		gtk_list_store_append(GTK_LIST_STORE(priv->model_codeconv_table), &iter);
+		gtk_list_store_set(GTK_LIST_STORE(priv->model_codeconv_table),
+				   &iter,
+				   CODECONV_COLUMN_TITLE, loqui_codeconv_translate(table[i].title),
+				   CODECONV_COLUMN_NAME, table[i].name,
+				   -1);
+
+		if (name != NULL && strcmp(table[i].name, name) == 0) {
+			gtk_combo_box_set_active_iter(GTK_COMBO_BOX(priv->combobox_table), &iter);
+		}
+	}
+
+        priv->radio_codeset = gtk_radio_button_new_with_mnemonic(NULL, _("Specify codeset"));
+        gtk_box_pack_start(GTK_BOX(vbox1), priv->radio_codeset, FALSE, FALSE, 0);
+        gtk_radio_button_set_group(GTK_RADIO_BUTTON(priv->radio_codeset), group_codeconv);
+        group_codeconv = gtk_radio_button_get_group(GTK_RADIO_BUTTON(priv->radio_codeset));
+	g_signal_connect(G_OBJECT(priv->radio_codeset), "toggled",
+			 G_CALLBACK(account_dialog_radio_toggled_cb), dialog);
+
+        hbox1 = gtk_hbox_new(FALSE, 0);
+        gtk_box_pack_start(GTK_BOX(vbox1), hbox1, FALSE, FALSE, 0);
+
+        label = gtk_label_new(_("Codeset: "));
+        gtk_box_pack_start(GTK_BOX(hbox1), label, FALSE, FALSE, 0);
+
+        priv->entry_codeset = gtk_entry_new();
+        gtk_box_pack_start(GTK_BOX(hbox1), priv->entry_codeset, TRUE, TRUE, 0);
+	codeset = loqui_profile_account_get_codeset(LOQUI_PROFILE_ACCOUNT(profile));
 	if (codeset)
 		gtk_entry_set_text(GTK_ENTRY(priv->entry_codeset), codeset);
-
-	label = gtk_label_new(_("codeset: "));
-	gtk_box_pack_end(GTK_BOX(hbox), label, FALSE, FALSE, 0);
-
-	menu = gtk_option_menu_get_menu(GTK_OPTION_MENU(priv->option_codeconv));
-
-	for (i = 0; i < N_CODESET_TYPE; i++) {
-		menuitem = gtk_menu_item_new_with_label(gettext(conv_table[i].title));
-		gtk_menu_shell_append(GTK_MENU_SHELL(menu), menuitem);
-	}
- 	gtk_option_menu_set_history(GTK_OPTION_MENU(priv->option_codeconv),
-				    loqui_profile_account_irc_get_codeset_type(LOQUI_PROFILE_ACCOUNT_IRC(profile)));
+	account_dialog_set_codeconv_mode(dialog, loqui_profile_account_get_codeconv_mode(LOQUI_PROFILE_ACCOUNT(profile)));
 
 	vbox = gtk_vbox_new(FALSE, 0);
 	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), vbox, gtk_label_new(_("Nick")));

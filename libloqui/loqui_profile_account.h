@@ -38,6 +38,7 @@ typedef struct _LoquiProfileAccountClass       LoquiProfileAccountClass;
 typedef struct _LoquiProfileAccountPrivate     LoquiProfileAccountPrivate;
 
 #include "loqui_protocol.h"
+#include "loqui_codeconv.h"
 
 struct _LoquiProfileAccount
 {
@@ -55,7 +56,11 @@ struct _LoquiProfileAccount
 	gchar *password;
 	
 	gchar *nick;
-	
+
+	LoquiCodeConvMode codeconv_mode;
+	gchar *codeconv_item_name;
+	gchar *codeset;
+
 	GList *nick_list;
 	
         LoquiProfileAccountPrivate *priv;
@@ -70,6 +75,8 @@ struct _LoquiProfileAccountClass
 GType loqui_profile_account_get_type(void) G_GNUC_CONST;
 
 LoquiProfileAccount* loqui_profile_account_new(LoquiProtocol *protocol);
+
+LoquiProtocol*loqui_profile_account_get_protocol(LoquiProfileAccount *profile);
 
 #define LOQUI_PROFILE_ACCOUNT_ACCESSOR_STRING(attr_name) \
   ATTR_ACCESSOR_POINTER(g_strdup, g_free, const gchar *, G_CONST_RETURN gchar *, LoquiProfileAccount, loqui_profile_account, attr_name)
@@ -92,6 +99,10 @@ LOQUI_PROFILE_ACCOUNT_ACCESSOR_GENERIC_PROTOTYPE(int, port);
 
 LOQUI_PROFILE_ACCOUNT_ACCESSOR_STRING_PROTOTYPE(username);
 LOQUI_PROFILE_ACCOUNT_ACCESSOR_STRING_PROTOTYPE(password);
+
+LOQUI_PROFILE_ACCOUNT_ACCESSOR_GENERIC_PROTOTYPE(int, codeconv_mode);
+LOQUI_PROFILE_ACCOUNT_ACCESSOR_STRING_PROTOTYPE(codeconv_item_name);
+LOQUI_PROFILE_ACCOUNT_ACCESSOR_STRING_PROTOTYPE(codeset);
 
 void loqui_profile_account_set_nick_list(LoquiProfileAccount *profile, GList *nick_list);
 GList *loqui_profile_account_get_nick_list(LoquiProfileAccount *profile);

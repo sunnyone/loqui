@@ -184,6 +184,23 @@ loqui_protocol_get_identifier(LoquiProtocol *protocol)
 	return protocol->identifier;
 }
 
+void
+loqui_protocol_set_codeconv_table(LoquiProtocol *protocol, LoquiCodeConvTableItem *codeconv_table)
+{
+        g_return_if_fail(protocol != NULL);
+        g_return_if_fail(LOQUI_IS_PROTOCOL(protocol));
+
+	protocol->codeconv_table = codeconv_table;
+}
+LoquiCodeConvTableItem *
+loqui_protocol_get_codeconv_table(LoquiProtocol *protocol)
+{
+        g_return_val_if_fail(protocol != NULL, NULL);
+        g_return_val_if_fail(LOQUI_IS_PROTOCOL(protocol), NULL);
+	
+	return protocol->codeconv_table;
+}
+
 LoquiAccountClass *
 loqui_protocol_get_account_class(LoquiProtocol *protocol)
 {

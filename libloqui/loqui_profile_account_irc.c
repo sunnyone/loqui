@@ -137,12 +137,6 @@ loqui_profile_account_irc_get_property(GObject *object, guint param_id, GValue *
 	case PROP_QUIT_MESSAGE:
 		g_value_set_string(value, loqui_profile_account_irc_get_quit_message(profile));
 		break;
-	case PROP_CODESET_TYPE:
-		g_value_set_int(value, loqui_profile_account_irc_get_codeset_type(profile));
-		break;
-	case PROP_CODESET:
-		g_value_set_string(value, loqui_profile_account_irc_get_codeset(profile));
-		break;	
         default:
                 G_OBJECT_WARN_INVALID_PROPERTY_ID(object, param_id, pspec);
                 break;
@@ -167,12 +161,6 @@ loqui_profile_account_irc_set_property(GObject *object, guint param_id, const GV
 		break;
 	case PROP_QUIT_MESSAGE:
 		loqui_profile_account_irc_set_quit_message(profile, g_value_get_string(value));
-		break;
-	case PROP_CODESET_TYPE:
-		loqui_profile_account_irc_set_codeset_type(profile, g_value_get_int(value));
-		break;
-	case PROP_CODESET:
-		loqui_profile_account_irc_set_codeset(profile, g_value_get_string(value));
 		break;
         default:
                 G_OBJECT_WARN_INVALID_PROPERTY_ID(object, param_id, pspec);
@@ -216,21 +204,6 @@ loqui_profile_account_irc_class_init(LoquiProfileAccountIRCClass *klass)
 							    _("Quit Message"),
 							    _("Default quit message"),
 							    NULL, G_PARAM_READWRITE));
-	g_object_class_install_property(object_class,
-					PROP_CODESET_TYPE,
-					g_param_spec_int("codeset_type",
-							 _("Codeset type"),
-							 _("Codeset type"),
-							 0,
-							 G_MAXINT,
-							 CODESET_TYPE_NO_CONV,
-							 G_PARAM_READWRITE));
-	g_object_class_install_property(object_class,
-					PROP_CODESET,
-					g_param_spec_string("codeset",
-							    _("Codeset"),
-							    _("Codeset"),
-							    NULL, G_PARAM_READWRITE));
 }
 static void 
 loqui_profile_account_irc_init(LoquiProfileAccountIRC *profile)
@@ -263,9 +236,8 @@ loqui_profile_account_irc_new(void)
         return profile;
 }
 
-ATTR_ACCESSOR_GENERIC(int, 0, LoquiProfileAccountIRC, loqui_profile_account_irc, codeset_type);
+/* ATTR_ACCESSOR_GENERIC(int, 0, LoquiProfileAccountIRC, loqui_profile_account_irc, codeset_type); */
 LOQUI_PROFILE_ACCOUNT_IRC_ACCESSOR_STRING(realname);
 LOQUI_PROFILE_ACCOUNT_IRC_ACCESSOR_STRING(userinfo);
 LOQUI_PROFILE_ACCOUNT_IRC_ACCESSOR_STRING(autojoin);
 LOQUI_PROFILE_ACCOUNT_IRC_ACCESSOR_STRING(quit_message);
-LOQUI_PROFILE_ACCOUNT_IRC_ACCESSOR_STRING(codeset);

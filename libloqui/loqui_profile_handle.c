@@ -47,6 +47,7 @@ struct _LoquiProfileHandlePrivate
 	GMarkupParseContext *context;
 
 	int skip_profile_count;
+	int skip_param_count;
 
 	GQueue *element_queue;
 	GQueue *object_queue;
@@ -242,6 +243,8 @@ start_element_handler(GMarkupParseContext *context,
 	
 	if (priv->skip_profile_count > 0)
 		return;
+	if (priv->skip_param_count > 0)
+		return;
 
 	elem = GET_CURRENT_ELEMENT(handle);
 	if (elem == ELEMENT_NONE) {
@@ -309,10 +312,12 @@ start_element_handler(GMarkupParseContext *context,
            		return;
 		}
 		if ((pspec = g_object_class_find_property(G_OBJECT_GET_CLASS(obj), key)) == NULL) {
-			g_set_error(error,
+			/* g_set_error(error,
            			    G_MARKUP_ERROR,
            			    G_MARKUP_ERROR_INVALID_CONTENT,
-           			    _("Invalid param key"));
+           			    _("Invalid param key")); */
+			priv->skip_param_count++;
+			g_warning(_("Invalid param key'"));
            		return;
 		}
 		g_queue_push_tail(priv->pspec_queue, pspec);
@@ -372,6 +377,13 @@ end_element_handler    (GMarkupParseContext *context,
 	if (priv->skip_profile_count > 0) {
 		if (strcmp("profile", element_name) == 0)
 			priv->skip_profile_count--;
+		return;
+	}
+
+	if (priv->skip_param_count > 0) {
+		if (strcmp("param", element_name) == 0)
+			priv->skip_param_count--;
+		return;
 	}
 
 	elem = GET_CURRENT_ELEMENT(handle);

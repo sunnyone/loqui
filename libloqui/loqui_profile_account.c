@@ -40,7 +40,11 @@ enum {
 	
 	PROP_USERNAME,
 	PROP_PASSWORD,
-	
+
+	PROP_CODECONV_MODE,
+	PROP_CODECONV_ITEM_NAME,
+	PROP_CODESET,
+
 	PROP_NICK_LIST,
 	
         LAST_PROP
@@ -154,6 +158,15 @@ loqui_profile_account_get_property(GObject *object, guint param_id, GValue *valu
 	case PROP_PASSWORD:
 		g_value_set_string(value, loqui_profile_account_get_password(profile));
 		break;
+	case PROP_CODECONV_MODE:
+		g_value_set_int(value, loqui_profile_account_get_codeconv_mode(profile));
+		break;
+	case PROP_CODECONV_ITEM_NAME:
+		g_value_set_string(value, loqui_profile_account_get_codeconv_item_name(profile));
+		break;	
+	case PROP_CODESET:
+		g_value_set_string(value, loqui_profile_account_get_codeset(profile));
+		break;	
 	case PROP_NICK_LIST:
 		tmp_list = loqui_profile_account_get_nick_list(profile);
 		value_array = g_value_array_new(g_list_length(tmp_list));
@@ -203,6 +216,15 @@ loqui_profile_account_set_property(GObject *object, guint param_id, const GValue
 		break;
 	case PROP_PASSWORD:
 		loqui_profile_account_set_password(profile, g_value_get_string(value));
+		break;
+	case PROP_CODECONV_MODE:
+		loqui_profile_account_set_codeconv_mode(profile, g_value_get_int(value));
+		break;
+	case PROP_CODECONV_ITEM_NAME:
+		loqui_profile_account_set_codeconv_item_name(profile, g_value_get_string(value));
+		break;
+	case PROP_CODESET:
+		loqui_profile_account_set_codeset(profile, g_value_get_string(value));
 		break;
 	case PROP_NICK_LIST:
 		value_array = g_value_get_boxed(value);
@@ -285,6 +307,27 @@ loqui_profile_account_class_init(LoquiProfileAccountClass *klass)
 							    NULL,
 							    G_PARAM_READWRITE));
 	g_object_class_install_property(object_class,
+					PROP_CODECONV_MODE,
+					g_param_spec_int("codeconv_mode",
+							 _("CodeConv mode"),
+							 _("CodeConv mode"),
+							 0,
+							 G_MAXINT,
+							 0,
+							 G_PARAM_READWRITE));
+	g_object_class_install_property(object_class,
+					PROP_CODECONV_ITEM_NAME,
+					g_param_spec_string("codeconv_item_name",
+							    _("CodeConv item name"),
+							    _("COdeConv item name"),
+							    NULL, G_PARAM_READWRITE));
+	g_object_class_install_property(object_class,
+					PROP_CODESET,
+					g_param_spec_string("codeset",
+							    _("Codeset"),
+							    _("Codeset"),
+							    NULL, G_PARAM_READWRITE));
+	g_object_class_install_property(object_class,
 					PROP_NICK_LIST,
 					g_param_spec_value_array("nick_list",
 							         _("NickList"),
@@ -324,6 +367,9 @@ LOQUI_PROFILE_ACCOUNT_ACCESSOR_STRING(servername);
 LOQUI_PROFILE_ACCOUNT_ACCESSOR_GENERIC(int, port);
 LOQUI_PROFILE_ACCOUNT_ACCESSOR_STRING(username);
 LOQUI_PROFILE_ACCOUNT_ACCESSOR_STRING(password);
+LOQUI_PROFILE_ACCOUNT_ACCESSOR_GENERIC(int, codeconv_mode);
+LOQUI_PROFILE_ACCOUNT_ACCESSOR_STRING(codeconv_item_name);
+LOQUI_PROFILE_ACCOUNT_ACCESSOR_STRING(codeset);
 
 void
 loqui_profile_account_set_nick_list(LoquiProfileAccount *profile, GList *nick_list)
@@ -346,6 +392,14 @@ loqui_profile_account_get_nick_list(LoquiProfileAccount *profile)
         g_return_val_if_fail(LOQUI_IS_PROFILE_ACCOUNT(profile), NULL);
         
         return profile->nick_list;
+}
+LoquiProtocol *
+loqui_profile_account_get_protocol(LoquiProfileAccount *profile)
+{
+        g_return_val_if_fail(profile != NULL, NULL);
+        g_return_val_if_fail(LOQUI_IS_PROFILE_ACCOUNT(profile), NULL);
+ 
+	return profile->protocol;
 }
 void
 loqui_profile_account_print(LoquiProfileAccount *profile)

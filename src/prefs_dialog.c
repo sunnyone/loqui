@@ -21,7 +21,6 @@
 
 #include <prefs_general.h>
 #include <utils.h>
-#include <codeconv.h>
 
 #include "prefs_dialog.h"
 #include "intl.h"

@@ -19,6 +19,7 @@
  */
 #include "config.h"
 #include "loqui_codeconv_tools.h"
+#include "loqui_codeconv.h"
 
 #include <ctype.h>
 #include <string.h>
@@ -61,7 +62,7 @@ typedef enum {
 #define EUC_JP_CHAR_MAX_LEN 3
 
 gchar *
-loqui_codeconv_tools_jis_to_utf8(const gchar *input)
+loqui_codeconv_tools_jis_to_utf8(LoquiCodeConv *codeconv, gboolean is_to_server, const gchar *input, GError **error)
 {
 	const gchar *cur;
 	gboolean shift_out_mode = FALSE;
@@ -75,9 +76,23 @@ loqui_codeconv_tools_jis_to_utf8(const gchar *input)
 	ISO2022JPAreaType area_type;
 	GIConv cd;
 
+	if (is_to_server) {
+		gchar *buf;
+
+		buf = g_convert_with_iconv(input, strlen(input)+1, codeconv->cd_to_server,
+					   NULL, NULL, error);
+		return buf;
+	}
+
+	
 	cd = g_iconv_open("UTF-8", ICONV_EUC_JP_CODESET);
-	if (cd < 0)
+	if (cd < 0) {
+		g_set_error(error,
+			    LOQUI_CODECONV_ERROR,
+			    LOQUI_CODECONV_ERROR_FAILED_OPEN_ICONV,
+			    "Can't open iconv (%s)", ICONV_EUC_JP_CODESET);
 		return NULL;
+	}
 
 	string = g_string_new_len(NULL, strlen(input));
 	cur = input;
@@ -210,7 +225,7 @@ loqui_codeconv_tools_jis_to_utf8(const gchar *input)
 		}
 		cur++;
 	}
-	
+
 	g_iconv_close(cd);
 
 	return g_string_free(string, FALSE);

@@ -27,6 +27,8 @@
 #include "loqui_sender_irc.h"
 #include "loqui_receiver_irc.h"
 #include "loqui_profile_account_irc.h"
+#include "intl.h"
+#include "loqui_codeconv_tools.h"
 
 static LoquiProtocolClass *parent_class = NULL;
 
@@ -34,6 +36,18 @@ static void loqui_protocol_irc_class_init(LoquiProtocolIRCClass *klass);
 static void loqui_protocol_irc_init(LoquiProtocolIRC *protocol);
 
 static LoquiProtocolIRC* loqui_protocol_irc_new(void);
+
+/* tell me other languages if you know */
+LoquiCodeConvTableItem codeconv_table[] = {
+	{"ja",
+	 N_("Japanese"),
+	 N_("ISO-2022-JP (with JIS X 0201 kana and informal characters)"),
+	 "ja_JP",
+	 loqui_codeconv_tools_jis_to_utf8,
+	 "ISO-2022-JP",	NULL,
+	},
+	{NULL, NULL, NULL, NULL, NULL, NULL, NULL},
+};
 
 GType
 loqui_protocol_irc_get_type(void)
@@ -77,6 +91,7 @@ loqui_protocol_irc_init(LoquiProtocolIRC *protocol)
 	LOQUI_PROTOCOL(protocol)->type_profile_account = LOQUI_TYPE_PROFILE_ACCOUNT_IRC;
 
 	loqui_protocol_set_identifier(LOQUI_PROTOCOL(protocol), "IRC");
+	loqui_protocol_set_codeconv_table(LOQUI_PROTOCOL(protocol), codeconv_table);
 }
 static LoquiProtocolIRC*
 loqui_protocol_irc_new(void)

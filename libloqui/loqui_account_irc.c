@@ -180,7 +180,6 @@ loqui_account_irc_class_init(LoquiAccountIRCClass *klass)
 	account_class->connect = loqui_account_irc_connect;
 	account_class->disconnect = loqui_account_irc_disconnect;
 	account_class->terminate = loqui_account_irc_terminate;
-	
 }
 static void 
 loqui_account_irc_init(LoquiAccountIRC *account_irc)
@@ -201,19 +200,28 @@ loqui_account_irc_constructor(GType type, guint n_props, GObjectConstructParam *
 	GObjectClass *object_class = G_OBJECT_CLASS(parent_class);
 
 	LoquiAccount *account;
+	LoquiAccountIRCPrivate *priv;
 	LoquiUser *user;
+	LoquiCodeConv *codeconv;
+	LoquiProfileAccount *profile;
 
 	object = object_class->constructor(type, n_props, props);
 	
 	account = LOQUI_ACCOUNT(object);
+	priv = LOQUI_ACCOUNT_IRC(account)->priv;
 
 	loqui_account_set_sender(account, LOQUI_SENDER(loqui_sender_irc_new(account)));
 	loqui_account_set_receiver(account, LOQUI_RECEIVER(loqui_receiver_irc_new(account)));
 
+	profile = loqui_account_get_profile(account);
 	user = LOQUI_USER(loqui_user_irc_new());
-	loqui_user_set_nick(user, loqui_profile_account_get_nick(loqui_account_get_profile(account)));
+	loqui_user_set_nick(user, loqui_profile_account_get_nick(profile));
 	loqui_user_set_away(user, LOQUI_AWAY_TYPE_OFFLINE);
 	loqui_account_set_user_self(account, user);
+
+	codeconv = loqui_codeconv_new();
+	loqui_codeconv_set_table(codeconv, loqui_protocol_get_codeconv_table(profile->protocol));
+	priv->codeconv = codeconv;
 
 	return object;
 }
@@ -273,11 +281,11 @@ static void
 loqui_account_irc_connect(LoquiAccount *account)
 {
 	LoquiAccountIRCPrivate *priv;
-	const gchar *servername, *codeset;
+	LoquiProfileAccount *profile;
+	const gchar *servername;
 	gint port;
-	gint codeset_type;
-	LoquiCodeConv *codeconv;
-	
+	GError *error = NULL;
+
         g_return_if_fail(account != NULL);
         g_return_if_fail(LOQUI_IS_ACCOUNT_IRC(account));
 	
@@ -288,20 +296,25 @@ loqui_account_irc_connect(LoquiAccount *account)
 		return;
 	}
 	
-	servername = loqui_profile_account_get_servername(loqui_account_get_profile(account));
-	port = loqui_profile_account_get_port(loqui_account_get_profile(account));
-	codeset_type = loqui_profile_account_irc_get_codeset_type(LOQUI_PROFILE_ACCOUNT_IRC(loqui_account_get_profile(account)));
-	codeset = loqui_profile_account_irc_get_codeset(LOQUI_PROFILE_ACCOUNT_IRC(loqui_account_get_profile(account)));
+	profile = loqui_account_get_profile(account);
+	servername = loqui_profile_account_get_servername(profile);
+	port = loqui_profile_account_get_port(profile);
+	
+	loqui_codeconv_set_mode(priv->codeconv, loqui_profile_account_get_codeconv_mode(profile));
+	loqui_codeconv_set_table_item_name(priv->codeconv, loqui_profile_account_get_codeconv_item_name(profile));
+	loqui_codeconv_set_codeset(priv->codeconv, loqui_profile_account_get_codeset(profile));
 	
 	loqui_account_set_is_connected(account, TRUE);
+
+	if (!loqui_codeconv_update(priv->codeconv, &error)) {
+		loqui_account_warning(account,
+				      "Failed to update code converter: %s",
+				      error->message);
+		return;
+	}
+
 	priv->conn = gnet_conn_new(servername, port, (GConnFunc) loqui_account_irc_conn_cb, account);
 
-	codeconv = loqui_codeconv_new();
-	loqui_codeconv_set_codeset_type(codeconv, codeset_type);
-	if(codeset_type == CODESET_TYPE_CUSTOM)
-		loqui_codeconv_set_codeset(codeconv, codeset);
-	priv->codeconv = codeconv;
-	
 	loqui_account_information(account, _("Connecting to %s:%d"), servername, port);
 
 	priv->is_conn_connected = FALSE;
@@ -414,15 +427,17 @@ loqui_account_irc_conn_readline_cb(GConn *conn, const gchar *buffer, LoquiAccoun
 	LoquiAccountIRCPrivate *priv;
 	IRCMessage *msg;
 	gchar *local;
+	GError *error = NULL;
 
         g_return_if_fail(account != NULL);
         g_return_if_fail(LOQUI_IS_ACCOUNT_IRC(account));
 	
 	priv = LOQUI_ACCOUNT_IRC(account)->priv;
 
-	local = loqui_codeconv_to_local(priv->codeconv, buffer);
+	local = loqui_codeconv_to_local(priv->codeconv, buffer, &error);
 	if (local == NULL) {
-		loqui_account_warning(LOQUI_ACCOUNT(account), "Failed to convert codeset.");
+		loqui_account_warning(LOQUI_ACCOUNT(account), "Failed to convert codeset: (%s).", error->message);
+		g_error_free(error);
 		return;
 	}
 
@@ -508,6 +523,7 @@ loqui_account_irc_push_message(LoquiAccountIRC *account, IRCMessage *msg)
 {
 	LoquiAccountIRCPrivate *priv;
 	gchar *serv_str, *buf, *tmp;
+	GError *error = NULL;
 
         g_return_if_fail(account != NULL);
         g_return_if_fail(LOQUI_IS_ACCOUNT_IRC(account));
@@ -520,9 +536,15 @@ loqui_account_irc_push_message(LoquiAccountIRC *account, IRCMessage *msg)
 	}
 
 	buf = irc_message_to_string(msg);
-	serv_str = loqui_codeconv_to_server(priv->codeconv, buf);
+	serv_str = loqui_codeconv_to_server(priv->codeconv, buf, &error);
 	g_free(buf);
 
+	if (serv_str == NULL) {
+		loqui_account_warning(LOQUI_ACCOUNT(account), "Failed to convert codeset: (%s).", error->message);
+		g_error_free(error);
+		return;
+	}
+	
 	tmp = g_strdup_printf("%s\r\n", serv_str);
 	g_free(serv_str);
 

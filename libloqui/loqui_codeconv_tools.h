@@ -20,8 +20,8 @@
 #ifndef __LOQUI_CODECONV_TOOLS_H__
 #define __LOQUI_CODECONV_TOOLS_H__
 
-#include <glib.h>
+#include <loqui_codeconv.h>
 
-gchar *loqui_codeconv_tools_jis_to_utf8(const gchar *input);
+gchar *loqui_codeconv_tools_jis_to_utf8(LoquiCodeConv *codeconv, gboolean is_to_server, const gchar *input, GError **error);
 
 #endif /* __LOQUI_CODECONV_TOOLS_H__ */

@@ -34,22 +34,9 @@
 #define GTK_CODESET "UTF-8"
 #define BUFFER_LEN 2048
 
-/* tell me other languages if you know */
-/* if you changed this table, make sure to change codeconv.h */
-LoquiCodeConvDef conv_table[] = {
-	{N_("Auto Detection"), NULL,       NULL, NULL}, /* for the setting */
-	{N_("No conv"),        NULL,       NULL, NULL}, /* for the setting */
-	{N_("Custom"),         NULL,       NULL, NULL}, /* for the setting */
-	{N_("Japanese"),       "ja_JP",    "ISO-2022-JP", loqui_codeconv_tools_jis_to_utf8},
-};
-
 struct _LoquiCodeConvPrivate
 {
-	CodeSetType code_type;
 	LoquiCodeConvFunc func;
-	gchar *server_codeset;
-	GIConv cd_to;
-	GIConv cd_from;
 };
 
 static GObjectClass *parent_class = NULL;
@@ -59,7 +46,11 @@ static void loqui_codeconv_class_init(LoquiCodeConvClass *klass);
 static void loqui_codeconv_init(LoquiCodeConv *codeconv);
 static void loqui_codeconv_finalize(GObject *object);
 
-static void loqui_codeconv_set_codeset_internal(LoquiCodeConv *codeconv, const gchar *codeset);
+#define LOQUI_CODECONV_G_ICONV_INVALIDATE(cd_p) { \
+	*cd_p = (GIConv) -1; \
+}
+
+#define LOQUI_CODECONV_G_ICONV_IS_VALID(cd) (((int) cd) >= 0)
 
 GType
 loqui_codeconv_get_type(void)
@@ -104,7 +95,9 @@ loqui_codeconv_init(LoquiCodeConv *codeconv)
 	priv = g_new0(LoquiCodeConvPrivate, 1);
 
 	codeconv->priv = priv;
-	loqui_codeconv_set_codeset_type(codeconv, CODESET_TYPE_NO_CONV);
+	codeconv->mode = LOQUI_CODECONV_MODE_AUTOMATIC;
+	LOQUI_CODECONV_G_ICONV_INVALIDATE(&codeconv->cd_to_server);
+	LOQUI_CODECONV_G_ICONV_INVALIDATE(&codeconv->cd_to_local);
 }
 static void 
 loqui_codeconv_finalize(GObject *object)
@@ -116,14 +109,23 @@ loqui_codeconv_finalize(GObject *object)
 
         codeconv = LOQUI_CODECONV(object);
 
-	G_FREE_UNLESS_NULL(codeconv->priv->server_codeset);
+	G_FREE_UNLESS_NULL(codeconv->name);
+	G_FREE_UNLESS_NULL(codeconv->codeset);
 
         if (G_OBJECT_CLASS(parent_class)->finalize)
                 (* G_OBJECT_CLASS(parent_class)->finalize) (object);
 
 	g_free(codeconv->priv);
 }
+GQuark
+loqui_codeconv_error_quark(void)
+{
+        static GQuark quark = 0;
+        if (!quark)
+                quark = g_quark_from_static_string("loqui-codeconv-error-quark");
 
+        return quark;
+}
 LoquiCodeConv*
 loqui_codeconv_new(void)
 {
@@ -134,139 +136,249 @@ loqui_codeconv_new(void)
 	return codeconv;
 }
 
+/* NULL terminated and static item array */
 void
-loqui_codeconv_set_codeset_type(LoquiCodeConv *codeconv, CodeSetType type)
+loqui_codeconv_set_table(LoquiCodeConv *codeconv, LoquiCodeConvTableItem *table)
 {
-	int i;
-	gchar *ctype;
-	const gchar *codeset;
-	LoquiCodeConvPrivate *priv;
-
         g_return_if_fail(codeconv != NULL);
         g_return_if_fail(LOQUI_IS_CODECONV(codeconv));
-	g_return_if_fail(type < N_CODESET_TYPE);
 
-	priv = codeconv->priv;
-	
-	priv->code_type = type;
-	switch (type) {
-	case CODESET_TYPE_AUTO_DETECTION:
-		ctype = setlocale(LC_CTYPE, NULL);
-		codeset = NULL;
-		if (ctype) {
-			for (i = CODESET_TYPE_CUSTOM+1; i < N_CODESET_TYPE; i++) {
-				if (strstr(ctype, conv_table[i].locale) != NULL) {
-					codeset = conv_table[i].codeset;
-					priv->func = conv_table[i].func;
-					break;
-				}
-			}
-		}
-		loqui_codeconv_set_codeset_internal(codeconv, codeset);
-		break;
-	case CODESET_TYPE_NO_CONV:
-		loqui_codeconv_set_codeset_internal(codeconv, NULL);
-		break;
-	case CODESET_TYPE_CUSTOM:
-		break;
-	default:
-		priv->func = conv_table[type].func;
-		loqui_codeconv_set_codeset_internal(codeconv, conv_table[type].codeset);
-		break;
-	}
+	codeconv->table = table;
 }
-CodeSetType
-loqui_codeconv_get_codeset_type(LoquiCodeConv *codeconv)
+LoquiCodeConvTableItem *
+loqui_codeconv_get_table(LoquiCodeConv *codeconv)
+{
+        g_return_val_if_fail(codeconv != NULL, NULL);
+        g_return_val_if_fail(LOQUI_IS_CODECONV(codeconv), NULL);
+
+	return codeconv->table;
+}
+
+void
+loqui_codeconv_set_mode(LoquiCodeConv *codeconv, LoquiCodeConvMode mode)
+{
+        g_return_if_fail(codeconv != NULL);
+        g_return_if_fail(LOQUI_IS_CODECONV(codeconv));
+	
+	codeconv->mode = mode;
+}
+LoquiCodeConvMode
+loqui_codeconv_get_mode(LoquiCodeConv *codeconv)
 {
         g_return_val_if_fail(codeconv != NULL, 0);
         g_return_val_if_fail(LOQUI_IS_CODECONV(codeconv), 0);
 	
-	return codeconv->priv->code_type;
+	return codeconv->mode;
 }
-static void
-loqui_codeconv_set_codeset_internal(LoquiCodeConv *codeconv, const gchar *codeset)
+void
+loqui_codeconv_set_table_item_name(LoquiCodeConv *codeconv, const gchar *name)
 {
-	LoquiCodeConvPrivate *priv;
-
         g_return_if_fail(codeconv != NULL);
         g_return_if_fail(LOQUI_IS_CODECONV(codeconv));
-
-	priv = codeconv->priv;
-
-	G_FREE_UNLESS_NULL(priv->server_codeset);
-
-	if(priv->cd_from)
-		g_iconv_close(priv->cd_from);
-	priv->cd_from = NULL;
-
-	if(priv->cd_to)
-		g_iconv_close(priv->cd_to);
-	priv->cd_to = NULL;
-
-	if(!codeset)
-		return;
-
-	priv->server_codeset = g_strdup(codeset);
-
-	priv->cd_from = g_iconv_open(GTK_CODESET, codeset);
-	priv->cd_to = g_iconv_open(codeset, GTK_CODESET);
+	
+	G_FREE_UNLESS_NULL(codeconv->name);
+	codeconv->name = g_strdup(name);
+}
+G_CONST_RETURN gchar *
+loqui_codeconv_get_table_item_name(LoquiCodeConv *codeconv)
+{
+        g_return_val_if_fail(codeconv != NULL, NULL);
+        g_return_val_if_fail(LOQUI_IS_CODECONV(codeconv), NULL);
+	
+	return codeconv->name;
 }
 void
 loqui_codeconv_set_codeset(LoquiCodeConv *codeconv, const gchar *codeset)
 {
         g_return_if_fail(codeconv != NULL);
         g_return_if_fail(LOQUI_IS_CODECONV(codeconv));
-	g_return_if_fail(codeconv->priv->code_type == CODESET_TYPE_CUSTOM);
-	g_return_if_fail(codeset != NULL);
-
-	if(strlen(codeset) == 0) {
-		g_warning(_("Invalid codeset string (length zero)"));
-		return;
-	}
-
-	loqui_codeconv_set_codeset_internal(codeconv, codeset);
+	
+	G_FREE_UNLESS_NULL(codeconv->codeset);
+	codeconv->codeset = g_strdup(codeset);
 }
 G_CONST_RETURN gchar *
 loqui_codeconv_get_codeset(LoquiCodeConv *codeconv)
 {
         g_return_val_if_fail(codeconv != NULL, NULL);
         g_return_val_if_fail(LOQUI_IS_CODECONV(codeconv), NULL);
+	
+	return codeconv->codeset;
+}
+gboolean
+loqui_codeconv_update(LoquiCodeConv *codeconv, GError **error)
+{
+	LoquiCodeConvPrivate *priv;
+	LoquiCodeConvTableItem *item;
 
-	if(codeconv->priv->code_type == CODESET_TYPE_NO_CONV)
-		return GTK_CODESET;
-	else
-		return codeconv->priv->server_codeset;
+        g_return_val_if_fail(codeconv != NULL, FALSE);
+        g_return_val_if_fail(LOQUI_IS_CODECONV(codeconv), FALSE);
+
+	priv = codeconv->priv;
+
+	if (codeconv->cd_to_local >= 0)
+		g_iconv_close(codeconv->cd_to_local);
+	LOQUI_CODECONV_G_ICONV_INVALIDATE(&codeconv->cd_to_local);
+
+	if (codeconv->cd_to_server >= 0)
+		g_iconv_close(codeconv->cd_to_server);
+	LOQUI_CODECONV_G_ICONV_INVALIDATE(&codeconv->cd_to_server);
+
+	priv->func = NULL;
+
+#define CHECK_TABLE_IS_SET() { \
+	if (codeconv->table == NULL) { \
+		g_set_error(error, \
+			    LOQUI_CODECONV_ERROR, \
+			    LOQUI_CODECONV_ERROR_TABLE_NOT_SET, \
+			    "Table is not set"); \
+                return FALSE; \
+	} \
+}
+
+	switch (codeconv->mode) {
+	case LOQUI_CODECONV_MODE_AUTOMATIC:
+		CHECK_TABLE_IS_SET();
+		item = loqui_codeconv_find_table_item_by_locale(codeconv->table);
+		break;
+	case LOQUI_CODECONV_MODE_NO_CONV:
+		item = NULL;
+		g_print("noconv\n");
+		break;
+	case LOQUI_CODECONV_MODE_BY_TABLE:
+		CHECK_TABLE_IS_SET();
+		item = NULL;
+		if (codeconv->name != NULL)
+			item = loqui_codeconv_find_table_item_by_name(codeconv->table, codeconv->name);
+		if (item == NULL) {
+			g_set_error(error,
+				    LOQUI_CODECONV_ERROR,
+				    LOQUI_CODECONV_ERROR_FAILED_SELECT_ITEM,
+				    "The item named '%s' is not found", codeconv->name ? codeconv->name : "(null)");
+			return FALSE;
+		}
+		break;
+	case LOQUI_CODECONV_MODE_CODESET:
+		break;
+	default:
+		g_set_error(error,
+			    LOQUI_CODECONV_ERROR,
+			    LOQUI_CODECONV_ERROR_INVALID_MODE,
+			    "Invalid mode '%d'", codeconv->mode);
+		return FALSE;
+	}
+	if (codeconv->mode == LOQUI_CODECONV_MODE_CODESET) {
+		if (codeconv->codeset && strlen(codeconv->codeset) > 0) {
+			codeconv->cd_to_local = g_iconv_open(GTK_CODESET, codeconv->codeset);
+			codeconv->cd_to_server = g_iconv_open(codeconv->codeset, GTK_CODESET);
+		}
+
+		if (codeconv->cd_to_local == NULL ||
+		    codeconv->cd_to_server == NULL) {
+			g_set_error(error,
+				    LOQUI_CODECONV_ERROR,
+				    LOQUI_CODECONV_ERROR_FAILED_OPEN_ICONV,
+				    "Failed to open iconv for the codeset '%s'",
+				    codeconv->codeset ? codeconv->codeset : "(null)");
+			return FALSE;
+		}
+	} else {
+		if (item) {
+			if (item->codeset) {
+				codeconv->cd_to_local = g_iconv_open(GTK_CODESET, item->codeset);
+				if (codeconv->cd_to_local >= 0) {
+					codeconv->cd_to_server = g_iconv_open(item->codeset, GTK_CODESET);
+				} else {
+					codeconv->cd_to_local = g_iconv_open(GTK_CODESET, item->codeset_secondary);
+					codeconv->cd_to_server = g_iconv_open(item->codeset_secondary, GTK_CODESET);
+				}
+
+				if (codeconv->cd_to_local < 0) {
+					g_set_error(error,
+						    LOQUI_CODECONV_ERROR,
+						    LOQUI_CODECONV_ERROR_FAILED_OPEN_ICONV,
+						    "Failed to open iconv");
+					return FALSE;
+				}
+			}
+
+			priv->func = item->func;
+		}
+	}
+
+	return TRUE;
+}
+LoquiCodeConvTableItem *
+loqui_codeconv_find_table_item_by_locale(LoquiCodeConvTableItem *table)
+{
+	gchar *ctype;
+	int i;
+
+	ctype = setlocale(LC_CTYPE, NULL);
+	for (i = 0; table[i].name; i++) {
+		if (table[i].locale == NULL) /* when the 'locale' field is NULL, selected automatically. */
+			return &table[i];
+
+		if (ctype == NULL)
+			continue;
+
+		if (g_str_has_prefix(ctype, table[i].locale)) {
+			return &table[i];
+		}
+	}
+
+	return NULL;
+}
+LoquiCodeConvTableItem *
+loqui_codeconv_find_table_item_by_name(LoquiCodeConvTableItem *table, const gchar *name)
+{
+	int i;
+
+	g_return_val_if_fail(name != NULL, NULL);
+	g_return_val_if_fail(table != NULL, NULL);
+
+	for (i = 0; table[i].name != NULL; i++) {
+		if (strcmp(table[i].name, name) == 0) {
+			return &table[i];
+		}
+	}
+
+	return NULL;
+}
+
+G_CONST_RETURN gchar *
+loqui_codeconv_translate(const gchar *message)
+{
+	return dgettext(GETTEXT_PACKAGE, message);
 }
 
 gchar *
-loqui_codeconv_to_server(LoquiCodeConv *codeconv, const gchar *input)
+loqui_codeconv_to_server(LoquiCodeConv *codeconv, const gchar *input, GError **error)
 {
 	LoquiCodeConvPrivate *priv;
 	gchar *output;
-	GError *error = NULL;
 
         g_return_val_if_fail(codeconv != NULL, NULL);
         g_return_val_if_fail(LOQUI_IS_CODECONV(codeconv), NULL);
 
 	priv = codeconv->priv;
 
-	if(input == NULL)
+	if (input == NULL)
 		return NULL;
-	if(priv->code_type == CODESET_TYPE_NO_CONV || !priv->cd_to)
+	if (!priv->func && !LOQUI_CODECONV_G_ICONV_IS_VALID(codeconv->cd_to_server))
 		return g_strdup(input);
 
-	output = g_convert_with_iconv(input, strlen(input)+1, priv->cd_to,
-				      NULL, NULL, &error);
-	if(error != NULL) {
-		g_warning(_("Code convartion error: %s"), error->message);
-		g_error_free(error);
+	if (priv->func) {
+		output = priv->func(codeconv, TRUE, input, error);
+	} else {
+		output = g_convert_with_iconv(input, strlen(input)+1, codeconv->cd_to_server,
+					      NULL, NULL, error);
 	}
 
 	return output;
 }
 
 static gchar *
-loqui_codeconv_convert(LoquiCodeConv *codeconv, const gchar *input, GIConv cd)
+loqui_codeconv_convert(LoquiCodeConv *codeconv, const gchar *input, GIConv cd, GError **error)
 {
 	gchar *tmp;
 	gchar buf[BUFFER_LEN+1];
@@ -309,7 +421,10 @@ loqui_codeconv_convert(LoquiCodeConv *codeconv, const gchar *input, GIConv cd)
 			case E2BIG:
 				break;
 			default:
-				g_warning(_("Unknown error occured in code convertion."));
+				g_set_error(error,
+					    LOQUI_CODECONV_ERROR,
+					    LOQUI_CODECONV_ERROR_CONVERT,
+					    "Unknown error occured in code convertion.");
 				return NULL;
 			}
 		}
@@ -330,7 +445,7 @@ loqui_codeconv_convert(LoquiCodeConv *codeconv, const gchar *input, GIConv cd)
 	return tmp;	
 }
 gchar *
-loqui_codeconv_to_local(LoquiCodeConv *codeconv, const gchar *input)
+loqui_codeconv_to_local(LoquiCodeConv *codeconv, const gchar *input, GError **error)
 {
 	LoquiCodeConvPrivate *priv;
 	gchar *buf;
@@ -342,13 +457,13 @@ loqui_codeconv_to_local(LoquiCodeConv *codeconv, const gchar *input)
 
 	if(input == NULL)
 		return NULL;
-	if(priv->code_type == CODESET_TYPE_NO_CONV || !priv->cd_from)
+	if(!priv->func && !LOQUI_CODECONV_G_ICONV_IS_VALID(codeconv->cd_to_local))
 		return g_strdup(input);
 
-	if(priv->func) {
-		buf = priv->func(input);
+	if (priv->func) {
+		buf = priv->func(codeconv, FALSE, input, error);
 	} else {
-		buf = loqui_codeconv_convert(codeconv, input, priv->cd_from);
+		buf = loqui_codeconv_convert(codeconv, input, codeconv->cd_to_local, error);
 	}
 	
 	return buf;

@@ -35,11 +35,41 @@ typedef struct _LoquiCodeConv            LoquiCodeConv;
 typedef struct _LoquiCodeConvClass       LoquiCodeConvClass;
 
 typedef struct _LoquiCodeConvPrivate     LoquiCodeConvPrivate;
+typedef struct _LoquiCodeConvTableItem   LoquiCodeConvTableItem;
 
+typedef gchar * (*LoquiCodeConvFunc) (LoquiCodeConv *codeconv, gboolean is_to_server, const gchar *input, GError **error);
+
+typedef enum {
+	LOQUI_CODECONV_MODE_AUTOMATIC,
+	LOQUI_CODECONV_MODE_NO_CONV,
+	LOQUI_CODECONV_MODE_BY_TABLE,
+	LOQUI_CODECONV_MODE_CODESET
+} LoquiCodeConvMode;
+
+#define LOQUI_CODECONV_ERROR loqui_codeconv_error_quark()
+
+typedef enum {
+	LOQUI_CODECONV_ERROR_CONVERT,
+	LOQUI_CODECONV_ERROR_TABLE_NOT_SET,
+	LOQUI_CODECONV_ERROR_FAILED_SELECT_ITEM,
+	LOQUI_CODECONV_ERROR_INVALID_MODE,
+	LOQUI_CODECONV_ERROR_FAILED_OPEN_ICONV,
+} LoquiCodeConvError;
+	
 struct _LoquiCodeConv
 {
         GObject parent;
         
+	LoquiCodeConvTableItem *table;
+
+	LoquiCodeConvMode mode;
+	gchar *name;
+	gchar *codeset;
+
+
+	GIConv cd_to_server;
+	GIConv cd_to_local;
+	
         LoquiCodeConvPrivate *priv;
 };
 
@@ -48,38 +78,46 @@ struct _LoquiCodeConvClass
         GObjectClass parent_class;
 };
 
-typedef gchar * (*LoquiCodeConvFunc) (const gchar *input);
-
-typedef struct _LoquiCodeConvDef {
+struct _LoquiCodeConvTableItem {
+	gchar *name;
 	gchar *title;
+	gchar *description;
 	gchar *locale;
+	LoquiCodeConvFunc func; /* if func is NULL, codeset is used */
 	gchar *codeset;
-	LoquiCodeConvFunc func;
-} LoquiCodeConvDef;
+	gchar *codeset_secondary;
+};
 
-typedef enum {
-	CODESET_TYPE_AUTO_DETECTION,
-	CODESET_TYPE_NO_CONV,
-	CODESET_TYPE_CUSTOM,
-	CODESET_TYPE_JAPANESE,
-	N_CODESET_TYPE,
-} CodeSetType;
+GType loqui_codeconv_get_type(void) G_GNUC_CONST;
 
-extern LoquiCodeConvDef conv_table[];
-
-GType loqui_codeconv_get_type (void) G_GNUC_CONST;
+GQuark loqui_codeconv_error_quark(void);
 
 LoquiCodeConv* loqui_codeconv_new(void);
 
-void loqui_codeconv_set_codeset_type(LoquiCodeConv *codeconv, CodeSetType type);
-CodeSetType loqui_codeconv_get_codeset_type(LoquiCodeConv *codeconv);
+gboolean loqui_codeconv_update(LoquiCodeConv *codeconv, GError **error);
+
+/* NULL terminated and static item array */
+void loqui_codeconv_set_table(LoquiCodeConv *codeconv, LoquiCodeConvTableItem *table);
+LoquiCodeConvTableItem *loqui_codeconv_get_table(LoquiCodeConv *codeconv);
+
+/* return value must be freed. */
+gchar *loqui_codeconv_to_server(LoquiCodeConv *codeconv, const gchar *input, GError **error);
+gchar *loqui_codeconv_to_local(LoquiCodeConv *codeconv, const gchar *input, GError **error);
+
+
+void loqui_codeconv_set_mode(LoquiCodeConv *codeconv, LoquiCodeConvMode mode);
+LoquiCodeConvMode loqui_codeconv_get_mode(LoquiCodeConv *codeconv);
 
 void loqui_codeconv_set_codeset(LoquiCodeConv *codeconv, const gchar *codeset);
 G_CONST_RETURN gchar *loqui_codeconv_get_codeset(LoquiCodeConv *codeconv);
 
-/* return value must be freed. */
-gchar *loqui_codeconv_to_server(LoquiCodeConv *codeconv, const gchar *input);
-gchar *loqui_codeconv_to_local(LoquiCodeConv *codeconv, const gchar *input);
+void loqui_codeconv_set_table_item_name(LoquiCodeConv *codeconv, const gchar *name);
+G_CONST_RETURN gchar *loqui_codeconv_get_table_item_name(LoquiCodeConv *codeconv);
+
+/* utilities */
+LoquiCodeConvTableItem *loqui_codeconv_find_table_item_by_locale(LoquiCodeConvTableItem *table);
+LoquiCodeConvTableItem *loqui_codeconv_find_table_item_by_name(LoquiCodeConvTableItem *table, const gchar *name);
+G_CONST_RETURN gchar *loqui_codeconv_translate(const gchar *message);
 
 G_END_DECLS
 
