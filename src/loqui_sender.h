@@ -66,6 +66,7 @@ struct _LoquiSenderClass
 	void (*refresh) (LoquiSender *sender, LoquiChannel *channel);
 
 	void (*join_raw) (LoquiSender *sender, const gchar *target, const gchar *key);
+	void (*start_private_talk_raw) (LoquiSender *sender, const gchar *target);
 };
 
 GType loqui_sender_get_type(void) G_GNUC_CONST;
@@ -88,6 +89,7 @@ void loqui_sender_end_private_talk(LoquiSender *sender, LoquiChannel *channel);
 void loqui_sender_refresh(LoquiSender *sender, LoquiChannel *channel);
 
 void loqui_sender_join_raw(LoquiSender *sender, const gchar *target, const gchar *key);
+void loqui_sender_start_private_talk_raw(LoquiSender *sender, const gchar *target);
 
 G_END_DECLS
 

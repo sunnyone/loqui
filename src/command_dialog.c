@@ -129,7 +129,6 @@ command_dialog_private_talk(LoquiApp *app, LoquiAccount *account)
 	gchar *buf;
 	const gchar *text_name;
 	gint result;
-	LoquiUser *user;
 
 	if(!check_account_connected(account))
 		return;
@@ -160,14 +159,7 @@ command_dialog_private_talk(LoquiApp *app, LoquiAccount *account)
 			return;
 		}
 
-		/* FIXME */
-		user = LOQUI_USER(loqui_account_irc_fetch_user(LOQUI_ACCOUNT_IRC(account), text_name));
-		if (!user) {
-			g_warning("Can't fetch user for private talk");
-			return;
-		}
-		loqui_sender_start_private_talk(loqui_account_get_sender(account), user);
-		g_object_unref(user);
+		loqui_sender_start_private_talk_raw(loqui_account_get_sender(account), text_name);
 	}
 	gtk_widget_destroy(dialog);
 }

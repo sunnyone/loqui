@@ -67,6 +67,7 @@ static void loqui_sender_irc_start_private_talk(LoquiSender *sender, LoquiUser *
 static void loqui_sender_irc_end_private_talk(LoquiSender *sender, LoquiChannel *channel);
 static void loqui_sender_irc_refresh(LoquiSender *sender, LoquiChannel *channel);
 static void loqui_sender_irc_join_raw(LoquiSender *sender, const gchar *target, const gchar *key);
+static void loqui_sender_irc_start_private_talk_raw(LoquiSender *sender, const gchar *target);
 
 /* helper */
 static void loqui_sender_irc_send_irc_message(LoquiSenderIRC *sender, IRCMessage *msg);
@@ -188,6 +189,7 @@ loqui_sender_irc_class_init(LoquiSenderIRCClass *klass)
 	sender_class->refresh = loqui_sender_irc_refresh;
 
 	sender_class->join_raw = loqui_sender_irc_join_raw;
+	sender_class->start_private_talk_raw = loqui_sender_irc_start_private_talk_raw;
 }
 static void 
 loqui_sender_irc_init(LoquiSenderIRC *sender)
@@ -457,6 +459,29 @@ loqui_sender_irc_join_raw(LoquiSender *sender, const gchar *target, const gchar 
 	msg = irc_message_create(IRCCommandJoin, target, key, NULL);
 	loqui_sender_irc_send_irc_message(LOQUI_SENDER_IRC(sender), msg);
 	g_object_unref(msg);
+}
+static void
+loqui_sender_irc_start_private_talk_raw(LoquiSender *sender, const gchar *target)
+{
+	LoquiUser *user;
+
+        g_return_if_fail(sender != NULL);
+        g_return_if_fail(LOQUI_IS_SENDER_IRC(sender));
+
+	WARN_AND_RETURN_UNLESS_CONNECTED(sender);
+
+	if (LOQUI_UTILS_IRC_STRING_IS_CHANNEL(target)) {
+		loqui_account_warning(sender->account, _("This name seems not to be a nick."));
+		return;
+	}
+	
+	user = LOQUI_USER(loqui_account_irc_fetch_user(LOQUI_ACCOUNT_IRC(sender->account), target));
+	if (!user) {
+		g_warning("Can't fetch user for private talk");
+		return;
+	}
+	loqui_sender_start_private_talk(sender, user);
+	g_object_unref(user);
 }
 void
 loqui_sender_irc_pong_raw(LoquiSenderIRC *sender, const gchar *target)

@@ -288,3 +288,13 @@ loqui_sender_join_raw(LoquiSender *sender, const gchar *target, const gchar *key
 
 	(* LOQUI_SENDER_GET_CLASS(sender)->join_raw) (sender, target, key);
 }
+void
+loqui_sender_start_private_talk_raw(LoquiSender *sender, const gchar *target)
+{
+        g_return_if_fail(sender != NULL);
+        g_return_if_fail(LOQUI_IS_SENDER(sender));
+
+	CHECK_FUNCTION_IS_DEFINED_AND_RETURN_IF_FAIL(sender, start_private_talk_raw);
+
+	(* LOQUI_SENDER_GET_CLASS(sender)->start_private_talk_raw) (sender, target);
+}
