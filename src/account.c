@@ -1202,7 +1202,7 @@ void account_change_channel_user_mode(Account *account, Channel *channel,
 	g_object_unref(msg);
 }
 void
-account_pong(Account *account, gchar *target)
+account_pong(Account *account, const gchar *target)
 {
 	IRCMessage *msg;
 	AccountPrivate *priv;
@@ -1245,7 +1245,7 @@ account_get_channel_mode(Account *account, const gchar *channel_name)
 	g_object_unref(msg);
 }
 void
-account_notice(Account *account, gchar *target, gchar *str)
+account_notice(Account *account, const gchar *target, const gchar *str)
 {
 	IRCMessage *msg;
 	AccountPrivate *priv;
