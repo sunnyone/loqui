@@ -42,7 +42,8 @@ static void channel_buffer_class_init(ChannelBufferClass *klass);
 static void channel_buffer_init(ChannelBuffer *channel_buffer);
 static void channel_buffer_finalize(GObject *object);
 
-static void channel_buffer_insert_current_time(ChannelBuffer *channel_buffer, GtkTextIter *iter);
+static void channel_buffer_append_current_time(ChannelBuffer *channel_buffer);
+static void channel_buffer_append(ChannelBuffer *buffer, TextType type, gchar *str);
 static GSList* channel_buffer_get_uri_chunk(const gchar *buf);
 
 #define TIME_LEN 11
@@ -142,20 +143,20 @@ channel_buffer_new(void)
 	return channel_buffer;
 }
 static void
-channel_buffer_insert_current_time(ChannelBuffer *channel_buffer, GtkTextIter *iter)
+channel_buffer_append_current_time(ChannelBuffer *buffer)
 {
 	gchar buf[TIME_LEN];
 	time_t t;
 	struct tm tm;
 
-        g_return_if_fail(channel_buffer != NULL);
-        g_return_if_fail(IS_CHANNEL_BUFFER(channel_buffer));
+        g_return_if_fail(buffer != NULL);
+        g_return_if_fail(IS_CHANNEL_BUFFER(buffer));
 
 	t = time(NULL);
 	localtime_r(&t, &tm);
 	strftime(buf, TIME_LEN, "%H:%M ", &tm);
 
-	gtk_text_buffer_insert_with_tags_by_name(GTK_TEXT_BUFFER(channel_buffer), iter, buf, -1, "time", NULL);
+	channel_buffer_append(buffer, TEXT_TYPE_TIME, buf);
 }
 
 static GSList *
@@ -231,22 +232,16 @@ channel_buffer_get_uri_chunk(const gchar *buf)
 
 	return chunk_list;
 }
-void
-channel_buffer_append_line(ChannelBuffer *channel_buffer, TextType type, gchar *str)
+static void
+channel_buffer_append(ChannelBuffer *buffer, TextType type, gchar *str)
 {
 	GtkTextIter iter;
-	GtkTextBuffer *textbuf;
 	gchar *style;
-	gchar *buf;
 
-        g_return_if_fail(channel_buffer != NULL);
-        g_return_if_fail(IS_CHANNEL_BUFFER(channel_buffer));
+        g_return_if_fail(buffer != NULL);
+        g_return_if_fail(IS_CHANNEL_BUFFER(buffer));
 
-	textbuf = GTK_TEXT_BUFFER(channel_buffer);
-	gtk_text_buffer_get_end_iter(textbuf, &iter);
-
-	channel_buffer_insert_current_time(channel_buffer, &iter);
-/*	channel_buffer_get_uri_chunk(str); */
+	gtk_text_buffer_get_end_iter(GTK_TEXT_BUFFER(buffer), &iter);
 
 	switch(type) {
 	case TEXT_TYPE_NOTICE:
@@ -258,10 +253,27 @@ channel_buffer_append_line(ChannelBuffer *channel_buffer, TextType type, gchar *
 	case TEXT_TYPE_INFO:
 		style = "info";
 		break;
+	case TEXT_TYPE_TIME:
+		style = "time";
+		break;
 	default:
 		style = "normal";
 	}
+
+	gtk_text_buffer_insert_with_tags_by_name(GTK_TEXT_BUFFER(buffer), &iter, str, -1, style, NULL);
+}
+void
+channel_buffer_append_line(ChannelBuffer *buffer, TextType type, gchar *str)
+{
+	gchar *buf;
+
+        g_return_if_fail(buffer != NULL);
+        g_return_if_fail(IS_CHANNEL_BUFFER(buffer));
+
+	channel_buffer_append_current_time(buffer);
+/*	channel_buffer_get_uri_chunk(str); */
+
 	buf = g_strconcat(str, "\n", NULL);
-	gtk_text_buffer_insert_with_tags_by_name(textbuf, &iter, buf, -1, style, NULL);
+	channel_buffer_append(buffer, type, buf);
 	g_free(buf);
 }

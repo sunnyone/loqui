@@ -40,7 +40,11 @@ typedef enum {
 	TEXT_TYPE_NORMAL,
 	TEXT_TYPE_NOTICE,
 	TEXT_TYPE_INFO,
-	TEXT_TYPE_ERROR
+	TEXT_TYPE_ERROR,
+	/* private */
+	TEXT_TYPE_TIME,
+	TEXT_TYPE_URI,
+	TEXT_TYPE_EMPHASIS,
 } TextType;
 
 struct _ChannelBuffer
