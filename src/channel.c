@@ -132,7 +132,7 @@ channel_append_remark(Channel *channel, TextType type, gchar *name, gchar *remar
 	g_return_if_fail(channel != NULL);
 	g_return_if_fail(IS_CHANNEL(channel));
 
-	line_with_nick = g_strdup_printf("<%s> %s\n", name, remark);
+	line_with_nick = g_strdup_printf("<%s> %s", name, remark);
 	channel_text_append(CHANNEL_TEXT(channel->text), type, line_with_nick);
 	g_free(line_with_nick);
 }

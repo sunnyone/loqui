@@ -167,13 +167,14 @@ channel_text_insert_current_time(ChannelText *channel_text, GtkTextBuffer *textb
 
 	gtk_text_buffer_insert_with_tags_by_name(textbuf, iter, buf, -1, "time", NULL);
 }
-
-void channel_text_append(ChannelText *channel_text, TextType type, gchar *str)
+void
+channel_text_append(ChannelText *channel_text, TextType type, gchar *str)
 {
 	GtkTextIter iter;
 	GtkTextBuffer *textbuf;
 	GtkTextView *text;
 	gchar *style;
+	gchar *buf;
 
         g_return_if_fail(channel_text != NULL);
         g_return_if_fail(IS_CHANNEL_TEXT(channel_text));
@@ -199,7 +200,9 @@ void channel_text_append(ChannelText *channel_text, TextType type, gchar *str)
 	default:
 		style = "normal";
 	}
-	gtk_text_buffer_insert_with_tags_by_name(textbuf, &iter, str, -1, style, NULL);
+	buf = g_strconcat(str, "\n", NULL);
+	gtk_text_buffer_insert_with_tags_by_name(textbuf, &iter, buf, -1, style, NULL);
+	g_free(buf);
 
 	if(account_manager_whether_scroll(account_manager_get())) {
 		gtk_adjustment_set_value(text->vadjustment, text->vadjustment->upper);

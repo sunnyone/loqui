@@ -155,9 +155,7 @@ irc_handle_command_privmsg_notice(IRCHandle *handle, IRCMessage *msg)
 	if(channel != NULL) {
 		channel_append_remark(channel, type, msg->nick, remark);
 	} else {
-		line = g_strdup_printf("%s\n", remark);
-		account_console_text_append(handle->priv->account, type, line);
-		g_free(line);
+		account_console_text_append(handle->priv->account, type, remark);
 	}
 	gdk_threads_leave();
 
@@ -264,12 +262,12 @@ irc_handle_reply(IRCHandle *handle, IRCMessage *msg)
 	switch(msg->response) {
 	case IRC_RPL_LUSERCLIENT:
 	case IRC_RPL_LUSERME:
-		ACCOUNT_CONSOLE_APPEND("%2\n");
+		ACCOUNT_CONSOLE_APPEND("%2");
 		break;
 	case IRC_RPL_LUSEROP:
 	case IRC_RPL_LUSERUNKNOWN:
 	case IRC_RPL_LUSERCHANNELS:
-		ACCOUNT_CONSOLE_APPEND("%2 %3\n");
+		ACCOUNT_CONSOLE_APPEND("%2 %3");
 		break;
 	default:
 		break;
@@ -346,7 +344,7 @@ static gpointer irc_handle_thread_func(IRCHandle *handle)
 	account = priv->account;
 
 	gdk_threads_enter();
-	str = g_strdup_printf(_("%s: Connecting to %s:%d\n"), 
+	str = g_strdup_printf(_("%s: Connecting to %s:%d"), 
 			      priv->account->name, priv->server->hostname, priv->server->port);
 	account_console_text_append(account, TEXT_TYPE_INFO, str);
 	g_free(str);
@@ -355,7 +353,7 @@ static gpointer irc_handle_thread_func(IRCHandle *handle)
 	priv->connection = connection_new(priv->server);
 
 	gdk_threads_enter();
-	str = g_strdup_printf(_("%s: Connected. Sending Initial command...\n"), priv->account->name);
+	str = g_strdup_printf(_("%s: Connected. Sending Initial command..."), priv->account->name);
 	account_console_text_append(account, TEXT_TYPE_INFO, str);
 	g_free(str);
 	gdk_threads_leave();
@@ -374,7 +372,7 @@ static gpointer irc_handle_thread_func(IRCHandle *handle)
 	g_object_unref(msg);
 
 	gdk_threads_enter();
-	account_console_text_append(account, TEXT_TYPE_INFO, _("Done.\n"));
+	account_console_text_append(account, TEXT_TYPE_INFO, _("Done."));
 	gdk_threads_leave();
 
         while((msg = connection_get_irc_message(priv->connection, NULL)) != NULL) {
@@ -384,7 +382,7 @@ static gpointer irc_handle_thread_func(IRCHandle *handle)
 	}
 
 	gdk_threads_enter();
-	account_console_text_append(account, TEXT_TYPE_INFO, _("Connection terminated.\n"));
+	account_console_text_append(account, TEXT_TYPE_INFO, _("Connection terminated."));
 	gdk_threads_leave();
 
 	return NULL;
