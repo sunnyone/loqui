@@ -577,6 +577,7 @@ loqui_receiver_irc_parse_mode_arguments(LoquiReceiverIRC *receiver, IRCMessage *
 			case IRC_CHANNEL_MODE_SECRET:
 			case IRC_CHANNEL_MODE_SERVER_REOP:
 			case IRC_CHANNEL_MODE_TOPIC_SETTABLE_BY_CHANNEL_OPERATOR_ONLY:
+			case IRC_CHANNEL_MODE_PRIVATE:
 				loqui_channel_change_mode(channel, (gboolean) is_add, *flags, NULL);
 				break;
 			case IRC_CHANNEL_MODE_CHANNEL_KEY:
@@ -589,7 +590,7 @@ loqui_receiver_irc_parse_mode_arguments(LoquiReceiverIRC *receiver, IRCMessage *
 			case IRC_CHANNEL_MODE_INVITATION_MASK:
 				break;
 			default:
-				loqui_account_warning(account, _("Unknown mode flag"));
+				loqui_account_warning(account, _("Unknown mode flag: '%c'"), *flags);
 				break;
 			}
 		}
