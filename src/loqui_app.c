@@ -568,7 +568,7 @@ loqui_app_new(AccountManager *account_manager)
 	g_signal_connect(G_OBJECT(account_manager), "remove-account",
 			 G_CALLBACK(loqui_app_remove_account_cb), app);
 	g_signal_connect_after(G_OBJECT(account_manager), "remove-account",
-			       G_CALLBACK(loqui_app_remove_account_cb), app);
+			       G_CALLBACK(loqui_app_remove_account_after_cb), app);
 
 	gtk_widget_grab_focus(app->remark_entry);
 
