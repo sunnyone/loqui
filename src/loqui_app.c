@@ -843,6 +843,7 @@ loqui_app_set_current_channel_entry(LoquiApp *app, LoquiChannelEntry *chent)
 
 	priv->current_account = account;
 	priv->current_channel = channel;
+	priv->current_chent = chent;
 
 	loqui_app_set_channel_buffer(app, loqui_channel_entry_get_buffer(LOQUI_CHANNEL_ENTRY(chent)));
 
@@ -1370,5 +1371,5 @@ loqui_app_update_channel_entry_accel_key(LoquiApp *app)
 		for (cur_ch = channel_list; cur_ch != NULL; cur_ch = cur_ch->next) {
 			loqui_app_set_channel_entry_accel_key(app, LOQUI_CHANNEL_ENTRY(cur_ch->data));
 		}
-	}	
+	}
 }
