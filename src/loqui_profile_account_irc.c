@@ -23,6 +23,7 @@
 #include "codeconv.h"
 
 #include "loqui_profile_account_irc.h"
+#include "loqui_protocol_irc.h"
 
 enum {
         LAST_SIGNAL

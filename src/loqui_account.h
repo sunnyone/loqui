@@ -21,7 +21,6 @@
 #define __LOQUI_ACCOUNT_H__
 
 #include <glib.h>
-#include "loqui_profile_account.h"
 
 G_BEGIN_DECLS
 
@@ -41,6 +40,7 @@ typedef struct _LoquiAccountPrivate     LoquiAccountPrivate;
 #include "loqui_channel.h"
 #include "loqui_sender.h"
 #include "loqui_receiver.h"
+#include "loqui_profile_account.h"
 
 struct _LoquiAccount
 {
