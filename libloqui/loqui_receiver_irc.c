@@ -405,8 +405,8 @@ loqui_receiver_irc_command_part(LoquiReceiverIRC *receiver, IRCMessage *msg)
 
 	if (loqui_account_irc_is_current_nick(LOQUI_ACCOUNT_IRC(account), msg->nick)) {
 		if(channel) {
-			loqui_receiver_irc_account_console_append(receiver, msg, LOQUI_TEXT_TYPE_INFO, "*** You have left %1");
-			loqui_account_remove_channel(account, channel);
+			loqui_receiver_irc_channel_append(receiver, msg, FALSE, 1, LOQUI_TEXT_TYPE_INFO, _("*** You have left %1"));
+			loqui_channel_set_is_joined(channel, FALSE);
 		}
 	} else {
 		loqui_receiver_irc_channel_append(receiver, msg, FALSE, 1, LOQUI_TEXT_TYPE_INFO, _("*** %n has just part %1(%t)"));
@@ -449,8 +449,8 @@ loqui_receiver_irc_command_kick(LoquiReceiverIRC *receiver, IRCMessage *msg)
 		loqui_channel_entry_remove_member_by_user(LOQUI_CHANNEL_ENTRY(channel), user);
 
 	if(loqui_account_irc_is_current_nick(LOQUI_ACCOUNT_IRC(account), receiver_name)) {
-		loqui_receiver_irc_account_console_append(receiver, msg, LOQUI_TEXT_TYPE_INFO, "*** You were kicked from %1 by %n (%3)");
-		loqui_account_remove_channel(account, channel);
+		loqui_receiver_irc_channel_append(receiver, msg, FALSE, 1, LOQUI_TEXT_TYPE_INFO, _("*** You were kicked from %1 by %n (%3)"));
+		loqui_channel_set_is_joined(channel, FALSE);
 	} else {
 		loqui_receiver_irc_channel_append(receiver, msg, FALSE, 1, LOQUI_TEXT_TYPE_INFO, _("*** %2 was kicked from %1 by %n(%3)"));
 	}

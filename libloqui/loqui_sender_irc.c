@@ -372,10 +372,6 @@ loqui_sender_irc_part(LoquiSender *sender, LoquiChannel *channel, const gchar *p
 		loqui_account_warning(loqui_sender_get_account(sender), _("This is a private talk"));
 		return;
 	}
-	if (!loqui_channel_get_is_joined(channel)) {
-		loqui_account_remove_channel(loqui_sender_get_account(sender), channel);
-		return;
-	}
 
 	WARN_AND_RETURN_UNLESS_CONNECTED(sender);
 
