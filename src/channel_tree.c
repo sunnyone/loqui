@@ -208,7 +208,8 @@ channel_tree_add_account(ChannelTree *tree, Account *account)
 	gtk_tree_store_set(GTK_TREE_STORE(model), &iter,
 			   COLUMN_TEXT, account->name,
 			   COLUMN_ACCOUNT, account,
-			   COLUMN_CHANNEL, NULL, -1);
+			   COLUMN_CHANNEL, NULL,
+			   -1);
 }
 void
 channel_tree_add_channel(ChannelTree *tree, Account *account, Channel *channel)
@@ -229,6 +230,6 @@ channel_tree_add_channel(ChannelTree *tree, Account *account, Channel *channel)
 	} else {
 		gtkutils_msgbox_info(GTK_MESSAGE_ERROR, _("Failed to add channel"));
 	}
-
+	gtk_tree_view_expand_row(GTK_TREE_VIEW(tree), gtk_tree_model_get_path(model, &parent), TRUE);
 }
 	
