@@ -38,11 +38,12 @@ typedef struct _AccountClass       AccountClass;
 
 typedef struct _AccountPrivate     AccountPrivate;
 
+#include "loqui_channel_entry.h"
 #include "loqui_channel.h"
 
 struct _Account
 {
-        GObject parent;
+	LoquiChannelEntry parent;
 
 	/* key: channel name(gchar *), value: channel(LoquiChannel) */
 	GHashTable *channel_hash;
@@ -57,7 +58,7 @@ struct _Account
 
 struct _AccountClass
 {
-        GObjectClass parent_class;
+        LoquiChannelEntryClass parent_class;
 
 	/* signals */
 	void (* connected)        (Account *account);

@@ -62,8 +62,8 @@ struct _AccountPrivate
 	gboolean is_away;
 };
 
-static GObjectClass *parent_class = NULL;
-#define PARENT_TYPE G_TYPE_OBJECT
+static LoquiChannelEntryClass *parent_class = NULL;
+#define PARENT_TYPE LOQUI_TYPE_CHANNEL_ENTRY
 
 static guint account_signals[LAST_SIGNAL] = { 0 };
 
