@@ -393,6 +393,7 @@ loqui_statusbar_new(LoquiApp *app, GtkToggleAction *toggle_scroll_common_buffer_
 	g_signal_connect(G_OBJECT(priv->button_nick), "clicked",
 			 G_CALLBACK(loqui_statusbar_nick_button_clicked_cb), statusbar);
 	gtk_button_set_relief(GTK_BUTTON(priv->button_nick), GTK_RELIEF_NONE);
+	gtk_tooltips_set_tip(app->tooltips, priv->button_nick, _("Change nick"), NULL);
 	gtk_box_pack_start(GTK_BOX(priv->dbox_preset), priv->button_nick, FALSE, FALSE, 0);
 
 	priv->label_nick = gtk_label_new("");

@@ -188,3 +188,9 @@
 * Fixed the bug failed to save codeset.
 * Changed the method to manage channel buffers.
 
+2004-04-16   0.3.1
+* Set tooltips to buttons.
+* Split the preference switching whether or not to scroll between channel buffer nad common buffer.
+* Attach menu to channel tree.
+* Re-fixed the bug loqui crashes when received WHO after re-joining.
+
