@@ -315,10 +315,10 @@ loqui_user_class_install_away_type(LoquiUserClass *user_class,
 	LoquiAwayInfo *info;
 	guint i;
 
-        g_return_val_if_fail(user_class != NULL, LOQUI_AWAY_TYPE_INVALID);
-        g_return_val_if_fail(LOQUI_IS_USER_CLASS(user_class), LOQUI_AWAY_TYPE_INVALID);
-	g_return_val_if_fail(name != NULL, LOQUI_AWAY_TYPE_INVALID);
-	g_return_val_if_fail(nick != NULL, LOQUI_AWAY_TYPE_INVALID);
+        g_return_val_if_fail(user_class != NULL, LOQUI_AWAY_TYPE_UNKNOWN);
+        g_return_val_if_fail(LOQUI_IS_USER_CLASS(user_class), LOQUI_AWAY_TYPE_UNKNOWN);
+	g_return_val_if_fail(name != NULL, LOQUI_AWAY_TYPE_UNKNOWN);
+	g_return_val_if_fail(nick != NULL, LOQUI_AWAY_TYPE_UNKNOWN);
 
 	/* if zero, uninitialized */
 	g_assert(user_class->away_type_array->len > 0);
@@ -329,7 +329,7 @@ loqui_user_class_install_away_type(LoquiUserClass *user_class,
 			continue;
 
 		if (strcmp(info->name, name) == 0)
-			return LOQUI_AWAY_TYPE_INVALID;
+			return LOQUI_AWAY_TYPE_UNKNOWN;
 	}
 
 	info = g_new0(LoquiAwayInfo, 1);
@@ -354,7 +354,7 @@ loqui_user_class_away_type_get_info(LoquiUserClass *user_class, LoquiAwayType aw
         g_return_val_if_fail(LOQUI_IS_USER_CLASS(user_class), NULL);
 	
 	if (away_type < 0 || away_type >= user_class->away_type_array->len)
-		return LOQUI_AWAY_TYPE_INVALID;
+		return LOQUI_AWAY_TYPE_UNKNOWN;
 
 	info = g_ptr_array_index(user_class->away_type_array, away_type);
 	
@@ -370,3 +370,21 @@ LOQUI_USER_ACCESSOR_STRING(hostname);
 LOQUI_USER_ACCESSOR_STRING(realname);
 LOQUI_USER_ACCESSOR_STRING(servername);
 LOQUI_USER_ACCESSOR_STRING(away_message);
+
+LoquiBasicAwayType
+loqui_user_get_basic_away(LoquiUser *user)
+{
+	LoquiAwayInfo *away_info;
+
+        g_return_val_if_fail(user != NULL, 0);
+        g_return_val_if_fail(LOQUI_IS_USER(user), 0);
+	
+	if (user->away == LOQUI_AWAY_TYPE_UNKNOWN)
+		return LOQUI_BASIC_AWAY_TYPE_UNKNOWN;
+
+	away_info = loqui_user_class_away_type_get_info(LOQUI_USER_GET_CLASS(user), user->away);
+	if (away_info)
+		return LOQUI_BASIC_AWAY_TYPE_UNKNOWN;
+
+	return away_info->basic_away_type;
+}

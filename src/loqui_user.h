@@ -38,7 +38,7 @@ typedef struct _LoquiUserClass       LoquiUserClass;
 typedef struct _LoquiUserPrivate     LoquiUserPrivate;
 
 typedef enum {
-	LOQUI_BASIC_AWAY_TYPE_INVALID = 0,
+	LOQUI_BASIC_AWAY_TYPE_UNKNOWN = 0,
 	LOQUI_BASIC_AWAY_TYPE_ONLINE,
 	LOQUI_BASIC_AWAY_TYPE_OFFLINE,
 	LOQUI_BASIC_AWAY_TYPE_AWAY,
@@ -46,7 +46,7 @@ typedef enum {
 } LoquiBasicAwayType;
 
 typedef enum {
-	LOQUI_AWAY_TYPE_INVALID = 0,
+	LOQUI_AWAY_TYPE_UNKNOWN = 0,
 	LOQUI_AWAY_TYPE_ONLINE,
 	LOQUI_AWAY_TYPE_OFFLINE,
 	LOQUI_AWAY_TYPE_AWAY
@@ -122,6 +122,8 @@ LOQUI_USER_ACCESSOR_STRING_PROTOTYPE(hostname);
 LOQUI_USER_ACCESSOR_STRING_PROTOTYPE(realname);
 LOQUI_USER_ACCESSOR_STRING_PROTOTYPE(servername);
 LOQUI_USER_ACCESSOR_STRING_PROTOTYPE(away_message);
+
+LoquiBasicAwayType loqui_user_get_basic_away(LoquiUser *user);
 
 G_END_DECLS
 
