@@ -496,7 +496,7 @@ channel_buffer_append_message_text(ChannelBuffer *buffer, MessageText *msgtext,
 
 	if(message_text_get_is_remark(msgtext)) {
 		/* FIXME: should be more efficient */
-		if(prefs_general.use_transparent_ignore) {
+		if(prefs_general.use_transparent_ignore && message_text_get_nick(msgtext) != NULL) {
 			for(cur = prefs_general.transparent_ignore_list; cur != NULL; cur = cur->next) {
 				if(g_pattern_match_simple((gchar *) cur->data, message_text_get_nick(msgtext)))
 					type = TEXT_TYPE_TRANSPARENT;
