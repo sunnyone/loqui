@@ -255,15 +255,9 @@ prefs_dialog_new(void)
 	priv->check_use_notification = gtk_check_button_new_with_label(_("Use notification"));
 	gtk_box_pack_start(GTK_BOX(vbox), priv->check_use_notification, FALSE, FALSE, 0);
 
-	frame = gtk_frame_new(_("Highlighting keywords(Separate each words with linefeeds)"));
+	frame = gtkutils_create_framed_textview(&priv->textview_highlight,
+						_("Highlighting keywords(Separate each words with linefeeds)"));
 	gtk_box_pack_start(GTK_BOX(vbox), frame, TRUE, TRUE, 0);
-
-	scrolled_win = gtk_scrolled_window_new(NULL, NULL);
-	gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled_win), GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
-	gtk_container_add(GTK_CONTAINER(frame), scrolled_win);
-
-	priv->textview_highlight = gtk_text_view_new();
-	gtk_container_add(GTK_CONTAINER(scrolled_win), priv->textview_highlight);
 
 	vbox = gtk_vbox_new(FALSE, 0);
 	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), vbox, gtk_label_new(_("Ignore")));
@@ -271,15 +265,9 @@ prefs_dialog_new(void)
 	priv->check_use_transparent_ignore = gtk_check_button_new_with_label(_("Use ignore (transparent) feature"));
 	gtk_box_pack_start(GTK_BOX(vbox), priv->check_use_transparent_ignore, FALSE, FALSE, 0);
 
-	frame = gtk_frame_new(_("Nickname list to ignore (transparent) ('*' and '?' can be used)"));
+	frame = gtkutils_create_framed_textview(&priv->textview_transparent_ignore,
+						_("Nickname list to ignore (transparent) ('*' and '?' can be used)"));
 	gtk_box_pack_start(GTK_BOX(vbox), frame, TRUE, TRUE, 0);
-
-	scrolled_win = gtk_scrolled_window_new(NULL, NULL);
-	gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled_win), GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
-	gtk_container_add(GTK_CONTAINER(frame), scrolled_win);
-
-	priv->textview_transparent_ignore = gtk_text_view_new();
-	gtk_container_add(GTK_CONTAINER(scrolled_win), priv->textview_transparent_ignore);
 
 	vbox = gtk_vbox_new(FALSE, 0);
 	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), vbox, gtk_label_new(_("Command")));

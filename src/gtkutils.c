@@ -224,7 +224,26 @@ gtkutils_set_string_list_from_textview(GList **list_ptr, GtkTextView *textview)
 	G_LIST_FREE_WITH_ELEMENT_FREE_UNLESS_NULL(*list_ptr);
 	*list_ptr = utils_line_separated_text_to_list(buf);
 }
+GtkWidget *
+gtkutils_create_framed_textview(GtkWidget **textview_ptr, const gchar *frame_label)
+{
+	GtkWidget *frame;
+	GtkWidget *scrolled_win;
+	
+	g_return_val_if_fail(textview_ptr != NULL, NULL);
 
+	frame = gtk_frame_new(frame_label);
+
+	scrolled_win = gtk_scrolled_window_new(NULL, NULL);
+	gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled_win),
+				       GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
+	gtk_container_add(GTK_CONTAINER(frame), scrolled_win);
+
+	*textview_ptr = gtk_text_view_new();
+	gtk_container_add(GTK_CONTAINER(scrolled_win), *textview_ptr);
+
+	return frame;
+}
 void
 gtkutils_menu_position_under_widget(GtkMenu   *menu,
 				    gint      *x,
