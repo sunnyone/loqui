@@ -23,6 +23,7 @@
 #include "connection.h"
 #include "irc_message.h"
 #include "utils.h"
+#include "account.h"
 
 struct _IRCHandlePrivate
 {
@@ -47,6 +48,7 @@ static void irc_handle_finalize(GObject *object);
 static gpointer irc_handle_thread_func(IRCHandle *handle);
 
 static void irc_handle_response(IRCHandle *handle, IRCMessage *msg);
+
 static gboolean irc_handle_is_my_message(IRCHandle *handle, IRCMessage *msg);
 static void irc_handle_inspect_message(IRCHandle *handle, IRCMessage *msg);
 
@@ -117,27 +119,41 @@ irc_handle_finalize(GObject *object)
 }
 static void irc_handle_command_privmsg_notice(IRCHandle *handle, IRCMessage *msg)
 {
-	gchar *str;
+	gchar *line;
 	gchar *receiver_name;
 	gchar *remark;
-	Channel *channel;
+	Channel *channel = NULL;
+	TextType type;
 
 	receiver_name = irc_message_get_param(msg, 0);
 	remark = irc_message_get_param(msg, 1);
-	if(receiver_name != NULL && msg->nick != NULL) {
-		str = g_strdup_printf("<%s:%s> %s\n", receiver_name, msg->nick, remark);
+
+	if(msg->response == IRC_COMMAND_NOTICE) {
+		type = TEXT_TYPE_NOTICE;
 	} else {
-		str = g_strdup_printf("%s\n", remark);
+		type = TEXT_TYPE_NORMAL;
+	}
+
+	if(receiver_name != NULL && msg->nick != NULL) {
+		channel = account_search_channel_by_name(handle->priv->account, receiver_name);
+		if(channel == NULL) {
+			gdk_threads_enter();
+			channel = channel_new(receiver_name);
+			account_add_channel(handle->priv->account, channel);
+			gdk_threads_leave();
+		}
 	}
 
 	gdk_threads_enter();
-	if(msg->response == IRC_COMMAND_NOTICE)
-		account_console_text_append(handle->priv->account, TEXT_TYPE_NOTICE, str);
-	else
-		account_console_text_append(handle->priv->account, TEXT_TYPE_NORMAL, str);
+	if(channel != NULL) {
+		channel_append_remark(channel, type, msg->nick, remark);
+	} else {
+		line = g_strdup_printf("%s\n", remark);
+		account_console_text_append(handle->priv->account, type, line);
+		g_free(line);
+	}
 	gdk_threads_leave();
 
-	g_free(str);
 }
 static void irc_handle_command_ping(IRCHandle *handle, IRCMessage *msg)
 {

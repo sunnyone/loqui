@@ -90,8 +90,8 @@ void account_connect(Account *account, gint server_num, gboolean fallback);
 
 void account_add_channel(Account *account, Channel *channel);
 
+Channel* account_search_channel_by_name(Account *account, gchar *name);
 void account_console_text_append(Account *account, TextType type, gchar *str);
-
 
 G_END_DECLS
 
