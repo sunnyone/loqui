@@ -9,12 +9,12 @@
 #define IRCModeChar    = '\007';
 
 enum IRCModeFlag {
-  // user mode
+  /* user mode */
   MODE_IRC_UserInvisible             = 'i',
   MODE_IRC_UserReceivesServerNotices = 's',
   MODE_IRC_UserReceivesWallops       = 'w',
   MODE_IRC_UserOperatorPrivs         = 'o',
-  // channel mode
+  /* channel mode */
   MODE_IRC_ChannelOperatorPrivs         = 'o',
   MODE_IRC_ChannelPrivateChannel        = 'p',
   MODE_IRC_ChannelSecretChannel         = 's',
@@ -76,45 +76,45 @@ typedef enum {
 	IRC_ERR_USERSDONTMATCH  = 502,
 
 	IRC_RPL_NONE          = 300,
-	IRC_RPL_AWAY          = 301, // 
-	IRC_RPL_USERHOST          = 302, // default
+	IRC_RPL_AWAY          = 301, /* */ 
+	IRC_RPL_USERHOST          = 302, /* default */
 	IRC_RPL_ISON          = 303, 
-	IRC_RPL_UNAWAY         = 305, //
-	IRC_RPL_NOWAWAY          = 306, //
-	IRC_RPL_WHOISUSER   = 311, //
-	IRC_RPL_WHOISSERVER          = 312, //
-	IRC_RPL_WHOISOPERATOR  = 313, //
-	IRC_RPL_WHOISIDLE          = 317, //
-	IRC_RPL_ENDOFWHOIS          = 318, //--
-	IRC_RPL_WHOISCHANNELS        = 319, //
-	IRC_RPL_WHOWASUSER          = 314, //
-	IRC_RPL_ENDOFWHOWAS          = 369, //--
-	IRC_RPL_LISTSTART          = 321, //--
-	IRC_RPL_LIST          = 322, //
-	IRC_RPL_LISTEND          = 323, //--
-	IRC_RPL_CHANNELMODEIS        = 324, //
-	IRC_RPL_NOTOPIC          = 331, // d
-	IRC_RPL_TOPIC = 332, //
-	IRC_RPL_INVITING          = 341, //
-	IRC_RPL_SUMMONING          = 342, // d
+	IRC_RPL_UNAWAY         = 305, /* */
+	IRC_RPL_NOWAWAY          = 306, /* */
+	IRC_RPL_WHOISUSER   = 311, /* */
+	IRC_RPL_WHOISSERVER          = 312, /* */
+	IRC_RPL_WHOISOPERATOR  = 313, /* */
+	IRC_RPL_WHOISIDLE          = 317, /* */
+	IRC_RPL_ENDOFWHOIS          = 318, /* -- */
+	IRC_RPL_WHOISCHANNELS        = 319, /* */
+	IRC_RPL_WHOWASUSER          = 314, /* */
+	IRC_RPL_ENDOFWHOWAS          = 369, /* -- */
+	IRC_RPL_LISTSTART          = 321, /* -- */
+	IRC_RPL_LIST          = 322, /* */
+	IRC_RPL_LISTEND          = 323, /* -- */
+	IRC_RPL_CHANNELMODEIS        = 324, /* */
+	IRC_RPL_NOTOPIC          = 331, /* d */
+	IRC_RPL_TOPIC = 332, /* */
+	IRC_RPL_INVITING          = 341, /* */
+	IRC_RPL_SUMMONING          = 342, /* d */
 
-	IRC_RPL_VERSION          = 351, //
-	IRC_RPL_WHOREPLY          = 352, //
+	IRC_RPL_VERSION          = 351, /* */
+	IRC_RPL_WHOREPLY          = 352, /* */
 	IRC_RPL_ENDOFWHO          = 315,
-	IRC_RPL_NAMREPLY          = 353, //
+	IRC_RPL_NAMREPLY          = 353, /* */
 	IRC_RPL_ENDOFNAMES          = 366,
-	IRC_RPL_LINKS          = 364, //
-	IRC_RPL_ENDOFLINKS          = 365, //
+	IRC_RPL_LINKS          = 364, /* */
+	IRC_RPL_ENDOFLINKS          = 365, /* */
 	IRC_RPL_BANLIST          = 367,
 	IRC_RPL_ENDOFBANLIST         = 368,
-	IRC_RPL_INFO          = 371, //
+	IRC_RPL_INFO          = 371, /* */
 	IRC_RPL_ENDOFINFO          = 374,
 	IRC_RPL_MOTDSTART          = 375,
-	IRC_RPL_MOTD          = 372, //
+	IRC_RPL_MOTD          = 372, /* */
 	IRC_RPL_ENDOFMOTD          = 376,
-	IRC_RPL_YOUREOPER          = 381, // d
-	IRC_RPL_REHASHING          = 382, // d
-	IRC_RPL_TIME          = 391, // 
+	IRC_RPL_YOUREOPER          = 381, /* d */
+	IRC_RPL_REHASHING          = 382, /* d */
+	IRC_RPL_TIME          = 391, /* */
 	IRC_RPL_USERSSTART          = 392,
 	IRC_RPL_USERS          = 393, 
 	IRC_RPL_ENDOFUSERS          = 394,
@@ -213,7 +213,7 @@ typedef enum {
 
 
 
-// IRC Commands
+/* IRC Commands */
 
 #define IRCCtcpVersion     "VERSION"
 

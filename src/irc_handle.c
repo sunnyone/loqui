@@ -338,7 +338,6 @@ irc_handle_new(Account *account, guint server_num, gboolean fallback)
 	handle->server_num = server_num;
 	handle->fallback = fallback;
 
-//	irc_handle_thread_func(handle);
 	priv->thread = g_thread_create((GThreadFunc) irc_handle_thread_func,
 				       handle,
 				       TRUE,
