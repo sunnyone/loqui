@@ -398,19 +398,13 @@ static void
 loqui_channel_entry_remove_real(LoquiChannelEntry *chent, LoquiMember *member)
 {
 	gint old_pos;
-	LoquiMember *mcur;
 
         g_return_if_fail(chent != NULL);
         g_return_if_fail(LOQUI_IS_CHANNEL_ENTRY(chent));
 
-	/* remove the last user from the table */
-	mcur = g_ptr_array_index(chent->member_ptr_array, chent->member_ptr_array->len - 1);
-	g_hash_table_remove(chent->user_hash, mcur->user);
-
 	old_pos = GPOINTER_TO_INT(g_hash_table_lookup(chent->user_hash, member->user)) - 1;
 	g_return_if_fail(old_pos >= 0);
 	g_ptr_array_remove_index(chent->member_ptr_array, old_pos);
-
 	loqui_channel_entry_update_user_hash(chent);
 
 	g_signal_handlers_disconnect_by_func(G_OBJECT(member),
