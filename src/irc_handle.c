@@ -81,6 +81,7 @@ static void irc_handle_joined_channel_append(IRCHandle *handle, IRCMessage *msg,
 
 static void irc_handle_reply_names(IRCHandle *handle, IRCMessage *msg);
 static void irc_handle_reply_topic(IRCHandle *handle, IRCMessage *msg);
+static void irc_handle_reply_endofnames(IRCHandle *handle, IRCMessage *msg);
 
 GType
 irc_handle_get_type(void)
@@ -591,9 +592,17 @@ irc_handle_reply_names(IRCHandle *handle, IRCMessage *msg)
 	if(channel == NULL)
 		return;
 
-	channel_clear_user(channel);
-	nick_array = g_strsplit(irc_message_get_trailing(msg), " ", 0);
+	irc_message_print(msg);
+
+	if(channel->end_names == TRUE) {
+		gdk_threads_enter();
+		channel_clear_user(channel);
+		gdk_threads_leave();
+		channel->end_names = FALSE;
+	}
+
 	gdk_threads_enter();
+	nick_array = g_strsplit(irc_message_get_trailing(msg), " ", 0);
 	for(i = 0; nick_array[i] != NULL; i++) {
 		channel_append_user(channel, nick_array[i],
 				    USER_POWER_UNDETERMINED, USER_EXISTENCE_UNKNOWN);
@@ -603,6 +612,20 @@ irc_handle_reply_names(IRCHandle *handle, IRCMessage *msg)
 
 	irc_handle_channel_append(handle, msg, FALSE, 3, TEXT_TYPE_NORMAL, "%3: %t");
 }
+static void
+irc_handle_reply_endofnames(IRCHandle *handle, IRCMessage *msg)
+{
+	Channel *channel;
+	gchar *name;
+
+	name = irc_message_get_param(msg, 2);
+	channel = account_search_channel_by_name(handle->priv->account, name);
+	if(channel == NULL)
+		return;
+
+	channel->end_names = TRUE;
+}
+
 static void
 irc_handle_reply_topic(IRCHandle *handle, IRCMessage *msg)
 {
@@ -793,6 +816,8 @@ irc_handle_reply(IRCHandle *handle, IRCMessage *msg)
 		irc_handle_account_console_append(handle, msg, TEXT_TYPE_NORMAL, _("Time: %3(%2)"));
 		return TRUE;
 	case IRC_RPL_ENDOFNAMES:
+		irc_handle_reply_endofnames(handle, msg);
+		return TRUE;
 	case IRC_RPL_ENDOFWHOIS:
 	case IRC_RPL_ENDOFWHO:
 	case IRC_RPL_ENDOFBANLIST:
@@ -952,9 +977,17 @@ static gpointer irc_handle_thread_func(IRCHandle *handle)
 	account_console_text_append(account, TRUE, TEXT_TYPE_INFO, _("Connection terminated."));
 	gdk_threads_leave();
 
+	debug_puts("Putting IRCMessageEnd message...");
 	msg = irc_message_create(IRCMessageEnd, NULL);
+	irc_message_print(msg);
 	irc_handle_push_message(handle, msg);
+	debug_puts("Done.");
 
+	debug_puts("Joining sending thread...");
+	g_thread_join(priv->send_thread);
+	debug_puts("Done.");
+
+	g_thread_exit(NULL);
 	return NULL;
 }
 static gpointer irc_handle_send_thread_func(IRCHandle *handle)
@@ -978,6 +1011,8 @@ static gpointer irc_handle_send_thread_func(IRCHandle *handle)
 		connection_put_irc_message(priv->connection, msg);
 		g_object_unref(msg);
 	}
+
+	g_thread_exit(NULL);
 	return NULL;
 }
 IRCHandle*
