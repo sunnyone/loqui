@@ -856,6 +856,7 @@ void account_part(Account *account, const gchar *target, const gchar *part_messa
 {
 	IRCMessage *msg;
 	AccountPrivate *priv;
+	LoquiChannel *channel;
 
         g_return_if_fail(account != NULL);
         g_return_if_fail(IS_ACCOUNT(account));
@@ -871,7 +872,10 @@ void account_part(Account *account, const gchar *target, const gchar *part_messa
 		msg = irc_message_create(IRCCommandPart, target, part_message, NULL);
 		irc_connection_push_message(priv->connection, msg);
 	} else {
-		/* FIXME: close private message page? */
+		/* close private talk */
+		channel = account_get_channel(account, target);
+		if (channel)
+			account_remove_channel(account, channel);
 	}	
 }
 void account_set_topic(Account *account, const gchar *target, const gchar *topic)
