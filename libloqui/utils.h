@@ -93,6 +93,8 @@ G_CONST_RETURN gchar* utils_remove_ipv6_prefix_ffff(const gchar *str);
 
 gboolean loqui_utils_mkdir_and_chmod(const gchar *path);
 
+gsize loqui_utils_count_strarray(const gchar **strarray);
+
 gchar *utils_url_encode(const gchar *str);
 gchar *utils_url_decode(const gchar *str);
 

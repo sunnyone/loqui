@@ -443,6 +443,19 @@ loqui_utils_mkdir_and_chmod(const gchar *path)
 	return TRUE;
 }
 
+gsize
+loqui_utils_count_strarray(const gchar **strarray)
+{
+	gsize i;
+
+	if (strarray == NULL)
+		return 0;
+
+	for (i = 0; strarray[i] != NULL; i++);
+
+	return i;
+}
+
 gchar *
 utils_url_encode(const gchar *str)
 {
