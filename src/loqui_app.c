@@ -408,10 +408,6 @@ loqui_app_update_info(LoquiApp *app,
 
 	gtk_window_set_title(GTK_WINDOW(app), buf);
 	g_free(buf);
-
-	buf = FORMAT_INFO("%t");
-	loqui_statusbar_set_default(LOQUI_STATUSBAR(app->statusbar), buf);
-	g_free(buf);
 	
 	G_FREE_UNLESS_NULL(channel_mode);
 	G_FREE_UNLESS_NULL(user_number_str);
