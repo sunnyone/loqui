@@ -22,8 +22,31 @@
 #include <glib.h>
 
 void debug_puts(const gchar *format, ...) G_GNUC_PRINTF(1, 2);
+void debug_print(const gchar *format, ...) G_GNUC_PRINTF(1, 2);
+
 gchar *utils_gconf_get_basename(const gchar *path);
 
 gchar *utils_remove_return_code(gchar *str);
+
+/* copied from Sylpheed. (c) 2002, Hiroyuki Yamamoto. */
+#define Xstrndup_a(ptr, str, len, iffail) \
+{ \
+        gchar *__tmp; \
+ \
+        if ((__tmp = alloca(len + 1)) == NULL) { \
+                g_warning("can't allocate memory\n"); \
+                iffail; \
+        } else { \
+                strncpy(__tmp, str, len); \
+                __tmp[len] = '\0'; \
+        } \
+ \
+        ptr = __tmp; \
+}
+gchar *strncpy2         (gchar          *dest,
+                         const gchar    *src,
+                         size_t          n);
+gchar *strcasestr       (const gchar    *haystack,
+                         const gchar    *needle);
 
 #endif /* __UTILS_H__ */

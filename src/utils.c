@@ -25,6 +25,20 @@
 #include "main.h"
 
 
+void debug_print(const gchar *format, ...)
+{
+	va_list args;
+	gchar *str;
+
+	if(!debug_mode)
+		return;
+
+	va_start(args, format);
+	str = g_strdup_vprintf(format, args);
+	va_end(args);
+	
+	g_free(str);	
+}
 void debug_puts(const gchar *format, ...)
 {
 	va_list args;
@@ -69,3 +83,44 @@ gchar *utils_remove_return_code(gchar *str)
         return str;
 }
 
+/* copied from Sylpheed. (c) 2002, Hiroyuki Yamamoto. */
+gchar *strncpy2(gchar *dest, const gchar *src, size_t n)
+{
+        register gchar c;
+        gchar *s = dest;
+
+        do {
+                if (--n == 0) {
+                        *dest = '\0';
+                        return s;
+                }
+                c = *src++;
+                *dest++ = c;
+        } while (c != '\0');
+
+        /* don't do zero fill */
+        return s;
+}
+
+/* Similar to `strstr' but this function ignores the case of both strings.  */
+gchar *strcasestr(const gchar *haystack, const gchar *needle)
+{
+        register size_t haystack_len, needle_len;
+
+        haystack_len = strlen(haystack);
+        needle_len   = strlen(needle);
+
+        if (haystack_len < needle_len || needle_len == 0)
+                return NULL;
+
+        while (haystack_len >= needle_len) {
+                if (!strncasecmp(haystack, needle, needle_len))
+                        return (gchar *)haystack;
+                else {
+                        haystack++;
+                        haystack_len--;
+                }
+        }
+
+        return NULL;
+}

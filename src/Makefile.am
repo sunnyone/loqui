@@ -5,6 +5,8 @@ INCLUDES = $(LOQUI_CFLAGS) $(EXTRA_WARNING_CFLAGS) -g -I$(includedir) \
 
 loqui_SOURCES = \
 	main.c main.h \
+	stringtable.c stringtable.h \
+	xml.c xml.h \
 	account_manager.c account_manager.h \
 	loqui_menu.c loqui_menu.h \
 	loqui_app.c loqui_app.h \
