@@ -66,6 +66,9 @@ static void irc_handle_my_command_part(IRCHandle *handle, IRCMessage *msg);
 static void irc_handle_command_privmsg_notice(IRCHandle *handle, IRCMessage *msg);
 static void irc_handle_command_ping(IRCHandle *handle, IRCMessage *msg);
 static void irc_handle_command_quit(IRCHandle *handle, IRCMessage *msg);
+static void irc_handle_command_join(IRCHandle *handle, IRCMessage *msg);
+static void irc_handle_command_part(IRCHandle *handle, IRCMessage *msg);
+static void irc_handle_command_nick(IRCHandle *handle, IRCMessage *msg);
 
 static void irc_handle_account_console_append(IRCHandle *handle, IRCMessage *msg, TextType type, gchar *format);
 static void irc_handle_channel_append(IRCHandle *handle, IRCMessage *msg, gboolean make_channel,
@@ -198,10 +201,10 @@ static void
 irc_handle_command_quit(IRCHandle *handle, IRCMessage *msg)
 {
 	GSList *slist, *cur;
-	/* FIXME: remove nicks he joined */
 	
 	if(msg->nick == NULL) {
-		g_warning(_("The message is not contains nick"));
+		g_warning(_("The message does not contain nick"));
+		return;
 	}
 
 	slist = account_search_joined_channel(handle->priv->account, msg->nick);
@@ -215,7 +218,84 @@ irc_handle_command_quit(IRCHandle *handle, IRCMessage *msg)
 
 	g_slist_free(slist);
 }
+static void
+irc_handle_command_part(IRCHandle *handle, IRCMessage *msg)
+{
+	Channel *channel;
+	gchar *name;
 
+	if(msg->nick == NULL) {
+		g_warning(_("The message does not contain nick"));
+		return;
+	}
+
+	name = irc_message_get_param(msg, 1);
+	if(!name) {
+		g_warning(_("The message does not contain the channal name"));
+		return;
+	}
+
+	channel = account_search_channel_by_name(handle->priv->account, name);
+	if(channel) {
+		gdk_threads_enter();
+		channel_remove_user(channel, msg->nick);
+		gdk_threads_leave();
+	}
+
+	irc_handle_channel_append(handle, msg, FALSE, 1, TEXT_TYPE_INFO, _("*** %n has just part %1(%t)"));
+}
+
+static void
+irc_handle_command_nick(IRCHandle *handle, IRCMessage *msg)
+{
+	GSList *slist, *cur;
+	gchar *nick_new;
+
+	if(msg->nick == NULL) {
+		g_warning(_("The message does not contain nick"));
+		return;
+	}
+
+	nick_new = irc_message_get_param(msg, 1);
+	if(nick_new == NULL) {
+		g_warning(_("The NICK message does not contain new nick"));
+		return;
+	}
+
+	slist = account_search_joined_channel(handle->priv->account, msg->nick);
+	for(cur = slist; cur != NULL; cur = cur->next) {
+		gdk_threads_enter();
+		channel_change_user_nick((Channel *) cur->data, msg->nick, nick_new);
+		gdk_threads_leave();
+	}
+
+	irc_handle_joined_channel_append(handle, msg, slist, TEXT_TYPE_INFO, _("*** %n is known as %1"));
+
+	if(slist)
+		g_slist_free(slist);
+}
+
+static void
+irc_handle_command_join(IRCHandle *handle, IRCMessage *msg)
+{
+	GSList *slist, *cur;
+	
+	if(msg->nick == NULL) {
+		g_warning(_("The message does not contain nick"));
+		return;
+	}
+
+	slist = account_search_joined_channel(handle->priv->account, msg->nick);
+	for(cur = slist; cur != NULL; cur = cur->next) {
+		gdk_threads_enter();
+		channel_append_user((Channel *) cur->data, msg->nick, USER_POWER_NOTHING, USER_EXISTENCE_UNKNOWN);
+		gdk_threads_leave();
+	}
+
+	irc_handle_joined_channel_append(handle, msg, slist, TEXT_TYPE_INFO, _("*** %n (%u@%h) joined channel %t"));
+
+	g_slist_free(slist);
+}
 static void
 irc_handle_my_command_join(IRCHandle *handle, IRCMessage *msg)
 {
@@ -238,6 +318,7 @@ irc_handle_my_command_join(IRCHandle *handle, IRCMessage *msg)
 	account_manager_select_channel(account_manager_get(), channel);
 	gdk_threads_leave();
 }
+
 static void
 irc_handle_my_command_part(IRCHandle *handle, IRCMessage *msg)
 {
@@ -276,6 +357,7 @@ irc_handle_my_command_nick(IRCHandle *handle, IRCMessage *msg)
 	}
 
 	handle->priv->current_nick = g_strdup(irc_message_get_param(msg, 1));
+
 	debug_puts("current nick is set to %s", handle->priv->current_nick);
 }
 
@@ -348,9 +430,30 @@ irc_handle_reply_topic(IRCHandle *handle, IRCMessage *msg)
 		return;
 
 	topic = irc_message_get_trailing(msg);
+	gdk_threads_enter();
 	channel_set_topic(channel, topic);
+	gdk_threads_leave();
 
 	irc_handle_channel_append(handle, msg, FALSE, 2, TEXT_TYPE_INFO, _("Topic for %2: %t"));
+}
+static void
+irc_handle_command_topic(IRCHandle *handle, IRCMessage *msg)
+{
+	Channel *channel;
+	gchar *topic;
+	gchar *name;
+
+	name = irc_message_get_param(msg, 1);
+	channel = account_search_channel_by_name(handle->priv->account, name);
+	if(channel == NULL)
+		return;
+
+	topic = irc_message_get_trailing(msg);
+	gdk_threads_enter();
+	channel_set_topic(channel, topic);
+	gdk_threads_leave();
+	
+	irc_handle_channel_append(handle, msg, FALSE, 1, TEXT_TYPE_INFO, _("*** New topic on %1 by %n: %t"));
 }
 static void /* utility function for threading */
 irc_handle_joined_channel_append(IRCHandle *handle, IRCMessage *msg, GSList *channel_slist, TextType type, gchar *format)
@@ -370,9 +473,13 @@ irc_handle_joined_channel_append(IRCHandle *handle, IRCMessage *msg, GSList *cha
 			
 
 	gdk_threads_enter();
-	for(cur = slist; cur != NULL; cur = cur->next) {
-		channel = (Channel *) cur->data;
-		channel_append_text(channel, FALSE, type, str);
+	if(slist != NULL) {
+		for(cur = slist; cur != NULL; cur = cur->next) {
+			channel = (Channel *) cur->data;
+			channel_append_text(channel, FALSE, type, str);
+		}
+	} else {
+		account_console_text_append(handle->priv->account, FALSE, type, str);
 	}
 	account_manager_common_text_append(account_manager_get(), type, str);
 	gdk_threads_leave();
@@ -487,7 +594,7 @@ irc_handle_command(IRCHandle *handle, IRCMessage *msg)
 		switch(msg->response) {
 		case IRC_COMMAND_NICK:
 			irc_handle_my_command_nick(handle, msg);
-			return TRUE;
+			break;
 		case IRC_COMMAND_JOIN:
 			irc_handle_my_command_join(handle, msg);
 			return TRUE;
@@ -502,6 +609,18 @@ irc_handle_command(IRCHandle *handle, IRCMessage *msg)
 	case IRC_COMMAND_NOTICE:
 	case IRC_COMMAND_PRIVMSG:
 		irc_handle_command_privmsg_notice(handle, msg);
+		return TRUE;
+	case IRC_COMMAND_NICK:
+		irc_handle_command_nick(handle, msg);
+		return TRUE;
+	case IRC_COMMAND_JOIN:
+		irc_handle_command_join(handle, msg);
+		return TRUE;
+	case IRC_COMMAND_PART:
+		irc_handle_command_part(handle, msg);
+		return TRUE;
+	case IRC_COMMAND_TOPIC:
+		irc_handle_command_topic(handle, msg);
 		return TRUE;
 	case IRC_COMMAND_QUIT:
 		irc_handle_command_quit(handle, msg);
@@ -569,9 +688,9 @@ static gpointer irc_handle_thread_func(IRCHandle *handle)
 	msg = irc_message_create(IRCCommandPass, priv->server->password, NULL);
 	irc_handle_push_message(handle, msg);
 
-	msg = irc_message_create(IRCCommandNick, "hogehoge", NULL);
+	msg = irc_message_create(IRCCommandNick, priv->account->nick, NULL);
 	irc_handle_push_message(handle, msg);
-	priv->current_nick = g_strdup("hogehoge");
+	priv->current_nick = g_strdup(priv->account->nick);
 
 	msg = irc_message_create(IRCCommandUser, "Loqui", "*", "*", "*", NULL);
 	irc_handle_push_message(handle, msg);
