@@ -384,7 +384,7 @@ loqui_channel_buffer_gtk_pref_changed_cb(LoquiPref *pref, const gchar *group_nam
 
 	buffer = LOQUI_CHANNEL_BUFFER_GTK(data);
 
-#define BUFFER_GROUP "Buffer"
+#define BUFFER_GROUP "BufferText"
 
 	if (strcmp(group_name, BUFFER_GROUP) != 0)
 		return;
@@ -420,7 +420,7 @@ loqui_channel_buffer_gtk_load_styles(LoquiChannelBufferGtk *buffer)
 
 	pref = LOQUI_CORE_GTK(loqui_get_core())->style_pref;
 
-#define SET_STRING_DEFAULT(key, value) loqui_pref_set_string_default(pref, "Buffer", key, value)
+#define SET_STRING_DEFAULT(key, value) loqui_pref_set_string_default(pref, "BufferText", key, value)
 
 	SET_STRING_DEFAULT("TimeColor", "blue");
 	SET_STRING_DEFAULT("InfoColor", "green3");
