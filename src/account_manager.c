@@ -156,6 +156,8 @@ account_manager_add_account(AccountManager *manager, Account *account)
 	priv = manager->priv;
 
 	priv->account_list = g_slist_append(priv->account_list, account);
+	g_signal_connect_swapped(G_OBJECT(account), "connected",
+				 G_CALLBACK(account_manager_set_current_account), manager);
 	g_signal_connect(G_OBJECT(account), "add-channel",
 			 G_CALLBACK(account_manager_add_channel_cb), manager);
 	g_signal_connect(G_OBJECT(account), "remove-channel",
@@ -228,6 +230,10 @@ account_manager_add_channel_cb(Account *account, Channel *channel, AccountManage
 {
         g_return_if_fail(manager != NULL);
         g_return_if_fail(IS_ACCOUNT_MANAGER(manager));
+	g_return_if_fail(account != NULL);
+	g_return_if_fail(IS_ACCOUNT(account));
+	g_return_if_fail(channel != NULL);
+	g_return_if_fail(IS_CHANNEL(channel));
 
 	g_signal_connect(G_OBJECT(channel), "updated",
 			 G_CALLBACK(account_manager_channel_updated_cb), manager);
@@ -242,6 +248,10 @@ account_manager_remove_channel_cb(Account *account, Channel *channel, AccountMan
 {
         g_return_if_fail(manager != NULL);
         g_return_if_fail(IS_ACCOUNT_MANAGER(manager));
+	g_return_if_fail(account != NULL);
+	g_return_if_fail(IS_ACCOUNT(account));
+	g_return_if_fail(channel != NULL);
+	g_return_if_fail(IS_CHANNEL(channel));
 
 	account_manager_set_current_account(manager, account);
 	g_signal_handlers_disconnect_by_func(channel, account_manager_channel_updated_cb, manager);
@@ -456,12 +466,16 @@ account_manager_is_current_channel(AccountManager *manager, Channel *channel)
 gboolean
 account_manager_is_current_channel_buffer(AccountManager *manager, ChannelBuffer *buffer)
 {
-	ChannelBuffer *buffer2;
+	GtkTextBuffer *buffer2;
         g_return_val_if_fail(manager != NULL, FALSE);
         g_return_val_if_fail(IS_ACCOUNT_MANAGER(manager), FALSE);
+	g_return_val_if_fail(IS_CHANNEL_BUFFER(buffer), FALSE);
 
-	buffer2 = CHANNEL_BUFFER(gtk_text_view_get_buffer(GTK_TEXT_VIEW(manager->priv->app->channel_textview)));
-	return (buffer == buffer2);
+	buffer2 = gtk_text_view_get_buffer(GTK_TEXT_VIEW(manager->priv->app->channel_textview));
+	if(buffer2 == NULL || !IS_CHANNEL_BUFFER(buffer2))
+		return FALSE;
+
+	return (buffer == CHANNEL_BUFFER(buffer2));
 }
 
 void

@@ -401,11 +401,10 @@ account_connect(Account *account, Server *server)
 		return;
 	}
 
-	account_manager_set_current_account(account_manager_get(), account); 
-
 	priv->handle = irc_handle_new(account);
 	irc_handle_connect(priv->handle, (server == NULL) ? TRUE : FALSE, server);
 
+	g_signal_emit(account, account_signals[CONNECTED], 0);
 }
 void
 account_disconnect(Account *account)
