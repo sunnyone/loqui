@@ -71,6 +71,47 @@ gchar *utils_remove_return_code(gchar *str)
         return str;
 }
 
+GSList *utils_line_separated_text_to_slist(gchar *str)
+{
+	gchar **str_array;
+	GSList *slist = NULL;
+	gint i;
+
+	str_array = g_strsplit(str, "\n", -1);
+
+	for(i = 0; str_array[i] != NULL; i++) {
+		if(strlen(str_array[i]) == 0)
+			continue;
+
+		g_print("Read: %s\n", str_array[i]);
+
+		slist = g_slist_append(slist, g_strdup(str_array[i]));
+	}
+
+	g_strfreev(str_array);
+
+	return slist;
+}
+
+gchar *utils_line_separated_text_from_slist(GSList *slist)
+{
+	GString *string;
+	GSList *cur;
+	gchar *str;
+
+	g_return_val_if_fail(slist != NULL, NULL);
+
+	string = g_string_new(NULL);
+
+	for(cur = slist; cur != NULL; cur = cur->next) {
+		g_string_append_printf(string, "%s\n", (gchar *) cur->data);
+	}
+
+	str = string->str;
+	g_string_free(string, FALSE);
+
+	return str;
+}
 /* copied from Sylpheed. (c) 2002, Hiroyuki Yamamoto. */
 gint make_dir(const gchar *dir)
 {

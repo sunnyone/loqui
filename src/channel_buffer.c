@@ -27,6 +27,7 @@
 #include "prefs_general.h"
 #include "utils.h"
 #include "gtkutils.h"
+#include "prefs_emphasis_words.h"
 
 struct _ChannelBufferPrivate
 {
@@ -139,6 +140,8 @@ static void channel_buffer_apply_tag_cb(GtkTextBuffer *buffer,
 	GtkTextIter tmp_start, tmp_end;
 	GtkTextIter region_start, region_end;
 	gboolean matched = FALSE;
+	gchar *word;
+	GSList *cur;
 
 	channel_buffer = CHANNEL_BUFFER(buffer);
 	priv = channel_buffer->priv;
@@ -146,25 +149,25 @@ static void channel_buffer_apply_tag_cb(GtkTextBuffer *buffer,
 	if(!(tag == priv->emphasis_area_tag || tag == priv->adviser_area_tag))
 		return;
 
-	tmp_start = *start;
 	tmp_end = *end;
 
-/*	for(cur = word_list; cur != NULL; cur = cur->next) { */
-	while(gtk_text_iter_forward_search(&tmp_start,
-					   "word",
-					   GTK_TEXT_SEARCH_VISIBLE_ONLY,
-					   &region_start,
-					   &region_end,
-					   &tmp_end)) {
-
-		gtk_text_buffer_apply_tag_by_name(buffer,
-						  "emphasis",
-						  &region_start,
-						  &region_end);
-		tmp_start = region_end;
-		matched = TRUE;
+	for(cur = prefs_emphasis_words.allow_list; cur != NULL; cur = cur->next) {
+		tmp_start = *start;
+		word = (gchar *) cur->data;
+		while(gtk_text_iter_forward_search(&tmp_start,
+						   word,
+						   GTK_TEXT_SEARCH_VISIBLE_ONLY,
+						   &region_start,
+						   &region_end,
+						   &tmp_end)) {
+			gtk_text_buffer_apply_tag_by_name(buffer,
+							  "emphasis",
+							  &region_start,
+							  &region_end);
+			tmp_start = region_end;
+			matched = TRUE;
+		}
 	}
-/*  } */
 
 	if(tag == priv->adviser_area_tag && 
 	   matched &&
