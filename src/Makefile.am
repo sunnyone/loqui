@@ -25,7 +25,8 @@ loqui_SOURCES = \
 	irc_constants.h \
 	command_table.c command_table.h \
 	about.c about.h \
-	account_list_dialog.c account_list_dialog.h
+	account_list_dialog.c account_list_dialog.h \
+	account_dialog.h account_dialog.c
 
 loqui_LDADD = \
         $(GTK_LIBS) $(GNET_LIBS)
