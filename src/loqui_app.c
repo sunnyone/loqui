@@ -297,13 +297,10 @@ loqui_app_set_current_info(LoquiApp *app, const gchar *account_name,
 	
 	priv = app->priv;
 
-	if(channel_name && account_name) {
-		title = g_strdup_printf("%s @ %s - Loqui version %s", channel_name, account_name, VERSION);
-	} else if(account_name) {
-		title = g_strdup_printf("%s - Loqui version %s", account_name, VERSION);
-	} else {
-		title = g_strdup_printf("Loqui version %s", VERSION);
-	}
+	title = utils_format("%c?c{ @ }%a?a{ - }Loqui version %v",
+			     'c', channel_name,
+			     'a', account_name,
+			     'v', VERSION, -1);
 	gtk_window_set_title(GTK_WINDOW(app), title);
 	g_free(title);
 

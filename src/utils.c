@@ -27,6 +27,8 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
+#include "intl.h"
+
 void debug_print(const gchar *format, ...)
 {
 	va_list args;
@@ -115,10 +117,12 @@ gchar *utils_format(const gchar *format, ...)
 {
 	va_list args;
 	GString *string;
+	GQueue *curly_queue;
 	const gchar *cur, *tmp;
 	gchar *str;
 	gint i;
 	const gchar *str_cache[CHAR_MAX];
+	gint invisible = 0;
 
 	g_return_val_if_fail(format != NULL, NULL);
 
@@ -135,29 +139,74 @@ gchar *utils_format(const gchar *format, ...)
 	va_end(args);
 
 	string = g_string_new_len(NULL, strlen(format));
+	curly_queue = g_queue_new();
 
 	cur = format;
-	while((tmp = strchr(cur, '%')) != NULL) {
+	while(*cur != '\0' && ((tmp = strpbrk(cur, "%?}\\")) != NULL)) {
 		if(tmp > cur) {
-			string = g_string_append_len(string, cur, tmp - cur);
+			if(!invisible)
+				string = g_string_append_len(string, cur, tmp - cur);
 			cur = tmp;
 		}
-		cur++;
-
-		if(*cur == '\0') {
+		switch(*cur) {
+		case '%':
+			cur++;
+			if(*cur == '%') {
+				string = g_string_append_c(string, '%');
+				break;
+			}
+			i = *cur;
+			if(str_cache[i] != NULL)
+				string = g_string_append(string, str_cache[i]);
 			break;
-		} else if(*cur == '%') {
-			string = g_string_append_c(string, '%');
-			continue;
+		case '?':
+			if(*cur++ == '\0')
+				break;
+
+			i = *cur;
+
+			cur++;
+			if(*cur != '{') {
+				g_warning(_("?x flag doesn't have { in '%s'"), format);
+				break;
+			}
+
+			if(str_cache[i] == NULL)
+				invisible++;
+			g_queue_push_tail(curly_queue, GINT_TO_POINTER(i));
+			
+			break;
+		case '}':
+			if(g_queue_is_empty(curly_queue))
+				break;
+
+			i = GPOINTER_TO_INT(g_queue_pop_tail(curly_queue));
+			/* should free string/queue before this g_return_*, 
+			   but it's needless because it should not be called. */
+			g_return_val_if_fail(i < CHAR_MAX, NULL);
+
+			if(str_cache[i] == NULL)
+				invisible--;
+
+			break;
+		case '\\':
+			if(*cur++ == '\0')
+				break;
+
+			string = g_string_append_c(string, *cur);
+			break;
+		default:
+			g_assert_not_reached();
 		}
 
-		i = *tmp;
-		if(str_cache[i] != NULL)
-			string = g_string_append(string, str_cache[i]);
+		if(*cur == '\0')
+			break;
+		cur++;
 	}
 
 	str = string->str;
 	g_string_free(string, FALSE);
+	g_queue_free(curly_queue);
 
 	return str;
 }
