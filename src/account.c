@@ -345,18 +345,17 @@ account_search_channel_by_name(Account *account, gchar *name)
 
 	for(cur = account->channel_list; cur != NULL; cur = cur->next) {
 		channel = CHANNEL(cur->data);
-		if(strcmp(channel->name, name) == 0)
+		if(g_ascii_strcasecmp(channel->name, name) == 0)
 			return channel;
 	}
 	return NULL;
 }
 void
-account_console_text_append(Account *account, gchar *str)
+account_console_text_append(Account *account, TextType type, gchar *str)
 {
 	g_return_if_fail(account != NULL);
 	g_return_if_fail(str != NULL);
 
-	channel_text_append(account->console_text, TEXT_TYPE_NORMAL, str);
-
+	channel_text_append(account->console_text, type, str);
 }
 

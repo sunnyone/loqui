@@ -30,6 +30,7 @@ struct _IRCHandlePrivate
 	Account *account;
 	Server *server;
 	gchar *current_nick;
+	gboolean end_motd;
 
 	GThread *thread;
 
@@ -52,7 +53,7 @@ static void irc_handle_inspect_message(IRCHandle *handle, IRCMessage *msg);
 static void irc_handle_my_command_nick(IRCHandle *handle, IRCMessage *msg);
 static void irc_handle_my_command_join(IRCHandle *handle, IRCMessage *msg);
 
-static void irc_handle_command_privmsg(IRCHandle *handle, IRCMessage *msg);
+static void irc_handle_command_privmsg_notice(IRCHandle *handle, IRCMessage *msg);
 
 GType
 irc_handle_get_type(void)
@@ -113,24 +114,26 @@ irc_handle_finalize(GObject *object)
 
 	g_free(irc_handle->priv);
 }
-
-static void irc_handle_command_privmsg(IRCHandle *handle, IRCMessage *msg)
+static void irc_handle_command_privmsg_notice(IRCHandle *handle, IRCMessage *msg)
 {
 	gchar *str;
-	GString *string;
+	gchar *receiver_name;
+	gchar *remark;
+	Channel *channel;
 
-	string = g_string_new(NULL);
-	if(msg->nick != NULL) {
-		g_string_printf(string, "<%s:%s> ", irc_message_get_param(msg, 0), msg->nick);
+	receiver_name = irc_message_get_param(msg, 0);
+	remark = irc_message_get_param(msg, 1);
+	if(receiver_name != NULL && msg->nick != NULL) {
+		str = g_strdup_printf("<%s:%s> %s\n", receiver_name, msg->nick, remark);
+	} else {
+		str = g_strdup_printf("%s\n", remark);
 	}
-	g_string_append(string, irc_message_get_param(msg, 1));
-	g_string_append_c(string, '\n');
-	
-	str = string->str;
-	g_string_free(string, FALSE);
 
 	gdk_threads_enter();
-	account_console_text_append(handle->priv->account, str);
+	if(msg->response == IRC_COMMAND_NOTICE)
+		account_console_text_append(handle->priv->account, TEXT_TYPE_NOTICE, str);
+	else
+		account_console_text_append(handle->priv->account, TEXT_TYPE_NORMAL, str);
 	gdk_threads_leave();
 
 	g_free(str);
@@ -182,7 +185,7 @@ irc_handle_inspect_message(IRCHandle *handle, IRCMessage *msg)
 	str = irc_message_inspect(msg);
 			
 	gdk_threads_enter();
-	account_console_text_append(handle->priv->account, str);
+	account_console_text_append(handle->priv->account, TEXT_TYPE_NORMAL, str);
 	gdk_threads_leave();
 	
 	g_free(str);	
@@ -206,7 +209,7 @@ irc_handle_response(IRCHandle *handle, IRCMessage *msg)
 	switch (msg->response) {
 	case IRC_COMMAND_NOTICE:
 	case IRC_COMMAND_PRIVMSG:
-		irc_handle_command_privmsg(handle, msg);
+		irc_handle_command_privmsg_notice(handle, msg);
 		break;
 	default:
 		irc_handle_inspect_message(handle, msg);
@@ -225,7 +228,7 @@ static gpointer irc_handle_thread_func(IRCHandle *handle)
 	gdk_threads_enter();
 	str = g_strdup_printf(_("%s: Connecting to %s:%d\n"), 
 			      priv->account->name, priv->server->hostname, priv->server->port);
-	account_console_text_append(account, str);
+	account_console_text_append(account, TEXT_TYPE_INFO, str);
 	g_free(str);
 	gdk_threads_leave();
 
@@ -233,7 +236,7 @@ static gpointer irc_handle_thread_func(IRCHandle *handle)
 
 	gdk_threads_enter();
 	str = g_strdup_printf(_("%s: Connected. Sending Initial command...\n"), priv->account->name);
-	account_console_text_append(account, str);
+	account_console_text_append(account, TEXT_TYPE_INFO, str);
 	g_free(str);
 	gdk_threads_leave();
 
@@ -251,7 +254,7 @@ static gpointer irc_handle_thread_func(IRCHandle *handle)
 	g_object_unref(msg);
 
 	gdk_threads_enter();
-	account_console_text_append(account, _("Done.\n"));
+	account_console_text_append(account, TEXT_TYPE_INFO, _("Done.\n"));
 	gdk_threads_leave();
 
         while((msg = connection_get_irc_message(priv->connection, NULL)) != NULL) {
@@ -260,7 +263,10 @@ static gpointer irc_handle_thread_func(IRCHandle *handle)
 		g_object_unref(msg);
 	}
 
-	debug_puts("Connection terminated.");
+	gdk_threads_enter();
+	account_console_text_append(account, TEXT_TYPE_INFO, _("Connection terminated.\n"));
+	gdk_threads_leave();
+
 	return NULL;
 }
 IRCHandle*

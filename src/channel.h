@@ -69,6 +69,7 @@ struct _ChannelClass
 GType channel_get_type(void) G_GNUC_CONST;
 
 Channel* channel_new(gchar *name);
+void channel_append(Channel *channel, TextType type, gchar *str);
 
 G_END_DECLS
 

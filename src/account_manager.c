@@ -161,7 +161,10 @@ void account_manager_add_channel(AccountManager *manager, Account *account, Chan
 }
 void account_manager_set_current(AccountManager *manager, Account *account, Channel *channel)
 {
+	g_return_if_fail(manager != NULL);
 
+	manager->priv->current_channel = channel;
+	manager->priv->current_account = account;
 }
 AccountManager *account_manager_get(void)
 {

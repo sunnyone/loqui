@@ -115,3 +115,10 @@ channel_new (gchar *name)
 	return channel;
 }
 
+void
+channel_append(Channel *channel, TextType type, gchar *str)
+{
+	g_return_if_fail(channel != NULL);
+
+	channel_text_append(CHANNEL_TEXT(channel->text), type, str);
+}
