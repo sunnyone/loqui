@@ -36,7 +36,6 @@ struct _IRCConnectionPrivate
 	gchar *hostname;
 	guint port;
 
-	IRCHandle *handle;
 	CodeConv *codeconv;
 
 	GQueue *msg_queue;
@@ -48,6 +47,7 @@ enum {
 	TERMINATED,
 	WARN,
 	INFO,
+	ARRIVE_MESSAGE,
 	LAST_SIGNAL
 };
 
@@ -131,7 +131,7 @@ irc_connection_class_init(IRCConnectionClass *klass)
 	signals[WARN] = g_signal_new("warn",
 				     G_OBJECT_CLASS_TYPE(object_class),
 				     G_SIGNAL_RUN_FIRST,
-				     G_STRUCT_OFFSET(IRCConnectionClass, connected),
+				     G_STRUCT_OFFSET(IRCConnectionClass, warn),
 				     NULL, NULL,
 				     g_cclosure_marshal_VOID__STRING,
 				     G_TYPE_NONE, 1,
@@ -139,11 +139,19 @@ irc_connection_class_init(IRCConnectionClass *klass)
 	signals[INFO] = g_signal_new("info",
 				     G_OBJECT_CLASS_TYPE(object_class),
 				     G_SIGNAL_RUN_FIRST,
-				     G_STRUCT_OFFSET(IRCConnectionClass, connected),
+				     G_STRUCT_OFFSET(IRCConnectionClass, info),
 				     NULL, NULL,
 				     g_cclosure_marshal_VOID__STRING,
 				     G_TYPE_NONE, 1,
 				     G_TYPE_STRING);
+	signals[ARRIVE_MESSAGE] = g_signal_new("arrive_message",
+					       G_OBJECT_CLASS_TYPE(object_class),
+					       G_SIGNAL_RUN_FIRST,
+					       G_STRUCT_OFFSET(IRCConnectionClass, arrive_message),
+					       NULL, NULL,
+					       g_cclosure_marshal_VOID__OBJECT,
+					       G_TYPE_NONE, 1,
+					       TYPE_IRC_MESSAGE);
 }
 static void 
 irc_connection_init(IRCConnection *connection)
@@ -156,8 +164,6 @@ irc_connection_init(IRCConnection *connection)
 
 	priv->msg_queue = NULL;
 	priv->codeconv = NULL;
-	priv->handle = NULL;
-
 }
 static void 
 irc_connection_finalize(GObject *object)
@@ -369,11 +375,7 @@ irc_connection_watch_in_cb(GIOChannel *ioch, GIOCondition condition, gpointer da
 		return TRUE;
 	}
 
-	if(priv->handle)
-		irc_handle_response(priv->handle, msg);
-	else
-		g_warning("IRCHandle is not set.");
-	
+	g_signal_emit(connection, signals[ARRIVE_MESSAGE], 0, msg);
 	g_object_unref(msg);
 
 	return TRUE;
@@ -414,20 +416,6 @@ irc_connection_set_codeconv(IRCConnection *connection, CodeConv *codeconv)
 	
 	g_object_ref(codeconv);
 	priv->codeconv = codeconv;
-}
-void
-irc_connection_set_irc_handle(IRCConnection *connection, IRCHandle *handle)
-{
-	IRCConnectionPrivate *priv;
-
-	g_return_if_fail(connection != NULL);
-        g_return_if_fail(IS_IRC_CONNECTION(connection));
-	g_return_if_fail(handle != NULL);
-	g_return_if_fail(IS_IRC_HANDLE(handle));
-
-	priv = connection->priv;
-
-	priv->handle = handle;	
 }
 void
 irc_connection_connect(IRCConnection *connection)

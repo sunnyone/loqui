@@ -32,6 +32,7 @@
 #include "loqui_profile_account_irc.h"
 #include "loqui_user_irc.h"
 #include "loqui_utils_irc.h"
+#include "loqui_sender_irc.h"
 
 #include <string.h>
 
@@ -88,6 +89,7 @@ static void account_connection_disconnected_cb(GObject *object, Account *account
 static void account_connection_terminated_cb(GObject *object, Account *account);
 static void account_connection_warn_cb(GObject *object, gchar *str, Account *account);
 static void account_connection_info_cb(GObject *object, gchar *str, Account *account);
+static void account_connection_arrive_message_cb(IRCConnection *connection, IRCMessage *msg, Account *account);
 
 static void account_user_notify_nick_cb(LoquiUser *user, GParamSpec *pspec, Account *account);
 static void account_user_self_notify_cb(LoquiUser *user_self, GParamSpec *pspec, Account *account);
@@ -393,8 +395,6 @@ account_connect(Account *account)
 		codeconv_set_codeset(codeconv, codeset);
 	irc_connection_set_codeconv(priv->connection, codeconv);
 	
-	irc_connection_set_irc_handle(priv->connection, priv->handle);
-
 	str = g_strdup_printf(_("Connecting to %s:%d"), servername, port);
 	account_console_buffer_append(account, TEXT_TYPE_INFO, str);
 	g_free(str);
@@ -411,6 +411,8 @@ account_connect(Account *account)
 			 G_CALLBACK(account_connection_warn_cb), account);
 	g_signal_connect(G_OBJECT(priv->connection), "info",
 			 G_CALLBACK(account_connection_info_cb), account);
+	g_signal_connect(G_OBJECT(priv->connection), "arrive_message",
+			 G_CALLBACK(account_connection_arrive_message_cb), account);
 
 	g_signal_emit(account, account_signals[CONNECTED], 0);	
 }
@@ -526,20 +528,31 @@ account_connection_disconnected_cb(GObject *object, Account *account)
 	loqui_user_set_away(account->user_self, LOQUI_AWAY_TYPE_OFFLINE);
 	g_signal_emit(account, account_signals[DISCONNECTED], 0);
 }
-static void account_connection_warn_cb(GObject *object, gchar *str, Account *account)
+static void
+account_connection_warn_cb(GObject *object, gchar *str, Account *account)
 {
         g_return_if_fail(account != NULL);
         g_return_if_fail(IS_ACCOUNT(account));
 
 	account_console_buffer_append(account, TEXT_TYPE_ERROR, str);
 }
-static void account_connection_info_cb(GObject *object, gchar *str, Account *account)
+static void
+account_connection_info_cb(GObject *object, gchar *str, Account *account)
 {
         g_return_if_fail(account != NULL);
         g_return_if_fail(IS_ACCOUNT(account));
 
 	account_console_buffer_append(account, TEXT_TYPE_INFO, str);
 }
+static void
+account_connection_arrive_message_cb(IRCConnection *connection, IRCMessage *msg, Account *account)
+{
+        g_return_if_fail(account != NULL);
+        g_return_if_fail(IS_ACCOUNT(account));
+
+	irc_handle_response(account->priv->handle, msg);
+}
+
 void
 account_disconnect(Account *account)
 {

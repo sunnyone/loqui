@@ -37,8 +37,6 @@ typedef struct _IRCConnectionClass       IRCConnectionClass;
 
 typedef struct _IRCConnectionPrivate     IRCConnectionPrivate;
 
-#include "irc_handle.h"
-
 struct _IRCConnection
 {
         GObject parent;
@@ -50,14 +48,16 @@ struct _IRCConnectionClass
 {
         GObjectClass parent_class;
 
-	void (* connected) (IRCHandle *handle, gboolean is_success);
-	void (* disconnected) (IRCHandle *handle);
+	void (* connected) (IRCConnection *connection, gboolean is_success);
+	void (* disconnected) (IRCConnection *connection);
 	/* when connection is terminated by force, 
 	   "terminated" signal is called instead of "disconnected". */
-	void (* terminated) (IRCHandle *handle);
+	void (* terminated) (IRCConnection *connection);
 
-	void (* warn) (IRCHandle *handle, gchar *str);
-	void (* info) (IRCHandle *handle, gchar *str);
+	void (* warn) (IRCConnection *connection, gchar *str);
+	void (* info) (IRCConnection *connection, gchar *str);
+
+	void (* arrive_message) (IRCConnection *connection, IRCMessage *msg);
 };
 
 
@@ -66,7 +66,6 @@ GType irc_connection_get_type (void) G_GNUC_CONST;
 IRCConnection* irc_connection_new(const gchar *hostname, guint port);
 
 void irc_connection_set_codeconv(IRCConnection *connection, CodeConv *codeconv);
-void irc_connection_set_irc_handle(IRCConnection *connection, IRCHandle *handle);
 
 void irc_connection_push_message(IRCConnection *connection, IRCMessage *msg);
 
