@@ -69,6 +69,7 @@ struct _AccountClass
 				   LoquiChannel *channel);
 	void (* remove_channel)   (Account *account,
 				   LoquiChannel *channel);
+	void (* user_self_changed) (Account *account);
 };
 
 GType account_get_type(void) G_GNUC_CONST;

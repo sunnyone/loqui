@@ -41,6 +41,7 @@ enum {
 	DISCONNECTED,
 	ADD_CHANNEL,
 	REMOVE_CHANNEL,
+	USER_SELF_CHANGED,
 	LAST_SIGNAL
 };
 
@@ -90,6 +91,7 @@ static void account_connection_warn_cb(GObject *object, gchar *str, Account *acc
 static void account_connection_info_cb(GObject *object, gchar *str, Account *account);
 
 static void account_user_notify_nick_cb(LoquiUser *user, GParamSpec *pspec, Account *account);
+static void account_user_self_notify_cb(LoquiUser *user_self, GParamSpec *pspec, Account *account);
 
 static void account_remove_channel_real(Account *account, LoquiChannel *channel);
 
@@ -177,6 +179,13 @@ account_class_init (AccountClass *klass)
 						       g_cclosure_marshal_VOID__OBJECT,
 						       G_TYPE_NONE, 1,
 						       LOQUI_TYPE_CHANNEL);
+	account_signals[USER_SELF_CHANGED] = g_signal_new("user-self-changed",
+							  G_OBJECT_CLASS_TYPE(object_class),
+							  G_SIGNAL_RUN_LAST,
+							  G_STRUCT_OFFSET(AccountClass, user_self_changed),
+							  NULL, NULL,
+							  g_cclosure_marshal_VOID__VOID,
+							  G_TYPE_NONE, 0);
 }
 static void 
 account_init(Account *account)
@@ -329,7 +338,15 @@ account_set_user_self(Account *account, LoquiUser *user_self)
 	account->user_self = user_self;
 	account_add_user(account, user_self);
 
+	g_signal_connect(user_self, "notify",
+			 G_CALLBACK(account_user_self_notify_cb), account);
+
 	g_object_notify(G_OBJECT(account), "user_self");	
+}
+static void
+account_user_self_notify_cb(LoquiUser *user_self, GParamSpec *pspec, Account *account)
+{
+	g_signal_emit(G_OBJECT(account), account_signals[USER_SELF_CHANGED], 0);
 }
 void
 account_connect(Account *account)
