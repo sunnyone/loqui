@@ -43,9 +43,6 @@ struct _IRCHandlePrivate
 	Server *server;
 	gboolean fallback;
 
-	GThread *thread;
-	GThread *send_thread;
-
 	gboolean end_motd;
 
 	GQueue *msg_queue;
@@ -171,8 +168,6 @@ irc_handle_init(IRCHandle *irc_handle)
 
 	irc_handle->priv = priv;
 
-	priv->thread = NULL;
-	priv->send_thread = NULL;
 	priv->msg_queue = NULL;
 }
 static void 
