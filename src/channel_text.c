@@ -129,7 +129,8 @@ channel_text_new(void)
         ChannelText *channel_text;
 	ChannelTextPrivate *priv;
 	GtkTextBuffer *textbuf;
-
+	GtkTextIter iter;
+	
 	channel_text = g_object_new(channel_text_get_type(), NULL);
 	priv = channel_text->priv;
 
@@ -137,7 +138,10 @@ channel_text_new(void)
 	gtk_text_view_set_editable(GTK_TEXT_VIEW(channel_text->text), FALSE);
 	gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(channel_text->text), GTK_WRAP_CHAR);
 
-	textbuf = GTK_TEXT_BUFFER(gtk_text_view_get_buffer(GTK_TEXT_VIEW(channel_text->text)));
+	textbuf = gtk_text_view_get_buffer(GTK_TEXT_VIEW(channel_text->text));
+	gtk_text_buffer_get_start_iter(textbuf, &iter);
+	gtk_text_buffer_create_mark(textbuf, "end", &iter, FALSE);
+
         gtk_text_buffer_create_tag(textbuf, "time", 
 				   "foreground", "blue", 
 				   NULL);
@@ -288,7 +292,7 @@ channel_text_append(ChannelText *channel_text, TextType type, gchar *str)
 	gtk_text_buffer_insert_with_tags_by_name(textbuf, &iter, buf, -1, style, NULL);
 	g_free(buf);
 
-	if(account_manager_whether_scroll(account_manager_get())) {
-		gtk_adjustment_set_value(text->vadjustment, text->vadjustment->upper);
+	if(account_manager_whether_scroll(account_manager_get())) {;
+		gtk_text_view_scroll_mark_onscreen(text, gtk_text_buffer_get_mark(textbuf, "end"));
 	}
 }
