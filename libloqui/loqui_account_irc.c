@@ -46,6 +46,7 @@ enum {
 struct _LoquiAccountIRCPrivate
 {
 	GConn *conn;
+	GQueue *msg_queue;
 	gboolean is_conn_connected;
 
 	LoquiCodeConv *codeconv;
@@ -69,6 +70,7 @@ static void loqui_account_irc_conn_error_cb(GConn *conn, LoquiAccountIRC *accoun
 static void loqui_account_irc_conn_connected_cb(GConn *conn, LoquiAccountIRC *account);
 static void loqui_account_irc_conn_closed_cb(GConn *conn, LoquiAccountIRC *account);
 static void loqui_account_irc_conn_readline_cb(GConn *conn, const gchar *buffer, LoquiAccountIRC *account);
+static void loqui_account_irc_conn_writable_cb(GConn *conn, LoquiAccountIRC *account);
 
 static void loqui_account_irc_connect(LoquiAccount *account);
 static void loqui_account_irc_disconnect(LoquiAccount *account);
@@ -132,6 +134,11 @@ loqui_account_irc_dispose(GObject *object)
 		priv->conn = NULL;
 	}
 	G_OBJECT_UNREF_UNLESS_NULL(priv->codeconv);
+	if (priv->msg_queue) {
+		g_queue_foreach(priv->msg_queue, (GFunc) g_object_unref, NULL);
+		g_queue_free(priv->msg_queue);
+	}
+	priv->msg_queue = NULL;
 
         if (G_OBJECT_CLASS(parent_class)->dispose)
                 (* G_OBJECT_CLASS(parent_class)->dispose)(object);
@@ -192,6 +199,8 @@ loqui_account_irc_init(LoquiAccountIRC *account_irc)
 	account_irc->priv = priv;
 
 	account = LOQUI_ACCOUNT(account_irc);
+	
+	priv->msg_queue = g_queue_new();
 }
 static GObject*
 loqui_account_irc_constructor(GType type, guint n_props, GObjectConstructParam *props)
@@ -272,6 +281,10 @@ loqui_account_irc_conn_cb(GConn *conn, GConnEvent *event, LoquiAccountIRC *accou
 		break;
 	case GNET_CONN_READ:
 		loqui_account_irc_conn_readline_cb(conn, event->buffer, account);
+		break;
+	case GNET_CONN_WRITABLE:
+		loqui_account_irc_conn_writable_cb(conn, account);
+		break;
 	default:
 		break;
 	} 
@@ -360,8 +373,12 @@ loqui_account_irc_conn_connected_cb(GConn *conn, LoquiAccountIRC *account)
 	priv = account->priv;
 
 	priv->is_conn_connected = TRUE;
-	loqui_account_information(LOQUI_ACCOUNT(account), _("Connected."));
 
+	/* g_io_channel_set_encoding(priv->conn->iochannel, NULL, NULL); */
+	g_io_channel_set_buffered(priv->conn->iochannel, FALSE);
+
+	loqui_account_information(LOQUI_ACCOUNT(account), _("Connected."));
+	
 	password = loqui_profile_account_get_password(loqui_account_get_profile(LOQUI_ACCOUNT(account)));
 	nick = loqui_profile_account_get_nick(loqui_account_get_profile(LOQUI_ACCOUNT(account)));	
 	username = loqui_profile_account_get_username(loqui_account_get_profile(LOQUI_ACCOUNT(account)));
@@ -393,7 +410,8 @@ loqui_account_irc_conn_closed_cb(GConn *conn, LoquiAccountIRC *account)
 	LoquiSenderIRC *sender;
 	GList *cur;
 	gboolean sent_quit;
-	
+	GObject *obj;
+
         g_return_if_fail(account != NULL);
         g_return_if_fail(LOQUI_IS_ACCOUNT_IRC(account));
 
@@ -403,7 +421,10 @@ loqui_account_irc_conn_closed_cb(GConn *conn, LoquiAccountIRC *account)
 		gnet_conn_unref(priv->conn);
 		priv->conn = NULL;
 	}
-	
+
+	while ((obj = g_queue_pop_head(priv->msg_queue)) != NULL)
+		g_object_unref(obj);
+
 	priv->is_conn_connected = FALSE;
 	loqui_account_set_is_connected(LOQUI_ACCOUNT(account), FALSE);
 	loqui_receiver_irc_reset(LOQUI_RECEIVER_IRC(LOQUI_ACCOUNT(account)->receiver));
@@ -455,6 +476,50 @@ loqui_account_irc_conn_readline_cb(GConn *conn, const gchar *buffer, LoquiAccoun
 	g_object_unref(msg);
 
 	gnet_conn_readline(conn);
+}
+static void
+loqui_account_irc_conn_writable_cb(GConn *conn, LoquiAccountIRC *account)
+{
+	LoquiAccountIRCPrivate *priv;
+	IRCMessage *msg;
+	gchar *buf, *serv_str, *tmp;
+	GError *error = NULL;
+
+        g_return_if_fail(account != NULL);
+        g_return_if_fail(LOQUI_IS_ACCOUNT_IRC(account));
+	
+	priv = LOQUI_ACCOUNT_IRC(account)->priv;
+
+	if ((msg = g_queue_pop_head(priv->msg_queue)) == NULL) {
+		gnet_conn_set_watch_writable(conn, FALSE);
+		return;
+	}
+
+	buf = irc_message_to_string(msg);
+	serv_str = loqui_codeconv_to_server(priv->codeconv, buf, &error);
+	g_free(buf);
+
+	if (serv_str == NULL) {
+		loqui_account_warning(LOQUI_ACCOUNT(account), "Failed to convert codeset: (%s).", error->message);
+		g_error_free(error);
+		g_object_unref(msg);
+		return;
+	}
+	
+	tmp = g_strdup_printf("%s\r\n", serv_str);
+	g_free(serv_str);
+
+	if (g_io_channel_write_chars(priv->conn->iochannel, tmp, -1, NULL, &error) != G_IO_STATUS_NORMAL) {
+		loqui_account_warning(LOQUI_ACCOUNT(account), "Failed to send: (%s).", error->message);
+		g_error_free(error);
+		g_object_unref(msg);
+		g_free(tmp);
+		return;
+	}
+
+	/* TODO: signal */
+
+	g_object_unref(msg);
 }
 static void
 loqui_account_irc_disconnect(LoquiAccount *account)
@@ -522,8 +587,6 @@ void
 loqui_account_irc_push_message(LoquiAccountIRC *account, IRCMessage *msg)
 {
 	LoquiAccountIRCPrivate *priv;
-	gchar *serv_str, *buf, *tmp;
-	GError *error = NULL;
 
         g_return_if_fail(account != NULL);
         g_return_if_fail(LOQUI_IS_ACCOUNT_IRC(account));
@@ -535,19 +598,7 @@ loqui_account_irc_push_message(LoquiAccountIRC *account, IRCMessage *msg)
 		return;
 	}
 
-	buf = irc_message_to_string(msg);
-	serv_str = loqui_codeconv_to_server(priv->codeconv, buf, &error);
-	g_free(buf);
-
-	if (serv_str == NULL) {
-		loqui_account_warning(LOQUI_ACCOUNT(account), "Failed to convert codeset: (%s).", error->message);
-		g_error_free(error);
-		return;
-	}
-	
-	tmp = g_strdup_printf("%s\r\n", serv_str);
-	g_free(serv_str);
-
-	gnet_conn_write(priv->conn, tmp, strlen(tmp));
-	g_free(tmp);
+	g_object_ref(msg);
+	g_queue_push_tail(priv->msg_queue, msg);
+	gnet_conn_set_watch_writable(priv->conn, TRUE);
 }
