@@ -36,7 +36,6 @@ struct _IRCHandlePrivate
 	Connection *connection;
 	Account *account;
 	Server *server;
-	gchar *current_nick;
 
 	GThread *thread;
 	GThread *send_thread;
@@ -735,28 +734,29 @@ irc_handle_my_command_nick(IRCHandle *handle, IRCMessage *msg)
         g_return_if_fail(handle != NULL);
         g_return_if_fail(IS_IRC_HANDLE(handle));
 
-	if(handle->priv->current_nick) {
-		g_free(handle->priv->current_nick);
-	}
-
-	handle->priv->current_nick = g_strdup(irc_message_get_param(msg, 1));
-
-	debug_puts("current nick is set to %s", handle->priv->current_nick);
+	account_set_current_nick(handle->priv->account, irc_message_get_param(msg, 1));
 }
 
 static gboolean
 irc_handle_is_my_message(IRCHandle *handle, IRCMessage *msg)
 {
+	const gchar *current_nick;
         g_return_val_if_fail(handle != NULL, FALSE);
         g_return_val_if_fail(IS_IRC_HANDLE(handle), FALSE);
 
 	g_return_val_if_fail(msg != NULL, FALSE);
-	g_return_val_if_fail(handle->priv->current_nick != NULL, TRUE);
+
+	current_nick = account_get_current_nick(handle->priv->account);
+
+	if(current_nick == NULL) {
+		g_warning(_("Nick is null"));
+		return FALSE;
+	}
 	
 	if(msg->nick == NULL)
 		return FALSE;
 
-	return (strcmp(msg->nick,handle->priv->current_nick) == 0);
+	return (strcmp(msg->nick,current_nick) == 0);
 }
 static void
 irc_handle_inspect_message(IRCHandle *handle, IRCMessage *msg)
@@ -1271,7 +1271,7 @@ static gpointer irc_handle_thread_func(IRCHandle *handle)
 		irc_message_print(msg);
 	}
 	irc_handle_push_message(handle, msg);
-	priv->current_nick = g_strdup(priv->account->nick);
+	account_set_current_nick(priv->account, account_get_nick(priv->account));
 
 	msg = irc_message_create(IRCCommandUser, 
 				 priv->account->username, "*", "*", 
@@ -1434,13 +1434,4 @@ void irc_handle_push_message(IRCHandle *handle, IRCMessage *msg)
 	}
 
 	g_async_queue_push(priv->msg_queue, msg);
-}
-
-gchar *
-irc_handle_get_current_nick(IRCHandle *handle)
-{
-        g_return_val_if_fail(handle != NULL, NULL);
-        g_return_val_if_fail(IS_IRC_HANDLE(handle), NULL);
-
-	return handle->priv->current_nick;
 }

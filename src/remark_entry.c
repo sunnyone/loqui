@@ -152,11 +152,11 @@ remark_entry_new(void)
 
 	hbox = GTK_WIDGET(remark_entry);
 
-	priv->label_nick = gtk_label_new("nick");
+	priv->label_nick = gtk_label_new("");
 	gtk_box_pack_start(GTK_BOX(hbox), priv->label_nick, FALSE, FALSE, 0);
 
 	label = gtk_label_new(">");
-	gtk_box_pack_start(GTK_BOX(hbox), label, FALSE, FALSE, 5);
+	gtk_box_pack_start(GTK_BOX(hbox), label, FALSE, FALSE, 2);
 
 	priv->vbox = gtk_vbox_new(FALSE, 0);
 	gtk_box_pack_start(GTK_BOX(hbox), priv->vbox, TRUE, TRUE, 0);

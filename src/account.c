@@ -32,16 +32,25 @@
 
 #include <string.h>
 
+enum {
+	NICK_CHANGED,
+	AWAY_CHANGED,
+	LAST_SIGNAL
+};
+
 struct _AccountPrivate
 {
 	IRCHandle *handle;
 
+	gchar *current_nick;
 	gboolean is_away;
 };
 
 static GObjectClass *parent_class = NULL;
 #define PARENT_TYPE G_TYPE_OBJECT
 #define IRC_DEFAULT_PORT 6667
+
+static guint account_signals[LAST_SIGNAL] = { 0 };
 
 static void account_class_init(AccountClass *klass);
 static void account_init(Account *account);
@@ -81,6 +90,21 @@ account_class_init (AccountClass *klass)
         parent_class = g_type_class_peek_parent(klass);
         
         object_class->finalize = account_finalize;
+
+	account_signals[NICK_CHANGED] = g_signal_new("nick-changed",
+						     G_OBJECT_CLASS_TYPE(object_class),
+						     G_SIGNAL_RUN_FIRST,
+						     0,
+						     NULL, NULL,
+						     g_cclosure_marshal_VOID__VOID,
+						     G_TYPE_NONE, 0);
+	account_signals[AWAY_CHANGED] = g_signal_new("away-changed",
+						     G_OBJECT_CLASS_TYPE(object_class),
+						     G_SIGNAL_RUN_FIRST,
+						     0,
+						     NULL, NULL,
+						     g_cclosure_marshal_VOID__VOID,
+						     G_TYPE_NONE, 0);
 }
 static void 
 account_init (Account *account)
@@ -487,12 +511,40 @@ account_speak(Account *account, Channel *channel, const gchar *str)
 		for(i = 0; array[i] != NULL; i++) {
 			msg = irc_message_create(IRCCommandPrivmsg, channel_get_name(channel), array[i], NULL);
 			irc_handle_push_message(priv->handle, msg);
-			channel_append_remark(channel, TEXT_TYPE_NORMAL, TRUE, irc_handle_get_current_nick(priv->handle), array[i]);
+			channel_append_remark(channel, TEXT_TYPE_NORMAL, TRUE, account_get_current_nick(account), array[i]);
 		}
 		g_strfreev(array);
 	}
 }
 
+void
+account_set_current_nick(Account *account, const gchar *nick)
+{
+	AccountPrivate *priv;
+
+        g_return_if_fail(account != NULL);
+        g_return_if_fail(IS_ACCOUNT(account));
+
+	priv = account->priv;
+
+	G_FREE_UNLESS_NULL(priv->current_nick);
+	priv->current_nick = g_strdup(nick);
+
+	g_signal_emit(account, account_signals[NICK_CHANGED], 0);
+}
+
+G_CONST_RETURN gchar *
+account_get_current_nick(Account *account)
+{
+	AccountPrivate *priv;
+
+        g_return_val_if_fail(account != NULL, NULL);
+        g_return_val_if_fail(IS_ACCOUNT(account), NULL);
+
+	priv = account->priv;
+
+	return priv->current_nick;
+}
 void
 account_set_away_status(Account *account, gboolean is_away)
 {
@@ -505,10 +557,7 @@ account_set_away_status(Account *account, gboolean is_away)
 	else
 		debug_puts("Now unaway.");
 
-	/* FIXME: it should be done with signal */
-	if(account_manager_is_current_account(account_manager_get(), account)) 
-		account_manager_update_away_status(account_manager_get(), is_away);
-
+	g_signal_emit(account, account_signals[AWAY_CHANGED], 0);
 }
 gboolean
 account_get_away_status(Account *account)

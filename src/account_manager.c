@@ -299,6 +299,9 @@ void account_manager_set_current_channel(AccountManager *manager, Channel *chann
 	if(priv->current_channel) {
 		g_signal_handlers_disconnect_by_func(priv->current_channel, account_manager_channel_changed_cb, manager);
 	}
+	if(priv->current_account) {
+		g_signal_handlers_disconnect_by_func(priv->current_account, account_manager_account_changed_cb, manager);
+	}
 
 	is_account_changed = (account_manager_get_current_account(manager) != channel->account) ? TRUE : FALSE;
 	is_channel_changed = (account_manager_get_current_channel(manager) != channel) ? TRUE : FALSE;
@@ -314,17 +317,17 @@ void account_manager_set_current_channel(AccountManager *manager, Channel *chann
 			      is_channel_changed, channel);
 
 	channel_set_updated(channel, FALSE);
-	account_manager_update_away_status(manager, account_get_away_status(channel->account));
 
 	g_signal_connect(G_OBJECT(channel), "topic-changed",
-			 G_CALLBACK(account_manager_channel_changed_cb),
-			 manager);
+			 G_CALLBACK(account_manager_channel_changed_cb), manager);
 	g_signal_connect(G_OBJECT(channel), "user-number-changed",
-			 G_CALLBACK(account_manager_channel_changed_cb),
-			 manager);
+			 G_CALLBACK(account_manager_channel_changed_cb), manager);
 	g_signal_connect(G_OBJECT(channel), "mode-changed",
-			 G_CALLBACK(account_manager_channel_changed_cb),
-			 manager);
+			 G_CALLBACK(account_manager_channel_changed_cb), manager);
+	g_signal_connect(G_OBJECT(channel->account), "nick-changed",
+			 G_CALLBACK(account_manager_account_changed_cb), manager);
+	g_signal_connect(G_OBJECT(channel->account), "away-changed",
+			 G_CALLBACK(account_manager_account_changed_cb), manager);
 
 	if(prefs_general.auto_switch_scrolling)
 		account_manager_set_whether_scrolling(manager, TRUE);
@@ -346,6 +349,9 @@ void account_manager_set_current_account(AccountManager *manager, Account *accou
 	if(priv->current_channel) {
 		g_signal_handlers_disconnect_by_func(priv->current_channel, account_manager_channel_changed_cb, manager);
 	}
+	if(priv->current_account) {
+		g_signal_handlers_disconnect_by_func(priv->current_account, account_manager_account_changed_cb, manager);
+	}
 
 	is_account_changed = (account_manager_get_current_account(manager) != account) ? TRUE : FALSE;
 	is_channel_changed = (account_manager_get_current_channel(manager) != NULL) ? TRUE : FALSE;
@@ -359,7 +365,11 @@ void account_manager_set_current_account(AccountManager *manager, Account *accou
 	loqui_app_update_info(priv->app, 
 			      is_account_changed, account,
 			      is_channel_changed, NULL);
-	account_manager_update_away_status(manager, account_get_away_status(account));
+
+	g_signal_connect(G_OBJECT(account), "nick-changed",
+			 G_CALLBACK(account_manager_account_changed_cb), manager);
+	g_signal_connect(G_OBJECT(account), "away-changed",
+			 G_CALLBACK(account_manager_account_changed_cb), manager);
 
 	if(prefs_general.auto_switch_scrolling)
 		account_manager_set_whether_scrolling(manager, TRUE);
@@ -512,15 +522,6 @@ gboolean
 account_manager_get_whether_scrolling(AccountManager *manager)
 {
 	return manager->priv->is_scroll;
-}
-void
-account_manager_update_away_status(AccountManager *manager, gboolean is_away)
-{
-	g_return_if_fail(manager != NULL);
-        g_return_if_fail(IS_ACCOUNT_MANAGER(manager));
-	
-	loqui_toolbar_toggle_away_with_signal_handler_blocked(LOQUI_TOOLBAR(manager->priv->app->toolbar),
-							      is_away);
 }
 void
 account_manager_open_connect_dialog(AccountManager *manager)

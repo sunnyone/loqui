@@ -126,6 +126,9 @@ GSList *account_search_joined_channel(Account *account, gchar *nick);
 void account_console_buffer_append(Account *account, gboolean with_common_buffer, TextType type, gchar *str);
 void account_speak(Account *account, Channel *channel, const gchar *str);
 
+void account_set_current_nick(Account *account, const gchar *nick);
+G_CONST_RETURN gchar* account_get_current_nick(Account *account);
+
 void account_set_away_status(Account *account, gboolean is_away);
 gboolean account_get_away_status(Account *account);
 
