@@ -50,6 +50,8 @@ static LoquiAccountClass *parent_class = NULL;
 
 /* static guint loqui_account_irc_signals[LAST_SIGNAL] = { 0 }; */
 
+static GObject* loqui_account_irc_constructor(GType type, guint n_props, GObjectConstructParam *props);
+
 static void loqui_account_irc_class_init(LoquiAccountIRCClass *klass);
 static void loqui_account_irc_init(LoquiAccountIRC *account);
 static void loqui_account_irc_finalize(GObject *object);
@@ -165,37 +167,55 @@ loqui_account_irc_class_init(LoquiAccountIRCClass *klass)
         object_class->dispose = loqui_account_irc_dispose;
         object_class->get_property = loqui_account_irc_get_property;
         object_class->set_property = loqui_account_irc_set_property;
-	
+	object_class->constructor = loqui_account_irc_constructor;
+
 	account_class->connect = loqui_account_irc_connect;
 	account_class->disconnect = loqui_account_irc_disconnect;
 }
 static void 
-loqui_account_irc_init(LoquiAccountIRC *account)
+loqui_account_irc_init(LoquiAccountIRC *account_irc)
 {
 	LoquiAccountIRCPrivate *priv;
+	LoquiAccount *account;
 
 	priv = g_new0(LoquiAccountIRCPrivate, 1);
 
-	account->priv = priv;
+	account_irc->priv = priv;
 
-	loqui_account_set_sender(LOQUI_ACCOUNT(account), LOQUI_SENDER(loqui_sender_irc_new(LOQUI_ACCOUNT(account))));
-	loqui_account_set_receiver(LOQUI_ACCOUNT(account), LOQUI_RECEIVER(loqui_receiver_irc_new(LOQUI_ACCOUNT(account))));
+	account = LOQUI_ACCOUNT(account_irc);
+}
+static GObject*
+loqui_account_irc_constructor(GType type, guint n_props, GObjectConstructParam *props)
+{
+	GObject *object;
+	GObjectClass *object_class = G_OBJECT_CLASS(parent_class);
+
+	LoquiAccount *account;
+	LoquiUser *user;
+
+	object = object_class->constructor(type, n_props, props);
+	
+	account = LOQUI_ACCOUNT(object);
+
+	loqui_account_set_sender(account, LOQUI_SENDER(loqui_sender_irc_new(account)));
+	loqui_account_set_receiver(account, LOQUI_RECEIVER(loqui_receiver_irc_new(account)));
+
+	user = LOQUI_USER(loqui_user_irc_new());
+	loqui_user_set_nick(user, loqui_profile_account_get_nick(loqui_account_get_profile(account)));
+	loqui_user_set_away(user, LOQUI_AWAY_TYPE_OFFLINE);
+	loqui_account_set_user_self(account, user);
+
+	return object;
 }
 LoquiAccountIRC*
 loqui_account_irc_new(LoquiProfileAccount *profile)
 {
         LoquiAccountIRC *account;
 	LoquiAccountIRCPrivate *priv;
-	LoquiUser *user;
-
-	user = LOQUI_USER(loqui_user_irc_new());
-	loqui_user_set_nick(user, loqui_profile_account_get_nick(profile));
-	loqui_user_set_away(user, LOQUI_AWAY_TYPE_OFFLINE);
 
 	account = g_object_new(loqui_account_irc_get_type(), 
 			       "buffer", channel_buffer_new(),
 			       "profile", profile,
-			       "user_self", user,
 			       NULL);
 
         priv = account->priv;

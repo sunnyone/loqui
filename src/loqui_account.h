@@ -86,6 +86,8 @@ GType loqui_account_get_type(void) G_GNUC_CONST;
 LoquiAccount* loqui_account_new(LoquiProfileAccount *profile);
 
 LoquiProfileAccount *loqui_account_get_profile(LoquiAccount *account);
+
+void loqui_account_set_user_self(LoquiAccount *account, LoquiUser *user_self);
 LoquiUser* loqui_account_get_user_self(LoquiAccount *account);
 
 void loqui_account_connect(LoquiAccount *account);

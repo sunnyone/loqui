@@ -316,11 +316,7 @@ account_manager_load_accounts(AccountManager *account_manager)
 
 	for(cur = list; cur != NULL; cur = cur->next) {
 		profile = LOQUI_PROFILE_ACCOUNT(cur->data);
-
-		if (LOQUI_IS_PROFILE_ACCOUNT_IPMSG(profile))
-			account = LOQUI_ACCOUNT(loqui_account_ipmsg_new(profile));
-		else
-			account = LOQUI_ACCOUNT(loqui_account_irc_new(profile));
+		account = loqui_protocol_create_account(profile->protocol, profile);
 
 		account_manager_add_account(account_manager, account);
 		g_object_unref(account);

@@ -45,6 +45,8 @@ static LoquiAccountClass *parent_class = NULL;
 
 /* static guint loqui_account_ipmsg_signals[LAST_SIGNAL] = { 0 }; */
 
+static GObject* loqui_account_ipmsg_constructor(GType type, guint n_props, GObjectConstructParam *props);
+
 static void loqui_account_ipmsg_class_init(LoquiAccountIPMsgClass *klass);
 static void loqui_account_ipmsg_init(LoquiAccountIPMsg *account);
 static void loqui_account_ipmsg_finalize(GObject *object);
@@ -150,6 +152,7 @@ loqui_account_ipmsg_class_init(LoquiAccountIPMsgClass *klass)
 
         parent_class = g_type_class_peek_parent(klass);
         
+	object_class->constructor = loqui_account_ipmsg_constructor;
         object_class->finalize = loqui_account_ipmsg_finalize;
         object_class->dispose = loqui_account_ipmsg_dispose;
         object_class->get_property = loqui_account_ipmsg_get_property;
@@ -157,6 +160,28 @@ loqui_account_ipmsg_class_init(LoquiAccountIPMsgClass *klass)
 	
 	account_class->connect = loqui_account_ipmsg_connect;
 	account_class->disconnect = loqui_account_ipmsg_disconnect;
+}
+static GObject*
+loqui_account_ipmsg_constructor(GType type, guint n_props, GObjectConstructParam *props)
+{
+	GObject *object;
+	GObjectClass *object_class = G_OBJECT_CLASS(parent_class);
+
+	LoquiAccount *account;
+	LoquiUser *user;
+
+	object = object_class->constructor(type, n_props, props);
+	
+	account = LOQUI_ACCOUNT(object);
+
+	loqui_account_set_sender(account, LOQUI_SENDER(loqui_sender_ipmsg_new(account)));
+	loqui_account_set_receiver(account, LOQUI_RECEIVER(loqui_receiver_ipmsg_new(account)));
+
+	user = LOQUI_USER(loqui_user_ipmsg_new());
+	loqui_user_set_away(user, LOQUI_AWAY_TYPE_OFFLINE);
+	loqui_account_set_user_self(account, user);
+
+	return object;
 }
 static void 
 loqui_account_ipmsg_init(LoquiAccountIPMsg *account)
@@ -166,9 +191,6 @@ loqui_account_ipmsg_init(LoquiAccountIPMsg *account)
 	priv = g_new0(LoquiAccountIPMsgPrivate, 1);
 
 	account->priv = priv;
-
-	loqui_account_set_sender(LOQUI_ACCOUNT(account), LOQUI_SENDER(loqui_sender_ipmsg_new(LOQUI_ACCOUNT(account))));
-	loqui_account_set_receiver(LOQUI_ACCOUNT(account), LOQUI_RECEIVER(loqui_receiver_ipmsg_new(LOQUI_ACCOUNT(account))));
 }
 static void
 loqui_account_ipmsg_connect(LoquiAccount *account)
@@ -244,15 +266,10 @@ loqui_account_ipmsg_new(LoquiProfileAccount *profile)
 {
         LoquiAccountIPMsg *account;
 	LoquiAccountIPMsgPrivate *priv;
-	LoquiUser *user;
-
-	user = LOQUI_USER(loqui_user_ipmsg_new());
-	loqui_user_set_away(user, LOQUI_AWAY_TYPE_OFFLINE);
 
 	account = g_object_new(loqui_account_ipmsg_get_type(),  
  			       "buffer", channel_buffer_new(),
 			       "profile", profile,
-			       "user_self", user,
 			       NULL);
 	
         priv = account->priv;

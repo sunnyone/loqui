@@ -83,6 +83,8 @@ LoquiUserClass *loqui_protocol_get_user_class(LoquiProtocol *protocol);
 LoquiProfileAccountClass *loqui_protocol_get_profile_account_class(LoquiProtocol *protocol);
 
 LoquiProfileAccount *loqui_protocol_create_profile_account(LoquiProtocol *protocol);
+LoquiUser* loqui_protocol_create_user(LoquiProtocol *protocol);
+LoquiAccount* loqui_protocol_create_account(LoquiProtocol *protocol, LoquiProfileAccount *profile);
 
 G_END_DECLS
 

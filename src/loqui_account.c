@@ -75,7 +75,6 @@ static void loqui_account_set_property(GObject *object,
 static void loqui_account_warn_real(LoquiAccount *account, const gchar *str);
 
 static void loqui_account_set_profile(LoquiAccount *account, LoquiProfileAccount *profile);
-static void loqui_account_set_user_self(LoquiAccount *account, LoquiUser *user_self);
 
 static void loqui_account_user_notify_identifier_cb(LoquiUser *user, GParamSpec *pspec, LoquiAccount *account);
 static void loqui_account_user_self_notify_cb(LoquiUser *user_self, GParamSpec *pspec, LoquiAccount *account);
@@ -130,7 +129,7 @@ loqui_account_class_init(LoquiAccountClass *klass)
 							    _("Myself"),
 							    _("user self"),
 							    LOQUI_TYPE_USER,
-							    G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
+							    G_PARAM_READABLE));
 	g_object_class_install_property(object_class,
 					PROP_PROFILE,
 					g_param_spec_object("profile",
@@ -144,14 +143,14 @@ loqui_account_class_init(LoquiAccountClass *klass)
 							    _("Sender"),
 							    _("Command sender"),
 							    LOQUI_TYPE_SENDER,
-							    G_PARAM_READWRITE));
+							    G_PARAM_READABLE));
 	g_object_class_install_property(object_class,
 					PROP_RECEIVER,
 					g_param_spec_object("receiver",
 							    _("Receiver"),
 							    _("Command receiver"),
 							    LOQUI_TYPE_RECEIVER,
-							    G_PARAM_READWRITE));
+							    G_PARAM_READABLE));
 	g_object_class_install_property(object_class,
 					PROP_IS_CONNECTED,
 					g_param_spec_boolean("is_connected",
@@ -392,7 +391,7 @@ loqui_account_get_user_self(LoquiAccount *account)
 
 	return account->user_self;
 }
-static void
+void
 loqui_account_set_user_self(LoquiAccount *account, LoquiUser *user_self)
 {
         g_return_if_fail(account != NULL);

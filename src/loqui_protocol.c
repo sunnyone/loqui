@@ -248,4 +248,22 @@ loqui_protocol_create_profile_account(LoquiProtocol *protocol)
 
 	return profile;
 }
-
+LoquiUser *
+loqui_protocol_create_user(LoquiProtocol *protocol)
+{
+	g_return_val_if_fail(protocol != NULL, NULL);
+	g_return_val_if_fail(LOQUI_IS_PROTOCOL(protocol), NULL);
+	
+	return LOQUI_USER(g_object_new(protocol->type_user, NULL));
+}
+LoquiAccount *
+loqui_protocol_create_account(LoquiProtocol *protocol, LoquiProfileAccount *profile)
+{
+	g_return_val_if_fail(protocol != NULL, NULL);
+	g_return_val_if_fail(LOQUI_IS_PROTOCOL(protocol), NULL);
+	
+	return LOQUI_ACCOUNT(g_object_new(protocol->type_account,
+					  "buffer", channel_buffer_new(),
+					  "profile", profile,
+					  NULL));
+}
