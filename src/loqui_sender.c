@@ -291,6 +291,16 @@ loqui_sender_refresh(LoquiSender *sender, LoquiChannel *channel)
 	(* LOQUI_SENDER_GET_CLASS(sender)->refresh) (sender, channel);
 }
 void
+loqui_sender_quit(LoquiSender *sender, const gchar *quit_message)
+{
+        g_return_if_fail(sender != NULL);
+        g_return_if_fail(LOQUI_IS_SENDER(sender));
+
+	CHECK_FUNCTION_IS_DEFINED_AND_RETURN_IF_FAIL(sender, quit);
+
+	(* LOQUI_SENDER_GET_CLASS(sender)->quit) (sender, quit_message);
+}
+void
 loqui_sender_join_raw(LoquiSender *sender, const gchar *target, const gchar *key)
 {
         g_return_if_fail(sender != NULL);

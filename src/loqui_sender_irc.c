@@ -67,6 +67,7 @@ static void loqui_sender_irc_topic(LoquiSender *sender, LoquiChannel *channel, c
 static void loqui_sender_irc_start_private_talk(LoquiSender *sender, LoquiUser *user);
 static void loqui_sender_irc_end_private_talk(LoquiSender *sender, LoquiChannel *channel);
 static void loqui_sender_irc_refresh(LoquiSender *sender, LoquiChannel *channel);
+static void loqui_sender_irc_quit(LoquiSender *sender, const gchar *quit_message);
 static void loqui_sender_irc_join_raw(LoquiSender *sender, const gchar *target, const gchar *key);
 static void loqui_sender_irc_start_private_talk_raw(LoquiSender *sender, const gchar *target);
 
@@ -204,6 +205,7 @@ loqui_sender_irc_class_init(LoquiSenderIRCClass *klass)
 	sender_class->start_private_talk = loqui_sender_irc_start_private_talk;
 	sender_class->end_private_talk = loqui_sender_irc_end_private_talk;
 	sender_class->refresh = loqui_sender_irc_refresh;
+	sender_class->quit = loqui_sender_irc_quit;
 
 	sender_class->join_raw = loqui_sender_irc_join_raw;
 	sender_class->start_private_talk_raw = loqui_sender_irc_start_private_talk_raw;
@@ -216,6 +218,8 @@ loqui_sender_irc_init(LoquiSenderIRC *sender)
 	priv = g_new0(LoquiSenderIRCPrivate, 1);
 
 	sender->priv = priv;
+
+	sender->sent_quit = FALSE;
 }
 LoquiSenderIRC*
 loqui_sender_irc_new(LoquiAccount *account)
@@ -229,6 +233,11 @@ loqui_sender_irc_new(LoquiAccount *account)
 	LOQUI_SENDER(sender)->account = account;
 
         return sender;
+}
+void
+loqui_sender_irc_reset(LoquiSenderIRC *sender)
+{
+	sender->sent_quit = FALSE;
 }
 
 /* helper */
@@ -454,6 +463,22 @@ loqui_sender_irc_refresh(LoquiSender *sender, LoquiChannel *channel)
 	msg = irc_message_create(IRCCommandWho, loqui_channel_get_identifier(channel), NULL);
 	loqui_sender_irc_send_irc_message(LOQUI_SENDER_IRC(sender), msg);
 	g_object_unref(msg);
+}
+static void
+loqui_sender_irc_quit(LoquiSender *sender, const gchar *quit_message)
+{
+	IRCMessage *msg;
+
+        g_return_if_fail(sender != NULL);
+        g_return_if_fail(LOQUI_IS_SENDER_IRC(sender));
+
+	WARN_AND_RETURN_UNLESS_CONNECTED(sender);
+
+	msg = irc_message_create(IRCCommandQuit, quit_message, NULL);
+	loqui_sender_irc_send_irc_message(LOQUI_SENDER_IRC(sender), msg);
+	g_object_unref(msg);
+
+	LOQUI_SENDER_IRC(sender)->sent_quit = TRUE;
 }
 static void
 loqui_sender_irc_join_raw(LoquiSender *sender, const gchar *target, const gchar *key)

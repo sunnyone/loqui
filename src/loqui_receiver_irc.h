@@ -44,7 +44,8 @@ struct _LoquiReceiverIRC
         LoquiReceiver parent;
         
 	guint prevent_print_who_reply_count;
-	
+	gboolean passed_welcome;
+
         LoquiReceiverIRCPrivate *priv;
 };
 

@@ -34,6 +34,7 @@ enum {
 	PROP_REALNAME,
 	PROP_USERINFO,
 	PROP_AUTOJOIN,
+	PROP_QUIT_MESSAGE,
 	PROP_CODESET_TYPE,
 	PROP_CODESET,
         LAST_PROP
@@ -133,6 +134,9 @@ loqui_profile_account_irc_get_property(GObject *object, guint param_id, GValue *
 	case PROP_AUTOJOIN:
 		g_value_set_string(value, loqui_profile_account_irc_get_autojoin(profile));
 		break;
+	case PROP_QUIT_MESSAGE:
+		g_value_set_string(value, loqui_profile_account_irc_get_quit_message(profile));
+		break;
 	case PROP_CODESET_TYPE:
 		g_value_set_int(value, loqui_profile_account_irc_get_codeset_type(profile));
 		break;
@@ -160,6 +164,9 @@ loqui_profile_account_irc_set_property(GObject *object, guint param_id, const GV
 		break;
 	case PROP_AUTOJOIN:
 		loqui_profile_account_irc_set_autojoin(profile, g_value_get_string(value));
+		break;
+	case PROP_QUIT_MESSAGE:
+		loqui_profile_account_irc_set_quit_message(profile, g_value_get_string(value));
 		break;
 	case PROP_CODESET_TYPE:
 		loqui_profile_account_irc_set_codeset_type(profile, g_value_get_int(value));
@@ -204,6 +211,12 @@ loqui_profile_account_irc_class_init(LoquiProfileAccountIRCClass *klass)
 							    _("Channels which are joined automatically"),
 							    NULL, G_PARAM_READWRITE));
 	g_object_class_install_property(object_class,
+					PROP_QUIT_MESSAGE,
+					g_param_spec_string("quit_message",
+							    _("Quit Message"),
+							    _("Default quit message"),
+							    NULL, G_PARAM_READWRITE));
+	g_object_class_install_property(object_class,
 					PROP_CODESET_TYPE,
 					g_param_spec_int("codeset_type",
 							 _("Codeset type"),
@@ -227,9 +240,12 @@ loqui_profile_account_irc_init(LoquiProfileAccountIRC *profile)
 	priv = g_new0(LoquiProfileAccountIRCPrivate, 1);
 
 	profile->priv = priv;
+
+	/* set default */
 	g_object_set(profile,
 		     "port", 6667,
 		     "username", "loqui",
+		     "quit_message", "Loqui",
 		     NULL);
 }
 LoquiProfileAccountIRC*
@@ -251,4 +267,5 @@ ATTR_ACCESSOR_GENERIC(int, 0, LoquiProfileAccountIRC, loqui_profile_account_irc,
 LOQUI_PROFILE_ACCOUNT_IRC_ACCESSOR_STRING(realname);
 LOQUI_PROFILE_ACCOUNT_IRC_ACCESSOR_STRING(userinfo);
 LOQUI_PROFILE_ACCOUNT_IRC_ACCESSOR_STRING(autojoin);
+LOQUI_PROFILE_ACCOUNT_IRC_ACCESSOR_STRING(quit_message);
 LOQUI_PROFILE_ACCOUNT_IRC_ACCESSOR_STRING(codeset);

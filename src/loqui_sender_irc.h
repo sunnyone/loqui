@@ -41,6 +41,8 @@ struct _LoquiSenderIRC
 {
         LoquiSender parent;
         
+	gboolean sent_quit;
+
         LoquiSenderIRCPrivate *priv;
 };
 
@@ -53,6 +55,7 @@ struct _LoquiSenderIRCClass
 GType loqui_sender_irc_get_type(void) G_GNUC_CONST;
 
 LoquiSenderIRC* loqui_sender_irc_new(LoquiAccount *account);
+void loqui_sender_irc_reset(LoquiSenderIRC *sender);
 
 /* (say|notice)_raw not echos */
 void loqui_sender_irc_say_raw(LoquiSenderIRC *sender, const gchar *target, const gchar *text);

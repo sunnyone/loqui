@@ -46,7 +46,6 @@ struct _LoquiReceiverIRCPrivate
 	CTCPHandle *ctcp_handle;
 
 	gboolean end_motd;
-	gboolean passed_welcome;
 };
 
 static LoquiReceiverClass *parent_class = NULL;
@@ -69,6 +68,7 @@ static void loqui_receiver_irc_command_part(LoquiReceiverIRC *receiver, IRCMessa
 static void loqui_receiver_irc_command_nick(LoquiReceiverIRC *receiver, IRCMessage *msg);
 static void loqui_receiver_irc_command_mode(LoquiReceiverIRC *receiver, IRCMessage *msg);
 static void loqui_receiver_irc_command_kick(LoquiReceiverIRC *receiver, IRCMessage *msg);
+static void loqui_receiver_irc_command_error(LoquiReceiverIRC *receiver, IRCMessage *msg);
 
 static void loqui_receiver_irc_account_console_append(LoquiReceiverIRC *receiver, IRCMessage *msg, TextType type, gchar *format);
 static void loqui_receiver_irc_channel_append(LoquiReceiverIRC *receiver, IRCMessage *msg, gboolean make_channel,
@@ -455,6 +455,16 @@ loqui_receiver_irc_command_kick(LoquiReceiverIRC *receiver, IRCMessage *msg)
 	}
 }
 static void
+loqui_receiver_irc_command_error(LoquiReceiverIRC *receiver, IRCMessage *msg)
+{
+	LoquiAccount *account;
+
+	account = loqui_receiver_get_account(LOQUI_RECEIVER(receiver));
+	
+	loqui_receiver_irc_account_console_append(receiver, msg, TEXT_TYPE_ERROR, "*** %t");
+	loqui_account_remove_all_channel(LOQUI_ACCOUNT(account));
+}
+static void
 loqui_receiver_irc_command_nick(LoquiReceiverIRC *receiver, IRCMessage *msg)
 {
 	gchar *nick_new;
@@ -776,7 +786,7 @@ loqui_receiver_irc_reply_welcome(LoquiReceiverIRC *receiver, IRCMessage *msg)
 	priv = receiver->priv;
 	account = loqui_receiver_get_account(LOQUI_RECEIVER(receiver));
 
-	priv->passed_welcome = TRUE;
+	receiver->passed_welcome = TRUE;
 
 	autojoin = loqui_profile_account_irc_get_autojoin(LOQUI_PROFILE_ACCOUNT_IRC(loqui_account_get_profile(account)));
 	if (autojoin && strlen(autojoin) > 0) {
@@ -1121,7 +1131,7 @@ loqui_receiver_irc_error_nick_unusable(LoquiReceiverIRC *receiver, IRCMessage *m
 
 	loqui_receiver_irc_account_console_append(receiver, msg, TEXT_TYPE_ERROR, "%t");
 
-	if(!priv->passed_welcome)
+	if(!receiver->passed_welcome)
 		loqui_account_disconnect(account);
 }
 static void /* utility function */
@@ -1471,6 +1481,9 @@ loqui_receiver_irc_command(LoquiReceiverIRC *receiver, IRCMessage *msg)
 	case IRC_COMMAND_INVITE:
 		loqui_receiver_irc_account_console_append(receiver, msg, TEXT_TYPE_INFO, "*** You were invited to %2 by %1");
 		return TRUE;
+	case IRC_COMMAND_ERROR:
+		loqui_receiver_irc_command_error(receiver, msg);
+		return TRUE;
 	default:
 		break;
 	}
@@ -1528,5 +1541,5 @@ loqui_receiver_irc_reset(LoquiReceiverIRC *receiver)
 	receiver->prevent_print_who_reply_count = 0;
 
 	priv->end_motd = FALSE;
-	priv->passed_welcome = FALSE;
+	receiver->passed_welcome = FALSE;
 }

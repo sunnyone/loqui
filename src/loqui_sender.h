@@ -64,6 +64,7 @@ struct _LoquiSenderClass
 	void (*start_private_talk) (LoquiSender *sender, LoquiUser *user);
 	void (*end_private_talk) (LoquiSender *sender, LoquiChannel *channel);
 	void (*refresh) (LoquiSender *sender, LoquiChannel *channel);
+	void (*quit) (LoquiSender *sender, const gchar *quit_message);
 
 	void (*join_raw) (LoquiSender *sender, const gchar *target, const gchar *key);
 	void (*start_private_talk_raw) (LoquiSender *sender, const gchar *target);
@@ -88,6 +89,7 @@ void loqui_sender_topic(LoquiSender *sender, LoquiChannel *channel, const gchar 
 void loqui_sender_start_private_talk(LoquiSender *sender, LoquiUser *user);
 void loqui_sender_end_private_talk(LoquiSender *sender, LoquiChannel *channel);
 void loqui_sender_refresh(LoquiSender *sender, LoquiChannel *channel);
+void loqui_sender_quit(LoquiSender *sender, const gchar *quit_message);
 
 void loqui_sender_join_raw(LoquiSender *sender, const gchar *target, const gchar *key);
 void loqui_sender_start_private_talk_raw(LoquiSender *sender, const gchar *target);

@@ -44,7 +44,9 @@ struct _LoquiProfileAccountIRC
 	gchar *realname;
 	gchar *userinfo;
 	gchar *autojoin;
-	
+
+	gchar *quit_message;
+
 	gint codeset_type;
 	gchar *codeset;
 	
@@ -69,6 +71,7 @@ GType loqui_profile_account_irc_get_type(void) G_GNUC_CONST;
 LOQUI_PROFILE_ACCOUNT_IRC_ACCESSOR_STRING_PROTOTYPE(realname);
 LOQUI_PROFILE_ACCOUNT_IRC_ACCESSOR_STRING_PROTOTYPE(userinfo);
 LOQUI_PROFILE_ACCOUNT_IRC_ACCESSOR_STRING_PROTOTYPE(autojoin);
+LOQUI_PROFILE_ACCOUNT_IRC_ACCESSOR_STRING_PROTOTYPE(quit_message);
 
 ATTR_ACCESSOR_GENERIC_PROTOTYPE(int, LoquiProfileAccountIRC, loqui_profile_account_irc, codeset_type);
 LOQUI_PROFILE_ACCOUNT_IRC_ACCESSOR_STRING_PROTOTYPE(codeset);
