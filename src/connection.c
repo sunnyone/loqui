@@ -47,6 +47,7 @@ static void connection_class_init(ConnectionClass *klass);
 static void connection_init(Connection *connection);
 static void connection_finalize(GObject *object);
 
+#define WAIT_TIME_FOR_EAGAIN 50000
 
 /* FIXME: ERROR_CONNECTION_* are required */
 
@@ -137,8 +138,9 @@ connection_new (Server *server)
 	}
 	priv->io = gnet_tcp_socket_get_iochannel(priv->sock);
 
-	flags = g_io_channel_get_flags(connection->priv->io);
-	g_io_channel_set_flags(connection->priv->io, flags | G_IO_FLAG_NONBLOCK, NULL);
+	flags = g_io_channel_get_flags(priv->io);
+	g_io_channel_set_flags(priv->io, flags | G_IO_FLAG_NONBLOCK, NULL);
+	g_io_channel_set_buffered(priv->io, FALSE); /* for old gnet (new gnet do this internally) */
 
 	return connection;
 }
@@ -150,6 +152,7 @@ gchar *connection_gets(Connection *connection, GError **error)
 	gchar *local;
 	GString *string;
 	gchar c;
+	gsize len;
 
         g_return_val_if_fail(connection != NULL, NULL);
         g_return_val_if_fail(IS_CONNECTION(connection), NULL);
@@ -160,20 +163,18 @@ gchar *connection_gets(Connection *connection, GError **error)
 
 	string = g_string_sized_new(512);
 	while(priv->io) {
-		status = g_io_channel_read_chars(priv->io, &c, 1, NULL, error);
+		status = g_io_channel_read_chars(priv->io, &c, 1, &len, error);
 		if(status == G_IO_STATUS_EOF) {
 			break;
 		} else if(status == G_IO_STATUS_ERROR) {
-			if(error && *error) {
+			if(error && *error)
 				g_warning(_("connection_gets error: %s"), (*error)->message);
-				return NULL;
-			} else {
-				return NULL;
-			}
+			return NULL;
 		} else if (status == G_IO_STATUS_AGAIN) {
-			g_usleep(500);
+			g_usleep(WAIT_TIME_FOR_EAGAIN);
 			continue;
 		}
+
 		string = g_string_append_c(string, c);
 		if(c == '\n')
 			break;
@@ -247,7 +248,6 @@ void connection_disconnect(Connection *connection)
 {
         g_return_if_fail(connection != NULL);
         g_return_if_fail(IS_CONNECTION(connection));
-
 
 	debug_puts("Disconnecting...");
 	g_io_channel_shutdown(connection->priv->io, TRUE, NULL);
