@@ -455,6 +455,54 @@ loqui_utils_count_strarray(const gchar **strarray)
 
 	return i;
 }
+/* This function should not be used for the place required performance! */
+GList *
+loqui_utils_string_array_to_list(gchar **strarray, gboolean free_original)
+{
+	GList *list = NULL;
+	int i;
+
+	if (strarray == NULL)
+		return NULL;
+
+	for (i = 0; strarray[i] != NULL; i++)
+		list = g_list_prepend(list, g_strdup(strarray[i]));
+
+	if (free_original)
+		g_strfreev(strarray);
+	
+	return g_list_reverse(list);
+}
+gchar **
+loqui_utils_list_to_string_array(GList *list, gboolean free_original)
+{
+	gchar **strarray;
+	GList *cur;
+	int i;
+
+	if (list == NULL)
+		return NULL;
+
+	strarray = g_new(gchar *, g_list_length(list) + 1);
+	i = 0;
+	for (cur = list; cur != NULL; cur = cur->next) {
+		strarray[i] = cur->data;
+		i++;
+	}
+	strarray[i] = NULL;
+	
+	if (free_original)
+		loqui_utils_free_string_list(list);
+
+	return strarray;
+}
+	
+void
+loqui_utils_free_string_list(GList *list)
+{
+	g_list_foreach(list, (GFunc) g_free, NULL);
+	g_list_free(list);
+}
 
 gchar *
 utils_url_encode(const gchar *str)

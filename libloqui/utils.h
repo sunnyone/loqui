@@ -56,6 +56,8 @@
 
 #define UTILS_MASK_BIT(src,field,is_add) ((is_add) ? (src | field) : (src & ~field))
 
+#define LOQUI_UTILS_EMPTY_IF_NULL(str) (str == NULL ? str : "")
+
 void debug_puts(const gchar *format, ...) G_GNUC_PRINTF(1, 2);
 void debug_print(const gchar *format, ...) G_GNUC_PRINTF(1, 2);
 
@@ -94,6 +96,10 @@ G_CONST_RETURN gchar* utils_remove_ipv6_prefix_ffff(const gchar *str);
 gboolean loqui_utils_mkdir_and_chmod(const gchar *path);
 
 gsize loqui_utils_count_strarray(const gchar **strarray);
+GList *loqui_utils_string_array_to_list(gchar **strarray, gboolean free_original);
+gchar **loqui_utils_list_to_string_array(GList *list, gboolean free_original);
+
+void loqui_utils_free_string_list(GList *list);
 
 gchar *utils_url_encode(const gchar *str);
 gchar *utils_url_decode(const gchar *str);
