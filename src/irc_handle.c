@@ -60,6 +60,7 @@ static void irc_handle_my_command_join(IRCHandle *handle, IRCMessage *msg);
 
 static void irc_handle_command_privmsg_notice(IRCHandle *handle, IRCMessage *msg);
 static void irc_handle_command_ping(IRCHandle *handle, IRCMessage *msg);
+static void irc_handle_command_quit(IRCHandle *handle, IRCMessage *msg);
 
 static void irc_handle_account_console_append(IRCHandle *handle, IRCMessage *msg, TextType type, gchar *format);
 static void irc_handle_channel_append(IRCHandle *handle, IRCMessage *msg, gint receiver_num, TextType type, gchar *format);
@@ -182,6 +183,13 @@ irc_handle_command_ping(IRCHandle *handle, IRCMessage *msg)
 	debug_puts("put PONG to %s", server);
 }
 static void
+irc_handle_command_quit(IRCHandle *handle, IRCMessage *msg)
+{
+	/* FIXME: this should be broadcast all channels he joined */
+	irc_handle_account_console_append(handle, msg, TEXT_TYPE_INFO, _("*** %n has quit IRC(%t)"));
+}
+
+static void
 irc_handle_my_command_join(IRCHandle *handle, IRCMessage *msg)
 {
 	Channel *channel;
@@ -267,7 +275,7 @@ irc_handle_reply_topic(IRCHandle *handle, IRCMessage *msg)
 	topic = irc_message_get_trailing(msg);
 	channel_set_topic(channel, topic);
 
-	str = irc_message_format(msg, "Topic for %2: %t");
+	str = irc_message_format(msg, _("Topic for %2: %t"));
 
 	gdk_threads_enter();
 	channel_append_text(channel, TEXT_TYPE_NORMAL, str);
@@ -387,6 +395,9 @@ irc_handle_command(IRCHandle *handle, IRCMessage *msg)
 	case IRC_COMMAND_NOTICE:
 	case IRC_COMMAND_PRIVMSG:
 		irc_handle_command_privmsg_notice(handle, msg);
+		return TRUE;
+	case IRC_COMMAND_QUIT:
+		irc_handle_command_quit(handle, msg);
 		return TRUE;
 	case IRC_COMMAND_PING:
 		irc_handle_command_ping(handle, msg);
