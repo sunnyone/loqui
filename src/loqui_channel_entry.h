@@ -109,6 +109,7 @@ void loqui_channel_entry_set_has_unread_keyword(LoquiChannelEntry *chent, gboole
 gboolean loqui_channel_entry_get_has_unread_keyword(LoquiChannelEntry *chent);
 
 void loqui_channel_entry_set_as_read(LoquiChannelEntry *chent);
+gboolean loqui_channel_entry_get_whether_unread(LoquiChannelEntry *chent);
 
 void loqui_channel_entry_set_do_sort(LoquiChannelEntry *chent, gboolean do_sort);
 gboolean loqui_channel_entry_get_do_sort(LoquiChannelEntry *chent);

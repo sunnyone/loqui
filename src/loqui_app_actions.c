@@ -59,8 +59,8 @@ static void loqui_app_actions_clear_cb(GtkAction *action, LoquiApp *app);
 static void loqui_app_actions_jump_to_previous_keyword_cb(GtkAction *action, LoquiApp *app);
 static void loqui_app_actions_jump_to_next_keyword_cb(GtkAction *action, LoquiApp *app);
 
-static void loqui_app_actions_previous_updated_channel_buffer_cb(GtkAction *action, LoquiApp *app);
-static void loqui_app_actions_next_updated_channel_buffer_cb(GtkAction *action, LoquiApp *app);
+static void loqui_app_actions_previous_unread_channel_buffer_cb(GtkAction *action, LoquiApp *app);
+static void loqui_app_actions_next_unread_channel_buffer_cb(GtkAction *action, LoquiApp *app);
 static void loqui_app_actions_previous_channel_buffer_cb(GtkAction *action, LoquiApp *app);
 static void loqui_app_actions_next_channel_buffer_cb(GtkAction *action, LoquiApp *app);
 static void loqui_app_actions_join_cb(GtkAction *action, LoquiApp *app);
@@ -141,8 +141,8 @@ static GtkActionEntry loqui_action_entries[] =
         {LOQUI_ACTION_START_PRIVATE_TALK, NULL, N_("_Start Private Talk"), NULL, NULL, G_CALLBACK(loqui_app_actions_start_private_talk_cb)},
 	{LOQUI_ACTION_END_PRIVATE_TALK, NULL, N_("_End Current Private Talk"), NULL, NULL, G_CALLBACK(loqui_app_actions_end_private_talk_cb)},
 
-        {"PreviousUpdatedChannel", GTK_STOCK_GOTO_TOP, N_("_Previous Updated Channel Buffer"), CTRL SHIFT "space", NULL, G_CALLBACK(loqui_app_actions_previous_updated_channel_buffer_cb)},
-        {"NextUpdatedChannel",     GTK_STOCK_GOTO_BOTTOM, N_("_Next Updated Channel Buffer"), CTRL "space", NULL, G_CALLBACK(loqui_app_actions_next_updated_channel_buffer_cb)},
+        {"PreviousUnreadChannel", GTK_STOCK_GOTO_TOP, N_("_Previous Unread Channel Buffer"), CTRL SHIFT "space", NULL, G_CALLBACK(loqui_app_actions_previous_unread_channel_buffer_cb)},
+        {"NextUnreadChannel",     GTK_STOCK_GOTO_BOTTOM, N_("_Next Unread Channel Buffer"), CTRL "space", NULL, G_CALLBACK(loqui_app_actions_next_unread_channel_buffer_cb)},
         {"PreviousChannel",        GTK_STOCK_GO_UP, N_("Previous Channel Buffer"), CTRL "Up", NULL, G_CALLBACK(loqui_app_actions_previous_channel_buffer_cb)},
         {"NextChannel",            GTK_STOCK_GO_DOWN, N_("Next Channel Buffer"), CTRL "Down", NULL, G_CALLBACK(loqui_app_actions_next_channel_buffer_cb)},
         {"GeneralSettings",        NULL, N_("_General Settings"), NULL, NULL, G_CALLBACK(loqui_app_actions_common_settings_cb)},
@@ -536,7 +536,7 @@ loqui_app_actions_toggle_command_mode_cb(GtkAction *action, LoquiApp *app)
         remark_entry_set_command_mode(REMARK_ENTRY(app->remark_entry), gtk_toggle_action_get_active(GTK_TOGGLE_ACTION(action)));
 }
 static void
-loqui_app_actions_previous_updated_channel_buffer_cb(GtkAction *action, LoquiApp *app)
+loqui_app_actions_previous_unread_channel_buffer_cb(GtkAction *action, LoquiApp *app)
 {
 	LoquiChannelEntry *chent;
 
@@ -547,7 +547,7 @@ loqui_app_actions_previous_updated_channel_buffer_cb(GtkAction *action, LoquiApp
 		loqui_app_set_current_channel_entry(app, chent);
 }
 static void
-loqui_app_actions_next_updated_channel_buffer_cb(GtkAction *action, LoquiApp *app)
+loqui_app_actions_next_unread_channel_buffer_cb(GtkAction *action, LoquiApp *app)
 {
 	LoquiChannelEntry *chent;
 

@@ -59,8 +59,8 @@
       </menu>
     </menu>
     <menu name="Buffers" action="StockBuffersMenu">
-      <menuitem name="PreviousUpdatedChannel" action="PreviousUpdatedChannel"/>
-      <menuitem name="NextUpdatedChannel" action="NextUpdatedChannel"/>
+      <menuitem name="PreviousUnreadChannel" action="PreviousUnreadChannel"/>
+      <menuitem name="NextUnreadChannel" action="NextUnreadChannel"/>
       <menuitem name="PreviousChannel" action="PreviousChannel"/>
       <menuitem name="NextChannel" action="NextChannel"/>
     </menu>

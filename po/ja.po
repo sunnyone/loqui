@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: loqui 0.1.20\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2004-05-04 13:16+0900\n"
+"POT-Creation-Date: 2004-05-04 14:09+0900\n"
 "PO-Revision-Date: 2002-11-10 13:17+0900\n"
 "Last-Translator: Yoichi Imai <yoichi@silver-forest.com>\n"
 "Language-Team: Japanese <ja@li.org>\n"
@@ -185,7 +185,7 @@ msgid "Account List"
 msgstr "アカウントリスト"
 
 #: src/account_list_dialog.c:317 src/channel_tree.c:267
-#: src/loqui_channel_entry.c:242 src/loqui_channel_entry.c:243
+#: src/loqui_channel_entry.c:256 src/loqui_channel_entry.c:257
 #: src/loqui_profile_account.c:237
 msgid "Name"
 msgstr "名前"
@@ -730,12 +730,12 @@ msgid "_End Current Private Talk"
 msgstr "プライベートトークの終了"
 
 #: src/loqui_app_actions.c:144
-msgid "_Previous Updated Channel Buffer"
-msgstr "前の更新されたチャンネルバッファ"
+msgid "_Previous Unread Channel Buffer"
+msgstr "前の未読のチャンネルバッファ"
 
 #: src/loqui_app_actions.c:145
-msgid "_Next Updated Channel Buffer"
-msgstr "次の更新されたチャンネルバッファ"
+msgid "_Next Unread Channel Buffer"
+msgstr "次の未読のチャンネルバッファ"
 
 #: src/loqui_app_actions.c:146
 msgid "Previous Channel Buffer"
@@ -845,87 +845,103 @@ msgstr ""
 msgid "Current channel is not private talk"
 msgstr "現在のチャンネルはプライベートトークではありません"
 
-#: src/loqui_channel.c:186
+#: src/loqui_channel.c:188
 msgid "Joined"
 msgstr ""
 
-#: src/loqui_channel.c:187
+#: src/loqui_channel.c:189
 msgid "Joined or not"
 msgstr ""
 
-#: src/loqui_channel.c:192
+#: src/loqui_channel.c:194
 msgid "PrivateTalk"
 msgstr "プライベートトーク"
 
-#: src/loqui_channel.c:193
+#: src/loqui_channel.c:195
 msgid "PrivateTalk or not"
 msgstr ""
 
-#: src/loqui_channel.c:198
+#: src/loqui_channel.c:200
 msgid "Account"
 msgstr "アカウント"
 
-#: src/loqui_channel.c:199
+#: src/loqui_channel.c:201
 msgid "Parent account"
 msgstr "親アカウント"
 
-#: src/loqui_channel_entry.c:248 src/loqui_channel_entry.c:249
+#: src/loqui_channel_entry.c:262 src/loqui_channel_entry.c:263
 msgid "Topic"
 msgstr ""
 
-#: src/loqui_channel_entry.c:254
+#: src/loqui_channel_entry.c:268
 msgid "Updated"
 msgstr ""
 
-#: src/loqui_channel_entry.c:255
+#: src/loqui_channel_entry.c:269
 msgid "Updated or not"
 msgstr ""
 
-#: src/loqui_channel_entry.c:260
-msgid "Buffer"
-msgstr "バッファ(_B)"
-
-#: src/loqui_channel_entry.c:261
-msgid "Channel buffer"
-msgstr "チャンネルバッファ"
-
-#: src/loqui_channel_entry.c:266
-msgid "Op Number"
-msgstr ""
-
-#: src/loqui_channel_entry.c:267
-msgid "the number of channel operators"
-msgstr ""
-
-#: src/loqui_channel_entry.c:273
-msgid "Member Number"
-msgstr ""
-
 #: src/loqui_channel_entry.c:274
-msgid "the number of members"
+msgid "Updated weak"
+msgstr ""
+
+#: src/loqui_channel_entry.c:275
+msgid "Updated weak or not"
 msgstr ""
 
 #: src/loqui_channel_entry.c:280
-msgid "Position"
+msgid "Has unread keyword"
 msgstr ""
 
 #: src/loqui_channel_entry.c:281
+msgid "Has unread keyword or not"
+msgstr ""
+
+#: src/loqui_channel_entry.c:286
+msgid "Buffer"
+msgstr "バッファ(_B)"
+
+#: src/loqui_channel_entry.c:287
+msgid "Channel buffer"
+msgstr "チャンネルバッファ"
+
+#: src/loqui_channel_entry.c:292
+msgid "Op Number"
+msgstr ""
+
+#: src/loqui_channel_entry.c:293
+msgid "the number of channel operators"
+msgstr ""
+
+#: src/loqui_channel_entry.c:299
+msgid "Member Number"
+msgstr ""
+
+#: src/loqui_channel_entry.c:300
+msgid "the number of members"
+msgstr ""
+
+#: src/loqui_channel_entry.c:306
+msgid "Position"
+msgstr ""
+
+#: src/loqui_channel_entry.c:307
 msgid "Position of all channel entries"
 msgstr ""
 
-#: src/loqui_channel_entry.c:287
+#: src/loqui_channel_entry.c:313
 msgid "ChannelEntryID"
 msgstr "チャンネルエントリID"
 
-#: src/loqui_channel_entry.c:288
+#: src/loqui_channel_entry.c:314
 msgid "ID of channel entry."
 msgstr "チャンネルエントリのID"
 
-#: src/loqui_channel_entry.c:294
+#: src/loqui_channel_entry.c:320
 msgid "Do sort"
 msgstr ""
 
-#: src/loqui_channel_entry.c:295
+#: src/loqui_channel_entry.c:321
 msgid "Do sort or don't sort"
 msgstr ""
 

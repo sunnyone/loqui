@@ -716,6 +716,13 @@ loqui_channel_entry_set_as_read(LoquiChannelEntry *chent)
 	loqui_channel_entry_set_is_updated_weak(chent, FALSE);
 	loqui_channel_entry_set_has_unread_keyword(chent, FALSE);
 }
+gboolean
+loqui_channel_entry_get_whether_unread(LoquiChannelEntry *chent)
+{
+	return (loqui_channel_entry_get_is_updated(chent) ||
+		loqui_channel_entry_get_is_updated_weak(chent) ||
+		loqui_channel_entry_get_has_unread_keyword(chent));
+}
 void
 loqui_channel_entry_set_do_sort(LoquiChannelEntry *chent, gboolean do_sort)
 {
