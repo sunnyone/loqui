@@ -27,6 +27,8 @@
 
 #include "loqui_stock.h"
 #include "loqui_channel_text_view.h"
+#include "loqui_sender.h"
+#include "loqui_sender_irc.h"
 
 #include "main.h"
 #include "intl.h"
@@ -544,8 +546,9 @@ static void
 remark_entry_send_text(RemarkEntry *remark_entry, gboolean is_notice)
 {
 	RemarkEntryPrivate *priv;
-	gchar *str;
+	gchar *str, *cur;
 	Account *account;
+	LoquiChannel *channel;
 
         g_return_if_fail(remark_entry != NULL);
         g_return_if_fail(IS_REMARK_ENTRY(remark_entry));
@@ -564,8 +567,43 @@ remark_entry_send_text(RemarkEntry *remark_entry, gboolean is_notice)
 		return;
 	}
 	
-	account_speak(account, loqui_app_get_current_channel(priv->app), str,
-		      remark_entry_get_command_mode(remark_entry), is_notice);
+	if(!account_is_connected(account)) {
+		gtkutils_msgbox_info(GTK_MESSAGE_WARNING,
+				     _("Not connected with this account"));
+		g_free(str);
+		return;
+	}
+
+	cur = str;
+	if (remark_entry_get_command_mode(remark_entry)) {
+		if (strchr(cur, '\n')) {
+			gtkutils_msgbox_info(GTK_MESSAGE_ERROR,
+					     _("Command contains linefeed."));
+			return;
+		}
+		
+		if (strncmp(cur, prefs_general.command_prefix, strlen(prefs_general.command_prefix)) == 0)
+			cur += strlen(prefs_general.command_prefix);
+		
+		if (!LOQUI_IS_SENDER_IRC(account->sender)) {
+			gtkutils_msgbox_info(GTK_MESSAGE_ERROR,
+					     _("Using not IRC account"));
+			return;
+		}
+		loqui_sender_irc_send_raw(LOQUI_SENDER_IRC(account->sender), cur);
+	} else {
+		channel = loqui_app_get_current_channel(priv->app);
+		if(channel == NULL) {
+			gtkutils_msgbox_info(GTK_MESSAGE_WARNING,
+					     _("No channel is selected"));
+			return;
+		}
+
+		if (is_notice)
+			loqui_sender_notice(account->sender, channel, str);
+		else
+			loqui_sender_say(account->sender, channel, str);
+	}
 
 	remark_entry_clear_text(remark_entry);
 

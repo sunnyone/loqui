@@ -22,6 +22,10 @@
 #include "loqui_sender_irc.h"
 #include "prefs_general.h"
 
+#include "main.h"
+
+#include <string.h>
+
 enum {
         LAST_SIGNAL
 };
@@ -55,6 +59,8 @@ static void loqui_sender_irc_join(LoquiSender *sender, LoquiChannel *channel);
 static void loqui_sender_irc_part(LoquiSender *sender, LoquiChannel *channel);
 static void loqui_sender_irc_topic(LoquiSender *sender, LoquiChannel *channel, const gchar *topic);
 static void loqui_sender_irc_start_private_talk(LoquiSender *sender, LoquiChannel *channel);
+
+static void loqui_sender_irc_speak(LoquiSenderIRC *sender, LoquiChannel *channel, const gchar *text, gboolean is_notice);
 
 GType
 loqui_sender_irc_get_type(void)
@@ -183,12 +189,44 @@ loqui_sender_irc_new(Account *account)
         return sender;
 }
 
+/* helper */
+static void
+loqui_sender_irc_speak(LoquiSenderIRC *sender, LoquiChannel *channel, const gchar *text, gboolean is_notice)
+{
+	gchar *buf;
+	gchar **array;
+	int i;
+	LoquiMember *member;
+	
+	buf = g_strdup(text);
+	utils_remove_return_code(buf); /* remove last return code */
+	array = g_strsplit(buf, "\n", -1);
+	g_free(buf);
+
+	for(i = 0; array[i] != NULL; i++) {
+		if(strlen(array[i]) == 0)
+			continue;
+		
+		if (is_notice)
+			loqui_sender_irc_notice_raw(sender, loqui_channel_entry_get_name(LOQUI_CHANNEL_ENTRY(channel)), array[i]);
+		else
+			loqui_sender_irc_say_raw(sender, loqui_channel_entry_get_name(LOQUI_CHANNEL_ENTRY(channel)), array[i]);
+
+		loqui_channel_append_remark(channel, is_notice ? TEXT_TYPE_NOTICE : TEXT_TYPE_NORMAL,
+					    TRUE, loqui_user_get_nick(LOQUI_SENDER(sender)->account->user_self), array[i], FALSE);
+	}
+	g_strfreev(array);
+	
+	member = loqui_channel_entry_get_member_by_user(LOQUI_CHANNEL_ENTRY(channel), account_get_user_self(LOQUI_SENDER(sender)->account));
+	loqui_member_set_last_message_time(member, time(NULL));
+}
 static void
 loqui_sender_irc_say(LoquiSender *sender, LoquiChannel *channel, const gchar *text)
 {
         g_return_if_fail(sender != NULL);
         g_return_if_fail(LOQUI_IS_SENDER_IRC(sender));
 
+	loqui_sender_irc_speak(LOQUI_SENDER_IRC(sender), channel, text, FALSE);
 }
 static void
 loqui_sender_irc_notice(LoquiSender *sender, LoquiChannel *channel, const gchar *text)
@@ -196,6 +234,7 @@ loqui_sender_irc_notice(LoquiSender *sender, LoquiChannel *channel, const gchar 
         g_return_if_fail(sender != NULL);
         g_return_if_fail(LOQUI_IS_SENDER_IRC(sender));
 
+	loqui_sender_irc_speak(LOQUI_SENDER_IRC(sender), channel, text, TRUE);
 }
 static void
 loqui_sender_irc_nick(LoquiSender *sender, const gchar *text)
@@ -322,6 +361,77 @@ loqui_sender_irc_pong_raw(LoquiSenderIRC *sender, const gchar *target)
 	g_return_if_fail(conn != NULL);
 
 	msg = irc_message_create(IRCCommandPong, target, NULL);
+	irc_connection_push_message(conn, msg);
+	g_object_unref(msg);
+}
+void
+loqui_sender_irc_say_raw(LoquiSenderIRC *sender, const gchar *target, const gchar *text)
+{
+	IRCMessage *msg;
+	IRCConnection *conn;
+
+        g_return_if_fail(sender != NULL);
+        g_return_if_fail(LOQUI_IS_SENDER_IRC(sender));
+
+	if (!account_is_connected(LOQUI_SENDER(sender)->account)) {
+		g_warning("Not connected");
+		return;
+	}
+
+	conn = account_get_connection(LOQUI_SENDER(sender)->account);
+	g_return_if_fail(conn != NULL);
+	
+	msg = irc_message_create(IRCCommandPrivmsg, 
+				 target, text, NULL);
+	irc_connection_push_message(conn, msg);
+	g_object_unref(msg);
+}
+void
+loqui_sender_irc_notice_raw(LoquiSenderIRC *sender, const gchar *target, const gchar *text)
+{
+	IRCMessage *msg;
+	IRCConnection *conn;
+
+        g_return_if_fail(sender != NULL);
+        g_return_if_fail(LOQUI_IS_SENDER_IRC(sender));
+
+	if (!account_is_connected(LOQUI_SENDER(sender)->account)) {
+		g_warning("Not connected");
+		return;
+	}
+
+	conn = account_get_connection(LOQUI_SENDER(sender)->account);
+	g_return_if_fail(conn != NULL);
+	
+	msg = irc_message_create(IRCCommandNotice,
+				 target, text, NULL);
+	irc_connection_push_message(conn, msg);
+	g_object_unref(msg);
+}
+
+void loqui_sender_irc_send_raw(LoquiSenderIRC *sender, const gchar *str)
+{
+	IRCMessage *msg;
+	IRCConnection *conn;
+	gchar *buf;
+
+        g_return_if_fail(sender != NULL);
+        g_return_if_fail(LOQUI_IS_SENDER_IRC(sender));
+
+	if (!account_is_connected(LOQUI_SENDER(sender)->account)) {
+		g_warning("Not connected");
+		return;
+	}
+
+	conn = account_get_connection(LOQUI_SENDER(sender)->account);
+	g_return_if_fail(conn != NULL);
+	
+	msg = irc_message_parse_line(str);
+	if (debug_mode) {
+		buf = irc_message_to_string(msg);
+		debug_puts("send_raw: %s", buf);
+		g_free(buf);
+	}
 	irc_connection_push_message(conn, msg);
 	g_object_unref(msg);
 }

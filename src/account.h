@@ -103,7 +103,6 @@ LoquiChannel* account_get_channel_by_name(Account *account, const gchar *name);
 GSList *account_search_joined_channel(Account *account, gchar *nick);
 
 void account_console_buffer_append(Account *account, TextType type, gchar *str);
-void account_speak(Account *account, LoquiChannel *channel, const gchar *str, gboolean command_mode, gboolean is_notice);
 
 gboolean account_is_current_nick(Account *account, const gchar *str);
 
