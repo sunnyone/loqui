@@ -4,6 +4,7 @@ Makefile.in
 .libs
 *.o
 *.lo
+*.loT
 *.la
 *.bak
 *.rej

@@ -1,3 +1,5 @@
+AC_PREREQ(2.53)
+
 AC_INIT(src/main.c)
 PACKAGE=loqui
 MAJOR_VERSION=0
@@ -7,8 +9,8 @@ EXTRA_VERSION=
 VERSION=$MAJOR_VERSION.$MINOR_VERSION.$MICRO_VERSION$EXTRA_VERSION
 
 AM_INIT_AUTOMAKE($PACKAGE, $VERSION, no-define)
-AC_DEFINE_UNQUOTED(PACKAGE, "$PACKAGE")
-AC_DEFINE_UNQUOTED(VERSION, "$VERSION")
+AC_DEFINE_UNQUOTED(PACKAGE, "$PACKAGE", [Package])
+AC_DEFINE_UNQUOTED(VERSION, "$VERSION", [Version])
 AC_SUBST(PACKAGE)
 AC_SUBST(VERSION)
 
@@ -18,7 +20,7 @@ AM_MAINTAINER_MODE
 
 AM_PATH_GTK_2_0(2.2.0,, AC_MSG_ERROR(Test for Gtk failed. See the 'INSTALL' for help.), gthread)
 if test "x${gtk_config_major_version}" = "x2" -a "x${gtk_config_minor_version}" = "x2"; then
-   AC_DEFINE_UNQUOTED(USE_GTK_2_2, 1)
+   AC_DEFINE_UNQUOTED(USE_GTK_2_2, 1, [Wheter using gtk 2.2])
 fi
 
 AC_PATH_PROG(GLIB_GENMARSHAL, glib-genmarshal)
@@ -27,12 +29,11 @@ AC_ISC_POSIX
 AC_PROG_CC
 AC_PROG_CXX
 AC_HEADER_STDC
-AC_ARG_PROGRAM
 AC_PROG_LIBTOOL
 
 GETTEXT_PACKAGE="$PACKAGE"
 AC_SUBST(GETTEXT_PACKAGE)
-AC_DEFINE_UNQUOTED(GETTEXT_PACKAGE,"$GETTEXT_PACKAGE")
+AC_DEFINE_UNQUOTED(GETTEXT_PACKAGE,"$GETTEXT_PACKAGE",[Define the gettext package to be used])
 
 ALL_LINGUAS="ja"
 
@@ -40,12 +41,10 @@ AM_GNU_GETTEXT
 
 dnl Set PACKAGE_LOCALE_DIR in config.h.
 if test "x${prefix}" = "xNONE"; then
-  AC_DEFINE_UNQUOTED(PACKAGE_LOCALE_DIR, "${ac_default_prefix}/${DATADIRNAME}/locale")
+  AC_DEFINE_UNQUOTED(PACKAGE_LOCALE_DIR, "${ac_default_prefix}/${DATADIRNAME}/locale", [Define the location where the catalogs will be installed])
 else
   AC_DEFINE_UNQUOTED(PACKAGE_LOCALE_DIR, "${prefix}/${DATADIRNAME}/locale")
 fi
-
-AC_PROG_INTLTOOL
 
 dnl AM_PATH_GNET(1.1.4,, AC_MSG_ERROR(Test for GNet failed. See the 'INSTALL' for help.))
 AM_PATH_GNET_2_0(2.0.0,, AC_MSG_ERROR(Test for GNet failed. See the 'INSTALL' for help.))
@@ -53,7 +52,7 @@ AM_PATH_GNET_2_0(2.0.0,, AC_MSG_ERROR(Test for GNet failed. See the 'INSTALL' fo
 AC_SUBST(GNET_CFLAGS)
 AC_SUBST(GNET_LIBS)
 
-AC_DEFINE_UNQUOTED(G_LOG_DOMAIN, "$PACKAGE")
+AC_DEFINE_UNQUOTED(G_LOG_DOMAIN, "$PACKAGE", [g_log domain])
 
 AC_CHECK_FUNCS(bind_textdomain_codeset)
 AC_CHECK_FUNCS(localtime_r)
@@ -64,7 +63,6 @@ gtk24backports/Makefile
 src/Makefile
 src/icons/Makefile
 src/embedtxt/Makefile
-src/libegg/Makefile
 po/Makefile.in
 intl/Makefile
 m4/Makefile
