@@ -300,7 +300,7 @@ irc_handle_command_privmsg_notice(IRCHandle *handle, IRCMessage *msg)
 				loqui_channel_entry_add_member(LOQUI_CHANNEL_ENTRY(channel), member);
 				g_object_unref(member);
 
-				loqui_channel_add_member_by_nick(channel, receiver_name, FALSE, FALSE, FALSE);
+				loqui_channel_add_member_by_nick(channel, is_self ? receiver_name : msg->nick, FALSE, FALSE, FALSE);
 			}
 			loqui_account_add_channel(priv->account, channel);
 			g_object_unref(channel);
