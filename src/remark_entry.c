@@ -23,6 +23,7 @@
 #include "prefs_general.h"
 #include "gdk/gdkkeysyms.h"
 #include "utils.h"
+#include "gtkutils.h"
 
 #include <string.h>
 
@@ -44,7 +45,7 @@ struct _RemarkEntryPrivate
 	GtkWidget *label_nick;
 	GtkWidget *button_nick;
 
-	GtkWidget *button_nick_pulldown;
+	GtkWidget *toggle_nick_pulldown;
 	GtkWidget *vbox;
 	GtkWidget *entry;
 	GtkWidget *hbox_text;
@@ -74,7 +75,8 @@ static void remark_entry_activated_cb(GtkWidget *widget, gpointer data);
 static gint remark_entry_entry_key_pressed_cb(GtkEntry *widget, GdkEventKey *event,
 					      gpointer data);
 static void remark_entry_nick_clicked_cb(GtkWidget *widget, gpointer data);
-static void remark_entry_nick_pulldown_clicked_cb(GtkWidget *widget, gpointer data);
+static void remark_entry_nick_pulldown_button_press_event_cb(GtkWidget *widget, GdkEventButton *event, gpointer data);
+static void remark_entry_menu_nick_deactivated_cb(GtkWidget *widget, gpointer data);
 
 static void remark_entry_history_add(RemarkEntry *entry, const gchar *str);
 
@@ -199,15 +201,15 @@ remark_entry_new(void)
 	priv->label_nick = gtk_label_new("");
 	gtk_container_add(GTK_CONTAINER(priv->button_nick), priv->label_nick);
 
-	priv->button_nick_pulldown = gtk_button_new();
-	gtk_widget_set_usize(priv->button_nick_pulldown, NICK_PULLDOWN_BUTTON_WIDTH, -1);
-	gtk_button_set_relief(GTK_BUTTON(priv->button_nick_pulldown), GTK_RELIEF_NONE);
-	g_signal_connect(G_OBJECT(priv->button_nick_pulldown), "clicked",
-			 G_CALLBACK(remark_entry_nick_pulldown_clicked_cb), remark_entry);
-	gtk_box_pack_start(GTK_BOX(hbox), priv->button_nick_pulldown, FALSE, FALSE, 0);
+	priv->toggle_nick_pulldown = gtk_toggle_button_new();
+	gtk_widget_set_usize(priv->toggle_nick_pulldown, NICK_PULLDOWN_BUTTON_WIDTH, -1);
+	gtk_button_set_relief(GTK_BUTTON(priv->toggle_nick_pulldown), GTK_RELIEF_NONE);
+	g_signal_connect(G_OBJECT(priv->toggle_nick_pulldown), "button_press_event",
+			 G_CALLBACK(remark_entry_nick_pulldown_button_press_event_cb), remark_entry);
+	gtk_box_pack_start(GTK_BOX(hbox), priv->toggle_nick_pulldown, FALSE, FALSE, 0);
 
 	down_arrow = gtk_arrow_new(GTK_ARROW_DOWN, GTK_SHADOW_OUT);
-	gtk_container_add(GTK_CONTAINER(priv->button_nick_pulldown), down_arrow);
+	gtk_container_add(GTK_CONTAINER(priv->toggle_nick_pulldown), down_arrow);
 
 	label = gtk_label_new(">");
 	gtk_box_pack_start(GTK_BOX(hbox), label, FALSE, FALSE, 0);
@@ -259,7 +261,9 @@ remark_entry_new(void)
 	gtk_widget_set_sensitive(priv->toggle_palette, FALSE);
 
 	priv->menu_nick = gtk_menu_new();
-	
+	g_signal_connect(priv->menu_nick, "deactivate",
+			 G_CALLBACK(remark_entry_menu_nick_deactivated_cb), remark_entry);
+
 	priv->string_list = g_list_prepend(priv->string_list, NULL);
 
 	return GTK_WIDGET(remark_entry);
@@ -523,7 +527,7 @@ remark_entry_nick_clicked_cb(GtkWidget *widget, gpointer data)
 	g_signal_emit(remark_entry, remark_entry_signals[NICK_CHANGE], 0);
 }
 static void
-remark_entry_nick_pulldown_clicked_cb(GtkWidget *widget, gpointer data)
+remark_entry_nick_pulldown_button_press_event_cb(GtkWidget *widget, GdkEventButton *event, gpointer data)
 {
         RemarkEntry *remark_entry;
 	RemarkEntryPrivate *priv;
@@ -534,8 +538,25 @@ remark_entry_nick_pulldown_clicked_cb(GtkWidget *widget, gpointer data)
 	remark_entry = REMARK_ENTRY(data);
 	priv = remark_entry->priv;
 
-	gtk_menu_popup(GTK_MENU(priv->menu_nick), NULL, NULL, NULL,
-		       0, 0, gtk_get_current_event_time());
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(priv->toggle_nick_pulldown), TRUE);
+	gtk_menu_popup(GTK_MENU(priv->menu_nick), NULL, NULL,
+		       gtkutils_menu_position_under_widget, priv->toggle_nick_pulldown,
+		       event ? event->button : 0,
+		       event ? event->time : gtk_get_current_event_time());
+}
+static void
+remark_entry_menu_nick_deactivated_cb(GtkWidget *widget, gpointer data)
+{
+        RemarkEntry *remark_entry;
+	RemarkEntryPrivate *priv;
+
+        g_return_if_fail(data != NULL);
+        g_return_if_fail(IS_REMARK_ENTRY(data));
+
+	remark_entry = REMARK_ENTRY(data);
+	priv = remark_entry->priv;
+	
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(priv->toggle_nick_pulldown), FALSE);
 }
 
 static void
