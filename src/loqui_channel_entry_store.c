@@ -448,7 +448,8 @@ loqui_channel_entry_store_iter_nth_child(GtkTreeModel *tree_model,
 		return FALSE;
 
 	member = loqui_channel_entry_get_nth_member(store->chent, n);
-	g_assert(member != NULL);
+	if (member == NULL)
+		return FALSE;
 	
 	iter->stamp = store->stamp;
 	iter->user_data = member;

@@ -33,6 +33,7 @@ loqui_SOURCES = \
 	account.c account.h \
 	codeconv.c codeconv.h \
 	loqui_dropdown_box.c loqui_dropdown_box.h \
+	loqui_account_manager_store.c loqui_account_manager_store.h \
 	channel_tree.c channel_tree.h \
 	gtkutils.c gtkutils.h \
 	channel_buffer.c channel_buffer.h \

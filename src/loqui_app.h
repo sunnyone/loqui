@@ -125,8 +125,6 @@ gboolean loqui_app_is_current_account(LoquiApp *app, Account *account);
 gboolean loqui_app_is_current_channel(LoquiApp *app, LoquiChannel *channel);
 gboolean loqui_app_is_current_channel_buffer(LoquiApp *app, ChannelBuffer *buffer);
 
-void loqui_app_update_account(LoquiApp *app, Account *account);
-
 G_END_DECLS
 
 #endif /* __LOQUI_APP_H__ */

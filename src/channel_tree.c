@@ -25,6 +25,7 @@
 #include "utils.h"
 #include "account_manager.h"
 #include "intl.h"
+#include "loqui_account_manager_store.h"
 
 struct _ChannelTreePrivate
 {
@@ -45,19 +46,6 @@ static void channel_tree_row_activated_cb(ChannelTree *tree, GtkTreePath *path, 
 static void channel_tree_row_selected_cb(GtkTreeSelection *selection, gpointer data);
 static gboolean channel_tree_key_press_event(GtkWidget *widget,
 					     GdkEventKey *event);
-
-static void channel_tree_update_buffer_number(ChannelTree *tree);
-
-enum {
-	COLUMN_TEXT,
-	COLUMN_BUFFER_NUMBER,
-	COLUMN_ACCOUNT,
-	COLUMN_CHANNEL,
-	COLUMN_COLOR,
-	COLUMN_USERS,
-	COLUMN_OP_USERS,
-	COLUMN_NUMBER
-};
 
 GType
 channel_tree_get_type(void)
@@ -148,8 +136,7 @@ channel_tree_row_selected_cb(GtkTreeSelection *selection, gpointer data)
 	ChannelTreePrivate *priv;
 	GtkTreeIter iter;
 	GtkTreeModel *model;
-	Account *account;
-	LoquiChannel *channel;
+	LoquiChannelEntry *chent;
 	
         g_return_if_fail(data != NULL);
         g_return_if_fail(IS_CHANNEL_TREE(data));
@@ -161,14 +148,13 @@ channel_tree_row_selected_cb(GtkTreeSelection *selection, gpointer data)
 		return;
 
 	gtk_tree_model_get(model, &iter,
-			   COLUMN_ACCOUNT, &account,
-			   COLUMN_CHANNEL, &channel,
+			   LOQUI_ACCOUNT_MANAGER_STORE_COLUMN_CHANNEL_ENTRY, &chent,
 			   -1);
 
-	if(account)
-		loqui_app_set_current_account(priv->app, account);
-	else if(channel)
-		loqui_app_set_current_channel(priv->app, channel);
+	if (IS_ACCOUNT(chent))
+		loqui_app_set_current_account(priv->app, ACCOUNT(chent));
+	else if (LOQUI_IS_CHANNEL(chent))
+		loqui_app_set_current_channel(priv->app, LOQUI_CHANNEL(chent));
 
 	gtk_widget_grab_focus(priv->app->remark_entry);
 }
@@ -191,7 +177,6 @@ channel_tree_new(LoquiApp *app)
 {
         ChannelTree *tree;
 	ChannelTreePrivate *priv;
-	GtkTreeStore *model;
 	GtkTreeViewColumn *column;
 	GtkCellRenderer *renderer;
 	GtkTreeSelection *selection;
@@ -203,17 +188,6 @@ channel_tree_new(LoquiApp *app)
 
         gtk_tree_view_set_headers_visible(GTK_TREE_VIEW(tree), FALSE);
 	selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(tree));
-
-	model = gtk_tree_store_new(COLUMN_NUMBER, 
-				   G_TYPE_STRING,
-				   G_TYPE_UINT,
-				   G_TYPE_POINTER,
-				   G_TYPE_POINTER,
-				   G_TYPE_STRING,
-				   G_TYPE_UINT,
-				   G_TYPE_UINT);
-	gtk_tree_view_set_model(GTK_TREE_VIEW(tree), GTK_TREE_MODEL(model));
-
 
         renderer = gtk_cell_renderer_text_new();
 	g_object_set(renderer, "ypad", 0, NULL);	
@@ -227,7 +201,7 @@ channel_tree_new(LoquiApp *app)
 	g_object_set(renderer, "ypad", 0, NULL);
 	column = gtk_tree_view_column_new_with_attributes ("#",
 							   renderer,
-							   "text", COLUMN_BUFFER_NUMBER,
+							   "text", LOQUI_ACCOUNT_MANAGER_STORE_COLUMN_POSITION,
 							   NULL);
 	gtk_tree_view_column_set_resizable(column, TRUE);
         gtk_tree_view_append_column(GTK_TREE_VIEW(tree), column);
@@ -236,8 +210,8 @@ channel_tree_new(LoquiApp *app)
 	g_object_set(renderer, "ypad", 0, NULL);
 	column = gtk_tree_view_column_new_with_attributes (_("Name"),
 							   renderer,
-							   "text", COLUMN_TEXT,
-							   "foreground", COLUMN_COLOR,
+							   "text", LOQUI_ACCOUNT_MANAGER_STORE_COLUMN_NAME,
+							   "foreground", LOQUI_ACCOUNT_MANAGER_STORE_COLUMN_COLOR,
 							   NULL);
 	gtk_tree_view_column_set_resizable(column, TRUE);
 	gtk_tree_view_append_column (GTK_TREE_VIEW (tree), column);
@@ -246,7 +220,7 @@ channel_tree_new(LoquiApp *app)
 	g_object_set(renderer, "ypad", 0, NULL);
 	column = gtk_tree_view_column_new_with_attributes ("Users",
 							   renderer,
-							   "text", COLUMN_USERS,
+							   "text", LOQUI_ACCOUNT_MANAGER_STORE_COLUMN_USERS, 
 							   NULL);
 	gtk_tree_view_column_set_resizable(column, TRUE);
         gtk_tree_view_append_column(GTK_TREE_VIEW(tree), column);
@@ -255,7 +229,7 @@ channel_tree_new(LoquiApp *app)
 	g_object_set(renderer, "ypad", 0, NULL);
 	column = gtk_tree_view_column_new_with_attributes ("Op",
 							   renderer,
-							   "text", COLUMN_OP_USERS,
+							   "text", LOQUI_ACCOUNT_MANAGER_STORE_COLUMN_OP_USERS,
 							   NULL);
 	gtk_tree_view_column_set_resizable(column, TRUE);
         gtk_tree_view_append_column(GTK_TREE_VIEW(tree), column);
@@ -269,246 +243,36 @@ channel_tree_new(LoquiApp *app)
 
 	return GTK_WIDGET(tree);
 }
-void
-channel_tree_add_account(ChannelTree *tree, Account *account)
-{
-	GtkTreeIter iter;
-	GtkTreeModel *model;
-
-        g_return_if_fail(tree != NULL);
-        g_return_if_fail(IS_CHANNEL_TREE(tree));
-	g_return_if_fail(account != NULL);
-	g_return_if_fail(IS_ACCOUNT(account));
-	
-	model = gtk_tree_view_get_model(GTK_TREE_VIEW(tree));
-	gtk_tree_store_append(GTK_TREE_STORE(model), &iter, NULL);	
-	gtk_tree_store_set(GTK_TREE_STORE(model), &iter,
-			   COLUMN_TEXT, loqui_profile_account_get_name(account_get_profile(account)), 
-			   COLUMN_ACCOUNT, account,
-			   COLUMN_CHANNEL, NULL,
-			   -1);
-
-	channel_tree_update_buffer_number(tree);
-}
-void
-channel_tree_update_account(ChannelTree *tree, Account *account)
-{
-	GtkTreeIter iter;
-	GtkTreeModel *model;
-
-        g_return_if_fail(tree != NULL);
-        g_return_if_fail(IS_CHANNEL_TREE(tree));
-	g_return_if_fail(account != NULL);
-	g_return_if_fail(IS_ACCOUNT(account));
-
-	model = gtk_tree_view_get_model(GTK_TREE_VIEW(tree));
-	if(!gtk_tree_model_find_by_column_data(model, &iter, NULL, COLUMN_ACCOUNT, account)) {
-		return;
-	}
-	gtk_tree_store_set(GTK_TREE_STORE(model), &iter,
-			   COLUMN_TEXT, loqui_profile_account_get_name(account_get_profile(account)),
-			   -1);
-}
 
 void
-channel_tree_remove_account(ChannelTree *tree, Account *account)
-{
-	GtkTreeIter iter;
-	GtkTreeModel *model;
-
-        g_return_if_fail(tree != NULL);
-        g_return_if_fail(IS_CHANNEL_TREE(tree));
-	g_return_if_fail(account != NULL);
-	g_return_if_fail(IS_ACCOUNT(account));
-
-	model = gtk_tree_view_get_model(GTK_TREE_VIEW(tree));
-	if(!gtk_tree_model_find_by_column_data(model, &iter, NULL, COLUMN_ACCOUNT, account)) {
-		return;
-	}
-	gtk_tree_store_remove(GTK_TREE_STORE(model), &iter);
-
-	channel_tree_update_buffer_number(tree);
-}
-void
-channel_tree_add_channel(ChannelTree *tree, Account *account, LoquiChannel *channel)
-{
-	GtkTreeIter iter, parent;
-	GtkTreeModel *model;
-
-        g_return_if_fail(tree != NULL);
-        g_return_if_fail(IS_CHANNEL_TREE(tree));
-	g_return_if_fail(account != NULL);
-	g_return_if_fail(IS_ACCOUNT(account));
-	g_return_if_fail(channel != NULL);
-	g_return_if_fail(LOQUI_IS_CHANNEL(channel));
-
-	model = gtk_tree_view_get_model(GTK_TREE_VIEW(tree));
-
-	if(!gtk_tree_model_find_by_column_data(model, &parent, NULL, COLUMN_ACCOUNT, account)) {
-		gtkutils_msgbox_info(GTK_MESSAGE_ERROR, _("Failed to add channel"));
-		return;
-	}
-	gtk_tree_store_append(GTK_TREE_STORE(model), &iter, &parent);
-	gtk_tree_store_set(GTK_TREE_STORE(model), &iter,
-			   COLUMN_TEXT, loqui_channel_entry_get_name(LOQUI_CHANNEL_ENTRY(channel)),
-			   COLUMN_ACCOUNT, NULL,
-			   COLUMN_CHANNEL, channel, -1);
-
-	gtk_tree_view_expand_row(GTK_TREE_VIEW(tree), gtk_tree_model_get_path(model, &parent), TRUE);
-
-	channel_tree_update_buffer_number(tree);
-}
-void
-channel_tree_remove_channel(ChannelTree *tree, LoquiChannel *channel)
-{
-	GtkTreeModel *model;
-	GtkTreeIter iter;
-
-        g_return_if_fail(tree != NULL);
-        g_return_if_fail(IS_CHANNEL_TREE(tree));
-	g_return_if_fail(channel != NULL);
-	g_return_if_fail(LOQUI_IS_CHANNEL(channel));
-	
-	model = gtk_tree_view_get_model(GTK_TREE_VIEW(tree));
-
-	if(gtk_tree_model_find_by_column_data(model, &iter, NULL, COLUMN_CHANNEL, channel))
-		gtk_tree_store_remove(GTK_TREE_STORE(model), &iter);
-
-	channel_tree_update_buffer_number(tree);
-}
-void
-channel_tree_select_channel(ChannelTree *tree, LoquiChannel *channel)
+channel_tree_select_channel_entry(ChannelTree *tree, LoquiChannelEntry *chent)
 {
 	GtkTreeModel *model;
 	GtkTreeIter iter;
 	GtkTreeSelection *selection;
 	ChannelTreePrivate *priv;
+	LoquiAccountManagerStore *store;
 
         g_return_if_fail(tree != NULL);
         g_return_if_fail(IS_CHANNEL_TREE(tree));
-        g_return_if_fail(channel != NULL);
-        g_return_if_fail(LOQUI_IS_CHANNEL(channel));
+        g_return_if_fail(chent != NULL);
+        g_return_if_fail(LOQUI_IS_CHANNEL_ENTRY(chent));
 	
 	priv = tree->priv;
 
 	model = gtk_tree_view_get_model(GTK_TREE_VIEW(tree));
+	store = LOQUI_ACCOUNT_MANAGER_STORE(model);
 	selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(tree));
 	
 	g_signal_handler_block(selection, priv->selection_changed_signal_id);
-	if(gtk_tree_model_find_by_column_data(model, &iter, NULL, COLUMN_CHANNEL, channel))
-		gtk_tree_selection_select_iter(selection, &iter);
-	g_signal_handler_unblock(selection, priv->selection_changed_signal_id);
-}
-void
-channel_tree_select_account(ChannelTree *tree, Account *account)
-{
-	GtkTreeModel *model;
-	GtkTreeIter iter;
-	GtkTreeSelection *selection;
-	ChannelTreePrivate *priv;
 
-        g_return_if_fail(tree != NULL);
-        g_return_if_fail(IS_CHANNEL_TREE(tree));
-        g_return_if_fail(account != NULL);
-        g_return_if_fail(IS_ACCOUNT(account));
-
-	priv = tree->priv;
-
-	model = gtk_tree_view_get_model(GTK_TREE_VIEW(tree));
-	selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(tree));
-
-	g_signal_handler_block(selection, priv->selection_changed_signal_id);
-	if(gtk_tree_model_find_by_column_data(model, &iter, NULL, COLUMN_ACCOUNT, account))
-		gtk_tree_selection_select_iter(selection, &iter);
-	g_signal_handler_unblock(selection, priv->selection_changed_signal_id);
-
-}
-void
-channel_tree_update_user_number(ChannelTree *tree, LoquiChannel *channel)
-{
-	GtkTreeModel *model;
-	GtkTreeIter iter;
-	guint users;
-	guint op_users;
-
-        g_return_if_fail(tree != NULL);
-        g_return_if_fail(IS_CHANNEL_TREE(tree));
-        g_return_if_fail(channel != NULL);
-        g_return_if_fail(LOQUI_IS_CHANNEL(channel));
-
-	model = gtk_tree_view_get_model(GTK_TREE_VIEW(tree));
-
-	if(!gtk_tree_model_find_by_column_data(model, &iter, NULL, COLUMN_CHANNEL, channel))
-		return;
-
-	users = loqui_channel_entry_get_member_number(LOQUI_CHANNEL_ENTRY(channel));
-	op_users = loqui_channel_entry_get_op_number(LOQUI_CHANNEL_ENTRY(channel));
-
-	gtk_tree_store_set(GTK_TREE_STORE(model), &iter,
-			   COLUMN_USERS, users,
-			   COLUMN_OP_USERS, op_users,
-			   -1);
-}
-void
-channel_tree_set_updated(ChannelTree *tree, Account *account, LoquiChannel *channel)
-{
-	GtkTreeModel *model;
-	GtkTreeIter iter;
-	gchar *color;
-
-        g_return_if_fail(tree != NULL);
-        g_return_if_fail(IS_CHANNEL_TREE(tree));
-
-	model = gtk_tree_view_get_model(GTK_TREE_VIEW(tree));
-
-	/* FIXME: handling account */
-	if(account) {
-		return;
+	if (LOQUI_IS_CHANNEL(chent)) {
+		loqui_account_manager_store_get_iter_by_channel_entry(store, &iter, LOQUI_CHANNEL_ENTRY(loqui_channel_get_account(chent)));
+		gtk_tree_view_expand_row(GTK_TREE_VIEW(tree), gtk_tree_model_get_path(model, &iter), TRUE);
 	}
 
-	if(channel) {
-		if(!gtk_tree_model_find_by_column_data(model, &iter, NULL, COLUMN_CHANNEL, channel))
-			return;
+	loqui_account_manager_store_get_iter_by_channel_entry(store, &iter, chent);
+	gtk_tree_selection_select_iter(selection, &iter);
 
-		if(loqui_channel_entry_get_is_updated(LOQUI_CHANNEL_ENTRY(channel)))
-			color = FRESH_COLOR;
-		else
-			color = NONFRESH_COLOR;
-
-		gtk_tree_store_set(GTK_TREE_STORE(model), &iter,
-				   COLUMN_COLOR, color, -1);
-	}
-}
-static void
-channel_tree_update_buffer_number(ChannelTree *tree)
-{
-	GtkTreeModel *model;
-	GtkTreeIter tmp, iter;
-	gboolean child_start;
-	int i;
-
-        g_return_if_fail(tree != NULL);
-        g_return_if_fail(IS_CHANNEL_TREE(tree));
-	
-	model = gtk_tree_view_get_model(GTK_TREE_VIEW(tree));
-
-	if (!gtk_tree_model_get_iter_first(model, &iter))
-		return;
-
-	i = 0;
-	do {
-		do {
-			gtk_tree_store_set(GTK_TREE_STORE(model), &iter, COLUMN_BUFFER_NUMBER, i, -1);
-
-			child_start = FALSE;
-			if(gtk_tree_model_iter_children(model, &tmp, &iter)) {
-				iter = tmp;
-				child_start = TRUE;
-			}
-			tmp = iter;
-			i++;
-		} while(child_start || gtk_tree_model_iter_next(model, &iter));
-		if(!gtk_tree_model_iter_parent(model, &iter, &tmp))
-			break;
-	} while(gtk_tree_model_iter_next(model, &iter));
+	g_signal_handler_unblock(selection, priv->selection_changed_signal_id);
 }

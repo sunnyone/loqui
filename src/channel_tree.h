@@ -23,10 +23,10 @@
 #ifndef __CHANNEL_TREE_H__
 #define __CHANNEL_TREE_H__
 
+G_BEGIN_DECLS
+
 #include "account.h"
 #include "loqui_channel.h"
-
-G_BEGIN_DECLS
 
 #define TYPE_CHANNEL_TREE                 (channel_tree_get_type ())
 #define CHANNEL_TREE(obj)                 (G_TYPE_CHECK_INSTANCE_CAST ((obj), TYPE_CHANNEL_TREE, ChannelTree))
@@ -59,19 +59,7 @@ GtkType channel_tree_get_type(void) G_GNUC_CONST;
 
 GtkWidget* channel_tree_new(LoquiApp *app);
 
-void channel_tree_add_account(ChannelTree *tree, Account *account);
-void channel_tree_update_account(ChannelTree *tree, Account *account);
-void channel_tree_remove_account(ChannelTree *tree, Account *account);
-
-void channel_tree_add_channel(ChannelTree *tree, Account *account, LoquiChannel *channel);
-void channel_tree_remove_channel(ChannelTree *tree, LoquiChannel *channel);
-
-void channel_tree_select_channel(ChannelTree *tree, LoquiChannel *channel);
-void channel_tree_select_account(ChannelTree *tree, Account *account);
-
-void channel_tree_set_updated(ChannelTree *tree, Account *account, LoquiChannel *channel);
-
-void channel_tree_update_user_number(ChannelTree *tree, LoquiChannel *channel);
+void channel_tree_select_channel_entry(ChannelTree *tree, LoquiChannelEntry *chent);
 
 G_END_DECLS
 

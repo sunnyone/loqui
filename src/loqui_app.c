@@ -40,6 +40,7 @@
 #include "loqui_channel_entry_ui.h"
 #include "loqui_channel_text_view.h"
 #include "loqui_gtk.h"
+#include "loqui_account_manager_store.h"
 
 #include "embedtxt/loqui_app_ui.h"
 
@@ -474,6 +475,7 @@ loqui_app_new(AccountManager *account_manager)
 	LoquiAppPrivate *priv;
 	GError *error = NULL;
 
+	LoquiAccountManagerStore *manager_store;
 	GtkWidget *channel_tree;
 	GtkWidget *nick_list;
 
@@ -492,13 +494,6 @@ loqui_app_new(AccountManager *account_manager)
 
 	g_object_ref(account_manager);
 	app->account_manager = account_manager;
-
-	g_signal_connect_after(G_OBJECT(account_manager), "add-account",
-			       G_CALLBACK(loqui_app_add_account_after_cb), app);
-	g_signal_connect(G_OBJECT(account_manager), "remove-account",
-			 G_CALLBACK(loqui_app_remove_account_cb), app);
-	g_signal_connect_after(G_OBJECT(account_manager), "remove-account",
-			       G_CALLBACK(loqui_app_remove_account_cb), app);
 
 	gtk_window_set_policy(GTK_WINDOW (app), TRUE, TRUE, TRUE);
 
@@ -577,7 +572,10 @@ loqui_app_new(AccountManager *account_manager)
 	SET_SCROLLED_WINDOW(scrolled_win, nick_list, GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
 	gtk_paned_pack1(GTK_PANED(vpaned), scrolled_win, TRUE, TRUE);	
 
+	manager_store = loqui_account_manager_store_new(loqui_app_get_account_manager(app));
+
 	channel_tree = channel_tree_new(app);
+	gtk_tree_view_set_model(GTK_TREE_VIEW(channel_tree), GTK_TREE_MODEL(manager_store));
 	SET_SCROLLED_WINDOW(scrolled_win, channel_tree, GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC); 
 	gtk_paned_pack2(GTK_PANED(vpaned), scrolled_win, FALSE, TRUE);
 	
@@ -600,6 +598,13 @@ loqui_app_new(AccountManager *account_manager)
 
 	loqui_app_actions_toggle_action_set_active(app, "ToggleStatusbar", prefs_general.show_statusbar);
 	loqui_app_actions_toggle_action_set_active(app, "ToggleChannelbar", prefs_general.show_channelbar);
+
+	g_signal_connect_after(G_OBJECT(account_manager), "add-account",
+			       G_CALLBACK(loqui_app_add_account_after_cb), app);
+	g_signal_connect(G_OBJECT(account_manager), "remove-account",
+			 G_CALLBACK(loqui_app_remove_account_cb), app);
+	g_signal_connect_after(G_OBJECT(account_manager), "remove-account",
+			       G_CALLBACK(loqui_app_remove_account_cb), app);
 
 	gtk_widget_grab_focus(app->remark_entry);
 
@@ -837,7 +842,6 @@ loqui_app_channel_entry_notify_number_cb(LoquiChannelEntry *chent, GParamSpec *p
 	if (LOQUI_IS_CHANNEL(chent)) {
 		if (loqui_app_is_current_channel(app, LOQUI_CHANNEL(chent)))
 			loqui_app_channel_changed_cb(NULL, app);
-		channel_tree_update_user_number(app->channel_tree, LOQUI_CHANNEL(chent));
 	}
 }
 static gboolean
@@ -894,7 +898,6 @@ loqui_app_set_current_channel(LoquiApp *app, LoquiChannel *channel)
 	priv->current_account = NULL; /* FIXME: this should be not NULL but channel->account */
 	priv->current_channel = channel;
 
-	channel_tree_select_channel(app->channel_tree, channel);
 	loqui_app_set_channel_buffer(app, loqui_channel_entry_get_buffer(LOQUI_CHANNEL_ENTRY(channel)));
 
 	model = g_object_get_data(G_OBJECT(channel), CHANNEL_ENTRY_STORE_KEY);
@@ -917,6 +920,8 @@ loqui_app_set_current_channel(LoquiApp *app, LoquiChannel *channel)
 			 G_CALLBACK(loqui_app_user_self_notify_cb), app);
 	g_signal_connect(G_OBJECT(user_self), "notify::away",
 			 G_CALLBACK(loqui_app_user_self_notify_cb), app);
+
+	channel_tree_select_channel_entry(app->channel_tree, LOQUI_CHANNEL_ENTRY(channel));
 
 	if (prefs_general.auto_switch_scrolling)
 		loqui_app_actions_toggle_action_set_active(app, LOQUI_ACTION_TOGGLE_SCROLL, TRUE);
@@ -958,7 +963,7 @@ loqui_app_set_current_account(LoquiApp *app, Account *account)
 	priv->current_channel = NULL; /* FIXME */
 	priv->current_account = account;
 
-	channel_tree_select_account(app->channel_tree, account);
+	channel_tree_select_channel_entry(app->channel_tree, LOQUI_CHANNEL_ENTRY(account));
 	loqui_app_set_channel_buffer(app, loqui_channel_entry_get_buffer(LOQUI_CHANNEL_ENTRY(account)));
 
 	model = g_object_get_data(G_OBJECT(account), CHANNEL_ENTRY_STORE_KEY);
@@ -1007,20 +1012,6 @@ loqui_app_is_current_channel_buffer(LoquiApp *app, ChannelBuffer *buffer)
 
 	return (buffer == loqui_app_get_channel_buffer(app));
 }
-void
-loqui_app_update_account(LoquiApp *app, Account *account)
-{
-	LoquiAppPrivate *priv;
-
-        g_return_if_fail(app != NULL);
-        g_return_if_fail(LOQUI_IS_APP(app));
-	g_return_if_fail(account != NULL);
-	g_return_if_fail(IS_ACCOUNT(account));
-
-	priv = app->priv;
-	
-	channel_tree_update_account(app->channel_tree, account);
-}
 static void
 loqui_app_add_account_after_cb(AccountManager *manager, Account *account, LoquiApp *app)
 {
@@ -1056,7 +1047,6 @@ loqui_app_add_account_after_cb(AccountManager *manager, Account *account, LoquiA
 	buffer = loqui_channel_entry_get_buffer(LOQUI_CHANNEL_ENTRY(account));
 	g_signal_connect(G_OBJECT(buffer), "append",
 			 G_CALLBACK(loqui_app_channel_buffer_append_cb), app);
-	channel_tree_add_account(app->channel_tree, account);
 
 	loqui_channel_entry_set_id(LOQUI_CHANNEL_ENTRY(account),
 				   account_manager_new_channel_entry_id(loqui_app_get_account_manager(app)));
@@ -1083,8 +1073,6 @@ loqui_app_remove_account_cb(AccountManager *manager, Account *account, LoquiApp 
 
 	loqui_channel_entry_ui_remove_account(app, account, "/menubar/Buffers", "menubar");
 	loqui_channel_entry_ui_remove_account(app, account, "/ChannelListPopup", "channelbar");
-
-	channel_tree_remove_account(app->channel_tree, account);
 
 	g_signal_handlers_disconnect_by_func(G_OBJECT(account), loqui_app_set_current_account, app);
 	g_signal_handlers_disconnect_by_func(G_OBJECT(account), loqui_app_add_channel_after_cb, app);
@@ -1141,8 +1129,6 @@ loqui_app_add_channel_after_cb(Account *account, LoquiChannel *channel, LoquiApp
 	g_signal_connect(G_OBJECT(buffer), "append",
 			 G_CALLBACK(loqui_app_channel_buffer_append_cb), app);
 
-	channel_tree_add_channel(app->channel_tree, account, channel);
-
 	loqui_channel_entry_set_id(LOQUI_CHANNEL_ENTRY(channel),
 				   account_manager_new_channel_entry_id(loqui_app_get_account_manager(app)));
 	account_manager_update_positions(loqui_app_get_account_manager(app));
@@ -1173,12 +1159,9 @@ loqui_app_remove_channel_cb(Account *account, LoquiChannel *channel, LoquiApp *a
 	loqui_app_set_current_account(app, account);
 	g_signal_handlers_disconnect_by_func(channel, loqui_app_channel_entry_notify_is_updated_cb, app);
 	g_signal_handlers_disconnect_by_func(channel, loqui_app_channel_entry_notify_number_cb, app);
-	g_signal_handlers_disconnect_by_func(channel, channel_tree_update_user_number, app->channel_tree);
 	
 	buffer = loqui_channel_entry_get_buffer(LOQUI_CHANNEL_ENTRY(channel));
 	g_signal_handlers_disconnect_by_func(buffer, loqui_app_channel_buffer_append_cb, app);
-
-	channel_tree_remove_channel(app->channel_tree, channel);
 
 	store = g_object_get_data(G_OBJECT(channel), CHANNEL_ENTRY_STORE_KEY);
 	g_object_unref(store);
@@ -1306,8 +1289,6 @@ loqui_app_channel_entry_notify_is_updated_cb(LoquiChannelEntry *chent, GParamSpe
 
 	if (updated && loqui_app_is_current_channel(app, channel) && app->is_scroll)
 		loqui_channel_entry_set_is_updated(LOQUI_CHANNEL_ENTRY(channel), FALSE);
-
-	channel_tree_set_updated(app->channel_tree, NULL, channel);
 			
 	if (priv->updated_private_talk_number > 0 && priv->updated_channel_number > 0)
 		str = g_strdup_printf(_("Updated: %d private talk(s), %d channel(s)."),
