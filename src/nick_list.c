@@ -63,6 +63,7 @@ static gint nick_list_button_press_event_cb(GtkWidget *widget, GdkEventButton *e
 static void nick_list_row_activated_cb(NickList *list, GtkTreePath *path, GtkTreeViewColumn *col, gpointer data);
 static GSList *nick_list_menu_get_selected_nicks(NickList *nick_list);
 
+static void nick_list_menu_start_private_talk_cb(gpointer data, guint action, GtkWidget *widget);
 static void nick_list_menu_whois_cb(gpointer data, guint action, GtkWidget *widget);
 static void nick_list_menu_mode_give_cb(gpointer data, guint action, GtkWidget *widget);
 static void nick_list_menu_mode_deprive_cb(gpointer data, guint action, GtkWidget *widget);
@@ -78,16 +79,17 @@ enum {
 };
 
 static GtkItemFactoryEntry popup_menu_items[] = {
-	{ N_("/Whois"), NULL, nick_list_menu_whois_cb, 0 },
-	{ N_("/Mode"), NULL, 0, 0, "<Branch>"},
-	{ N_("/Mode/Give channel operator privilege (+o)"), NULL, 
+	{ N_("/Start private talk"), NULL, nick_list_menu_start_private_talk_cb, 0 },
+	{ N_("/Show information [Whois]"), NULL, nick_list_menu_whois_cb, 0 },
+	{ N_("/Change user mode [Mode]"), NULL, 0, 0, "<Branch>"},
+	{ N_("/Change user mode [Mode]/Give channel operator privilege (+o)"), NULL, 
 	     nick_list_menu_mode_give_cb, IRC_CHANNEL_MODE_OPERATOR },
-	{ N_("/Mode/Give speak ability (+v)"), NULL,
+	{ N_("/Change user mode [Mode]/Give speak ability (+v)"), NULL,
              nick_list_menu_mode_give_cb, IRC_CHANNEL_MODE_VOICE },
-	{    "/Mode/sep1", NULL, 0, 0, "<Separator>" },
-	{ N_("/Mode/Deprive channel operator privilege (-o)"), NULL, 
+	{    "/Change user mode [Mode]/sep1", NULL, 0, 0, "<Separator>" },
+	{ N_("/Change user mode [Mode]/Deprive channel operator privilege (-o)"), NULL, 
 	  nick_list_menu_mode_deprive_cb, IRC_CHANNEL_MODE_OPERATOR },
-	{ N_("/Mode/Deprive speak ability (-v)"), NULL,
+	{ N_("/Change user mode [Mode]/Deprive speak ability (-v)"), NULL,
 	  nick_list_menu_mode_deprive_cb, IRC_CHANNEL_MODE_VOICE },
 
 	{ N_("/CTCP"), NULL, 0, 0, "<Branch>" },
@@ -306,6 +308,26 @@ nick_list_menu_get_selected_nicks(NickList *nick_list)
 	g_list_free(row_list);
 
 	return str_list;
+}
+static void
+nick_list_menu_start_private_talk_cb(gpointer data, guint action, GtkWidget *widget)
+{
+	NickList *nick_list;
+	GSList *str_list, *cur;
+	Account *account;
+
+	nick_list = NICK_LIST(data);
+
+	account = account_manager_get_current_account(account_manager_get());
+	if(!account)
+		return;
+
+	str_list = nick_list_menu_get_selected_nicks(nick_list);
+	for(cur = str_list; cur != NULL; cur = cur->next) {
+		account_start_private_talk(account, (gchar *) cur->data);
+		g_free(cur->data);
+	}
+	g_slist_free(str_list);
 }
 static void
 nick_list_menu_whois_cb(gpointer data, guint action, GtkWidget *widget)
