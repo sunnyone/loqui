@@ -138,4 +138,18 @@ class Loqui:Pref from G:Object
 			return;
 		self_set_string_list(self, group_name, key, default_value, length);
 	}
+
+
+	public gchar *set_default_and_get_string(self, const gchar *group_name, const gchar *key, const gchar *default_value, GError **error) {
+		self_set_string_default(self, group_name, key, default_value);
+		return get_string(self, group_name, key, error);
+	}
+	public gint set_default_and_get_integer(self, const gchar *group_name, const gchar *key, gint default_value, GError **error) {
+		self_set_integer_default(self, group_name, key, default_value);
+		return get_integer(self, group_name, key, error);
+	}
+	public gboolean set_default_and_get_boolean(self, const gchar *group_name, const gchar *key, gboolean default_value, GError **error) {
+		self_set_boolean_default(self, group_name, key, default_value);
+		return get_boolean(self, group_name, key, error);
+	}
 }
