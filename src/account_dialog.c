@@ -42,6 +42,8 @@ struct _AccountDialogPrivate
 	GtkWidget *entry_codeset;
 
 	GtkWidget *treeview;
+
+	GtkWidget *textview_nicklist;
 	GtkListStore *list_store;
 };
 
@@ -185,6 +187,7 @@ account_dialog_response_cb(GtkWidget *widget, gint response, gpointer data)
 			     "autojoin", gtk_entry_get_text(GTK_ENTRY(priv->entry_autojoin)),
 			     "codeconv", codeconv,
 			     NULL);
+		gtkutils_set_string_list_from_textview(&priv->account->nick_list, GTK_TEXT_VIEW(priv->textview_nicklist));
 		g_object_unref(codeconv);
 
 		account_remove_all_server(priv->account);
@@ -568,6 +571,15 @@ account_dialog_new(Account *account)
 			 G_CALLBACK(account_dialog_remove_cb), dialog);
 	gtk_box_pack_start(GTK_BOX(vbox_c), button, FALSE, FALSE, 0);
 
+	vbox = gtk_vbox_new(FALSE, 0);
+	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), vbox, gtk_label_new(_("Nick")));
+
+	frame = gtkutils_create_framed_textview(&priv->textview_nicklist,
+						_("List of often using nick(Separate each words with linefeeds)"));
+	gtkutils_set_textview_from_string_list(GTK_TEXT_VIEW(priv->textview_nicklist),
+					       account->nick_list);
+
+	gtk_box_pack_start(GTK_BOX(vbox), frame, TRUE, TRUE, 0);
 
 	gtk_widget_show_all(GTK_WIDGET(dialog));
 
