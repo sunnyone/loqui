@@ -138,6 +138,18 @@ channel_tree_destroy(GtkObject *object)
 static void /* double click */
 channel_tree_row_activated_cb(ChannelTree *tree, GtkTreePath *path, GtkTreeViewColumn *col, gpointer data)
 {
+	GtkTreeModel *model;
+	GtkTreeIter iter;
+	LoquiChannelEntry *chent;
+
+	model = gtk_tree_view_get_model(GTK_TREE_VIEW(tree));
+	gtk_tree_model_get_iter(model, &iter, path);
+	gtk_tree_model_get(model, &iter,
+			   LOQUI_ACCOUNT_MANAGER_STORE_COLUMN_CHANNEL_ENTRY, &chent, -1);
+	if (chent && IS_ACCOUNT(chent) && !account_is_connected(ACCOUNT(chent))) {
+		account_connect(ACCOUNT(chent));
+	}
+
 	gtk_widget_grab_focus(tree->priv->app->remark_entry);
 }
 static void
