@@ -39,15 +39,16 @@ typedef struct _LoquiMessageClass       LoquiMessageClass;
 typedef struct _LoquiMessagePrivate     LoquiMessagePrivate;
 
 typedef enum {
-	LOQUI_MESSAGE_COMMAND_FLAG_NONE = 0,
-	LOQUI_MESSAGE_COMMAND_FLAG_INTERNAL = 1 << 0,
-	LOQUI_MESSAGE_COMMAND_FLAG_RECEIVE = 1 << 1,
-	LOQUI_MESSAGE_COMMAND_FLAG_SEND = 1 << 2
+	LOQUI_COMMAND_FLAG_NONE = 0,
+	LOQUI_COMMAND_FLAG_INTERNAL = 1 << 0, /* the command should be invisible */
+	LOQUI_COMMAND_FLAG_RECEIVE = 1 << 1,
+	LOQUI_COMMAND_FLAG_SEND = 1 << 2
 } LoquiMessageCommandFlags;
 
 typedef struct _LoquiMessageCommandInfo {
 	gchar *name; /* name must be unique */
 	GData *attr_def_dlist; /* ex. attr_dl["channel"] = LOQUI_TYPE_CHANNEL */
+	LoquiMessageCommandFlags flags;
 	gboolean usable;
 } LoquiMessageCommandInfo;
 
@@ -77,10 +78,43 @@ void loqui_message_get_attribute(LoquiMessage *message, const gchar *first_attri
 
 void loqui_message_class_install_command(LoquiMessageClass *message_class,
 					 const gchar *name,
+					 LoquiMessageCommandFlags flags,
 					 const gchar *first_attribute_name,
 					 ...); /* key, type, key, type...; null terminated */
 LoquiMessageCommandInfo *loqui_message_class_get_command_info(LoquiMessageClass *message_class,
 							      const gchar *name);
+
+/* default commands */
+#define LOQUI_COMMAND_UNHANDLED "unhandled"
+
+/* these general messages can be used when no action accompanied. */
+#define LOQUI_COMMAND_ERROR "error"
+#define LOQUI_COMMAND_GLOBAL_INFO "global-info"
+#define LOQUI_COMMAND_CHANNEL_INFO "channel-info"
+#define LOQUI_COMMAND_USER_INFO "user-info"
+
+
+#define LOQUI_COMMAND_MESSAGE "message"
+
+
+#define LOQUI_COMMAND_NICK "nick"
+#define LOQUI_COMMAND_AWAY "away"
+
+#define LOQUI_COMMAND_WHO "who"
+#define LOQUI_COMMAND_WHOIS "whois"
+
+#define LOQUI_COMMAND_QUIT "quit"
+
+
+#define LOQUI_COMMAND_TOPIC "topic"
+
+#define LOQUI_COMMAND_JOIN "join"
+#define LOQUI_COMMAND_PART "part"
+
+#define LOQUI_COMMAND_INVITE "invite"
+#define LOQUI_COMMAND_KICK "kick"
+
+/* TODO: add "online", "offline" */
 
 G_END_DECLS
 
