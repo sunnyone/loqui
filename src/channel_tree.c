@@ -37,7 +37,7 @@ struct _ChannelTreePrivate
 	GtkMenu *popup_menu_channel;
 	GtkMenu *popup_menu_private_talk;
 
-	guint selection_changed_signal_id;
+	guint selection_changed_handler_id;
 };
 
 static GtkTreeViewClass *parent_class = NULL;
@@ -350,8 +350,8 @@ channel_tree_new(LoquiApp *app, GtkMenu *menu_account, GtkMenu *menu_channel, Gt
 			 G_CALLBACK(channel_tree_row_activated_cb), NULL);
 	g_signal_connect(G_OBJECT(tree), "button_press_event",
 			 G_CALLBACK(channel_tree_button_press_event_cb), NULL);
-	priv->selection_changed_signal_id = g_signal_connect(G_OBJECT(selection), "changed",
-							     G_CALLBACK(channel_tree_row_selected_cb), tree);
+	priv->selection_changed_handler_id = g_signal_connect(G_OBJECT(selection), "changed",
+							      G_CALLBACK(channel_tree_row_selected_cb), tree);
 
 	gtk_tree_view_set_rules_hint(GTK_TREE_VIEW(tree), TRUE);
 
@@ -379,7 +379,7 @@ channel_tree_select_channel_entry(ChannelTree *tree, LoquiChannelEntry *chent)
 	store = LOQUI_ACCOUNT_MANAGER_STORE(model);
 	selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(tree));
 	
-	g_signal_handler_block(selection, priv->selection_changed_signal_id);
+	g_signal_handler_block(selection, priv->selection_changed_handler_id);
 
 	loqui_account_manager_store_get_iter_by_channel_entry(store, &iter, chent);
 	path = gtk_tree_model_get_path(model, &iter);
@@ -393,7 +393,7 @@ channel_tree_select_channel_entry(ChannelTree *tree, LoquiChannelEntry *chent)
 	gtk_tree_view_scroll_to_cell(GTK_TREE_VIEW(tree), path, NULL, FALSE, 0, 0);
 	gtk_tree_path_free(path);
 
-	g_signal_handler_unblock(selection, priv->selection_changed_signal_id);
+	g_signal_handler_unblock(selection, priv->selection_changed_handler_id);
 }
 void
 channel_tree_expand_to_channel_entry(ChannelTree *tree, LoquiChannelEntry *chent)
