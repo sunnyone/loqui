@@ -411,7 +411,6 @@ loqui_app_new(AccountManager *account_manager)
 	
 	GtkWidget *menu_channelbar;
 	GtkWidget *menu_nick_list;
-	GtkWidget *menu_channel_tree;
 
 	GdkPixbuf *loqui_icon;
 
@@ -509,8 +508,10 @@ loqui_app_new(AccountManager *account_manager)
 
 	manager_store = loqui_account_manager_store_new(loqui_app_get_account_manager(app));
 
-	menu_channel_tree = gtk_ui_manager_get_widget(app->ui_manager, "/ChannelTreePopup");
-	channel_tree = channel_tree_new(app, GTK_MENU(menu_channel_tree));
+	channel_tree = channel_tree_new(app,
+					GTK_MENU(gtk_ui_manager_get_widget(app->ui_manager, "/AccountPopup")),
+					GTK_MENU(gtk_ui_manager_get_widget(app->ui_manager, "/ChannelPopup")),
+					GTK_MENU(gtk_ui_manager_get_widget(app->ui_manager, "/PrivateTalkPopup")));
 	gtk_tree_view_set_model(GTK_TREE_VIEW(channel_tree), GTK_TREE_MODEL(manager_store));
 	SET_SCROLLED_WINDOW(scrolled_win, channel_tree, GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC); 
 	gtk_paned_pack2(GTK_PANED(vpaned), scrolled_win, FALSE, TRUE);

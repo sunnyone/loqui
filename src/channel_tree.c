@@ -31,7 +31,9 @@
 struct _ChannelTreePrivate
 {
 	LoquiApp *app;
-	GtkMenu *popup_menu;
+	GtkMenu *popup_menu_account;
+	GtkMenu *popup_menu_channel;
+	GtkMenu *popup_menu_private_talk;
 
 	guint selection_changed_signal_id;
 };
@@ -208,22 +210,54 @@ channel_tree_button_press_event_cb(GtkWidget *widget, GdkEventButton *event, gpo
 {
         ChannelTree *tree;
 	ChannelTreePrivate *priv;
+	GtkTreePath *clicked_path;
+	GtkTreeIter iter;
 	GtkMenu *menu;
+	GtkTreeModel *model;
+	LoquiChannelEntry *chent;
+	GtkTreeSelection *selection;
 
 	tree = CHANNEL_TREE(widget);
 	priv = tree->priv;
 
-	menu = GTK_MENU(priv->popup_menu);
+	selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(tree));
+	model = gtk_tree_view_get_model(GTK_TREE_VIEW(tree));
 
 	if (event->type == GDK_BUTTON_PRESS && event->button == 3) {
-		gtkutils_tree_view_popup(GTK_TREE_VIEW(tree), event, menu);
+		if (!gtk_tree_view_get_path_at_pos(GTK_TREE_VIEW(tree), event->x, event->y,
+						   &clicked_path, NULL, NULL, NULL)) {
+			return FALSE;
+		}
+
+		if (!gtk_tree_selection_path_is_selected(selection, clicked_path))
+			gtk_tree_selection_select_path(selection, clicked_path);
+
+		gtk_tree_model_get_iter(model, &iter, clicked_path);
+		gtk_tree_model_get(model, &iter, LOQUI_ACCOUNT_MANAGER_STORE_COLUMN_CHANNEL_ENTRY, &chent, -1);
+		g_return_val_if_fail(chent != NULL, FALSE);
+		
+		if (IS_ACCOUNT(chent)) {
+			menu = GTK_MENU(priv->popup_menu_account);
+		} else if (LOQUI_IS_CHANNEL(chent)) {
+			if (loqui_channel_get_is_private_talk(LOQUI_CHANNEL(chent)))
+				menu = GTK_MENU(priv->popup_menu_private_talk);
+			else
+				menu = GTK_MENU(priv->popup_menu_channel);
+		} else {
+			g_warning("Unknown channel entry type");
+			return FALSE;
+		}
+		
+		gtk_tree_path_free(clicked_path);
+		gtk_menu_popup(menu, NULL, NULL, NULL,
+			       tree, event->button, event->time);
 		return TRUE;
 	}
 
 	return FALSE;
 }	
 GtkWidget*
-channel_tree_new(LoquiApp *app, GtkMenu *menu)
+channel_tree_new(LoquiApp *app, GtkMenu *menu_account, GtkMenu *menu_channel, GtkMenu *menu_private_talk)
 {
         ChannelTree *tree;
 	ChannelTreePrivate *priv;
@@ -236,7 +270,9 @@ channel_tree_new(LoquiApp *app, GtkMenu *menu)
 
 	priv = tree->priv;
 	priv->app = app;
-	priv->popup_menu = menu;
+	priv->popup_menu_account = menu_account;
+	priv->popup_menu_channel = menu_channel;
+	priv->popup_menu_private_talk = menu_private_talk;
 
         gtk_tree_view_set_headers_visible(GTK_TREE_VIEW(tree), FALSE);
 	selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(tree));

@@ -107,24 +107,30 @@
   <popup name="ChannelListPopup" action="StockChannelEntry">
   </popup>
 
-  <popup name="ChannelTreePopup" action="ChannelTreePopup">
-     <placeholder>
+  <popup name="AccountPopup" action="AccountPopup">
+    <placeholder>
       <menuitem name="ConnectCurrentAccount" action="ConnectCurrentAccount"/>
       <menuitem name="ReconnectCurrentAccount" action="ReconnectCurrentAccount"/>
       <menuitem name="DisconnectCurrentAccount" action="DisconnectCurrentAccount"/>
-     </placeholder>
-     <placeholder>
+    </placeholder>
+    <placeholder>
       <menuitem name="ChangeNick" action="ChangeNick"/>
-     </placeholder>
-     <placeholder>
+    </placeholder>
+    <placeholder>
       <menuitem name="Join" action="Join"/>
+      <menuitem name="StartPrivateTalk" action="StartPrivateTalk"/>
+    </placeholder>
+  </popup>
+
+  <popup name="ChannelPopup" action="ChannelPopup">
+     <placeholder>
       <menuitem name="Part" action="Part"/>
       <menuitem name="SetTopic" action="SetTopic"/>
       <menuitem name="RefreshAway" action="RefreshAway"/>
      </placeholder>
-     <placeholder>
-      <menuitem name="StartPrivateTalk" action="StartPrivateTalk"/>
-      <menuitem name="EndPrivateTalk" action="EndPrivateTalk"/>
-     </placeholder>
+  </popup>
+
+  <popup name="PrivateTalkPopup" action="PrivateTalkPopup">
+    <menuitem name="EndPrivateTalk" action="EndPrivateTalk"/>
   </popup>
 </ui>
