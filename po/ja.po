@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: loqui 0.1.20\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2004-05-04 14:44+0900\n"
+"POT-Creation-Date: 2004-05-07 23:44+0900\n"
 "PO-Revision-Date: 2002-11-10 13:17+0900\n"
 "Last-Translator: Yoichi Imai <yoichi@silver-forest.com>\n"
 "Language-Team: Japanese <ja@li.org>\n"
@@ -79,23 +79,23 @@ msgstr "コマンドに改行が含まれています。"
 msgid "No channel is selected"
 msgstr "チャンネルが選択されていません"
 
-#: src/account.c:814 src/account.c:835 src/account.c:862 src/account.c:882
-#: src/account.c:904 src/account.c:935 src/account.c:960 src/account.c:1033
-#: src/account.c:1056 src/account.c:1079 src/account.c:1101
+#: src/account.c:816 src/account.c:837 src/account.c:864 src/account.c:884
+#: src/account.c:906 src/account.c:937 src/account.c:962 src/account.c:1035
+#: src/account.c:1058 src/account.c:1081 src/account.c:1103
 #: src/command_dialog.c:37
 msgid "Account is not connected."
 msgstr "アカウントが接続されていません"
 
-#: src/account.c:849
+#: src/account.c:851
 #, c-format
 msgid "Sent CTCP request to %s: %s"
 msgstr ""
 
-#: src/account.c:910
+#: src/account.c:912
 msgid "This nick seems to be channel."
 msgstr "このnickはチャンネルのようです。"
 
-#: src/account.c:989
+#: src/account.c:991
 msgid "Too many users in change mode request!"
 msgstr ""
 
@@ -184,7 +184,7 @@ msgstr ""
 msgid "Account List"
 msgstr "アカウントリスト"
 
-#: src/account_list_dialog.c:317 src/channel_tree.c:267
+#: src/account_list_dialog.c:317 src/channel_tree.c:303
 #: src/loqui_channel_entry.c:256 src/loqui_channel_entry.c:257
 #: src/loqui_profile_account.c:237
 msgid "Name"
@@ -194,7 +194,7 @@ msgstr "名前"
 msgid "Connect"
 msgstr "接続"
 
-#: src/channel_tree.c:246
+#: src/channel_tree.c:282
 msgid "E"
 msgstr "E"
 
@@ -576,21 +576,17 @@ msgstr ""
 msgid "Invalid parameter number"
 msgstr "無効なパラメータ番号"
 
-#: src/loqui_app.c:301
-msgid "No accounts are selected!"
-msgstr "アカウントが選択されていません"
-
-#: src/loqui_app.c:1176
+#: src/loqui_app.c:1153
 #, c-format
 msgid "Updated: %d private talk(s), %d channel(s)."
 msgstr ""
 
-#: src/loqui_app.c:1180
+#: src/loqui_app.c:1157
 #, c-format
 msgid "Updated: %d private talk(s)."
 msgstr ""
 
-#: src/loqui_app.c:1183
+#: src/loqui_app.c:1160
 #, c-format
 msgid "Updated: %d channel(s)."
 msgstr ""
@@ -994,7 +990,7 @@ msgstr ""
 msgid "Last message time"
 msgstr "最終メッセージ時刻"
 
-#: src/loqui_message.c:165 src/loqui_message.c:166 src/prefs_dialog.c:331
+#: src/loqui_message.c:165 src/loqui_message.c:166 src/prefs_dialog.c:336
 msgid "Command"
 msgstr "コマンド"
 
@@ -1106,7 +1102,7 @@ msgstr "無効なパラメータキー"
 msgid "Invalid object element: parent is not object type"
 msgstr ""
 
-#: src/loqui_profile_handle.c:351 src/prefs_general.c:151
+#: src/loqui_profile_handle.c:351 src/prefs_general.c:153
 #, c-format
 msgid "Invalid element: %s"
 msgstr ""
@@ -1328,127 +1324,144 @@ msgstr ""
 msgid "Text type"
 msgstr ""
 
-#: src/prefs_dialog.c:255
+#: src/prefs_dialog.c:258
 msgid "Common Preferences"
 msgstr "全般の設定"
 
-#: src/prefs_dialog.c:273
+#: src/prefs_dialog.c:276
 msgid "General"
 msgstr "全般"
 
-#: src/prefs_dialog.c:275
+#: src/prefs_dialog.c:278
 msgid "Save window/widget sizes"
 msgstr "ウィンドウとウィジットのサイズを保存する"
 
-#: src/prefs_dialog.c:277
+#: src/prefs_dialog.c:280
 msgid "Switch whether scrolling channel buffer or not automatically"
 msgstr "チャンネルバッファをスクロールするかしないかを自動的に切り替える"
 
-#: src/prefs_dialog.c:279
+#: src/prefs_dialog.c:282
 msgid "Switch whether scrolling common buffer or not automatically"
 msgstr "共通バッファをスクロールするかしないかを自動的に切り替える"
 
-#: src/prefs_dialog.c:282
+#: src/prefs_dialog.c:285
 msgid "Parse plum (an irc proxy) recent feature (Experimental)"
 msgstr "plum(IRC proxy)のrecentをパースする (実験的)"
 
-#: src/prefs_dialog.c:284
+#: src/prefs_dialog.c:287
 msgid "Reconnect automatically when connections are terminated."
 msgstr "接続が切断されたとき自動的に再接続する"
 
-#: src/prefs_dialog.c:287
+#: src/prefs_dialog.c:290
 msgid "Connect default accounts when the program started"
 msgstr "プログラム起動時にデフォルトのアカウントを接続する"
 
-#: src/prefs_dialog.c:290
+#: src/prefs_dialog.c:292
+msgid "Select a new channel automatically."
+msgstr "新しいチャンネルを自動的に選択する"
+
+#: src/prefs_dialog.c:295
 msgid "Away message: "
 msgstr "離席メッセージ: "
 
-#: src/prefs_dialog.c:291
+#: src/prefs_dialog.c:296
 msgid "Format of time in buffers: "
 msgstr "バッファの時間表示形式"
 
-#: src/prefs_dialog.c:294
+#: src/prefs_dialog.c:299
 msgid "Max line number of a common buffer(0: unlimited): "
 msgstr "共通バッファの最大行数(0: 無制限): "
 
-#: src/prefs_dialog.c:298
+#: src/prefs_dialog.c:303
 msgid "Max line number of a channel buffer(0: unlimited): "
 msgstr "チャンネルバッファの最大行数(0: 無制限): "
 
-#: src/prefs_dialog.c:302
+#: src/prefs_dialog.c:307
 msgid "Toggle command mode automatically"
 msgstr "コマンドモードへ自動的に移行する"
 
-#: src/prefs_dialog.c:305
+#: src/prefs_dialog.c:310
 msgid "Prefix for commands: "
 msgstr "コマンド文字"
 
-#: src/prefs_dialog.c:307
+#: src/prefs_dialog.c:312
 msgid "Save logs (Experimental)"
 msgstr "ログの保存(実験的)"
 
-#: src/prefs_dialog.c:311
+#: src/prefs_dialog.c:316
 msgid "Highlight"
 msgstr "強調"
 
-#: src/prefs_dialog.c:313
+#: src/prefs_dialog.c:318
 msgid "Use notification"
 msgstr "通知を使用する"
 
-#: src/prefs_dialog.c:317
+#: src/prefs_dialog.c:322
 msgid "Highlighting keywords(Separate each words with linefeeds)"
 msgstr "強調するキーワード(改行で区切って下さい)"
 
-#: src/prefs_dialog.c:321
+#: src/prefs_dialog.c:326
 msgid "Ignore"
 msgstr "無視"
 
-#: src/prefs_dialog.c:323
+#: src/prefs_dialog.c:328
 msgid "Use ignore (transparent) feature"
 msgstr "無視(透明)機能を使用する"
 
-#: src/prefs_dialog.c:327
+#: src/prefs_dialog.c:332
 msgid "Nickname list to ignore (transparent) ('*' and '?' can be used)"
 msgstr "無視する(透明)ニックネームのリスト('*'や'?'を使用できます)"
 
-#: src/prefs_dialog.c:333
+#: src/prefs_dialog.c:338
 msgid "Browser: "
 msgstr "ブラウザ: "
 
-#: src/prefs_dialog.c:335
+#: src/prefs_dialog.c:340
 msgid "URL is passed to a browser with quoted, like 'http://example.com/'"
 msgstr "'http://example.com/'のように、URLはクォートしてブラウザに渡されます。"
 
-#: src/prefs_dialog.c:338
+#: src/prefs_dialog.c:343
 msgid "Notification: "
 msgstr "通知: "
 
-#: src/prefs_general.c:160
+#: src/prefs_general.c:162
 #, c-format
 msgid "prefs_general: Invalid attribute for entry: %s"
 msgstr ""
 
-#: src/prefs_general.c:166
+#: src/prefs_general.c:168
 #, c-format
 msgid "Unknown key: %s\n"
 msgstr ""
 
-#: src/prefs_general.c:231 src/prefs_general.c:257
+#: src/prefs_general.c:233 src/prefs_general.c:259
 msgid "Unsupported pref type!"
 msgstr ""
 
-#: src/prefs_general.c:317
+#: src/prefs_general.c:319
 #, c-format
 msgid "Loquirc parse error: %s"
 msgstr ""
 
-#: src/prefs_general.c:339
+#: src/prefs_general.c:341
 #, c-format
 msgid "Can't open %s: %s"
 msgstr ""
+
+#: src/remark_entry.c:318
+msgid "Send message with NOTICE (Ctrl+Enter)"
+msgstr "メッセージをNOTICEで送信 (Ctrl+Enter)"
+
+#: src/remark_entry.c:328
+msgid "Toggle multiline mode"
+msgstr "複数行モードを切り替える"
+
+#: src/remark_entry.c:559
+msgid "Not selected an account"
+msgstr "アカウントが選択されていません"
 
 #: src/utils.c:172
 #, c-format
 msgid "?x flag doesn't have { in '%s'"
 msgstr ""
+
