@@ -1,4 +1,6 @@
-INCLUDES = $(GLIB_CFLAGS) $(GNET_CFLAGS) $(EXTRA_WARNING_CFLAGS) -I$(includedir)
+include(loqui-am-macros.m4)dnl
+
+INCLUDES = $(GLIB_CFLAGS) $(GNET_CFLAGS) $(EXTRA_WARNING_CFLAGS) -I$(includedir) -I$(top_srcdir)
 CPPFLAGS = -g -Wall -Wredundant-decls -Wmissing-declarations -Wmissing-prototypes
 
 %.c %.h %-private.h: %.gob
@@ -74,16 +76,17 @@ SRC_LIBRARY_CORE = \
 	loqui-general-pref-groups.h loqui-general-pref-default.h \
 	loqui_account_manager.c loqui_account_manager.h \
 	loqui_account_manager_iter.c loqui_account_manager_iter.h \
-	loqui-core.gob loqui-core.c loqui-core.h loqui-core-private.h \
-	loqui-pref.gob loqui-pref.c loqui-pref.h loqui-pref-private.h \
-	loqui-pref-partial.gob loqui-pref-partial.c loqui-pref-partial.h loqui-pref-partial-private.h \
 	loqui-static-core.c loqui-static-core.h \
 	loqui.h
 
+define(`M4_SRC_LIBRARY_GOB',`loqui-core.gob loqui-pref.gob loqui-pref-partial.gob')dnl
+
+SRC_LIBRARY_GOB := M4_SRC_LIBRARY_GOB
+
+BUILT_SOURCES_FROM_GOB := gob_to_built_sources(M4_SRC_LIBRARY_GOB)
+
 BUILT_SOURCES := loqui_marshalers.c loqui_marshalers.h \
-	loqui-core.c loqui-core.h loqui-core-private.h \
-	loqui-pref.c loqui-pref.h loqui-pref-private.h \
-	loqui-pref-partial.c loqui-pref-partial.h loqui-pref-partial-private.h
+	$(BUILT_SOURCES_FROM_GOB)
 
 lib_LTLIBRARIES = libloqui.la
 
@@ -94,7 +97,8 @@ libloqui_la_SOURCES =  \
 	$(SRC_PROTOCOL_IRC) \
 	$(SRC_PROTOCOL_IPMSG) \
 	$(SRC_PROTOCOL_MSN) \
-	$(SRC_LIBRARY_CORE)
+	$(SRC_LIBRARY_CORE) \
+	$(BUILT_SOURCES_FROM_GOB)
 
 libloqui_la_LIBADD = $(GLIB_LIBS) $(GNET_LIBS)
 
