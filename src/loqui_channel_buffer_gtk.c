@@ -40,6 +40,7 @@ enum {
 
 struct _LoquiChannelBufferGtkPrivate
 {
+	LoquiPrefPartial *ppref_channel_buffer;
 	gboolean is_common_buffer;
 };
 
@@ -80,6 +81,8 @@ static void loqui_channel_buffer_gtk_apply_tag_cb(GtkTextBuffer *buffer,
 static void loqui_channel_buffer_gtk_delete_old_lines(LoquiChannelBufferGtk *buffer);
 
 static void loqui_channel_buffer_gtk_load_styles(LoquiChannelBufferGtk *buffer);
+static void loqui_channel_buffer_gtk_ppref_changed_cb(LoquiPrefPartial *pref, const gchar *key, gpointer data);
+
 
 #define TIME_LEN 11
 
@@ -176,7 +179,7 @@ loqui_channel_buffer_gtk_class_init(LoquiChannelBufferGtkClass *klass)
         object_class->finalize = loqui_channel_buffer_gtk_finalize;
 
 	if(default_tag_table == NULL)
-		loqui_channel_buffer_gtk_init_tags();	
+		loqui_channel_buffer_gtk_init_tags();
 	klass->tag_table = default_tag_table;
 }
 static void
@@ -198,11 +201,18 @@ static void
 loqui_channel_buffer_gtk_finalize(GObject *object)
 {
 	LoquiChannelBufferGtk *channel_buffer;
+	LoquiChannelBufferGtkPrivate *priv;
 
         g_return_if_fail(object != NULL);
         g_return_if_fail(LOQUI_IS_CHANNEL_BUFFER_GTK(object));
 
         channel_buffer = LOQUI_CHANNEL_BUFFER_GTK(object);
+
+	priv = channel_buffer->priv;
+
+	g_signal_handlers_disconnect_by_func(priv->ppref_channel_buffer, loqui_channel_buffer_gtk_ppref_changed_cb, channel_buffer);
+
+	G_OBJECT_UNREF_UNLESS_NULL(priv->ppref_channel_buffer);
 
         if (G_OBJECT_CLASS(parent_class)->finalize)
                 (* G_OBJECT_CLASS(parent_class)->finalize) (object);
@@ -354,7 +364,7 @@ loqui_channel_buffer_gtk_text_inserted_cb(GtkTextBuffer *buffer,
 	loqui_channel_buffer_gtk_tag_uri(buffer, &tmp_iter, text);
 }
 LoquiChannelBufferGtk*
-loqui_channel_buffer_gtk_new(void)
+loqui_channel_buffer_gtk_new(LoquiPrefPartial *ppref_channel_buffer)
 {
         LoquiChannelBufferGtk *channel_buffer;
 	LoquiChannelBufferGtkPrivate *priv;
@@ -362,9 +372,12 @@ loqui_channel_buffer_gtk_new(void)
 	GtkTextIter iter;
 	
 	if(default_tag_table == NULL)
-		loqui_channel_buffer_gtk_init_tags();	
+		loqui_channel_buffer_gtk_init_tags();
+
 	channel_buffer = g_object_new(loqui_channel_buffer_gtk_get_type(), "tag_table", default_tag_table, NULL);
 	priv = channel_buffer->priv;
+
+	priv->ppref_channel_buffer = g_object_ref(ppref_channel_buffer);
 
 	textbuf = GTK_TEXT_BUFFER(channel_buffer);
 
@@ -378,33 +391,29 @@ loqui_channel_buffer_gtk_new(void)
 			       G_CALLBACK(loqui_channel_buffer_gtk_apply_tag_cb), NULL);
 
 	loqui_channel_buffer_gtk_load_styles(channel_buffer);
+	loqui_pref_partial_connect__changed_partial(priv->ppref_channel_buffer, loqui_channel_buffer_gtk_ppref_changed_cb, channel_buffer);
 
 	return channel_buffer;
 }
 static void
-loqui_channel_buffer_gtk_pref_changed_cb(LoquiPref *pref, const gchar *group_name, const gchar *key, gpointer data)
+loqui_channel_buffer_gtk_ppref_changed_cb(LoquiPrefPartial *ppref, const gchar *key, gpointer data)
 {
 	LoquiChannelBufferGtk *buffer;
+
 	GtkTextTag *tag;
 
-	g_return_if_fail(group_name != NULL);
 	g_return_if_fail(key != NULL);
 
 	buffer = LOQUI_CHANNEL_BUFFER_GTK(data);
-
-#define BUFFER_GROUP "BufferText"
-
-	if (strcmp(group_name, BUFFER_GROUP) != 0)
-		return;
 
 #define GET_TAG(buffer, name) gtk_text_tag_table_lookup(gtk_text_buffer_get_tag_table(GTK_TEXT_BUFFER(buffer)), name)
 #define SET_STRING_IF_MATCHED(tag_name, tag_attribute, _key) { \
 	if (strcmp(key, _key) == 0) { \
 		tag = GET_TAG(buffer, tag_name); \
-if (tag == NULL) { g_print("null tag: %s\n", tag_name); } \
+if (tag == NULL) { g_warning("null tag: %s\n", tag_name); } \
                 g_return_if_fail(tag != NULL); \
 		g_object_set(tag, tag_attribute, \
-			     loqui_pref_get_string(pref, BUFFER_GROUP, _key, NULL), NULL); \
+			     loqui_pref_partial_get_string(ppref, _key, NULL), NULL); \
 		return; \
 	} \
 }
@@ -424,11 +433,11 @@ if (tag == NULL) { g_print("null tag: %s\n", tag_name); } \
 static void
 loqui_channel_buffer_gtk_load_styles(LoquiChannelBufferGtk *buffer)
 {
-	LoquiPref *pref;
+	LoquiChannelBufferGtkPrivate *priv;
 
-	pref = LOQUI_CORE_GTK(loqui_get_core())->style_pref;
+	priv = buffer->priv;
 
-#define SET_STRING_DEFAULT(key, value) loqui_pref_set_default_string(pref, "BufferText", key, value)
+#define SET_STRING_DEFAULT(key, value) loqui_pref_partial_set_default_string(priv->ppref_channel_buffer, key, value)
 
 	SET_STRING_DEFAULT("TimeColor", "blue");
 	SET_STRING_DEFAULT("InfoColor", "green3");
@@ -439,8 +448,8 @@ loqui_channel_buffer_gtk_load_styles(LoquiChannelBufferGtk *buffer)
 	SET_STRING_DEFAULT("HighlightColor", "purple");
 
 #undef SET_STRING_DEFAULT
-	loqui_pref_foreach(pref, loqui_channel_buffer_gtk_pref_changed_cb, buffer);
-	loqui_pref_connect__changed(pref, loqui_channel_buffer_gtk_pref_changed_cb, buffer);
+
+	loqui_pref_partial_foreach(priv->ppref_channel_buffer, loqui_channel_buffer_gtk_ppref_changed_cb, buffer);
 }
 static void
 loqui_channel_buffer_gtk_append_current_time(LoquiChannelBufferGtk *buffer)

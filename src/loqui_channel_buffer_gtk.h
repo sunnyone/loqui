@@ -22,6 +22,7 @@
 
 #include <gtk/gtk.h>
 #include "loqui_message_text.h"
+#include "loqui-pref-partial.h"
 
 G_BEGIN_DECLS
 
@@ -59,7 +60,7 @@ struct _LoquiChannelBufferGtkClass
 
 GtkType loqui_channel_buffer_gtk_get_type(void) G_GNUC_CONST;
 
-LoquiChannelBufferGtk* loqui_channel_buffer_gtk_new(void);
+LoquiChannelBufferGtk* loqui_channel_buffer_gtk_new(LoquiPrefPartial *ppref_channel_buffer);
 
 void loqui_channel_buffer_gtk_set_max_line_number(LoquiChannelBufferGtk *buffer, guint max_line_number);
 void loqui_channel_buffer_gtk_set_whether_common_buffer(LoquiChannelBufferGtk *buffer, gboolean is_common_buffer);

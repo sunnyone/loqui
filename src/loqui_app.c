@@ -84,6 +84,8 @@ struct _LoquiAppPrivate
 
 	gint remained_account_num;
 
+	LoquiPrefPartial *ppref_channel_buffer;
+
 	GCompareFunc sort_func;
 };
 
@@ -198,13 +200,16 @@ static void
 loqui_app_destroy(GtkObject *object)
 {
 	LoquiApp *app;
+	LoquiAppPrivate *priv;
 
         g_return_if_fail(object != NULL);
         g_return_if_fail(LOQUI_IS_APP(object));
 
 	app = LOQUI_APP(object);
+	priv = app->priv;
 
 	g_signal_handlers_disconnect_by_func(app->tray_icon, loqui_app_tray_icon_destroy_cb, app);
+	G_OBJECT_UNREF_UNLESS_NULL(priv->ppref_channel_buffer);
 
 	if (GTK_OBJECT_CLASS(parent_class)->destroy)
                 (* GTK_OBJECT_CLASS(parent_class)->destroy) (object);
@@ -629,6 +634,10 @@ loqui_app_new(LoquiAccountManager *account_manager)
 	gtk_window_set_icon(GTK_WINDOW(app), loqui_icon);
 	g_object_unref(loqui_icon);
 
+	priv->ppref_channel_buffer = loqui_pref_partial_new();
+	loqui_pref_partial_set_pref(priv->ppref_channel_buffer, LOQUI_CORE_GTK(loqui_get_core())->style_pref);
+	loqui_pref_partial_set_group_name(priv->ppref_channel_buffer, "BufferText");
+
 	vbox = gtk_vbox_new(FALSE, 0);
 	gtk_container_add(GTK_CONTAINER(app), vbox);
 
@@ -721,7 +730,7 @@ loqui_app_new(LoquiAccountManager *account_manager)
 	app->channel_tree = CHANNEL_TREE(channel_tree);
 	app->nick_list = NICK_LIST(nick_list);
 
-	priv->common_buffer = loqui_channel_buffer_gtk_new();
+	priv->common_buffer = loqui_channel_buffer_gtk_new(priv->ppref_channel_buffer);
 	loqui_channel_buffer_gtk_set_whether_common_buffer(priv->common_buffer, TRUE);
 	loqui_channel_buffer_gtk_set_show_channel_name(priv->common_buffer, TRUE);
 	loqui_channel_buffer_gtk_set_show_account_name(priv->common_buffer, TRUE);
@@ -1079,7 +1088,7 @@ loqui_app_channel_entry_added_after(LoquiApp *app, LoquiChannelEntry *chent)
 	store = loqui_channel_entry_store_new(chent);
 	g_object_set_data(G_OBJECT(chent), CHANNEL_ENTRY_STORE_KEY, store);
 
-	buffer = LOQUI_CHANNEL_BUFFER(loqui_channel_buffer_gtk_new());
+	buffer = LOQUI_CHANNEL_BUFFER(loqui_channel_buffer_gtk_new(priv->ppref_channel_buffer));
 	loqui_channel_entry_set_buffer(chent, buffer);
 
 	chview = loqui_channel_text_view_new(app);

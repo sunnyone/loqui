@@ -49,7 +49,7 @@ class Loqui:Pref:Partial from G:Object
 		self_set_pref(self, NULL);
 	};
 
-	property OBJECT pref (nick = _("Pref"), blurb = _("Pref Object"), default_value = NULL)
+	property OBJECT pref (nick = _("Pref"), blurb = _("Pref Object"), object_type = LOQUI_TYPE_PREF)
 		get { g_value_set_object(VAL, self_get_pref(self)); }
 	        set { self_set_pref(self, g_value_get_object(VAL)); };
 
@@ -144,6 +144,22 @@ class Loqui:Pref:Partial from G:Object
 		g_return_if_fail(self->group_name);
 
 		loqui_pref_set_string_list(LOQUI_PREF(self->pref), self->group_name, key, value, length);
+	}
+
+	public void set_default_string(self, const gchar *key, const gchar *default_value) {
+		g_return_if_fail(self->group_name);
+
+		loqui_pref_set_default_string(LOQUI_PREF(self->pref), self->group_name, key, default_value);
+	}
+	public void set_default_integer(self, const gchar *key, gint default_value) {
+		g_return_if_fail(self->group_name);
+
+		loqui_pref_set_default_integer(LOQUI_PREF(self->pref), self->group_name, key, default_value);
+	}
+	public void set_default_boolean(self, const gchar *key, gboolean default_value) {
+		g_return_if_fail(self->group_name);
+
+		loqui_pref_set_default_boolean(LOQUI_PREF(self->pref), self->group_name, key, default_value);
 	}
 
 	public gboolean has_key(self, const gchar *key, GError **error) {
