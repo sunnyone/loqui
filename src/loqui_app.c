@@ -100,8 +100,12 @@ static gboolean loqui_app_focus_in_event(GtkWidget *widget, GdkEventFocus *event
 static gboolean loqui_app_focus_out_event(GtkWidget *widget, GdkEventFocus *event);
 static gboolean loqui_app_visibility_notify_event(GtkWidget *widget, GdkEventVisibility *event);
 
+static void loqui_app_tray_icon_destroy_after_cb(GtkWidget *widget, LoquiApp *app);
+
 static void loqui_app_restore_size(LoquiApp *app);
 static void loqui_app_save_size(LoquiApp *app);
+
+static void loqui_app_create_tray_icon(LoquiApp *app);
 
 static void loqui_app_add_account_after_cb(AccountManager *manager, LoquiAccount *account, LoquiApp *app);
 static void loqui_app_remove_account_cb(AccountManager *manager, LoquiAccount *account, LoquiApp *app);
@@ -315,6 +319,18 @@ loqui_app_visibility_notify_event(GtkWidget *widget, GdkEventVisibility *event)
 
 	return FALSE;
 }
+static void
+loqui_app_tray_icon_destroy_after_cb(GtkWidget *widget, LoquiApp *app)
+{
+	LoquiAppPrivate *priv;
+
+        g_return_if_fail(app != NULL);
+        g_return_if_fail(LOQUI_IS_APP(app));
+
+	priv = app->priv;
+	
+	loqui_app_create_tray_icon(app);
+}
 gboolean
 loqui_app_has_toplevel_focus(LoquiApp *app)
 {
@@ -499,6 +515,16 @@ loqui_app_update_info(LoquiApp *app,
 	G_FREE_UNLESS_NULL(user_number_str);
 	G_FREE_UNLESS_NULL(op_number_str);
 }
+static void
+loqui_app_create_tray_icon(LoquiApp *app)
+{
+	GtkWidget *menu_tray_icon;
+
+	menu_tray_icon = gtk_ui_manager_get_widget(app->ui_manager, "/TrayIconPopup");
+	app->tray_icon = LOQUI_TRAY_ICON(loqui_tray_icon_new(LOQUI_APP(app), GTK_MENU(menu_tray_icon)));
+	g_signal_connect_after(G_OBJECT(app->tray_icon), "destroy",
+			       G_CALLBACK(loqui_app_tray_icon_destroy_after_cb), app);
+}
 GtkWidget*
 loqui_app_new(AccountManager *account_manager)
 {
@@ -517,7 +543,6 @@ loqui_app_new(AccountManager *account_manager)
 	
 	GtkWidget *menu_channelbar;
 	GtkWidget *menu_nick_list;
-	GtkWidget *menu_tray_icon;
 
 	GdkPixbuf *loqui_icon;
 
@@ -653,8 +678,7 @@ loqui_app_new(AccountManager *account_manager)
 
 	gtk_widget_grab_focus(app->remark_entry);
 
-	menu_tray_icon = gtk_ui_manager_get_widget(app->ui_manager, "/TrayIconPopup");
-	app->tray_icon = LOQUI_TRAY_ICON(loqui_tray_icon_new(LOQUI_APP(app), GTK_MENU(menu_tray_icon)));
+	loqui_app_create_tray_icon(app);
 
 	return GTK_WIDGET(app);
 }
