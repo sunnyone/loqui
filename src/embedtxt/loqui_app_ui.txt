@@ -4,30 +4,28 @@
       <menuitem name="Quit" action="Quit"/>
     </menu>
     <menu name="EditMenu" action="StockEditMenu">
-      <placeholder name="OrdinaryEditItems">
-       <menuitem name="Cut" action="Cut"/>
-       <menuitem name="Copy" action="Copy"/>
-       <menuitem name="Paste" action="Paste"/>
-       <menuitem name="PasteWithLinefeedsCut" action="PasteWithLinefeedsCut"/>
-       <menuitem name="Clear" action="Clear"/>
-      </placeholder>
+      <menuitem name="Cut" action="Cut"/>
+      <menuitem name="Copy" action="Copy"/>
+      <menuitem name="Paste" action="Paste"/>
+      <menuitem name="PasteWithLinefeedsCut" action="PasteWithLinefeedsCut"/>
+      <menuitem name="Clear" action="Clear"/>
+      <separator />
       <menuitem name="ToggleCommandMode" action="ToggleCommandMode"/>
-      <placeholder name="FindItems">
-        <menuitem name="Find" action="Find"/>
-        <menuitem name="FindAgain" action="FindAgain"/>
-	<menuitem name="JumpToPreviousKeyword" action="JumpToPreviousKeyword" />
-	<menuitem name="JumpToNextKeyword" action="JumpToNextKeyword" />
-      </placeholder>
+      <separator />
+      <menuitem name="Find" action="Find"/>
+      <menuitem name="FindAgain" action="FindAgain"/>
+      <menuitem name="JumpToPreviousKeyword" action="JumpToPreviousKeyword" />
+      <menuitem name="JumpToNextKeyword" action="JumpToNextKeyword" />
     </menu>
     <menu name="AccountMenu" action="StockAccountMenu">
       <menuitem name="Connect" action="Connect"/>
-      <placeholder>
-        <menuitem name="ConnectCurrentAccount" action="ConnectCurrentAccount"/>
-	<menuitem name="CancelPendingReconnectingCurrentAccount" action="CancelPendingReconnectingCurrentAccount" />
-        <menuitem name="ReconnectCurrentAccount" action="ReconnectCurrentAccount"/>
-        <menuitem name="DisconnectCurrentAccount" action="DisconnectCurrentAccount"/>
-	<menuitem name="TerminateCurrentAccount" action="TerminateCurrentAccount"/>
-      </placeholder>
+      <separator />
+      <menuitem name="ConnectCurrentAccount" action="ConnectCurrentAccount"/>
+      <menuitem name="CancelPendingReconnectingCurrentAccount" action="CancelPendingReconnectingCurrentAccount" />
+      <menuitem name="ReconnectCurrentAccount" action="ReconnectCurrentAccount"/>
+      <menuitem name="DisconnectCurrentAccount" action="DisconnectCurrentAccount"/>
+      <menuitem name="TerminateCurrentAccount" action="TerminateCurrentAccount"/>
+      <separator />
       <menuitem name="ChangeNick" action="ChangeNick"/>
     </menu>
     <menu name="ChannelMenu" action="StockChannelMenu">
@@ -111,28 +109,22 @@
   </popup>
 
   <popup name="AccountPopup" action="AccountPopup">
-    <placeholder>
-      <menuitem name="ConnectCurrentAccount" action="ConnectCurrentAccount"/>
-      <menuitem name="CancelPendingReconnectingCurrentAccount" action="CancelPendingReconnectingCurrentAccount" />
-      <menuitem name="ReconnectCurrentAccount" action="ReconnectCurrentAccount"/>
-      <menuitem name="DisconnectCurrentAccount" action="DisconnectCurrentAccount"/>
-      <menuitem name="TerminateCurrentAccount" action="TerminateCurrentAccount"/>
-    </placeholder>
-    <placeholder>
-      <menuitem name="ChangeNick" action="ChangeNick"/>
-    </placeholder>
-    <placeholder>
-      <menuitem name="Join" action="Join"/>
-      <menuitem name="StartPrivateTalk" action="StartPrivateTalk"/>
-    </placeholder>
+    <menuitem name="ConnectCurrentAccount" action="ConnectCurrentAccount"/>
+    <menuitem name="CancelPendingReconnectingCurrentAccount" action="CancelPendingReconnectingCurrentAccount" />
+    <menuitem name="ReconnectCurrentAccount" action="ReconnectCurrentAccount"/>
+    <menuitem name="DisconnectCurrentAccount" action="DisconnectCurrentAccount"/>
+    <menuitem name="TerminateCurrentAccount" action="TerminateCurrentAccount"/>
+    <separator />
+    <menuitem name="ChangeNick" action="ChangeNick"/>
+    <separator />
+    <menuitem name="Join" action="Join"/>
+    <menuitem name="StartPrivateTalk" action="StartPrivateTalk"/>
   </popup>
 
   <popup name="ChannelPopup" action="ChannelPopup">
-     <placeholder>
-      <menuitem name="Part" action="Part"/>
-      <menuitem name="SetTopic" action="SetTopic"/>
-      <menuitem name="Refresh" action="Refresh"/>
-     </placeholder>
+     <menuitem name="Part" action="Part"/>
+     <menuitem name="SetTopic" action="SetTopic"/>
+     <menuitem name="Refresh" action="Refresh"/>
   </popup>
 
   <popup name="PrivateTalkPopup" action="PrivateTalkPopup">
