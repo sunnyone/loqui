@@ -33,7 +33,14 @@
 
 GtkActionGroup* loqui_app_actions_create_group(LoquiApp *app);
 void loqui_app_actions_toggle_action_set_active(LoquiApp *app, const gchar *name, gboolean is_active);
+void loqui_app_actions_update_sensitivity_related_channel(LoquiApp *app);
 
 #define LOQUI_ACTION_TOGGLE_SCROLL "ToggleScroll"
+#define LOQUI_ACTION_JOIN "Join"
+#define LOQUI_ACTION_PART "Part"
+#define LOQUI_ACTION_CHANGE_NICK "ChangeNick"
+#define LOQUI_ACTION_SET_TOPIC "SetTopic"
+#define LOQUI_ACTION_REFRESH_AWAY "RefreshAway"
+#define LOQUI_ACTION_START_PRIVATE_TALK "StartPrivateTalk"
 
 #endif /* __LOQUI_APP_ACTIONS_H__ */

@@ -459,6 +459,7 @@ loqui_app_update_info(LoquiApp *app,
 	} else if (is_channel_changed) {
 		loqui_channelbar_set_current_channel(LOQUI_CHANNELBAR(app->channelbar), channel);
 	}
+	loqui_app_actions_update_sensitivity_related_channel(app);
 
 #define FORMAT_INFO(format) \
  utils_format(format, 'c', channel_name, 'a', account_name, \

@@ -95,7 +95,7 @@ static GtkActionEntry loqui_action_entries[] =
 	
 	{"StockModeMenu",        NULL, N_("Change user mode [Mode]"), NULL, NULL},
 	{"StockCTCPMenu",        NULL, N_("CTCP"),        NULL, NULL},
-	{"StockNickListSortTypeMenu",  NULL, N_("Sort type of NickList"),        NULL, NULL},
+	{"StockNickListSortTypeMenu",  NULL, N_("Sort Type of NickList"),        NULL, NULL},
 	{"StockChannelEntry",    NULL, "",                NULL, NULL},
 
 	{"FakeToplevel",         NULL, (""),               NULL, NULL, NULL},
@@ -113,24 +113,24 @@ static GtkActionEntry loqui_action_entries[] =
         {"Find",                  GTK_STOCK_FIND, N_("_Find"), CTRL"F", NULL, NULL},
         {"FindAgain",             GTK_STOCK_FIND, N_("_Find Again"), NULL, NULL, NULL},
 
-	{"Join",                  NULL, N_("_Join"), ALT "J", NULL, G_CALLBACK(loqui_app_actions_join_cb)},
+	{"Join",                  GTK_STOCK_ADD, N_("_Join a Channel"), ALT "J", NULL, G_CALLBACK(loqui_app_actions_join_cb)},
         {"StartPrivateTalk",      NULL, N_("_Start Private Talk"), NULL, NULL, G_CALLBACK(loqui_app_actions_start_private_talk_cb)},
-        {"Part",                  NULL, N_("_Part"), NULL, NULL, G_CALLBACK(loqui_app_actions_part_cb)},
-        {"SetTopic",              NULL, N_("Set _Topic"), ALT "T", NULL, G_CALLBACK(loqui_app_actions_set_topic_cb)},
+        {"Part",                  GTK_STOCK_REMOVE, N_("_Part Current Channel"), NULL, NULL, G_CALLBACK(loqui_app_actions_part_cb)},
+        {"SetTopic",              NULL, N_("Set _Topic of Current Channel"), ALT "T", NULL, G_CALLBACK(loqui_app_actions_set_topic_cb)},
         {"ChangeNick",            NULL, N_("_Change Nickname"), CTRL ALT "N", NULL, G_CALLBACK(loqui_app_actions_nick_cb)},
-        {"RefreshAway",           NULL, N_("_Refresh users' away information of current channel"), CTRL ALT "A", NULL, G_CALLBACK(loqui_app_actions_away_info_cb)},
+        {"RefreshAway",           NULL, N_("_Refresh Users' Away Information of Current Channel"), CTRL ALT "A", NULL, G_CALLBACK(loqui_app_actions_away_info_cb)},
 
-        {"PreviousUpdatedChannel", GTK_STOCK_GOTO_TOP, N_("_Previous updated channel buffer"), CTRL SHIFT "space", NULL, G_CALLBACK(loqui_app_actions_previous_updated_channel_buffer_cb)},
-        {"NextUpdatedChannel",     GTK_STOCK_GOTO_BOTTOM, N_("_Next updated channel buffer"), CTRL "space", NULL, G_CALLBACK(loqui_app_actions_next_updated_channel_buffer_cb)},
-        {"PreviousChannel",        GTK_STOCK_GO_UP, N_("Previous channel buffer"),CTRL "Up", NULL, G_CALLBACK(loqui_app_actions_previous_channel_buffer_cb)},
-        {"NextChannel",            GTK_STOCK_GO_DOWN, N_("Next channel buffer"), CTRL "Down", NULL, G_CALLBACK(loqui_app_actions_next_channel_buffer_cb)},
+        {"PreviousUpdatedChannel", GTK_STOCK_GOTO_TOP, N_("_Previous Updated Channel Buffer"), CTRL SHIFT "space", NULL, G_CALLBACK(loqui_app_actions_previous_updated_channel_buffer_cb)},
+        {"NextUpdatedChannel",     GTK_STOCK_GOTO_BOTTOM, N_("_Next Updated Channel Buffer"), CTRL "space", NULL, G_CALLBACK(loqui_app_actions_next_updated_channel_buffer_cb)},
+        {"PreviousChannel",        GTK_STOCK_GO_UP, N_("Previous Channel Buffer"), CTRL "Up", NULL, G_CALLBACK(loqui_app_actions_previous_channel_buffer_cb)},
+        {"NextChannel",            GTK_STOCK_GO_DOWN, N_("Next Channel Buffer"), CTRL "Down", NULL, G_CALLBACK(loqui_app_actions_next_channel_buffer_cb)},
         {"GeneralSettings",        NULL, N_("_General Settings"), NULL, NULL, G_CALLBACK(loqui_app_actions_common_settings_cb)},
         {"AccountSettings",        NULL, N_("_Account Settings"), NULL, NULL, G_CALLBACK(loqui_app_actions_account_settings_cb)},
 
         {"About",                  NULL, N_("_About"), NULL, NULL, G_CALLBACK(loqui_app_actions_about_cb)},
 
         {"StartPrivateTalkSelected", NULL, N_("Start private talk"), NULL, NULL, G_CALLBACK(loqui_app_actions_start_private_talk_selected_cb)},
-        {"WhoisSelected",            NULL, N_("Show information [Whois]"), NULL, NULL, G_CALLBACK(loqui_app_actions_whois_selected_cb)},
+        {"WhoisSelected",            NULL, N_("Show Information [Whois]"), NULL, NULL, G_CALLBACK(loqui_app_actions_whois_selected_cb)},
         {"GiveOpSelected",           LOQUI_STOCK_OPERATOR, N_("Give Channel Operator Privilege (+o)"), NULL, NULL, G_CALLBACK(loqui_app_actions_give_op_selected_cb)},
         {"GiveVoiceSelected",        LOQUI_STOCK_SPEAK_ABILITY, N_("Give Voice Privilege (+v)"), NULL, NULL, G_CALLBACK(loqui_app_actions_give_voice_selected_cb)},
         {"DepriveOpSelected",        NULL, N_("Deprive Channel Operator Privilege (-o)"), NULL, NULL, G_CALLBACK(loqui_app_actions_deprive_op_selected_cb)},
@@ -197,6 +197,48 @@ loqui_app_actions_toggle_action_set_active(LoquiApp *app, const gchar *name, gbo
 
 	toggle_action = GTK_TOGGLE_ACTION(gtk_action_group_get_action(app->action_group, name));
 	gtk_toggle_action_set_active(toggle_action, is_active);
+}
+void
+loqui_app_actions_update_sensitivity_related_channel(LoquiApp *app)
+{
+	LoquiChannelEntry *chent;
+	Account *account;
+	LoquiChannel *channel;
+
+	chent = loqui_app_get_current_channel_entry(app);
+
+	if (chent == NULL) {
+		ACTION_GROUP_ACTION_SET_SENSITIVE(app->action_group, LOQUI_ACTION_JOIN, FALSE);
+		ACTION_GROUP_ACTION_SET_SENSITIVE(app->action_group, LOQUI_ACTION_PART, FALSE);
+		ACTION_GROUP_ACTION_SET_SENSITIVE(app->action_group, LOQUI_ACTION_SET_TOPIC, FALSE);
+		ACTION_GROUP_ACTION_SET_SENSITIVE(app->action_group, LOQUI_ACTION_CHANGE_NICK, FALSE);
+		ACTION_GROUP_ACTION_SET_SENSITIVE(app->action_group, LOQUI_ACTION_REFRESH_AWAY, FALSE);
+		ACTION_GROUP_ACTION_SET_SENSITIVE(app->action_group, LOQUI_ACTION_START_PRIVATE_TALK, FALSE);
+		
+		return;
+	}
+
+	account = loqui_app_get_current_account(app);
+	if (account == NULL || !account_is_connected(account)) {
+		ACTION_GROUP_ACTION_SET_SENSITIVE(app->action_group, LOQUI_ACTION_JOIN, FALSE);
+		ACTION_GROUP_ACTION_SET_SENSITIVE(app->action_group, LOQUI_ACTION_CHANGE_NICK, FALSE);
+		ACTION_GROUP_ACTION_SET_SENSITIVE(app->action_group, LOQUI_ACTION_START_PRIVATE_TALK, FALSE);
+	} else {
+		ACTION_GROUP_ACTION_SET_SENSITIVE(app->action_group, LOQUI_ACTION_JOIN, TRUE);
+		ACTION_GROUP_ACTION_SET_SENSITIVE(app->action_group, LOQUI_ACTION_CHANGE_NICK, TRUE);
+		ACTION_GROUP_ACTION_SET_SENSITIVE(app->action_group, LOQUI_ACTION_START_PRIVATE_TALK, TRUE);
+	}
+
+	channel = loqui_app_get_current_channel(app);
+	if (channel == NULL || !loqui_channel_get_is_joined(channel) || loqui_channel_get_is_private_talk(channel)) {
+		ACTION_GROUP_ACTION_SET_SENSITIVE(app->action_group, LOQUI_ACTION_SET_TOPIC, FALSE);
+ 		ACTION_GROUP_ACTION_SET_SENSITIVE(app->action_group, LOQUI_ACTION_PART, FALSE);
+		ACTION_GROUP_ACTION_SET_SENSITIVE(app->action_group, LOQUI_ACTION_REFRESH_AWAY, FALSE);
+	} else {
+		ACTION_GROUP_ACTION_SET_SENSITIVE(app->action_group, LOQUI_ACTION_SET_TOPIC, TRUE);
+ 		ACTION_GROUP_ACTION_SET_SENSITIVE(app->action_group, LOQUI_ACTION_PART, TRUE);
+		ACTION_GROUP_ACTION_SET_SENSITIVE(app->action_group, LOQUI_ACTION_REFRESH_AWAY, TRUE);
+	}
 }
 
 /* callbacks */
