@@ -364,10 +364,12 @@ loqui_app_update_info(LoquiApp *app,
 									      account_get_away_status(account));
 			remark_entry_set_nick_list(REMARK_ENTRY(priv->entry), account->nick_list);
 		}
+		loqui_channelbar_set_current_account(LOQUI_CHANNELBAR(app->channelbar), account);
 		loqui_statusbar_set_current_account(LOQUI_STATUSBAR(priv->statusbar), account);
 	}
 
 	if(is_channel_changed) {
+		loqui_channelbar_set_current_channel(LOQUI_CHANNELBAR(app->channelbar), channel);
 		loqui_statusbar_set_current_channel(LOQUI_STATUSBAR(priv->statusbar), channel);
 	}
 	

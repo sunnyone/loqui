@@ -423,9 +423,6 @@ void account_manager_set_current_channel(AccountManager *manager, Channel *chann
 
 	if(priv->current_channel) {
 		g_signal_handlers_disconnect_by_func(priv->current_channel, account_manager_channel_changed_cb, manager);
-		g_signal_handlers_disconnect_by_func(priv->current_channel,
-						     loqui_channelbar_set_current_channel, 
-						     priv->app->channelbar);
 	}
 	if(priv->current_account) {
 		g_signal_handlers_disconnect_by_func(priv->current_account, account_manager_account_changed_cb, manager);
@@ -449,12 +446,6 @@ void account_manager_set_current_channel(AccountManager *manager, Channel *chann
 
 	g_signal_connect(G_OBJECT(channel), "topic-changed",
 			 G_CALLBACK(account_manager_channel_changed_cb), manager);
-	g_signal_connect_swapped(G_OBJECT(channel), "topic-changed",
-				 G_CALLBACK(loqui_channelbar_set_current_channel), priv->app->channelbar);
-	g_signal_connect_swapped(G_OBJECT(channel), "user-number-changed",
-				 G_CALLBACK(loqui_channelbar_set_current_channel), priv->app->channelbar);
-	g_signal_connect_swapped(G_OBJECT(channel), "mode-changed",
-				 G_CALLBACK(loqui_channelbar_set_current_channel), priv->app->channelbar);			 
 	g_signal_connect(G_OBJECT(channel), "user-number-changed",
 			 G_CALLBACK(account_manager_channel_changed_cb), manager);
 	g_signal_connect(G_OBJECT(channel), "mode-changed",
@@ -467,7 +458,6 @@ void account_manager_set_current_channel(AccountManager *manager, Channel *chann
 	if(prefs_general.auto_switch_scrolling)
 		account_manager_set_whether_scrolling(manager, TRUE);
 
-	loqui_channelbar_set_current_channel(LOQUI_CHANNELBAR(priv->app->channelbar), channel);
 	loqui_app_set_focus(priv->app);
 }
 
@@ -484,9 +474,6 @@ void account_manager_set_current_account(AccountManager *manager, Account *accou
 
 	if(priv->current_channel) {
 		g_signal_handlers_disconnect_by_func(priv->current_channel, account_manager_channel_changed_cb, manager);
-		g_signal_handlers_disconnect_by_func(priv->current_channel,
-						     loqui_channelbar_set_current_channel, 
-						     priv->app->channelbar);
 	}
 	if(priv->current_account) {
 		g_signal_handlers_disconnect_by_func(priv->current_account, account_manager_account_changed_cb, manager);
@@ -514,7 +501,6 @@ void account_manager_set_current_account(AccountManager *manager, Account *accou
 	if(prefs_general.auto_switch_scrolling)
 		account_manager_set_whether_scrolling(manager, TRUE);
 
-	loqui_channelbar_set_current_account(LOQUI_CHANNELBAR(priv->app->channelbar), account);
 	loqui_app_set_focus(priv->app);
 }
 
