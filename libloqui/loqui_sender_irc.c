@@ -21,7 +21,6 @@
 #include "config.h"
 
 #include "loqui_sender_irc.h"
-#include "prefs_general.h"
 
 #include "ctcp_message.h"
 #include "intl.h"
@@ -32,6 +31,8 @@
 #include "loqui-static-core.h"
 
 #include <string.h>
+#include "loqui-general-pref-default.h"
+#include "loqui-general-pref-groups.h"
 
 enum {
         LAST_SIGNAL
@@ -318,21 +319,27 @@ loqui_sender_irc_away(LoquiSender *sender, LoquiAwayType away_type, const gchar 
 {
 	const gchar *text;
 	IRCMessage *msg = NULL;
+	gchar *away_message_pref;
 
         g_return_if_fail(sender != NULL);
         g_return_if_fail(LOQUI_IS_SENDER_IRC(sender));
 
 	WARN_AND_RETURN_UNLESS_CONNECTED(sender);
 
+	away_message_pref = loqui_pref_get_with_default_string(loqui_get_general_pref(),
+							       LOQUI_GENERAL_PREF_GROUP_MESSAGES, "AwayMessage",
+							       LOQUI_GENERAL_PREF_DEFAULT_MESSAGES_AWAY_MESSAGE, NULL);
 	if (away_type == LOQUI_AWAY_TYPE_AWAY) {
-		text = away_message == NULL ? prefs_general.away_message : away_message;
+		text = away_message == NULL ? away_message_pref : away_message;
 		msg = irc_message_create(IRCCommandAway, text, NULL);
 	} else if (away_type == LOQUI_AWAY_TYPE_ONLINE) {
 		msg = irc_message_create(IRCCommandAway, NULL);
 	} else {
 		g_warning("Invalid away_type is specified.");
+		g_free(away_message_pref);
 		return;
 	}
+	g_free(away_message_pref);
 
 	loqui_sender_irc_send_irc_message(LOQUI_SENDER_IRC(sender), msg);
 	g_object_unref(msg);

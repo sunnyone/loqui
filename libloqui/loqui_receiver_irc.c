@@ -25,7 +25,6 @@
 #include "loqui_account_manager.h"
 #include "irc_constants.h"
 #include "intl.h"
-#include "prefs_general.h"
 #include "ctcp_message.h"
 #include "ctcp_handle.h"
 #include "loqui_user_irc.h"
@@ -42,6 +41,8 @@
 #include <time.h>
 
 #include "loqui-static-core.h"
+#include "loqui-general-pref-default.h"
+#include "loqui-general-pref-groups.h"
 
 struct _LoquiReceiverIRCPrivate
 {
@@ -280,7 +281,9 @@ loqui_receiver_irc_command_privmsg_notice(LoquiReceiverIRC *receiver, IRCMessage
 
 	if(priv->end_motd == FALSE &&
 	   msg->response == IRC_COMMAND_NOTICE &&
-	   prefs_general.parse_plum_recent) {
+	   loqui_pref_get_with_default_boolean(loqui_get_general_pref(),
+					       LOQUI_GENERAL_PREF_GROUP_PROXY, "ParsePlumRecent",
+					       LOQUI_GENERAL_PREF_DEFAULT_PROXY_PARSE_PLUM_RECENT, NULL)) {
 		if(loqui_receiver_irc_parse_plum_recent(receiver, remark))
 			return;
 	}
