@@ -26,6 +26,7 @@
 enum {
 	SIGNAL_ADD,
 	SIGNAL_REMOVE,
+	SIGNAL_APPEND_MESSAGE_TEXT,
 	SIGNAL_REORDERED,
         LAST_SIGNAL
 };
@@ -66,6 +67,8 @@ static void loqui_channel_entry_set_property(GObject *object, guint param_id, co
 
 static void loqui_channel_entry_add_real(LoquiChannelEntry *chent, LoquiMember *member);
 static void loqui_channel_entry_remove_real(LoquiChannelEntry *chent, LoquiMember *member);
+static void loqui_channel_entry_append_message_text_real(LoquiChannelEntry *chent, LoquiMessageText *msgtext);
+
 static void loqui_channel_entry_member_notify_is_channel_operator_cb(LoquiMember *member, GParamSpec *pspec, LoquiChannelEntry *chent);
 
 static void loqui_channel_entry_member_notify_cb(LoquiMember *member, GParamSpec *pspec, LoquiChannelEntry *chent);
@@ -248,6 +251,7 @@ loqui_channel_entry_class_init(LoquiChannelEntryClass *klass)
         object_class->set_property = loqui_channel_entry_set_property;
 	klass->remove = loqui_channel_entry_remove_real;
 	klass->add = loqui_channel_entry_add_real;
+	klass->append_message_text = loqui_channel_entry_append_message_text_real;
 	klass->reordered = NULL;
 
 	g_object_class_install_property(object_class,
@@ -337,6 +341,14 @@ loqui_channel_entry_class_init(LoquiChannelEntryClass *klass)
 								  g_cclosure_marshal_VOID__OBJECT,
 								  G_TYPE_NONE, 1,
 								  LOQUI_TYPE_MEMBER);
+	loqui_channel_entry_signals[SIGNAL_APPEND_MESSAGE_TEXT] = g_signal_new("append_message_text",
+									       G_OBJECT_CLASS_TYPE(object_class),
+									       G_SIGNAL_RUN_LAST,
+									       G_STRUCT_OFFSET(LoquiChannelEntryClass, append_message_text),
+									       NULL, NULL,
+									       g_cclosure_marshal_VOID__OBJECT,
+									       G_TYPE_NONE, 1,
+									       LOQUI_TYPE_MESSAGE_TEXT);
 	loqui_channel_entry_signals[SIGNAL_REORDERED] = g_signal_new("reordered",
 								     G_OBJECT_CLASS_TYPE(object_class),
 								     G_SIGNAL_RUN_FIRST,
@@ -453,6 +465,19 @@ loqui_channel_entry_remove_real(LoquiChannelEntry *chent, LoquiMember *member)
 
 	g_object_notify(G_OBJECT(chent), "member-number");
 	g_object_unref(member);
+}
+static void
+loqui_channel_entry_append_message_text_real(LoquiChannelEntry *chent, LoquiMessageText *msgtext)
+{
+	ChannelBuffer *buffer;
+
+	g_return_if_fail(chent != NULL);
+        g_return_if_fail(LOQUI_IS_CHANNEL_ENTRY(chent));
+
+	buffer = loqui_channel_entry_get_buffer(chent);
+	if (buffer) {
+		channel_buffer_append_message_text(buffer, msgtext);
+	}
 }
 static void
 loqui_channel_entry_member_notify_is_channel_operator_cb(LoquiMember *member, GParamSpec *pspec, LoquiChannelEntry *chent)
@@ -750,3 +775,12 @@ LOQUI_CHANNEL_ENTRY_ACCESSOR_STRING(topic);
 LOQUI_CHANNEL_ENTRY_ACCESSOR_STRING(name);
 LOQUI_CHANNEL_ENTRY_ACCESSOR_GENERIC(gint, position);
 LOQUI_CHANNEL_ENTRY_ACCESSOR_GENERIC(gint, id);
+
+void
+loqui_channel_entry_append_message_text(LoquiChannelEntry *chent, LoquiMessageText *msgtext)
+{
+	g_return_if_fail(chent != NULL);
+        g_return_if_fail(LOQUI_IS_CHANNEL_ENTRY(chent));
+
+	g_signal_emit(G_OBJECT(chent), loqui_channel_entry_signals[SIGNAL_APPEND_MESSAGE_TEXT], 0, msgtext);
+}

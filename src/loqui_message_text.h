@@ -64,6 +64,7 @@ struct _LoquiMessageText
 	gboolean is_self;
 	gboolean is_priv;
 	gboolean is_remark;
+	gboolean exec_notification;
 
         LoquiMessageTextPrivate *priv;
 };
@@ -90,6 +91,7 @@ LOQUI_MESSAGE_TEXT_ACCESSOR_STRING_PROTOTYPE(channel_name);
 ATTR_ACCESSOR_GENERIC_PROTOTYPE(gboolean, LoquiMessageText, loqui_message_text, is_self);
 ATTR_ACCESSOR_GENERIC_PROTOTYPE(gboolean, LoquiMessageText, loqui_message_text, is_priv);
 ATTR_ACCESSOR_GENERIC_PROTOTYPE(gboolean, LoquiMessageText, loqui_message_text, is_remark);
+ATTR_ACCESSOR_GENERIC_PROTOTYPE(gboolean, LoquiMessageText, loqui_message_text, exec_notification);
 
 void loqui_message_text_set_text_type(LoquiMessageText *msgtext, LoquiTextType type);
 LoquiTextType loqui_message_text_get_text_type(LoquiMessageText *msgtext);

@@ -124,7 +124,8 @@ static void loqui_app_channel_text_view_notify_is_scroll_common_buffer_cb(LoquiC
 
 static void loqui_app_channel_entry_notify_has_unread_keyword_cb(LoquiChannelEntry *chent, GParamSpec *pspec, gpointer data);
 
-static void loqui_app_channel_buffer_append_cb(ChannelBuffer *buffer, LoquiMessageText *msgtext, LoquiApp *app);
+static void loqui_app_channel_entry_append_message_text_cb(LoquiChannelEntry *chent, LoquiMessageText *msgtext, LoquiApp *app);
+
 static void loqui_app_append_log(LoquiApp *app, LoquiMessageText *msgtext);
 
 static gboolean loqui_app_set_current_channel_for_idle(LoquiApp *app);
@@ -1007,10 +1008,9 @@ loqui_app_channel_entry_added_after(LoquiApp *app, LoquiChannelEntry *chent)
 	store = loqui_channel_entry_store_new(chent);
 	g_object_set_data(G_OBJECT(chent), CHANNEL_ENTRY_STORE_KEY, store);
 
-	buffer = loqui_channel_entry_get_buffer(chent);
-	g_signal_connect(G_OBJECT(buffer), "append",
-			 G_CALLBACK(loqui_app_channel_buffer_append_cb), app);
-	
+	buffer = channel_buffer_new();
+	loqui_channel_entry_set_buffer(chent, buffer);
+
 	chview = loqui_channel_text_view_new(app);
 	g_object_set_data(G_OBJECT(chent), CHANNEL_TEXT_VIEW_KEY, chview);
 	loqui_channel_text_view_set_channel_buffer(LOQUI_CHANNEL_TEXT_VIEW(chview), buffer);
@@ -1029,11 +1029,12 @@ loqui_app_channel_entry_added_after(LoquiApp *app, LoquiChannelEntry *chent)
 
 	g_signal_connect(G_OBJECT(chent), "notify::has-unread-keyword",
 			 G_CALLBACK(loqui_app_channel_entry_notify_has_unread_keyword_cb), app);
+	g_signal_connect(G_OBJECT(chent), "append-message-text",
+			 G_CALLBACK(loqui_app_channel_entry_append_message_text_cb), app);
 }
 static void
 loqui_app_channel_entry_removed(LoquiApp *app, LoquiChannelEntry *chent)
 {
-	ChannelBuffer *buffer;
 	LoquiChannelEntryStore *store;
 	GtkWidget *chview;
 
@@ -1044,8 +1045,7 @@ loqui_app_channel_entry_removed(LoquiApp *app, LoquiChannelEntry *chent)
 
 	loqui_app_info_channel_entry_removed(app->appinfo, chent);
 
-	buffer = loqui_channel_entry_get_buffer(chent);
-	g_signal_handlers_disconnect_by_func(buffer, loqui_app_channel_buffer_append_cb, app);
+	g_signal_handlers_disconnect_by_func(chent, loqui_app_channel_entry_append_message_text_cb, app);
 
 	chview = g_object_get_data(G_OBJECT(chent), CHANNEL_TEXT_VIEW_KEY);
 	gtk_notebook_remove_page(GTK_NOTEBOOK(app->channel_notebook),
@@ -1219,10 +1219,14 @@ loqui_app_channel_entry_notify_has_unread_keyword_cb(LoquiChannelEntry *chent, G
 		loqui_tray_icon_set_hilighted(app->tray_icon, TRUE);
 }
 static void
-loqui_app_channel_buffer_append_cb(ChannelBuffer *buffer, LoquiMessageText *msgtext, LoquiApp *app)
+loqui_app_channel_entry_append_message_text_cb(LoquiChannelEntry *chent, LoquiMessageText *msgtext, LoquiApp *app)
 {
 	LoquiAppPrivate *priv;
 	GtkWidget *chview;
+	gboolean matched;
+	GList *cur;
+	gchar *word;
+	const gchar *remark;
 
         g_return_if_fail(app != NULL);
         g_return_if_fail(LOQUI_IS_APP(app));
@@ -1235,14 +1239,36 @@ loqui_app_channel_buffer_append_cb(ChannelBuffer *buffer, LoquiMessageText *msgt
 	if (prefs_general.save_log)
 		loqui_app_append_log(app, msgtext);
 
+	if (loqui_message_text_get_exec_notification(msgtext) &&
+	    loqui_message_text_get_is_remark(msgtext) &&
+	    prefs_general.use_notification &&
+	    prefs_general.notification_command &&
+	    strlen(prefs_general.notification_command) > 0) {
+		
+		remark = loqui_message_text_get_text(msgtext);
+		matched = FALSE;
+		for (cur = prefs_general.highlight_list; cur != NULL; cur = cur->next) {
+			word = (gchar *) cur->data;
+			if (strstr(remark, word) != NULL) {
+				loqui_channel_entry_set_has_unread_keyword(chent, TRUE);
+				matched = TRUE;
+				break;
+			}
+		}
+
+		if (matched)
+			gtkutils_exec_command_with_error_dialog(prefs_general.notification_command);
+	}
+
+	loqui_message_text_set_exec_notification(msgtext, FALSE);
 	chview = loqui_app_get_current_channel_text_view(app);
 	if (chview &&
 	    loqui_channel_text_view_get_is_scroll(LOQUI_CHANNEL_TEXT_VIEW(chview)) &&
 	    app->current_channel_entry != NULL &&
-	    buffer == loqui_channel_entry_get_buffer(app->current_channel_entry))
+	    loqui_channel_entry_get_buffer(chent) == loqui_channel_entry_get_buffer(app->current_channel_entry))
 		return;
 	
-	channel_buffer_append_message_text(priv->common_buffer, msgtext, FALSE);
+	channel_buffer_append_message_text(priv->common_buffer, msgtext);
 
 	if (priv->last_msgtext)
 		g_object_unref(priv->last_msgtext);

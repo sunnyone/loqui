@@ -28,10 +28,11 @@ enum {
 	PROP_CHANNEL_NAME,
 	PROP_ACCOUNT_NAME,
 	PROP_NICK,
-	PROP_SELF,
-	PROP_PRIV,
-	PROP_REMARK,
+	PROP_IS_SELF,
+	PROP_IS_PRIV,
+	PROP_IS_REMARK,
 	PROP_TEXT_TYPE,
+	PROP_EXEC_NOTIFICATION,
 	LAST_PROP
 };
 
@@ -116,22 +117,28 @@ loqui_message_text_class_init(LoquiMessageTextClass *klass)
 							    _("Nickname"),
 							    NULL, G_PARAM_READWRITE));
 	g_object_class_install_property(object_class,
-					PROP_SELF,
+					PROP_IS_SELF,
 					g_param_spec_boolean("is_self",
 							    _("Self?"),
 							    _("Whether or not the message is by myself"),
 							    FALSE, G_PARAM_READWRITE));
 	g_object_class_install_property(object_class,
-					PROP_PRIV,
+					PROP_IS_PRIV,
 					g_param_spec_boolean("is_priv",
 							    _("Priv?"),
 							    _("Whether or not private message"),
 							    FALSE, G_PARAM_READWRITE));
 	g_object_class_install_property(object_class,
-					PROP_REMARK,
+					PROP_IS_REMARK,
 					g_param_spec_boolean("is_remark",
 							    _("Remark?"),
 							    _("Remark?"),
+							    FALSE, G_PARAM_READWRITE));
+	g_object_class_install_property(object_class,
+					PROP_EXEC_NOTIFICATION,
+					g_param_spec_boolean("exec_notification",
+							    _("Execute notification"),
+							    _("Execute notification or not"),
 							    FALSE, G_PARAM_READWRITE));
 	g_object_class_install_property(object_class,
 					PROP_TEXT_TYPE,
@@ -193,14 +200,17 @@ loqui_message_text_set_property(GObject *object,
 	case PROP_ACCOUNT_NAME:
 		loqui_message_text_set_account_name(msgtext, g_value_get_string(value));
 		break;
-	case PROP_SELF:
+	case PROP_IS_SELF:
 		msgtext->is_self = g_value_get_boolean(value);
 		break;
-	case PROP_PRIV:
+	case PROP_IS_PRIV:
 		msgtext->is_priv = g_value_get_boolean(value);
 		break;
-	case PROP_REMARK:
+	case PROP_IS_REMARK:
 		msgtext->is_remark = g_value_get_boolean(value);
+		break;
+	case PROP_EXEC_NOTIFICATION:
+		msgtext->exec_notification = g_value_get_boolean(value);
 		break;
 	case PROP_TEXT_TYPE:
 		msgtext->text_type = g_value_get_uint(value);
@@ -234,14 +244,17 @@ loqui_message_text_get_property(GObject  *object,
 	case PROP_ACCOUNT_NAME:
 		g_value_set_string(value, loqui_message_text_get_account_name(msgtext));
 		break;
-	case PROP_SELF:
+	case PROP_IS_SELF:
 		g_value_set_boolean(value, msgtext->is_self);
 		break;
-	case PROP_PRIV:
+	case PROP_IS_PRIV:
 		g_value_set_boolean(value, msgtext->is_priv);
 		break;
-	case PROP_REMARK:
+	case PROP_IS_REMARK:
 		g_value_set_boolean(value, msgtext->is_remark);
+		break;
+	case PROP_EXEC_NOTIFICATION:
+		g_value_set_boolean(value, msgtext->exec_notification);
 		break;
 	case PROP_TEXT_TYPE:
 		g_value_set_uint(value, msgtext->text_type);
@@ -269,6 +282,7 @@ LOQUI_MESSAGE_TEXT_ACCESSOR_STRING(channel_name);
 ATTR_ACCESSOR_GENERIC(gboolean, FALSE, LoquiMessageText, loqui_message_text, is_priv);
 ATTR_ACCESSOR_GENERIC(gboolean, FALSE, LoquiMessageText, loqui_message_text, is_self);
 ATTR_ACCESSOR_GENERIC(gboolean, FALSE, LoquiMessageText, loqui_message_text, is_remark);
+ATTR_ACCESSOR_GENERIC(gboolean, FALSE, LoquiMessageText, loqui_message_text, exec_notification);
 
 void
 loqui_message_text_set_text_type(LoquiMessageText *msgtext, LoquiTextType type)

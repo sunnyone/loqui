@@ -25,6 +25,7 @@
 #include "loqui_member.h"
 
 #include "channel_buffer.h"
+#include "loqui_message_text.h"
 
 G_BEGIN_DECLS
 
@@ -75,6 +76,7 @@ struct _LoquiChannelEntryClass
 	/* RUN_LAST */
 	void (* add) (LoquiChannelEntry *chent, LoquiMember *member);
 	void (* remove) (LoquiChannelEntry *chent, LoquiMember *member);
+	void (* append_message_text) (LoquiChannelEntry *chent, LoquiMessageText *msgtext);
 
 	/* RUN_FIRST */
 	void (* reordered) (LoquiChannelEntry *chent);
@@ -130,6 +132,8 @@ LOQUI_CHANNEL_ENTRY_ACCESSOR_STRING_PROTOTYPE(name);
 LOQUI_CHANNEL_ENTRY_ACCESSOR_STRING_PROTOTYPE(topic);
 LOQUI_CHANNEL_ENTRY_ACCESSOR_GENERIC_PROTOTYPE(gint, position);
 LOQUI_CHANNEL_ENTRY_ACCESSOR_GENERIC_PROTOTYPE(gint, id);
+
+void loqui_channel_entry_append_message_text(LoquiChannelEntry *chent, LoquiMessageText *msgtext);
 
 G_END_DECLS
 

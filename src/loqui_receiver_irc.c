@@ -1167,10 +1167,8 @@ loqui_receiver_irc_joined_channel_append(LoquiReceiverIRC *receiver, IRCMessage 
 		     "text", str, NULL);
 
 	if (list != NULL) {
-		for(cur = list; cur != NULL; cur = cur->next) {
-			channel_buffer_append_message_text(loqui_channel_entry_get_buffer(LOQUI_CHANNEL_ENTRY(cur->data)),
-							   msgtext, FALSE);
-		}
+		for(cur = list; cur != NULL; cur = cur->next)
+			loqui_channel_entry_append_message_text(LOQUI_CHANNEL_ENTRY(cur->data), msgtext);
 	} else {
 		loqui_account_console_buffer_append(account, type, str);
 	}

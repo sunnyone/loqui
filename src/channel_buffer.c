@@ -43,7 +43,6 @@ static GtkTextBufferClass *parent_class = NULL;
 static GtkTextTagTable *default_tag_table;
 
 static GtkTextTag *highlight_area_tag;
-static GtkTextTag *notification_area_tag;
 
 static guint channel_buffer_signals[LAST_SIGNAL] = { 0 };
 
@@ -53,7 +52,7 @@ static void channel_buffer_finalize(GObject *object);
 
 static void channel_buffer_append_current_time(ChannelBuffer *channel_buffer);
 static void channel_buffer_append(ChannelBuffer *buffer, LoquiTextType type, gchar *str,
-				  gboolean enable_highlight, gboolean exec_notification);
+				  gboolean enable_highlight);
 
 static void channel_buffer_text_inserted_cb(GtkTextBuffer *buffer,
 					    GtkTextIter *pos,
@@ -155,9 +154,6 @@ channel_buffer_init_tags(void)
 
 	highlight_area_tag = gtk_text_tag_new("highlight-area");
 	gtk_text_tag_table_add(default_tag_table, highlight_area_tag);
-	
-	notification_area_tag = gtk_text_tag_new("notification-area");
-	gtk_text_tag_table_add(default_tag_table, notification_area_tag);	
 }
 
 static void
@@ -227,7 +223,7 @@ static void channel_buffer_apply_tag_cb(GtkTextBuffer *buffer,
 	channel_buffer = CHANNEL_BUFFER(buffer);
 	priv = channel_buffer->priv;
 
-	if(!(tag == highlight_area_tag || tag == notification_area_tag))
+	if(tag != highlight_area_tag)
 		return;
 
 	tmp_end = *end;
@@ -248,14 +244,6 @@ static void channel_buffer_apply_tag_cb(GtkTextBuffer *buffer,
 			tmp_start = region_end;
 			matched = TRUE;
 		}
-	}
-
-	if(tag == notification_area_tag && 
-	   matched &&
-	   prefs_general.use_notification &&
-	   prefs_general.notification_command &&
-	   strlen(prefs_general.notification_command) > 0) {
-		gtkutils_exec_command_with_error_dialog(prefs_general.notification_command);
 	}
 
 	gtk_text_buffer_remove_tag(buffer, tag,
@@ -428,14 +416,13 @@ channel_buffer_append_current_time(ChannelBuffer *buffer)
 		return;
 	}
 	
-	channel_buffer_append(buffer, LOQUI_TEXT_TYPE_TIME, buf, FALSE, FALSE);
+	channel_buffer_append(buffer, LOQUI_TEXT_TYPE_TIME, buf, FALSE);
 	g_free(buf);
 }
 
 static void
 channel_buffer_append(ChannelBuffer *buffer, LoquiTextType type, gchar *str, 
-		      gboolean enable_highlight,
-		      gboolean exec_notification)
+		      gboolean enable_highlight)
 {
 	GtkTextIter iter;
 	gchar *style;
@@ -468,19 +455,13 @@ channel_buffer_append(ChannelBuffer *buffer, LoquiTextType type, gchar *str,
 	default:
 		style = "normal";
 	}
-	if(enable_highlight) {
-		if(exec_notification)
-			highlight = "notification-area";
-		else
-			highlight = "highlight-area";
-	} else {
-		highlight = NULL;
-	}
+	highlight = enable_highlight ? "highlight-area" : NULL;
+
 	gtk_text_buffer_insert_with_tags_by_name(GTK_TEXT_BUFFER(buffer), &iter, str, -1, 
 						 style, highlight, NULL);
 }
 void
-channel_buffer_append_message_text(ChannelBuffer *buffer, LoquiMessageText *msgtext, gboolean exec_notification)
+channel_buffer_append_message_text(ChannelBuffer *buffer, LoquiMessageText *msgtext)
 {
 	gchar *buf;
 	LoquiTextType type;
@@ -496,7 +477,7 @@ channel_buffer_append_message_text(ChannelBuffer *buffer, LoquiMessageText *msgt
 
 	if(loqui_message_text_get_is_remark(msgtext)) {
 		buf = loqui_message_text_get_nick_string(msgtext, channel_buffer_get_show_channel_name(buffer));
-		channel_buffer_append(buffer, type, buf, FALSE, FALSE);
+		channel_buffer_append(buffer, type, buf, FALSE);
 		g_free(buf);
 	}
 
@@ -509,8 +490,7 @@ channel_buffer_append_message_text(ChannelBuffer *buffer, LoquiMessageText *msgt
 		buf = g_strconcat(loqui_message_text_get_text(msgtext), "\n", NULL);
 
 	channel_buffer_append(buffer, type, buf,
-			      loqui_message_text_get_is_remark(msgtext), 
-			      exec_notification);
+			      loqui_message_text_get_is_remark(msgtext));
 	g_free(buf);
 
 	g_signal_emit(buffer, channel_buffer_signals[APPEND], 0, msgtext);

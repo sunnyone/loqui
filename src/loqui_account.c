@@ -702,9 +702,7 @@ loqui_account_console_buffer_append(LoquiAccount *account, LoquiTextType type, c
 		     "text", str,
 		     NULL);
 
-	buffer = loqui_channel_entry_get_buffer(LOQUI_CHANNEL_ENTRY(account));
-	if (buffer)
-		channel_buffer_append_message_text(buffer, msgtext, FALSE);
+	loqui_channel_entry_append_message_text(LOQUI_CHANNEL_ENTRY(account), msgtext);
 	g_object_unref(msgtext);
 }
 
