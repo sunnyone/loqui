@@ -66,7 +66,9 @@ static GtkActionEntry loqui_action_entries[] =
 	/* see gdkkeynames.c to find key name */
 	{"StockFileMenu",        NULL, N_("_File"),       NULL, NULL},
 	{"StockEditMenu",        NULL, N_("_Edit"),       NULL, NULL, G_CALLBACK(loqui_app_actions_edit_menu_cb)},
-	{"StockCommandMenu",     NULL, N_("_Command"),    NULL, NULL},
+	{"StockAccountMenu",     NULL, N_("_Account"),    NULL, NULL},
+	{"StockChannelMenu",     NULL, N_("_Channel"),    NULL, NULL},
+	{"StockUserMenu",        NULL, N_("_User"),       NULL, NULL},
 	{"StockViewMenu",        NULL, N_("_View"),       NULL, NULL},
 	{"StockBuffersMenu",     NULL, N_("_Buffers"),    NULL, NULL},
 	{"StockSettingsMenu",    NULL, N_("_Settings"),   NULL, NULL},

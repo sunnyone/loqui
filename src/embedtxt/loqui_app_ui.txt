@@ -1,7 +1,6 @@
 <ui>
   <menubar>
     <menu name="FileMenu" action="StockFileMenu">
-      <menuitem name="Connect" action="Connect"/>
       <menuitem name="Quit" action="Quit"/>
     </menu>
     <menu name="EditMenu" action="StockEditMenu">
@@ -18,14 +17,19 @@
         <menuitem name="FindAgain" action="FindAgain"/>
       </placeholder>
     </menu>
-    <menu name="CommandMenu" action="StockCommandMenu">
+    <menu name="AccountMenu" action="StockAccountMenu">
+      <menuitem name="Connect" action="Connect"/>
+      <menuitem name="ChangeNick" action="ChangeNick"/>
+    </menu>
+    <menu name="ChannelMenu" action="StockChannelMenu">
       <menuitem name="Join" action="Join"/>
-      <menuitem name="StartPrivateTalk" action="StartPrivateTalk"/>
       <menuitem name="Part" action="Part"/>
       <separator/>
       <menuitem name="SetTopic" action="SetTopic"/>
-      <menuitem name="ChangeNick" action="ChangeNick"/>
       <menuitem name="RefreshAway" action="RefreshAway"/>
+    </menu>
+    <menu name="UserMenu" action="StockUserMenu">
+      <menuitem name="StartPrivateTalk" action="StartPrivateTalk"/>
     </menu>
     <menu name="ViewMenu" action="StockViewMenu">
       <menuitem name="ToggleChannelbar" action="ToggleChannelbar"/>
