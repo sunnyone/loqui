@@ -136,7 +136,7 @@ loqui_profile_account_irc_get_property(GObject *object, guint param_id, GValue *
 		g_value_set_int(value, loqui_profile_account_irc_get_codeset_type(profile));
 		break;
 	case PROP_CODESET:
-		g_value_set_string(value, loqui_profile_account_irc_get_autojoin(profile));
+		g_value_set_string(value, loqui_profile_account_irc_get_codeset(profile));
 		break;	
         default:
                 G_OBJECT_WARN_INVALID_PROPERTY_ID(object, param_id, pspec);
