@@ -44,8 +44,6 @@ struct _Account
 	gchar *name;
 
 	GSList *server_list; /* list of Server */
-	GSList *use_server_list; /* list of integer */
-	
 	GSList *channel_list; /* list of Channel */
 
 	gchar *nick;

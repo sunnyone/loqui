@@ -119,10 +119,6 @@ account_finalize (GObject *object)
 		g_slist_free(account->server_list);
 		account->server_list = NULL;
 	}
-	if(account->use_server_list) {
-		g_slist_free(account->use_server_list);
-		account->use_server_list = NULL;
-	}
 	if(account->channel_list) {
 		for(cur = account->channel_list; cur != NULL; cur = cur->next) {
 			if(cur->data) {
