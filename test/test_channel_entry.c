@@ -29,6 +29,7 @@ main()
 	int all=0, failed=0;
 
 	g_type_init();
+	debug_mode = 1;
 
 	DO_TEST(all, failed, test_channel_entry_add_and_remove);
 
