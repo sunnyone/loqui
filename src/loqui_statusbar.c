@@ -46,6 +46,7 @@ struct _LoquiStatusbarPrivate
 	GtkWidget *image_away;
 	GtkWidget *label_away;
 	GtkWidget *button_away;
+
 	GtkWidget *dbox_away;
 
 	GtkWidget *button_nick;
@@ -73,7 +74,7 @@ static void loqui_statusbar_destroy(GtkObject *object);
 
 static void loqui_statusbar_set_preset_menu(LoquiStatusbar *statusbar, GList *nick_list);
 
-static void loqui_statusbar_set_basic_away(LoquiStatusbar *statusbar, LoquiBasicAwayType basic_away);
+static void loqui_statusbar_set_away(LoquiStatusbar *statusbar, LoquiAwayType away);
 static void loqui_statusbar_away_menuitem_activated_cb(GtkWidget *widget, LoquiStatusbar *statusbar);
 static void loqui_statusbar_set_away_menu(LoquiStatusbar *statusbar);
 
@@ -154,9 +155,11 @@ loqui_statusbar_destroy (GtkObject *object)
                 (* GTK_OBJECT_CLASS(parent_class)->destroy) (object);
 }
 static void
-loqui_statusbar_set_basic_away(LoquiStatusbar *statusbar, LoquiBasicAwayType basic_away)
+loqui_statusbar_set_away(LoquiStatusbar *statusbar, LoquiAwayType away)
 {
 	LoquiStatusbarPrivate *priv;
+	LoquiAwayInfo *awinfo;
+	LoquiUserClass *user_class;
 	const gchar *stock_id;
 
         g_return_if_fail(statusbar != NULL);
@@ -164,7 +167,15 @@ loqui_statusbar_set_basic_away(LoquiStatusbar *statusbar, LoquiBasicAwayType bas
         
         priv = statusbar->priv;	
 	
-	stock_id = loqui_stock_get_id_from_basic_away_type(basic_away);
+	user_class = g_type_class_ref(LOQUI_TYPE_USER);
+	awinfo = loqui_user_class_away_type_get_info(user_class, away);
+	g_type_class_unref(user_class);
+	if (awinfo == NULL)
+		return;
+	
+	gtk_label_set(GTK_LABEL(priv->label_away), awinfo->nick);
+
+	stock_id = loqui_stock_get_id_from_basic_away_type(awinfo->basic_away_type);
 	if (stock_id == NULL) {
 		g_warning("Invalid AwayState.");
 		return;
@@ -337,6 +348,7 @@ loqui_statusbar_new(LoquiApp *app, GtkToggleAction *toggle_scroll_action)
 	LoquiStatusbarPrivate *priv;
 	GtkWidget *hsep;
 	GtkWidget *label;
+	GtkWidget *hbox_away;
 
 	statusbar = g_object_new(loqui_statusbar_get_type(), NULL);
 	priv = statusbar->priv;
@@ -346,16 +358,30 @@ loqui_statusbar_new(LoquiApp *app, GtkToggleAction *toggle_scroll_action)
 	gtk_statusbar_set_has_resize_grip(GTK_STATUSBAR(statusbar), FALSE);
 	gtk_label_set_selectable(GTK_LABEL(GTK_STATUSBAR(statusbar)->label), TRUE);
 	
-	priv->image_away = gtk_image_new();
-
 /* FIXME: why statusbar becomes taller when button widget is on it? */
 #define WIDGET_MINIMIZE_HEIGHT(widget) gtk_widget_set_usize(widget, -1, 1);
 
-	priv->dbox_away = loqui_dropdown_box_new(priv->image_away);
+	priv->dbox_away = loqui_dropdown_box_new(NULL);
 	WIDGET_MINIMIZE_HEIGHT(priv->dbox_away);
 	gtk_box_pack_start(GTK_BOX(statusbar), priv->dbox_away, FALSE, FALSE, 0);
 	gtk_button_set_relief(GTK_BUTTON(LOQUI_DROPDOWN_BOX(priv->dbox_away)->drop_button), GTK_RELIEF_NONE);
+
+	priv->button_away = gtk_button_new();
+	gtk_button_set_relief(GTK_BUTTON(priv->button_away), GTK_RELIEF_NONE);
+	gtk_box_pack_start(GTK_BOX(priv->dbox_away), priv->button_away, FALSE, FALSE, 0);
 	
+	hbox_away = gtk_hbox_new(FALSE, 5);
+	gtk_container_add(GTK_CONTAINER(priv->button_away), hbox_away);
+
+	priv->image_away = gtk_image_new();
+	gtk_box_pack_start(GTK_BOX(hbox_away), priv->image_away, FALSE, FALSE, 0);
+
+	priv->label_away = gtk_label_new("");
+	gtk_box_pack_start(GTK_BOX(hbox_away), priv->label_away, FALSE, FALSE, 0);
+
+	hsep = gtk_vseparator_new();
+	gtk_box_pack_start(GTK_BOX(statusbar), hsep, FALSE, FALSE, 2);
+
 	priv->dbox_preset = loqui_dropdown_box_new(NULL);
 	WIDGET_MINIMIZE_HEIGHT(priv->dbox_preset);
 	gtk_button_set_relief(GTK_BUTTON(LOQUI_DROPDOWN_BOX(priv->dbox_preset)->drop_button), GTK_RELIEF_NONE);
@@ -415,7 +441,7 @@ void
 loqui_statusbar_set_current_account(LoquiStatusbar *statusbar, Account *account)
 {
 	LoquiStatusbarPrivate *priv;
-	LoquiBasicAwayType basic_away;
+	LoquiAwayType away;
         g_return_if_fail(statusbar != NULL);
         g_return_if_fail(LOQUI_IS_STATUSBAR(statusbar));
         
@@ -446,12 +472,12 @@ loqui_statusbar_set_current_account(LoquiStatusbar *statusbar, Account *account)
         
         // set icon
         if (account == NULL) {
-        	basic_away = LOQUI_BASIC_AWAY_TYPE_OFFLINE;
+        	away = LOQUI_AWAY_TYPE_OFFLINE;
 	} else {
-		basic_away = loqui_user_get_basic_away(account_get_user_self(account));
+		away = loqui_user_get_away(account_get_user_self(account));
 	}
         
-        loqui_statusbar_set_basic_away(statusbar, basic_away);
+        loqui_statusbar_set_away(statusbar, away);
 }
 void
 loqui_statusbar_set_default(LoquiStatusbar *statusbar, const gchar *str)
