@@ -36,6 +36,7 @@
 #include "account_list_dialog.h"
 
 #include "loqui_channel_text_view.h"
+#include "loqui_transfer_window.h"
 
 
 #define CTRL "<control>"
@@ -47,6 +48,7 @@ static void loqui_app_actions_common_settings_cb(GtkAction *action, LoquiApp *ap
 static void loqui_app_actions_account_settings_cb(GtkAction *action, LoquiApp *app);
 static void loqui_app_actions_connect_cb(GtkAction *action, LoquiApp *app);
 
+static void loqui_app_actions_show_transfer_window_cb(GtkAction *action, LoquiApp *app);
 static void loqui_app_actions_connect_current_account_cb(GtkAction *action, LoquiApp *app);
 static void loqui_app_actions_cancel_pending_reconnecting_current_account_cb(GtkAction *action, LoquiApp *app);
 static void loqui_app_actions_disconnect_current_account_cb(GtkAction *action, LoquiApp *app);
@@ -109,6 +111,7 @@ static GtkActionEntry loqui_action_entries[] =
 	{"StockUserMenu",        NULL, N_("_User"),       NULL, NULL},
 	{"StockViewMenu",        NULL, N_("_View"),       NULL, NULL},
 	{"StockBuffersMenu",     NULL, N_("_Buffers"),    NULL, NULL},
+	{"StockToolsMenu",     NULL, N_("_Tools"),    NULL, NULL},
 	{"StockSettingsMenu",    NULL, N_("_Settings"),   NULL, NULL},
 	{"StockHelpMenu",        NULL, N_("_Help"),       NULL, NULL},
 	
@@ -156,6 +159,8 @@ static GtkActionEntry loqui_action_entries[] =
         {"PreviousChannel",        GTK_STOCK_GO_UP, N_("Previous Channel Buffer"), CTRL "Up", NULL, G_CALLBACK(loqui_app_actions_previous_channel_buffer_cb)},
         {"NextChannel",            GTK_STOCK_GO_DOWN, N_("Next Channel Buffer"), CTRL "Down", NULL, G_CALLBACK(loqui_app_actions_next_channel_buffer_cb)},
         {"ClearAllUnreadFlags",    GTK_STOCK_CLEAR, N_("Clear All Unread Flags of Buffers"), NULL, NULL, G_CALLBACK(loqui_app_actions_clear_all_unread_flags_cb)},
+
+	{"ShowTransferWindow",     NULL, N_("File Transfer Manager"), NULL, NULL, G_CALLBACK(loqui_app_actions_show_transfer_window_cb)},
         {"GeneralSettings",        NULL, N_("_General Settings"), NULL, NULL, G_CALLBACK(loqui_app_actions_common_settings_cb)},
         {"AccountSettings",        NULL, N_("_Account Settings"), NULL, NULL, G_CALLBACK(loqui_app_actions_account_settings_cb)},
 
@@ -320,6 +325,13 @@ static void
 loqui_app_actions_connect_cb(GtkAction *action, LoquiApp *app)
 {
 	account_list_dialog_open_for_connect(GTK_WINDOW(app), loqui_app_get_account_manager(app));
+}
+static void
+loqui_app_actions_show_transfer_window_cb(GtkAction *action, LoquiApp *app)
+{
+	g_return_if_fail(app->transfer_window);
+
+	gtk_widget_show_all(GTK_WIDGET(app->transfer_window));
 }
 static void
 loqui_app_actions_connect_current_account_cb(GtkAction *action, LoquiApp *app)

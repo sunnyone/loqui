@@ -65,6 +65,9 @@
       <menuitem name="NextChannel" action="NextChannel"/>
       <menuitem name="ClearAllUnreadFlags" action="ClearAllUnreadFlags" />
     </menu>
+    <menu name="Tools" action="StockToolsMenu">
+      <menuitem name="ShowTransferWindow" action="ShowTransferWindow" />
+    </menu>
     <menu name="SettingsMenu" action="StockSettingsMenu">
       <menuitem name="GeneralSettings" action="GeneralSettings"/>
       <menuitem name="AccountSettings" action="AccountSettings"/>

@@ -552,6 +552,17 @@ loqui_app_disconnect_all_account_for_quit(LoquiApp *app)
 		loqui_app_quit_idle(app);
 	}
 }
+static gboolean
+loqui_app_transfer_window_delete_event_cb(GtkWidget *widget, GdkEventAny *event, LoquiApp *app)
+{
+	g_return_val_if_fail(app != NULL, FALSE);
+	g_return_val_if_fail(LOQUI_IS_APP(app), FALSE);
+
+	gtk_widget_hide(GTK_WIDGET(app->transfer_window));
+
+	g_print("hide\n");
+	return TRUE;
+}
 GtkWidget*
 loqui_app_new(LoquiAccountManager *account_manager)
 {
@@ -710,6 +721,10 @@ loqui_app_new(LoquiAccountManager *account_manager)
 	gtk_widget_grab_focus(app->remark_entry);
 
 	loqui_app_create_tray_icon(app);
+
+	app->transfer_window = LOQUI_TRANSFER_WINDOW(loqui_transfer_window_new());
+	g_signal_connect(G_OBJECT(app->transfer_window), "delete_event",
+			 G_CALLBACK(loqui_app_transfer_window_delete_event_cb), app);
 
 	loqui_app_actions_update_sensitivity_related_channel(app);
 

@@ -44,6 +44,7 @@ typedef struct _LoquiAppPrivate     LoquiAppPrivate;
 #include "loqui_tray_icon.h"
 #include "loqui_app_info.h"
 #include "loqui_channel_buffer_gtk.h"
+#include "loqui_transfer_window.h"
 
 struct _LoquiApp
 {
@@ -84,6 +85,7 @@ struct _LoquiApp
 	GtkWidget *common_textview;
 
 	LoquiTrayIcon *tray_icon;
+	LoquiTransferWindow *transfer_window;
 };
 
 struct _LoquiAppClass
