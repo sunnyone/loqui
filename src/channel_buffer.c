@@ -22,10 +22,10 @@
 #include "channel_buffer.h"
 #include <time.h>
 #include <string.h>
-#include <ctype.h>
 #include "prefs_general.h"
 #include "utils.h"
 #include "gtkutils.h"
+
 
 enum {
 	APPEND,
@@ -58,7 +58,7 @@ static void channel_buffer_text_inserted_cb(GtkTextBuffer *buffer,
 					    gpointer data);
 
 static void channel_buffer_tag_uri(GtkTextBuffer *buffer,
-				   GtkTextIter *iter,
+				   GtkTextIter *iter_in,
 				   const gchar *text);
 
 static gboolean channel_buffer_link_tag_event_cb(GtkTextTag *texttag,
@@ -223,52 +223,44 @@ static gboolean channel_buffer_link_tag_event_cb(GtkTextTag *texttag,
 	}
 	return FALSE;
 }
-static void channel_buffer_tag_uri(GtkTextBuffer *buffer,
-				   GtkTextIter *iter,
-				   const gchar *text)
+static void
+channel_buffer_tag_uri(GtkTextBuffer *buffer,
+		       GtkTextIter *iter_in,
+		       const gchar *text)
 {
-	GtkTextIter end_iter;
-	gchar *buf, *cur, *tmp;
+	GtkTextIter start_iter, end_iter;
+	const gchar *cur;
 	glong len;
+	const gchar *start_uri, *end_uri;
 
-	cur = buf = g_strdup(text);
+	cur = text;
+	start_iter = *iter_in;
 	len = g_utf8_strlen(cur, -1);
-	if(!gtk_text_iter_backward_chars(iter, len)) {
-		debug_puts("Can't backward iter");
+	if(!gtk_text_iter_backward_chars(&start_iter, len)) {
+		debug_puts("Can't backward iter for uri");
 		return;
 	}
 
-	while(*cur &&
-	      ((tmp = strstr(cur, "http://")) != NULL ||
-	      (tmp = strstr(cur, "https://")) != NULL ||
-	      (tmp = strstr(cur, "ftp://")) != NULL)) {
-		*tmp = '\0';
-		len = g_utf8_strlen(cur, -1);
-		if(len > 0 && !gtk_text_iter_forward_chars(iter, len)) {
-			debug_puts("Can't forward chars");
+	end_iter = start_iter;
+	while(*cur && utils_search_uri(cur, NULL, &start_uri, &end_uri)) {
+		len = g_utf8_strlen(cur, start_uri - cur);
+		if(len > 0 && !gtk_text_iter_forward_chars(&start_iter, len)) {
+			debug_puts("Can't forward iter to start_uri");
 			break;
 		}
 
-		cur = tmp+1;
-		len = 1;
-
-		while ((cur = g_utf8_next_char(cur)) != NULL) {
-			len++;
-			if(!isascii(*cur) ||
-			   !g_ascii_isgraph(*cur) ||
-			   strchr("()<>\"", *cur))
-				break;
-		}
-
-		end_iter = *iter;
-		if(!gtk_text_iter_forward_chars(&end_iter, len))
+		end_iter = start_iter;
+		len = g_utf8_strlen(start_uri, end_uri - start_uri + 1);
+		if(len > 0 && !gtk_text_iter_forward_chars(&end_iter, len)) {
+			debug_puts("Can't forward iter to end_uri");
 			break;
+		}
 		
-		gtk_text_buffer_apply_tag_by_name(buffer, "link", iter, &end_iter);
+		gtk_text_buffer_apply_tag_by_name(buffer, "link", &start_iter, &end_iter);
+
+		start_iter = end_iter;
+		cur = end_uri + 1;
 	}
-
-	g_free(buf);
-
 }
 
 static void channel_buffer_text_inserted_cb(GtkTextBuffer *buffer,

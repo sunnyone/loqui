@@ -26,8 +26,10 @@
 #include "main.h"
 #include <sys/types.h>
 #include <sys/stat.h>
-
+#include <ctype.h>
 #include "intl.h"
+
+const gchar* uri_prefix_list[] = { "http://", "https://", "ftp://", "mailto:", NULL };
 
 void debug_print(const gchar *format, ...)
 {
@@ -267,6 +269,58 @@ utils_get_value_list_from_hash(GHashTable *hash_table)
 	g_hash_table_foreach(hash_table, add_value_to_list_func, &list);
 
 	return list;
+}
+
+/*
+  Example:
+                              v *start_uri
+  utils_search_uri("hoge hoge http://hogefuga  aaaa", &got_uri, &start_uri, &end_uri);
+                                            ^*end_uri
+  got_ptr = "http://hoge fuga" (malloc'ed)
+*/
+gboolean
+utils_search_uri(const gchar *buf, gchar **got_uri,
+		 const gchar **start_uri, const gchar **end_uri)
+{
+	int i;
+	const gchar *tmp = NULL, *cur, *prefix = NULL;
+	const gchar *start_uri_ptr;
+
+	cur = buf;
+	for(i = 0; prefix = uri_prefix_list[i], prefix != NULL; i++) {
+		tmp = strstr(cur, prefix);
+		if(tmp != NULL) {
+			cur = tmp;
+			break;
+		}
+	}
+	if(tmp == NULL || prefix == NULL)
+		return FALSE;
+
+	start_uri_ptr = cur;
+
+	cur += strlen(prefix);
+	if(*cur == '\0')
+		return FALSE;
+	
+	while(*(++cur)) {
+		if(!isascii(*cur) ||
+		   !g_ascii_isgraph(*cur) ||
+		   strchr("()<>\"", *cur))
+			break;
+	}
+	cur--;
+
+	if(start_uri != NULL)
+		*start_uri = start_uri_ptr;
+	if(end_uri != NULL)
+		*end_uri = cur;
+	if(got_uri != NULL) {
+		*got_uri = g_malloc0(cur - start_uri_ptr + 2);
+		memcpy(*got_uri, start_uri_ptr, cur - start_uri_ptr + 1);
+	}
+
+	return TRUE;
 }
 
 /* copied from Sylpheed. (c) 2002, Hiroyuki Yamamoto. */
