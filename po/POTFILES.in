@@ -55,7 +55,6 @@ src/loqui_app_actions.c
 src/loqui_app_actions.h
 src/loqui_app_info.c
 src/loqui_app_info.h
-src/loqui_app_info_tmp.c
 src/loqui_channel.c
 src/loqui_channel.h
 src/loqui_channel_entry.c
@@ -86,8 +85,6 @@ src/loqui_member_sort_funcs.c
 src/loqui_member_sort_funcs.h
 src/loqui_message.c
 src/loqui_message.h
-src/loqui_message_handler.c
-src/loqui_message_handler.h
 src/loqui_profile_account.c
 src/loqui_profile_account.h
 src/loqui_profile_account_ipmsg.c
@@ -124,8 +121,6 @@ src/loqui_string_tokenizer.c
 src/loqui_string_tokenizer.h
 src/loqui_title_format.c
 src/loqui_title_format.h
-src/loqui_tooltip_tree_view.c
-src/loqui_tooltip_tree_view.h
 src/loqui_tray_icon.c
 src/loqui_tray_icon.h
 src/loqui_user.c

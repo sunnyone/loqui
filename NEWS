@@ -227,4 +227,12 @@
 * The feature to select a channel/account from the system tray icon.
 * An option whether to execute notification or not when the new keyword in the NOTICE message is arrived.
 * The feature to clear all unread flags of buffers.
+
+2004-08-26  0.3.8
+* Large change of structure.
+* Fixed bugs / memory leaks.
+* Printing CTCP Action.
+* Fixed the parser of plum recent.
+* Fixed the timing of automatically-join.
+* Customizing title and statusbar with title formatting.
  

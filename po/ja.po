@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: loqui 0.1.20\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2004-08-26 01:14+0900\n"
+"POT-Creation-Date: 2004-08-26 01:36+0900\n"
 "PO-Revision-Date: 2002-11-10 13:17+0900\n"
 "Last-Translator: Yoichi Imai <yoichi@silver-forest.com>\n"
 "Language-Team: Japanese <ja@li.org>\n"
@@ -631,7 +631,7 @@ msgstr ""
 msgid "Current channel is not private talk"
 msgstr "現在のチャンネルはプライベートトークではありません"
 
-#: src/loqui_app_info.h:24 src/loqui_app_info_tmp.c:227
+#: src/loqui_app_info.h:24
 msgid "[%channel_name% @ ][%account_name% - ]Loqui version %version%"
 msgstr ""
 
@@ -640,12 +640,6 @@ msgid ""
 "$if($grater(%updated_entry_number%,0),%updated_entry_number% entries updated"
 "$if($grater(%updated_private_talk_number%,0), '('%updated_private_talk_number"
 "% private talk'(s))')"
-msgstr ""
-
-#: src/loqui_app_info_tmp.c:230
-msgid ""
-"%updated_entry_number% updated$if($grater(%updated_private_talk_number"
-"%,0),'('%updated_private_talk_number% private talk'(s))')"
 msgstr ""
 
 #: src/loqui_channel.c:197
@@ -1009,219 +1003,220 @@ msgstr ""
 msgid "This PRIVMSG/NOTICE message doesn't contain a remark."
 msgstr "このPRIVMSG/NOTICEメッセージには発言が含まれていません。"
 
-#: src/loqui_receiver_irc.c:357 src/loqui_receiver_irc.c:384
-#: src/loqui_receiver_irc.c:427 src/loqui_receiver_irc.c:471
+#: src/loqui_receiver_irc.c:358 src/loqui_receiver_irc.c:385
+#: src/loqui_receiver_irc.c:428 src/loqui_receiver_irc.c:472
 msgid "The message does not contain nick"
 msgstr "メッセージにnickが含まれていません"
 
-#: src/loqui_receiver_irc.c:367
+#: src/loqui_receiver_irc.c:368
 msgid "*** %n has quit IRC(%t)"
 msgstr ""
 
-#: src/loqui_receiver_irc.c:390 src/loqui_receiver_irc.c:433
+#: src/loqui_receiver_irc.c:391 src/loqui_receiver_irc.c:434
 msgid "The message does not contain the channal name"
 msgstr "メッセージにチャンネル名が含まれていません。"
 
-#: src/loqui_receiver_irc.c:409
+#: src/loqui_receiver_irc.c:410
 msgid "*** %n has just part %1(%t)"
 msgstr ""
 
-#: src/loqui_receiver_irc.c:439
+#: src/loqui_receiver_irc.c:440
 msgid "The KICK message doesn't contain the user to be kicked."
 msgstr ""
 
-#: src/loqui_receiver_irc.c:452
+#: src/loqui_receiver_irc.c:453
 msgid "*** %2 was kicked from %1 by %n(%3)"
 msgstr ""
 
-#: src/loqui_receiver_irc.c:477
+#: src/loqui_receiver_irc.c:478
 msgid "The NICK message does not contain new nick"
 msgstr "NICKメッセージに新しいnickが含まれていません"
 
-#: src/loqui_receiver_irc.c:482
+#: src/loqui_receiver_irc.c:483
 msgid "*** %n is known as %1"
 msgstr ""
 
-#: src/loqui_receiver_irc.c:517
+#: src/loqui_receiver_irc.c:518
 msgid "Flags are not found in MODE command"
 msgstr "MODEコマンドにフラグが見つかりません"
 
-#: src/loqui_receiver_irc.c:525
+#: src/loqui_receiver_irc.c:526
 msgid "Can't find a nick to change mode"
 msgstr "モードを変えるnickが見つかりません"
 
-#: src/loqui_receiver_irc.c:557
+#: src/loqui_receiver_irc.c:558
 msgid "Flags don't have + or -"
 msgstr "フラグに+か-にありません"
 
-#: src/loqui_receiver_irc.c:593
+#: src/loqui_receiver_irc.c:594
+#, c-format
 msgid "Unknown mode flag: '%c'"
 msgstr "不明なモードフラグです: '%c'"
 
-#: src/loqui_receiver_irc.c:608
+#: src/loqui_receiver_irc.c:609
 msgid "User mode is not implemented."
 msgstr "ユーザーモードは実装されていません"
 
-#: src/loqui_receiver_irc.c:630 src/loqui_receiver_irc.c:679
+#: src/loqui_receiver_irc.c:631 src/loqui_receiver_irc.c:680
 msgid "The target is not found in MODE command"
 msgstr "MODEコマンドに対象が発見できません"
 
-#: src/loqui_receiver_irc.c:640
+#: src/loqui_receiver_irc.c:641
 #, c-format
 msgid "RPL_CHANNELMODEIS didn't return a channel name: %s"
 msgstr ""
 
-#: src/loqui_receiver_irc.c:646
+#: src/loqui_receiver_irc.c:647
 msgid "*** Mode for %2: %*3"
 msgstr ""
 
-#: src/loqui_receiver_irc.c:666
+#: src/loqui_receiver_irc.c:667
 msgid "Who can change mode?"
 msgstr "誰がモードを変えられるのです？"
 
-#: src/loqui_receiver_irc.c:671
+#: src/loqui_receiver_irc.c:672
 #, c-format
 msgid "Nick must not contain '%%'"
 msgstr "Nickは'%%'を含むべきではありません"
 
-#: src/loqui_receiver_irc.c:687
+#: src/loqui_receiver_irc.c:688
 msgid "Why can you know the change of his mode?"
 msgstr ""
 
-#: src/loqui_receiver_irc.c:696
+#: src/loqui_receiver_irc.c:697
 #, c-format
 msgid "*** New mode for %%1 by %s: %%*2"
 msgstr ""
 
-#: src/loqui_receiver_irc.c:721
+#: src/loqui_receiver_irc.c:722
 msgid "The message does not contain nick."
 msgstr "このメッセージにはnickが含まれていません"
 
-#: src/loqui_receiver_irc.c:726
+#: src/loqui_receiver_irc.c:727
 msgid "Invalid JOIN command"
 msgstr ""
 
-#: src/loqui_receiver_irc.c:743
+#: src/loqui_receiver_irc.c:744
 msgid "Why do you know that the user join the channel?"
 msgstr ""
 
-#: src/loqui_receiver_irc.c:747
+#: src/loqui_receiver_irc.c:748
 msgid "*** %n (%u@%h) joined channel %t"
 msgstr ""
 
-#: src/loqui_receiver_irc.c:782
+#: src/loqui_receiver_irc.c:783
 msgid "Sent join command for autojoin."
 msgstr "自動joinのためのjoinコマンドを送信しました。"
 
-#: src/loqui_receiver_irc.c:858
+#: src/loqui_receiver_irc.c:859
 msgid "Invalid CREATIONTIME reply."
 msgstr ""
 
-#: src/loqui_receiver_irc.c:863 src/loqui_receiver_irc.c:904
+#: src/loqui_receiver_irc.c:864 src/loqui_receiver_irc.c:905
 msgid "Invalid time string"
 msgstr "無効な時間文字列"
 
-#: src/loqui_receiver_irc.c:869 src/loqui_receiver_irc.c:910
+#: src/loqui_receiver_irc.c:870 src/loqui_receiver_irc.c:911
 msgid "Invalid time"
 msgstr "無効な時間"
 
-#: src/loqui_receiver_irc.c:873
+#: src/loqui_receiver_irc.c:874
 #, c-format
 msgid "%%2 was created at %s"
 msgstr ""
 
-#: src/loqui_receiver_irc.c:898
+#: src/loqui_receiver_irc.c:899
 msgid "Invalid TOPICWHOTIME reply."
 msgstr ""
 
-#: src/loqui_receiver_irc.c:914
+#: src/loqui_receiver_irc.c:915
 #, c-format
 msgid "Topic for %%2 was set by %%3 at %s"
 msgstr ""
 
-#: src/loqui_receiver_irc.c:937 src/loqui_receiver_irc.c:943
+#: src/loqui_receiver_irc.c:938 src/loqui_receiver_irc.c:944
 msgid "Invalid WHOISIDLE reply."
 msgstr ""
 
-#: src/loqui_receiver_irc.c:991
+#: src/loqui_receiver_irc.c:992
 msgid "Invalid WHO reply."
 msgstr "無効なWHOリプライ"
 
-#: src/loqui_receiver_irc.c:1053
+#: src/loqui_receiver_irc.c:1054
 #, c-format
 msgid "%c%s(%s) is %s@%s (%s) on %s(%s hops) [%s]"
 msgstr ""
 
-#: src/loqui_receiver_irc.c:1084
+#: src/loqui_receiver_irc.c:1085
 msgid "Topic for %2: %t"
 msgstr ""
 
-#: src/loqui_receiver_irc.c:1108
+#: src/loqui_receiver_irc.c:1109
 msgid "*** New topic on %1 by %n: %t"
 msgstr ""
 
-#: src/loqui_receiver_irc.c:1204
+#: src/loqui_receiver_irc.c:1205
 msgid "Can't find the channel from the message"
 msgstr ""
 
-#: src/loqui_receiver_irc.c:1250
+#: src/loqui_receiver_irc.c:1251
 msgid "*** %2 is marked as begin AWAY, but left the message: %3"
 msgstr ""
 
-#: src/loqui_receiver_irc.c:1259 src/loqui_receiver_irc.c:1263
-#: src/loqui_receiver_irc.c:1267
+#: src/loqui_receiver_irc.c:1260 src/loqui_receiver_irc.c:1264
+#: src/loqui_receiver_irc.c:1268
 msgid "*** %t"
 msgstr ""
 
-#: src/loqui_receiver_irc.c:1270
+#: src/loqui_receiver_irc.c:1271
 msgid "*** You are inviting %2 to %3"
 msgstr ""
 
-#: src/loqui_receiver_irc.c:1273
+#: src/loqui_receiver_irc.c:1274
 msgid "*** %3 is running IRC version %2 (%4)"
 msgstr ""
 
-#: src/loqui_receiver_irc.c:1307
+#: src/loqui_receiver_irc.c:1308
 msgid "%2 is %3@%4: %t"
 msgstr ""
 
-#: src/loqui_receiver_irc.c:1310
+#: src/loqui_receiver_irc.c:1311
 msgid "%2 was %3@%4: %t"
 msgstr ""
 
-#: src/loqui_receiver_irc.c:1313
+#: src/loqui_receiver_irc.c:1314
 msgid "%2: %t"
 msgstr ""
 
-#: src/loqui_receiver_irc.c:1316
+#: src/loqui_receiver_irc.c:1317
 msgid "on via server %3(%t)"
 msgstr ""
 
-#: src/loqui_receiver_irc.c:1322
+#: src/loqui_receiver_irc.c:1323
 msgid "Banned on %2 : %3"
 msgstr ""
 
-#: src/loqui_receiver_irc.c:1325
+#: src/loqui_receiver_irc.c:1326
 msgid "Time: %3(%2)"
 msgstr ""
 
-#: src/loqui_receiver_irc.c:1337 src/loqui_receiver_irc.c:1343
+#: src/loqui_receiver_irc.c:1338 src/loqui_receiver_irc.c:1344
 msgid "%3"
 msgstr ""
 
-#: src/loqui_receiver_irc.c:1348
+#: src/loqui_receiver_irc.c:1349
 msgid "Ison: %*2"
 msgstr ""
 
-#: src/loqui_receiver_irc.c:1374
+#: src/loqui_receiver_irc.c:1375
 msgid "%2 %t (%3)"
 msgstr ""
 
-#: src/loqui_receiver_irc.c:1401
+#: src/loqui_receiver_irc.c:1402
 msgid "%t: %2"
 msgstr ""
 
-#: src/loqui_receiver_irc.c:1424
+#: src/loqui_receiver_irc.c:1425
 msgid "%t"
 msgstr ""
 
