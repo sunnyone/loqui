@@ -55,6 +55,10 @@ static void loqui_app_actions_cut_cb(GtkAction *action, LoquiApp *app);
 static void loqui_app_actions_copy_cb(GtkAction *action, LoquiApp *app);
 static void loqui_app_actions_paste_cb(GtkAction *action, LoquiApp *app);
 static void loqui_app_actions_clear_cb(GtkAction *action, LoquiApp *app);
+
+static void loqui_app_actions_jump_to_previous_keyword_cb(GtkAction *action, LoquiApp *app);
+static void loqui_app_actions_jump_to_next_keyword_cb(GtkAction *action, LoquiApp *app);
+
 static void loqui_app_actions_previous_updated_channel_buffer_cb(GtkAction *action, LoquiApp *app);
 static void loqui_app_actions_next_updated_channel_buffer_cb(GtkAction *action, LoquiApp *app);
 static void loqui_app_actions_previous_channel_buffer_cb(GtkAction *action, LoquiApp *app);
@@ -123,8 +127,10 @@ static GtkActionEntry loqui_action_entries[] =
         {"PasteWithLinefeedsCut", GTK_STOCK_PASTE, N_("_Paste with Linefeeds Cut"), NULL, NULL, NULL},
         {"Clear",                 GTK_STOCK_CLEAR, N_("_Clear"), NULL, NULL, G_CALLBACK(loqui_app_actions_clear_cb)},
 
-        {"Find",                  GTK_STOCK_FIND, N_("_Find"), NULL, NULL, NULL},
-        {"FindAgain",             GTK_STOCK_FIND, N_("_Find Again"), NULL, NULL, NULL},
+        {"Find",                  NULL /*GTK_STOCK_FIND*/, N_("_Find"), NULL, NULL, NULL},
+        {"FindAgain",             NULL /*GTK_STOCK_FIND*/, N_("_Find Again"), NULL, NULL, NULL},
+	{"JumpToPreviousKeyword", NULL /*GTK_STOCK_FIND*/, N_("Jump to previous keyword"), NULL, NULL, G_CALLBACK(loqui_app_actions_jump_to_previous_keyword_cb)},
+	{"JumpToNextKeyword",     NULL /*GTK_STOCK_FIND*/, N_("Jump to next keyword"), NULL, NULL, G_CALLBACK(loqui_app_actions_jump_to_next_keyword_cb)},
 
 	{LOQUI_ACTION_JOIN,       GTK_STOCK_ADD, N_("_Join a Channel"), ALT "J", NULL, G_CALLBACK(loqui_app_actions_join_cb)},
         {LOQUI_ACTION_PART,       GTK_STOCK_REMOVE, N_("_Part Current Channel"), NULL, NULL, G_CALLBACK(loqui_app_actions_part_cb)},
@@ -409,6 +415,86 @@ loqui_app_actions_clear_cb(GtkAction *action, LoquiApp *app)
 		gtk_text_buffer_delete(buffer, &start, &end);
 	}
 }
+
+static void
+loqui_app_actions_jump_to_previous_keyword_cb(GtkAction *action, LoquiApp *app)
+{
+	LoquiChannelTextView *chview;
+	GtkTextBuffer *buffer;
+	GtkTextIter iter;
+	GtkTextTag *tag;
+
+	chview = LOQUI_CHANNEL_TEXT_VIEW(loqui_app_get_current_channel_text_view(app));
+	if (!chview)
+		return;
+	
+	buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(chview));
+	if (!buffer) {
+		g_warning("the LoquiChannelTextView doesn't have text buffer");
+		return;
+	}
+
+	gtk_text_buffer_get_iter_at_mark(buffer,
+					 &iter,
+					 gtk_text_buffer_get_insert(buffer));
+	gtk_text_buffer_place_cursor(buffer, &iter);
+
+	tag = gtk_text_tag_table_lookup(gtk_text_buffer_get_tag_table(buffer), "highlight");
+	g_return_if_fail(tag != NULL);
+
+	/* if iter is in highlight tag, exit it at first */
+	if (gtk_text_iter_has_tag(&iter, tag) && !gtk_text_iter_begins_tag(&iter, tag))
+		gtk_text_iter_backward_to_tag_toggle(&iter, tag);
+
+	/* find the end of a tagged text */
+	if (!gtk_text_iter_backward_to_tag_toggle(&iter, tag))
+		return;
+	/* find the beginning of the tagged text */
+	gtk_text_iter_backward_to_tag_toggle(&iter, tag);
+
+	gtk_text_buffer_place_cursor(buffer, &iter);
+	gtk_text_view_scroll_to_iter(GTK_TEXT_VIEW(chview), &iter,
+				     0.25, FALSE, 0.0, 0.0);
+}
+static void
+loqui_app_actions_jump_to_next_keyword_cb(GtkAction *action, LoquiApp *app)
+{
+	LoquiChannelTextView *chview;
+	GtkTextBuffer *buffer;
+	GtkTextIter iter;
+	GtkTextTag *tag;
+
+	chview = LOQUI_CHANNEL_TEXT_VIEW(loqui_app_get_current_channel_text_view(app));
+	if (!chview)
+		return;
+	
+	buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(chview));
+	if (!buffer) {
+		g_warning("the LoquiChannelTextView doesn't have text buffer");
+		return;
+	}
+
+	gtk_text_buffer_get_iter_at_mark(buffer,
+					 &iter,
+					 gtk_text_buffer_get_insert(buffer));
+	gtk_text_buffer_place_cursor(buffer, &iter);
+
+	tag = gtk_text_tag_table_lookup(gtk_text_buffer_get_tag_table(buffer), "highlight");
+	g_return_if_fail(tag != NULL);
+
+	/* if iter is in highlight tag, exit it at first */
+	if (gtk_text_iter_has_tag(&iter, tag) && !gtk_text_iter_ends_tag(&iter, tag))
+		gtk_text_iter_forward_to_tag_toggle(&iter, tag);
+
+	/* find the beginning of a tagged text */
+	if (!gtk_text_iter_forward_to_tag_toggle(&iter, tag))
+		return;
+
+	gtk_text_buffer_place_cursor(buffer, &iter);
+	gtk_text_view_scroll_to_iter(GTK_TEXT_VIEW(chview), &iter,
+				     0.25, FALSE, 0.0, 0.0);
+}
+
 static void
 loqui_app_actions_toggle_channelbar_cb(GtkAction *action, LoquiApp *app)
 {

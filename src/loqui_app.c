@@ -708,6 +708,7 @@ loqui_app_get_current_channel_text_view(LoquiApp *app)
 
 	return chview;
 }
+
 LoquiChannelEntry *
 loqui_app_get_current_channel_entry(LoquiApp *app)
 {
