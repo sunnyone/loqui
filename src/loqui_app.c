@@ -992,8 +992,8 @@ loqui_app_add_channel_cb(Account *account, LoquiChannel *channel, LoquiApp *app)
 	loqui_channel_entry_ui_add_channel(app, channel, "/menubar/Buffers", "menubar");
 	loqui_channel_entry_ui_add_channel(app, channel, "/ChannelListPopup", "channelbar");
 
-	g_signal_connect_swapped(G_OBJECT(channel), "notify::is_updated",
-			         G_CALLBACK(loqui_app_channel_entry_notify_is_updated_cb), app);
+	g_signal_connect(G_OBJECT(channel), "notify::is-updated",
+			 G_CALLBACK(loqui_app_channel_entry_notify_is_updated_cb), app);
         /* FIXME:	g_signal_connect_swapped(G_OBJECT(channel), "user-number-changed",
 	G_CALLBACK(channel_tree_update_user_number), app->channel_tree); */
 
@@ -1116,8 +1116,8 @@ loqui_app_channel_entry_notify_is_updated_cb(LoquiChannelEntry *chent, GParamSpe
 	gboolean updated;
 	gint delta;
 	
-	g_return_if_fail(channel != NULL);
-	g_return_if_fail(LOQUI_IS_CHANNEL(channel));
+	g_return_if_fail(chent != NULL);
+	g_return_if_fail(LOQUI_IS_CHANNEL_ENTRY(chent));
         g_return_if_fail(app != NULL);
         g_return_if_fail(LOQUI_IS_APP(app));
 
