@@ -10,7 +10,7 @@
 
 #define IRC_MESSAGE_PARAMETER_MAX 15
 
-enum IRCModeFlag {
+typedef enum {
   /* user mode */
   MODE_IRC_UserInvisible             = 'i',
   MODE_IRC_UserReceivesServerNotices = 's',
@@ -28,7 +28,7 @@ enum IRCModeFlag {
   MODE_IRC_ChannelBanMask               = 'b',
   MODE_IRC_ChannelSpeakAbility          = 'v',
   MODE_IRC_ChannelChannelKey            = 'k'
-};
+} IRCModeFlag;
 
 typedef enum {
 	IRC_UNDEFINED  = 9999,
