@@ -55,9 +55,7 @@ GtkType nick_list_get_type(void) G_GNUC_CONST;
 
 GtkWidget* nick_list_new(LoquiApp *app, GtkWidget *menu);
 
-void nick_list_set_store(NickList *list, GtkListStore *store);
 void nick_list_change_mode_selected(NickList *list, gboolean is_give, IRCModeFlag flag);
-
 void nick_list_start_private_talk_selected(NickList *nick_list);
 void nick_list_whois_selected(NickList *nick_list);
 void nick_list_ctcp_selected(NickList *nick_list, const gchar *command);

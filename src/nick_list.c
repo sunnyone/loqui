@@ -473,10 +473,3 @@ nick_list_new(LoquiApp *app, GtkWidget *menu)
 	
 	return GTK_WIDGET(list);
 }
-void nick_list_set_store(NickList *list, GtkListStore *store)
-{
-        g_return_if_fail(list != NULL);
-        g_return_if_fail(IS_NICK_LIST(list));
-	
-        gtk_tree_view_set_model(GTK_TREE_VIEW(list), GTK_TREE_MODEL(store));
-}

@@ -793,8 +793,8 @@ loqui_app_set_current_channel(LoquiApp *app, Channel *channel)
 	channel_tree_select_channel(app->channel_tree, channel);
 	loqui_app_set_channel_buffer(app, channel->buffer);
 
-	nick_list_set_store(app->nick_list, channel->user_list);
-	loqui_app_update_info(app, 
+	gtk_tree_view_set_model(GTK_TREE_VIEW(app->nick_list), GTK_TREE_MODEL(channel->user_list));
+      	loqui_app_update_info(app, 
 			      is_account_changed, channel->account,
 			      is_channel_changed, channel);
 
@@ -842,7 +842,8 @@ loqui_app_set_current_account(LoquiApp *app, Account *account)
 	channel_tree_select_account(app->channel_tree, account);
 	loqui_app_set_channel_buffer(app, account->console_buffer);
 
-	nick_list_set_store(app->nick_list, NULL);
+	gtk_tree_view_set_model(GTK_TREE_VIEW(app->nick_list), NULL);
+
 	loqui_app_update_info(app, 
 			      is_account_changed, account,
 			      is_channel_changed, NULL);
