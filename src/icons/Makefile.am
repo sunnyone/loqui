@@ -1,4 +1,4 @@
-IMAGES_ID = console online offline
+IMAGES_ID = console online offline away busy
 IMAGES = $(IMAGES_ID:%=%.png)
 
 noinst_DATA = pixbufs.h
