@@ -68,6 +68,9 @@ class Loqui:Pref from G:Object
 	public gchar **get_keys(self, const gchar *group_name, gsize *length, GError **error) {
 		return lqg_key_file_get_keys(selfp->keyfile, group_name, length, error);
 	}
+	public gchar **get_groups(self, gsize *length) {
+		return lqg_key_file_get_groups(selfp->keyfile, length);
+	}
 
 	public void foreach(self, LoquiPrefForeachFunc func, gpointer data) {
 		gchar **groups;
