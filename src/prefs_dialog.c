@@ -22,7 +22,6 @@
 #include "prefs_dialog.h"
 #include "intl.h"
 #include "prefs_general.h"
-#include "prefs_highlight.h"
 #include "utils.h"
 #include "gtkutils.h"
 #include "codeconv.h"
@@ -39,7 +38,7 @@ struct _PrefsDialogPrivate
 	GtkWidget *entry_codeset;
 
 	GtkWidget *check_use_notification;
-	GtkWidget *textview_highlight_allow;
+	GtkWidget *textview_highlight;
 
 	GtkWidget *entry_browser_command;
 	GtkWidget *entry_notification_command;
@@ -160,9 +159,9 @@ prefs_dialog_load_settings(PrefsDialog *dialog)
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(priv->check_save_size), prefs_general.save_size);
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(priv->check_use_notification), prefs_general.use_notification);
 
-	buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(priv->textview_highlight_allow));
-	if(prefs_highlight.allow_list) {
-		buf = utils_line_separated_text_from_slist(prefs_highlight.allow_list);
+	buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(priv->textview_highlight));
+	if(prefs_general.highlight_list) {
+		buf = utils_line_separated_text_from_list(prefs_general.highlight_list);
 		gtk_text_buffer_set_text(GTK_TEXT_BUFFER(buffer), buf, -1);
 		g_free(buf);
 	}
@@ -190,12 +189,13 @@ prefs_dialog_save_settings(PrefsDialog *dialog)
 	prefs_general.use_notification = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(priv->check_use_notification));
 	prefs_general.codeconv = gtk_option_menu_get_history(GTK_OPTION_MENU(priv->option_codeconv));
 
-	buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(priv->textview_highlight_allow));
+	buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(priv->textview_highlight));
 	gtk_text_buffer_get_start_iter(GTK_TEXT_BUFFER(buffer), &start);
 	gtk_text_buffer_get_end_iter(GTK_TEXT_BUFFER(buffer), &end);
 	buf = gtk_text_buffer_get_text(GTK_TEXT_BUFFER(buffer), &start, &end, FALSE);
-	prefs_highlight_init();
-	prefs_highlight.allow_list = utils_line_separated_text_to_slist(buf);
+
+	G_LIST_FREE_WITH_ELEMENT_FREE_UNLESS_NULL(prefs_general.highlight_list);
+	prefs_general.highlight_list = utils_line_separated_text_to_list(buf);
 
 	G_FREE_UNLESS_NULL(prefs_general.codeset);
 	prefs_general.codeset = g_strdup(gtk_entry_get_text(GTK_ENTRY(priv->entry_codeset)));
@@ -210,7 +210,6 @@ prefs_dialog_save_settings(PrefsDialog *dialog)
 	prefs_general.notification_command = g_strdup(gtk_entry_get_text(GTK_ENTRY(priv->entry_notification_command)));
 
 	prefs_general_save();
-	prefs_highlight_save();
 	codeconv_init();
 }
 
@@ -321,8 +320,8 @@ prefs_dialog_new(void)
 	gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled_win), GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
 	gtk_container_add(GTK_CONTAINER(frame), scrolled_win);
 
-	priv->textview_highlight_allow = gtk_text_view_new();
-	gtk_container_add(GTK_CONTAINER(scrolled_win), priv->textview_highlight_allow);
+	priv->textview_highlight = gtk_text_view_new();
+	gtk_container_add(GTK_CONTAINER(scrolled_win), priv->textview_highlight);
 	vbox = gtk_vbox_new(FALSE, 0);
 	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), vbox, gtk_label_new(_("Command")));
 

@@ -27,7 +27,6 @@
 #include "prefs_general.h"
 #include "utils.h"
 #include "gtkutils.h"
-#include "prefs_highlight.h"
 
 struct _ChannelBufferPrivate
 {
@@ -141,7 +140,7 @@ static void channel_buffer_apply_tag_cb(GtkTextBuffer *buffer,
 	GtkTextIter region_start, region_end;
 	gboolean matched = FALSE;
 	gchar *word;
-	GSList *cur;
+	GList *cur;
 
 	channel_buffer = CHANNEL_BUFFER(buffer);
 	priv = channel_buffer->priv;
@@ -151,7 +150,7 @@ static void channel_buffer_apply_tag_cb(GtkTextBuffer *buffer,
 
 	tmp_end = *end;
 
-	for(cur = prefs_highlight.allow_list; cur != NULL; cur = cur->next) {
+	for(cur = prefs_general.highlight_list; cur != NULL; cur = cur->next) {
 		tmp_start = *start;
 		word = (gchar *) cur->data;
 		while(gtk_text_iter_forward_search(&tmp_start,

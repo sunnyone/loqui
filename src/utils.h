@@ -52,8 +52,8 @@ void debug_print(const gchar *format, ...) G_GNUC_PRINTF(1, 2);
 
 gchar *utils_remove_return_code(gchar *str);
 
-GSList *utils_line_separated_text_to_slist(gchar *str);
-gchar *utils_line_separated_text_from_slist(GSList *slist);
+GList *utils_line_separated_text_to_list(gchar *str);
+gchar *utils_line_separated_text_from_list(GList *list);
 
 gchar *utils_get_iso8601_date_string(time_t t);
 

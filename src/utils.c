@@ -73,10 +73,10 @@ gchar *utils_remove_return_code(gchar *str)
         return str;
 }
 
-GSList *utils_line_separated_text_to_slist(gchar *str)
+GList *utils_line_separated_text_to_list(gchar *str)
 {
 	gchar **str_array;
-	GSList *slist = NULL;
+	GList *list = NULL;
 	gint i;
 
 	str_array = g_strsplit(str, "\n", -1);
@@ -85,25 +85,25 @@ GSList *utils_line_separated_text_to_slist(gchar *str)
 		if(strlen(str_array[i]) == 0)
 			continue;
 
-		slist = g_slist_append(slist, g_strdup(str_array[i]));
+		list = g_list_append(list, g_strdup(str_array[i]));
 	}
 
 	g_strfreev(str_array);
 
-	return slist;
+	return list;
 }
 
-gchar *utils_line_separated_text_from_slist(GSList *slist)
+gchar *utils_line_separated_text_from_list(GList *list)
 {
 	GString *string;
-	GSList *cur;
+	GList *cur;
 	gchar *str;
 
-	g_return_val_if_fail(slist != NULL, NULL);
+	g_return_val_if_fail(list != NULL, NULL);
 
 	string = g_string_new(NULL);
 
-	for(cur = slist; cur != NULL; cur = cur->next) {
+	for(cur = list; cur != NULL; cur = cur->next) {
 		g_string_append_printf(string, "%s\n", (gchar *) cur->data);
 	}
 

@@ -24,7 +24,6 @@
 #include "command_table.h"
 #include "account_manager.h"
 #include "prefs_general.h"
-#include "prefs_highlight.h"
 #include "utils.h"
 
 #include <gtk/gtk.h>
@@ -93,7 +92,6 @@ main(int argc, char *argv[])
 		}
 	}
 	prefs_general_load();
-	prefs_highlight_load();
 
 	codeconv_init();
 	command_table_init();
@@ -104,7 +102,6 @@ main(int argc, char *argv[])
 
 	gtk_main();
 	prefs_general_save();
-	prefs_highlight_save();
 
 	return 0;
 }
