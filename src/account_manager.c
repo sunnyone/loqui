@@ -352,8 +352,17 @@ account_manager_search_account(AccountManager *manager, Channel *channel)
 AccountManager *
 account_manager_get(void)
 {
-	if(!main_account_manager)
+	static gboolean made_account_manager = FALSE;
+
+	if(!main_account_manager) {
+		if(made_account_manager) {
+			g_warning(_("main_account_manager should be created. account_manager_get() may be called recursively."));
+			return NULL;
+		}
+		made_account_manager = TRUE;
 		main_account_manager = account_manager_new();
+	}
+
 	return main_account_manager;
 }
 gboolean
