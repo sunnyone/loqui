@@ -310,6 +310,7 @@ channel_tree_select_channel_entry(ChannelTree *tree, LoquiChannelEntry *chent)
 {
 	GtkTreeModel *model;
 	GtkTreeIter iter;
+	GtkTreePath *path;
 	GtkTreeSelection *selection;
 	ChannelTreePrivate *priv;
 	LoquiAccountManagerStore *store;
@@ -335,6 +336,10 @@ channel_tree_select_channel_entry(ChannelTree *tree, LoquiChannelEntry *chent)
 
 	loqui_account_manager_store_get_iter_by_channel_entry(store, &iter, chent);
 	gtk_tree_selection_select_iter(selection, &iter);
+
+	path = gtk_tree_model_get_path(model, &iter);
+	gtk_tree_view_scroll_to_cell(GTK_TREE_VIEW(tree), path, NULL, FALSE, 0, 0);
+	gtk_tree_path_free(path);
 
 	g_signal_handler_unblock(selection, priv->selection_changed_signal_id);
 }
