@@ -35,7 +35,7 @@ enum {
 	COLUMN_NAME,
 	COLUMN_ACCOUNT,
 	COLUMN_SERVER,
-	COLUMN_VISIBLE,
+	COLUMN_ACTIVATABLE,
 	COLUMN_NUMBER
 };
 
@@ -167,8 +167,9 @@ static void connect_dialog_use_toggled_cb(GtkCellRendererToggle *cell,
 	gtk_tree_model_get(GTK_TREE_MODEL(priv->tree_store), &iter, COLUMN_USE, &is_active, -1);
 
 	if(gtk_tree_model_iter_parent(GTK_TREE_MODEL(priv->tree_store), &parent, &iter)) { /* server */
-		if(!gtk_tree_model_iter_children(GTK_TREE_MODEL(priv->tree_store), &tmp_iter, &parent))
+		if(!gtk_tree_model_iter_children(GTK_TREE_MODEL(priv->tree_store), &tmp_iter, &parent)) {
 			return;
+		}
 		do {
 			gtk_tree_store_set(priv->tree_store, &tmp_iter, COLUMN_USE, FALSE, -1);
 		} while(gtk_tree_model_iter_next(GTK_TREE_MODEL(priv->tree_store), &tmp_iter));
@@ -267,7 +268,7 @@ connect_dialog_new(void)
 	column = gtk_tree_view_column_new_with_attributes("Use",
 							  renderer,
 							  "active", COLUMN_USE,
-							  "activatable", COLUMN_VISIBLE,
+							  "activatable", COLUMN_ACTIVATABLE,
 							  NULL);
 	gtk_tree_view_column_set_cell_data_func(column, renderer,
 						connect_dialog_cell_data_func_use,
@@ -292,13 +293,14 @@ connect_dialog_new(void)
 				   COLUMN_USE, is_connected ? FALSE : account->use,
 				   COLUMN_NAME, account_get_name(account),
 				   COLUMN_ACCOUNT, account,
-				   COLUMN_VISIBLE, !is_connected,
+				   COLUMN_ACTIVATABLE, !is_connected,
 				   -1);
 
 		gtk_tree_store_append(priv->tree_store, &iter, &parent);
 		gtk_tree_store_set(priv->tree_store, &iter,
 				   COLUMN_USE, TRUE,
 				   COLUMN_NAME, "Fallback",
+				   COLUMN_ACTIVATABLE, TRUE,
 				   -1);
 
 		for(tmp = account->server_list; tmp != NULL; tmp = tmp->next) {
@@ -312,6 +314,7 @@ connect_dialog_new(void)
 					   COLUMN_USE, FALSE,
 					   COLUMN_NAME, server->hostname,
 					   COLUMN_SERVER, server,
+					   COLUMN_ACTIVATABLE, TRUE,
 					   -1);
 		}
 	}
