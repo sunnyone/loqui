@@ -143,6 +143,7 @@ loqui_app_init (LoquiApp *app)
 
 	priv->channel_buffer_inserted_signal_id = 0;
 	priv->common_buffer_inserted_signal_id = 0;
+	app->is_scroll = TRUE;
 }
 static void
 loqui_app_destroy(GtkObject *object)
