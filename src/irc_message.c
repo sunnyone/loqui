@@ -344,6 +344,14 @@ irc_message_to_string(IRCMessage *msg)
 	return str;
 }
 gchar *
+irc_message_get_trailing(IRCMessage *msg)
+{
+	int num;
+	for(num = 0; msg->parameter[num] != NULL; num++); /* count the number of parameters */
+
+	return msg->parameter[num];
+}
+gchar *
 irc_message_get_param(IRCMessage *msg, guint i)
 {
 	g_return_val_if_fail(1 <= i && i <= 15, NULL);
