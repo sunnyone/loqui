@@ -235,7 +235,7 @@ irc_handle_my_command_join(IRCHandle *handle, IRCMessage *msg)
 	gdk_threads_enter();
 	channel = channel_new(name);
 	account_add_channel(handle->priv->account, channel);
-	account_manager_set_current(account_manager_get(), NULL, channel);
+	account_manager_select_channel(account_manager_get(), channel);
 	gdk_threads_leave();
 }
 static void

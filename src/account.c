@@ -341,7 +341,7 @@ account_connect(Account *account, gint server_num, gboolean fallback)
 				     account->name);
 		return;
 	}
-	account_manager_set_current(account_manager_get(), account, NULL); /* FIXME: one of channel_tree's row should be selected */
+	account_manager_select_account(account_manager_get(), account); 
 	priv->handle = irc_handle_new(account, server_num, fallback);
 }
 void

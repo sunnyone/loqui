@@ -194,12 +194,13 @@ account_manager_remove_channel(AccountManager *manager, Account *account, Channe
 	account_manager_remove_channel_text(manager, channel->text);
 	channel_tree_remove_channel(manager->priv->app->channel_tree, channel);
 }
+/* called from select_cb */
 void
 account_manager_set_current(AccountManager *manager, Account *account, Channel *channel)
 {
 	AccountManagerPrivate *priv;
 	GSList *cur;
-
+	
         g_return_if_fail(manager != NULL);
         g_return_if_fail(IS_ACCOUNT_MANAGER(manager));
 
@@ -221,6 +222,27 @@ account_manager_set_current(AccountManager *manager, Account *account, Channel *
 		channel_book_change_current(priv->app->channel_book, account->console_text);
 		account_manager_set_topic(manager, "");
 	}
+}
+/* mainly called */
+void
+account_manager_select_channel(AccountManager *manager, Channel *channel)
+{
+        g_return_if_fail(manager != NULL);
+        g_return_if_fail(IS_ACCOUNT_MANAGER(manager));
+        g_return_if_fail(channel != NULL);
+        g_return_if_fail(IS_CHANNEL(channel));
+		
+	channel_tree_select_channel(manager->priv->app->channel_tree, channel);
+}
+void
+account_manager_select_account(AccountManager *manager, Account *account)
+{
+        g_return_if_fail(manager != NULL);
+        g_return_if_fail(IS_ACCOUNT_MANAGER(manager));
+        g_return_if_fail(account != NULL);
+        g_return_if_fail(IS_ACCOUNT(account));
+	
+	channel_tree_select_account(manager->priv->app->channel_tree, account);
 }
 static Account*
 account_manager_search_account(AccountManager *manager, Channel *channel)
