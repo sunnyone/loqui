@@ -902,7 +902,6 @@ account_join(Account *account, const gchar *target)
 void
 account_start_private_talk(Account *account, const gchar *target)
 {
-	IRCMessage *msg;
 	Channel *channel;
 
         g_return_if_fail(account != NULL);
