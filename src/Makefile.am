@@ -18,7 +18,8 @@ SRC_PROTOCOL_BASE_BASE = \
 	codeconv_ja.c codeconv_ja.h \
 	codeconv.c codeconv.h \
 	message_text.c message_text.h \
-	channel_buffer.c channel_buffer.h
+	channel_buffer.c channel_buffer.h \
+	loqui_channel_entry_utils.c loqui_channel_entry_utils.h
 
 SRC_PROTOCOL_BASE = \
 	loqui_protocol.c loqui_protocol.h \

@@ -52,8 +52,7 @@ struct _LoquiApp
 
 	AccountManager *account_manager;
 
-	LoquiAccount *current_account;
-	LoquiChannel *current_channel;
+	LoquiChannelEntry *current_channel_entry;
 
 	gboolean is_pending_update_account_info;
 	gboolean is_pending_update_channel_info;
