@@ -366,7 +366,7 @@ loqui_app_new (void)
 	gtk_text_view_set_editable(GTK_TEXT_VIEW(app->channel_textview), FALSE);
 	gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(app->channel_textview), GTK_WRAP_CHAR);
 	SET_SCROLLED_WINDOW(scrolled_win, app->channel_textview, 
-			    GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC);
+			    GTK_POLICY_NEVER, GTK_POLICY_ALWAYS);
 	gtk_box_pack_start_defaults(GTK_BOX(vbox), scrolled_win);
 
 	/* TODO: this should be replaced with a widget considered multiline editing */
@@ -379,7 +379,7 @@ loqui_app_new (void)
 	gtk_text_view_set_editable(GTK_TEXT_VIEW(priv->common_textview), FALSE);
 	gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(priv->common_textview), GTK_WRAP_CHAR);
 	SET_SCROLLED_WINDOW(scrolled_win, priv->common_textview, 
-			    GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC);
+			    GTK_POLICY_NEVER, GTK_POLICY_ALWAYS);
 	gtk_paned_pack2(GTK_PANED(vpaned), scrolled_win, FALSE, TRUE);
 
 	/* right side */
