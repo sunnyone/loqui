@@ -65,8 +65,10 @@ struct _Channel
 	GSList *user_list;
 	ChannelText *text;
 
-	gchar *mode;
+	gboolean end_names;
 
+	gchar *mode;
+	
         ChannelPrivate *priv;
 };
 

@@ -134,7 +134,8 @@ channel_new (gchar *name)
 	channel->name = g_strdup(name);
 	channel->text = CHANNEL_TEXT(channel_text_new());
 	channel->user_list = NULL;
-
+	channel->end_names = TRUE;
+	
 	return channel;
 }
 

@@ -229,6 +229,7 @@ account_manager_set_current(AccountManager *manager, Account *account, Channel *
 		channel_book_change_current(priv->app->channel_book, account->console_text);
 		account_manager_set_topic(manager, "");
 	}
+	loqui_app_set_focus(manager->priv->app);
 }
 /* mainly called */
 void
@@ -286,6 +287,9 @@ void account_manager_speak(AccountManager *manager, const gchar *str)
 		account = account_manager_search_account(manager, priv->current_channel);
 	else
 		account = priv->current_account;
+
+	if(account == NULL)
+		return;
 
 	account_speak(account, priv->current_channel, str);
 }

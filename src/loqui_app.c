@@ -170,6 +170,7 @@ loqui_app_entry_activate_cb(GtkWidget *widget, gpointer data)
 	str = gtk_entry_get_text(GTK_ENTRY(widget));
 	if(str == NULL || strlen(str) == 0)
 		return;
+	
 	account_manager_speak(account_manager_get(), str);
 	gtk_entry_set_text(GTK_ENTRY(widget), "");
 }
@@ -243,7 +244,6 @@ loqui_app_new (void)
 	/* TODO: this should be replaced with a widget considered multiline editing */
 	entry = gtk_entry_new();
 	gtk_box_pack_end(GTK_BOX(vbox), entry, FALSE, FALSE, 0);
-	gtk_widget_grab_focus(entry);
 	g_signal_connect(G_OBJECT(entry), "activate",
                          G_CALLBACK(loqui_app_entry_activate_cb), NULL);
 
@@ -279,6 +279,8 @@ loqui_app_new (void)
 
 #undef SET_SCROLLED_WINDOW
 
+	loqui_app_set_focus(app);
+
 	return GTK_WIDGET(app);
 }
 
@@ -299,4 +301,8 @@ loqui_app_is_scroll(LoquiApp *app)
 	priv = app->priv;
 
 	return gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(priv->toggle_scroll));
+}
+void loqui_app_set_focus(LoquiApp *app)
+{
+	gtk_widget_grab_focus(app->entry);
 }

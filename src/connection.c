@@ -154,6 +154,7 @@ gchar *connection_gets(Connection *connection, GIOError *error)
 		}
 		return NULL;
 	}
+
 	local = codeconv_to_local(str);
 	g_free(str);
 		
