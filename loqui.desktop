@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=Loqui
+Comment=IRC/Chat Client
+Exec=loqui
+Icon=loqui.png
+Terminal=0
+Type=Application
+Categories=Application;Network;
