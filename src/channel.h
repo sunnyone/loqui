@@ -94,7 +94,7 @@ void channel_change_user_power(Channel *channel,
 			       const gchar *nick, UserPower power);
 void channel_change_user_nick(Channel *channel, 
 			      const gchar *nick_orig, const gchar *nick_new);
-gboolean channel_find_user(Channel *channel, const gchar *nick, User **user);
+gboolean channel_find_user(Channel *channel, const gchar *nick, User **user_ptr);
 
 G_END_DECLS
 

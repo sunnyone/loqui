@@ -35,22 +35,6 @@ static void channel_class_init(ChannelClass *klass);
 static void channel_init(Channel *channel);
 static void channel_finalize(GObject *object);
 
-gint compare_user_nick_with_nick(gconstpointer data1, gconstpointer data2);
-
-gint compare_user_nick_with_nick(gconstpointer data1, gconstpointer data2)
-{
-	User *user;
-
-	g_return_val_if_fail(data1 != NULL, -1);
-	g_return_val_if_fail(data2 != NULL, -1);
-
-/*	if(data1 == NULL) return -1; */
-
-	user = (User *)data1;
-
-	return g_ascii_strcasecmp(user->nick, (const gchar *) data2);
-}
-
 GType
 channel_get_type(void)
 {
@@ -240,23 +224,31 @@ void channel_append_user(Channel *channel, const gchar *nick, UserPower power, U
 		account_manager_nick_list_append(account_manager_get(), user);
 	}
 }
-gboolean channel_find_user(Channel *channel, const gchar *nick, User **user)
+gboolean channel_find_user(Channel *channel, const gchar *nick, User **user_ptr)
 {
-	GSList *slist = NULL;
+	GSList *cur;
+	User *user;
 
 	g_return_val_if_fail(channel != NULL, FALSE);
 	g_return_val_if_fail(IS_CHANNEL(channel), FALSE);
 	g_return_val_if_fail(nick != NULL, FALSE);
 
-	slist = g_slist_find_custom(channel->user_list, nick, compare_user_nick_with_nick);
+	for(cur = channel->user_list; cur != NULL; cur = cur->next) {
+		user = (User *) cur->data;
+		if(!user) {
+			g_warning("NULL user!");
+			continue;
+		}
 
-	if(!slist)
-		return FALSE;
+		if(g_ascii_strcasecmp(user->nick, nick) == 0) {
+			if(user_ptr != NULL) {
+				*user_ptr = user;
+			}
+			return TRUE;
+		}
+	}
 
-	if(user != NULL)
-		*user = (User *) slist->data;
-
-	return TRUE;
+	return FALSE;
 }
 
 void channel_remove_user(Channel *channel, const gchar *nick)
