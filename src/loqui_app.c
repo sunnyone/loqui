@@ -323,7 +323,7 @@ static void loqui_app_channel_textview_inserted_cb(GtkTextBuffer *textbuf,
 
 	app = LOQUI_APP(data);
 
-	if(!account_manager_get_whether_scrolling(account_manager_get()))
+	if(!app->is_scroll)
 		return;
 
 	loqui_app_scroll_channel_buffer(app);
@@ -340,11 +340,18 @@ static void loqui_app_common_textview_inserted_cb(GtkTextBuffer *textbuf,
 
 	loqui_app_scroll_common_buffer(app);
 }
-static void loqui_app_textview_scroll_value_changed_cb(GtkAdjustment *adj, gpointer data)
+static void
+loqui_app_textview_scroll_value_changed_cb(GtkAdjustment *adj, gpointer data)
 {
 	gboolean reached_to_end;
-	AccountManager *manager;
+	LoquiApp *app;
 	Channel *channel;
+	AccountManager *manager;
+
+	g_return_if_fail(data != NULL);
+	g_return_if_fail(LOQUI_IS_APP(data));
+
+	app = LOQUI_APP(data);
 
 	manager = account_manager_get();
 
@@ -354,10 +361,10 @@ static void loqui_app_textview_scroll_value_changed_cb(GtkAdjustment *adj, gpoin
 	/* upper - page_size is max virtually. */
 	reached_to_end = (ABS(adj->upper - adj->page_size - adj->value) < adj->step_increment);
 
-	if(reached_to_end && !account_manager_get_whether_scrolling(manager)) {
-		account_manager_set_whether_scrolling(manager, TRUE);
-	} else if(!reached_to_end && account_manager_get_whether_scrolling(manager)) {
-		account_manager_set_whether_scrolling(manager, FALSE);
+	if(reached_to_end && !app->is_scroll) {
+		loqui_app_actions_toggle_action_set_active(app, LOQUI_ACTION_TOGGLE_SCROLL, TRUE);
+	} else if(!reached_to_end && app->is_scroll) {
+		loqui_app_actions_toggle_action_set_active(app, LOQUI_ACTION_TOGGLE_SCROLL, FALSE);
 	}
 
 	channel = account_manager_get_current_channel(manager);
@@ -493,7 +500,8 @@ loqui_app_new(void)
 	hpaned = gtk_hpaned_new();
 	gtk_box_pack_start_defaults(GTK_BOX(vbox), hpaned);
 
-	app->statusbar = loqui_statusbar_new(app);
+	app->statusbar = loqui_statusbar_new(app,
+					     GTK_TOGGLE_ACTION(gtk_action_group_get_action(app->action_group, LOQUI_ACTION_TOGGLE_SCROLL)));
 	gtk_box_pack_start(GTK_BOX(vbox), app->statusbar, FALSE, FALSE, 1);	
 	
 	/* left side */

@@ -31,11 +31,13 @@
       <menuitem name="ToggleChannelbar" action="ToggleChannelbar"/>
       <menuitem name="ToggleStatusbar" action="ToggleStatusbar"/>
       <separator/>
+      <menuitem name="ToggleScroll" action="ToggleScroll"/>
+      <separator/>
       <menuitem name="PreviousUpdatedChannel" action="PreviousUpdatedChannel"/>
       <menuitem name="NextUpdatedChannel" action="NextUpdatedChannel"/>
-      <separator/>
       <menuitem name="PreviousChannel" action="PreviousChannel"/>
       <menuitem name="NextChannel" action="NextChannel"/>
+      <separator/>
     </menu>
     <menu name="Buffers" action="StockBuffersMenu">
     </menu>

@@ -32,5 +32,8 @@
 }
 
 GtkActionGroup* loqui_app_actions_create_group(LoquiApp *app);
+void loqui_app_actions_toggle_action_set_active(LoquiApp *app, const gchar *name, gboolean is_active);
+
+#define LOQUI_ACTION_TOGGLE_SCROLL "ToggleScroll"
 
 #endif /* __LOQUI_APP_ACTIONS_H__ */

@@ -117,7 +117,6 @@ main(int argc, char *argv[])
 	
 	account_manager = account_manager_get();
 	account_manager_load_accounts(account_manager);
-	account_manager_set_whether_scrolling(account_manager, TRUE);
 	if(prefs_general.connect_startup)
 		account_manager_connect_all_default(account_manager);
 

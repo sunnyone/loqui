@@ -33,6 +33,7 @@
 #include "main.h"
 #include "loqui_profile_handle.h"
 #include "loqui_profile_account_irc.h"
+#include "loqui_app_actions.h"
 
 #include <time.h>
 
@@ -48,7 +49,6 @@ struct _AccountManagerPrivate
 
 	gboolean is_pending_update_account_info;
 	gboolean is_pending_update_channel_info;
-	gboolean is_scroll;
 	
 	guint updated_channel_number;
 	guint updated_private_talk_number;
@@ -421,7 +421,7 @@ account_manager_channel_updated_cb(AccountManager *manager, gboolean is_updated_
 
 	if(channel_get_updated(channel) == TRUE &&
 	   account_manager_is_current_channel(manager, channel) &&
-	   account_manager_get_whether_scrolling(account_manager_get()))
+	   priv->app->is_scroll)
 		channel_set_updated(channel, FALSE);
 
 	channel_tree_set_updated(priv->app->channel_tree, NULL, channel);
@@ -513,7 +513,7 @@ account_manager_channel_buffer_append_cb(ChannelBuffer *buffer, MessageText *msg
 	if (prefs_general.save_log)
 		account_manager_append_log(manager, msgtext);
 	
-	if(!account_manager_get_whether_scrolling(manager)) {
+	if(!priv->app->is_scroll) {
 	} else if(priv->current_channel) {
 		if(buffer == priv->current_channel->buffer)
 			return;
@@ -575,7 +575,7 @@ void account_manager_set_current_channel(AccountManager *manager, Channel *chann
 			 G_CALLBACK(account_manager_account_changed_cb), manager);
 
 	if(prefs_general.auto_switch_scrolling)
-		account_manager_set_whether_scrolling(manager, TRUE);
+		loqui_app_actions_toggle_action_set_active(priv->app, LOQUI_ACTION_TOGGLE_SCROLL, TRUE);
 }
 
 void account_manager_set_current_account(AccountManager *manager, Account *account)
@@ -618,7 +618,7 @@ void account_manager_set_current_account(AccountManager *manager, Account *accou
 			 G_CALLBACK(account_manager_account_changed_cb), manager);
 			 
 	if(prefs_general.auto_switch_scrolling)
-		account_manager_set_whether_scrolling(manager, TRUE);
+		loqui_app_actions_toggle_action_set_active(priv->app, LOQUI_ACTION_TOGGLE_SCROLL, TRUE);
 }
 
 Channel *account_manager_get_current_channel(AccountManager *manager)
@@ -720,23 +720,6 @@ void account_manager_open_prefs_dialog(AccountManager *manager)
         g_return_if_fail(IS_ACCOUNT_MANAGER(manager));	
 
 	prefs_dialog_open(GTK_WINDOW(manager->priv->app));
-}
-void
-account_manager_set_whether_scrolling(AccountManager *manager, gboolean is_scroll)
-{
-	AccountManagerPrivate *priv;
-
-	priv = manager->priv;
-
-	priv->is_scroll = is_scroll;
-	loqui_statusbar_toggle_scrolling_with_signal_handler_blocked(LOQUI_STATUSBAR(priv->app->statusbar),
-								     is_scroll);							     
-	debug_puts("Set scroll: %d", is_scroll);
-}
-gboolean
-account_manager_get_whether_scrolling(AccountManager *manager)
-{
-	return manager->priv->is_scroll;
 }
 void
 account_manager_open_connect_dialog(AccountManager *manager)

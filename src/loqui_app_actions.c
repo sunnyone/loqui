@@ -44,9 +44,6 @@ static void loqui_app_actions_cut_cb(GtkAction *action, LoquiApp *app);
 static void loqui_app_actions_copy_cb(GtkAction *action, LoquiApp *app);
 static void loqui_app_actions_paste_cb(GtkAction *action, LoquiApp *app);
 static void loqui_app_actions_clear_cb(GtkAction *action, LoquiApp *app);
-static void loqui_app_actions_toggle_channelbar_cb(GtkAction *action, LoquiApp *app);
-static void loqui_app_actions_toggle_statusbar_cb(GtkAction *action, LoquiApp *app);
-static void loqui_app_actions_toggle_command_mode_cb(GtkAction *action, LoquiApp *app);
 static void loqui_app_actions_previous_updated_channel_cb(GtkAction *action, LoquiApp *app);
 static void loqui_app_actions_next_updated_channel_cb(GtkAction *action, LoquiApp *app);
 static void loqui_app_actions_previous_channel_cb(GtkAction *action, LoquiApp *app);
@@ -57,6 +54,11 @@ static void loqui_app_actions_set_topic_cb(GtkAction *action, LoquiApp *app);
 static void loqui_app_actions_nick_cb(GtkAction *action, LoquiApp *app);
 static void loqui_app_actions_away_info_cb(GtkAction *action, LoquiApp *app);
 static void loqui_app_actions_start_private_talk_cb(GtkAction *action, LoquiApp *app);
+
+static void loqui_app_actions_toggle_channelbar_cb(GtkAction *action, LoquiApp *app);
+static void loqui_app_actions_toggle_statusbar_cb(GtkAction *action, LoquiApp *app);
+static void loqui_app_actions_toggle_command_mode_cb(GtkAction *action, LoquiApp *app);
+static void loqui_app_actions_toggle_scroll_cb(GtkAction *action, LoquiApp *app);
 
 static GtkActionEntry loqui_action_entries[] =
 {
@@ -119,9 +121,10 @@ static GtkActionEntry loqui_action_entries[] =
         {"CTCPFingerSelected",       NULL, N_("_Finger"), NULL, NULL, NULL},
 };
 static GtkToggleActionEntry loqui_toggle_action_entries[] = {
-        {"ToggleCommandMode", LOQUI_STOCK_COMMAND, N_("_Toggle Command Mode"),CTRL"slash", NULL, G_CALLBACK(loqui_app_actions_toggle_command_mode_cb), FALSE},
+        {"ToggleCommandMode", LOQUI_STOCK_COMMAND, N_("_Toggle Command Mode"),CTRL"slash", N_("Interpret and send the message as command if toggled"), G_CALLBACK(loqui_app_actions_toggle_command_mode_cb), FALSE},
         {"ToggleChannelbar",  NULL, N_("_Channelbar"), NULL, NULL, G_CALLBACK(loqui_app_actions_toggle_channelbar_cb), TRUE},
         {"ToggleStatusbar",   NULL, N_("_Statusbar"), NULL, NULL, G_CALLBACK(loqui_app_actions_toggle_statusbar_cb), TRUE},
+	{LOQUI_ACTION_TOGGLE_SCROLL, NULL, N_("_Scroll buffer"), NULL, N_("Whether scrolling the channel buffer to the end when new message arrived."),G_CALLBACK(loqui_app_actions_toggle_scroll_cb) , TRUE},
 };
 
 GtkActionGroup *
@@ -146,6 +149,15 @@ loqui_app_actions_create_group(LoquiApp *app)
 	ACTION_GROUP_ACTION_SET_SENSITIVE(action_group, "FindAgain", FALSE);
 
 	return action_group;
+}
+
+void
+loqui_app_actions_toggle_action_set_active(LoquiApp *app, const gchar *name, gboolean is_active)
+{
+	GtkToggleAction *toggle_action;
+
+	toggle_action = GTK_TOGGLE_ACTION(gtk_action_group_get_action(app->action_group, name));
+	gtk_toggle_action_set_active(toggle_action, is_active);
 }
 
 /* callbacks */
@@ -275,6 +287,17 @@ static void
 loqui_app_actions_toggle_statusbar_cb(GtkAction *action, LoquiApp *app)
 {
 	loqui_app_set_show_statusbar(app, gtk_toggle_action_get_active(GTK_TOGGLE_ACTION(action)));
+}
+static void
+loqui_app_actions_toggle_scroll_cb(GtkAction *action, LoquiApp *app)
+{
+	gboolean is_active;
+
+	is_active = gtk_toggle_action_get_active(GTK_TOGGLE_ACTION(action));
+	if(is_active)
+		loqui_app_scroll_channel_buffer(app);
+
+	app->is_scroll = is_active;
 }
 static void
 loqui_app_actions_toggle_command_mode_cb(GtkAction *action, LoquiApp *app)

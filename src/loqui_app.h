@@ -44,6 +44,9 @@ struct _LoquiApp
 
         LoquiAppPrivate *priv;
 
+	/* cache, use action to set */
+	gboolean is_scroll;
+
 	GAsyncQueue *error_connections;
 
 	GtkActionGroup *action_group;

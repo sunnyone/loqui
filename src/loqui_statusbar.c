@@ -78,7 +78,6 @@ static void loqui_statusbar_away_menuitem_activated_cb(GtkWidget *widget, LoquiS
 static void loqui_statusbar_set_away_menu(LoquiStatusbar *statusbar);
 
 static void loqui_statusbar_nick_button_clicked_cb(GtkWidget *widget, LoquiStatusbar *statusbar);
-static void loqui_statusbar_toggle_scrolling_cb(GtkWidget *widget, LoquiStatusbar *statusbar);
 
 GType
 loqui_statusbar_get_type(void)
@@ -336,32 +335,14 @@ loqui_statusbar_nick_button_clicked_cb(GtkWidget *widget, LoquiStatusbar *status
 	
 	g_signal_emit(statusbar, loqui_statusbar_signals[NICK_CHANGE], 0);
 }
-static void
-loqui_statusbar_toggle_scrolling_cb(GtkWidget *widget, LoquiStatusbar *statusbar)
-{
-	gboolean is_active;
-	LoquiStatusbarPrivate *priv;
-
-        g_return_if_fail(statusbar != NULL);
-        g_return_if_fail(LOQUI_IS_STATUSBAR(statusbar));
-
-	priv = statusbar->priv;
-
-	is_active = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget));
-	account_manager_set_whether_scrolling(account_manager_get(), 
-					      is_active);
-
-	if(is_active)
-		loqui_app_scroll_channel_buffer(priv->app);
-}
-
 GtkWidget*
-loqui_statusbar_new(LoquiApp *app)
+loqui_statusbar_new(LoquiApp *app, GtkToggleAction *toggle_scroll_action)
 {
         LoquiStatusbar *statusbar;
 	LoquiStatusbarPrivate *priv;
 	GtkWidget *hsep;
-	
+	GtkWidget *label;
+
 	statusbar = g_object_new(loqui_statusbar_get_type(), NULL);
 	priv = statusbar->priv;
 	
@@ -405,7 +386,12 @@ loqui_statusbar_new(LoquiApp *app)
 	gtk_box_pack_start(GTK_BOX(statusbar), priv->progress_lag, FALSE, FALSE, 0);
 	gtk_widget_set_size_request(priv->progress_lag, 70, -1);
 
-	priv->toggle_scroll = gtk_toggle_button_new_with_mnemonic("Scroll");
+	priv->toggle_scroll = gtk_toggle_button_new();
+	gtk_action_connect_proxy(GTK_ACTION(toggle_scroll_action), priv->toggle_scroll);
+	gtk_container_remove(GTK_CONTAINER(priv->toggle_scroll), gtk_bin_get_child(GTK_BIN(priv->toggle_scroll)));
+	label = gtk_label_new("Scroll");
+	gtk_container_add(GTK_CONTAINER(priv->toggle_scroll), label);
+
 	WIDGET_MINIMIZE_HEIGHT(priv->toggle_scroll);
 	gtk_box_pack_start(GTK_BOX(statusbar), priv->toggle_scroll, FALSE, FALSE, 0);
 	
@@ -416,11 +402,6 @@ loqui_statusbar_new(LoquiApp *app)
 	loqui_dropdown_box_set_menu(LOQUI_DROPDOWN_BOX(priv->dbox_away), priv->menu_away);
 
 	loqui_statusbar_set_away_menu(statusbar);
-	
-	priv->toggle_scroll_handler_id = g_signal_connect(G_OBJECT(priv->toggle_scroll),
-							 "toggled",
-							 G_CALLBACK(loqui_statusbar_toggle_scrolling_cb),
-							 statusbar);
 	
 	return GTK_WIDGET(statusbar);
 }
@@ -492,18 +473,4 @@ loqui_statusbar_set_default(LoquiStatusbar *statusbar, const gchar *str)
 	context_id = gtk_statusbar_get_context_id(GTK_STATUSBAR(statusbar), "Default");
 	gtk_statusbar_pop(GTK_STATUSBAR(statusbar), context_id);
 	gtk_statusbar_push(GTK_STATUSBAR(statusbar), context_id, str);
-}
-void
-loqui_statusbar_toggle_scrolling_with_signal_handler_blocked(LoquiStatusbar *statusbar, gboolean is_scroll)
-{
-	LoquiStatusbarPrivate *priv;
-	
-        g_return_if_fail(statusbar != NULL);
-        g_return_if_fail(LOQUI_IS_STATUSBAR(statusbar));
-    
-    	priv = statusbar->priv;
-    	
-	gtkutils_toggle_button_with_signal_handler_blocked(GTK_TOGGLE_BUTTON(priv->toggle_scroll),
-							   priv->toggle_scroll_handler_id,
-							   is_scroll);
 }
