@@ -154,7 +154,7 @@ codeconv_to_local(const gchar *input)
 			case E2BIG:
 				break;
 			default:
-				g_warning(_("Unknown error occurs in code convertion."));
+				g_warning(_("Unknown error occured in code convertion."));
 				return NULL;
 			}
 		}
