@@ -26,6 +26,7 @@
 #include "account_manager.h"
 #include "prefs_general.h"
 #include "loqui_toolbar.h"
+#include "loqui_channelbar.h"
 #include "gtkutils.h"
 #include "remark_entry.h"
 
@@ -40,6 +41,7 @@ struct _LoquiAppPrivate
 	GtkWidget *entry;
 	GtkWidget *statusbar;
 	GtkWidget *handlebox_toolbar;
+	GtkWidget *handlebox_channelbar;
 	GtkWidget *label_user_number;
 	GtkWidget *label_channel;
 	GtkWidget *label_channel_mode;
@@ -412,6 +414,12 @@ loqui_app_new(void)
 
 	app->toolbar = loqui_toolbar_new(app);
 	gtk_container_add(GTK_CONTAINER(priv->handlebox_toolbar), app->toolbar);
+
+	priv->handlebox_channelbar = gtk_handle_box_new();
+	gtk_box_pack_start(GTK_BOX(vbox), priv->handlebox_channelbar, FALSE, FALSE, 0);
+
+	app->channelbar = loqui_channelbar_new();
+	gtk_container_add(GTK_CONTAINER(priv->handlebox_channelbar), app->channelbar);
 
 #define SET_SCROLLED_WINDOW(s, w, vpolicy, hpolicy) \
 { \

@@ -19,42 +19,43 @@
  */
 #include "config.h"
 
-#include "channel_bar.h"
+#include "loqui_channelbar.h"
 
-struct _ChannelBarPrivate
+struct _LoquiChannelBarPrivate
 {
 	GtkWidget *option_menu;
 	GtkWidget *entry_topic;
+	GtkWidget *button_ok;
 };
 
-static GtkToolbarClass *parent_class = NULL;
-#define PARENT_TYPE GTK_TYPE_TOOLBAR
+static GtkHBoxClass *parent_class = NULL;
+#define PARENT_TYPE GTK_TYPE_HBOX
 
-static void channel_bar_class_init(ChannelBarClass *klass);
-static void channel_bar_init(ChannelBar *channel_bar);
-static void channel_bar_finalize(GObject *object);
-static void channel_bar_destroy(GtkObject *object);
+static void loqui_channelbar_class_init(LoquiChannelBarClass *klass);
+static void loqui_channelbar_init(LoquiChannelBar *channelbar);
+static void loqui_channelbar_finalize(GObject *object);
+static void loqui_channelbar_destroy(GtkObject *object);
 
 GType
-channel_bar_get_type(void)
+loqui_channelbar_get_type(void)
 {
 	static GType type = 0;
 	if (type == 0) {
 		static const GTypeInfo our_info =
 			{
-				sizeof(ChannelBarClass),
+				sizeof(LoquiChannelBarClass),
 				NULL,           /* base_init */
 				NULL,           /* base_finalize */
-				(GClassInitFunc) channel_bar_class_init,
+				(GClassInitFunc) loqui_channelbar_class_init,
 				NULL,           /* class_finalize */
 				NULL,           /* class_data */
-				sizeof(ChannelBar),
+				sizeof(LoquiChannelBar),
 				0,              /* n_preallocs */
-				(GInstanceInitFunc) channel_bar_init
+				(GInstanceInitFunc) loqui_channelbar_init
 			};
 		
 		type = g_type_register_static(PARENT_TYPE,
-					      "ChannelBar",
+					      "LoquiChannelBar",
 					      &our_info,
 					      0);
 	}
@@ -62,61 +63,69 @@ channel_bar_get_type(void)
 	return type;
 }
 static void
-channel_bar_class_init (ChannelBarClass *klass)
+loqui_channelbar_class_init (LoquiChannelBarClass *klass)
 {
         GObjectClass *object_class = G_OBJECT_CLASS(klass);
         GtkObjectClass *gtk_object_class = GTK_OBJECT_CLASS(klass);
 
         parent_class = g_type_class_peek_parent(klass);
         
-        object_class->finalize = channel_bar_finalize;
-        gtk_object_class->destroy = channel_bar_destroy;
+        object_class->finalize = loqui_channelbar_finalize;
+        gtk_object_class->destroy = loqui_channelbar_destroy;
 }
 static void 
-channel_bar_init (ChannelBar *channel_bar)
+loqui_channelbar_init (LoquiChannelBar *channelbar)
 {
-	ChannelBarPrivate *priv;
+	LoquiChannelBarPrivate *priv;
 
-	priv = g_new0(ChannelBarPrivate, 1);
+	priv = g_new0(LoquiChannelBarPrivate, 1);
 
-	channel_bar->priv = priv;
+	channelbar->priv = priv;
 }
 static void 
-channel_bar_finalize (GObject *object)
+loqui_channelbar_finalize (GObject *object)
 {
-	ChannelBar *channel_bar;
+	LoquiChannelBar *channelbar;
 
         g_return_if_fail(object != NULL);
-        g_return_if_fail(IS_CHANNEL_BAR(object));
+        g_return_if_fail(LOQUI_IS_CHANNELBAR(object));
 
-        channel_bar = CHANNEL_BAR(object);
+        channelbar = LOQUI_CHANNELBAR(object);
 
         if (G_OBJECT_CLASS(parent_class)->finalize)
                 (* G_OBJECT_CLASS(parent_class)->finalize) (object);
 
-	g_free(channel_bar->priv);
+	g_free(channelbar->priv);
 }
 static void 
-channel_bar_destroy (GtkObject *object)
+loqui_channelbar_destroy (GtkObject *object)
 {
-        ChannelBar *channel_bar;
+        LoquiChannelBar *channelbar;
 
         g_return_if_fail(object != NULL);
-        g_return_if_fail(IS_CHANNEL_BAR(object));
+        g_return_if_fail(LOQUI_IS_CHANNELBAR(object));
 
-        channel_bar = CHANNEL_BAR(object);
+        channelbar = LOQUI_CHANNELBAR(object);
 
         if (GTK_OBJECT_CLASS(parent_class)->destroy)
                 (* GTK_OBJECT_CLASS(parent_class)->destroy) (object);
 }
 
 GtkWidget*
-channel_bar_new (void)
+loqui_channelbar_new (void)
 {
-        ChannelBar *channel_bar;
-	ChannelBarPrivate *priv;
+        LoquiChannelBar *channelbar;
+	LoquiChannelBarPrivate *priv;
 
-	channel_bar = g_object_new(channel_bar_get_type(), NULL);
+	channelbar = g_object_new(loqui_channelbar_get_type(), NULL);
 	
-	return GTK_WIDGET(channel_bar);
+	priv = channelbar->priv;
+
+	priv->option_menu = gtk_option_menu_new();
+	gtk_box_pack_start(GTK_BOX(channelbar), priv->option_menu, FALSE, FALSE, 0);
+
+	priv->entry_topic = gtk_entry_new();
+	gtk_box_pack_start(GTK_BOX(channelbar), priv->entry_topic, TRUE, TRUE, 0);
+
+	return GTK_WIDGET(channelbar);
 }

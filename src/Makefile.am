@@ -39,7 +39,7 @@ loqui_SOURCES = \
 	remark_entry.c remark_entry.h \
 	message_text.c message_text.h \
 	buffer_menu.c buffer_menu.h \
-	channel_bar.c channel_bar.h
+	loqui_channelbar.c loqui_channelbar.h
 
 loqui_LDADD = \
         $(GTK_LIBS) $(GNET_LIBS)
