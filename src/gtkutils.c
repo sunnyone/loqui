@@ -1,7 +1,7 @@
 /* -*- Mode: C; tab-width: 8; indent-tabs-mode: t; c-basic-offset: 8 -*- */
 /*
- * Loqui -- IRC client for GNOME2 <http://loqui.good-day.net/>
- * Copyright (C) 2002 Yoichi Imai <yoichi@silver-forest.com>
+ * Loqui -- IRC client for Gtk2 <http://loqui.good-day.net/>
+ * Copyright (C) 2002-2003 Yoichi Imai <yoichi@silver-forest.com>
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-/* Copyright (C) 2002  Takuo KITAME
+/* Copyright (C) 2002-2003  Takuo KITAME
    gtk_tree_model_find_by_column_data() is written by him. */
 
 #include "config.h"

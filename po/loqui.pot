@@ -1,5 +1,5 @@
 # SOME DESCRIPTIVE TITLE.
-# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# Copyright (C) YEAR Yoichi Imai
 # This file is distributed under the same license as the PACKAGE package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
@@ -7,7 +7,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2003-01-12 23:39+0900\n"
+"POT-Creation-Date: 2003-01-18 23:54+0900\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -15,323 +15,294 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: src/about.c:31 src/loqui_app.c:204
-msgid "Loqui"
-msgstr ""
-
-#: src/about.c:32
-msgid "(C) 2002 Yoichi Imai"
-msgstr ""
-
-#: src/about.c:33
-msgid ""
-"IRC client for GNOME2\n"
-"http://loqui.good-day.net/"
-msgstr ""
-
-#: src/account.c:295
-#, c-format
-msgid "Account '%s': Nick is empty"
-msgstr ""
-
-#: src/account.c:301
-#, c-format
-msgid "Account '%s': Username is empty"
-msgstr ""
-
-#: src/account.c:307
-#, c-format
-msgid "Account '%s': Realname is empty"
-msgstr ""
-
-#: src/account.c:322
-#, c-format
-msgid "Account '%s': No servers found."
-msgstr ""
-
-#: src/account.c:364
+#: src/account.c:391
 #, c-format
 msgid "Account '%s' has already connected."
 msgstr ""
 
-#: src/account.c:456
+#: src/account.c:503
 msgid "Not connected with this account"
 msgstr ""
 
-#: src/account.c:473
+#: src/account.c:520
 msgid "No channel is selected"
 msgstr ""
 
-#: src/channel_tree.c:241
+#: src/channel_tree.c:236
 msgid "Failed to add channel"
 msgstr ""
 
-#: src/codeconv.c:47
+#: src/codeconv.c:50
 msgid "the setting of codeconv was invalid; now 'Auto Detection' is selected."
 msgstr ""
 
-#: src/codeconv.c:90
+#: src/codeconv.c:93
 #, c-format
 msgid "Code convartion error: %s"
 msgstr ""
 
-#: src/connection.c:129
+#: src/connection.c:132
 msgid "Connection error"
 msgstr ""
 
-#: src/eel-gconf-extensions.c:79
-msgid ""
-"Cannot find a schema for loqui preferences. \n"
-"Check your gconf setup"
-msgstr ""
-
-#: src/eel-gconf-extensions.c:105
-#, c-format
-msgid ""
-"GConf error:\n"
-"  %s"
-msgstr ""
-
-#: src/irc_handle.c:167
+#: src/irc_handle.c:169
 msgid "This PRIVMSG/NOTICE message doesn't contain a remark."
 msgstr ""
 
-#: src/irc_handle.c:223 src/irc_handle.c:245 src/irc_handle.c:271
-#: src/irc_handle.c:297
+#: src/irc_handle.c:226 src/irc_handle.c:253 src/irc_handle.c:279
+#: src/irc_handle.c:305
 msgid "The message does not contain nick"
 msgstr ""
 
-#: src/irc_handle.c:234
+#: src/irc_handle.c:242
 msgid "*** %n has quit IRC(%t)"
 msgstr ""
 
-#: src/irc_handle.c:251 src/irc_handle.c:277
+#: src/irc_handle.c:259 src/irc_handle.c:285
 msgid "The message does not contain the channal name"
 msgstr ""
 
-#: src/irc_handle.c:262
+#: src/irc_handle.c:270
 msgid "*** %n has just part %1(%t)"
 msgstr ""
 
-#: src/irc_handle.c:288
+#: src/irc_handle.c:296
 msgid "*** %2 was kicked from %1 by %n(%3)"
 msgstr ""
 
-#: src/irc_handle.c:303
+#: src/irc_handle.c:311
 msgid "The NICK message does not contain new nick"
 msgstr ""
 
-#: src/irc_handle.c:314
+#: src/irc_handle.c:322
 msgid "*** %n is known as %1"
 msgstr ""
 
-#: src/irc_handle.c:335
+#: src/irc_handle.c:343
 msgid "Who can change mode?"
 msgstr ""
 
-#: src/irc_handle.c:339
+#: src/irc_handle.c:347
 #, c-format
 msgid "Nick should not contain '%%'"
 msgstr ""
 
-#: src/irc_handle.c:345
+#: src/irc_handle.c:353
 msgid "The target is not found in MODE command"
 msgstr ""
 
-#: src/irc_handle.c:351
+#: src/irc_handle.c:359
 msgid "Flags are not found in MODE command"
 msgstr ""
 
-#: src/irc_handle.c:365
+#: src/irc_handle.c:373
 msgid "Flags don't have + or -"
 msgstr ""
 
-#: src/irc_handle.c:375
+#: src/irc_handle.c:383
 msgid "Why can you know the change of his mode?"
 msgstr ""
 
-#: src/irc_handle.c:381
+#: src/irc_handle.c:389
 msgid "Invalid MODE command"
 msgstr ""
 
-#: src/irc_handle.c:386
+#: src/irc_handle.c:394
 msgid "Can't find a nick to change mode"
 msgstr ""
 
-#: src/irc_handle.c:421
+#: src/irc_handle.c:429
 msgid "Unknown mode flag"
 msgstr ""
 
-#: src/irc_handle.c:432
+#: src/irc_handle.c:440
 #, c-format
 msgid "*** New mode for %%1 by %s: %%*2"
 msgstr ""
 
-#: src/irc_handle.c:448
+#: src/irc_handle.c:456
 msgid "The message does not contain nick."
 msgstr ""
 
-#: src/irc_handle.c:453
+#: src/irc_handle.c:461
 msgid "Invalid JOIN command"
 msgstr ""
 
-#: src/irc_handle.c:459
+#: src/irc_handle.c:467
 msgid "Why do you know that the user join the channel?"
 msgstr ""
 
-#: src/irc_handle.c:467
+#: src/irc_handle.c:475
 msgid "*** %n (%u@%h) joined channel %t"
 msgstr ""
 
-#: src/irc_handle.c:481 src/irc_handle.c:504 src/irc_handle.c:530
+#: src/irc_handle.c:489 src/irc_handle.c:512 src/irc_handle.c:538
 msgid "Can't get channel name"
 msgstr ""
 
-#: src/irc_handle.c:653
+#: src/irc_handle.c:661
 msgid "Topic for %2: %t"
 msgstr ""
 
-#: src/irc_handle.c:672
+#: src/irc_handle.c:680
 msgid "*** New topic on %1 by %n: %t"
 msgstr ""
 
-#: src/irc_handle.c:731
+#: src/irc_handle.c:739
 msgid "Can't find the channel from the message"
 msgstr ""
 
-#: src/irc_handle.c:765
+#: src/irc_handle.c:773
 msgid "*** %2 is marked as begin AWAY, but left the message: %3"
 msgstr ""
 
-#: src/irc_handle.c:774
+#: src/irc_handle.c:782
 msgid "*** %t"
 msgstr ""
 
-#: src/irc_handle.c:777
+#: src/irc_handle.c:785
 msgid "*** You are inviting %2 to %3"
 msgstr ""
 
-#: src/irc_handle.c:780
+#: src/irc_handle.c:788
 msgid "*** %3 is running IRC version %2 (%4)"
 msgstr ""
 
-#: src/irc_handle.c:805
+#: src/irc_handle.c:813
 msgid "%2 is %3@%4: %t"
 msgstr ""
 
-#: src/irc_handle.c:808
+#: src/irc_handle.c:816
 msgid "%2 was %3@%4: %t"
 msgstr ""
 
-#: src/irc_handle.c:811
+#: src/irc_handle.c:819
 msgid "%2: %t"
 msgstr ""
 
-#: src/irc_handle.c:814
+#: src/irc_handle.c:822
 msgid "on via server %3(%t)"
 msgstr ""
 
-#: src/irc_handle.c:817
+#: src/irc_handle.c:825
 msgid "%3 %t"
 msgstr ""
 
-#: src/irc_handle.c:820
+#: src/irc_handle.c:828
 msgid "Banned on %2 : %3"
 msgstr ""
 
-#: src/irc_handle.c:823
+#: src/irc_handle.c:831
 msgid "Time: %3(%2)"
 msgstr ""
 
-#: src/irc_handle.c:941
+#: src/irc_handle.c:949
 #, c-format
 msgid "Connecting to %s:%d"
 msgstr ""
 
-#: src/irc_handle.c:949
+#: src/irc_handle.c:957
 msgid "Connected. Sending Initial command..."
 msgstr ""
 
-#: src/irc_handle.c:974
+#: src/irc_handle.c:994
 msgid "Done."
 msgstr ""
 
-#: src/irc_handle.c:986
+#: src/irc_handle.c:1013
 msgid "Connection terminated."
 msgstr ""
 
-#: src/irc_handle.c:1067
+#: src/irc_handle.c:1114
 msgid "Connection thread is not created."
 msgstr ""
 
-#: src/irc_handle.c:1071
+#: src/irc_handle.c:1118
 msgid "Thread sending message is not created."
 msgstr ""
 
-#: src/irc_handle.c:1075
+#: src/irc_handle.c:1122
 msgid "Message queue is not created."
 msgstr ""
 
-#: src/loqui_app.c:214
+#: src/loqui_app.c:218
 msgid "Sc_roll"
 msgstr ""
 
-#: src/loqui_app.c:218
+#: src/loqui_app.c:222
 msgid "Topic"
 msgstr ""
 
-#: src/loqui_app.c:293
+#: src/loqui_app.c:289
 msgid "No topic"
 msgstr ""
 
-#: src/loqui_menu.c:43
-msgid "_Connect All"
+#: src/main.c:50
+#, c-format
+msgid "Invalid \"%s\""
 msgstr ""
 
-#: src/loqui_menu.c:43
-msgid "Connect to IRC server marked"
+#: src/main.c:88
+msgid "  --debug      debug mode\n"
 msgstr ""
 
-#: src/loqui_menu.c:44
-msgid "_Connect"
+#: src/main.c:89
+msgid "  --show-msg   show message mode\n"
 msgstr ""
 
-#: src/loqui_menu.c:44
-msgid "Connect to IRC server"
+#: src/main.c:90
+msgid "  --help       show this help\n"
 msgstr ""
 
-#: src/loqui_menu.c:52
-msgid "Paste with linefeeds cut"
-msgstr ""
-
-#: src/loqui_menu.c:52
-msgid "Paste selection with linefeeds cut"
-msgstr ""
-
-#: src/loqui_menu.c:58
-msgid "Clear buffer"
-msgstr ""
-
-#: src/loqui_menu.c:58
-msgid "Clear buffer of current channel"
-msgstr ""
-
-#: src/loqui_menu.c:60
-msgid "Clear common buffer"
-msgstr ""
-
-#: src/main.c:34
-msgid "Enable debugging"
-msgstr ""
-
-#: src/main.c:35
-msgid "Print messages to console"
-msgstr ""
-
-#: src/main.c:59
-msgid "Loqui IRC client"
-msgstr ""
-
-#: src/nick_list.c:217
+#: src/nick_list.c:218
 msgid "Nick"
+msgstr ""
+
+#: src/prefs_account.c:105 src/prefs_account.c:145
+#, c-format
+msgid "prefs_account: Invalid attribute for account: %s"
+msgstr ""
+
+#: src/prefs_account.c:110
+#, c-format
+msgid "%s is null"
+msgstr ""
+
+#: src/prefs_account.c:136
+msgid "Current account is not set."
+msgstr ""
+
+#: src/prefs_account.c:148
+#, c-format
+msgid "Invalid hostname: %s"
+msgstr ""
+
+#: src/prefs_account.c:192 src/prefs_general.c:78
+#, c-format
+msgid "Invalid element: %s"
+msgstr ""
+
+#: src/prefs_account.c:244
+#, c-format
+msgid "Accountrc parse error: %s"
+msgstr ""
+
+#: src/prefs_account.c:264 src/prefs_account.c:302 src/prefs_general.c:168
+#: src/prefs_general.c:198
+#, c-format
+msgid "Can't open %s: %s"
+msgstr ""
+
+#: src/prefs_account.c:274 src/prefs_general.c:178
+#, c-format
+msgid "Loquirc parse error: %s"
+msgstr ""
+
+#: src/prefs_general.c:88
+#, c-format
+msgid "prefs_general: Invalid attribute for entry: %s"
+msgstr ""
+
+#: src/prefs_general.c:92
+msgid "The entry lacks name or value"
 msgstr ""

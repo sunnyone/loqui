@@ -1,7 +1,7 @@
-== Loqui -- IRC client for Gtk2/GNOME2 ==
+== Loqui -- IRC client for Gtk2 ==
 
 = What's this?
-This is IRC client for a GNOME2/Gtk2 environment.
+This is IRC client for a Gtk2 environment.
 
 = How to install?
 See INSTALL.
@@ -15,9 +15,7 @@ I refered this for the GNOME2/GConf development framework.
 * IRcat-Lite
 http://www.pp.iij4u.or.jp/~tagami/gtk/ircat.html
 Simple IRC client for Gtk1.2
-I learned the implement of IRC client from this, 
-and Loqui borrowed some code from it.
-If this were written in C++, 
-I wouldn't create Loqui if it were written in C.
+I learned the implement of IRC client from this, and Loqui borrowed some code from it.
+If this were written in C++, I wouldn't create Loqui if it were written in C.
 
 

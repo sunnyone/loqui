@@ -1,6 +1,6 @@
 /* -*- Mode: C; tab-width: 8; indent-tabs-mode: t; c-basic-offset: 8 -*- */
 /*
- * Loqui -- IRC client for GNOME2 <http://loqui.good-day.net/>
+ * Loqui -- IRC client for Gtk2 <http://loqui.good-day.net/>
  * Copyright (C) 2003 Yoichi Imai <yoichi@silver-forest.com>
  *
  * This program is free software; you can redistribute it and/or modify
