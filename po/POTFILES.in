@@ -32,6 +32,8 @@ src/loqui_app.c
 src/loqui_app.h
 src/loqui_menu.c
 src/loqui_menu.h
+src/loqui_toolbar.c
+src/loqui_toolbar.h
 src/main.c
 src/main.h
 src/nick_list.c

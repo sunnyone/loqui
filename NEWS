@@ -23,3 +23,8 @@
 * Fix the bug blocking when disconnecting.
 * Enabled nicklist sorting.
 
+2003-02-08     0.1.1 Release
+* Changed interface.
+* Fix a bug to fail sending a message that contains no parameters.
+* Implemented a feature to toggle home/away.
+

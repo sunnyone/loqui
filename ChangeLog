@@ -1,3 +1,139 @@
+2003-02-08 23:01  y-imai
+
+	* po/ja.po: update po
+
+2003-02-08 22:52  y-imai
+
+	* src/: account.c, account.h, account_manager.c, account_manager.h,
+	gtkutils.c, gtkutils.h, irc_handle.c, loqui_toolbar.c,
+	loqui_toolbar.h: implemented away function
+
+2003-02-08 21:51  y-imai
+
+	* src/: prefs_general.c, prefs_general.h:
+	prefs_general->away_message is added
+
+2003-02-08 21:41  y-imai
+
+	* src/channel.c: do nothing when added speak ability to channel
+	operators
+
+2003-02-08 21:35  y-imai
+
+	* src/loqui_toolbar.c: disable connect button
+
+2003-02-08 21:31  y-imai
+
+	* src/: account.c, account.h, account_manager.c, account_manager.h,
+	channel.c, channel.h, irc_handle.c, loqui_app.c, loqui_app.h: now
+	channels have a pointer that indicates parent account.
+	is_current_account behavior was changed. is_current_channel_buffer
+	is added.
+
+2003-02-08 18:09  y-imai
+
+	* src/: irc_message.c, irc_message.h: now it handles a message that
+	has no parameters. added const modifiers.
+
+2003-02-08 18:06  y-imai
+
+	* src/: account.c, account.h, irc_handle.c: added away handling
+	function temporarily
+
+2003-02-08 18:05  y-imai
+
+	* src/loqui_app.c: remove needless hbox.
+
+2003-02-08 17:22  y-imai
+
+	* src/loqui_menu.c: disable unused menuitems
+
+2003-02-08 00:43  y-imai
+
+	* src/: loqui_toolbar.c, loqui_toolbar.h: fixed toolbar. added away
+	button.
+
+2003-02-08 00:41  y-imai
+
+	* src/irc_message.c: strengthening checking
+
+2003-02-07 14:33  y-imai
+
+	* src/: account_manager.c, account_manager.h, loqui_app.c,
+	loqui_app.h, loqui_toolbar.c, loqui_toolbar.h, main.c: changed
+	scrolling function. removed topic line.
+
+2003-02-07 14:32  y-imai
+
+	* src/loqui_menu.c: added new menu entry
+
+2003-02-07 13:44  y-imai
+
+	* src/: loqui_app.h, loqui_toolbar.c, loqui_toolbar.h, Makefile.am,
+	loqui_app.c: added toolbar
+
+2003-02-07 12:39  y-imai
+
+	* src/irc_message.c: changed operator
+
+2003-02-07 12:28  y-imai
+
+	* src/channel.c: fixed mistaken is_priv value
+
+2003-02-07 01:05  y-imai
+
+	* src/loqui_app.c: added statusbar
+
+2003-01-31 23:20  y-imai
+
+	* src/: account_manager.c, channel.c, channel.h, channel_tree.c:
+	made updating user number correct
+
+2003-01-31 22:58  y-imai
+
+	* src/channel_tree.c: using gtk+-2.2's smart way to remove nodes
+
+2003-01-31 22:45  y-imai
+
+	* src/: channel.c, channel.h, channel_tree.c: changed user counting
+	method
+
+2003-01-31 22:30  y-imai
+
+	* src/: account_manager.c, account_manager.h, channel.c,
+	loqui_app.c, loqui_app.h: created the function updating title
+
+2003-01-31 19:40  y-imai
+
+	* .cvsignore, configure.in, src/.cvsignore, src/account.c,
+	src/account_manager.c, src/account_manager.h, src/channel.c,
+	src/channel.h, src/channel_buffer.c, src/channel_buffer.h,
+	src/irc_handle.c: function formatting remark is moved to
+	channel_buffer
+
+2003-01-31 16:37  y-imai
+
+	* src/: channel_buffer.c, channel_buffer.h: changed the way to
+	append text buffer
+
+2003-01-31 16:06  y-imai
+
+	* src/: account.c, account_manager.c, channel.c, channel_buffer.c,
+	channel_buffer.h: channel_buffer_append is moved to
+	channel_buffer_append_line
+
+2003-01-30 23:35  y-imai
+
+	* src/channel_buffer.c: change NOTICE's default color into #555555
+
+2003-01-27 00:34  y-imai
+
+	* NEWS: updated NEWS
+
+2003-01-27 00:19  y-imai
+
+	* ChangeLog: updated changelog for 0.1.0
+
 2003-01-27 00:17  y-imai
 
 	* po/: POTFILES.in, ja.po, loqui.pot: update po
