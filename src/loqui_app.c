@@ -275,10 +275,6 @@ static void loqui_app_textview_scroll_value_changed_cb(GtkAdjustment *adj, gpoin
 
 	manager = account_manager_get();
 
-	channel = account_manager_get_current_channel(manager);
-	if(channel && channel_get_updated(channel))
-		channel_set_updated(channel, FALSE);
-
 	if(!prefs_general.auto_switch_scrolling)
 		return;
 
@@ -290,6 +286,10 @@ static void loqui_app_textview_scroll_value_changed_cb(GtkAdjustment *adj, gpoin
 	} else if(!reached_to_end && account_manager_get_whether_scrolling(manager)) {
 		account_manager_set_whether_scrolling(manager, FALSE);
 	}
+
+	channel = account_manager_get_current_channel(manager);
+	if(channel && reached_to_end && channel_get_updated(channel))
+		channel_set_updated(channel, FALSE);
 }
 
 void
