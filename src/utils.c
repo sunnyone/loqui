@@ -213,21 +213,10 @@ gchar *utils_format(const gchar *format, ...)
 	return str;
 }
 
-gchar *utils_get_iso8601_date_string(time_t t)
+gchar *
+utils_get_iso8601_date_string(time_t t)
 {
-/* YYYY-MM-DD hh:mm:ss */
-#define DATE_LEN 4+1+2+1+2 +1+ 2+1+2+1+2 +5
-
-	gchar buf[DATE_LEN];
-	struct tm tm;
-
-	localtime_r(&t, &tm);
-	if(strftime(buf, DATE_LEN, "%Y-%m-%d %H:%M:%S", &tm) == 0)
-		return NULL;
-
-	return g_strdup(buf);
-
-#undef DATE_LEN
+	return utils_strftime_epoch("%Y-%m-%d %H:%M:%S", t);
 }
 
 static void
@@ -322,6 +311,23 @@ utils_search_uri(const gchar *buf, gchar **got_uri,
 
 	return TRUE;
 }
+
+gchar *
+utils_strftime_epoch(const gchar *format, time_t t)
+{
+	struct tm tm;
+	struct tm *tm_p;
+	
+	tm_p = &tm;
+	/* cygwin's localtime_r ignores timezone! */
+#if defined(HAVE_LOCALTIME_R) && !defined(__CYGWIN__)
+	localtime_r(&t, tm_p);
+#else
+	tm_p = localtime(&t);
+#endif
+	return utils_strftime(format, tm_p);
+}
+
 #define TIME_DEFAULT_BUFSIZE 128
 gchar *
 utils_strftime(const gchar *format, struct tm *time)

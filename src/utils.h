@@ -64,6 +64,7 @@ gchar *utils_line_separated_text_from_list(GList *list);
 
 gchar *utils_get_iso8601_date_string(time_t t);
 gchar *utils_strftime(const gchar *format, struct tm *time);
+gchar *utils_strftime_epoch(const gchar *format, time_t t);
 
 /* pairs of flag and characters, terminated with -1 */
 gchar *utils_format(const gchar *format, ...);

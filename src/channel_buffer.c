@@ -411,14 +411,12 @@ channel_buffer_append_current_time(ChannelBuffer *buffer)
 {
 	gchar *buf;
 	time_t t;
-	struct tm tm;
 	
         g_return_if_fail(buffer != NULL);
         g_return_if_fail(IS_CHANNEL_BUFFER(buffer));
 
 	t = time(NULL);
-	localtime_r(&t, &tm);
-	buf = utils_strftime(prefs_general.time_format, &tm);
+	buf = utils_strftime_epoch(prefs_general.time_format, t);
 	if(buf == NULL) {
 		g_warning("Failed to strftime time string");
 		return;
