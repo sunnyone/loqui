@@ -354,7 +354,7 @@ irc_message_to_string(IRCMessage *msg)
 	g_return_val_if_fail(msg->command != NULL, NULL);
 	g_return_val_if_fail(msg->parameter != NULL, NULL);
 
-	for(num = 0; msg->parameter[num] != NULL; num++); /* count the number of parameters */
+	num = irc_message_count_parameters(msg);
 	if(num < 1)
 		return NULL;
 
@@ -375,7 +375,7 @@ gint
 irc_message_count_parameters(IRCMessage *msg)
 {
 	gint num;
-	for(num = 0; msg->parameter[num] != NULL; num++); /* count the number of parameters */
+	for(num = 0; msg->parameter[num] != NULL; num++);
 
 	return num;
 }
