@@ -140,3 +140,7 @@
 * Implemented limitation of lines in buffers.
 * Show the number of updated channels.
 
+2004-02-08     0.2.3
+* Fixed the bug to fail reconnect once loqui failed to connect.
+* Implemented command mode.
+
