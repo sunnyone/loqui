@@ -27,6 +27,7 @@
 #include "prefs_general.h"
 #include "loqui_toolbar.h"
 #include "loqui_channelbar.h"
+#include "loqui_statusbar.h"
 #include "gtkutils.h"
 #include "remark_entry.h"
 #include "command_dialog.h"
@@ -43,10 +44,6 @@ struct _LoquiAppPrivate
 	GtkWidget *statusbar;
 	GtkWidget *handlebox_toolbar;
 	GtkWidget *handlebox_channelbar;
-	GtkWidget *label_user_number;
-	GtkWidget *label_channel;
-	GtkWidget *label_channel_mode;
-	GtkWidget *label_account;
 
 	guint channel_buffer_inserted_signal_id;
 	guint common_buffer_inserted_signal_id;
@@ -335,7 +332,6 @@ loqui_app_update_info(LoquiApp *app,
 {
 	LoquiAppPrivate *priv;
 	gchar *buf;
-	guint context_id;
 	
 	const gchar *account_name = NULL, *channel_name = NULL, *topic = NULL;
 	guint user_number, op_number;
@@ -352,46 +348,27 @@ loqui_app_update_info(LoquiApp *app,
 	if(channel) {
 		channel_name = channel_get_name(channel);
 		topic = channel_get_topic(channel);
-		channel_mode = channel_get_mode(channel);
-		channel_get_user_number(channel, &user_number, &op_number);
-
-		if(user_number > 0) {
+		
+		if(!channel_is_private_talk(channel)) {
+			channel_mode = channel_get_mode(channel);			
+			channel_get_user_number(channel, &user_number, &op_number);
 			user_number_str = g_strdup_printf("%d", user_number);
 			op_number_str = g_strdup_printf("%d", op_number);
 		}
 	}
 	
 	if(is_account_changed) {
-		gtk_label_set(GTK_LABEL(priv->label_account), "");
-
 		if(account) {
-			gtk_label_set(GTK_LABEL(priv->label_account), account_name);
 			remark_entry_set_nick(REMARK_ENTRY(priv->entry), account_get_current_nick(account));
 			loqui_toolbar_toggle_away_with_signal_handler_blocked(LOQUI_TOOLBAR(app->toolbar),
 									      account_get_away_status(account));
 			remark_entry_set_nick_list(REMARK_ENTRY(priv->entry), account->nick_list);
 		}
+		loqui_statusbar_set_current_account(LOQUI_STATUSBAR(priv->statusbar), account);
 	}
 
 	if(is_channel_changed) {
-		gtk_label_set(GTK_LABEL(priv->label_channel), "");
-		gtk_label_set(GTK_LABEL(priv->label_channel_mode), "");
-		gtk_label_set(GTK_LABEL(priv->label_user_number), "");
-		
-		if(channel) {
-			gtk_label_set(GTK_LABEL(priv->label_channel), channel_name);
-			
-			buf = g_strdup_printf("[%s]", channel_mode);
-			gtk_label_set(GTK_LABEL(priv->label_channel_mode), buf);
-			g_free(buf);
-			
-			if(user_number > 0) {
-				buf = g_strdup_printf("(%d/%d)", op_number, user_number);
-				gtk_label_set(GTK_LABEL(priv->label_user_number), buf);
-				g_free(buf);
-			}
-		}
-		
+		loqui_statusbar_set_current_channel(LOQUI_STATUSBAR(priv->statusbar), channel);
 	}
 	
 #define FORMAT_INFO(format) \
@@ -404,12 +381,10 @@ loqui_app_update_info(LoquiApp *app,
 	gtk_window_set_title(GTK_WINDOW(app), buf);
 	g_free(buf);
 
-	context_id = gtk_statusbar_get_context_id(GTK_STATUSBAR(priv->statusbar), "Default");
-	gtk_statusbar_pop(GTK_STATUSBAR(priv->statusbar), context_id);
 	buf = FORMAT_INFO("%t");
-	gtk_statusbar_push(GTK_STATUSBAR(priv->statusbar), context_id, buf);
+	loqui_statusbar_set_default(LOQUI_STATUSBAR(priv->statusbar), buf);
 	g_free(buf);
-
+	
 	G_FREE_UNLESS_NULL(channel_mode);
 	G_FREE_UNLESS_NULL(user_number_str);
 	G_FREE_UNLESS_NULL(op_number_str);
@@ -428,8 +403,6 @@ loqui_app_new(void)
 	GtkWidget *vpaned;
 	GtkWidget *scrolled_win;
 	
-	GtkWidget *hsep;
-
 	app = g_object_new(loqui_app_get_type(), NULL);
 	priv = app->priv;
 
@@ -467,26 +440,9 @@ loqui_app_new(void)
 	hpaned = gtk_hpaned_new();
 	gtk_box_pack_start_defaults(GTK_BOX(vbox), hpaned);
 
-	priv->statusbar = gtk_statusbar_new();
-	gtk_statusbar_set_has_resize_grip(GTK_STATUSBAR(priv->statusbar), FALSE);
-	gtk_label_set_selectable(GTK_LABEL(GTK_STATUSBAR(priv->statusbar)->label), TRUE);
-	gtk_box_pack_start(GTK_BOX(vbox), priv->statusbar, FALSE, FALSE, 1);
-
-	priv->label_channel = gtk_label_new("");
-	gtk_box_pack_start(GTK_BOX(priv->statusbar), priv->label_channel, FALSE, FALSE, 0);
-
-	priv->label_channel_mode = gtk_label_new("");
-	gtk_box_pack_start(GTK_BOX(priv->statusbar), priv->label_channel_mode, FALSE, FALSE, 0);
-
-	priv->label_user_number = gtk_label_new("");
-	gtk_box_pack_start(GTK_BOX(priv->statusbar), priv->label_user_number, FALSE, FALSE, 0);
-
-	hsep = gtk_vseparator_new();
-	gtk_box_pack_start(GTK_BOX(priv->statusbar), hsep, FALSE, FALSE, 2);
-
-	priv->label_account = gtk_label_new("");
-	gtk_box_pack_start(GTK_BOX(priv->statusbar), priv->label_account, FALSE, FALSE, 0);
-
+	priv->statusbar = loqui_statusbar_new();
+	gtk_box_pack_start(GTK_BOX(vbox), priv->statusbar, FALSE, FALSE, 1);	
+	
 	/* left side */
 	vpaned = gtk_vpaned_new();
 	gtk_paned_pack1(GTK_PANED(hpaned), vpaned, TRUE, TRUE);

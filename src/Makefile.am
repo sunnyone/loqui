@@ -33,6 +33,7 @@ loqui_SOURCES = \
 	account_list_dialog.c account_list_dialog.h \
 	account_dialog.h account_dialog.c \
 	loqui_toolbar.c loqui_toolbar.h \
+	loqui_statusbar.c loqui_statusbar.h \
 	prefs_dialog.c prefs_dialog.h \
 	connect_dialog.c connect_dialog.h \
 	channel_input_dialog.c channel_input_dialog.h \
