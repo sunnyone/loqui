@@ -1073,7 +1073,7 @@ irc_handle_error(IRCHandle *handle, IRCMessage *msg)
 	case IRC_ERR_BADCHANMASK:
 	case IRC_ERR_NOCHANMODES:
 	case IRC_ERR_CHANOPRIVSNEEDED:
-		irc_handle_account_console_append(handle, msg, TEXT_TYPE_NORMAL, _("%t: %2"));
+		irc_handle_account_console_append(handle, msg, TEXT_TYPE_ERROR, _("%t: %2"));
 		return TRUE;
 	case IRC_ERR_NOORIGIN:
 	case IRC_ERR_NORECIPIENT:
@@ -1096,7 +1096,7 @@ irc_handle_error(IRCHandle *handle, IRCMessage *msg)
 	case IRC_ERR_NOOPERHOST:
 	case IRC_ERR_UMODEUNKNOWNFLAG:
 	case IRC_ERR_USERSDONTMATCH:
-		irc_handle_account_console_append(handle, msg, TEXT_TYPE_NORMAL, _("%t"));
+		irc_handle_account_console_append(handle, msg, TEXT_TYPE_ERROR, _("%t"));
 		return TRUE;
 	default:
 		break;
