@@ -1,3 +1,28 @@
+2003-03-16 17:35  y-imai
+
+	* src/: account.c, remark_entry.c, remark_entry.h: implemented
+	multiline input mode
+
+2003-03-16 15:40  y-imai
+
+	* src/irc_handle.c: added gdk_threads_enter/leave
+
+2003-03-16 15:01  y-imai
+
+	* src/irc_handle.c: added gdk_threads_enter/leave
+
+2003-03-16 14:48  y-imai
+
+	* debian/changelog: updated debian changelog
+
+2003-03-16 14:45  y-imai
+
+	* ChangeLog, NEWS, NEWS.ja, configure.in: 0.1.9
+
+2003-03-16 14:43  y-imai
+
+	* po/: POTFILES.in, ja.po, loqui.pot: updated po
+
 2003-03-16 14:29  y-imai
 
 	* src/irc_handle.c: fixed parser of plum recent

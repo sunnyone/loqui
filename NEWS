@@ -68,4 +68,8 @@
 * Feature to parse plum-recent.
 * Changed saving method of highlighting words(old settings will be lost!).
 * History of remarks.
- 
+
+2003-03-16     0.1.10
+* Implemented multiline editing mode.
+* Fix the bug about threading.
+

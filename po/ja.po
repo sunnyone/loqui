@@ -760,6 +760,7 @@ msgid "Unsupported pref type!"
 msgstr ""
 
 #: src/utils.c:170
+#, c-format
 msgid "?x flag doesn't have { in '%s'"
 msgstr ""
 
