@@ -1,3 +1,69 @@
+2003-01-18 23:55  y-imai
+
+	* po/ja.po: updated po
+
+2003-01-18 23:54  y-imai
+
+	* README, configure.in, po/POTFILES.in, po/ja.po, po/loqui.pot,
+	src/about.c, src/about.h, src/account.c, src/account.h,
+	src/account_manager.c, src/account_manager.h, src/channel.c,
+	src/channel.h, src/channel_book.c, src/channel_book.h,
+	src/channel_text.c, src/channel_text.h, src/channel_tree.c,
+	src/channel_tree.h, src/codeconv.c, src/codeconv.h,
+	src/command_table.c, src/command_table.h, src/connection.c,
+	src/connection.h, src/gtkutils.c, src/gtkutils.h, src/irc_handle.c,
+	src/irc_handle.h, src/irc_message.c, src/irc_message.h,
+	src/loqui_app.c, src/loqui_app.h, src/loqui_menu.c, src/main.c,
+	src/main.h, src/nick_list.c, src/nick_list.h, src/prefs_general.c,
+	src/prefs_general.h, src/utils.c, src/utils.h: changed GNOME2 to
+	Gtk2
+
+2003-01-18 23:45  y-imai
+
+	* src/loqui_app.c: changed missed height and width
+
+2003-01-18 23:21  y-imai
+
+	* src/codeconv.c: added locale.h
+
+2003-01-18 23:18  y-imai
+
+	* src/intl.h: added
+
+2003-01-18 23:15  y-imai
+
+	* autogen.sh: added m4
+
+2003-01-18 23:15  y-imai
+
+	* intl/: ChangeLog, Makefile.in, VERSION, bindtextdom.c,
+	config.charset, dcgettext.c, dcigettext.c, dcngettext.c,
+	dgettext.c, dngettext.c, eval-plural.h, explodename.c,
+	finddomain.c, gettext.c, gettextP.h, gmo.h, hash-string.h,
+	intl-compat.c, l10nflist.c, libgnuintl.h, loadinfo.h, loadmsgcat.c,
+	localcharset.c, locale.alias, localealias.c, localename.c,
+	ngettext.c, os2compat.c, os2compat.h, osdep.c, plural-exp.c,
+	plural-exp.h, plural.c, plural.y, ref-add.sin, ref-del.sin,
+	textdomain.c: added intl
+
+2003-01-18 23:12  y-imai
+
+	* AUTHORS, NEWS: added NEWS and AUTHORS
+
+2003-01-18 23:11  y-imai
+
+	* ChangeLog, Makefile.am, aclocal.m4, autogen.sh, config.guess,
+	config.h.in, config.sub, configure, configure.in, loqui.schemas,
+	mkinstalldirs, po/ChangeLog, po/Makefile.in.in, po/ja.po,
+	po/loqui.pot, src/Makefile.am, src/account.c, src/account.h,
+	src/account_manager.h, src/channel.h, src/channel_book.h,
+	src/channel_text.h, src/channel_tree.c, src/channel_tree.h,
+	src/codeconv.c, src/codeconv.h, src/connection.c, src/connection.h,
+	src/irc_handle.c, src/irc_handle.h, src/irc_message.c,
+	src/irc_message.h, src/loqui_app.c, src/loqui_app.h, src/main.c,
+	src/nick_list.c, src/nick_list.h, src/prefs_account.c,
+	src/prefs_general.c: removed gnome/gconf dependency
+
 2003-01-18 22:23  y-imai
 
 	* src/: Makefile.am, account.c, account_manager.c,
