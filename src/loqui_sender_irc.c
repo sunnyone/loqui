@@ -293,9 +293,23 @@ loqui_sender_irc_away(LoquiSender *sender, LoquiAwayType away_type, const gchar 
 static void
 loqui_sender_irc_whois(LoquiSender *sender, LoquiUser *user)
 {
+	IRCMessage *msg = NULL;
+	IRCConnection *conn;
+
         g_return_if_fail(sender != NULL);
         g_return_if_fail(LOQUI_IS_SENDER_IRC(sender));
 
+	if (!account_is_connected(sender->account)) {
+		g_warning("Not connected");
+		return;
+	}
+
+	conn = account_get_connection(sender->account);
+	g_return_if_fail(conn != NULL);
+
+	msg = irc_message_create(IRCCommandWhois, loqui_user_get_nick(user), loqui_user_get_nick(user), NULL);
+	irc_connection_push_message(conn, msg);
+	g_object_unref(msg);
 }
 static void
 loqui_sender_irc_join(LoquiSender *sender, LoquiChannel *channel)

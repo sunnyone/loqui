@@ -769,25 +769,6 @@ void account_send_ctcp_request(Account *account, const gchar *target, const gcha
 	account_console_buffer_append(account, TEXT_TYPE_INFO, buf);
 	g_free(buf);
 }
-void account_whois(Account *account, const gchar *target)
-{
-	IRCMessage *msg;
-	AccountPrivate *priv;
-
-        g_return_if_fail(account != NULL);
-        g_return_if_fail(IS_ACCOUNT(account));
-	
-	if(!account_is_connected(account)) {
-		g_warning(_("Account is not connected."));
-		return;
-	}
-
-	priv = account->priv;
-
-	msg = irc_message_create(IRCCommandWhois, target, target, NULL);
-	irc_connection_push_message(priv->connection, msg);
-	g_object_unref(msg);
-}
 void
 account_join(Account *account, const gchar *target, const gchar *key)
 {

@@ -297,7 +297,7 @@ nick_list_whois_selected(NickList *nick_list)
 	member_list = nick_list_menu_get_selected_members(nick_list);
 	for(cur = member_list; cur != NULL; cur = cur->next) {
 		member = cur->data;
-		account_whois(account, loqui_user_get_nick(member->user));
+		loqui_sender_whois(account_get_sender(account), member->user);
 	}
 	g_slist_free(member_list);
 }
