@@ -21,6 +21,7 @@
 
 #include <loqui_account_manager.h>
 #include <loqui_account_manager_iter.h>
+#include <loqui.h>
 
 #include "loqui_app_actions.h"
 #include "loqui_stock.h"
@@ -31,7 +32,6 @@
 #include "command_dialog.h"
 #include "gtkutils.h"
 
-#include "prefs_general.h"
 #include "prefs_dialog.h"
 #include "account_list_dialog.h"
 
@@ -40,6 +40,8 @@
 #include "loqui_select_dialog.h"
 
 #include "loqui_channel_entry_utils.h"
+#include "loqui-general-pref-gtk-groups.h"
+#include "loqui-general-pref-gtk-default.h"
 
 #define CTRL "<control>"
 #define ALT  "<alt>"
@@ -230,7 +232,9 @@ loqui_app_actions_create_group(LoquiApp *app)
 	gtk_action_group_add_radio_actions(action_group,
 					   loqui_nick_list_sort_radio_action_entries,
 					   G_N_ELEMENTS(loqui_nick_list_sort_radio_action_entries),
-					   prefs_general.nick_list_sort_type,
+					   loqui_pref_get_with_default_integer(loqui_get_general_pref(),
+									       LOQUI_GENERAL_PREF_GTK_GROUP_GENERAL, "NickListSortType",
+									       LOQUI_GENERAL_PREF_GTK_DEFAULT_GENERAL_NICK_LIST_SORT_TYPE, NULL),
 					   G_CALLBACK(loqui_app_actions_nick_list_sort_radio_cb),
 					   app);
 	ACTION_GROUP_ACTION_SET_SENSITIVE(action_group, "PasteWithLinefeedsCut", FALSE);

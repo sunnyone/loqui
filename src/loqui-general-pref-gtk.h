@@ -1,0 +1,16 @@
+#ifndef __LOQUI_GENERAL_PREF_GTK__
+#define __LOQUI_GENERAL_PREF_GTK__
+
+typedef enum {
+        PREF_SORT_NONE,
+        PREF_SORT_NICK,
+        PREF_SORT_POWER_NICK,
+        PREF_SORT_AWAY_NICK,
+        PREF_SORT_POWER_AWAY_NICK,
+        PREF_SORT_AWAY_POWER_NICK,
+        PREF_SORT_TIME_NICK,
+        PREF_SORT_TIME_AWAY_POWER_NICK,
+        PREF_SORT_TIME_POWER_AWAY_NICK,
+} PrefSortType;
+
+#endif

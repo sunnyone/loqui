@@ -25,9 +25,12 @@
 #include "loqui_statusbar.h"
 #include "loqui_channelbar.h"
 #include "intl.h"
-#include "prefs_general.h"
 #include <string.h>
 #include "loqui_app_actions.h"
+#include <loqui.h>
+
+#include "loqui-general-pref-gtk-groups.h"
+#include "loqui-general-pref-gtk-default.h"
 
 enum {
         LAST_SIGNAL
@@ -626,6 +629,8 @@ void
 loqui_app_info_load_from_prefs_general(LoquiAppInfo *appinfo)
 {
 	LoquiTitleFormat *ltf;
+	gchar *title_format_title;
+	gchar *title_format_statusbar; 
 
 #define LOAD_TITLE_FORMAT(_pref, _name, _setter) {\
 	if (strlen(_pref) > 0) { \
@@ -640,6 +645,17 @@ loqui_app_info_load_from_prefs_general(LoquiAppInfo *appinfo)
 	} \
 }
 
-	LOAD_TITLE_FORMAT(prefs_general.title_format_title, "title", loqui_app_info_set_title_format_title);
-	LOAD_TITLE_FORMAT(prefs_general.title_format_statusbar, "statusbar", loqui_app_info_set_title_format_statusbar);
+	
+	title_format_title = loqui_pref_get_with_default_string(loqui_get_general_pref(),
+								LOQUI_GENERAL_PREF_GTK_GROUP_TITLE_FORMAT, "TitleFormatTitle",
+								LOQUI_GENERAL_PREF_GTK_DEFAULT_TITLE_FORMAT_TITLE_FORMAT_TITLE, NULL);
+	LOAD_TITLE_FORMAT(title_format_title, "title", loqui_app_info_set_title_format_title);
+	g_free(title_format_title);
+
+
+	title_format_statusbar = loqui_pref_get_with_default_string(loqui_get_general_pref(),
+								    LOQUI_GENERAL_PREF_GTK_GROUP_TITLE_FORMAT, "TitleFormatStatusbar",
+								    LOQUI_GENERAL_PREF_GTK_DEFAULT_TITLE_FORMAT_TITLE_FORMAT_STATUSBAR, NULL);
+	LOAD_TITLE_FORMAT(title_format_statusbar, "statusbar", loqui_app_info_set_title_format_statusbar);
+	g_free(title_format_statusbar);
 }

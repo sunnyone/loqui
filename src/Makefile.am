@@ -38,7 +38,8 @@ loqui_SOURCES = \
 	loqui_select_dialog.c loqui_select_dialog.h \
 	prefs_general_upgrader.c prefs_general_upgrader.h \
 	loqui-core-gtk.gob loqui-core-gtk.c loqui-core-gtk.h loqui-core-gtk-private.h \
-	loqui-style-entry.gob loqui-style-entry.c loqui-style-entry.h loqui-style-entry-private.h
+	loqui-style-entry.gob loqui-style-entry.c loqui-style-entry.h loqui-style-entry-private.h \
+	loqui-general-pref-gtk.h loqui-general-pref-gtk-groups.h loqui-general-pref-gtk-default.h
 
 BUILT_SOURCES := \
 	loqui-core-gtk.c loqui-core-gtk.h loqui-core-gtk-private.h \

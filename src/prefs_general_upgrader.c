@@ -30,7 +30,8 @@
 #include "loqui.h"
 
 #include "loqui-core-gtk.h"
-#include <loqui-general-pref.h>
+#include "loqui-general-pref-gtk-groups.h"
+#include "loqui-general-pref-gtk-default.h"
 
 typedef struct _PrefElementForUpgrade PrefElementForUpgrade;
 
@@ -230,15 +231,19 @@ text_handler           (GMarkupParseContext *context,
 		if(!in_li)
 			return;
 		/* inefficient but enough to upgrade */
-		strarray_old = LOQUI_GENERAL_PREF_GET_STRING_LIST(current_pref_elem->group, current_pref_elem->key, &len);
+		strarray_old = loqui_pref_get_string_list(loqui_get_general_pref(), current_pref_elem->group, current_pref_elem->key, &len, NULL);
 		if (strarray_old) {
 			strarray = g_new0(gchar *, len + 1);
 			for (i = 0; i < len; i++)
 				strarray[i] = strarray_old[i];
 			strarray[i] = (gchar*) text;
-			LOQUI_GENERAL_PREF_SET_STRING_LIST(current_pref_elem->group, current_pref_elem->key, strarray, len + 1);
+			loqui_pref_set_string_list(loqui_get_general_pref(), current_pref_elem->group, current_pref_elem->key, strarray, len + 1);
 
 			g_strfreev(strarray_old);
+		} else {
+			strarray = g_new0(gchar *, 2);
+			strarray[0] = (gchar *) text;
+			loqui_pref_set_string_list(loqui_get_general_pref(), current_pref_elem->group, current_pref_elem->key, strarray, 1);
 		}
 	} else {
 		prefs_general_set_string(current_pref_elem, text);
@@ -252,18 +257,18 @@ prefs_general_set_string(PrefElementForUpgrade *elem, const gchar *str)
 	switch(elem->type) {
 	case PREF_TYPE_FOR_UPGRADE_BOOLEAN:
 		boolean = (g_ascii_strcasecmp(str, "true") == 0);
-		LOQUI_GENERAL_PREF_SET_BOOLEAN(elem->group, elem->key, boolean);
+		loqui_pref_set_boolean(loqui_get_general_pref(), elem->group, elem->key, boolean);
+		break;
 	case PREF_TYPE_FOR_UPGRADE_UINT:
-		LOQUI_GENERAL_PREF_SET_INTEGER(elem->group, elem->key, (gint) g_ascii_strtoull(str, NULL, 10));
+		loqui_pref_set_integer(loqui_get_general_pref(), elem->group, elem->key, (gint) g_ascii_strtoull(str, NULL, 10));
 		break;
 	case PREF_TYPE_FOR_UPGRADE_STRING:
-		LOQUI_GENERAL_PREF_SET_STRING(elem->group, elem->key, str);
+		loqui_pref_set_string(loqui_get_general_pref(), elem->group, elem->key, str);
 		break;
 	case PREF_TYPE_FOR_UPGRADE_STRING_LIST:
-		LOQUI_GENERAL_PREF_SET_STRING_LIST(elem->group, elem->key, NULL, 0);
 		break;
 	default:
-		g_warning(_("Unsupported pref type!"));
+		g_warning(_("Unsupported pref type: %s"), elem->name);
 		break;
 	}
 }
@@ -276,7 +281,7 @@ void prefs_general_upgrader_upgrade(void)
 	GError *error = NULL;
 	GMarkupParseContext *context;
 
-	debug_puts("Upgrading prefs_general...");
+	g_print("Upgrading prefs_general...\n");
 	
 	path = g_build_filename(loqui_core_get_user_dir(loqui_get_core()), RC_FILENAME, NULL);
 
@@ -302,6 +307,6 @@ void prefs_general_upgrader_upgrade(void)
 	rename(path, backup_path);
 	g_free(backup_path);
 
-	debug_puts("Done.");
+	g_print("Done.\n");
 	return;
 }

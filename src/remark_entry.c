@@ -20,7 +20,6 @@
 #include "config.h"
 
 #include "remark_entry.h"
-#include "prefs_general.h"
 #include "gdk/gdkkeysyms.h"
 #include "utils.h"
 #include "gtkutils.h"
@@ -34,6 +33,11 @@
 #include "intl.h"
 
 #include <string.h>
+
+#include "loqui-general-pref-gtk-groups.h"
+#include "loqui-general-pref-gtk-default.h"
+
+#include <loqui.h>
 
 enum {
 	CALL_HISTORY,
@@ -471,7 +475,9 @@ remark_entry_history_add(RemarkEntry *entry, const gchar *str)
 	priv = entry->priv;
 
 	priv->string_list = g_list_insert(priv->string_list, g_strdup(str), 1);
-	diff = (gint) g_list_length(priv->string_list) - (gint) prefs_general.remark_history_number - 1;
+	diff = (gint) g_list_length(priv->string_list) - (gint) loqui_pref_get_with_default_integer(loqui_get_general_pref(),
+												    LOQUI_GENERAL_PREF_GTK_GROUP_GENERAL, "RemarkHistoryNumber",
+												    LOQUI_GENERAL_PREF_GTK_DEFAULT_GENERAL_REMARK_HISTORY_NUMBER, NULL) - 1;
 	if(diff > 0) {
 		cur = g_list_last(priv->string_list);
 		while(cur && diff > 0) {
@@ -549,6 +555,7 @@ remark_entry_send_text(RemarkEntry *remark_entry, gboolean is_notice)
 	gchar *str, *cur;
 	LoquiAccount *account;
 	LoquiChannel *channel;
+	gchar *command_prefix;
 
         g_return_if_fail(remark_entry != NULL);
         g_return_if_fail(IS_REMARK_ENTRY(remark_entry));
@@ -581,10 +588,14 @@ remark_entry_send_text(RemarkEntry *remark_entry, gboolean is_notice)
 					     _("Command contains linefeed."));
 			return;
 		}
-		
-		if (strncmp(cur, prefs_general.command_prefix, strlen(prefs_general.command_prefix)) == 0)
-			cur += strlen(prefs_general.command_prefix);
-		
+
+		command_prefix = loqui_pref_get_with_default_string(loqui_get_general_pref(),
+								    LOQUI_GENERAL_PREF_GTK_GROUP_GENERAL, "CommandPrefix",
+								    LOQUI_GENERAL_PREF_GTK_DEFAULT_GENERAL_COMMAND_PREFIX, NULL);
+		if (g_str_has_prefix(cur, command_prefix))
+			cur += strlen(command_prefix);
+		g_free(command_prefix);
+
 		if (!LOQUI_IS_SENDER_IRC(account->sender)) {
 			gtkutils_msgbox_info(GTK_MESSAGE_ERROR,
 					     _("Using not IRC account"));
@@ -669,18 +680,22 @@ remark_entry_entry_changed_cb(GtkEntry *widget, RemarkEntry *remark_entry)
 {
 	RemarkEntryPrivate *priv;
 	const gchar *tmp;
+	gchar *command_prefix; 
 	
         g_return_if_fail(remark_entry != NULL);
         g_return_if_fail(IS_REMARK_ENTRY(remark_entry));
 
 	priv = remark_entry->priv;
 	
-	if (prefs_general.auto_command_mode) {
+	if (loqui_pref_get_with_default_boolean(loqui_get_general_pref(),
+						LOQUI_GENERAL_PREF_GTK_GROUP_GENERAL, "AutoCommandMode",
+						LOQUI_GENERAL_PREF_GTK_DEFAULT_GENERAL_AUTO_COMMAND_MODE, NULL)) { 
+		command_prefix = loqui_pref_get_with_default_string(loqui_get_general_pref(),
+								    LOQUI_GENERAL_PREF_GTK_GROUP_GENERAL, "CommandPrefix",
+								    LOQUI_GENERAL_PREF_GTK_DEFAULT_GENERAL_COMMAND_PREFIX, NULL);
 		tmp = gtk_entry_get_text(GTK_ENTRY(remark_entry->entry));
-		if (strncmp(tmp, prefs_general.command_prefix, strlen(prefs_general.command_prefix)) == 0)
-			remark_entry_set_command_mode(remark_entry, TRUE);
-		else
-			remark_entry_set_command_mode(remark_entry, FALSE);
+		remark_entry_set_command_mode(remark_entry, g_str_has_prefix(tmp, command_prefix));
+		g_free(command_prefix);
 	}
 }
 static void

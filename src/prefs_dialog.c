@@ -19,7 +19,6 @@
  */
 #include "config.h"
 
-#include <prefs_general.h>
 #include <utils.h>
 
 #include "prefs_dialog.h"
@@ -28,6 +27,12 @@
 #include "loqui_app.h"
 
 #include <string.h>
+#include <loqui.h>
+#include <loqui-general-pref-groups.h>
+#include <loqui-general-pref-default.h>
+#include "loqui-general-pref-gtk-groups.h"
+#include "loqui-general-pref-gtk-default.h"
+#include "loqui-core-gtk.h"
 
 struct _PrefsDialogPrivate
 {
@@ -157,45 +162,103 @@ prefs_dialog_load_settings(PrefsDialog *dialog)
 {
 	PrefsDialogPrivate *priv;
 	GtkTextBuffer *buffer;
-
+	LoquiPref *general_pref;
+	GList *highlight_list;
+	GList *transparent_ignore_list;
+	gchar *buf;
+	
 	g_return_if_fail(dialog != NULL);
         g_return_if_fail(IS_PREFS_DIALOG(dialog));
 
 	priv = dialog->priv;
 
-	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(priv->check_auto_switch_scrolling), prefs_general.auto_switch_scrolling);
-	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(priv->check_auto_switch_scrolling_common_buffer), prefs_general.auto_switch_scrolling_common_buffer);
-	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(priv->check_parse_plum_recent), prefs_general.parse_plum_recent);
-	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(priv->check_save_size), prefs_general.save_size);
-	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(priv->check_use_notification), prefs_general.use_notification);
-	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(priv->check_exec_notification_by_notice), prefs_general.exec_notification_by_notice);
-	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(priv->check_use_transparent_ignore), prefs_general.use_transparent_ignore);
-	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(priv->check_auto_reconnect), prefs_general.auto_reconnect);
-	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(priv->check_connect_startup), prefs_general.connect_startup);
-	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(priv->check_select_channel_joined), prefs_general.select_channel_joined);
-	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(priv->check_auto_command_mode), prefs_general.auto_command_mode);
-	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(priv->check_save_log), prefs_general.save_log);
+	general_pref = loqui_get_general_pref();
 
-	gtkutils_set_textview_from_string_list(GTK_TEXT_VIEW(priv->textview_highlight), prefs_general.highlight_list);
-	gtkutils_set_textview_from_string_list(GTK_TEXT_VIEW(priv->textview_transparent_ignore),
-					       prefs_general.transparent_ignore_list);
+#define SET_CHECKBOX(_check, _group, _key, _default) { \
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(_check), \
+				     loqui_pref_get_with_default_boolean(general_pref, _group, _key, _default, NULL)); \
+}
+	SET_CHECKBOX(priv->check_auto_switch_scrolling,
+		     LOQUI_GENERAL_PREF_GTK_GROUP_GENERAL, "AutoSwitchScrolling", LOQUI_GENERAL_PREF_GTK_DEFAULT_GENERAL_AUTO_SWITCH_SCROLLING);
+	SET_CHECKBOX(priv->check_auto_switch_scrolling_common_buffer,
+		     LOQUI_GENERAL_PREF_GTK_GROUP_GENERAL, "AutoSwitchScrollingCommonBuffer", LOQUI_GENERAL_PREF_GTK_DEFAULT_GENERAL_AUTO_SWITCH_SCROLLING_COMMON_BUFFER);
+	SET_CHECKBOX(priv->check_parse_plum_recent, LOQUI_GENERAL_PREF_GROUP_PROXY, "ParsePlumRecent", LOQUI_GENERAL_PREF_DEFAULT_PROXY_PARSE_PLUM_RECENT);
+	SET_CHECKBOX(priv->check_save_size,         LOQUI_GENERAL_PREF_GTK_GROUP_SIZE, "SaveSize", LOQUI_GENERAL_PREF_GTK_DEFAULT_SIZE_SAVE_SIZE);
+	SET_CHECKBOX(priv->check_use_notification,  LOQUI_GENERAL_PREF_GROUP_NOTIFICATION, "UseNotification", LOQUI_GENERAL_PREF_DEFAULT_NOTIFICATION_USE_NOTIFICATION);
+	SET_CHECKBOX(priv->check_exec_notification_by_notice,
+		     LOQUI_GENERAL_PREF_GROUP_NOTIFICATION, "ExecNotificationByNotice", LOQUI_GENERAL_PREF_DEFAULT_NOTIFICATION_EXEC_NOTIFICATION_BY_NOTICE);
+	SET_CHECKBOX(priv->check_use_transparent_ignore, LOQUI_GENERAL_PREF_GROUP_IGNORE, "UseTransparentIgnore", LOQUI_GENERAL_PREF_DEFAULT_IGNORE_USE_TRANSPARENT_IGNORE);
+	SET_CHECKBOX(priv->check_auto_reconnect, LOQUI_GENERAL_PREF_GROUP_ACCOUNT, "AutoReconnect", LOQUI_GENERAL_PREF_DEFAULT_ACCOUNT_AUTO_RECONNECT);
+	SET_CHECKBOX(priv->check_connect_startup, LOQUI_GENERAL_PREF_GTK_GROUP_GENERAL, "ConnectStartup", LOQUI_GENERAL_PREF_GTK_DEFAULT_GENERAL_CONNECT_STARTUP);
+	SET_CHECKBOX(priv->check_select_channel_joined, LOQUI_GENERAL_PREF_GTK_GROUP_GENERAL, "SelectChannelJoined", LOQUI_GENERAL_PREF_GTK_DEFAULT_GENERAL_SELECT_CHANNEL_JOINED);
+	SET_CHECKBOX(priv->check_auto_command_mode, LOQUI_GENERAL_PREF_GTK_GROUP_GENERAL, "AutoCommandMode", LOQUI_GENERAL_PREF_GTK_DEFAULT_GENERAL_AUTO_COMMAND_MODE);
+	SET_CHECKBOX(priv->check_save_log, LOQUI_GENERAL_PREF_GTK_GROUP_GENERAL, "SaveLog", LOQUI_GENERAL_PREF_GTK_DEFAULT_GENERAL_SAVE_LOG);
+
+	highlight_list = loqui_utils_string_array_to_list(loqui_pref_get_string_list(general_pref,
+										     LOQUI_GENERAL_PREF_GROUP_NOTIFICATION, "HighlightList",
+										     NULL, NULL), TRUE);
+	gtkutils_set_textview_from_string_list(GTK_TEXT_VIEW(priv->textview_highlight), highlight_list);
+	loqui_utils_free_string_list(highlight_list);
+
+	transparent_ignore_list = loqui_utils_string_array_to_list(loqui_pref_get_string_list(general_pref,
+											      LOQUI_GENERAL_PREF_GROUP_IGNORE, "TransparentIgnoreList",
+											      NULL, NULL), TRUE);
+	gtkutils_set_textview_from_string_list(GTK_TEXT_VIEW(priv->textview_transparent_ignore), transparent_ignore_list);
+	loqui_utils_free_string_list(transparent_ignore_list);
+
 
 	buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(priv->textview_title_format_title));
-	gtk_text_buffer_set_text(GTK_TEXT_BUFFER(buffer), prefs_general.title_format_title, -1);
-	
-	buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(priv->textview_title_format_statusbar));
-	gtk_text_buffer_set_text(GTK_TEXT_BUFFER(buffer), prefs_general.title_format_statusbar, -1);
+	buf = loqui_pref_get_with_default_string(loqui_get_general_pref(),
+						 LOQUI_GENERAL_PREF_GTK_GROUP_TITLE_FORMAT, "TitleFormatTitle",
+						 LOQUI_GENERAL_PREF_GTK_DEFAULT_TITLE_FORMAT_TITLE_FORMAT_TITLE, NULL);
+	gtk_text_buffer_set_text(GTK_TEXT_BUFFER(buffer), LOQUI_UTILS_EMPTY_IF_NULL(buf), -1);
+	g_free(buf);
 
-	gtk_entry_set_text(GTK_ENTRY(priv->entry_away_message), prefs_general.away_message);
-	gtk_entry_set_text(GTK_ENTRY(priv->entry_browser_command), prefs_general.browser_command);
-	gtk_entry_set_text(GTK_ENTRY(priv->entry_notification_command), prefs_general.notification_command);
-	gtk_entry_set_text(GTK_ENTRY(priv->entry_time_format), prefs_general.time_format);
-	gtk_entry_set_text(GTK_ENTRY(priv->entry_command_prefix), prefs_general.command_prefix);
+	buf = loqui_pref_get_with_default_string(loqui_get_general_pref(),
+						 LOQUI_GENERAL_PREF_GTK_GROUP_TITLE_FORMAT, "TitleFormatStatusbar",
+						 LOQUI_GENERAL_PREF_GTK_DEFAULT_TITLE_FORMAT_TITLE_FORMAT_STATUSBAR, NULL);
+	buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(priv->textview_title_format_statusbar));
+	gtk_text_buffer_set_text(GTK_TEXT_BUFFER(buffer), LOQUI_UTILS_EMPTY_IF_NULL(buf), -1);
+	g_free(buf);
+
+	buf = loqui_pref_get_with_default_string(loqui_get_general_pref(),
+						 LOQUI_GENERAL_PREF_GROUP_MESSAGES, "AwayMessage",
+						 LOQUI_GENERAL_PREF_DEFAULT_MESSAGES_AWAY_MESSAGE, NULL);
+	gtk_entry_set_text(GTK_ENTRY(priv->entry_away_message), LOQUI_UTILS_EMPTY_IF_NULL(buf));
+	g_free(buf);
+
+	buf = loqui_pref_get_with_default_string(loqui_get_general_pref(),
+						 LOQUI_GENERAL_PREF_GTK_GROUP_COMMANDS, "BrowserCommand",
+						 LOQUI_GENERAL_PREF_GTK_DEFAULT_COMMANDS_BROWSER_COMMAND, NULL);
+	gtk_entry_set_text(GTK_ENTRY(priv->entry_browser_command), LOQUI_UTILS_EMPTY_IF_NULL(buf));
+	g_free(buf);
+
+	buf = loqui_pref_get_with_default_string(loqui_get_general_pref(),
+						 LOQUI_GENERAL_PREF_GTK_GROUP_COMMANDS, "NotificationCommand",
+						 LOQUI_GENERAL_PREF_GTK_DEFAULT_COMMANDS_NOTIFICATION_COMMAND, NULL);
+	gtk_entry_set_text(GTK_ENTRY(priv->entry_notification_command), LOQUI_UTILS_EMPTY_IF_NULL(buf));
+	g_free(buf);
+
+	buf = loqui_pref_get_with_default_string(loqui_get_general_pref(),
+						 LOQUI_GENERAL_PREF_GTK_GROUP_GENERAL, "TimeFormat",
+						 LOQUI_GENERAL_PREF_GTK_DEFAULT_GENERAL_TIME_FORMAT, NULL);
+	gtk_entry_set_text(GTK_ENTRY(priv->entry_time_format), LOQUI_UTILS_EMPTY_IF_NULL(buf));
+	g_free(buf);
+
+	buf = loqui_pref_get_with_default_string(loqui_get_general_pref(),
+						 LOQUI_GENERAL_PREF_GTK_GROUP_GENERAL, "CommandPrefix",
+						 LOQUI_GENERAL_PREF_GTK_DEFAULT_GENERAL_COMMAND_PREFIX, NULL);
+	gtk_entry_set_text(GTK_ENTRY(priv->entry_command_prefix), LOQUI_UTILS_EMPTY_IF_NULL(buf));
+	g_free(buf);
 
 	gtk_spin_button_set_value(GTK_SPIN_BUTTON(priv->spin_common_buffer_max_line_number),
-				  prefs_general.common_buffer_max_line_number);
+				  loqui_pref_get_with_default_integer(loqui_get_general_pref(),
+								      LOQUI_GENERAL_PREF_GTK_GROUP_GENERAL, "CommonBufferMaxLineNumber",
+								      LOQUI_GENERAL_PREF_GTK_DEFAULT_GENERAL_COMMON_BUFFER_MAX_LINE_NUMBER, NULL));
 	gtk_spin_button_set_value(GTK_SPIN_BUTTON(priv->spin_channel_buffer_max_line_number),
-				  prefs_general.channel_buffer_max_line_number);
+				  loqui_pref_get_with_default_integer(loqui_get_general_pref(),
+								      LOQUI_GENERAL_PREF_GTK_GROUP_GENERAL, "ChannelBufferMaxLineNumber",
+								      LOQUI_GENERAL_PREF_GTK_DEFAULT_GENERAL_CHANNEL_BUFFER_MAX_LINE_NUMBER, NULL));
 }
 static void
 prefs_dialog_save_settings(PrefsDialog *dialog)
@@ -203,54 +266,103 @@ prefs_dialog_save_settings(PrefsDialog *dialog)
 	PrefsDialogPrivate *priv;
 	gchar *buf;
 	LoquiTitleFormat *ltf;
+	GList *list;
+	gchar **strarray;
+	gsize len;
 
 	g_return_if_fail(dialog != NULL);
         g_return_if_fail(IS_PREFS_DIALOG(dialog));
 
 	priv = dialog->priv;
 
-	prefs_general.save_size = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(priv->check_save_size));
-	prefs_general.parse_plum_recent = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(priv->check_parse_plum_recent));
-	prefs_general.use_transparent_ignore = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(priv->check_use_transparent_ignore));
-	prefs_general.use_notification = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(priv->check_use_notification));
-	prefs_general.exec_notification_by_notice = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(priv->check_exec_notification_by_notice));
-	prefs_general.auto_reconnect = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(priv->check_auto_reconnect));
-	prefs_general.connect_startup = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(priv->check_connect_startup));
-	prefs_general.select_channel_joined = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(priv->check_select_channel_joined));
-	prefs_general.auto_command_mode = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(priv->check_auto_command_mode));
-	prefs_general.save_log = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(priv->check_save_log));
+	loqui_pref_set_boolean(loqui_get_general_pref(),
+                               LOQUI_GENERAL_PREF_GTK_GROUP_SIZE, "SaveSize",
+                               gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(priv->check_save_size)));
+	loqui_pref_set_boolean(loqui_get_general_pref(),
+                               LOQUI_GENERAL_PREF_GROUP_PROXY, "ParsePlumRecent",
+                               gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(priv->check_parse_plum_recent)));
+	loqui_pref_set_boolean(loqui_get_general_pref(),
+                               LOQUI_GENERAL_PREF_GROUP_IGNORE, "UseTransparentIgnore",
+                               gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(priv->check_use_transparent_ignore)));
+	loqui_pref_set_boolean(loqui_get_general_pref(),
+                               LOQUI_GENERAL_PREF_GROUP_NOTIFICATION, "UseNotification",
+                               gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(priv->check_use_notification)));
+	loqui_pref_set_boolean(loqui_get_general_pref(),
+                               LOQUI_GENERAL_PREF_GROUP_NOTIFICATION, "ExecNotificationByNotice",
+                               gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(priv->check_exec_notification_by_notice)));
+	loqui_pref_set_boolean(loqui_get_general_pref(),
+                               LOQUI_GENERAL_PREF_GROUP_ACCOUNT, "AutoReconnect",
+                               gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(priv->check_auto_reconnect)));
+	loqui_pref_set_boolean(loqui_get_general_pref(),
+                               LOQUI_GENERAL_PREF_GTK_GROUP_GENERAL, "ConnectStartup",
+                               gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(priv->check_connect_startup)));
+	loqui_pref_set_boolean(loqui_get_general_pref(),
+                               LOQUI_GENERAL_PREF_GTK_GROUP_GENERAL, "SelectChannelJoined",
+                               gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(priv->check_select_channel_joined)));
+	loqui_pref_set_boolean(loqui_get_general_pref(),
+                               LOQUI_GENERAL_PREF_GTK_GROUP_GENERAL, "AutoCommandMode",
+                               gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(priv->check_auto_command_mode)));
+	loqui_pref_set_boolean(loqui_get_general_pref(),
+                               LOQUI_GENERAL_PREF_GTK_GROUP_GENERAL, "SaveLog",
+                               gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(priv->check_save_log)));
 
 	loqui_app_set_auto_switch_scrolling_channel_buffers(priv->app, gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(priv->check_auto_switch_scrolling)));
 	loqui_app_set_auto_switch_scrolling_common_buffer(priv->app, gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(priv->check_auto_switch_scrolling_common_buffer)));
 
-	gtkutils_set_string_list_from_textview(&prefs_general.highlight_list, GTK_TEXT_VIEW(priv->textview_highlight));
-	gtkutils_set_string_list_from_textview(&prefs_general.transparent_ignore_list,
+
+	list = NULL;
+	gtkutils_set_string_list_from_textview(&list, GTK_TEXT_VIEW(priv->textview_highlight));
+	len = g_list_length(list);
+	strarray = loqui_utils_list_to_string_array(list, TRUE);
+	loqui_pref_set_string_list(loqui_get_general_pref(),
+				   LOQUI_GENERAL_PREF_GROUP_NOTIFICATION, "HighlightList",
+				   strarray, len);
+	g_strfreev(strarray);
+
+	list = NULL;
+	gtkutils_set_string_list_from_textview(&list,
 					       GTK_TEXT_VIEW(priv->textview_transparent_ignore));
+	len = g_list_length(list);
+	strarray = loqui_utils_list_to_string_array(list, TRUE);
+	loqui_pref_set_string_list(loqui_get_general_pref(),
+				   LOQUI_GENERAL_PREF_GROUP_IGNORE, "TransparentIgnoreList",
+				   strarray, len);
+	g_strfreev(strarray);
 
-	G_FREE_UNLESS_NULL(prefs_general.away_message);
-	prefs_general.away_message = g_strdup(gtk_entry_get_text(GTK_ENTRY(priv->entry_away_message)));
+	loqui_pref_set_string(loqui_get_general_pref(),
+                              LOQUI_GENERAL_PREF_GROUP_MESSAGES, "AwayMessage",
+                              gtk_entry_get_text(GTK_ENTRY(priv->entry_away_message)));
 
-	G_FREE_UNLESS_NULL(prefs_general.browser_command);
-	prefs_general.browser_command = g_strdup(gtk_entry_get_text(GTK_ENTRY(priv->entry_browser_command)));
+	loqui_pref_set_string(loqui_get_general_pref(),
+                              LOQUI_GENERAL_PREF_GTK_GROUP_COMMANDS, "BrowserCommand",
+                              gtk_entry_get_text(GTK_ENTRY(priv->entry_browser_command)));
 
-	G_FREE_UNLESS_NULL(prefs_general.notification_command);
-	prefs_general.notification_command = g_strdup(gtk_entry_get_text(GTK_ENTRY(priv->entry_notification_command)));
+	loqui_pref_set_string(loqui_get_general_pref(),
+                              LOQUI_GENERAL_PREF_GTK_GROUP_COMMANDS, "NotificationCommand",
+                              gtk_entry_get_text(GTK_ENTRY(priv->entry_notification_command)));
 
-	G_FREE_UNLESS_NULL(prefs_general.time_format);
-	prefs_general.time_format = g_strdup(gtk_entry_get_text(GTK_ENTRY(priv->entry_time_format)));
+	loqui_pref_set_string(loqui_get_general_pref(),
+                              LOQUI_GENERAL_PREF_GTK_GROUP_GENERAL, "TimeFormat",
+                              gtk_entry_get_text(GTK_ENTRY(priv->entry_time_format)));
 
-	G_FREE_UNLESS_NULL(prefs_general.command_prefix);
-	prefs_general.command_prefix = g_strdup(gtk_entry_get_text(GTK_ENTRY(priv->entry_command_prefix)));
+	loqui_pref_set_string(loqui_get_general_pref(),
+                              LOQUI_GENERAL_PREF_GTK_GROUP_GENERAL, "CommandPrefix",
+                              gtk_entry_get_text(GTK_ENTRY(priv->entry_command_prefix)));
 
-	prefs_general.common_buffer_max_line_number = (guint) gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(priv->spin_common_buffer_max_line_number));
-	prefs_general.channel_buffer_max_line_number = (guint) gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(priv->spin_channel_buffer_max_line_number));
+	loqui_pref_set_integer(loqui_get_general_pref(),
+                               LOQUI_GENERAL_PREF_GTK_GROUP_GENERAL, "CommonBufferMaxLineNumber",
+                               gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(priv->spin_common_buffer_max_line_number)));
+	loqui_pref_set_integer(loqui_get_general_pref(),
+                               LOQUI_GENERAL_PREF_GTK_GROUP_GENERAL, "ChannelBufferMaxLineNumber",
+                               gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(priv->spin_channel_buffer_max_line_number)));
 
-#define SET_TITLE_FORMAT(_textview, _name, _pref, _setter) { \
+/* FIXME: use _default */
+#define SET_TITLE_FORMAT(_textview, _group, _key, _default, _setter) { \
 	buf = gtkutils_get_text_from_textview(GTK_TEXT_VIEW(_textview)); \
 	if (strlen(buf) > 0) { \
 		ltf = loqui_title_format_new(); \
 		if (!loqui_title_format_parse(ltf, buf, NULL)) { \
-			gtkutils_msgbox_info(GTK_MESSAGE_ERROR, _("Invalid title format: default is used for %s."), _name); \
+			gtkutils_msgbox_info(GTK_MESSAGE_ERROR, _("Invalid title format: default is used for %s."), _key); \
 			loqui_title_format_free(ltf); \
 			_setter(priv->app->appinfo, NULL); \
 		} else { \
@@ -259,14 +371,17 @@ prefs_dialog_save_settings(PrefsDialog *dialog)
 	} else { \
 		_setter(priv->app->appinfo, NULL); \
 	} \
-	G_FREE_UNLESS_NULL(_pref); \
-	_pref = buf; \
+        loqui_pref_set_string(loqui_get_general_pref(), _group, _key, buf); \
 }
 
-	SET_TITLE_FORMAT(priv->textview_title_format_title, _("title"), prefs_general.title_format_title, loqui_app_info_set_title_format_title);
-	SET_TITLE_FORMAT(priv->textview_title_format_statusbar, _("statusbar"), prefs_general.title_format_statusbar, loqui_app_info_set_title_format_statusbar);
+	SET_TITLE_FORMAT(priv->textview_title_format_title,
+			 LOQUI_GENERAL_PREF_GTK_GROUP_TITLE_FORMAT, "TitleFormatTitle",
+			 LOQUI_GENERAL_PREF_GTK_DEFAULT_TITLE_FORMAT_TITLE_FORMAT_TITLE, loqui_app_info_set_title_format_title);
+	SET_TITLE_FORMAT(priv->textview_title_format_statusbar,
+			 LOQUI_GENERAL_PREF_GTK_GROUP_TITLE_FORMAT, "TitleFormatStatusbar",
+			 LOQUI_GENERAL_PREF_GTK_DEFAULT_TITLE_FORMAT_TITLE_FORMAT_STATUSBAR, loqui_app_info_set_title_format_statusbar);
 
-	prefs_general_save();
+	loqui_core_gtk_save_general_pref(LOQUI_CORE_GTK(loqui_get_core()));
 }
 
 static void

@@ -19,7 +19,6 @@
  */
 #include "config.h"
 
-#include <prefs_general.h>
 #include <utils.h>
 
 #include "loqui_channel_buffer_gtk.h"
@@ -28,6 +27,11 @@
 #include "gtkutils.h"
 #include "loqui-core-gtk.h"
 #include <loqui.h>
+
+#include <loqui-general-pref-groups.h>
+#include <loqui-general-pref-default.h>
+#include "loqui-general-pref-gtk-groups.h"
+#include "loqui-general-pref-gtk-default.h"
 
 /*
 enum {
@@ -216,7 +220,8 @@ loqui_channel_buffer_gtk_apply_tag_cb(GtkTextBuffer *buffer,
 	GtkTextIter region_start, region_end;
 	gboolean matched = FALSE;
 	gchar *word;
-	GList *cur;
+	gchar **highlight_array;
+	int i;
 
 	channel_buffer = LOQUI_CHANNEL_BUFFER_GTK(buffer);
 	priv = channel_buffer->priv;
@@ -225,23 +230,26 @@ loqui_channel_buffer_gtk_apply_tag_cb(GtkTextBuffer *buffer,
 		return;
 
 	tmp_end = *end;
-
-	for(cur = prefs_general.highlight_list; cur != NULL; cur = cur->next) {
-		tmp_start = *start;
-		word = (gchar *) cur->data;
-		while(gtk_text_iter_forward_search(&tmp_start,
-						   word,
-						   GTK_TEXT_SEARCH_VISIBLE_ONLY,
-						   &region_start,
-						   &region_end,
-						   &tmp_end)) {
-			gtk_text_buffer_apply_tag_by_name(buffer,
-							  "highlight",
-							  &region_start,
-							  &region_end);
-			tmp_start = region_end;
-			matched = TRUE;
+	highlight_array = loqui_pref_get_string_list(loqui_get_general_pref(),
+						     LOQUI_GENERAL_PREF_GROUP_NOTIFICATION, "HighlightList", NULL, NULL);
+	if (highlight_array) {
+		for(i = 0; (word = highlight_array[i]) != NULL; i++) {
+			tmp_start = *start;
+			while(gtk_text_iter_forward_search(&tmp_start,
+							   word,
+							   GTK_TEXT_SEARCH_VISIBLE_ONLY,
+							   &region_start,
+							   &region_end,
+							   &tmp_end)) {
+				gtk_text_buffer_apply_tag_by_name(buffer,
+								  "highlight",
+								  &region_start,
+								  &region_end);
+				tmp_start = region_end;
+				matched = TRUE;
+			}
 		}
+		g_strfreev(highlight_array);
 	}
 
 	gtk_text_buffer_remove_tag(buffer, tag,
@@ -302,8 +310,12 @@ loqui_channel_buffer_gtk_delete_old_lines(LoquiChannelBufferGtk *buffer)
 	priv = buffer->priv;
 	
 	max_line_number = priv->is_common_buffer ?
-			  prefs_general.common_buffer_max_line_number :
-			  prefs_general.channel_buffer_max_line_number;
+			  loqui_pref_get_with_default_integer(loqui_get_general_pref(),
+							      LOQUI_GENERAL_PREF_GTK_GROUP_GENERAL, "CommonBufferMaxLineNumber",
+							      LOQUI_GENERAL_PREF_GTK_DEFAULT_GENERAL_COMMON_BUFFER_MAX_LINE_NUMBER, NULL) :
+			  loqui_pref_get_with_default_integer(loqui_get_general_pref(),
+							      LOQUI_GENERAL_PREF_GTK_GROUP_GENERAL, "ChannelBufferMaxLineNumber",
+							      LOQUI_GENERAL_PREF_GTK_DEFAULT_GENERAL_CHANNEL_BUFFER_MAX_LINE_NUMBER, NULL);
 			  
 	line_num = gtk_text_buffer_get_line_count(GTK_TEXT_BUFFER(buffer)) - 1; // except last return code
 	if (0 < max_line_number && line_num > max_line_number) {
@@ -414,7 +426,7 @@ loqui_channel_buffer_gtk_load_styles(LoquiChannelBufferGtk *buffer)
 
 	pref = LOQUI_CORE_GTK(loqui_get_core())->style_pref;
 
-#define SET_STRING_DEFAULT(key, value) loqui_pref_set_string_default(pref, "BufferText", key, value)
+#define SET_STRING_DEFAULT(key, value) loqui_pref_set_default_string(pref, "BufferText", key, value)
 
 	SET_STRING_DEFAULT("TimeColor", "blue");
 	SET_STRING_DEFAULT("InfoColor", "green3");
@@ -431,15 +443,23 @@ loqui_channel_buffer_gtk_load_styles(LoquiChannelBufferGtk *buffer)
 static void
 loqui_channel_buffer_gtk_append_current_time(LoquiChannelBufferGtk *buffer)
 {
-	gchar *buf;
+	gchar *buf = NULL;
 	time_t t;
+	gchar *time_format;
 	
         g_return_if_fail(buffer != NULL);
         g_return_if_fail(LOQUI_IS_CHANNEL_BUFFER_GTK(buffer));
 
 	t = time(NULL);
-	buf = utils_strftime_epoch(prefs_general.time_format, t);
-	if(buf == NULL) {
+	time_format = loqui_pref_get_with_default_string(loqui_get_general_pref(),
+							 LOQUI_GENERAL_PREF_GTK_GROUP_GENERAL, "TimeFormat",
+							 LOQUI_GENERAL_PREF_GTK_DEFAULT_GENERAL_TIME_FORMAT, NULL);
+	if (time_format) {
+		buf = utils_strftime_epoch(time_format, t);
+		g_free(time_format);
+	}
+
+	if (buf == NULL) {
 		g_warning("Failed to strftime time string");
 		return;
 	}

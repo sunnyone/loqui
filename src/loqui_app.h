@@ -22,7 +22,7 @@
 #define __LOQUI_APP_H__
 
 #include <gtk/gtk.h>
-#include <prefs_general.h>
+#include "loqui-general-pref-gtk.h"
 
 G_BEGIN_DECLS
 

@@ -37,6 +37,8 @@ requires 2.0.0
 
 #define SHORTCUT_CHANNEL_ENTRY_ACCEL_MAP_PREFIX "<ChannelEntries>/ChannelEntry "
 
+#include "loqui-general-pref-gtk-groups.h"
+#include "loqui-general-pref-gtk-default.h"
 %}
 
 %{
@@ -47,7 +49,6 @@ requires 2.0.0
 #include "intl.h"
 #include "utils.h"
 #include "main.h"
-#include <prefs_general.h>
 
 #include <string.h>
 #include <stdlib.h>
@@ -60,6 +61,7 @@ requires 2.0.0
 #define GENERAL_PREF_FILENAME "loquirc"
 
 #include "loqui_stock.h"
+#include "prefs_general_upgrader.h"
 
 %}
 
@@ -182,7 +184,7 @@ class Loqui:Core:Gtk from Loqui:Core
 		g_free(path);
 	}
 
-	private void load_general_pref(self) {
+	public void load_general_pref(self) {
 		gchar *path;
 
 		path = self_get_general_pref_path(self);
@@ -190,18 +192,35 @@ class Loqui:Core:Gtk from Loqui:Core
 		g_free(path);
 	}
 
-	private void save_general_pref(self) {
+        public void save_general_pref(self) {
 		gchar *path;
 
 		path = self_get_general_pref_path(self);
 		loqui_pref_save_to_file(loqui_core_get_general_pref(LOQUI_CORE(self)), path, NULL);
 		g_free(path);
 	}
+	
+	private gboolean check_should_upgrade(self) {
+		gchar *old_path;
+		gchar *new_path;
+		gboolean b;
 
+		old_path = g_build_filename(loqui_core_get_user_dir(LOQUI_CORE(self)), "loquirc.xml", NULL);
+		new_path = g_build_filename(loqui_core_get_user_dir(LOQUI_CORE(self)), "loquirc", NULL);
+		
+		b = g_file_test(old_path, G_FILE_TEST_EXISTS) && !g_file_test(new_path, G_FILE_TEST_EXISTS);
+		g_free(old_path);
+		g_free(new_path);
+
+		return b;
+	}
+					    
 	public void run(self) {
-		prefs_general_load();
-
+		if (self_check_should_upgrade(self)) {
+			prefs_general_upgrader_upgrade();
+		}
 		self_load_general_pref(self);
+		loqui_pref_set_boolean(loqui_get_general_pref(), "Dummy", "DummyBoolean", TRUE);
 
 		self->app = LOQUI_APP(loqui_app_new(self->account_manager));
 		self_load_stylerc(self);
@@ -212,7 +231,9 @@ class Loqui:Core:Gtk from Loqui:Core
 		self_load_accelmap(self);
 
 		loqui_account_manager_load_accounts(self->account_manager);
-		if(prefs_general.connect_startup)
+		if(loqui_pref_get_with_default_boolean(loqui_get_general_pref(),
+						       LOQUI_GENERAL_PREF_GTK_GROUP_GENERAL, "ConnectStartup",
+						       LOQUI_GENERAL_PREF_GTK_DEFAULT_GENERAL_CONNECT_STARTUP, NULL))
 			loqui_account_manager_connect_all_default(self->account_manager);
 	
 		gtk_main();
@@ -220,6 +241,5 @@ class Loqui:Core:Gtk from Loqui:Core
 		self_save_accelmap(self);
 
 		self_save_general_pref(self);
-		prefs_general_save();
 	}
 }

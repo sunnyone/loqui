@@ -21,7 +21,6 @@
 
 #include <loqui_account.h>
 #include <loqui_account_manager.h>
-#include <prefs_general.h>
 #include <loqui_channel_entry_utils.h>
 #include <utils.h>
 
@@ -60,6 +59,10 @@
 #include <gdk/gdkkeysyms.h>
 
 #include <loqui.h>
+#include <loqui-general-pref-default.h>
+#include <loqui-general-pref-groups.h>
+#include "loqui-general-pref-gtk-groups.h"
+#include "loqui-general-pref-gtk-default.h"
 
 #define CHANNEL_ENTRY_STORE_KEY "channel-entry-store"
 #define CHANNEL_TEXT_VIEW_KEY "channel-text-view"
@@ -250,7 +253,9 @@ loqui_app_delete_event(GtkWidget *widget, GdkEventAny *event)
 
 	loqui_account_manager_disconnect_all(loqui_app_get_account_manager(app));
 
-        if (prefs_general.save_size) {
+        if (loqui_pref_get_with_default_boolean(loqui_get_general_pref(),
+						LOQUI_GENERAL_PREF_GTK_GROUP_SIZE, "SaveSize",
+						LOQUI_GENERAL_PREF_GTK_DEFAULT_SIZE_SAVE_SIZE, NULL)) {
 		loqui_app_save_size(LOQUI_APP(widget));
         }
 	loqui_app_disconnect_all_account_for_quit(app);
@@ -379,13 +384,23 @@ loqui_app_save_size(LoquiApp *app)
 	priv = app->priv;
 
 	gtk_window_get_size(GTK_WINDOW(app), &width, &height);
-	prefs_general.window_width = width;
-	prefs_general.window_height = height;
+	loqui_pref_set_integer(loqui_get_general_pref(),
+                               LOQUI_GENERAL_PREF_GTK_GROUP_SIZE, "WindowWidth",
+                               width);
+	loqui_pref_set_integer(loqui_get_general_pref(),
+                               LOQUI_GENERAL_PREF_GTK_GROUP_SIZE, "WindowHeight",
+                               height);
 	
-	prefs_general.common_buffer_height = app->common_textview->allocation.height;
+	loqui_pref_set_integer(loqui_get_general_pref(),
+                               LOQUI_GENERAL_PREF_GTK_GROUP_SIZE, "CommonBufferHeight",
+                               app->common_textview->allocation.height);
 
-	prefs_general.channel_tree_height = GTK_WIDGET(app->channel_tree)->allocation.height;
-	prefs_general.channel_tree_width = GTK_WIDGET(app->channel_tree)->allocation.width;
+	loqui_pref_set_integer(loqui_get_general_pref(),
+                               LOQUI_GENERAL_PREF_GTK_GROUP_SIZE, "ChannelTreeHeight",
+                               GTK_WIDGET(app->channel_tree)->allocation.height);
+	loqui_pref_set_integer(loqui_get_general_pref(),
+                               LOQUI_GENERAL_PREF_GTK_GROUP_SIZE, "ChannelTreeWidth",
+                               GTK_WIDGET(app->channel_tree)->allocation.width);
 }
 static void
 loqui_app_restore_size(LoquiApp *app)
@@ -397,15 +412,25 @@ loqui_app_restore_size(LoquiApp *app)
 
 	priv = app->priv;
         gtk_window_set_default_size(GTK_WINDOW(app),
-				    prefs_general.window_width,
-				    prefs_general.window_height);
+				    loqui_pref_get_with_default_integer(loqui_get_general_pref(),
+									LOQUI_GENERAL_PREF_GTK_GROUP_SIZE, "WindowWidth",
+									LOQUI_GENERAL_PREF_GTK_DEFAULT_SIZE_WINDOW_WIDTH, NULL),
+				    loqui_pref_get_with_default_integer(loqui_get_general_pref(),
+									LOQUI_GENERAL_PREF_GTK_GROUP_SIZE, "WindowHeight",
+									LOQUI_GENERAL_PREF_GTK_DEFAULT_SIZE_WINDOW_HEIGHT, NULL));
 
 	gtk_widget_set_usize(app->common_textview, -1,
-			     prefs_general.common_buffer_height);
+			     loqui_pref_get_with_default_integer(loqui_get_general_pref(),
+								 LOQUI_GENERAL_PREF_GTK_GROUP_SIZE, "CommonBufferHeight",
+								 LOQUI_GENERAL_PREF_GTK_DEFAULT_SIZE_COMMON_BUFFER_HEIGHT, NULL));
 
 	gtk_widget_set_usize(GTK_WIDGET(app->channel_tree),
-			     prefs_general.channel_tree_width,
-			     prefs_general.channel_tree_height);
+			     loqui_pref_get_with_default_integer(loqui_get_general_pref(),
+								 LOQUI_GENERAL_PREF_GTK_GROUP_SIZE, "ChannelTreeWidth",
+								 LOQUI_GENERAL_PREF_GTK_DEFAULT_SIZE_CHANNEL_TREE_WIDTH, NULL),
+			     loqui_pref_get_with_default_integer(loqui_get_general_pref(),
+								 LOQUI_GENERAL_PREF_GTK_GROUP_SIZE, "ChannelTreeHeight",
+								 LOQUI_GENERAL_PREF_GTK_DEFAULT_SIZE_CHANNEL_TREE_HEIGHT, NULL));
 }
 
 static void
@@ -665,7 +690,9 @@ loqui_app_new(LoquiAccountManager *account_manager)
 
 	app->common_textview = loqui_channel_text_view_new(app);
 	loqui_channel_text_view_set_auto_switch_scrolling(LOQUI_CHANNEL_TEXT_VIEW(app->common_textview),
-							  prefs_general.auto_switch_scrolling_common_buffer);
+							  loqui_pref_get_with_default_boolean(loqui_get_general_pref(),
+											      LOQUI_GENERAL_PREF_GTK_GROUP_GENERAL, "AutoSwitchScrollingCommonBuffer",
+											      LOQUI_GENERAL_PREF_GTK_DEFAULT_GENERAL_AUTO_SWITCH_SCROLLING_COMMON_BUFFER, NULL));
 	g_signal_connect(G_OBJECT(app->common_textview), "notify::is-scroll",
 			 G_CALLBACK(loqui_app_channel_text_view_notify_is_scroll_common_buffer_cb), app);
 	gtk_paned_pack2(GTK_PANED(vpaned), LOQUI_CHANNEL_TEXT_VIEW(app->common_textview)->scrolled_window, FALSE, TRUE);
@@ -705,12 +732,27 @@ loqui_app_new(LoquiAccountManager *account_manager)
 
 	gtk_widget_show_all(GTK_WIDGET(app));
 
-	loqui_app_set_show_statusbar(app, prefs_general.show_statusbar);
-	loqui_app_set_show_channelbar(app, prefs_general.show_channelbar);
+	loqui_app_set_show_statusbar(app,
+				     loqui_pref_get_with_default_boolean(loqui_get_general_pref(),
+									 LOQUI_GENERAL_PREF_GTK_GROUP_VISIBILITY, "ShowStatusbar",
+									 LOQUI_GENERAL_PREF_GTK_DEFAULT_VISIBILITY_SHOW_STATUSBAR, NULL));
+	loqui_app_set_show_channelbar(app,
+				      loqui_pref_get_with_default_boolean(loqui_get_general_pref(),
+									  LOQUI_GENERAL_PREF_GTK_GROUP_VISIBILITY, "ShowChannelbar",
+									  LOQUI_GENERAL_PREF_GTK_DEFAULT_VISIBILITY_SHOW_CHANNELBAR, NULL));
 
-	loqui_app_actions_toggle_action_set_active(app, "ToggleStatusbar", prefs_general.show_statusbar);
-	loqui_app_actions_toggle_action_set_active(app, "ToggleChannelbar", prefs_general.show_channelbar);
-	loqui_app_set_nick_list_sort_type(app, prefs_general.nick_list_sort_type);
+	loqui_app_actions_toggle_action_set_active(app, "ToggleStatusbar",
+						   loqui_pref_get_with_default_boolean(loqui_get_general_pref(),
+										       LOQUI_GENERAL_PREF_GTK_GROUP_VISIBILITY, "ShowStatusbar",
+										       LOQUI_GENERAL_PREF_GTK_DEFAULT_VISIBILITY_SHOW_STATUSBAR, NULL));
+	loqui_app_actions_toggle_action_set_active(app, "ToggleChannelbar",
+						   loqui_pref_get_with_default_boolean(loqui_get_general_pref(),
+										       LOQUI_GENERAL_PREF_GTK_GROUP_VISIBILITY, "ShowChannelbar",
+										       LOQUI_GENERAL_PREF_GTK_DEFAULT_VISIBILITY_SHOW_CHANNELBAR, NULL));
+	loqui_app_set_nick_list_sort_type(app,
+					  loqui_pref_get_with_default_integer(loqui_get_general_pref(),
+									      LOQUI_GENERAL_PREF_GTK_GROUP_GENERAL, "NickListSortType",
+									      LOQUI_GENERAL_PREF_GTK_DEFAULT_GENERAL_NICK_LIST_SORT_TYPE, NULL));
 
 	g_signal_connect_after(G_OBJECT(account_manager), "add-account",
 			       G_CALLBACK(loqui_app_add_account_after_cb), app);
@@ -751,13 +793,17 @@ loqui_app_set_auto_switch_scrolling_channel_buffers(LoquiApp *app, gboolean auto
 		if (chview)
 			loqui_channel_text_view_set_auto_switch_scrolling(chview, auto_switch_scrolling);
 	}
-	prefs_general.auto_switch_scrolling = auto_switch_scrolling;
+	loqui_pref_set_boolean(loqui_get_general_pref(),
+                               LOQUI_GENERAL_PREF_GTK_GROUP_GENERAL, "AutoSwitchScrolling",
+                               auto_switch_scrolling);
 }
 void
 loqui_app_set_auto_switch_scrolling_common_buffer(LoquiApp *app, gboolean auto_switch_scrolling)
 {
 	loqui_channel_text_view_set_auto_switch_scrolling(LOQUI_CHANNEL_TEXT_VIEW(app->common_textview), auto_switch_scrolling);
-	prefs_general.auto_switch_scrolling_common_buffer = auto_switch_scrolling;
+	loqui_pref_set_boolean(loqui_get_general_pref(),
+                               LOQUI_GENERAL_PREF_GTK_GROUP_GENERAL, "AutoSwitchScrollingCommonBuffer",
+                               auto_switch_scrolling);
 }
 void
 loqui_app_set_show_statusbar(LoquiApp *app, gboolean show)
@@ -774,7 +820,9 @@ loqui_app_set_show_statusbar(LoquiApp *app, gboolean show)
 	else
 		gtk_widget_hide(app->statusbar);
 
-	prefs_general.show_statusbar = show;
+	loqui_pref_set_boolean(loqui_get_general_pref(),
+                               LOQUI_GENERAL_PREF_GTK_GROUP_VISIBILITY, "ShowStatusbar",
+                               show);
 }
 
 void
@@ -792,7 +840,9 @@ loqui_app_set_show_channelbar(LoquiApp *app, gboolean show)
 	else
 		gtk_widget_hide(priv->handlebox_channelbar);
 
-	prefs_general.show_channelbar = show;
+	loqui_pref_set_boolean(loqui_get_general_pref(),
+                               LOQUI_GENERAL_PREF_GTK_GROUP_VISIBILITY, "ShowChannelbar",
+                               show);
 }
 
 void
@@ -933,7 +983,9 @@ loqui_app_set_current_channel_entry(LoquiApp *app, LoquiChannelEntry *chent)
 
 	gtk_widget_grab_focus(app->remark_entry);
 
-	if (prefs_general.auto_switch_scrolling)
+	if (loqui_pref_get_with_default_boolean(loqui_get_general_pref(),
+						LOQUI_GENERAL_PREF_GTK_GROUP_GENERAL, "AutoSwitchScrolling",
+						LOQUI_GENERAL_PREF_GTK_DEFAULT_GENERAL_AUTO_SWITCH_SCROLLING, NULL))
 		loqui_app_actions_toggle_action_set_active(app, LOQUI_ACTION_TOGGLE_SCROLL, TRUE);
 
 }
@@ -1032,7 +1084,9 @@ loqui_app_channel_entry_added_after(LoquiApp *app, LoquiChannelEntry *chent)
 	g_object_set_data(G_OBJECT(chent), CHANNEL_TEXT_VIEW_KEY, chview);
 	loqui_channel_text_view_set_channel_buffer(LOQUI_CHANNEL_TEXT_VIEW(chview), LOQUI_CHANNEL_BUFFER_GTK(buffer));
 	loqui_channel_text_view_set_auto_switch_scrolling(LOQUI_CHANNEL_TEXT_VIEW(chview),
-							  prefs_general.auto_switch_scrolling);
+							  loqui_pref_get_with_default_boolean(loqui_get_general_pref(),
+											      LOQUI_GENERAL_PREF_GTK_GROUP_GENERAL, "AutoSwitchScrolling",
+											      LOQUI_GENERAL_PREF_GTK_DEFAULT_GENERAL_AUTO_SWITCH_SCROLLING, NULL));
 
 	gtk_widget_show_all(LOQUI_CHANNEL_TEXT_VIEW(chview)->scrolled_window);
 	gtk_notebook_append_page(GTK_NOTEBOOK(app->channel_notebook),
@@ -1169,7 +1223,9 @@ loqui_app_add_channel_after_cb(LoquiAccount *account, LoquiChannel *channel, Loq
 	loqui_app_channel_entry_added_after(app, LOQUI_CHANNEL_ENTRY(channel));
 	loqui_app_info_channel_added(app->appinfo, channel);
 
-	if (prefs_general.select_channel_joined)
+	if (loqui_pref_get_with_default_boolean(loqui_get_general_pref(),
+						LOQUI_GENERAL_PREF_GTK_GROUP_GENERAL, "SelectChannelJoined",
+						LOQUI_GENERAL_PREF_GTK_DEFAULT_GENERAL_SELECT_CHANNEL_JOINED, NULL))
 		loqui_app_set_current_channel_lazy(app, channel);
 }
 static void
@@ -1242,11 +1298,13 @@ loqui_app_channel_entry_append_message_text_cb(LoquiChannelEntry *chent, LoquiMe
 	LoquiAppPrivate *priv;
 	GtkWidget *chview;
 	gboolean matched;
-	GList *cur;
 	gchar *word;
 	const gchar *remark;
 	gchar *tmp;
 	LoquiTextRegion *region;
+	gchar *notification_command;
+	gchar **highlight_array;
+	int i;
 
         g_return_if_fail(app != NULL);
         g_return_if_fail(LOQUI_IS_APP(app));
@@ -1256,34 +1314,45 @@ loqui_app_channel_entry_append_message_text_cb(LoquiChannelEntry *chent, LoquiMe
 	if (priv->last_msgtext == msgtext)
 		return;
 		
-	if (prefs_general.save_log)
+	if (loqui_pref_get_with_default_boolean(loqui_get_general_pref(),
+						LOQUI_GENERAL_PREF_GTK_GROUP_GENERAL, "SaveLog",
+						LOQUI_GENERAL_PREF_GTK_DEFAULT_GENERAL_SAVE_LOG, NULL))
 		loqui_app_append_log(app, msgtext);
 
+	notification_command = loqui_pref_get_with_default_string(loqui_get_general_pref(),
+								  LOQUI_GENERAL_PREF_GTK_GROUP_COMMANDS, "NotificationCommand",
+								  LOQUI_GENERAL_PREF_GTK_DEFAULT_COMMANDS_NOTIFICATION_COMMAND, NULL);
 	if (loqui_message_text_get_exec_notification(msgtext) &&
 	    loqui_message_text_get_is_remark(msgtext) &&
-	    prefs_general.use_notification &&
-	    prefs_general.notification_command &&
-	    strlen(prefs_general.notification_command) > 0) {
+	    loqui_pref_get_with_default_boolean(loqui_get_general_pref(),
+						LOQUI_GENERAL_PREF_GROUP_NOTIFICATION, "UseNotification",
+						LOQUI_GENERAL_PREF_DEFAULT_NOTIFICATION_USE_NOTIFICATION, NULL) &&
+	    notification_command && strlen(notification_command) > 0) {
 
 		remark = loqui_message_text_get_text(msgtext);
 		matched = FALSE;
-		for (cur = prefs_general.highlight_list; cur != NULL; cur = cur->next) {
-			word = (gchar *) cur->data;
-			if ((tmp = strstr(remark, word)) != NULL) {
-				region = g_new0(LoquiTextRegion, 1);
-				region->start = tmp - remark;
-				region->len = strlen(word);
-				msgtext->highlight_region_list = g_list_append(msgtext->highlight_region_list, region);
-
-				matched = TRUE;
+		highlight_array = loqui_pref_get_string_list(loqui_get_general_pref(),
+							     LOQUI_GENERAL_PREF_GROUP_NOTIFICATION, "HighlightList", NULL, NULL);
+		if (highlight_array) {
+			for (i = 0; (word = highlight_array[i]) != NULL; i++) {
+				if ((tmp = strstr(remark, word)) != NULL) {
+					region = g_new0(LoquiTextRegion, 1);
+					region->start = tmp - remark;
+					region->len = strlen(word);
+					msgtext->highlight_region_list = g_list_append(msgtext->highlight_region_list, region);
+					
+					matched = TRUE;
+				}
 			}
+			g_strfreev(highlight_array);
 		}
 
 		if (matched) {
 			loqui_channel_entry_set_has_unread_keyword(chent, TRUE);
-			gtkutils_exec_command_with_error_dialog(prefs_general.notification_command);
+			gtkutils_exec_command_with_error_dialog(notification_command);
 		}
 	}
+	g_free(notification_command);
 
 	loqui_message_text_set_exec_notification(msgtext, FALSE);
 	chview = loqui_app_get_current_channel_text_view(app);
@@ -1312,7 +1381,8 @@ loqui_app_append_log(LoquiApp *app, LoquiMessageText *msgtext)
 	const gchar *account_name;
 	GIOChannel *io;
 	time_t t;
-	
+	gchar *time_format;
+
         g_return_if_fail(app != NULL);
         g_return_if_fail(LOQUI_IS_APP(app));
         
@@ -1328,7 +1398,12 @@ loqui_app_append_log(LoquiApp *app, LoquiMessageText *msgtext)
 		return;
 	}
 	
-	time_str = utils_strftime_epoch(prefs_general.time_format, t);
+	time_format = loqui_pref_get_with_default_string(loqui_get_general_pref(),
+							 LOQUI_GENERAL_PREF_GTK_GROUP_GENERAL, "TimeFormat",
+							 LOQUI_GENERAL_PREF_GTK_DEFAULT_GENERAL_TIME_FORMAT, NULL);
+	time_str = utils_strftime_epoch(time_format, t);
+	g_free(time_format);
+
 	if (loqui_message_text_get_nick(msgtext))
 		nick = loqui_message_text_get_nick_string(msgtext, TRUE);
 	else
@@ -1443,5 +1518,7 @@ loqui_app_set_nick_list_sort_type(LoquiApp *app, PrefSortType sort_type)
 	while ((chent = loqui_account_manager_iter_channel_entry_next(&iter)))
 		loqui_channel_entry_set_sort_func(chent, priv->sort_func);
 
-	prefs_general.nick_list_sort_type = sort_type;
+	loqui_pref_set_integer(loqui_get_general_pref(),
+                               LOQUI_GENERAL_PREF_GTK_GROUP_GENERAL, "NickListSortType",
+                               sort_type);
 }

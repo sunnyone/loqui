@@ -25,6 +25,10 @@
 
 #include <gdk/gdkkeysyms.h>
 
+#include <loqui.h>
+#include "loqui-general-pref-gtk-groups.h"
+#include "loqui-general-pref-gtk-default.h"
+
 #define EPS 0.00000001
 
 enum {
@@ -459,16 +463,25 @@ loqui_channel_text_view_iter_activated(LoquiChannelTextView *chview, LoquiChanne
 {
 	gchar *uri_str;
 	GtkTextIter uri_start_iter, uri_end_iter;
+	gchar *browser_command;
 
         g_return_if_fail(chview != NULL);
         g_return_if_fail(LOQUI_IS_CHANNEL_TEXT_VIEW(chview));
         g_return_if_fail(buffer_gtk != NULL);
         g_return_if_fail(LOQUI_IS_CHANNEL_BUFFER_GTK(buffer_gtk));
 
-	if (loqui_channel_text_view_get_uri_at_iter(chview, buffer_gtk, iter, &uri_start_iter, &uri_end_iter)) {
-		uri_str = gtk_text_iter_get_text(&uri_start_iter, &uri_end_iter);
-		gtkutils_exec_command_argument_with_error_dialog(prefs_general.browser_command, uri_str);
-		g_free(uri_str);
+	browser_command = loqui_pref_get_with_default_string(loqui_get_general_pref(),
+							     LOQUI_GENERAL_PREF_GTK_GROUP_COMMANDS, "BrowserCommand",
+							     LOQUI_GENERAL_PREF_GTK_DEFAULT_COMMANDS_BROWSER_COMMAND, NULL);
+	if (browser_command) {
+		if (loqui_channel_text_view_get_uri_at_iter(chview, buffer_gtk, iter, &uri_start_iter, &uri_end_iter)) {
+			uri_str = gtk_text_iter_get_text(&uri_start_iter, &uri_end_iter);
+			gtkutils_exec_command_argument_with_error_dialog(browser_command, uri_str);
+			g_free(uri_str);
+		}
+		g_free(browser_command);
+	} else {
+		g_warning(_("Failed to get browser command."));
 	}
 }
 /* iter == NULL: forced to remove hover underline */
