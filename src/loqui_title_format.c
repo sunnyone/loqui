@@ -94,11 +94,13 @@ struct _TFFunctionItem {
 };
 
 static gchar *loqui_title_format_function_if(LoquiTitleFormat *ltf, GNode *node);
+static gchar *loqui_title_format_function_grater(LoquiTitleFormat *ltf, GNode *node);
 static gchar *loqui_title_format_function_num(LoquiTitleFormat *ltf, GNode *node);
 static gchar *loqui_title_format_function_pad(LoquiTitleFormat *ltf, GNode *node);
 
 TFFunctionItem function_item_table[] = {
 	{"if", loqui_title_format_function_if},
+	{"grater", loqui_title_format_function_grater},
 	{"num", loqui_title_format_function_num},
 	{"pad", loqui_title_format_function_pad},
 	{NULL, NULL}
@@ -718,6 +720,28 @@ loqui_title_format_function_if(LoquiTitleFormat *ltf, GNode *node)
 
 	return result;
 }
+/* $grater(number1,number2) */
+/* when number1 is grater than number2, returns 1 */
+static gchar *
+loqui_title_format_function_grater(LoquiTitleFormat *ltf, GNode *node)
+{
+	gchar *tmp;
+	gint i1, i2;
+	
+	tmp = loqui_title_format_get_function_argument(ltf, node, 1, NULL);
+	i1 = loqui_title_format_string_to_int(tmp);
+	g_free(tmp);
+
+	tmp = loqui_title_format_get_function_argument(ltf, node, 2, NULL);
+	i2 = loqui_title_format_string_to_int(tmp);
+	g_free(tmp);
+
+	if (i1 > i2)
+		return g_strdup("1");
+
+	return g_strdup("0");
+}
+
 /* $num(number,length) */
 static gchar *
 loqui_title_format_function_num(LoquiTitleFormat *ltf, GNode *node)

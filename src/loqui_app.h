@@ -43,12 +43,15 @@ typedef struct _LoquiAppPrivate     LoquiAppPrivate;
 #include "loqui_account_manager.h"
 #include "prefs_general.h"
 #include "loqui_tray_icon.h"
+#include "loqui_app_info.h"
 
 struct _LoquiApp
 {
         GtkWindow parent;
 
         LoquiAppPrivate *priv;
+
+	LoquiAppInfo *appinfo;
 
 	LoquiAccountManager *account_manager;
 
@@ -96,9 +99,6 @@ gboolean loqui_app_has_toplevel_focus(LoquiApp *app);
 gboolean loqui_app_is_obscured(LoquiApp *app);
 
 void loqui_app_grab_focus_if_key_unused(LoquiApp *app, const gchar *class_name, GdkEventKey *event);
-void loqui_app_update_info(LoquiApp *app, 
-			   gboolean is_account_changed, LoquiAccount *account,
-			   gboolean is_channel_changed, LoquiChannel *channel);
 
 void loqui_app_set_common_buffer(LoquiApp *app, ChannelBuffer *buffer);
 

@@ -293,7 +293,7 @@ loqui_channelbar_update_channel_mode(LoquiChannelbar *channelbar, LoquiChannel *
 	}
 }
 void
-loqui_channelbar_update_user_number(LoquiChannelbar *channelbar, LoquiChannel *channel)
+loqui_channelbar_update_member_number(LoquiChannelbar *channelbar, LoquiChannelEntry *chent)
 {
 	guint user_num_all, user_num_op;
 	gchar *buf;
@@ -304,9 +304,9 @@ loqui_channelbar_update_user_number(LoquiChannelbar *channelbar, LoquiChannel *c
 
 	priv = channelbar->priv;
 
-	if(channel && !loqui_channel_get_is_private_talk(channel)) {
-                user_num_all = loqui_channel_entry_get_member_number(LOQUI_CHANNEL_ENTRY(channel));
-		user_num_op = loqui_channel_entry_get_op_number(LOQUI_CHANNEL_ENTRY(channel));
+	if (chent) {
+                user_num_all = loqui_channel_entry_get_member_number(chent);
+		user_num_op = loqui_channel_entry_get_op_number(chent);
                 buf = g_strdup_printf("(%d/%d)", user_num_op, user_num_all);
 		gtk_label_set(GTK_LABEL(priv->label_user_number), buf);
 		g_free(buf);
@@ -316,12 +316,12 @@ loqui_channelbar_update_user_number(LoquiChannelbar *channelbar, LoquiChannel *c
 
 }
 void
-loqui_channelbar_update_op_number(LoquiChannelbar *channelbar, LoquiChannel *channel)
+loqui_channelbar_update_op_number(LoquiChannelbar *channelbar, LoquiChannelEntry *chent)
 {
-	loqui_channelbar_update_user_number(channelbar, channel);
+	loqui_channelbar_update_member_number(channelbar, chent);
 }
 void
-loqui_channelbar_update_topic(LoquiChannelbar *channelbar, LoquiChannel *channel)
+loqui_channelbar_update_topic(LoquiChannelbar *channelbar, LoquiChannelEntry *chent)
 {
 	const gchar *topic;
 	LoquiChannelbarPrivate *priv;
@@ -331,8 +331,8 @@ loqui_channelbar_update_topic(LoquiChannelbar *channelbar, LoquiChannel *channel
 
 	priv = channelbar->priv;
 
-	if (channel && !loqui_channel_get_is_private_talk(channel)) {
-		topic = loqui_channel_entry_get_topic(LOQUI_CHANNEL_ENTRY(channel));
+	if (chent) {
+		topic = loqui_channel_entry_get_topic(chent);
 		gtk_entry_set_text(GTK_ENTRY(priv->entry_topic), topic ? topic : "");
 		gtk_widget_set_sensitive(priv->entry_topic, TRUE);
 	} else {
@@ -355,9 +355,10 @@ loqui_channelbar_set_current_channel(LoquiChannelbar *channelbar, LoquiChannel *
 	priv = channelbar->priv;
 
 	loqui_channelbar_update_channel_entry_label(channelbar, LOQUI_CHANNEL_ENTRY(channel));
-	loqui_channelbar_update_topic(channelbar, channel);
+	loqui_channelbar_update_topic(channelbar, LOQUI_CHANNEL_ENTRY(channel));
 	loqui_channelbar_update_channel_mode(channelbar, channel);
-	loqui_channelbar_update_user_number(channelbar, channel);
+	loqui_channelbar_update_member_number(channelbar, LOQUI_CHANNEL_ENTRY(channel));
+	/* loqui_channelbar_update_op_number(channelbar, LOQUI_CHANNEL_ENTRY(channel)); */
 }
 void
 loqui_channelbar_set_current_account(LoquiChannelbar *channelbar, LoquiAccount *account)
@@ -372,5 +373,5 @@ loqui_channelbar_set_current_account(LoquiChannelbar *channelbar, LoquiAccount *
 	loqui_channelbar_update_channel_entry_label(channelbar, account ? LOQUI_CHANNEL_ENTRY(account) : NULL);
 	loqui_channelbar_update_topic(channelbar, NULL);
 	loqui_channelbar_update_channel_mode(channelbar, NULL);
-	loqui_channelbar_update_user_number(channelbar, NULL);
+	loqui_channelbar_update_member_number(channelbar, NULL);
 }

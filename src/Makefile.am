@@ -76,6 +76,7 @@ SRC_GTK = \
 	loqui_stock.c loqui_stock.h \
 	loqui_tray_icon.c loqui_tray_icon.h \
 	loqui_app.c loqui_app.h \
+	loqui_app_info.c loqui_app_info.h \
 	loqui_channel_entry_store.c loqui_channel_entry_store.h \
 	loqui_channel_entry_action.c loqui_channel_entry_action.h \
 	loqui_channel_entry_ui.c loqui_channel_entry_ui.h \

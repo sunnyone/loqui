@@ -62,9 +62,10 @@ void loqui_channelbar_set_current_account(LoquiChannelbar *channelbar, LoquiAcco
 
 void loqui_channelbar_update_channel_entry_label(LoquiChannelbar *channelbar, LoquiChannelEntry *chent);
 void loqui_channelbar_update_channel_mode(LoquiChannelbar *channelbar, LoquiChannel *channel);
-void loqui_channelbar_update_user_number(LoquiChannelbar *channelbar, LoquiChannel *channel);
-void loqui_channelbar_update_op_number(LoquiChannelbar *channelbar, LoquiChannel *channel);
-void loqui_channelbar_update_topic(LoquiChannelbar *channelbar, LoquiChannel *channel);
+
+void loqui_channelbar_update_member_number(LoquiChannelbar *channelbar, LoquiChannelEntry *chent);
+void loqui_channelbar_update_op_number(LoquiChannelbar *channelbar, LoquiChannelEntry *chent);
+void loqui_channelbar_update_topic(LoquiChannelbar *channelbar, LoquiChannelEntry *chent);
 
 G_END_DECLS
 

@@ -42,6 +42,8 @@ typedef struct _LoquiAccountPrivate     LoquiAccountPrivate;
 #include "loqui_receiver.h"
 #include "loqui_profile_account.h"
 
+#define LOQUI_ACCOUNT_USER_SELF_ACCOUNT_KEY "parent-account"
+
 struct _LoquiAccount
 {
 	LoquiChannelEntry parent;
@@ -53,6 +55,7 @@ struct _LoquiAccount
 	GHashTable *user_identifier_table; /* key: user, value: identifier */
 	GHashTable *identifier_user_table; /* key: identifier, value: user */
 
+	/* You can get account with get_user_data and LOQUI_ACCOUNT_USER_SELF_ACCOUNT_KEY */
 	LoquiUser *user_self;
 
 	LoquiSender *sender;
@@ -78,7 +81,6 @@ struct _LoquiAccountClass
 				   LoquiChannel *channel);
 	void (* remove_channel)   (LoquiAccount *account,
 				   LoquiChannel *channel);
-	void (* user_self_changed) (LoquiAccount *account);
 };
 
 GType loqui_account_get_type(void) G_GNUC_CONST;

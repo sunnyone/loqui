@@ -93,7 +93,7 @@ static void loqui_account_manager_store_remove_account_cb(LoquiAccountManager *m
 							  LoquiAccountManagerStore *store);
 static void loqui_account_manager_store_channel_notify_cb(LoquiChannel *channel, GParamSpec *pspec, LoquiAccountManagerStore *store);
 static void loqui_account_manager_store_account_notify_cb(LoquiAccount *account, GParamSpec *pspec, LoquiAccountManagerStore *store);
-static void loqui_account_manager_store_user_self_changed_cb(LoquiAccount *account, LoquiAccountManagerStore *store);
+static void loqui_account_manager_store_user_self_notify_cb(LoquiUser *user_self, GParamSpec *pspec, LoquiAccountManagerStore *store);
 
 static void loqui_account_manager_store_account_row_changed(LoquiAccountManagerStore *store, LoquiAccount *account);
 GType
@@ -657,8 +657,8 @@ loqui_account_manager_store_add_account_after_cb(LoquiAccountManager *manager,
 			       G_CALLBACK(loqui_account_manager_store_add_channel_after_cb), store);
 	g_signal_connect(G_OBJECT(account), "remove-channel",
 			 G_CALLBACK(loqui_account_manager_store_remove_channel_cb), store);
-	g_signal_connect(G_OBJECT(account), "user-self-changed",
-			 G_CALLBACK(loqui_account_manager_store_user_self_changed_cb), store);
+	g_signal_connect(G_OBJECT(account->user_self), "notify",
+			 G_CALLBACK(loqui_account_manager_store_user_self_notify_cb), store);
 }
 
 static void
@@ -740,8 +740,13 @@ loqui_account_manager_store_account_row_changed(LoquiAccountManagerStore *store,
 	gtk_tree_path_free(path);
 }
 static void
-loqui_account_manager_store_user_self_changed_cb(LoquiAccount *account, LoquiAccountManagerStore *store)
+loqui_account_manager_store_user_self_notify_cb(LoquiUser *user_self, GParamSpec *pspec, LoquiAccountManagerStore *store)
 {
+	LoquiAccount *account;
+
+	account = g_object_get_data(G_OBJECT(user_self), LOQUI_ACCOUNT_USER_SELF_ACCOUNT_KEY);
+	g_return_if_fail(account != NULL);
+
 	loqui_account_manager_store_account_row_changed(store, account);	
 }
 static void

@@ -35,7 +35,6 @@ enum {
 	DISCONNECTED,
 	SIGNAL_ADD_CHANNEL,
 	SIGNAL_REMOVE_CHANNEL,
-	SIGNAL_USER_SELF_CHANGED,
 	SIGNAL_WARN,
 	LAST_SIGNAL
 };
@@ -77,7 +76,6 @@ static void loqui_account_warn_real(LoquiAccount *account, const gchar *str);
 static void loqui_account_set_profile(LoquiAccount *account, LoquiProfileAccount *profile);
 
 static void loqui_account_user_notify_identifier_cb(LoquiUser *user, GParamSpec *pspec, LoquiAccount *account);
-static void loqui_account_user_self_notify_cb(LoquiUser *user_self, GParamSpec *pspec, LoquiAccount *account);
 static void loqui_account_profile_notify_name_cb(LoquiProfileAccount *profile, GParamSpec *pspec, LoquiAccount *account);
 static void loqui_account_channel_notify_identifier_cb(LoquiChannel *channel, GParamSpec *pspec, LoquiAccount *account);
 
@@ -188,13 +186,6 @@ loqui_account_class_init(LoquiAccountClass *klass)
 						       g_cclosure_marshal_VOID__OBJECT,
 						       G_TYPE_NONE, 1,
 						       LOQUI_TYPE_CHANNEL);
-	account_signals[SIGNAL_USER_SELF_CHANGED] = g_signal_new("user-self-changed",
-							  G_OBJECT_CLASS_TYPE(object_class),
-							  G_SIGNAL_RUN_LAST,
-							  G_STRUCT_OFFSET(LoquiAccountClass, user_self_changed),
-							  NULL, NULL,
-							  g_cclosure_marshal_VOID__VOID,
-							  G_TYPE_NONE, 0);
 	account_signals[SIGNAL_WARN] = g_signal_new("warn",
 						    G_OBJECT_CLASS_TYPE(object_class),
 						    G_SIGNAL_RUN_LAST,
@@ -252,6 +243,11 @@ loqui_account_finalize(GObject *object)
 	  table = NULL; \
   } \
 }
+
+	if (account->user_self) {
+		g_object_set_data(G_OBJECT(account->user_self), LOQUI_ACCOUNT_USER_SELF_ACCOUNT_KEY, NULL);
+	}
+	G_OBJECT_UNREF_UNLESS_NULL(account->user_self);
 
 	G_OBJECT_UNREF_UNLESS_NULL(account->sender);
 	G_OBJECT_UNREF_UNLESS_NULL(account->receiver);
@@ -397,21 +393,17 @@ loqui_account_set_user_self(LoquiAccount *account, LoquiUser *user_self)
         g_return_if_fail(account != NULL);
         g_return_if_fail(LOQUI_IS_ACCOUNT(account));
 
+	if (account->user_self) {
+		g_object_set_data(G_OBJECT(account->user_self), LOQUI_ACCOUNT_USER_SELF_ACCOUNT_KEY, NULL);
+	}
 	G_OBJECT_UNREF_UNLESS_NULL(account->user_self);
 
 	g_object_ref(user_self);
 	account->user_self = user_self;
+	g_object_set_data(G_OBJECT(user_self), LOQUI_ACCOUNT_USER_SELF_ACCOUNT_KEY, account);
 	loqui_account_add_user(account, user_self);
-
-	g_signal_connect(user_self, "notify",
-			 G_CALLBACK(loqui_account_user_self_notify_cb), account);
-
+		
 	g_object_notify(G_OBJECT(account), "user_self");	
-}
-static void
-loqui_account_user_self_notify_cb(LoquiUser *user_self, GParamSpec *pspec, LoquiAccount *account)
-{
-	g_signal_emit(G_OBJECT(account), account_signals[SIGNAL_USER_SELF_CHANGED], 0);
 }
 LoquiSender *
 loqui_account_get_sender(LoquiAccount *account)
