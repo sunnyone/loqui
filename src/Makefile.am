@@ -32,7 +32,8 @@ loqui_SOURCES = \
 	loqui_channel_text_view.c loqui_channel_text_view.h \
 	command_dialog.c command_dialog.h \
 	remark_entry.c remark_entry.h \
-	loqui_channelbar.c loqui_channelbar.h
+	loqui_channelbar.c loqui_channelbar.h \
+	loqui_select_dialog.c loqui_select_dialog.h
 
 loqui_LDADD = \
         $(GTK_LIBS) $(GNET_LIBS) ../libloqui/libloqui.la

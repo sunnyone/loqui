@@ -63,7 +63,10 @@
       <menuitem name="NextUnreadChannel" action="NextUnreadChannel"/>
       <menuitem name="PreviousChannel" action="PreviousChannel"/>
       <menuitem name="NextChannel" action="NextChannel"/>
+      <menuitem name="SelectBuffer" action="SelectBuffer" />
+      <separator/>
       <menuitem name="ClearAllUnreadFlags" action="ClearAllUnreadFlags" />
+      <separator/>
     </menu>
     <menu name="Tools" action="StockToolsMenu">
       <menuitem name="ShowTransferWindow" action="ShowTransferWindow" />
