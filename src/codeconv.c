@@ -24,9 +24,11 @@
 #include "intl.h"
 #include <string.h>
 #include <locale.h>
+#include <errno.h>
 
 static gchar *server_codeset = NULL;
 #define GTK_CODESET "UTF-8"
+#define BUFFER_LEN 2048
 
 /* tell me other languages if you know */
 static gchar *conv_table[][3] = {
@@ -100,20 +102,22 @@ codeconv_to_server(const gchar *input)
 gchar *
 codeconv_to_local(const gchar *input)
 {
-	const gchar *cur;
 	gchar *tmp;
+	gchar buf[BUFFER_LEN+1];
 	gsize original_len;
-	gsize len_to_read;
-	GError *error = NULL;
 	GString *string;
-	gboolean add_unknown_mark;
+
 	GIConv cd;
+	gchar *inbuf;
+	gsize in_left;
+	gchar *outbuf;
+        gsize out_left;
+	size_t ret;
 
-	if(input == NULL) {
+	if(input == NULL)
 		return NULL;
-	}
 
-	if(strlen(server_codeset) == 0)
+	if(server_codeset == NULL || strlen(server_codeset) == 0)
 		return g_strdup(input);
 
 	/* we use a compilicated way to handle broken characters */
@@ -123,48 +127,47 @@ codeconv_to_local(const gchar *input)
 	
 	string = g_string_new(NULL);
 	original_len = strlen(input);
-	cur = input;
-	while(cur < input + original_len) {
-		tmp = g_convert_with_iconv(cur, strlen(cur)+1, cd,
-					   &len_to_read, NULL, &error);
-		if(error == NULL) {
-			cur += len_to_read;
-			add_unknown_mark = FALSE;
-		} else {
-			if(error->code != G_CONVERT_ERROR_ILLEGAL_SEQUENCE) {
-				g_warning("Code convartion error: %s,%s", error->message, input);
-				g_error_free(error);
-				g_string_free(string, TRUE);
+
+	in_left = original_len;
+	inbuf = (gchar *) input;
+
+	do {
+		outbuf = buf;
+		out_left = BUFFER_LEN;
+
+		ret = g_iconv(cd, &inbuf, &in_left, &outbuf, &out_left);
+
+		if(outbuf - buf > 0)
+			string = g_string_append_len(string, buf, outbuf - buf);
+
+		if(ret == -1) {
+			switch(errno) {
+			case EILSEQ:
+				inbuf++;
+				in_left--;
+				string = g_string_append(string, "[?]");
+				break;
+			case EINVAL:
+				string = g_string_append(string, "[?]");
+				ret = 0; /* exit the loop */
+				break;
+			case E2BIG:
+				break;
+			default:
+				g_warning(_("Unknown error occurs in code convertion."));
 				return NULL;
 			}
-			g_error_free(error);
-			error = NULL;
+		}
+	} while(ret == -1);
 
-			if(len_to_read == 0) {
-				tmp = NULL;
-			} else {
-				tmp = g_convert_with_iconv(cur, len_to_read, cd,
-							   NULL, NULL, &error);
-				
-				if(error != NULL) {
-					g_warning("Code convartion error: %s,%s", error->message, input);
-					g_error_free(error);
-					g_string_free(string, TRUE);
-					return NULL;
-				}
-			}
-			add_unknown_mark = TRUE;
-			cur += len_to_read+1;
-		}
-		if(tmp != NULL) {
-			string = g_string_append(string, tmp);
-			g_free(tmp);
-		}
-		if(add_unknown_mark) {
-			string = g_string_append(string, "[?]");
-		}
-	}
+	/* to append terminating characters */
+	outbuf = buf;
+	out_left = BUFFER_LEN;
+	g_iconv(cd, NULL, NULL, &outbuf, &out_left);
+	if(outbuf - buf > 0)
+		string = g_string_append_len(string, outbuf, outbuf - buf);
 
+	string = g_string_append_c(string, '\0');
 	g_iconv_close(cd);
 
 	tmp = string->str;
