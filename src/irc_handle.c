@@ -77,6 +77,7 @@ static void irc_handle_reply_channelmodeis(IRCHandle *handle, IRCMessage *msg);
 static void irc_handle_reply_creationtime(IRCHandle *handle, IRCMessage *msg);
 static void irc_handle_reply_topicwhotime(IRCHandle *handle, IRCMessage *msg);
 static void irc_handle_reply_whoisidle(IRCHandle *handle, IRCMessage *msg);
+static void irc_handle_error_nicknameinuse(IRCHandle *handle, IRCMessage *msg);
 
 static void irc_handle_parse_mode_arguments(IRCHandle *handle, IRCMessage *msg, Channel *channel, gint mode_start);
 static gboolean irc_handle_parse_plum_recent(IRCHandle *handle, const gchar *line);
@@ -614,7 +615,6 @@ irc_handle_command_join(IRCHandle *handle, IRCMessage *msg)
 	gchar *name;
 	Channel *channel;
 	IRCHandlePrivate *priv;
-	IRCMessage *mode_msg;
 
         g_return_if_fail(handle != NULL);
         g_return_if_fail(IS_IRC_HANDLE(handle));
@@ -831,6 +831,14 @@ irc_handle_command_topic(IRCHandle *handle, IRCMessage *msg)
 	
 	irc_handle_channel_append(handle, msg, FALSE, 1, TEXT_TYPE_INFO, _("*** New topic on %1 by %n: %t"));
 }
+/* TODO: change nick */
+static void
+irc_handle_error_nicknameinuse(IRCHandle *handle, IRCMessage *msg)
+{
+	irc_handle_account_console_append(handle, msg, TEXT_TYPE_ERROR, "%t");
+
+	account_disconnect(handle->priv->account);
+}
 static void /* utility function */
 irc_handle_joined_channel_append(IRCHandle *handle, IRCMessage *msg, GSList *channel_slist, TextType type, gchar *format)
 {
@@ -1024,6 +1032,13 @@ irc_handle_error(IRCHandle *handle, IRCMessage *msg)
 	g_return_val_if_fail(handle != NULL, FALSE);
         g_return_val_if_fail(IS_IRC_HANDLE(handle), FALSE);
 
+	switch(msg->response) {
+	case IRC_ERR_NICKNAMEINUSE:
+		irc_handle_error_nicknameinuse(handle, msg);
+		return TRUE;
+	default:
+		break;
+	}
 	return FALSE;
 }
 static gboolean 
