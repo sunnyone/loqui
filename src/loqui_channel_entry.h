@@ -61,6 +61,8 @@ struct _LoquiChannelEntry
 	gint id;
 	gint position;
 
+	gboolean do_sort;
+
         LoquiChannelEntryPrivate *priv;
 };
 
@@ -97,6 +99,9 @@ ChannelBuffer *loqui_channel_entry_get_buffer(LoquiChannelEntry *chent);
 
 void loqui_channel_entry_set_is_updated(LoquiChannelEntry *chent, gboolean is_updated);
 gboolean loqui_channel_entry_get_is_updated(LoquiChannelEntry *chent);
+
+void loqui_channel_entry_set_do_sort(LoquiChannelEntry *chent, gboolean do_sort);
+gboolean loqui_channel_entry_get_do_sort(LoquiChannelEntry *chent);
 
 #define LOQUI_CHANNEL_ENTRY_ACCESSOR_STRING(attr_name) \
   ATTR_ACCESSOR_POINTER(g_strdup, g_free, const gchar *, G_CONST_RETURN gchar *, LoquiChannelEntry, loqui_channel_entry, attr_name)

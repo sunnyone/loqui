@@ -696,6 +696,7 @@ irc_handle_reply_names(IRCHandle *handle, IRCMessage *msg)
 
 	if(channel->end_names == TRUE) {
 		loqui_channel_entry_clear_member(LOQUI_CHANNEL_ENTRY(channel));
+		loqui_channel_entry_set_do_sort(LOQUI_CHANNEL_ENTRY(channel), FALSE);
 		channel->end_names = FALSE;
 	}
 
@@ -718,6 +719,7 @@ irc_handle_reply_endofnames(IRCHandle *handle, IRCMessage *msg)
 	if(channel == NULL)
 		return;
 
+	loqui_channel_entry_set_do_sort(LOQUI_CHANNEL_ENTRY(channel), TRUE);
 	channel->end_names = TRUE;
 }
 

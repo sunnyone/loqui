@@ -41,6 +41,7 @@ enum {
 	PROP_OP_NUMBER,
 	PROP_POSITION,
 	PROP_ID,
+	PROP_DO_SORT,
         LAST_PROP
 };
 
@@ -64,8 +65,10 @@ static void loqui_channel_entry_set_property(GObject *object, guint param_id, co
 
 static void loqui_channel_entry_add_real(LoquiChannelEntry *chent, LoquiMember *member);
 static void loqui_channel_entry_remove_real(LoquiChannelEntry *chent, LoquiMember *member);
-static void loqui_channel_entry_user_notify_is_channel_operator_cb(LoquiMember *member, GParamSpec *pspec, LoquiChannelEntry *chent);
+static void loqui_channel_entry_member_notify_is_channel_operator_cb(LoquiMember *member, GParamSpec *pspec, LoquiChannelEntry *chent);
 
+static void loqui_channel_entry_member_notify_cb(LoquiMember *member, GParamSpec *pspec, LoquiChannelEntry *chent);
+static void loqui_channel_entry_user_notify_cb(LoquiUser *user, GParamSpec *pspec, LoquiChannelEntry *chent);
 GType
 loqui_channel_entry_get_type(void)
 {
@@ -171,6 +174,9 @@ loqui_channel_entry_get_property(GObject *object, guint param_id, GValue *value,
 	case PROP_ID:
 		g_value_set_int(value, chent->id);
 		break;
+	case PROP_DO_SORT:
+		g_value_set_boolean(value, chent->do_sort);
+		break;
         default:
                 G_OBJECT_WARN_INVALID_PROPERTY_ID(object, param_id, pspec);
                 break;
@@ -201,6 +207,9 @@ loqui_channel_entry_set_property(GObject *object, guint param_id, const GValue *
 		break;
 	case PROP_ID:
 		loqui_channel_entry_set_id(chent, g_value_get_int(value));
+		break;
+	case PROP_DO_SORT:
+		loqui_channel_entry_set_do_sort(chent, g_value_get_boolean(value));
 		break;
         default:
                 G_OBJECT_WARN_INVALID_PROPERTY_ID(object, param_id, pspec);
@@ -275,6 +284,12 @@ loqui_channel_entry_class_init(LoquiChannelEntryClass *klass)
 							 _("ID of channel entry."),
 							 -1, G_MAXINT,
 							 -1, G_PARAM_READABLE));
+	g_object_class_install_property(object_class,
+					PROP_DO_SORT,
+					g_param_spec_boolean("do_sort",
+							     _("Do sort"),
+							     _("Do sort or don't sort"),
+							     TRUE, G_PARAM_READWRITE));
 
 	loqui_channel_entry_signals[SIGNAL_ADD] = g_signal_new("add",
 							       G_OBJECT_CLASS_TYPE(object_class),
@@ -316,6 +331,7 @@ loqui_channel_entry_init(LoquiChannelEntry *chent)
 	chent->op_number = 0;
 	chent->position = -1;
 	chent->id = -1;
+	chent->do_sort = TRUE;
 }
 LoquiChannelEntry*
 loqui_channel_entry_new(void)
@@ -343,7 +359,7 @@ loqui_channel_entry_add_real(LoquiChannelEntry *chent, LoquiMember *member)
         priv = chent->priv;
 
 	g_object_ref(member);
-	if (chent->sort_func) {
+	if (chent->sort_func && chent->do_sort) {
 		for (i = 0; i < chent->member_array->len; i++) {
 			if (chent->sort_func(g_array_index(chent->member_array, LoquiMember *, i), member) > 0)
 				break;
@@ -363,7 +379,11 @@ loqui_channel_entry_add_real(LoquiChannelEntry *chent, LoquiMember *member)
 		g_object_notify(G_OBJECT(chent), "op_number");
 	}
 	g_signal_connect(G_OBJECT(member), "notify::is-channel-operator",
-			 G_CALLBACK(loqui_channel_entry_user_notify_is_channel_operator_cb), chent);
+			 G_CALLBACK(loqui_channel_entry_member_notify_is_channel_operator_cb), chent);
+	g_signal_connect(G_OBJECT(member->user), "notify",
+			 G_CALLBACK(loqui_channel_entry_user_notify_cb), chent);
+	g_signal_connect(G_OBJECT(member), "notify",
+			 G_CALLBACK(loqui_channel_entry_member_notify_cb), chent);
 
 	g_object_notify(G_OBJECT(chent), "member-number");
 }
@@ -391,13 +411,17 @@ loqui_channel_entry_remove_real(LoquiChannelEntry *chent, LoquiMember *member)
 		g_hash_table_replace(chent->user_hash, mcur->user, GINT_TO_POINTER(i + 1));
 	}
 	g_signal_handlers_disconnect_by_func(G_OBJECT(member),
-					     loqui_channel_entry_user_notify_is_channel_operator_cb, chent);
+					     loqui_channel_entry_member_notify_is_channel_operator_cb, chent);
+	g_signal_handlers_disconnect_by_func(G_OBJECT(member->user),
+					     loqui_channel_entry_user_notify_cb, chent);
+	g_signal_handlers_disconnect_by_func(G_OBJECT(member),
+					     loqui_channel_entry_member_notify_cb, chent);
 
 	g_object_notify(G_OBJECT(chent), "member-number");
 	g_object_unref(member);
 }
 static void
-loqui_channel_entry_user_notify_is_channel_operator_cb(LoquiMember *member, GParamSpec *pspec, LoquiChannelEntry *chent)
+loqui_channel_entry_member_notify_is_channel_operator_cb(LoquiMember *member, GParamSpec *pspec, LoquiChannelEntry *chent)
 {
 	if (loqui_member_get_is_channel_operator(member)) {
 		chent->op_number++;
@@ -405,6 +429,17 @@ loqui_channel_entry_user_notify_is_channel_operator_cb(LoquiMember *member, GPar
 		chent->op_number--;
 	}
 	g_object_notify(G_OBJECT(chent), "op-number");
+}
+static void
+loqui_channel_entry_member_notify_cb(LoquiMember *member, GParamSpec *pspec, LoquiChannelEntry *chent)
+{
+	if (chent->sort_func && chent->do_sort)
+		loqui_channel_entry_sort(chent);
+}static void
+loqui_channel_entry_user_notify_cb(LoquiUser *user, GParamSpec *pspec, LoquiChannelEntry *chent)
+{
+	if (chent->sort_func && chent->do_sort)
+		loqui_channel_entry_sort(chent);
 }
 void
 loqui_channel_entry_add_member(LoquiChannelEntry *chent, LoquiMember *member)
@@ -577,6 +612,29 @@ loqui_channel_entry_get_is_updated(LoquiChannelEntry *chent)
         g_return_val_if_fail(LOQUI_IS_CHANNEL_ENTRY(chent), 0);
 
 	return chent->is_updated;
+}
+void
+loqui_channel_entry_set_do_sort(LoquiChannelEntry *chent, gboolean do_sort)
+{
+	g_return_if_fail(chent != NULL);
+        g_return_if_fail(LOQUI_IS_CHANNEL_ENTRY(chent));
+
+	if (chent->do_sort == do_sort)
+		return;
+
+	chent->do_sort = do_sort;
+	if (do_sort)
+		loqui_channel_entry_sort(chent);
+
+	g_object_notify(G_OBJECT(chent), "do_sort");
+}
+gboolean
+loqui_channel_entry_get_do_sort(LoquiChannelEntry *chent)
+{
+        g_return_val_if_fail(chent != NULL, 0);
+        g_return_val_if_fail(LOQUI_IS_CHANNEL_ENTRY(chent), 0);
+
+	return chent->do_sort;
 }
 LOQUI_CHANNEL_ENTRY_ACCESSOR_STRING(topic);
 LOQUI_CHANNEL_ENTRY_ACCESSOR_STRING(name);
