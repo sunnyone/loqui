@@ -327,6 +327,7 @@ loqui_channel_entry_store_get_value(GtkTreeModel *tree_model,
 	LoquiChannelEntryStorePrivate *priv;
 	LoquiMember *member;
 	gint pos;
+	gint power;
 
 	g_return_if_fail(tree_model != NULL);
 	g_return_if_fail(LOQUI_IS_CHANNEL_ENTRY_STORE(tree_model));
@@ -346,6 +347,7 @@ loqui_channel_entry_store_get_value(GtkTreeModel *tree_model,
 	switch (column) {
 	case LOQUI_CHANNEL_ENTRY_STORE_COLUMN_MEMBER:
 		g_value_set_object(value, member);
+		break;
 	case LOQUI_CHANNEL_ENTRY_STORE_COLUMN_NICK:
 		g_value_set_string(value, loqui_user_get_nick(member->user));
 		break;
@@ -353,7 +355,12 @@ loqui_channel_entry_store_get_value(GtkTreeModel *tree_model,
 		g_value_set_int(value, loqui_user_get_basic_away(member->user));
 		break;
 	case LOQUI_CHANNEL_ENTRY_STORE_COLUMN_POWER:
-		g_value_set_int(value, loqui_member_get_power(member));
+		power = 0; /* FIXME */
+		if (loqui_member_get_is_channel_operator(member))
+			power = 2;
+		else if (loqui_member_get_speakable(member))
+			power = 1;
+		g_value_set_int(value, power);
 		break;
 	}
 }
@@ -474,7 +481,9 @@ loqui_channel_entry_store_inserted_cb(LoquiChannelEntry *entry,
 	gtk_tree_model_row_inserted(GTK_TREE_MODEL(store), path, &iter);
 	gtk_tree_path_free(path);
 
-	g_signal_connect(G_OBJECT(member), "notify::power", 
+	g_signal_connect(G_OBJECT(member), "notify::is-channel-operator", 
+			 G_CALLBACK(loqui_channel_entry_store_member_notify_cb), store);
+	g_signal_connect(G_OBJECT(member), "notify::speakable", 
 			 G_CALLBACK(loqui_channel_entry_store_member_notify_cb), store);
 	g_signal_connect(G_OBJECT(member->user), "notify::nick",
 			 G_CALLBACK(loqui_channel_entry_store_user_notify_cb), store);

@@ -21,20 +21,25 @@
 #include "loqui_utils_irc.h"
 
 void
-loqui_utils_irc_parse_nick(const gchar *nick, LoquiMemberPowerFlags *flags_ptr, gchar **nick_ptr)
+loqui_utils_irc_parse_nick(const gchar *nick, gboolean *is_channel_operator, gboolean *speakable, gchar **nick_ptr)
 {
         const gchar *tmp_nick;
-	LoquiMemberPowerFlags tmp_power = 0;
-	
+	gboolean is_o = FALSE, is_v = FALSE;
+
 	if(*nick == '@') {
 		tmp_nick = nick+1;
-		tmp_power |= LOQUI_MEMBER_POWER_OPERATOR;
+		is_o = TRUE;
 	} else if (*nick == '+') {
 		tmp_nick = nick+1;
-		tmp_power |= LOQUI_MEMBER_POWER_VOICE;
+		is_v = TRUE;
 	} else {
 		tmp_nick = nick;
 	}
-	*nick_ptr = (gchar *) tmp_nick;
-	*flags_ptr = tmp_power;
+
+	if (nick_ptr)
+		*nick_ptr = (gchar *) tmp_nick;
+	if (is_channel_operator)
+		*is_channel_operator = is_o;
+	if (speakable)
+		*speakable = is_v;
 }

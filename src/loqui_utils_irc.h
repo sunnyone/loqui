@@ -22,9 +22,7 @@
 
 #include <glib.h>
 
-#include "loqui_member.h"
-
-void loqui_utils_irc_parse_nick(const gchar *nick, LoquiMemberPowerFlags *flags_ptr, gchar **nick_ptr);
+void loqui_utils_irc_parse_nick(const gchar *nick, gboolean *is_channel_operator, gboolean *speakable, gchar **nick_ptr);
 
 #define LOQUI_UTILS_IRC_STRING_IS_CHANNEL(s) ((*s == '#' || *s =='&' || *s =='!' || *s == '+'))
 

@@ -439,7 +439,6 @@ irc_handle_parse_mode_arguments(IRCHandle *handle, IRCMessage *msg, LoquiChannel
 	gchar *flags, *target;
 	gint is_add = -1; /* -1: uninitialized, 0: false, 1: true */
 	LoquiMember *member;
-	LoquiMemberPowerFlags power;
 
 	cur = mode_start;
 	param_num = irc_message_count_parameters(msg);
@@ -493,13 +492,11 @@ irc_handle_parse_mode_arguments(IRCHandle *handle, IRCMessage *msg, LoquiChannel
 			switch(*flags) {
 			case IRC_CHANNEL_MODE_OPERATOR:
 				GET_MEMBER_OR_RETURN(msg, cur, channel, &member);
-				power = loqui_member_get_power(member);
-				loqui_member_set_power(member, UTILS_MASK_BIT(power, LOQUI_MEMBER_POWER_OPERATOR, is_add));
+				loqui_member_set_is_channel_operator(member, is_add);
 				break;
 			case IRC_CHANNEL_MODE_VOICE:
 				GET_MEMBER_OR_RETURN(msg, cur, channel, &member);
-				power = loqui_member_get_power(member);
-				loqui_member_set_power(member, UTILS_MASK_BIT(power, LOQUI_MEMBER_POWER_VOICE, is_add));
+				loqui_member_set_speakable(member, is_add);
 				break;
 			case IRC_CHANNEL_MODE_CREATOR:
 				break;
@@ -663,7 +660,7 @@ irc_handle_command_join(IRCHandle *handle, IRCMessage *msg)
 			g_warning(_("Why do you know that the user join the channel?"));
 			return;
 		}
-		loqui_channel_add_member_by_nick(channel, msg->nick, LOQUI_MEMBER_POWER_UNDETERMINED);
+		loqui_channel_add_member_by_nick(channel, msg->nick, FALSE, FALSE);
 		irc_handle_channel_append(handle, msg, FALSE, 1, TEXT_TYPE_INFO, _("*** %n (%u@%h) joined channel %t"));
 	}
 }
@@ -701,7 +698,7 @@ irc_handle_reply_names(IRCHandle *handle, IRCMessage *msg)
 
 	nick_array = g_strsplit(irc_message_get_trailing(msg), " ", 0);
 	for(i = 0; nick_array[i] != NULL; i++) {
-		loqui_channel_add_member_by_nick(channel, nick_array[i], LOQUI_MEMBER_POWER_UNDETERMINED);
+		loqui_channel_add_member_by_nick(channel, nick_array[i], FALSE, FALSE);
 	}
 	g_strfreev(nick_array);
 
@@ -832,7 +829,6 @@ irc_handle_reply_who(IRCHandle *handle, IRCMessage *msg)
 	LoquiAwayType away = LOQUI_AWAY_TYPE_UNKNOWN;
 	LoquiUser *user = NULL;
 	LoquiMember *member = NULL;
-	LoquiMemberPowerFlags power = 0;
 
 	priv = handle->priv;
 
@@ -855,7 +851,7 @@ irc_handle_reply_who(IRCHandle *handle, IRCMessage *msg)
 	if (channel && user) {
 		member = loqui_channel_entry_get_member_by_user(LOQUI_CHANNEL_ENTRY(channel), user);
 		if (!member)
-			member = loqui_channel_add_member_by_nick(channel, nick, power);
+			member = loqui_channel_add_member_by_nick(channel, nick, FALSE, FALSE);
 	}
 	if (user) {
 		loqui_user_set_username(user, username);
@@ -876,19 +872,19 @@ irc_handle_reply_who(IRCHandle *handle, IRCMessage *msg)
 	if (flags[0] != '\0') {
 		switch(flags[1]) {
 		case '@':
-			power = LOQUI_MEMBER_POWER_OPERATOR;
+			if (member)
+				loqui_member_set_is_channel_operator(member, TRUE);
 			op_char = flags[1];
 			break;
 		case '+':
-			power = LOQUI_MEMBER_POWER_VOICE;
+			if (member)
+				loqui_member_set_speakable(member, TRUE);
 			op_char = flags[1];
 			break;
 		default:
 			break;
 		}
 	}
-	if (member)
-		loqui_member_set_power(member, power);
 
 	buf = g_strdup(trailing);
 	tmp = strchr(buf, ' ');

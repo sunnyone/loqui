@@ -30,7 +30,8 @@ enum {
 enum {
 	PROP_0,
 	PROP_USER,
-	PROP_POWER,
+	PROP_IS_CHANNEL_OPERATOR,
+	PROP_SPEAKABLE,
         LAST_PROP
 };
 
@@ -111,8 +112,11 @@ loqui_member_get_property(GObject *object, guint param_id, GValue *value, GParam
 	case PROP_USER:
 		g_value_set_object(value, member->user);
 		break;
-	case PROP_POWER:
-		g_value_set_enum(value, member->power);
+	case PROP_IS_CHANNEL_OPERATOR:
+		g_value_set_boolean(value, member->is_channel_operator);
+		break;
+	case PROP_SPEAKABLE:
+		g_value_set_boolean(value, member->speakable);
 		break;
         default:
                 G_OBJECT_WARN_INVALID_PROPERTY_ID(object, param_id, pspec);
@@ -130,28 +134,16 @@ loqui_member_set_property(GObject *object, guint param_id, const GValue *value, 
 	case PROP_USER:
 		loqui_member_set_user(member, g_value_get_object(value));
 		break;
-	case PROP_POWER:
-		loqui_member_set_power(member, g_value_get_enum(value));
+	case PROP_IS_CHANNEL_OPERATOR:
+		loqui_member_set_is_channel_operator(member, g_value_get_boolean(value));
+		break;
+	case PROP_SPEAKABLE:
+		loqui_member_set_speakable(member, g_value_get_boolean(value));
 		break;
         default:
                 G_OBJECT_WARN_INVALID_PROPERTY_ID(object, param_id, pspec);
                 break;
         }
-}
-
-GType
-loqui_member_power_type_get_type(void)
-{
-	static GType ftype = 0;
-	if (ftype == 0) {
-		static const GFlagsValue values[] = {
-			{LOQUI_MEMBER_POWER_VOICE, "LOQUI_MEMBER_POWER_VOICE", "Voice"},
-			{LOQUI_MEMBER_POWER_OPERATOR, "LOQUI_MEMBER_POWER_OP", "Op"},
-			{0, NULL, NULL}
-		};
-		ftype = g_flags_register_static("LoquiMemberPowerFlags", values);
-	}
-	return ftype;
 }
 static void
 loqui_member_class_init(LoquiMemberClass *klass)
@@ -171,14 +163,19 @@ loqui_member_class_init(LoquiMemberClass *klass)
 							    _("User"),
 							    _("User"),
 							    LOQUI_TYPE_USER, G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
+
 	g_object_class_install_property(object_class,
-					PROP_POWER,
-					g_param_spec_flags("power",
-							   _("Power"),
-							   _("Power"),
-							   LOQUI_TYPE_MEMBER_POWER_TYPE,
-							   0,
-							   G_PARAM_READWRITE));
+					PROP_IS_CHANNEL_OPERATOR,
+					g_param_spec_boolean("is_channel_operator",
+							     _("ChannelOperator"),
+							     _("ChannelOperator"),
+							     FALSE, G_PARAM_READWRITE));
+	g_object_class_install_property(object_class,
+					PROP_SPEAKABLE,
+					g_param_spec_boolean("speakable",
+							     _("Speakable or not"),
+							     _("Has voice privillege or not"),
+							     FALSE, G_PARAM_READWRITE));
 }
 static void 
 loqui_member_init(LoquiMember *member)
@@ -216,21 +213,42 @@ loqui_member_get_user(LoquiMember *member)
 	return member->user;
 }
 void
-loqui_member_set_power(LoquiMember *member, LoquiMemberPowerFlags power)
+loqui_member_set_is_channel_operator(LoquiMember *member, gboolean is_channel_operator)
 {
-        g_return_if_fail(member != NULL);
+	g_return_if_fail(member != NULL);
         g_return_if_fail(LOQUI_IS_MEMBER(member));
-	
-	member->power = power;
 
-	g_object_notify(G_OBJECT(member), "power");
+	if (member->is_channel_operator == is_channel_operator)
+		return;
+
+	member->is_channel_operator = is_channel_operator;
+	g_object_notify(G_OBJECT(member), "is_channel_operator");
 }
-
-LoquiMemberPowerFlags
-loqui_member_get_power(LoquiMember *member)
+gboolean
+loqui_member_get_is_channel_operator(LoquiMember *member)
 {
         g_return_val_if_fail(member != NULL, 0);
         g_return_val_if_fail(LOQUI_IS_MEMBER(member), 0);
 
-	return member->power;
+	return member->is_channel_operator;
+}
+void
+loqui_member_set_speakable(LoquiMember *member, gboolean speakable)
+{
+	g_return_if_fail(member != NULL);
+        g_return_if_fail(LOQUI_IS_MEMBER(member));
+
+	if (member->speakable == speakable)
+		return;
+
+	member->speakable = speakable;
+	g_object_notify(G_OBJECT(member), "speakable");
+}
+gboolean
+loqui_member_get_speakable(LoquiMember *member)
+{
+        g_return_val_if_fail(member != NULL, 0);
+        g_return_val_if_fail(LOQUI_IS_MEMBER(member), 0);
+
+	return member->speakable;
 }

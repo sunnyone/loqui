@@ -171,19 +171,18 @@ static void nick_list_cell_data_func_op(GtkTreeViewColumn *tree_column,
 					GtkTreeIter *iter,
 					gpointer data)
 {
-	LoquiMemberPowerFlags power;
 	NickList *nick_list;
+	LoquiMember *member;
 
 	nick_list = NICK_LIST(data);
-	gtk_tree_model_get(tree_model, iter, LOQUI_CHANNEL_ENTRY_STORE_COLUMN_POWER, &power, -1);
+	gtk_tree_model_get(tree_model, iter, LOQUI_CHANNEL_ENTRY_STORE_COLUMN_MEMBER, &member, -1);
 
-	if (power & LOQUI_MEMBER_POWER_OPERATOR) {
+	if (loqui_member_get_is_channel_operator(member))
 		g_object_set(G_OBJECT(cell), "pixbuf", nick_list->priv->op_icon, NULL);
-	} else if (power & LOQUI_MEMBER_POWER_VOICE) {
+	else if (loqui_member_get_speakable(member))
 		g_object_set(G_OBJECT(cell), "pixbuf", nick_list->priv->speak_ability_icon, NULL);
-	} else {
+	else
 		g_object_set(G_OBJECT(cell), "pixbuf", NULL, NULL);
-	}
 }
 static void nick_list_cell_data_func_away(GtkTreeViewColumn *tree_column,
 					  GtkCellRenderer *cell,

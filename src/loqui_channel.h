@@ -85,7 +85,7 @@ gchar *loqui_channel_get_mode(LoquiChannel *channel);
 void loqui_channel_push_user_mode_queue(LoquiChannel *channel, gboolean is_give, IRCModeFlag flag, const gchar *nick);
 void loqui_channel_flush_user_mode_queue(LoquiChannel *channel);
 
-LoquiMember *loqui_channel_add_member_by_nick(LoquiChannel *channel, const gchar *nick, LoquiMemberPowerFlags power);
+LoquiMember *loqui_channel_add_member_by_nick(LoquiChannel *channel, const gchar *nick, gboolean is_channel_operator, gboolean speakable);
 
 void loqui_channel_append_remark(LoquiChannel *channel, TextType type, gboolean is_self, const gchar *nick, const gchar *remark);
 void loqui_channel_append_text(LoquiChannel *channel, TextType type, gchar *str);

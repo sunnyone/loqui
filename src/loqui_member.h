@@ -33,23 +33,17 @@ G_BEGIN_DECLS
 #define LOQUI_IS_MEMBER_CLASS(klass)      (G_TYPE_CHECK_CLASS_TYPE ((klass), LOQUI_TYPE_MEMBER))
 #define LOQUI_MEMBER_GET_CLASS(obj)       (G_TYPE_INSTANCE_GET_CLASS ((obj), LOQUI_TYPE_MEMBER, LoquiMemberClass))
 
-#define LOQUI_TYPE_MEMBER_POWER_TYPE      (loqui_member_power_type_get_type())
-
 typedef struct _LoquiMember            LoquiMember;
 typedef struct _LoquiMemberClass       LoquiMemberClass;
-
-typedef enum {
-	LOQUI_MEMBER_POWER_UNDETERMINED = -1,
-	LOQUI_MEMBER_POWER_VOICE = 1 << 1,
-	LOQUI_MEMBER_POWER_OPERATOR = 1 << 2,
-} LoquiMemberPowerFlags;
 
 struct _LoquiMember
 {
         GObject parent;
         
-	LoquiMemberPowerFlags power;
 	LoquiUser *user;
+
+	gboolean is_channel_operator;
+	gboolean speakable;
 };
 
 struct _LoquiMemberClass
@@ -58,16 +52,18 @@ struct _LoquiMemberClass
 };
 
 
-GType loqui_member_power_type_get_type(void) G_GNUC_CONST;
 GType loqui_member_get_type(void) G_GNUC_CONST;
 
 LoquiMember* loqui_member_new(LoquiUser *user);
 
-void loqui_member_set_power(LoquiMember *member, LoquiMemberPowerFlags power);
-LoquiMemberPowerFlags loqui_member_get_power(LoquiMember *member);
-
 void loqui_member_set_user(LoquiMember *member, LoquiUser *user);
 LoquiUser* loqui_member_get_user(LoquiMember *member);
+
+void loqui_member_set_is_channel_operator(LoquiMember *member, gboolean is_channel_operator);
+gboolean loqui_member_get_is_channel_operator(LoquiMember *member);
+
+void loqui_member_set_speakable(LoquiMember *member, gboolean speakable);
+gboolean loqui_member_get_speakable(LoquiMember *member);
 
 G_END_DECLS
 
