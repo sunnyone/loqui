@@ -194,3 +194,8 @@
 * Attach menu to channel tree.
 * Re-fixed the bug loqui crashes when received WHO after re-joining.
 
+2004-05-01   0.3.2
+* Bugfix: about .spec
+* Bugfix: failed to remove account
+* Created menuitems to connect/reconnect/disconnect.
+
