@@ -237,6 +237,7 @@ prefs_dialog_new(void)
 	GtkWidget *notebook;
 	GtkWidget *vbox;
 	GtkWidget *frame;
+	GtkWidget *label;
 	
 	dialog = g_object_new(prefs_dialog_get_type(), NULL);
 
@@ -310,8 +311,12 @@ prefs_dialog_new(void)
 
 	vbox = gtk_vbox_new(FALSE, 0);
 	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), vbox, gtk_label_new(_("Command")));
-
+	
 	gtkutils_add_label_entry(vbox, _("Browser: "), &priv->entry_browser_command, "");
+
+	label = gtk_label_new(_("URL is passed to a browser with quoted, like 'http://example.com/'"));
+	gtk_box_pack_start(GTK_BOX(vbox), label, FALSE, FALSE, 0);
+	
 	gtkutils_add_label_entry(vbox, _("Notification: "), &priv->entry_notification_command, "");
 
 	prefs_dialog_load_settings(dialog);
