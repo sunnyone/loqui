@@ -71,6 +71,7 @@ struct _LoquiAppPrivate
 
 static GtkWindowClass *parent_class = NULL;
 #define PARENT_TYPE GTK_TYPE_WINDOW
+#define EPS 0.00000001
 
 static void loqui_app_class_init(LoquiAppClass *klass);
 static void loqui_app_init(LoquiApp *app);
@@ -345,7 +346,7 @@ loqui_app_textview_scroll_value_changed_cb(GtkAdjustment *adj, gpointer data)
 		return;
 
 	/* upper - page_size is max virtually. */
-	reached_to_end = (ABS(adj->upper - adj->page_size - adj->value) < adj->step_increment);
+	reached_to_end = (ABS(adj->upper - adj->page_size - adj->value) < EPS);
 
 	if(reached_to_end && !app->is_scroll) {
 		loqui_app_actions_toggle_action_set_active(app, LOQUI_ACTION_TOGGLE_SCROLL, TRUE);
