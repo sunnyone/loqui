@@ -257,6 +257,7 @@ account_dialog_new(LoquiProfileAccount *profile)
 	
 	priv->check_use = gtk_check_button_new_with_label(_("Connect by default"));
 	gtk_box_pack_start(GTK_BOX(hbox), priv->check_use, TRUE, TRUE, 0);
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(priv->check_use), loqui_profile_account_get_use(profile));
 
 	frame = gtk_frame_new(_("User"));
 	gtk_box_pack_start(GTK_BOX(vbox), frame, TRUE, TRUE, 0);
