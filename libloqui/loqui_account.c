@@ -19,15 +19,12 @@
  */
 #include "config.h"
 
-#include "loqui_account.h"
-#include "loqui_app.h"
-#include "gtkutils.h"
-#include "utils.h"
-#include "main.h"
-#include "gtkutils.h"
 #include "intl.h"
+#include "loqui_account.h"
+#include "utils.h"
 #include "loqui_user.h"
 #include "loqui_sender.h"
+#include "prefs_general.h"
 
 enum {
 	SIGNAL_CONNECT,

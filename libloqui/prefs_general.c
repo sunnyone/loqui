@@ -20,7 +20,6 @@
 #include "config.h"
 #include "prefs_general.h"
 #include "utils.h"
-#include "main.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -28,6 +27,7 @@
 
 #include "intl.h"
 #include "utils.h"
+#include "loqui.h"
 
 PrefsGeneral prefs_general;
 

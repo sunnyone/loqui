@@ -24,9 +24,9 @@
 #include <gnet.h>
 #include "ipmsg.h"
 #include <stdlib.h>
-#include "main.h"
 #include <locale.h>
 #include "intl.h"
+#include "loqui.h"
 
 enum {
 	SIGNAL_WARN,
@@ -254,7 +254,7 @@ ipmsg_socket_watch_in_cb(GIOChannel *ioch, GIOCondition condition, gpointer data
 
 	ipmsg_packet_set_inetaddr(packet, addr);
 	gnet_inetaddr_unref(addr);
-	if (show_msg_mode)
+	if (loqui_get_show_msg_mode())
 		ipmsg_packet_print(packet);
 	g_signal_emit(G_OBJECT(sock), signals[SIGNAL_ARRIVE_PACKET], 0, packet);
 	g_object_unref(packet);
@@ -337,7 +337,7 @@ ipmsg_socket_send_packet(IPMsgSocket *sock, IPMsgPacket *packet)
 
 	gnet_udp_socket_send(priv->udpsock, buf, len, priv->inetaddr);
 
-	if (show_msg_mode) {
+	if (loqui_get_show_msg_mode()) {
 		g_print("Sent:");
 		ipmsg_packet_print(packet);
 	}

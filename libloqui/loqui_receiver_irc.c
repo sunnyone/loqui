@@ -24,7 +24,6 @@
 
 #include "loqui_account_manager.h"
 #include "irc_constants.h"
-#include "main.h"
 #include "intl.h"
 #include "prefs_general.h"
 #include "ctcp_message.h"
@@ -752,7 +751,7 @@ loqui_receiver_irc_command_join(LoquiReceiverIRC *receiver, IRCMessage *msg)
 		} else {
 			loqui_channel_set_is_joined(channel, TRUE);
 		}
-		if(send_status_commands_mode)
+		if(loqui_get_send_status_commands_mode())
 			loqui_sender_irc_get_channel_mode(loqui_account_get_sender(account), channel);
 	} else {
 		if(!channel) {
@@ -1511,7 +1510,7 @@ loqui_receiver_irc_response(LoquiReceiverIRC *receiver, IRCMessage *msg)
         g_return_if_fail(receiver != NULL);
         g_return_if_fail(LOQUI_IS_RECEIVER_IRC(receiver));
 
-	if(show_msg_mode)
+	if(loqui_get_show_msg_mode())
 		irc_message_print(msg);
 
 	if(IRC_MESSAGE_IS_COMMAND(msg)) {

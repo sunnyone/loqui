@@ -37,12 +37,9 @@
 #include <stdlib.h>
 
 #include <gnet.h>
+#include <loqui.h>
 
 #include "intl.h"
-
-int debug_mode;
-int show_msg_mode;
-int send_status_commands_mode;
 
 static void make_program_dir(void);
 
@@ -90,21 +87,19 @@ main(int argc, char *argv[])
 	command_table_init();
 	loqui_gtk_init(&argc, &argv);
 
-	send_status_commands_mode = 1;
-	
 	for(i = 0; i < argc; i++) {
 		if(strcmp(argv[i], "--debug") == 0) {
-			debug_mode = 1;
+			loqui_set_debug_mode(TRUE);
 			g_print("Start debug mode.\n");
 			continue;
 		}
 		if(strcmp(argv[i], "--show-msg") == 0) {
-			show_msg_mode = 1;
+			loqui_set_show_msg_mode(TRUE);
 			g_print("Start show msg mode\n");
 			continue;
 		}
 		if(strcmp(argv[i], "--no-send-status-commands") == 0) {
-			send_status_commands_mode = 0;
+			loqui_set_send_status_commands_mode(FALSE);
 			g_print("Loqui doesn't send commands to get status like MODE, WHO in this session\n");
 			continue;
 		}

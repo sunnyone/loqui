@@ -23,12 +23,12 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdarg.h>
-#include "main.h"
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <ctype.h>
 #include <errno.h>
 
+#include "loqui.h"
 #include "intl.h"
 
 const gchar* uri_prefix_list[] = { "http://", "https://", "ftp://", "mailto:", "ttp://", NULL };
@@ -38,7 +38,7 @@ void debug_print(const gchar *format, ...)
 	va_list args;
 	gchar *str;
 
-	if(!debug_mode)
+	if(!loqui_get_debug_mode())
 		return;
 
 	va_start(args, format);
@@ -52,7 +52,7 @@ void debug_puts(const gchar *format, ...)
 	va_list args;
 	gchar *str;
 
-	if(!debug_mode)
+	if(!loqui_get_debug_mode())
 		return;
 
 	va_start(args, format);

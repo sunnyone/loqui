@@ -60,6 +60,7 @@ AC_CHECK_FUNCS(localtime_r)
 AC_OUTPUT(
 Makefile
 gtk24backports/Makefile
+libloqui/Makefile
 src/Makefile
 src/icons/Makefile
 src/embedtxt/Makefile

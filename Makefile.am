@@ -1,4 +1,4 @@
-SUBDIRS =  m4 gtk24backports src po # test
+SUBDIRS =  m4 gtk24backports libloqui src po # test
 
 .PHONY: ChangeLog
 ChangeLog:

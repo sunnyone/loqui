@@ -22,13 +22,13 @@
 #include "loqui_sender_irc.h"
 #include "prefs_general.h"
 
-#include "main.h"
 #include "ctcp_message.h"
 #include "intl.h"
 #include "loqui_utils_irc.h"
 #include "loqui_account_irc.h"
 #include "loqui_channel_irc.h"
 #include "loqui_receiver_irc.h"
+#include "loqui.h"
 
 #include <string.h>
 
@@ -587,7 +587,7 @@ loqui_sender_irc_send_raw(LoquiSenderIRC *sender, const gchar *str)
 	WARN_AND_RETURN_UNLESS_CONNECTED(sender);
 
 	msg = irc_message_parse_line(str);
-	if (debug_mode) {
+	if (loqui_get_debug_mode()) {
 		buf = irc_message_to_string(msg);
 		debug_puts("send_raw: %s", buf);
 		g_free(buf);
@@ -684,7 +684,7 @@ loqui_sender_irc_change_member_mode(LoquiSenderIRC *sender, LoquiChannel *channe
 
 	msg = irc_message_createv(IRCCommandMode, param_array);
 	debug_puts("Sending MODE command.\n");
-	if (show_msg_mode)
+	if (loqui_get_show_msg_mode())
 		irc_message_print(msg);
 	loqui_sender_irc_send_irc_message(LOQUI_SENDER_IRC(sender), msg);
 	g_object_unref(msg);

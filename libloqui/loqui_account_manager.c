@@ -23,10 +23,8 @@
 #include "loqui_account.h"
 #include "utils.h"
 #include "intl.h"
-#include "main.h"
 #include "loqui_profile_handle.h"
 
-#include "loqui_app_actions.h"
 #include "loqui_account_manager_iter.h"
 
 #include "loqui_profile_account_irc.h"
@@ -34,6 +32,8 @@
 
 #include "loqui_profile_account_ipmsg.h"
 #include "loqui_account_ipmsg.h"
+
+#include "loqui.h"
 
 struct _LoquiAccountManagerPrivate
 {
