@@ -37,6 +37,7 @@
 #include "loqui_profile_account_irc.h"
 
 #include "codeconv.h"
+#include "loqui_string_tokenizer.h"
 #include <string.h>
 #include <time.h>
 
@@ -790,9 +791,9 @@ loqui_receiver_irc_reply_names(LoquiReceiverIRC *receiver, IRCMessage *msg)
 {
 	LoquiChannel *channel;
 	gchar *name;
-	gchar **nick_array;
-	gint i;
+	LoquiStringTokenizer *st;
 	LoquiAccount *account;
+	const gchar *nick;
 
         g_return_if_fail(receiver != NULL);
         g_return_if_fail(LOQUI_IS_RECEIVER_IRC(receiver));
@@ -809,11 +810,11 @@ loqui_receiver_irc_reply_names(LoquiReceiverIRC *receiver, IRCMessage *msg)
 		channel->end_names = FALSE;
 	}
 
-	nick_array = g_strsplit(irc_message_get_trailing(msg), " ", 0);
-	for (i = 0; nick_array[i] != NULL; i++) {
-		loqui_channel_irc_add_member_by_nick(LOQUI_CHANNEL_IRC(channel), nick_array[i], TRUE, FALSE, FALSE);
-	}
-	g_strfreev(nick_array);
+	st = loqui_string_tokenizer_new(irc_message_get_trailing(msg), " ");
+	loqui_string_tokenizer_set_skip_whitespaces_after_delimiter(st, TRUE);
+	while ((nick = loqui_string_tokenizer_next_token(st, NULL)) != NULL)
+		loqui_channel_irc_add_member_by_nick(LOQUI_CHANNEL_IRC(channel), nick, TRUE, FALSE, FALSE);
+	loqui_string_tokenizer_free(st);
 
 	loqui_receiver_irc_channel_append(receiver, msg, FALSE, 3, TEXT_TYPE_NORMAL, "%3: %t");
 }
