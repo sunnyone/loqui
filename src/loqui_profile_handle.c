@@ -39,7 +39,7 @@ typedef enum {
 	ELEMENT_PARAM,
 	ELEMENT_LIST,
 	ELEMENT_ITEM,
-	ELEMENT_CHILD
+	ELEMENT_OBJECT,
 } ElementType;
 
 struct _LoquiProfileHandlePrivate
@@ -54,10 +54,7 @@ struct _LoquiProfileHandlePrivate
 	GList *profile_list;
 	
 	GHashTable *type_table;
-	GHashTable *children_table;
-
 	GHashTable *type_table_reverse;
-	GHashTable *children_table_reverse;
 };
 
 #define GET_CURRENT_ELEMENT(handle) GPOINTER_TO_INT(g_queue_peek_tail(handle->priv->element_queue))
@@ -165,19 +162,10 @@ loqui_profile_handle_dispose(GObject *object)
 		g_hash_table_destroy(priv->type_table);
 		priv->type_table = NULL;
 	}
-	if (priv->children_table) {
-		g_hash_table_destroy(priv->children_table);
-		priv->children_table = NULL;
-	}
 	if (priv->type_table_reverse) {
 		g_hash_table_destroy(priv->type_table_reverse);
 		priv->type_table_reverse = NULL;
 	}
-	if (priv->children_table_reverse) {
-		g_hash_table_destroy(priv->children_table_reverse);
-		priv->children_table_reverse = NULL;
-	}
-
         if (G_OBJECT_CLASS(parent_class)->dispose)
                 (* G_OBJECT_CLASS(parent_class)->dispose)(object);
 }
@@ -243,7 +231,6 @@ start_element_handler(GMarkupParseContext *context,
 	LoquiProfileHandlePrivate *priv;
 	GObject *obj;
 	GParamSpec *pspec;
-	GType child_type;
 	ElementType elem;
 	
         g_return_if_fail(user_data != NULL);
@@ -345,18 +332,24 @@ start_element_handler(GMarkupParseContext *context,
 		g_queue_push_tail(priv->element_queue, GINT_TO_POINTER(ELEMENT_ITEM));
 		return;
 	}
-	
-	if ((elem != ELEMENT_PARAM && elem != ELEMENT_ITEM) ||
-	    (child_type = (GType) g_hash_table_lookup(priv->children_table, element_name)) == 0) {
-
-		g_set_error(error,
-			    G_MARKUP_ERROR,
-			    G_MARKUP_ERROR_UNKNOWN_ELEMENT,
-			    _("Invalid element '%s': child type not found"), element_name);
-		return;
+	if ((elem == ELEMENT_PARAM || elem == ELEMENT_ITEM) && strcmp(element_name, "object") == 0) {
+		pspec = g_queue_peek_tail(priv->pspec_queue);
+		if (!G_IS_PARAM_SPEC_OBJECT(pspec)) {
+			g_set_error(error,
+				    G_MARKUP_ERROR,
+				    G_MARKUP_ERROR_UNKNOWN_ELEMENT,
+				    _("Invalid object element: parent is not object type"));	
+			return;
+		}
+		g_queue_push_tail(priv->element_queue, GINT_TO_POINTER(ELEMENT_OBJECT));
+		g_queue_push_tail(priv->object_queue, g_object_new(G_PARAM_SPEC_VALUE_TYPE(pspec), NULL));
 	}
-	g_queue_push_tail(priv->element_queue, GINT_TO_POINTER(ELEMENT_CHILD));
-	g_queue_push_tail(priv->object_queue, g_object_new(child_type, NULL));
+
+	g_set_error(error,
+		    G_MARKUP_ERROR,
+		    G_MARKUP_ERROR_UNKNOWN_ELEMENT,
+		    _("Invalid element: %s"), element_name);
+	return;
 }
 
 static void
@@ -676,10 +669,7 @@ loqui_profile_handle_new(void)
         priv = handle->priv;
 
 	priv->type_table = g_hash_table_new(g_str_hash, g_str_equal);
-	priv->children_table = g_hash_table_new(g_str_hash, g_str_equal);
-	
 	priv->type_table_reverse = g_hash_table_new(g_int_hash, g_int_equal);
-	priv->children_table_reverse = g_hash_table_new(g_int_hash, g_int_equal);
 
         return handle;
 }
@@ -695,20 +685,6 @@ loqui_profile_handle_register_type(LoquiProfileHandle *handle, const gchar* name
         
 	g_hash_table_insert(priv->type_table, (gpointer) name, GINT_TO_POINTER((int) type));
 	g_hash_table_insert(priv->type_table_reverse, GINT_TO_POINTER((int) type), (gpointer) name);
-}
-
-void
-loqui_profile_handle_register_child_type(LoquiProfileHandle *handle, const gchar* name, GType type)
-{
-	LoquiProfileHandlePrivate *priv;
-	
-        g_return_if_fail(handle != NULL);
-        g_return_if_fail(LOQUI_IS_PROFILE_HANDLE(handle));
-
-        priv = handle->priv;
-        
-	g_hash_table_insert(priv->children_table, (gpointer) name, GINT_TO_POINTER((int) type));
-	g_hash_table_insert(priv->children_table_reverse, GINT_TO_POINTER((int) type), (gpointer) name);
 }
 
 gboolean
@@ -859,7 +835,6 @@ loqui_profile_handle_object_to_xml(LoquiProfileHandle *handle, gboolean is_child
 	guint i, n_params;
 	GValue value = {0, };
 	const gchar *name;
-	const gchar *child_name = NULL;
 	LoquiProfileHandlePrivate *priv;
 
         g_return_val_if_fail(handle != NULL, NULL);
@@ -869,14 +844,8 @@ loqui_profile_handle_object_to_xml(LoquiProfileHandle *handle, gboolean is_child
 
 	string = g_string_new("");
 
-	if (is_child) {
-		child_name = g_hash_table_lookup(priv->children_table_reverse, GINT_TO_POINTER((int) G_OBJECT_TYPE(object)));
-		if (!child_name) {
-			g_warning("ProfileHandle: child type not registered");
-			return NULL;
-		}
-		g_string_printf(string, "<%s>", child_name);
-	}
+	if (is_child)
+		g_string_append(string, "<object>");
 
 	param_specs = g_object_class_list_properties(G_OBJECT_GET_CLASS(object), &n_params);
 	for (i = 0; i < n_params; i++) {
@@ -899,9 +868,8 @@ loqui_profile_handle_object_to_xml(LoquiProfileHandle *handle, gboolean is_child
 		g_value_unset(&value);
 	}
 
-	if (is_child) {
-		g_string_printf(string, "</%s>", child_name);
-	}
+	if (is_child)
+		g_string_append(string, "</object>");
 
 	return g_string_free(string, FALSE);
 }

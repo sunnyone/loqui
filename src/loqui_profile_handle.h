@@ -62,7 +62,6 @@ gboolean loqui_profile_handle_write_to_file(LoquiProfileHandle *handle, GList *p
 
 /* name must be static gchararray */
 void loqui_profile_handle_register_type(LoquiProfileHandle *handle, const gchar *name, GType type);
-void loqui_profile_handle_register_child_type(LoquiProfileHandle *handle, const gchar* name, GType type);
 
 G_END_DECLS
 
