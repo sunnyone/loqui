@@ -423,7 +423,7 @@ loqui_codeconv_convert(LoquiCodeConv *codeconv, const gchar *input, GIConv cd, G
 				g_set_error(error,
 					    LOQUI_CODECONV_ERROR,
 					    LOQUI_CODECONV_ERROR_CONVERT,
-					    "Unknown error occured in code convertion.");
+					    "Unknown error occured in code convertion(errno: %d).", errno);
 				return NULL;
 			}
 		}
