@@ -182,7 +182,7 @@ void ctcp_handle_message(CTCPHandle *ctcp_handle, CTCPMessage *ctcp_msg, gboolea
 	if (strcmp(ctcp_msg->command, IRCCTCPAction) == 0) {
 		channel = loqui_account_get_channel_by_identifier(account, receiver);
 		if (channel) {
-			loqui_channel_append_remark(channel, TEXT_TYPE_ACTION,
+			loqui_channel_append_remark(channel, LOQUI_TEXT_TYPE_ACTION,
 						    loqui_account_irc_is_current_nick(LOQUI_ACCOUNT_IRC(account), sender),
 						    sender,
 						    ctcp_msg->argument ? ctcp_msg->argument : "",
@@ -198,7 +198,7 @@ void ctcp_handle_message(CTCPHandle *ctcp_handle, CTCPMessage *ctcp_msg, gboolea
 			      ctcp_msg->command,
 			      ctcp_msg->argument ? " " : "",
 			      ctcp_msg->argument ? ctcp_msg->argument : "");
-	loqui_account_console_buffer_append(priv->account, TEXT_TYPE_INFO, buf);
+	loqui_account_console_buffer_append(priv->account, LOQUI_TEXT_TYPE_INFO, buf);
 	g_free(buf);
 
 	if(!is_request)
@@ -206,7 +206,7 @@ void ctcp_handle_message(CTCPHandle *ctcp_handle, CTCPMessage *ctcp_msg, gboolea
 
 	g_timer_stop(priv->interval_timer);
 	if(g_timer_elapsed(priv->interval_timer, NULL) < CTCP_INTERVAL) {
-		loqui_account_console_buffer_append(priv->account, TEXT_TYPE_INFO, _("The CTCP request was ignored."));
+		loqui_account_console_buffer_append(priv->account, LOQUI_TEXT_TYPE_INFO, _("The CTCP request was ignored."));
 		g_timer_start(priv->interval_timer);
 		return;
 	}
@@ -244,7 +244,7 @@ ctcp_handle_send_ctcp_reply(CTCPHandle *ctcp_handle, CTCPMessage *ctcp_msg, cons
 		tmp = g_strdup(ctcp_msg->command);
 
 	buf = g_strdup_printf(_("Sent CTCP reply to %s: %s"), target, tmp);
-	loqui_account_console_buffer_append(priv->account, TEXT_TYPE_INFO, buf);
+	loqui_account_console_buffer_append(priv->account, LOQUI_TEXT_TYPE_INFO, buf);
 	g_free(tmp);
 	g_free(buf);
 }

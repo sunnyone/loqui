@@ -94,8 +94,8 @@ gchar *loqui_channel_get_mode(LoquiChannel *channel);
 void loqui_channel_push_user_mode_queue(LoquiChannel *channel, gboolean is_give, IRCModeFlag flag, const gchar *nick);
 void loqui_channel_flush_user_mode_queue(LoquiChannel *channel);
 
-void loqui_channel_append_remark(LoquiChannel *channel, TextType type, gboolean is_self, const gchar *nick, const gchar *remark, gboolean is_from_server);
-void loqui_channel_append_text(LoquiChannel *channel, TextType type, gchar *str);
+void loqui_channel_append_remark(LoquiChannel *channel, LoquiTextType type, gboolean is_self, const gchar *nick, const gchar *remark, gboolean is_from_server);
+void loqui_channel_append_text(LoquiChannel *channel, LoquiTextType type, gchar *str);
 
 G_END_DECLS
 

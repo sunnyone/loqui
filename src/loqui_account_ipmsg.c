@@ -229,7 +229,7 @@ loqui_account_ipmsg_connect(LoquiAccount *account)
 			 G_CALLBACK(loqui_account_ipmsg_socket_warn_cb), account);
 
 	str = g_strdup_printf(_("Opened the socket."));
-	loqui_account_console_buffer_append(account, TEXT_TYPE_INFO, str);
+	loqui_account_console_buffer_append(account, LOQUI_TEXT_TYPE_INFO, str);
 	g_free(str);
 
 	loqui_user_set_away(loqui_account_get_user_self(LOQUI_ACCOUNT(account)), LOQUI_AWAY_TYPE_ONLINE);
@@ -256,7 +256,7 @@ loqui_account_ipmsg_disconnect(LoquiAccount *account)
 		ipmsg_socket_unbind(priv->sock);
 	G_OBJECT_UNREF_UNLESS_NULL(priv->sock);
 
-	loqui_account_console_buffer_append(account, TEXT_TYPE_INFO, _("Disconnected."));
+	loqui_account_console_buffer_append(account, LOQUI_TEXT_TYPE_INFO, _("Disconnected."));
 
 	loqui_account_set_is_connected(LOQUI_ACCOUNT(account), FALSE);
 	loqui_user_set_away(loqui_account_get_user_self(LOQUI_ACCOUNT(account)), LOQUI_AWAY_TYPE_OFFLINE);

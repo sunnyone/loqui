@@ -498,11 +498,11 @@ loqui_channel_get_mode(LoquiChannel *channel)
 }
 
 void
-loqui_channel_append_remark(LoquiChannel *channel, TextType type, gboolean is_self, const gchar *nick, const gchar *remark, gboolean is_from_server)
+loqui_channel_append_remark(LoquiChannel *channel, LoquiTextType type, gboolean is_self, const gchar *nick, const gchar *remark, gboolean is_from_server)
 {
 	ChannelBuffer *buffer;
 	LoquiChannelPrivate *priv;
-	MessageText *msgtext;
+	LoquiMessageText *msgtext;
 	GList *cur;
 	gchar *word;
 
@@ -517,7 +517,7 @@ loqui_channel_append_remark(LoquiChannel *channel, TextType type, gboolean is_se
 
 	is_priv = loqui_channel_get_is_private_talk(channel);
 
-	msgtext = message_text_new();
+	msgtext = loqui_message_text_new();
 	g_object_set(G_OBJECT(msgtext),
 		     "is_remark", TRUE,
 		     "text_type", type,
@@ -527,7 +527,7 @@ loqui_channel_append_remark(LoquiChannel *channel, TextType type, gboolean is_se
 		     "nick", nick,
 		     "channel_name", loqui_channel_entry_get_name(LOQUI_CHANNEL_ENTRY(channel)), NULL);
 
-	if (type == TEXT_TYPE_NOTICE || is_from_server)
+	if (type == LOQUI_TEXT_TYPE_NOTICE || is_from_server)
 		loqui_channel_entry_set_is_updated_weak(LOQUI_CHANNEL_ENTRY(channel), TRUE);
 	else
 		loqui_channel_entry_set_is_updated(LOQUI_CHANNEL_ENTRY(channel), TRUE);
@@ -541,24 +541,24 @@ loqui_channel_append_remark(LoquiChannel *channel, TextType type, gboolean is_se
 		}
 	}
 
-	if (!prefs_general.exec_notification_by_notice && type == TEXT_TYPE_NOTICE)
+	if (!prefs_general.exec_notification_by_notice && type == LOQUI_TEXT_TYPE_NOTICE)
 		exec_notification = FALSE;
 	
 	channel_buffer_append_message_text(buffer, msgtext, FALSE, exec_notification);
 	g_object_unref(msgtext);
 }
 void
-loqui_channel_append_text(LoquiChannel *channel, TextType type, gchar *str)
+loqui_channel_append_text(LoquiChannel *channel, LoquiTextType type, gchar *str)
 {
 	ChannelBuffer *buffer;
-	MessageText *msgtext;
+	LoquiMessageText *msgtext;
 
 	g_return_if_fail(channel != NULL);
 	g_return_if_fail(LOQUI_IS_CHANNEL(channel));
 
 	buffer = loqui_channel_entry_get_buffer(LOQUI_CHANNEL_ENTRY(channel));
 
-	msgtext = message_text_new();
+	msgtext = loqui_message_text_new();
 	g_object_set(G_OBJECT(msgtext),
 		     "is_remark", FALSE,
 		     "text_type", type,

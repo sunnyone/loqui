@@ -70,10 +70,10 @@ static void loqui_receiver_irc_command_mode(LoquiReceiverIRC *receiver, IRCMessa
 static void loqui_receiver_irc_command_kick(LoquiReceiverIRC *receiver, IRCMessage *msg);
 static void loqui_receiver_irc_command_error(LoquiReceiverIRC *receiver, IRCMessage *msg);
 
-static void loqui_receiver_irc_account_console_append(LoquiReceiverIRC *receiver, IRCMessage *msg, TextType type, gchar *format);
+static void loqui_receiver_irc_account_console_append(LoquiReceiverIRC *receiver, IRCMessage *msg, LoquiTextType type, gchar *format);
 static void loqui_receiver_irc_channel_append(LoquiReceiverIRC *receiver, IRCMessage *msg, gboolean make_channel,
-				      gint receiver_num, TextType type, gchar *format);
-static void loqui_receiver_irc_joined_channel_append(LoquiReceiverIRC *receiver, IRCMessage *msg, GList *channel_list, TextType type, gchar *format);
+				      gint receiver_num, LoquiTextType type, gchar *format);
+static void loqui_receiver_irc_joined_channel_append(LoquiReceiverIRC *receiver, IRCMessage *msg, GList *channel_list, LoquiTextType type, gchar *format);
 
 static void loqui_receiver_irc_reply_welcome(LoquiReceiverIRC *receiver, IRCMessage *msg);
 static void loqui_receiver_irc_reply_names(LoquiReceiverIRC *receiver, IRCMessage *msg);
@@ -231,7 +231,7 @@ loqui_receiver_irc_parse_plum_recent(LoquiReceiverIRC *receiver, const gchar *li
 	g_free(buf);
 	
 	buf = g_strdup_printf("[LOG] %s", line);
-	loqui_channel_append_text(channel, TEXT_TYPE_NOTICE, buf);
+	loqui_channel_append_text(channel, LOQUI_TEXT_TYPE_NOTICE, buf);
 	loqui_channel_entry_set_is_updated_weak(LOQUI_CHANNEL_ENTRY(channel), TRUE);
 	g_free(buf);
 
@@ -250,7 +250,7 @@ loqui_receiver_irc_command_privmsg_notice(LoquiReceiverIRC *receiver, IRCMessage
 	gchar *remark;
 	LoquiAccount *account;
 	LoquiChannel *channel = NULL;
-	TextType type;
+	LoquiTextType type;
 	CTCPMessage *ctcp_msg;
 	gboolean is_self, is_priv;
 	LoquiUser *user;
@@ -284,9 +284,9 @@ loqui_receiver_irc_command_privmsg_notice(LoquiReceiverIRC *receiver, IRCMessage
 	}
 
 	if(msg->response == IRC_COMMAND_NOTICE) {
-		type = TEXT_TYPE_NOTICE;
+		type = LOQUI_TEXT_TYPE_NOTICE;
 	} else {
-		type = TEXT_TYPE_NORMAL;
+		type = LOQUI_TEXT_TYPE_NORMAL;
 	}
 
 	if (msg->nick) {
@@ -366,7 +366,7 @@ loqui_receiver_irc_command_quit(LoquiReceiverIRC *receiver, IRCMessage *msg)
 		g_list_foreach(list, (GFunc) loqui_channel_entry_remove_member_by_user, user);
 	}
 
-	loqui_receiver_irc_joined_channel_append(receiver, msg, list, TEXT_TYPE_INFO, _("*** %n has quit IRC(%t)"));
+	loqui_receiver_irc_joined_channel_append(receiver, msg, list, LOQUI_TEXT_TYPE_INFO, _("*** %n has quit IRC(%t)"));
 
 	g_list_free(list);
 }
@@ -404,11 +404,11 @@ loqui_receiver_irc_command_part(LoquiReceiverIRC *receiver, IRCMessage *msg)
 
 	if (loqui_account_irc_is_current_nick(LOQUI_ACCOUNT_IRC(account), msg->nick)) {
 		if(channel) {
-			loqui_receiver_irc_account_console_append(receiver, msg, TEXT_TYPE_INFO, "*** You have left %1");
+			loqui_receiver_irc_account_console_append(receiver, msg, LOQUI_TEXT_TYPE_INFO, "*** You have left %1");
 			loqui_account_remove_channel(account, channel);
 		}
 	} else {
-		loqui_receiver_irc_channel_append(receiver, msg, FALSE, 1, TEXT_TYPE_INFO, _("*** %n has just part %1(%t)"));
+		loqui_receiver_irc_channel_append(receiver, msg, FALSE, 1, LOQUI_TEXT_TYPE_INFO, _("*** %n has just part %1(%t)"));
 	}
 }
 static void
@@ -448,10 +448,10 @@ loqui_receiver_irc_command_kick(LoquiReceiverIRC *receiver, IRCMessage *msg)
 		loqui_channel_entry_remove_member_by_user(LOQUI_CHANNEL_ENTRY(channel), user);
 
 	if(loqui_account_irc_is_current_nick(LOQUI_ACCOUNT_IRC(account), receiver_name)) {
-		loqui_receiver_irc_account_console_append(receiver, msg, TEXT_TYPE_INFO, "*** You were kicked from %1 by %n (%3)");
+		loqui_receiver_irc_account_console_append(receiver, msg, LOQUI_TEXT_TYPE_INFO, "*** You were kicked from %1 by %n (%3)");
 		loqui_account_remove_channel(account, channel);
 	} else {
-		loqui_receiver_irc_channel_append(receiver, msg, FALSE, 1, TEXT_TYPE_INFO, _("*** %2 was kicked from %1 by %n(%3)"));
+		loqui_receiver_irc_channel_append(receiver, msg, FALSE, 1, LOQUI_TEXT_TYPE_INFO, _("*** %2 was kicked from %1 by %n(%3)"));
 	}
 }
 static void
@@ -461,7 +461,7 @@ loqui_receiver_irc_command_error(LoquiReceiverIRC *receiver, IRCMessage *msg)
 
 	account = loqui_receiver_get_account(LOQUI_RECEIVER(receiver));
 	
-	loqui_receiver_irc_account_console_append(receiver, msg, TEXT_TYPE_ERROR, "*** %t");
+	loqui_receiver_irc_account_console_append(receiver, msg, LOQUI_TEXT_TYPE_ERROR, "*** %t");
 	loqui_account_remove_all_channel(LOQUI_ACCOUNT(account));
 }
 static void
@@ -491,7 +491,7 @@ loqui_receiver_irc_command_nick(LoquiReceiverIRC *receiver, IRCMessage *msg)
 	}
 
 	user = loqui_account_peek_user(account, msg->nick);
-	loqui_receiver_irc_joined_channel_append(receiver, msg, NULL, TEXT_TYPE_INFO, _("*** %n is known as %1"));
+	loqui_receiver_irc_joined_channel_append(receiver, msg, NULL, LOQUI_TEXT_TYPE_INFO, _("*** %n is known as %1"));
 	if (user)
 		loqui_user_set_nick(user, nick_new);
 
@@ -655,7 +655,7 @@ loqui_receiver_irc_reply_channelmodeis(LoquiReceiverIRC *receiver, IRCMessage *m
 	loqui_channel_clear_mode(channel);
 
 	loqui_receiver_irc_parse_mode_arguments(receiver, msg, channel, 3);
-	loqui_receiver_irc_channel_append(receiver, msg, FALSE, 2, TEXT_TYPE_INFO, _("*** Mode for %2: %*3"));
+	loqui_receiver_irc_channel_append(receiver, msg, FALSE, 2, LOQUI_TEXT_TYPE_INFO, _("*** Mode for %2: %*3"));
 }
 static void
 loqui_receiver_irc_command_mode(LoquiReceiverIRC *receiver, IRCMessage *msg)
@@ -708,9 +708,9 @@ loqui_receiver_irc_command_mode(LoquiReceiverIRC *receiver, IRCMessage *msg)
 	format = g_strdup_printf(_("*** New mode for %%1 by %s: %%*2"), changer);
 
 	if(channel)
-		loqui_receiver_irc_channel_append(receiver, msg, FALSE, 1, TEXT_TYPE_INFO, format);
+		loqui_receiver_irc_channel_append(receiver, msg, FALSE, 1, LOQUI_TEXT_TYPE_INFO, format);
 	else
-		loqui_receiver_irc_account_console_append(receiver, msg, TEXT_TYPE_INFO, format);
+		loqui_receiver_irc_account_console_append(receiver, msg, LOQUI_TEXT_TYPE_INFO, format);
 
 	g_free(format);
 }
@@ -756,7 +756,7 @@ loqui_receiver_irc_command_join(LoquiReceiverIRC *receiver, IRCMessage *msg)
 			return;
 		}
 		loqui_channel_irc_add_member_by_nick(LOQUI_CHANNEL_IRC(channel), msg->nick, FALSE, FALSE, FALSE);
-		loqui_receiver_irc_channel_append(receiver, msg, FALSE, 1, TEXT_TYPE_INFO, _("*** %n (%u@%h) joined channel %t"));
+		loqui_receiver_irc_channel_append(receiver, msg, FALSE, 1, LOQUI_TEXT_TYPE_INFO, _("*** %n (%u@%h) joined channel %t"));
 	}
 }
 static void
@@ -769,7 +769,7 @@ loqui_receiver_irc_inspect_message(LoquiReceiverIRC *receiver, IRCMessage *msg)
 
 	str = irc_message_inspect(msg);
 	
-	loqui_account_console_buffer_append(loqui_receiver_get_account(LOQUI_RECEIVER(receiver)), TEXT_TYPE_NORMAL, str);
+	loqui_account_console_buffer_append(loqui_receiver_get_account(LOQUI_RECEIVER(receiver)), LOQUI_TEXT_TYPE_NORMAL, str);
 	
 	g_free(str);
 }
@@ -794,7 +794,7 @@ loqui_receiver_irc_reply_welcome(LoquiReceiverIRC *receiver, IRCMessage *msg)
 		loqui_account_information(account, _("Sent join command for autojoin."));
 	}
 
-	loqui_receiver_irc_account_console_append(receiver, msg, TEXT_TYPE_INFO, "*** %*2");
+	loqui_receiver_irc_account_console_append(receiver, msg, LOQUI_TEXT_TYPE_INFO, "*** %*2");
 }
 static void
 loqui_receiver_irc_reply_names(LoquiReceiverIRC *receiver, IRCMessage *msg)
@@ -826,7 +826,7 @@ loqui_receiver_irc_reply_names(LoquiReceiverIRC *receiver, IRCMessage *msg)
 		loqui_channel_irc_add_member_by_nick(LOQUI_CHANNEL_IRC(channel), nick, TRUE, FALSE, FALSE);
 	loqui_string_tokenizer_free(st);
 
-	loqui_receiver_irc_channel_append(receiver, msg, FALSE, 3, TEXT_TYPE_NORMAL, "%3: %t");
+	loqui_receiver_irc_channel_append(receiver, msg, FALSE, 3, LOQUI_TEXT_TYPE_NORMAL, "%3: %t");
 }
 static void
 loqui_receiver_irc_reply_endofnames(LoquiReceiverIRC *receiver, IRCMessage *msg)
@@ -885,7 +885,7 @@ loqui_receiver_irc_reply_creationtime(LoquiReceiverIRC *receiver, IRCMessage *ms
 	format = g_strdup_printf(_("%%2 was created at %s"), str);
 	g_free(str);
 
-	loqui_receiver_irc_channel_append(receiver, msg, TRUE, 2, TEXT_TYPE_INFO, format);
+	loqui_receiver_irc_channel_append(receiver, msg, TRUE, 2, LOQUI_TEXT_TYPE_INFO, format);
 	g_free(format);
 }
 
@@ -926,7 +926,7 @@ loqui_receiver_irc_reply_topicwhotime(LoquiReceiverIRC *receiver, IRCMessage *ms
 	format = g_strdup_printf(_("Topic for %%2 was set by %%3 at %s"), str);
 	g_free(str);
 
-	loqui_receiver_irc_channel_append(receiver, msg, TRUE, 2, TEXT_TYPE_INFO, format);
+	loqui_receiver_irc_channel_append(receiver, msg, TRUE, 2, LOQUI_TEXT_TYPE_INFO, format);
 	g_free(format);
 }
 static void
@@ -962,7 +962,7 @@ loqui_receiver_irc_reply_whoisidle(LoquiReceiverIRC *receiver, IRCMessage *msg)
 			      (sec % (60 * 60)) / 60,
 			      (sec % 60));
 
-	loqui_receiver_irc_account_console_append(receiver, msg, TEXT_TYPE_NORMAL, str);
+	loqui_receiver_irc_account_console_append(receiver, msg, LOQUI_TEXT_TYPE_NORMAL, str);
 	g_free(str);
 }
 
@@ -1065,7 +1065,7 @@ loqui_receiver_irc_reply_who(LoquiReceiverIRC *receiver, IRCMessage *msg)
 		buf2 = g_strdup_printf(_("%c%s(%s) is %s@%s (%s) on %s(%s hops) [%s]"),
 					op_char, nick, channel_name, username, hostname,
 					realname, server_name, hops_str ? hops_str : "?", away_str);
-		loqui_account_console_buffer_append(account, TEXT_TYPE_INFO, buf2);
+		loqui_account_console_buffer_append(account, LOQUI_TEXT_TYPE_INFO, buf2);
 		g_free(buf2);
 	}
 	
@@ -1093,7 +1093,7 @@ loqui_receiver_irc_reply_topic(LoquiReceiverIRC *receiver, IRCMessage *msg)
 	topic = irc_message_get_trailing(msg);
 	loqui_channel_entry_set_topic(LOQUI_CHANNEL_ENTRY(channel), strlen(topic) ? topic : NULL);
 
-	loqui_receiver_irc_channel_append(receiver, msg, FALSE, 2, TEXT_TYPE_INFO, _("Topic for %2: %t"));
+	loqui_receiver_irc_channel_append(receiver, msg, FALSE, 2, LOQUI_TEXT_TYPE_INFO, _("Topic for %2: %t"));
 }
 
 static void
@@ -1117,7 +1117,7 @@ loqui_receiver_irc_command_topic(LoquiReceiverIRC *receiver, IRCMessage *msg)
 	topic = irc_message_get_trailing(msg);
 	loqui_channel_entry_set_topic(LOQUI_CHANNEL_ENTRY(channel), strlen(topic) ? topic : NULL);
 	
-	loqui_receiver_irc_channel_append(receiver, msg, FALSE, 1, TEXT_TYPE_INFO, _("*** New topic on %1 by %n: %t"));
+	loqui_receiver_irc_channel_append(receiver, msg, FALSE, 1, LOQUI_TEXT_TYPE_INFO, _("*** New topic on %1 by %n: %t"));
 }
 /* TODO: change nick */
 static void
@@ -1129,19 +1129,19 @@ loqui_receiver_irc_error_nick_unusable(LoquiReceiverIRC *receiver, IRCMessage *m
 	priv = receiver->priv;
 	account = loqui_receiver_get_account(LOQUI_RECEIVER(receiver));
 
-	loqui_receiver_irc_account_console_append(receiver, msg, TEXT_TYPE_ERROR, "%t");
+	loqui_receiver_irc_account_console_append(receiver, msg, LOQUI_TEXT_TYPE_ERROR, "%t");
 
 	if(!receiver->passed_welcome)
 		loqui_account_disconnect(account);
 }
 static void /* utility function */
-loqui_receiver_irc_joined_channel_append(LoquiReceiverIRC *receiver, IRCMessage *msg, GList *channel_list, TextType type, gchar *format)
+loqui_receiver_irc_joined_channel_append(LoquiReceiverIRC *receiver, IRCMessage *msg, GList *channel_list, LoquiTextType type, gchar *format)
 {
 	LoquiReceiverIRCPrivate *priv;
 	gchar *str;
 	GList *list = NULL, *cur;
 	LoquiUser *user = NULL;
-	MessageText *msgtext;
+	LoquiMessageText *msgtext;
 	LoquiAccount *account;
 
         g_return_if_fail(receiver != NULL);
@@ -1160,7 +1160,7 @@ loqui_receiver_irc_joined_channel_append(LoquiReceiverIRC *receiver, IRCMessage 
 	else
 		list = channel_list;
 
-	msgtext = message_text_new();
+	msgtext = loqui_message_text_new();
 	g_object_set(G_OBJECT(msgtext), 
 		     "is_remark", FALSE,
 		     "text_type", type,
@@ -1182,7 +1182,7 @@ loqui_receiver_irc_joined_channel_append(LoquiReceiverIRC *receiver, IRCMessage 
 		g_list_free(list);
 }
 static void /* utility function */
-loqui_receiver_irc_account_console_append(LoquiReceiverIRC *receiver, IRCMessage *msg, TextType type, gchar *format)
+loqui_receiver_irc_account_console_append(LoquiReceiverIRC *receiver, IRCMessage *msg, LoquiTextType type, gchar *format)
 {
 	gchar *str;
 	LoquiAccount *account;
@@ -1197,7 +1197,7 @@ loqui_receiver_irc_account_console_append(LoquiReceiverIRC *receiver, IRCMessage
 
 static void /* utility function */
 loqui_receiver_irc_channel_append(LoquiReceiverIRC *receiver, IRCMessage *msg, gboolean make_channel,
-			  gint receiver_num, TextType type, gchar *format)
+			  gint receiver_num, LoquiTextType type, gchar *format)
 {
 	LoquiReceiverIRCPrivate *priv;
 	LoquiChannel *channel;
@@ -1258,49 +1258,49 @@ loqui_receiver_irc_reply(LoquiReceiverIRC *receiver, IRCMessage *msg)
 	case IRC_RPL_CREATED:
 	case IRC_RPL_MYINFO:
 	case IRC_RPL_BOUCE:
-		loqui_receiver_irc_account_console_append(receiver, msg, TEXT_TYPE_INFO, "*** %*2");
+		loqui_receiver_irc_account_console_append(receiver, msg, LOQUI_TEXT_TYPE_INFO, "*** %*2");
 		return TRUE;
 	case IRC_RPL_AWAY:
-		loqui_receiver_irc_account_console_append(receiver, msg, TEXT_TYPE_INFO, _("*** %2 is marked as begin AWAY, but left the message: %3"));
+		loqui_receiver_irc_account_console_append(receiver, msg, LOQUI_TEXT_TYPE_INFO, _("*** %2 is marked as begin AWAY, but left the message: %3"));
 		return TRUE;
 	case IRC_RPL_INFO:
-		loqui_receiver_irc_account_console_append(receiver, msg, TEXT_TYPE_INFO, "*** %2");
+		loqui_receiver_irc_account_console_append(receiver, msg, LOQUI_TEXT_TYPE_INFO, "*** %2");
 		return TRUE;
 	case IRC_RPL_LUSERCLIENT:
 	case IRC_RPL_LUSERME:
 	case IRC_RPL_LOCALUSERS:
 	case IRC_RPL_GLOBALUSERS:
-		loqui_receiver_irc_account_console_append(receiver, msg, TEXT_TYPE_INFO, _("*** %t"));
+		loqui_receiver_irc_account_console_append(receiver, msg, LOQUI_TEXT_TYPE_INFO, _("*** %t"));
 		return TRUE;
 	case IRC_RPL_UNAWAY:
 		loqui_user_set_away(loqui_account_get_user_self(account), LOQUI_AWAY_TYPE_ONLINE);
-		loqui_receiver_irc_account_console_append(receiver, msg, TEXT_TYPE_INFO, _("*** %t"));
+		loqui_receiver_irc_account_console_append(receiver, msg, LOQUI_TEXT_TYPE_INFO, _("*** %t"));
 		return TRUE;
 	case IRC_RPL_NOWAWAY:
 		loqui_user_set_away(loqui_account_get_user_self(account), LOQUI_AWAY_TYPE_AWAY);
-		loqui_receiver_irc_account_console_append(receiver, msg, TEXT_TYPE_INFO, _("*** %t"));
+		loqui_receiver_irc_account_console_append(receiver, msg, LOQUI_TEXT_TYPE_INFO, _("*** %t"));
 		return TRUE;
 	case IRC_RPL_INVITING:
-		loqui_receiver_irc_account_console_append(receiver, msg, TEXT_TYPE_INFO, _("*** You are inviting %2 to %3"));
+		loqui_receiver_irc_account_console_append(receiver, msg, LOQUI_TEXT_TYPE_INFO, _("*** You are inviting %2 to %3"));
 		return TRUE;
 	case IRC_RPL_VERSION:
-		loqui_receiver_irc_account_console_append(receiver, msg, TEXT_TYPE_INFO, _("*** %3 is running IRC version %2 (%4)"));
+		loqui_receiver_irc_account_console_append(receiver, msg, LOQUI_TEXT_TYPE_INFO, _("*** %3 is running IRC version %2 (%4)"));
 		return TRUE;
 	case IRC_RPL_LUSEROP:
 	case IRC_RPL_LUSERUNKNOWN:
 	case IRC_RPL_LUSERCHANNELS:
-		loqui_receiver_irc_account_console_append(receiver, msg, TEXT_TYPE_INFO, "*** %2 %3");
+		loqui_receiver_irc_account_console_append(receiver, msg, LOQUI_TEXT_TYPE_INFO, "*** %2 %3");
 		return TRUE;
 	case IRC_RPL_LINKS:
-		loqui_receiver_irc_account_console_append(receiver, msg, TEXT_TYPE_INFO, "%3 %4");
+		loqui_receiver_irc_account_console_append(receiver, msg, LOQUI_TEXT_TYPE_INFO, "%3 %4");
 		return TRUE;
 	case IRC_RPL_MOTDSTART:
 	case IRC_RPL_MOTD:
-		loqui_receiver_irc_account_console_append(receiver, msg, TEXT_TYPE_INFO, "*** %t");
+		loqui_receiver_irc_account_console_append(receiver, msg, LOQUI_TEXT_TYPE_INFO, "*** %t");
 		return TRUE;
 	case IRC_RPL_ENDOFMOTD:
 		priv->end_motd = TRUE;
-		loqui_receiver_irc_account_console_append(receiver, msg, TEXT_TYPE_INFO, "*** %t");
+		loqui_receiver_irc_account_console_append(receiver, msg, LOQUI_TEXT_TYPE_INFO, "*** %t");
 		return TRUE;
 	case IRC_RPL_NAMREPLY: /* <nick> = <channel> :... */
 		loqui_receiver_irc_reply_names(receiver, msg);
@@ -1318,25 +1318,25 @@ loqui_receiver_irc_reply(LoquiReceiverIRC *receiver, IRCMessage *msg)
 		loqui_receiver_irc_reply_who(receiver, msg);
 		return TRUE;
 	case IRC_RPL_WHOISUSER:
-		loqui_receiver_irc_account_console_append(receiver, msg, TEXT_TYPE_NORMAL, _("%2 is %3@%4: %t"));
+		loqui_receiver_irc_account_console_append(receiver, msg, LOQUI_TEXT_TYPE_NORMAL, _("%2 is %3@%4: %t"));
 		return TRUE;
 	case IRC_RPL_WHOWASUSER:
-		loqui_receiver_irc_account_console_append(receiver, msg, TEXT_TYPE_NORMAL, _("%2 was %3@%4: %t"));
+		loqui_receiver_irc_account_console_append(receiver, msg, LOQUI_TEXT_TYPE_NORMAL, _("%2 was %3@%4: %t"));
 		return TRUE;
 	case IRC_RPL_WHOISCHANNELS:
-		loqui_receiver_irc_account_console_append(receiver, msg, TEXT_TYPE_NORMAL, _("%2: %t"));
+		loqui_receiver_irc_account_console_append(receiver, msg, LOQUI_TEXT_TYPE_NORMAL, _("%2: %t"));
 		return TRUE;
 	case IRC_RPL_WHOISSERVER:
-		loqui_receiver_irc_account_console_append(receiver, msg, TEXT_TYPE_NORMAL, _("on via server %3(%t)"));
+		loqui_receiver_irc_account_console_append(receiver, msg, LOQUI_TEXT_TYPE_NORMAL, _("on via server %3(%t)"));
 		return TRUE;
 	case IRC_RPL_WHOISIDLE:
 		loqui_receiver_irc_reply_whoisidle(receiver, msg);
 		return TRUE;
 	case IRC_RPL_BANLIST:
-		loqui_receiver_irc_account_console_append(receiver, msg, TEXT_TYPE_NORMAL, _("Banned on %2 : %3"));
+		loqui_receiver_irc_account_console_append(receiver, msg, LOQUI_TEXT_TYPE_NORMAL, _("Banned on %2 : %3"));
 		return TRUE;
 	case IRC_RPL_TIME:
-		loqui_receiver_irc_account_console_append(receiver, msg, TEXT_TYPE_NORMAL, _("Time: %3(%2)"));
+		loqui_receiver_irc_account_console_append(receiver, msg, LOQUI_TEXT_TYPE_NORMAL, _("Time: %3(%2)"));
 		return TRUE;
 	case IRC_RPL_ENDOFNAMES:
 		loqui_receiver_irc_reply_endofnames(receiver, msg);
@@ -1348,27 +1348,27 @@ loqui_receiver_irc_reply(LoquiReceiverIRC *receiver, IRCMessage *msg)
 		if (receiver->prevent_print_who_reply_count > 0)
 			receiver->prevent_print_who_reply_count--;
 		else
-			loqui_receiver_irc_account_console_append(receiver, msg, TEXT_TYPE_INFO, _("%3"));	
+			loqui_receiver_irc_account_console_append(receiver, msg, LOQUI_TEXT_TYPE_INFO, _("%3"));	
 		return TRUE;
 	case IRC_RPL_ENDOFWHOIS:
 	case IRC_RPL_ENDOFBANLIST:
 	case IRC_RPL_ENDOFINFO:
 	case IRC_RPL_ENDOFUSERS:
-		loqui_receiver_irc_account_console_append(receiver, msg, TEXT_TYPE_INFO, _("%3"));
+		loqui_receiver_irc_account_console_append(receiver, msg, LOQUI_TEXT_TYPE_INFO, _("%3"));
 		return TRUE;
 	case IRC_RPL_NONE:
 		return TRUE;
 	case IRC_RPL_ISON:
-		loqui_receiver_irc_account_console_append(receiver, msg, TEXT_TYPE_INFO, _("Ison: %*2"));
+		loqui_receiver_irc_account_console_append(receiver, msg, LOQUI_TEXT_TYPE_INFO, _("Ison: %*2"));
 		return TRUE;
 	case IRC_RPL_LISTSTART:
-		loqui_receiver_irc_account_console_append(receiver, msg, TEXT_TYPE_INFO, _("Channel List: Name(Users) Topic"));
+		loqui_receiver_irc_account_console_append(receiver, msg, LOQUI_TEXT_TYPE_INFO, _("Channel List: Name(Users) Topic"));
 		return TRUE;
 	case IRC_RPL_LIST:
-		loqui_receiver_irc_account_console_append(receiver, msg, TEXT_TYPE_NORMAL, _("%2(%3)\t%4"));
+		loqui_receiver_irc_account_console_append(receiver, msg, LOQUI_TEXT_TYPE_NORMAL, _("%2(%3)\t%4"));
 		return TRUE;
 	case IRC_RPL_LISTEND:
-		loqui_receiver_irc_account_console_append(receiver, msg, TEXT_TYPE_INFO, _("%t"));
+		loqui_receiver_irc_account_console_append(receiver, msg, LOQUI_TEXT_TYPE_INFO, _("%t"));
 		return TRUE;
 	default:
 		break;
@@ -1394,7 +1394,7 @@ loqui_receiver_irc_error(LoquiReceiverIRC *receiver, IRCMessage *msg)
      /* case IRC_ERR_BANLISTFULL: */
 		return FALSE;
 	case IRC_ERR_USERONCHANNEL:
-		loqui_receiver_irc_account_console_append(receiver, msg, TEXT_TYPE_ERROR, _("%2 %t (%3)"));
+		loqui_receiver_irc_account_console_append(receiver, msg, LOQUI_TEXT_TYPE_ERROR, _("%2 %t (%3)"));
 		return TRUE;
 	case IRC_ERR_NOSUCHNICK:
 	case IRC_ERR_NOSUCHSERVER:
@@ -1421,7 +1421,7 @@ loqui_receiver_irc_error(LoquiReceiverIRC *receiver, IRCMessage *msg)
 	case IRC_ERR_BADCHANMASK:
 	case IRC_ERR_NOCHANMODES:
 	case IRC_ERR_CHANOPRIVSNEEDED:
-		loqui_receiver_irc_account_console_append(receiver, msg, TEXT_TYPE_ERROR, _("%t: %2"));
+		loqui_receiver_irc_account_console_append(receiver, msg, LOQUI_TEXT_TYPE_ERROR, _("%t: %2"));
 		return TRUE;
 	case IRC_ERR_NOORIGIN:
 	case IRC_ERR_NORECIPIENT:
@@ -1444,7 +1444,7 @@ loqui_receiver_irc_error(LoquiReceiverIRC *receiver, IRCMessage *msg)
 	case IRC_ERR_NOOPERHOST:
 	case IRC_ERR_UMODEUNKNOWNFLAG:
 	case IRC_ERR_USERSDONTMATCH:
-		loqui_receiver_irc_account_console_append(receiver, msg, TEXT_TYPE_ERROR, _("%t"));
+		loqui_receiver_irc_account_console_append(receiver, msg, LOQUI_TEXT_TYPE_ERROR, _("%t"));
 		return TRUE;
 	default:
 		break;
@@ -1490,7 +1490,7 @@ loqui_receiver_irc_command(LoquiReceiverIRC *receiver, IRCMessage *msg)
 		/* do nothing currently */
 		return TRUE;
 	case IRC_COMMAND_INVITE:
-		loqui_receiver_irc_account_console_append(receiver, msg, TEXT_TYPE_INFO, "*** You were invited to %2 by %1");
+		loqui_receiver_irc_account_console_append(receiver, msg, LOQUI_TEXT_TYPE_INFO, "*** You were invited to %2 by %1");
 		return TRUE;
 	case IRC_COMMAND_ERROR:
 		loqui_receiver_irc_command_error(receiver, msg);

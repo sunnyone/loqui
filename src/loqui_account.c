@@ -374,7 +374,7 @@ loqui_account_warn_real(LoquiAccount *account, const gchar *str)
 	gchar *tmp;
 
 	tmp = g_strconcat("+++ ", str, NULL);
-	loqui_account_console_buffer_append(account, TEXT_TYPE_ERROR, tmp);
+	loqui_account_console_buffer_append(account, LOQUI_TEXT_TYPE_ERROR, tmp);
 	g_free(tmp);
 }
 static void
@@ -383,7 +383,7 @@ loqui_account_info_real(LoquiAccount *account, const gchar *str)
 	gchar *tmp;
 
 	tmp = g_strconcat("+++ ", str, NULL);
-	loqui_account_console_buffer_append(account, TEXT_TYPE_INFO, tmp);
+	loqui_account_console_buffer_append(account, LOQUI_TEXT_TYPE_INFO, tmp);
 	g_free(tmp);
 }
 static void
@@ -686,15 +686,15 @@ loqui_account_get_channel_by_identifier(LoquiAccount *account, const gchar *iden
 	return NULL;
 }
 void
-loqui_account_console_buffer_append(LoquiAccount *account, TextType type, const gchar *str)
+loqui_account_console_buffer_append(LoquiAccount *account, LoquiTextType type, const gchar *str)
 {
-	MessageText *msgtext;
+	LoquiMessageText *msgtext;
 	ChannelBuffer *buffer;
 
 	g_return_if_fail(account != NULL);
 	g_return_if_fail(str != NULL);
 
-	msgtext = message_text_new();
+	msgtext = loqui_message_text_new();
 	g_object_set(G_OBJECT(msgtext),
 		     "is_remark", FALSE,
 		     "account_name", loqui_profile_account_get_name(loqui_account_get_profile(account)),

@@ -272,7 +272,7 @@ loqui_sender_irc_speak(LoquiSenderIRC *sender, LoquiChannel *channel, const gcha
 		else
 			loqui_sender_irc_say_raw(sender, loqui_channel_get_identifier(channel), array[i]);
 
-		loqui_channel_append_remark(channel, is_notice ? TEXT_TYPE_NOTICE : TEXT_TYPE_NORMAL,
+		loqui_channel_append_remark(channel, is_notice ? LOQUI_TEXT_TYPE_NOTICE : LOQUI_TEXT_TYPE_NORMAL,
 					    TRUE, loqui_user_get_nick(user_self), array[i], FALSE);
 	}
 	g_strfreev(array);
@@ -635,7 +635,7 @@ loqui_sender_irc_ctcp_request_raw(LoquiSenderIRC *sender, const gchar *target, c
 	g_object_unref(msg);
 
 	buf = g_strdup_printf(_("Sent CTCP request to %s: %s"), target, command);
-	loqui_account_console_buffer_append(loqui_sender_get_account(LOQUI_SENDER(sender)), TEXT_TYPE_INFO, buf);
+	loqui_account_console_buffer_append(loqui_sender_get_account(LOQUI_SENDER(sender)), LOQUI_TEXT_TYPE_INFO, buf);
 	g_free(buf);
 }
 void

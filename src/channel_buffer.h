@@ -21,7 +21,7 @@
 #define __CHANNEL_BUFFER_H__
 
 #include <gtk/gtk.h>
-#include "message_text.h"
+#include "loqui_message_text.h"
 
 G_BEGIN_DECLS
 
@@ -51,7 +51,7 @@ struct _ChannelBufferClass
 	GtkTextTagTable *tag_table;
 	
 	void (* append) (ChannelBuffer *buffer,
-			 MessageText *msgtext);
+			 LoquiMessageText *msgtext);
 };
 
 
@@ -59,7 +59,7 @@ GtkType channel_buffer_get_type (void) G_GNUC_CONST;
 
 ChannelBuffer* channel_buffer_new (void);
 
-void channel_buffer_append_message_text(ChannelBuffer *buffer, MessageText *msgtext, 
+void channel_buffer_append_message_text(ChannelBuffer *buffer, LoquiMessageText *msgtext, 
 					gboolean verbose, gboolean exec_notification);
 void channel_buffer_set_max_line_number(ChannelBuffer *buffer, guint max_line_number);
 void channel_buffer_set_whether_common_buffer(ChannelBuffer *buffer, gboolean is_common_buffer);

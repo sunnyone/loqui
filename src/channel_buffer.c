@@ -52,7 +52,7 @@ static void channel_buffer_init(ChannelBuffer *channel_buffer);
 static void channel_buffer_finalize(GObject *object);
 
 static void channel_buffer_append_current_time(ChannelBuffer *channel_buffer);
-static void channel_buffer_append(ChannelBuffer *buffer, TextType type, gchar *str,
+static void channel_buffer_append(ChannelBuffer *buffer, LoquiTextType type, gchar *str,
 				  gboolean enable_highlight, gboolean exec_notification);
 
 static void channel_buffer_text_inserted_cb(GtkTextBuffer *buffer,
@@ -180,7 +180,7 @@ channel_buffer_class_init (ChannelBufferClass *klass)
 						      NULL, NULL,
 						      g_cclosure_marshal_VOID__OBJECT,
 						      G_TYPE_NONE, 1,
-						      TYPE_MESSAGE_TEXT);
+						      LOQUI_TYPE_MESSAGE_TEXT);
 }
 static void 
 channel_buffer_init (ChannelBuffer *channel_buffer)
@@ -426,12 +426,12 @@ channel_buffer_append_current_time(ChannelBuffer *buffer)
 		return;
 	}
 	
-	channel_buffer_append(buffer, TEXT_TYPE_TIME, buf, FALSE, FALSE);
+	channel_buffer_append(buffer, LOQUI_TEXT_TYPE_TIME, buf, FALSE, FALSE);
 	g_free(buf);
 }
 
 static void
-channel_buffer_append(ChannelBuffer *buffer, TextType type, gchar *str, 
+channel_buffer_append(ChannelBuffer *buffer, LoquiTextType type, gchar *str, 
 		      gboolean enable_highlight,
 		      gboolean exec_notification)
 {
@@ -445,22 +445,22 @@ channel_buffer_append(ChannelBuffer *buffer, TextType type, gchar *str,
 	gtk_text_buffer_get_end_iter(GTK_TEXT_BUFFER(buffer), &iter);
 
 	switch(type) {
-	case TEXT_TYPE_NOTICE:
+	case LOQUI_TEXT_TYPE_NOTICE:
 		style = "notice";
 		break;
-	case TEXT_TYPE_ACTION:
+	case LOQUI_TEXT_TYPE_ACTION:
 		style = "action";
 		break;
-	case TEXT_TYPE_ERROR:
+	case LOQUI_TEXT_TYPE_ERROR:
 		style = "error";
 		break;
-	case TEXT_TYPE_INFO:
+	case LOQUI_TEXT_TYPE_INFO:
 		style = "info";
 		break;
-	case TEXT_TYPE_TIME:
+	case LOQUI_TEXT_TYPE_TIME:
 		style = "time";
 		break;
-	case TEXT_TYPE_TRANSPARENT:
+	case LOQUI_TEXT_TYPE_TRANSPARENT:
 		style = "transparent";
 		break;
 	default:
@@ -478,44 +478,44 @@ channel_buffer_append(ChannelBuffer *buffer, TextType type, gchar *str,
 						 style, highlight, NULL);
 }
 void
-channel_buffer_append_message_text(ChannelBuffer *buffer, MessageText *msgtext, 
+channel_buffer_append_message_text(ChannelBuffer *buffer, LoquiMessageText *msgtext, 
 				   gboolean verbose, gboolean exec_notification)
 {
 	gchar *buf;
-	TextType type;
+	LoquiTextType type;
 	GList *cur;
 
         g_return_if_fail(buffer != NULL);
         g_return_if_fail(IS_CHANNEL_BUFFER(buffer));
         g_return_if_fail(msgtext != NULL);
-        g_return_if_fail(IS_MESSAGE_TEXT(msgtext));
+        g_return_if_fail(LOQUI_IS_MESSAGE_TEXT(msgtext));
 
 	channel_buffer_append_current_time(buffer);
 	
-	type = message_text_get_text_type(msgtext);
+	type = loqui_message_text_get_text_type(msgtext);
 
-	if(message_text_get_is_remark(msgtext)) {
+	if(loqui_message_text_get_is_remark(msgtext)) {
 		/* FIXME: should be more efficient */
-		if(prefs_general.use_transparent_ignore && message_text_get_nick(msgtext) != NULL) {
+		if(prefs_general.use_transparent_ignore && loqui_message_text_get_nick(msgtext) != NULL) {
 			for(cur = prefs_general.transparent_ignore_list; cur != NULL; cur = cur->next) {
-				if(g_pattern_match_simple((gchar *) cur->data, message_text_get_nick(msgtext)))
-					type = TEXT_TYPE_TRANSPARENT;
+				if(g_pattern_match_simple((gchar *) cur->data, loqui_message_text_get_nick(msgtext)))
+					type = LOQUI_TEXT_TYPE_TRANSPARENT;
 			}
 		}
-		buf = message_text_get_nick_string(msgtext, verbose);
+		buf = loqui_message_text_get_nick_string(msgtext, verbose);
 		channel_buffer_append(buffer, type, buf, FALSE, FALSE);
 		g_free(buf);
 	}
 
-	if(verbose && message_text_get_account_name(msgtext))
+	if(verbose && loqui_message_text_get_account_name(msgtext))
 		buf = g_strdup_printf("[%s] %s\n",
-				      message_text_get_account_name(msgtext),
-				      message_text_get_text(msgtext));
+				      loqui_message_text_get_account_name(msgtext),
+				      loqui_message_text_get_text(msgtext));
 	else
-		buf = g_strconcat(message_text_get_text(msgtext), "\n", NULL);
+		buf = g_strconcat(loqui_message_text_get_text(msgtext), "\n", NULL);
 
 	channel_buffer_append(buffer, type, buf,
-			      message_text_get_is_remark(msgtext), 
+			      loqui_message_text_get_is_remark(msgtext), 
 			      exec_notification);
 	g_free(buf);
 

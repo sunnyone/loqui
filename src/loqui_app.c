@@ -68,7 +68,7 @@ struct _LoquiAppPrivate
 {
 	GtkWidget *handlebox_channelbar;
 
-	MessageText *last_msgtext;
+	LoquiMessageText *last_msgtext;
 	ChannelBuffer *common_buffer;
 
 	gboolean is_pending_set_current_channel;
@@ -124,8 +124,8 @@ static void loqui_app_channel_text_view_notify_is_scroll_common_buffer_cb(LoquiC
 
 static void loqui_app_channel_entry_notify_has_unread_keyword_cb(LoquiChannelEntry *chent, GParamSpec *pspec, gpointer data);
 
-static void loqui_app_channel_buffer_append_cb(ChannelBuffer *buffer, MessageText *msgtext, LoquiApp *app);
-static void loqui_app_append_log(LoquiApp *app, MessageText *msgtext);
+static void loqui_app_channel_buffer_append_cb(ChannelBuffer *buffer, LoquiMessageText *msgtext, LoquiApp *app);
+static void loqui_app_append_log(LoquiApp *app, LoquiMessageText *msgtext);
 
 static gboolean loqui_app_set_current_channel_for_idle(LoquiApp *app);
 static void loqui_app_set_current_channel_lazy(LoquiApp *app, LoquiChannel *channel);
@@ -1217,7 +1217,7 @@ loqui_app_channel_entry_notify_has_unread_keyword_cb(LoquiChannelEntry *chent, G
 		loqui_tray_icon_set_hilighted(app->tray_icon, TRUE);
 }
 static void
-loqui_app_channel_buffer_append_cb(ChannelBuffer *buffer, MessageText *msgtext, LoquiApp *app)
+loqui_app_channel_buffer_append_cb(ChannelBuffer *buffer, LoquiMessageText *msgtext, LoquiApp *app)
 {
 	LoquiAppPrivate *priv;
 	GtkWidget *chview;
@@ -1249,7 +1249,7 @@ loqui_app_channel_buffer_append_cb(ChannelBuffer *buffer, MessageText *msgtext, 
 }
 
 static void
-loqui_app_append_log(LoquiApp *app, MessageText *msgtext)
+loqui_app_append_log(LoquiApp *app, LoquiMessageText *msgtext)
 {
 	gchar *path;
 	gchar *filename;
@@ -1276,17 +1276,17 @@ loqui_app_append_log(LoquiApp *app, MessageText *msgtext)
 	}
 	
 	time_str = utils_strftime_epoch(prefs_general.time_format, t);
-	if (message_text_get_nick(msgtext))
-		nick = message_text_get_nick_string(msgtext, TRUE);
+	if (loqui_message_text_get_nick(msgtext))
+		nick = loqui_message_text_get_nick_string(msgtext, TRUE);
 	else
 		nick = g_strdup("");
 	
-	account_name = message_text_get_account_name(msgtext);
+	account_name = loqui_message_text_get_account_name(msgtext);
 	
 	if (account_name)
-		buf = g_strdup_printf("%s[%s] %s\n", time_str, account_name, message_text_get_text(msgtext));
+		buf = g_strdup_printf("%s[%s] %s\n", time_str, account_name, loqui_message_text_get_text(msgtext));
 	else
-		buf = g_strdup_printf("%s%s%s\n", time_str, nick, message_text_get_text(msgtext));
+		buf = g_strdup_printf("%s%s%s\n", time_str, nick, loqui_message_text_get_text(msgtext));
 	g_free(time_str);
 	g_free(nick);
 		
