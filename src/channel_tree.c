@@ -425,7 +425,7 @@ channel_tree_update_user_number(ChannelTree *tree, Channel *channel)
 			   -1);
 }
 void
-channel_tree_set_fresh(ChannelTree *tree, Account *account, Channel *channel)
+channel_tree_set_updated(ChannelTree *tree, Account *account, Channel *channel)
 {
 	GtkTreeModel *model;
 	GtkTreeIter iter;
@@ -445,7 +445,7 @@ channel_tree_set_fresh(ChannelTree *tree, Account *account, Channel *channel)
 		if(!gtk_tree_model_find_by_column_data(model, &iter, NULL, COLUMN_CHANNEL, channel))
 			return;
 
-		if(channel_get_fresh(channel))
+		if(channel_get_updated(channel))
 			color = FRESH_COLOR;
 		else
 			color = NONFRESH_COLOR;
@@ -456,7 +456,7 @@ channel_tree_set_fresh(ChannelTree *tree, Account *account, Channel *channel)
 }
 
 void
-channel_tree_select_prev_channel(ChannelTree *tree, gboolean fresh_required)
+channel_tree_select_prev_channel(ChannelTree *tree, gboolean require_updated)
 {
 	GtkTreeModel *model;
 	GtkTreeSelection *selection;
@@ -502,7 +502,7 @@ channel_tree_select_prev_channel(ChannelTree *tree, gboolean fresh_required)
 			continue;
 		if(channel == selected_channel)
 			continue;
-		if(fresh_required && !channel_get_fresh(channel))
+		if(require_updated && !channel_get_updated(channel))
 			continue;
 
 		gtk_tree_selection_select_iter(selection, &iter);
@@ -517,7 +517,7 @@ channel_tree_select_prev_channel(ChannelTree *tree, gboolean fresh_required)
 }
 
 void
-channel_tree_select_next_channel(ChannelTree *tree, gboolean fresh_required)
+channel_tree_select_next_channel(ChannelTree *tree, gboolean require_updated)
 {
 	GtkTreeModel *model;
 	GtkTreeSelection *selection;
@@ -553,7 +553,7 @@ channel_tree_select_next_channel(ChannelTree *tree, gboolean fresh_required)
 			continue;
 		if(selected_channel == channel)
 			continue;
-		if(fresh_required && !channel_get_fresh(channel))
+		if(require_updated && !channel_get_updated(channel))
 			continue;
 
 		gtk_tree_selection_select_iter(selection, &iter);

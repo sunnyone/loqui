@@ -228,7 +228,7 @@ account_manager_remove_channel(AccountManager *manager, Account *account, Channe
 	channel_tree_remove_channel(manager->priv->app->channel_tree, channel);
 }
 void
-account_manager_set_fresh(AccountManager *manager, Account *account, Channel *channel)
+account_manager_set_updated(AccountManager *manager, Account *account, Channel *channel)
 {
 	AccountManagerPrivate *priv;
 
@@ -237,7 +237,7 @@ account_manager_set_fresh(AccountManager *manager, Account *account, Channel *ch
 
 	priv = manager->priv;
 
-	channel_tree_set_fresh(priv->app->channel_tree, account, channel);
+	channel_tree_set_updated(priv->app->channel_tree, account, channel);
 }
 
 void account_manager_set_current_channel(AccountManager *manager, Channel *channel)
@@ -263,7 +263,7 @@ void account_manager_set_current_channel(AccountManager *manager, Channel *chann
 	loqui_app_set_channel_buffer(priv->app, GTK_TEXT_BUFFER(channel->buffer));
 	nick_list_set_store(priv->app->nick_list, channel->user_list);
 	account_manager_update_current_info(manager);
-	channel_set_fresh(channel, FALSE);
+	channel_set_updated(channel, FALSE);
 	account_manager_update_away_status(manager, account_get_away_status(channel->account));
 
 	g_signal_connect_swapped(G_OBJECT(channel), "topic-changed",

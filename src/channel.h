@@ -85,8 +85,8 @@ void channel_append_remark(Channel *channel, TextType type, gboolean is_self, co
 void channel_set_topic(Channel *channel, const gchar *topic);
 gchar *channel_get_topic(Channel *channel);
 
-void channel_set_fresh(Channel *channel, gboolean fresh);
-gboolean channel_get_fresh(Channel *channel);
+void channel_set_updated(Channel *channel, gboolean updated);
+gboolean channel_get_updated(Channel *channel);
 
 void channel_change_mode(Channel *channel, gboolean is_add, IRCModeFlag flag, gchar *argument);
 void channel_clear_mode(Channel *channel);

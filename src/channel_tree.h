@@ -68,12 +68,12 @@ void channel_tree_select_account(ChannelTree *tree, Account *account);
 
 void channel_tree_remove_channels_of_account(ChannelTree *tree, Account *account);
 
-void channel_tree_set_fresh(ChannelTree *tree, Account *account, Channel *channel);
+void channel_tree_set_updated(ChannelTree *tree, Account *account, Channel *channel);
 
 void channel_tree_update_user_number(ChannelTree *tree, Channel *channel);
 
-void channel_tree_select_next_channel(ChannelTree *tree, gboolean fresh_required);
-void channel_tree_select_prev_channel(ChannelTree *tree, gboolean fresh_required);
+void channel_tree_select_next_channel(ChannelTree *tree, gboolean require_updated);
+void channel_tree_select_prev_channel(ChannelTree *tree, gboolean require_updated);
 
 G_END_DECLS
 

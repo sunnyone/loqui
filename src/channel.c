@@ -34,7 +34,7 @@ enum {
 struct _ChannelPrivate
 {
 	gchar *topic;
-	gboolean fresh;
+	gboolean updated;
 
 	guint user_number;
 	guint op_number;
@@ -189,7 +189,7 @@ channel_append_remark(Channel *channel, TextType type, gboolean is_self, const g
 	   !account_manager_get_whether_scrolling(account_manager_get())) {
 		account_manager_common_buffer_append_remark(account_manager_get(), type, 
 							    is_self, is_priv, channel->name, nick, remark);
-		channel_set_fresh(channel, TRUE);
+		channel_set_updated(channel, TRUE);
 	}
 }
 
@@ -210,7 +210,7 @@ channel_append_text(Channel *channel, gboolean with_common_buffer, TextType type
 	}
 }
 
-void channel_set_fresh(Channel *channel, gboolean fresh)
+void channel_set_updated(Channel *channel, gboolean updated)
 {
 	ChannelPrivate *priv;
 
@@ -219,11 +219,11 @@ void channel_set_fresh(Channel *channel, gboolean fresh)
 
 	priv = channel->priv;
 
-	priv->fresh = fresh;
+	priv->updated = updated;
 
-	account_manager_set_fresh(account_manager_get(), NULL, channel);
+	account_manager_set_updated(account_manager_get(), NULL, channel);
 }
-gboolean channel_get_fresh(Channel *channel)
+gboolean channel_get_updated(Channel *channel)
 {
 	ChannelPrivate *priv;
 
@@ -232,7 +232,7 @@ gboolean channel_get_fresh(Channel *channel)
 
 	priv = channel->priv;
 
-	return priv->fresh;
+	return priv->updated;
 }
 void channel_set_topic(Channel *channel, const gchar *topic)
 {

@@ -45,8 +45,8 @@ static void loqui_toolbar_toggle_scrolling_cb(GtkWidget *widget, gpointer data);
 static void loqui_toolbar_toggle_away_cb(GtkWidget *widget, gpointer data);
 static void loqui_toolbar_connect_cb(GtkWidget *widget, gpointer data);
 
-static void loqui_toolbar_prev_fresh_cb(GtkWidget *widget, gpointer data);
-static void loqui_toolbar_next_fresh_cb(GtkWidget *widget, gpointer data);
+static void loqui_toolbar_prev_updated_cb(GtkWidget *widget, gpointer data);
+static void loqui_toolbar_next_updated_cb(GtkWidget *widget, gpointer data);
 
 GType
 loqui_toolbar_get_type(void)
@@ -175,7 +175,7 @@ loqui_toolbar_connect_cb(GtkWidget *widget, gpointer data)
 	account_manager_open_connect_dialog(account_manager_get());
 }
 static void
-loqui_toolbar_prev_fresh_cb(GtkWidget *widget, gpointer data)
+loqui_toolbar_prev_updated_cb(GtkWidget *widget, gpointer data)
 {
 	LoquiToolbar *toolbar;
 	LoquiToolbarPrivate *priv;
@@ -190,7 +190,7 @@ loqui_toolbar_prev_fresh_cb(GtkWidget *widget, gpointer data)
 	channel_tree_select_prev_channel(priv->app->channel_tree, TRUE);
 }
 static void
-loqui_toolbar_next_fresh_cb(GtkWidget *widget, gpointer data)
+loqui_toolbar_next_updated_cb(GtkWidget *widget, gpointer data)
 {
 	LoquiToolbar *toolbar;
 	LoquiToolbarPrivate *priv;
@@ -234,18 +234,18 @@ loqui_toolbar_new(LoquiApp *app)
 	gtk_toolbar_append_element(GTK_TOOLBAR(toolbar),
 					    GTK_TOOLBAR_CHILD_BUTTON,
 					    NULL, _("Prev"),
-					    _("Select previous fresh channel"),
+					    _("Select previous updated channel"),
 					    NULL, image,
-					    G_CALLBACK(loqui_toolbar_prev_fresh_cb), toolbar);
+					    G_CALLBACK(loqui_toolbar_prev_updated_cb), toolbar);
 
 
 	image = gtk_image_new_from_stock(GTK_STOCK_GO_DOWN, TOOLBAR_ICON_SIZE);
 	gtk_toolbar_append_element(GTK_TOOLBAR(toolbar),
 				   GTK_TOOLBAR_CHILD_BUTTON,
 				   NULL, _("Next"),
-				   _("Select next fresh channel"),
+				   _("Select next updated channel"),
 				   NULL, image,
-				   G_CALLBACK(loqui_toolbar_next_fresh_cb), toolbar);
+				   G_CALLBACK(loqui_toolbar_next_updated_cb), toolbar);
 
 	image = gtk_image_new_from_stock(GTK_STOCK_HOME, TOOLBAR_ICON_SIZE);
 	toolbar->toggle_away = gtk_toolbar_append_element(GTK_TOOLBAR(toolbar),
