@@ -26,6 +26,7 @@ requires 2.0.0
 #include "intl.h"
 #include "utils.h"
 #include "loqui.h"
+#include "gnet.h"
 %}
 
 class Loqui:Core from G:Object
@@ -39,10 +40,18 @@ class Loqui:Core from G:Object
 		self_set_user_dir(self, NULL);
 	}
 
+
 	/**
 	   run from loqui_init().
 	*/
-	public virtual void initialize(self);
+	public virtual void initialize(self) {
+		gnet_init();
+	}
+
+	public LoquiCore * new(void) {
+		LoquiCore *ret = GET_NEW;
+		return ret;
+	}
 
 	public void set_debug_mode(self, gboolean debug_mode) {
 		self->debug_mode = debug_mode;
@@ -84,10 +93,5 @@ class Loqui:Core from G:Object
 
 	public /*G_CONST_RETURN*/ gchar *get_user_dir(self) {
 		return self->user_dir;
-	}
-
-	public LoquiCore * new(void) {
-		LoquiCore *ret = GET_NEW;
-		return ret;
 	}
 }

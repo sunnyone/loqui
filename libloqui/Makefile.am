@@ -12,7 +12,7 @@ SRC_BASE_UTILITIES = \
 	loqui_string_tokenizer.c loqui_string_tokenizer.h \
 	loqui_title_format.c loqui_title_format.h \
 	loqui_marshalers.c loqui_marshalers.h \
-	gkeyfile.c gkeyfile.h
+	lqgkeyfile.c lqgkeyfile.h
 
 SRC_PROTOCOL_BASE_BASE = \
 	loqui_channel_entry.c loqui_channel_entry.h \
