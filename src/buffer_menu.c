@@ -38,7 +38,7 @@ buffer_menu_add_account(GtkMenuShell *menu, Account *account)
 	g_return_val_if_fail(IS_ACCOUNT(account), NULL);
 
 	menuitem = gtk_image_menu_item_new_with_label(account_get_name(account));
-	image = gtk_image_new_from_stock("loqui-console", GTK_ICON_SIZE_MENU);
+	image = gtk_image_new_from_stock(LOQUI_STOCK_CONSOLE, GTK_ICON_SIZE_MENU);
 	gtk_widget_show(image);
 	gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(menuitem), image);
 

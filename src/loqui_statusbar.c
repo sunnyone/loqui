@@ -24,6 +24,7 @@
 #include "icons/pixbufs.h"
 #include "gtkutils.h"
 #include "account_manager.h"
+#include "main.h"
 
 #include <string.h>
 
@@ -366,25 +367,25 @@ loqui_statusbar_set_away_menu(LoquiStatusbar *statusbar)
 	gtk_menu_shell_append(GTK_MENU_SHELL(priv->menu_away), menuitem); \
 }
 
-	ADD_MENU_ITEM(_("Online"), "loqui-online", AWAY_STATE_ONLINE, TRUE);
+	ADD_MENU_ITEM(_("Online"), LOQUI_STOCK_ONLINE, AWAY_STATE_ONLINE, TRUE);
 	
 	menuitem = gtk_separator_menu_item_new();
 	gtk_widget_show(menuitem);
 	gtk_menu_shell_append(GTK_MENU_SHELL(priv->menu_away), menuitem);
 		
-	ADD_MENU_ITEM(_("Away"), "loqui-away", AWAY_STATE_AWAY, TRUE);
+	ADD_MENU_ITEM(_("Away"), LOQUI_STOCK_AWAY, AWAY_STATE_AWAY, TRUE);
 	/*
-	ADD_MENU_ITEM(_("Busy"), "loqui-busy", AWAY_STATE_BUSY, FALSE);
-	ADD_MENU_ITEM(_("Away message..."), "loqui-away", AWAY_STATE_AWAY_WITH_MESSAGE, FALSE);
+	ADD_MENU_ITEM(_("Busy"), LOQUI_STOCK_BUSY, AWAY_STATE_BUSY, FALSE);
+	ADD_MENU_ITEM(_("Away message..."), LOQUI_STOCK_AWAY, AWAY_STATE_AWAY_WITH_MESSAGE, FALSE);
 	ADD_MENU_ITEM(_("Configure away messages..."), GTK_STOCK_PREFERENCES, AWAY_STATE_CONFIGURE, FALSE);
 	
 	menuitem = gtk_separator_menu_item_new();
 	gtk_widget_show(menuitem);
 	gtk_menu_shell_append(GTK_MENU_SHELL(priv->menu_away), menuitem);
 	
-	ADD_MENU_ITEM(_("Quit..."), "loqui-offline", AWAY_STATE_QUIT, FALSE);
-	ADD_MENU_ITEM(_("Offline"), "loqui-offline", AWAY_STATE_OFFLINE, FALSE);
-	ADD_MENU_ITEM(_("Disconnect"), "loqui-offline", AWAY_STATE_DISCONNECT, FALSE);
+	ADD_MENU_ITEM(_("Quit..."), LOQUI_STOCK_OFFLINE, AWAY_STATE_QUIT, FALSE);
+	ADD_MENU_ITEM(_("Offline"), LOQUI_STOCK_OFFLINE, AWAY_STATE_OFFLINE, FALSE);
+	ADD_MENU_ITEM(_("Disconnect"), LOQUI_STOCK_OFFLINE, AWAY_STATE_DISCONNECT, FALSE);
 	*/
 }
 static void

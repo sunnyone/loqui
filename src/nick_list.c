@@ -203,13 +203,13 @@ nick_list_create_icons(NickList *list)
 						  GTK_ICON_SIZE_MENU, NULL);
 	priv->speak_ability_icon = gtk_widget_render_icon(GTK_WIDGET(list), GTK_STOCK_OK,
 							  GTK_ICON_SIZE_MENU, NULL);
-	priv->busy_icon = gtk_widget_render_icon(GTK_WIDGET(list), "loqui-busy",
+	priv->busy_icon = gtk_widget_render_icon(GTK_WIDGET(list), LOQUI_STOCK_BUSY,
 						 GTK_ICON_SIZE_MENU, NULL);
-	priv->away_icon = gtk_widget_render_icon(GTK_WIDGET(list), "loqui-away",
+	priv->away_icon = gtk_widget_render_icon(GTK_WIDGET(list), LOQUI_STOCK_AWAY,
 						 GTK_ICON_SIZE_MENU, NULL);
-	priv->online_icon = gtk_widget_render_icon(GTK_WIDGET(list), "loqui-online",
+	priv->online_icon = gtk_widget_render_icon(GTK_WIDGET(list), LOQUI_STOCK_ONLINE,
 						   GTK_ICON_SIZE_MENU, NULL);
-	priv->offline_icon = gtk_widget_render_icon(GTK_WIDGET(list), "loqui-offline",
+	priv->offline_icon = gtk_widget_render_icon(GTK_WIDGET(list), LOQUI_STOCK_OFFLINE,
 						    GTK_ICON_SIZE_MENU, NULL);
 
 }

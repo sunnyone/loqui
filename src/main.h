@@ -35,4 +35,12 @@ enum {
 	USERLIST_COLUMN_NICK,
 	USERLIST_COLUMN_NUMBER
 };
+
+#define LOQUI_STOCK_CONSOLE      "loqui-console"
+#define LOQUI_STOCK_ONLINE       "loqui-online"
+#define LOQUI_STOCK_OFFLINE      "loqui-offline"
+#define LOQUI_STOCK_AWAY         "loqui-away"
+#define LOQUI_STOCK_BUSY         "loqui-busy"
+#define LOQUI_STOCK_COMMAND      "loqui-command"
+
 #endif /* __MAIN_H__ */
