@@ -47,14 +47,14 @@ codeconv_init(void)
 	length = 0;
 	while(conv_table[length][0] != NULL) length++;
 	
-	num = prefs_general->codeconv;
+	num = prefs_general.codeconv;
 	if(num > length) {
 		g_warning(_("the setting of codeconv was invalid; now 'Auto Detection' is selected."));
 		num = 0;
 	}
 	
 	if(num == -1) {
-		server_codeset = prefs_general->codeset;
+		server_codeset = prefs_general.codeset;
 	} else if(num == 0) {
 		i = 2;
 		ctype = setlocale(LC_CTYPE, NULL);

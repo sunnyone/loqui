@@ -21,12 +21,22 @@
 #define __PREFS_GENERAL_H__
 
 #include <glib.h>
+#include <glib-object.h>
+
+typedef struct _PrefElement PrefElement;
+
+struct _PrefElement {
+	gchar *name;
+	gchar *default_value;
+	GType type;
+	gpointer ptr;
+};
 
 typedef struct _PrefsGeneral {
 	gint codeconv;
 	gchar *codeset;
 	
-	gint save_size;
+	gboolean save_size;
 
 	gint window_height;
 	gint window_width;
@@ -41,8 +51,7 @@ typedef struct _PrefsGeneral {
 
 void prefs_general_load(void);
 void prefs_general_save(void);
-void prefs_general_set_default(void);
 
-extern PrefsGeneral *prefs_general;
+extern PrefsGeneral prefs_general;
 
 #endif /* __PREFS_GENERAL_H__ */

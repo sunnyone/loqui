@@ -363,7 +363,7 @@ account_manager_current_account_set_away(AccountManager *manager, gboolean is_aw
 		return;
 
 	if(is_away)
-		account_set_away(account, prefs_general->away_message);
+		account_set_away(account, prefs_general.away_message);
 	else
 		account_set_away(account, NULL);
 

@@ -27,11 +27,36 @@
 #include <errno.h>
 
 #include "intl.h"
+#include "utils.h"
 
-PrefsGeneral *prefs_general = NULL;
+PrefsGeneral prefs_general;
+
+PrefElement prefs_general_defs[] = {
+	{"codeconv", "0", G_TYPE_UINT, &prefs_general.codeconv },
+	{"codeset", "", G_TYPE_STRING, &prefs_general.codeset },
+
+	{"save_size", "1", G_TYPE_BOOLEAN, &prefs_general.save_size },
+	{"window_height","400", G_TYPE_UINT, &prefs_general.window_height},
+	{"window_width", "480", G_TYPE_UINT, &prefs_general.window_width},
+	{"channel_tree_height", "180", G_TYPE_UINT, &prefs_general.channel_tree_height},
+	{"channel_tree_width",  "100", G_TYPE_UINT, &prefs_general.channel_tree_width},
+	{"common_buffer_height", "150", G_TYPE_UINT, &prefs_general.common_buffer_height},
+
+	{"away_message", "Gone.", G_TYPE_STRING, &prefs_general.away_message},
+
+	{NULL, NULL, 0, NULL}
+};
+
 #define RC_FILENAME "loquirc.xml"
 
-gint in_prefs = 0;
+static gint in_prefs = 0;
+static gboolean prefs_general_initialized = FALSE;
+static PrefElement *current_pref_elem = NULL;
+
+static void prefs_general_initialize(void);
+static void prefs_general_set_default(void);
+static void prefs_general_set_string(PrefElement *elem, const gchar *str);
+static gchar* prefs_general_get_string(PrefElement *elem);
 
 static void
 start_element_handler  (GMarkupParseContext *context,
@@ -45,11 +70,17 @@ end_element_handler    (GMarkupParseContext *context,
                         const gchar         *element_name,
                         gpointer             user_data,
                         GError             **error);
+static void
+text_handler           (GMarkupParseContext *context,
+                        const gchar         *text,
+                        gsize                text_len,
+                        gpointer             user_data,
+                        GError             **error);
 
 static GMarkupParser parser = {
 	start_element_handler,
 	end_element_handler,
-	NULL,
+	text_handler,
 	NULL,
 	NULL
 };
@@ -63,12 +94,15 @@ start_element_handler  (GMarkupParseContext *context,
                         GError             **error)
 {
 	int i;
-	const gchar *name = NULL, *value = NULL;
+	const gchar *key = NULL;
+	PrefElement *elem;
 
 	if(g_ascii_strcasecmp(element_name, "prefs") == 0) {
 		in_prefs++;
 		return;
 	}
+
+	current_pref_elem = NULL;
 
 	if(in_prefs < 1) {
 		return;
@@ -80,45 +114,21 @@ start_element_handler  (GMarkupParseContext *context,
 	}
 
 	for(i = 0; attribute_names[i] != NULL; i++) {
-		if(g_strcasecmp(attribute_names[i], "name") == 0)
-			name = attribute_values[i];
-		else if(g_strcasecmp(attribute_names[i], "value") == 0)
-			value = attribute_values[i];
-		else
+		if(g_strcasecmp(attribute_names[i], "key") == 0) {
+			key = attribute_values[i];
+			break;
+		} else {
 			g_warning(_("prefs_general: Invalid attribute for entry: %s"), attribute_names[i]);
+			return;
+		}
 	}
-
-	if(name == NULL || value == NULL) {
-		g_warning(_("The entry lacks name or value"));
+	elem = g_dataset_get_data(&prefs_general, key);
+	if(!elem) {
+		g_warning(_("Unknown key: %s\n"), key);
 		return;
 	}
 
-#define SET_VALUE_INT(pref_name, dest) { \
-   if(g_strcasecmp(name, pref_name) == 0) { \
-       dest = (gint) g_ascii_strtoull(value, NULL, 10); \
-       debug_puts("prefs_general: %s => %d", pref_name, dest); \
-       return; \
-  } \
-}
-#define SET_VALUE_STR(pref_name, dest) { \
-   if(g_strcasecmp(name, pref_name) == 0) { \
-       dest = g_strdup(value); \
-       debug_puts("prefs_general: %s => \"%s\"", pref_name, dest); \
-       return; \
-  } \
-}
-	SET_VALUE_INT("codeconv", prefs_general->codeconv);
-	SET_VALUE_STR("codeset", prefs_general->codeset);
-	SET_VALUE_INT("save_size", prefs_general->save_size);
-	SET_VALUE_INT("window_width", prefs_general->window_width);
-	SET_VALUE_INT("window_height", prefs_general->window_height);
-	SET_VALUE_INT("common_buffer_height", prefs_general->common_buffer_height);
-	SET_VALUE_INT("channel_tree_width", prefs_general->channel_tree_width);
-	SET_VALUE_INT("channel_tree_height", prefs_general->channel_tree_height);
-	SET_VALUE_STR("away_message", prefs_general->away_message);
-
-#undef SET_VALUE_INT
-#undef SET_VALUE_STR
+	current_pref_elem = elem;
 }
 
 static void
@@ -129,24 +139,97 @@ end_element_handler    (GMarkupParseContext *context,
 {
 	if(g_ascii_strcasecmp(element_name, "prefs") == 0) {
 		in_prefs--;
+	} else if(g_ascii_strcasecmp(element_name, "entry") == 0) {
+		current_pref_elem = NULL;
 	}
 }
 
-void prefs_general_set_default(void)
+static void
+text_handler           (GMarkupParseContext *context,
+                        const gchar         *text,
+                        gsize                text_len,
+                        gpointer             user_data,
+                        GError             **error)
 {
-	prefs_general->codeconv = 0;
-	prefs_general->codeset = g_strdup("");
-	prefs_general->save_size = 1;
-	prefs_general->window_height = 400;
-	prefs_general->window_width = 480;
-
-	prefs_general->channel_tree_height = 180;
-	prefs_general->channel_tree_width = 100;
-
-	prefs_general->common_buffer_height = 150;
-	prefs_general->away_message = "Gone.";
+	if(!current_pref_elem)
+		return;
+	prefs_general_set_string(current_pref_elem, text);
 }
 
+static void
+prefs_general_set_string(PrefElement *elem, const gchar *str)
+{
+	switch(elem->type) {
+	case G_TYPE_BOOLEAN:
+		if(g_ascii_strcasecmp(str, "true") == 0)
+			*((gboolean *) elem->ptr) = TRUE;
+		else
+			*((gboolean *) elem->ptr) = FALSE;
+		break;
+	case G_TYPE_UINT:
+		*((guint *) elem->ptr) = (guint) g_ascii_strtoull(str, NULL, 10);
+		break;
+	case G_TYPE_STRING:
+		G_FREE_UNLESS_NULL(*((gchar **) elem->ptr));
+		*((gchar **) elem->ptr) = g_strdup(str);
+		break;
+	default:
+		g_warning(_("Unsupported pref type!"));
+		break;
+	}
+}
+static gchar *
+prefs_general_get_string(PrefElement *elem)
+{
+	gchar *str;
+
+	switch(elem->type) {
+	case G_TYPE_BOOLEAN:
+		if(*((gboolean *)elem->ptr))
+			str = g_strdup("true");
+		else
+			str = g_strdup("false");
+		break;
+	case G_TYPE_UINT:
+		str = g_strdup_printf("%d", *((guint *) elem->ptr));
+		break;
+	case G_TYPE_STRING:
+		str = g_strdup(*((gchar **) elem->ptr));
+		break;
+	default:
+		g_warning(_("Unsupported pref type!"));
+		str = g_strdup("UNSUPPORTED TYPE");
+		break;
+	}
+
+	return str;
+}
+static
+void prefs_general_set_default(void)
+{
+	gint i;
+
+	for(i = 0; prefs_general_defs[i].name != NULL; i++)
+		prefs_general_set_string(&prefs_general_defs[i], prefs_general_defs[i].default_value);
+
+}
+static void prefs_general_initialize(void)
+{
+	gint i;
+
+	if(prefs_general_initialized)
+		return;
+
+	memset(&prefs_general, 0, sizeof(prefs_general));
+
+	for(i = 0; prefs_general_defs[i].name != NULL; i++) {
+		g_dataset_id_set_data(&prefs_general,
+				      g_quark_from_static_string(prefs_general_defs[i].name),
+				      &prefs_general_defs[i]);
+	}
+
+	prefs_general_initialized = TRUE;
+}
 void prefs_general_load(void)
 {
 	gchar *contents;
@@ -157,11 +240,7 @@ void prefs_general_load(void)
 
 	debug_puts("Loading prefs_general...");
 
-	if(!prefs_general) {
-		prefs_general = g_new0(PrefsGeneral, 1);
-	} else {
-		G_FREE_UNLESS_NULL(prefs_general->codeset);
-	}
+	prefs_general_initialize();
 	prefs_general_set_default();
 	
 	path = g_build_filename(g_get_home_dir(), PREFS_DIR, RC_FILENAME, NULL);
@@ -190,8 +269,9 @@ void prefs_general_load(void)
 void prefs_general_save(void)
 {
 	gchar *path;
-	gchar *escaped;
+	gchar *tmp, *escaped;
 	FILE *fp;
+	gint i;
 
 	debug_puts("Saving prefs_general...");
 
@@ -205,30 +285,18 @@ void prefs_general_save(void)
 	fputs("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n", fp);
 	fputs("<prefs>\n", fp);
 
-#define WRITE_ENTRY_STR(name, value) { \
-   escaped = g_markup_escape_text(value, -1); \
-   fprintf(fp, "  <entry name=\"%s\" value=\"%s\" />\n", name, escaped); \
-   g_free(escaped); \
-}
-#define WRITE_ENTRY_INT(name, value) { \
-   fprintf(fp, "  <entry name=\"%s\" value=\"%d\" />\n", name, value); \
-}
-	WRITE_ENTRY_INT("codeconv", prefs_general->codeconv);
-	WRITE_ENTRY_STR("codeset", prefs_general->codeset);
-	WRITE_ENTRY_INT("save_size", prefs_general->save_size);
-	WRITE_ENTRY_INT("window_width", prefs_general->window_width);
-	WRITE_ENTRY_INT("window_height", prefs_general->window_height);
-	WRITE_ENTRY_INT("common_buffer_height", prefs_general->common_buffer_height);
-	WRITE_ENTRY_INT("channel_tree_width", prefs_general->channel_tree_width);
-	WRITE_ENTRY_INT("channel_tree_height", prefs_general->channel_tree_height);
-	WRITE_ENTRY_STR("away_message", prefs_general->away_message);
+	for(i = 0; prefs_general_defs[i].name != NULL; i++) {
+		tmp = prefs_general_get_string(&prefs_general_defs[i]);
+		escaped = g_markup_escape_text(tmp, -1);
+		g_free(tmp);
+
+		fprintf(fp, "  <entry key=\"%s\">%s</entry>\n", 
+			prefs_general_defs[i].name, escaped);
+		g_free(escaped);
+	}
 
 	fputs("</prefs>", fp);
 	fclose(fp);
 
 	debug_puts("Done.");
-
-#undef WRITE_ENTRY_STR
-#undef WRITE_ENTRY_INT
-
 }
