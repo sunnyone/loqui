@@ -47,7 +47,7 @@ static void make_program_dir(void)
 	const gchar *dirname;
 	gchar *log_dirname;
 	
-	dirname = loqui_get_user_dir();
+	dirname = loqui_core_get_user_dir(loqui_get_core());
 	if(!g_file_test(dirname, G_FILE_TEST_EXISTS)) {
 		loqui_utils_mkdir_and_chmod(dirname);
 	}
@@ -85,17 +85,17 @@ main(int argc, char *argv[])
 
 	for(i = 0; i < argc; i++) {
 		if(strcmp(argv[i], "--debug") == 0) {
-			loqui_set_debug_mode(TRUE);
+			loqui_core_set_debug_mode(loqui_get_core(), TRUE);
 			g_print("Start debug mode.\n");
 			continue;
 		}
 		if(strcmp(argv[i], "--show-msg") == 0) {
-			loqui_set_show_msg_mode(TRUE);
+			loqui_core_set_show_msg_mode(loqui_get_core(), TRUE);
 			g_print("Start show msg mode\n");
 			continue;
 		}
 		if(strcmp(argv[i], "--no-send-status-commands") == 0) {
-			loqui_set_send_status_commands_mode(FALSE);
+			loqui_core_set_send_status_commands_mode(loqui_get_core(), FALSE);
 			g_print("Loqui doesn't send commands to get status like MODE, WHO in this session\n");
 			continue;
 		}

@@ -449,7 +449,7 @@ loqui_account_irc_conn_readline_cb(GConn *conn, const gchar *buffer, LoquiAccoun
 		loqui_account_warning(LOQUI_ACCOUNT(account), "Failed to parse a line");
 		return;
 	}
-	if (loqui_get_show_msg_mode())
+	if (loqui_core_get_show_msg_mode(loqui_get_core()))
 		irc_message_print(msg);
 
 	loqui_receiver_irc_response(LOQUI_RECEIVER_IRC(LOQUI_ACCOUNT(account)->receiver), msg);

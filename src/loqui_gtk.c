@@ -44,7 +44,7 @@ loqui_gtk_init(int *argc, char **argv[])
 
 	loqui_stock_init();
 
-	path = g_build_filename(loqui_get_user_dir(), "gtkrc-2.0", NULL);
+	path = g_build_filename(loqui_core_get_user_dir(loqui_get_core()), "gtkrc-2.0", NULL);
 	gtk_rc_parse(path);
 	g_free(path);
 }
@@ -60,7 +60,7 @@ loqui_gtk_start_main_loop(LoquiProtocolManager *pmanag)
 	loqui_app_info_load_from_prefs_general(app->appinfo);
 	loqui_app_info_update_string_idle(app->appinfo);
 
-	path = g_build_filename(loqui_get_user_dir(), ACCEL_MAP_FILE, NULL);
+	path = g_build_filename(loqui_core_get_user_dir(loqui_get_core()), ACCEL_MAP_FILE, NULL);
 
 	gtk_accel_map_add_filter(SHORTCUT_CHANNEL_ENTRY_ACCEL_MAP_PREFIX "*");
 	gtk_accel_map_load(path);

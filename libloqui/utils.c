@@ -38,7 +38,7 @@ void debug_print(const gchar *format, ...)
 	va_list args;
 	gchar *str;
 
-	if(!loqui_get_debug_mode())
+	if(!loqui_core_get_debug_mode(loqui_get_core()))
 		return;
 
 	va_start(args, format);
@@ -52,7 +52,7 @@ void debug_puts(const gchar *format, ...)
 	va_list args;
 	gchar *str;
 
-	if(!loqui_get_debug_mode())
+	if(!loqui_core_get_debug_mode(loqui_get_core()))
 		return;
 
 	va_start(args, format);

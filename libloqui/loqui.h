@@ -22,20 +22,12 @@
 #define __LOQUI_H__
 
 #include <glib-object.h>
+#include <loqui-core.h>
 
 #define LOQUI_USER_DIR_DEFAULT_BASENAME ".loqui"
 #define LOQUI_USER_DIR_ENV_KEY "LOQUI_USER_DIR"
 
-void loqui_set_debug_mode(gboolean debug_mode);
-gboolean loqui_get_debug_mode(void);
-
-void loqui_set_show_msg_mode(gboolean show_msg_mode);
-gboolean loqui_get_show_msg_mode(void);
-
-void loqui_set_send_status_commands_mode(gboolean send_status_commands_mode);
-gboolean loqui_get_send_status_commands_mode(void);
-
-void loqui_set_user_dir(const gchar *path);
-G_CONST_RETURN gchar *loqui_get_user_dir(void);
+void loqui_init(LoquiCore *core);
+LoquiCore *loqui_get_core(void);
 
 #endif /* __LOQUI_H__ */

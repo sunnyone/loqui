@@ -1,0 +1,93 @@
+requires 2.0.0
+
+%alltop{
+/*
+ * libloqui -- Chat/IM client library for GLib <http://loqui.good-day.net/>
+ * Copyright (C) 2004 Yoichi Imai <yoichi@silver-forest.com>
+ *
+ * This Library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Library General Public License as
+ * published by the Free Software Foundation; either version 2 of the
+ * License, or (at your option) any later version.
+ *
+ * This Library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Library General Public License for more details.
+ *
+ * You should have received a copy of the GNU Library General Public
+ * License along with the Gnome Library; see the file COPYING.LIB.  If not,
+ * write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+ * Boston, MA 02111-1307, USA.
+ */
+%}
+
+%{
+#include "intl.h"
+#include "utils.h"
+#include "loqui.h"
+%}
+
+class Loqui:Core from G:Object
+{
+	public gboolean debug_mode = FALSE;
+	public gboolean show_msg_mode = FALSE;
+	public gboolean send_status_commands_mode = FALSE;
+	public gchar *user_dir = NULL;
+
+	init(self) {
+		self_set_user_dir(self, NULL);
+	}
+
+	/**
+	   run from loqui_init().
+	*/
+	public virtual void initialize(self);
+
+	public void set_debug_mode(self, gboolean debug_mode) {
+		self->debug_mode = debug_mode;
+	}
+	public gboolean get_debug_mode(self) {
+		return self->debug_mode;
+	}
+
+	public void set_show_msg_mode(self, gboolean show_msg_mode) {
+		self->show_msg_mode = show_msg_mode;
+	}
+	public gboolean get_show_msg_mode(self) {
+		return self->show_msg_mode;
+	}
+
+	public void set_send_status_commands_mode(self, gboolean send_status_commands_mode) {
+		self->send_status_commands_mode = send_status_commands_mode;
+	}
+	public gboolean get_send_status_commands_mode(self) {
+		return self->send_status_commands_mode;
+	}
+
+	public void set_user_dir(self, const gchar *path) {
+		const gchar *env_userdir;
+		
+		if (self->user_dir) {
+			g_free(self->user_dir);
+			self->user_dir = NULL;
+		}
+		if (path) {
+			self->user_dir = g_strdup(path);
+		} else {
+			if ((env_userdir = g_getenv(LOQUI_USER_DIR_ENV_KEY)) != NULL)
+				self->user_dir = g_strdup(env_userdir);
+			else
+				self->user_dir = g_build_filename(g_get_home_dir(), LOQUI_USER_DIR_DEFAULT_BASENAME, NULL);
+		}
+	}
+
+	public /*G_CONST_RETURN*/ gchar *get_user_dir(self) {
+		return self->user_dir;
+	}
+
+	public LoquiCore * new(void) {
+		LoquiCore *ret = GET_NEW;
+		return ret;
+	}
+}

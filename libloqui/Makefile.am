@@ -1,6 +1,9 @@
 INCLUDES = $(GLIB_CFLAGS) $(GNET_CFLAGS) $(EXTRA_WARNING_CFLAGS) -I$(includedir)
 CPPFLAGS = -g -Wall -Wredundant-decls -Wmissing-declarations -Wmissing-prototypes
 
+%.c %.h %-private.h: %.gob
+	gob2 --always-private-header $<
+
 SRC_BASE_UTILITIES = \
 	intl.h \
 	utils.c utils.h \
@@ -70,7 +73,10 @@ SRC_LIBRARY_CORE = \
 	prefs_general.c prefs_general.h \
 	loqui_account_manager.c loqui_account_manager.h \
 	loqui_account_manager_iter.c loqui_account_manager_iter.h \
+	loqui-core.gob loqui-core.c loqui-core.h loqui-core-private.h \
 	loqui.c loqui.h
+
+BUILT_SOURCES := loqui-core.c loqui-core.h loqui-core-private.h
 
 lib_LTLIBRARIES = libloqui.la
 

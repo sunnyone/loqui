@@ -21,66 +21,20 @@
 #include "config.h"
 #include "loqui.h"
 
-static gboolean loqui_debug_mode = FALSE;
-static gboolean loqui_show_msg_mode = FALSE;
-static gboolean loqui_send_status_commands_mode = TRUE;
-static gchar *loqui_user_dir = NULL;
+static LoquiCore *loqui_core = NULL;
 
 void
-loqui_set_debug_mode(gboolean debug_mode)
+loqui_init(LoquiCore *core)
 {
-	loqui_debug_mode = debug_mode;
-}
-gboolean
-loqui_get_debug_mode(void)
-{
-	return loqui_debug_mode;
-}
+	if (core)
+		loqui_core = core;
+	else
+		loqui_core = loqui_core_new();
 
-void
-loqui_set_show_msg_mode(gboolean show_msg_mode)
-{
-	loqui_show_msg_mode = show_msg_mode;
+	loqui_core_initialize(loqui_core);
 }
-
-gboolean
-loqui_get_show_msg_mode(void)
+LoquiCore *
+loqui_get_core(void)
 {
-	return loqui_show_msg_mode;
-}
-
-void
-loqui_set_send_status_commands_mode(gboolean send_status_commands_mode)
-{
-	loqui_send_status_commands_mode = send_status_commands_mode;
-}
-gboolean
-loqui_get_send_status_commands_mode(void)
-{
-	return loqui_send_status_commands_mode;
-}
-void
-loqui_set_user_dir(const gchar *path)
-{
-	const gchar *env_userdir;
-
-	if (loqui_user_dir) {
-		g_free(loqui_user_dir);
-		loqui_user_dir = NULL;
-	}
-	if (path) {
-		loqui_user_dir = g_strdup(path);
-	} else {
-		if ((env_userdir = g_getenv(LOQUI_USER_DIR_ENV_KEY)) != NULL)
-			loqui_user_dir = g_strdup(env_userdir);
-		else
-			loqui_user_dir = g_build_filename(g_get_home_dir(), LOQUI_USER_DIR_DEFAULT_BASENAME, NULL);
-	}
-}
-G_CONST_RETURN gchar *
-loqui_get_user_dir(void)
-{
-	if (!loqui_user_dir)
-		loqui_set_user_dir(NULL);
-	return loqui_user_dir;
+	return loqui_core;
 }

@@ -584,7 +584,7 @@ loqui_sender_irc_send_raw(LoquiSenderIRC *sender, const gchar *str)
 	WARN_AND_RETURN_UNLESS_CONNECTED(sender);
 
 	msg = irc_message_parse_line(str);
-	if (loqui_get_debug_mode()) {
+	if (loqui_core_get_debug_mode(loqui_get_core())) {
 		buf = irc_message_to_string(msg);
 		debug_puts("send_raw: %s", buf);
 		g_free(buf);
@@ -681,7 +681,7 @@ loqui_sender_irc_change_member_mode(LoquiSenderIRC *sender, LoquiChannel *channe
 
 	msg = irc_message_createv(IRCCommandMode, param_array);
 	debug_puts("Sending MODE command.\n");
-	if (loqui_get_show_msg_mode())
+	if (loqui_core_get_show_msg_mode(loqui_get_core()))
 		irc_message_print(msg);
 	loqui_sender_irc_send_irc_message(LOQUI_SENDER_IRC(sender), msg);
 	g_object_unref(msg);
