@@ -22,6 +22,7 @@
 
 #include <glib.h>
 #include "gobject_utils.h"
+#include "codeconv.h"
 
 G_BEGIN_DECLS
 
@@ -112,6 +113,9 @@ void account_remove_all_server(Account *account);
 void account_connect(Account *account, Server *server);
 void account_disconnect(Account *account);
 gboolean account_is_connected(Account *account);
+
+void account_set_codeconv(Account *account, CodeConv *codeconv);
+CodeConv *account_get_codeconv(Account *account);
 
 void account_add_channel(Account *account, Channel *channel);
 void account_remove_channel(Account *account, Channel *channel);

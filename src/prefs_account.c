@@ -28,6 +28,8 @@
 #include <string.h>
 #include <glib.h>
 
+#include "codeconv.h"
+
 #define RC_FILENAME "accountrc.xml"
 
 #define SET_ATTRIBUTE_STR(pref_name, dest) { \
@@ -130,6 +132,42 @@ static void set_current_account(const gchar **attribute_names,
 #undef CHECK_SPACE
 }
 
+static void set_codeconv(const gchar **attribute_names,
+			 const gchar **attribute_values)
+{
+	int i;
+	gint code_type = -1;
+	gchar *codeset = NULL;
+	CodeConv *codeconv;
+
+	if(!current_account) {
+		g_warning(_("Current account is not set."));
+		return;
+	}
+
+	for(i = 0; attribute_names[i] != NULL; i++) {
+		SET_ATTRIBUTE_INT("type", code_type);
+		SET_ATTRIBUTE_STR("codeset", codeset);
+		g_warning(_("prefs_account: Invalid attribute for account: %s"), attribute_names[i]);
+	}
+	if(code_type < 0 || code_type >= N_CODESET_TYPE) {
+		g_warning(_("Invalid codeset type: %d"), code_type);
+		return;
+	}
+
+	codeconv = codeconv_new();
+	codeconv_set_codeset_type(codeconv, code_type);
+	if(code_type == CODESET_TYPE_CUSTOM) {
+		if(codeset == NULL || strlen(codeset) == 0) {
+			g_warning(_("Invalid codeset string"));
+			g_object_unref(codeconv);
+			return;
+		}
+		codeconv_set_codeset(codeconv, codeset);
+	}
+	account_set_codeconv(current_account, codeconv);
+	g_object_unref(codeconv);
+}
 static void add_server(const gchar **attribute_names,
 		       const gchar **attribute_values)
 {
@@ -192,6 +230,10 @@ start_element_handler  (GMarkupParseContext *context,
 	}
 	if(g_strcasecmp(element_name, "server") == 0) {
 		add_server(attribute_names, attribute_values);
+		return;
+	}
+	if(g_strcasecmp(element_name, "codeconv") == 0) {
+		set_codeconv(attribute_names, attribute_values);
 		return;
 	}
 
@@ -295,12 +337,14 @@ GSList *prefs_account_load(void)
 void prefs_account_save(GSList *account_list)
 {
 	gchar *path;
+	gint num1;
 	gchar *tmp1, *tmp2, *tmp3;
 	gchar *escaped;
 	FILE *fp;
 	GSList *cur, *cur2;
 	Account *account;
 	Server *server;
+	CodeConv *codeconv;
 
 	debug_puts("Saving prefs_account...");
 
@@ -341,6 +385,18 @@ void prefs_account_save(GSList *account_list)
 			escaped = g_markup_escape_text(account_get_autojoin(account), -1);
 			fprintf(fp, " <autojoin>%s</autojoin>\n", escaped);
 			g_free(escaped);
+		}
+		
+		codeconv = account_get_codeconv(account);
+		if(codeconv) {
+			num1 = codeconv_get_codeset_type(codeconv);
+			fprintf(fp, " <codeconv type=\"%d\"", num1);
+			if(num1 == CODESET_TYPE_CUSTOM) {
+				escaped = g_markup_escape_text(codeconv_get_codeset(codeconv), -1);
+				fprintf(fp, " codeset=\"%s\"", escaped);
+				g_free(escaped);
+			}
+			fprintf(fp, " />\n");
 		}
 
 		for(cur2 = account->server_list; cur2 != NULL; cur2 = cur2->next) {

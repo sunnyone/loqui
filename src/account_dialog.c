@@ -38,6 +38,9 @@ struct _AccountDialogPrivate
 	GtkWidget *entry_userinfo;
 	GtkWidget *entry_autojoin;
 
+	GtkWidget *option_codeconv;
+	GtkWidget *entry_codeset;
+
 	GtkWidget *treeview;
 	GtkListStore *list_store;
 };
@@ -71,6 +74,8 @@ static void account_dialog_add_cb(GtkWidget *widget, gpointer data);
 static void account_dialog_remove_cb(GtkWidget *widget, gpointer data);
 static void account_dialog_up_cb(GtkWidget *widget, gpointer data);
 static void account_dialog_down_cb(GtkWidget *widget, gpointer data);
+
+static void account_dialog_option_codeconv_changed_cb(GtkWidget *widget, gpointer data);
 
 GType
 account_dialog_get_type(void)
@@ -155,6 +160,8 @@ account_dialog_response_cb(GtkWidget *widget, gint response, gpointer data)
 	guint port;
 	gchar *hostname, *password;
 	gboolean use;
+	CodeSetType code_type;
+	CodeConv *codeconv;
 
 	dialog = ACCOUNT_DIALOG(data);
 
@@ -162,6 +169,12 @@ account_dialog_response_cb(GtkWidget *widget, gint response, gpointer data)
 
 	switch(response) {
 	case GTK_RESPONSE_OK:
+		codeconv = codeconv_new();
+		code_type = gtk_option_menu_get_history(GTK_OPTION_MENU(priv->option_codeconv));
+		codeconv_set_codeset_type(codeconv, code_type);
+		if(code_type == CODESET_TYPE_CUSTOM)
+			codeconv_set_codeset(codeconv, gtk_entry_get_text(GTK_ENTRY(priv->entry_codeset)));
+
 		g_object_set(priv->account,
 			     "use", gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(priv->check_use)),
 			     "name", gtk_entry_get_text(GTK_ENTRY(priv->entry_name)),
@@ -169,7 +182,11 @@ account_dialog_response_cb(GtkWidget *widget, gint response, gpointer data)
 			     "username", gtk_entry_get_text(GTK_ENTRY(priv->entry_username)),
 			     "realname", gtk_entry_get_text(GTK_ENTRY(priv->entry_realname)),
 			     "userinfo", gtk_entry_get_text(GTK_ENTRY(priv->entry_userinfo)),
-			     "autojoin", gtk_entry_get_text(GTK_ENTRY(priv->entry_autojoin)), NULL);
+			     "autojoin", gtk_entry_get_text(GTK_ENTRY(priv->entry_autojoin)),
+			     "codeconv", codeconv,
+			     NULL);
+		g_object_unref(codeconv);
+
 		account_remove_all_server(priv->account);
 
 		if(!gtk_tree_model_get_iter_first(GTK_TREE_MODEL(priv->list_store), &iter))
@@ -187,7 +204,8 @@ account_dialog_response_cb(GtkWidget *widget, gint response, gpointer data)
 		break;
 	}
 }
-static void account_dialog_list_use_toggled_cb(GtkCellRendererToggle *cell,
+static void
+account_dialog_list_use_toggled_cb(GtkCellRendererToggle *cell,
 					       gchar *path_str, gpointer data)
 {
 	AccountDialog *dialog;
@@ -205,7 +223,8 @@ static void account_dialog_list_use_toggled_cb(GtkCellRendererToggle *cell,
 
 	gtk_list_store_set(priv->list_store, &iter, COLUMN_USE, is_active, -1);
 }
-static void account_dialog_list_column_edited_cb(GtkCellRendererText *cell,
+static void
+account_dialog_list_column_edited_cb(GtkCellRendererText *cell,
 						 const gchar *path_str,
 						 const gchar *new_text,
 						 gpointer data)
@@ -235,7 +254,8 @@ static void account_dialog_list_column_edited_cb(GtkCellRendererText *cell,
 		break;
 	}
 }
-static void account_dialog_add_cb(GtkWidget *widget, gpointer data)
+static void
+account_dialog_add_cb(GtkWidget *widget, gpointer data)
 {
 	AccountDialog *dialog;
 	AccountDialogPrivate *priv;
@@ -252,7 +272,8 @@ static void account_dialog_add_cb(GtkWidget *widget, gpointer data)
 			   COLUMN_EDITABLE, TRUE,
 			   -1);
 }
-static void account_dialog_remove_cb(GtkWidget *widget, gpointer data)
+static void
+account_dialog_remove_cb(GtkWidget *widget, gpointer data)
 {
 	AccountDialog *dialog;
 	AccountDialogPrivate *priv;
@@ -270,7 +291,8 @@ static void account_dialog_remove_cb(GtkWidget *widget, gpointer data)
 		gtk_tree_selection_select_iter(selection, &iter_next);
 	gtk_list_store_remove(priv->list_store, &iter);
 }
-static void account_dialog_up_cb(GtkWidget *widget, gpointer data)
+static void
+account_dialog_up_cb(GtkWidget *widget, gpointer data)
 {
 	AccountDialog *dialog;
 	AccountDialogPrivate *priv;
@@ -296,7 +318,8 @@ static void account_dialog_up_cb(GtkWidget *widget, gpointer data)
 	gtk_tree_path_free(path);
 	return;
 }
-static void account_dialog_down_cb(GtkWidget *widget, gpointer data)
+static void
+account_dialog_down_cb(GtkWidget *widget, gpointer data)
 {
 	AccountDialog *dialog;
 	AccountDialogPrivate *priv;
@@ -322,7 +345,34 @@ static void account_dialog_down_cb(GtkWidget *widget, gpointer data)
 	gtk_tree_path_free(path);
 	return;
 }
+static void
+account_dialog_option_codeconv_changed_cb(GtkWidget *widget, gpointer data)
+{
+	AccountDialog *dialog;
+	AccountDialogPrivate *priv;
+	CodeConv *cur_codeconv;
+	const gchar *codeset;
+	gint i;
 
+	dialog = ACCOUNT_DIALOG(data);
+	priv = dialog->priv;
+
+	cur_codeconv = account_get_codeconv(priv->account);
+	codeset = codeconv_get_codeset(cur_codeconv);
+
+	i = gtk_option_menu_get_history(GTK_OPTION_MENU(widget));
+	if(i == CODESET_TYPE_CUSTOM) {
+		gtk_widget_set_sensitive(priv->entry_codeset, TRUE);
+		gtk_entry_set_text(GTK_ENTRY(priv->entry_codeset), codeset);
+	} else {
+		gtk_widget_set_sensitive(priv->entry_codeset, FALSE);
+		if(conv_table[i].codeset)
+			gtk_entry_set_text(GTK_ENTRY(priv->entry_codeset), conv_table[i].codeset);
+		else
+			gtk_entry_set_text(GTK_ENTRY(priv->entry_codeset), "");
+	}
+
+}
 GtkWidget*
 account_dialog_new(Account *account)
 {
@@ -332,15 +382,23 @@ account_dialog_new(Account *account)
 	GtkWidget *scrolled_win;
 	GtkWidget *frame;
 	GtkWidget *button;
+	GtkWidget *menu;
+	GtkWidget *menuitem;
+	GtkWidget *label;
 	GtkCellRenderer *renderer;
 	GtkTreeViewColumn *column;
 	GtkTreeIter iter;
 	GSList *cur;
 	Server *server;
+	CodeConv *codeconv;
+	gint i;
 
 	g_return_val_if_fail(account != NULL, NULL);
 
 	dialog = g_object_new(account_dialog_get_type(), NULL);
+	priv = dialog->priv;
+	priv->account = account;
+
 	gtk_dialog_add_buttons(GTK_DIALOG(dialog),
 			       GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
 			       GTK_STOCK_OK, GTK_RESPONSE_OK,
@@ -351,7 +409,6 @@ account_dialog_new(Account *account)
 			 G_CALLBACK(account_dialog_response_cb),
 			 dialog);
 
-	priv = dialog->priv;
 	vbox = GTK_DIALOG(dialog)->vbox;
 	
 	hbox = gtk_hbox_new(TRUE, 0);
@@ -368,6 +425,36 @@ account_dialog_new(Account *account)
 	gtkutils_add_label_entry(vbox, _("Realname:"), &priv->entry_realname, account_get_realname(account));
 	gtkutils_add_label_entry(vbox, _("User information:"), &priv->entry_userinfo, account_get_userinfo(account));
 	gtkutils_add_label_entry(vbox, _("Auto join channels:"), &priv->entry_autojoin, account_get_autojoin(account));
+
+	frame = gtk_frame_new(_("Code convertion"));
+	gtk_box_pack_start(GTK_BOX(vbox), frame, FALSE, FALSE, 2);
+	
+	hbox = gtk_hbox_new(FALSE, 0);
+	gtk_container_add(GTK_CONTAINER(frame), hbox);
+
+	priv->option_codeconv = gtk_option_menu_new();
+	gtk_box_pack_start(GTK_BOX(hbox), priv->option_codeconv, FALSE, FALSE, 0);
+	menu = gtk_menu_new();
+	gtk_option_menu_set_menu(GTK_OPTION_MENU(priv->option_codeconv), menu);
+	g_signal_connect(G_OBJECT(priv->option_codeconv), "changed",
+			 G_CALLBACK(account_dialog_option_codeconv_changed_cb), dialog);
+	
+	priv->entry_codeset = gtk_entry_new();
+	gtk_box_pack_end(GTK_BOX(hbox), priv->entry_codeset, FALSE, FALSE, 0);
+
+	label = gtk_label_new("codeset: ");
+	gtk_box_pack_end(GTK_BOX(hbox), label, FALSE, FALSE, 0);
+
+	menu = gtk_option_menu_get_menu(GTK_OPTION_MENU(priv->option_codeconv));
+
+	for(i = 0; i < N_CODESET_TYPE; i++) {
+		menuitem = gtk_menu_item_new_with_label(gettext(conv_table[i].title));
+		gtk_menu_shell_append(GTK_MENU_SHELL(menu), menuitem);
+	}
+	codeconv = account_get_codeconv(priv->account);
+	gtk_option_menu_set_history(GTK_OPTION_MENU(priv->option_codeconv),
+				    codeconv_get_codeset_type(codeconv));
+
 
 	frame = gtk_frame_new(_("Servers (Cells are editable.)"));
 	gtk_box_pack_start(GTK_BOX(vbox), frame, TRUE, TRUE, 0);
@@ -470,8 +557,6 @@ account_dialog_new(Account *account)
 	gtk_box_pack_start(GTK_BOX(vbox_c), button, FALSE, FALSE, 0);
 
 	gtk_widget_show_all(GTK_WIDGET(dialog));
-
-	priv->account = account;
 
 	return GTK_WIDGET(dialog);
 }

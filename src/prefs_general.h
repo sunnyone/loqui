@@ -43,9 +43,6 @@ struct _PrefElement {
 };
 
 typedef struct _PrefsGeneral {
-	guint codeconv;
-	gchar *codeset;
-	
 	gboolean save_size;
 
 	guint window_height;

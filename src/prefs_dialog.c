@@ -36,8 +36,6 @@ struct _PrefsDialogPrivate
 	GtkWidget *check_auto_reconnect;
 	GtkWidget *check_connect_startup;
 	GtkWidget *entry_away_message;
-	GtkWidget *option_codeconv;
-	GtkWidget *entry_codeset;
 
 	GtkWidget *check_use_notification;
 	GtkWidget *textview_highlight;
@@ -142,22 +140,11 @@ prefs_dialog_load_settings(PrefsDialog *dialog)
 	PrefsDialogPrivate *priv;
 	gchar *buf;
 	GtkTextBuffer *buffer;
-	GtkWidget *menu;
-	GtkWidget *menuitem;
-	gint i;
 
 	g_return_if_fail(dialog != NULL);
         g_return_if_fail(IS_PREFS_DIALOG(dialog));
 
 	priv = dialog->priv;
-
-	menu = gtk_option_menu_get_menu(GTK_OPTION_MENU(priv->option_codeconv));
-
-	for(i = 0; conv_table[i].title != NULL; i++) {
-		menuitem = gtk_menu_item_new_with_label(gettext(conv_table[i].title));
-		gtk_menu_shell_append(GTK_MENU_SHELL(menu), menuitem);
-	}
-	gtk_option_menu_set_history(GTK_OPTION_MENU(priv->option_codeconv), prefs_general.codeconv);
 
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(priv->check_auto_switch_scrolling), prefs_general.auto_switch_scrolling);
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(priv->check_parse_plum_recent), prefs_general.parse_plum_recent);
@@ -206,8 +193,6 @@ prefs_dialog_save_settings(PrefsDialog *dialog)
 	prefs_general.auto_reconnect = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(priv->check_auto_reconnect));
 	prefs_general.connect_startup = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(priv->check_connect_startup));
 
-	prefs_general.codeconv = gtk_option_menu_get_history(GTK_OPTION_MENU(priv->option_codeconv));
-
 	buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(priv->textview_highlight));
 	gtk_text_buffer_get_start_iter(GTK_TEXT_BUFFER(buffer), &start);
 	gtk_text_buffer_get_end_iter(GTK_TEXT_BUFFER(buffer), &end);
@@ -224,9 +209,6 @@ prefs_dialog_save_settings(PrefsDialog *dialog)
 	G_LIST_FREE_WITH_ELEMENT_FREE_UNLESS_NULL(prefs_general.transparent_ignore_list);
 	prefs_general.transparent_ignore_list = utils_line_separated_text_to_list(buf);
 
-	G_FREE_UNLESS_NULL(prefs_general.codeset);
-	prefs_general.codeset = g_strdup(gtk_entry_get_text(GTK_ENTRY(priv->entry_codeset)));
-
 	G_FREE_UNLESS_NULL(prefs_general.away_message);
 	prefs_general.away_message = g_strdup(gtk_entry_get_text(GTK_ENTRY(priv->entry_away_message)));
 
@@ -237,7 +219,6 @@ prefs_dialog_save_settings(PrefsDialog *dialog)
 	prefs_general.notification_command = g_strdup(gtk_entry_get_text(GTK_ENTRY(priv->entry_notification_command)));
 
 	prefs_general_save();
-	codeconv_init();
 }
 
 static void
@@ -249,29 +230,7 @@ prefs_dialog_response_cb(GtkWidget *widget, gint response, gpointer data)
 		prefs_dialog_save_settings(PREFS_DIALOG(data));
 	}
 }
-static void
-prefs_dialog_option_codeconv_changed_cb(GtkWidget *widget, gpointer data)
-{
-	PrefsDialog *dialog;
-	PrefsDialogPrivate *priv;
-	gint i;
 
-	dialog = PREFS_DIALOG(data);
-	priv = dialog->priv;
-
-	i = gtk_option_menu_get_history(GTK_OPTION_MENU(widget));
-	if(i == CODECONV_CUSTOM) {
-		gtk_widget_set_sensitive(priv->entry_codeset, TRUE);
-		gtk_entry_set_text(GTK_ENTRY(priv->entry_codeset), prefs_general.codeset);
-	} else {
-		gtk_widget_set_sensitive(priv->entry_codeset, FALSE);
-		if(conv_table[i].codeset)
-			gtk_entry_set_text(GTK_ENTRY(priv->entry_codeset), conv_table[i].codeset);
-		else
-			gtk_entry_set_text(GTK_ENTRY(priv->entry_codeset), "");
-	}
-
-}
 GtkWidget*
 prefs_dialog_new(void)
 {
@@ -279,11 +238,8 @@ prefs_dialog_new(void)
 	PrefsDialogPrivate *priv;
 	GtkWidget *notebook;
 	GtkWidget *vbox;
-	GtkWidget *label;
-	GtkWidget *hbox;
 	GtkWidget *frame;
 	GtkWidget *scrolled_win;
-	GtkWidget *menu;
 
 	dialog = g_object_new(prefs_dialog_get_type(), NULL);
 
@@ -317,25 +273,6 @@ prefs_dialog_new(void)
 
 	priv->check_connect_startup = gtk_check_button_new_with_label(_("Connect default accounts when the program started"));
 	gtk_box_pack_start(GTK_BOX(vbox), priv->check_connect_startup, FALSE, FALSE, 0);
-
-	frame = gtk_frame_new(_("Code convertion"));
-	gtk_box_pack_start(GTK_BOX(vbox), frame, FALSE, FALSE, 2);
-	
-	hbox = gtk_hbox_new(FALSE, 0);
-	gtk_container_add(GTK_CONTAINER(frame), hbox);
-
-	priv->option_codeconv = gtk_option_menu_new();
-	gtk_box_pack_start(GTK_BOX(hbox), priv->option_codeconv, FALSE, FALSE, 0);
-	menu = gtk_menu_new();
-	gtk_option_menu_set_menu(GTK_OPTION_MENU(priv->option_codeconv), menu);
-	g_signal_connect(G_OBJECT(priv->option_codeconv), "changed",
-			 G_CALLBACK(prefs_dialog_option_codeconv_changed_cb), dialog);
-	
-	priv->entry_codeset = gtk_entry_new();
-	gtk_box_pack_end(GTK_BOX(hbox), priv->entry_codeset, FALSE, FALSE, 0);
-
-	label = gtk_label_new("codeset: ");
-	gtk_box_pack_end(GTK_BOX(hbox), label, FALSE, FALSE, 0);
 
 	gtkutils_add_label_entry(vbox, _("Away message: "), &priv->entry_away_message, "");
 

@@ -51,6 +51,7 @@ enum {
 	PROP_REALNAME,
 	PROP_USERINFO,
 	PROP_AUTOJOIN,
+	PROP_CODECONV,
 	LAST_PROP
 };
 
@@ -58,6 +59,7 @@ struct _AccountPrivate
 {
 	IRCHandle *handle;
 
+	CodeConv *codeconv;
 	Server *server_on_connecting;
 
 	gchar *current_nick;
@@ -165,6 +167,12 @@ account_class_init (AccountClass *klass)
 							    _("Autojoin channels"),
 							    _("Channels which are joined automatically"),
 							    NULL, G_PARAM_READWRITE));
+	g_object_class_install_property(object_class,
+					PROP_CODECONV,
+					g_param_spec_object("codeconv",
+							    _("Code Converter"),
+							    _("Character code converter for IRC server"),
+							    TYPE_CODECONV, G_PARAM_READWRITE));
 
 
 	account_signals[CONNECTED] = g_signal_new("connected",
@@ -222,6 +230,8 @@ account_init (Account *account)
 	account->priv = priv;
 	priv->is_away = FALSE;
 	account->channel_hash = g_hash_table_new_full(channel_name_hash, channel_name_equal, g_free, g_object_unref);
+	priv->codeconv = codeconv_new();
+	codeconv_set_codeset_type(priv->codeconv, CODESET_TYPE_AUTO_DETECTION);
 }
 static void 
 account_finalize (GObject *object)
@@ -238,6 +248,7 @@ account_finalize (GObject *object)
 	priv = account->priv;
 	
 	G_OBJECT_UNREF_UNLESS_NULL(priv->handle);
+	G_OBJECT_UNREF_UNLESS_NULL(priv->codeconv);
 
 	G_FREE_UNLESS_NULL(account->name);
 	G_FREE_UNLESS_NULL(account->nick);
@@ -301,6 +312,9 @@ static void account_set_property(GObject *object,
 	case PROP_AUTOJOIN:
 		account_set_autojoin(account, g_value_get_string(value));
 		break;
+	case PROP_CODECONV:
+		account_set_codeconv(account, g_value_get_object(value));
+		break;
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, param_id, pspec);
 		break;
@@ -362,6 +376,26 @@ ACCOUNT_ACCESSOR_STRING(realname);
 ACCOUNT_ACCESSOR_STRING(userinfo);
 ACCOUNT_ACCESSOR_STRING(autojoin);
 
+void
+account_set_codeconv(Account *account, CodeConv *codeconv)
+{
+        g_return_if_fail(account != NULL);
+        g_return_if_fail(IS_ACCOUNT(account));
+	g_return_if_fail(codeconv != NULL);
+	g_return_if_fail(IS_CODECONV(codeconv));
+	
+	G_OBJECT_UNREF_UNLESS_NULL(account->priv->codeconv);
+	g_object_ref(codeconv);
+	account->priv->codeconv = codeconv;
+}
+CodeConv *
+account_get_codeconv(Account *account)
+{
+        g_return_val_if_fail(account != NULL, NULL);
+        g_return_val_if_fail(IS_ACCOUNT(account), NULL);
+
+	return account->priv->codeconv;
+}
 void
 account_print(Account *account)
 {
@@ -1004,7 +1038,7 @@ void account_change_channel_user_mode(Account *account, Channel *channel,
 	
 	p = 0;
 	/* MODE #Channel +? user1 user2 user3 */
-	param_array[p] = channel_get_name(channel);
+	param_array[p] = (gchar *) channel_get_name(channel);
 	p++;
 
 	if(is_give)

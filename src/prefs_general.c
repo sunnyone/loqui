@@ -32,9 +32,6 @@
 PrefsGeneral prefs_general;
 
 PrefElement prefs_general_defs[] = {
-	{"codeconv", "0", PREF_TYPE_UINT, &prefs_general.codeconv },
-	{"codeset", "", PREF_TYPE_STRING, &prefs_general.codeset },
-
 	{"save_size", "true", PREF_TYPE_BOOLEAN, &prefs_general.save_size },
 	{"window_height","400", PREF_TYPE_UINT, &prefs_general.window_height},
 	{"window_width", "480", PREF_TYPE_UINT, &prefs_general.window_width},

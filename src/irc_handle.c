@@ -1118,6 +1118,7 @@ irc_handle_watch_out_cb(GIOChannel *ioch, GIOCondition condition, gpointer data)
 	GIOStatus status;
 	GError *error;
 	gchar *buf, *tmp, *serv_str;
+	CodeConv *codeconv;
 
         g_return_val_if_fail(data != NULL, FALSE);
         g_return_val_if_fail(IS_IRC_HANDLE(data), FALSE);
@@ -1135,7 +1136,13 @@ irc_handle_watch_out_cb(GIOChannel *ioch, GIOCondition condition, gpointer data)
 	buf = irc_message_to_string(msg);
 	g_object_unref(msg);
 
-	serv_str = codeconv_to_server(buf);
+	codeconv = account_get_codeconv(priv->account);
+	if(!codeconv) {
+		g_warning(_("Failed to get code converter from account."));
+		return FALSE;
+	}
+	serv_str = codeconv_to_server(codeconv, buf);
+	
 	g_free(buf);
 	tmp = g_strdup_printf("%s\r\n", serv_str);
 	g_free(serv_str);
@@ -1165,6 +1172,7 @@ irc_handle_watch_in_cb(GIOChannel *ioch, GIOCondition condition, gpointer data)
 	GIOError io_error;
 	gchar *buf, *local;
 	gsize len;
+	CodeConv *codeconv;
 
         g_return_val_if_fail(data != NULL, FALSE);
         g_return_val_if_fail(IS_IRC_HANDLE(data), FALSE);
@@ -1197,8 +1205,14 @@ irc_handle_watch_in_cb(GIOChannel *ioch, GIOCondition condition, gpointer data)
 		return FALSE;
 	}
 
-	local = codeconv_to_local(buf);
+	codeconv = account_get_codeconv(priv->account);
+	if(!codeconv) {
+		g_warning(_("Failed to get code converter from account."));
+		return FALSE;
+	}
+	local = codeconv_to_local(codeconv, buf);
 	g_free(buf);
+
 	if(len > 0 && local == NULL) {
 		account_console_buffer_append(priv->account, TEXT_TYPE_ERROR, _("*** Failed to convert codeset."));
 		return TRUE;

@@ -136,7 +136,6 @@ main(int argc, char *argv[])
 	}
 	prefs_general_load();
 
-	codeconv_init();
 	command_table_init();
 
 	account_manager = account_manager_get();

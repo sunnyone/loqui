@@ -1,7 +1,7 @@
 /* -*- Mode: C; tab-width: 8; indent-tabs-mode: t; c-basic-offset: 8 -*- */
 /*
  * Loqui -- IRC client for Gtk2 <http://loqui.good-day.net/>
- * Copyright (C) 2002-2003 Yoichi Imai <yoichi@silver-forest.com>
+ * Copyright (C) 2003 Yoichi Imai <yoichi@silver-forest.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,78 +20,238 @@
 #include "config.h"
 
 #include "codeconv.h"
+
 #include "prefs_general.h"
 #include "intl.h"
 #include <string.h>
 #include <locale.h>
 #include <errno.h>
+#include "utils.h"
 
-#include "intl.h"
-
-static gchar *server_codeset = NULL;
 #define GTK_CODESET "UTF-8"
 #define BUFFER_LEN 2048
 
 /* tell me other languages if you know */
+/* if you changed this table, make sure to change codeconv.h */
 CodeConvDef conv_table[] = {
 	{N_("Auto Detection"), NULL,       NULL}, /* for the setting */
 	{N_("No conv"),        NULL,       NULL}, /* for the setting */
 	{N_("Custom"),         NULL,       NULL}, /* for the setting */
 	{N_("Japanese"),       "ja_JP",    "ISO-2022-JP"},
-	{NULL, NULL, NULL},
 };
 
-void
-codeconv_init(void)
+struct _CodeConvPrivate
 {
-	int length, i, num;
-	gchar *ctype;
+	CodeSetType code_type;
+	gchar *server_codeset;
+	GIConv cd_to;
+	GIConv cd_from;
+};
 
-	length = 0;
-	while(conv_table[length].title != NULL) length++;
-	
-	server_codeset = NULL;
+static GObjectClass *parent_class = NULL;
+#define PARENT_TYPE G_TYPE_OBJECT
 
-	num = prefs_general.codeconv;
-	if(num > length) {
-		g_warning(_("the setting of codeconv was invalid; now '%s' is selected."), _("Auto Detection"));
-		num = 0;
+static void codeconv_class_init(CodeConvClass *klass);
+static void codeconv_init(CodeConv *codeconv);
+static void codeconv_finalize(GObject *object);
+
+static void codeconv_set_codeset_internal(CodeConv *codeconv, const gchar *codeset);
+
+GType
+codeconv_get_type(void)
+{
+	static GType type = 0;
+	if (type == 0) {
+		static const GTypeInfo our_info =
+			{
+				sizeof(CodeConvClass),
+				NULL,           /* base_init */
+				NULL,           /* base_finalize */
+				(GClassInitFunc) codeconv_class_init,
+				NULL,           /* class_finalize */
+				NULL,           /* class_data */
+				sizeof(CodeConv),
+				0,              /* n_preallocs */
+				(GInstanceInitFunc) codeconv_init
+			};
+		
+		type = g_type_register_static(PARENT_TYPE,
+					      "CodeConv",
+					      &our_info,
+					      0);
 	}
 	
-	if(num == CODECONV_CUSTOM) {
-		server_codeset = prefs_general.codeset;
-	} else if(num == CODECONV_AUTO_DETECTION) {
-		i = CODECONV_LOCALE_START;
+	return type;
+}
+static void
+codeconv_class_init(CodeConvClass *klass)
+{
+        GObjectClass *object_class = G_OBJECT_CLASS(klass);
+
+        parent_class = g_type_class_peek_parent(klass);
+        
+        object_class->finalize = codeconv_finalize;
+}
+static void 
+codeconv_init(CodeConv *codeconv)
+{
+	CodeConvPrivate *priv;
+
+	priv = g_new0(CodeConvPrivate, 1);
+
+	codeconv->priv = priv;
+	codeconv_set_codeset_type(codeconv, CODESET_TYPE_NO_CONV);
+}
+static void 
+codeconv_finalize(GObject *object)
+{
+	CodeConv *codeconv;
+
+        g_return_if_fail(object != NULL);
+        g_return_if_fail(IS_CODECONV(object));
+
+        codeconv = CODECONV(object);
+
+	G_FREE_UNLESS_NULL(codeconv->priv->server_codeset);
+
+        if (G_OBJECT_CLASS(parent_class)->finalize)
+                (* G_OBJECT_CLASS(parent_class)->finalize) (object);
+
+	g_free(codeconv->priv);
+}
+
+CodeConv*
+codeconv_new(void)
+{
+        CodeConv *codeconv;
+
+	codeconv = g_object_new(codeconv_get_type(), NULL);
+	
+	return codeconv;
+}
+
+void
+codeconv_set_codeset_type(CodeConv *codeconv, CodeSetType type)
+{
+	int i;
+	gchar *ctype;
+	const gchar *codeset;
+	CodeConvPrivate *priv;
+
+        g_return_if_fail(codeconv != NULL);
+        g_return_if_fail(IS_CODECONV(codeconv));
+	g_return_if_fail(type < N_CODESET_TYPE);
+
+	priv = codeconv->priv;
+	
+	priv->code_type = type;
+	switch(type) {
+	case CODESET_TYPE_AUTO_DETECTION:
 		ctype = setlocale(LC_CTYPE, NULL);
+		codeset = NULL;
 		if(ctype) {
-			while(conv_table[i].title != NULL) {
+			for(i = CODESET_TYPE_CUSTOM+1; i < N_CODESET_TYPE; i++) {
 				if(strstr(ctype, conv_table[i].locale) != NULL) {
-					server_codeset = conv_table[i].codeset;
+					codeset = conv_table[i].codeset;
 					break;
 				}
-				i++;
 			}
 		}
-	} else {
-		server_codeset = conv_table[num].codeset;
+		codeconv_set_codeset_internal(codeconv, codeset);
+		break;
+	case CODESET_TYPE_NO_CONV:
+		codeconv_set_codeset_internal(codeconv, NULL);
+		break;
+	case CODESET_TYPE_CUSTOM:
+		break;
+	default:
+		codeconv_set_codeset_internal(codeconv, conv_table[type].codeset);
+		break;
 	}
+}
+CodeSetType
+codeconv_get_codeset_type(CodeConv *codeconv)
+{
+        g_return_val_if_fail(codeconv != NULL, 0);
+        g_return_val_if_fail(IS_CODECONV(codeconv), 0);
+	
+	return codeconv->priv->code_type;
+}
+static void
+codeconv_set_codeset_internal(CodeConv *codeconv, const gchar *codeset)
+{
+	CodeConvPrivate *priv;
+
+        g_return_if_fail(codeconv != NULL);
+        g_return_if_fail(IS_CODECONV(codeconv));
+
+	priv = codeconv->priv;
+
+	G_FREE_UNLESS_NULL(priv->server_codeset);
+	if(!codeset)
+		return;
+
+	priv->server_codeset = g_strdup(codeset);
+
+	if(priv->cd_from)
+		g_iconv_close(priv->cd_from);
+	priv->cd_from = g_iconv_open(GTK_CODESET, codeset);
+
+	if(priv->cd_to)
+		g_iconv_close(priv->cd_to);
+	priv->cd_to = g_iconv_open(codeset, GTK_CODESET);
+}
+void
+codeconv_set_codeset(CodeConv *codeconv, const gchar *codeset)
+{
+        g_return_if_fail(codeconv != NULL);
+        g_return_if_fail(IS_CODECONV(codeconv));
+	g_return_if_fail(codeconv->priv->code_type == CODESET_TYPE_CUSTOM);
+	g_return_if_fail(codeset != NULL);
+
+	if(strlen(codeset) == 0) {
+		g_warning(_("Invalid codeset string (length zero)"));
+		return;
+	}
+
+	codeconv_set_codeset_internal(codeconv, codeset);
+}
+G_CONST_RETURN gchar *
+codeconv_get_codeset(CodeConv *codeconv)
+{
+        g_return_val_if_fail(codeconv != NULL, NULL);
+        g_return_val_if_fail(IS_CODECONV(codeconv), NULL);
+
+	if(codeconv->priv->code_type == CODESET_TYPE_NO_CONV)
+		return GTK_CODESET;
+	else
+		return codeconv->priv->server_codeset;
 }
 
 gchar *
-codeconv_to_server(const gchar *input)
+codeconv_to_server(CodeConv *codeconv, const gchar *input)
 {
+	CodeConvPrivate *priv;
 	gchar *output;
 	GError *error = NULL;
 
-	if(input == NULL) {
+        g_return_val_if_fail(codeconv != NULL, NULL);
+        g_return_val_if_fail(IS_CODECONV(codeconv), NULL);
+
+	priv = codeconv->priv;
+
+	if(input == NULL)
+		return NULL;
+	if(priv->code_type == CODESET_TYPE_NO_CONV)
+		return g_strdup(input);
+
+	if(!priv->cd_to) {
+		g_warning(_("Invalid GIconv (cd_to)"));
 		return NULL;
 	}
 
-	if(server_codeset == NULL || strlen(server_codeset) == 0)
-		return g_strdup(input);
-
-	output = g_convert(input, strlen(input)+1, server_codeset, GTK_CODESET,
-			   NULL, NULL, &error);
+	output = g_convert_with_iconv(input, strlen(input)+1, priv->cd_to,
+				      NULL, NULL, &error);
 	if(error != NULL) {
 		g_warning(_("Code convartion error: %s"), error->message);
 		g_error_free(error);
@@ -101,31 +261,36 @@ codeconv_to_server(const gchar *input)
 }
 
 gchar *
-codeconv_to_local(const gchar *input)
+codeconv_to_local(CodeConv *codeconv, const gchar *input)
 {
+	CodeConvPrivate *priv;
 	gchar *tmp;
 	gchar buf[BUFFER_LEN+1];
 	gsize original_len;
 	GString *string;
 
-	GIConv cd;
 	gchar *inbuf;
 	gsize in_left;
 	gchar *outbuf;
         gsize out_left;
 	size_t ret;
 
+        g_return_val_if_fail(codeconv != NULL, NULL);
+        g_return_val_if_fail(IS_CODECONV(codeconv), NULL);
+
+	priv = codeconv->priv;
+
 	if(input == NULL)
 		return NULL;
-
-	if(server_codeset == NULL || strlen(server_codeset) == 0)
+	if(priv->code_type == CODESET_TYPE_NO_CONV)
 		return g_strdup(input);
 
-	/* we use a compilicated way to handle broken characters */
-	cd = g_iconv_open(GTK_CODESET, server_codeset);
-	if(cd == NULL)
+	if(!priv->cd_from) {
+		g_warning(_("Invalid GIconv (cd_from)"));
 		return NULL;
-	
+	}
+
+	/* we use a compilicated way to handle broken characters */
 	string = g_string_new(NULL);
 	original_len = strlen(input);
 
@@ -136,7 +301,7 @@ codeconv_to_local(const gchar *input)
 		outbuf = buf;
 		out_left = BUFFER_LEN;
 
-		ret = g_iconv(cd, &inbuf, &in_left, &outbuf, &out_left);
+		ret = g_iconv(priv->cd_from, &inbuf, &in_left, &outbuf, &out_left);
 
 		if(outbuf - buf > 0)
 			string = g_string_append_len(string, buf, outbuf - buf);
@@ -164,12 +329,11 @@ codeconv_to_local(const gchar *input)
 	/* to append terminating characters */
 	outbuf = buf;
 	out_left = BUFFER_LEN;
-	g_iconv(cd, NULL, NULL, &outbuf, &out_left);
+	g_iconv(priv->cd_from, NULL, NULL, &outbuf, &out_left);
 	if(outbuf - buf > 0)
 		string = g_string_append_len(string, outbuf, outbuf - buf);
 
 	string = g_string_append_c(string, '\0');
-	g_iconv_close(cd);
 
 	tmp = string->str;
 	g_string_free(string, FALSE);
