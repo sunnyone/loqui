@@ -238,17 +238,21 @@ account_dialog_response_cb(GtkWidget *widget, gint response, gpointer data)
 	}
 }
 static void
-account_dialog_radio_toggled_cb(GtkWidget *radio, AccountDialog *dialog)
+account_dialog_update_codeconv_sensitivity(AccountDialog *dialog)
 {
 	AccountDialogPrivate *priv;
 	LoquiCodeConvMode mode;
 
 	priv = dialog->priv;
-
 	mode = account_dialog_get_codeconv_mode(dialog);
 
 	gtk_widget_set_sensitive(priv->entry_codeset, (mode == LOQUI_CODECONV_MODE_CODESET));
 	gtk_widget_set_sensitive(priv->combobox_table, (mode == LOQUI_CODECONV_MODE_BY_TABLE));
+}
+static void
+account_dialog_radio_toggled_cb(GtkWidget *radio, AccountDialog *dialog)
+{
+	account_dialog_update_codeconv_sensitivity(dialog);
 }
 GtkWidget*
 account_dialog_new(LoquiProfileAccount *profile)
@@ -411,6 +415,7 @@ account_dialog_new(LoquiProfileAccount *profile)
 	if (codeset)
 		gtk_entry_set_text(GTK_ENTRY(priv->entry_codeset), codeset);
 	account_dialog_set_codeconv_mode(dialog, loqui_profile_account_get_codeconv_mode(LOQUI_PROFILE_ACCOUNT(profile)));
+	account_dialog_update_codeconv_sensitivity(dialog);
 
 	vbox = gtk_vbox_new(FALSE, 0);
 	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), vbox, gtk_label_new(_("Nick")));
