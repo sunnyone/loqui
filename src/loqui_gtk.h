@@ -21,6 +21,7 @@
 #define __LOQUI_GTK_H__
 
 #define FRESH_COLOR "red"
+#define FRESH_WEAK_COLOR "blue"
 #define NONFRESH_COLOR "black"
 #define UNJOINED_COLOR "grey"
 
