@@ -37,7 +37,7 @@ buffer_menu_add_account(GtkMenuShell *menu, Account *account)
 	g_return_val_if_fail(account != NULL, NULL);
 	g_return_val_if_fail(IS_ACCOUNT(account), NULL);
 
-	menuitem = gtk_image_menu_item_new_with_label(account_get_name(account));
+	menuitem = gtk_image_menu_item_new_with_label(loqui_profile_account_get_name(account_get_profile(account)));
 	image = gtk_image_new_from_stock(LOQUI_STOCK_CONSOLE, GTK_ICON_SIZE_MENU);
 	gtk_widget_show(image);
 	gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(menuitem), image);
@@ -78,7 +78,7 @@ buffer_menu_update_account(GtkMenuShell *menu, Account *account)
 			break;
 		}
 		if(GTK_IS_LABEL(children->data))
-			gtk_label_set_text(GTK_LABEL(children->data), account_get_name(account));
+			gtk_label_set_text(GTK_LABEL(children->data), loqui_profile_account_get_name(account_get_profile(account)));
 	}
 
 }

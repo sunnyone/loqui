@@ -22,6 +22,7 @@
 #include "ctcp_handle.h"
 #include "ctcp_message.h"
 #include "intl.h"
+#include "loqui_profile_account_irc.h"
 
 #include <string.h>
 
@@ -271,7 +272,8 @@ ctcp_handle_userinfo(CTCPHandle *ctcp_handle, CTCPMessage *ctcp_msg, const gchar
 	priv = ctcp_handle->priv;
 
 	/* FIXME: should quote string with ctcp */
-	ctcp_reply = ctcp_message_new(IRCCTCPUserInfo, account_get_userinfo(priv->account));
+	ctcp_reply = ctcp_message_new(IRCCTCPUserInfo,
+		loqui_profile_account_irc_get_userinfo(LOQUI_PROFILE_ACCOUNT_IRC(account_get_profile(priv->account))));
 	ctcp_handle_send_ctcp_reply(ctcp_handle, ctcp_reply, sender);
 	g_object_unref(ctcp_reply);
 }

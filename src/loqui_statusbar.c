@@ -542,7 +542,8 @@ loqui_statusbar_set_current_account(LoquiStatusbar *statusbar, Account *account)
         priv = statusbar->priv;
         
         // set account label
-        gtk_label_set(GTK_LABEL(priv->label_account), account ? account_get_name(account) : STRING_UNSELECTED);
+        gtk_label_set(GTK_LABEL(priv->label_account),
+        	       account ? loqui_profile_account_get_name(account_get_profile(account)) : STRING_UNSELECTED);
 
 	// set nick        
         if (account == NULL) {
@@ -562,8 +563,8 @@ loqui_statusbar_set_current_account(LoquiStatusbar *statusbar, Account *account)
         	gtk_label_set(GTK_LABEL(priv->label_nick), account_get_current_nick(account));
         }
         
-        if (account)
-        	loqui_statusbar_set_preset_menu(statusbar, account->nick_list);
+        if (account) 
+        	loqui_statusbar_set_preset_menu(statusbar, loqui_profile_account_get_nick_list(account_get_profile(account)));
         
         // set icon
         if (account == NULL) {

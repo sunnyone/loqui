@@ -250,7 +250,7 @@ channel_tree_add_account(ChannelTree *tree, Account *account)
 	model = gtk_tree_view_get_model(GTK_TREE_VIEW(tree));
 	gtk_tree_store_append(GTK_TREE_STORE(model), &iter, NULL);	
 	gtk_tree_store_set(GTK_TREE_STORE(model), &iter,
-			   COLUMN_TEXT, account->name,
+			   COLUMN_TEXT, loqui_profile_account_get_name(account_get_profile(account)), 
 			   COLUMN_ACCOUNT, account,
 			   COLUMN_CHANNEL, NULL,
 			   -1);
@@ -273,7 +273,7 @@ channel_tree_update_account(ChannelTree *tree, Account *account)
 		return;
 	}
 	gtk_tree_store_set(GTK_TREE_STORE(model), &iter,
-			   COLUMN_TEXT, account->name,
+			   COLUMN_TEXT, loqui_profile_account_get_name(account_get_profile(account)),
 			   -1);
 }
 

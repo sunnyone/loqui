@@ -213,7 +213,7 @@ channel_input_dialog_new(void)
 	for(cur = account_list; cur != NULL; cur = cur->next) {
 		account = ACCOUNT(cur->data);
 		
-		menuitem = gtk_menu_item_new_with_label(account_get_name(account));
+		menuitem = gtk_menu_item_new_with_label(loqui_profile_account_get_name(account_get_profile(account)));
 		g_object_ref(account);
 		g_object_set_data_full(G_OBJECT(menuitem), "account", account, g_object_unref);
 		

@@ -30,6 +30,8 @@
 #include "gtkutils.h"
 #include "remark_entry.h"
 #include "command_dialog.h"
+#include "loqui_profile_account.h"
+#include "account.h"
 
 #include "intl.h"
 #include "utils.h"
@@ -387,7 +389,7 @@ loqui_app_update_info(LoquiApp *app,
 	priv = app->priv;
 
 	if(account) {
-		account_name = account_get_name(account);
+		account_name = loqui_profile_account_get_name(account_get_profile(account));
 	}
 	if(channel) {
 		channel_name = channel_get_name(channel);
