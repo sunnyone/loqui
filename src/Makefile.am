@@ -20,6 +20,8 @@ loqui_SOURCES = \
 	loqui_profile_account_irc.c loqui_profile_account_irc.h \
 	loqui_channel_entry.c loqui_channel_entry.h \
 	loqui_channel.c loqui_channel.h \
+	loqui_sender.c loqui_sender.h \
+	loqui_sender_irc.c loqui_sender_irc.h \
 	loqui_member_sort_funcs.c loqui_member_sort_funcs.h \
 	loqui_profile_handle.c loqui_profile_handle.h \
 	prefs_general.c prefs_general.h \
