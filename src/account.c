@@ -632,6 +632,7 @@ account_connection_connected_cb(GObject *object, gboolean is_success, Account *a
 
 	if(!is_success) {
 		account_console_buffer_append(account, TEXT_TYPE_INFO, _("Failed to connect."));
+		G_OBJECT_UNREF_UNLESS_NULL(priv->connection);
 //		if(priv->fallback_current)
 //			account_connect_internal(account, server); /* FIXME: not NULL */
 		return;
