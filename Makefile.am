@@ -1,4 +1,8 @@
-SUBDIRS =  m4 gtk24backports src po intl # test
+SUBDIRS =  m4 gtk24backports src po # test
+
+.PHONY: ChangeLog
+ChangeLog:
+	svn log -v > $@
 
 EXTRA_DIST= autogen.sh \
         intltool-merge.in \
