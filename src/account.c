@@ -533,14 +533,37 @@ account_parse_server_string(const gchar *input)
 #endif
 
 void
-account_connect(Account *account, Server *server)
+account_connect_default(Account *account)
 {
 	AccountPrivate *priv;
 	GSList *cur;
 	Server *tmp_server = NULL;
+		
+        g_return_if_fail(account != NULL);
+        g_return_if_fail(IS_ACCOUNT(account));
+	
+	priv = account->priv;
+	
+	for(cur = account->server_list; cur != NULL; cur = cur->next) {
+		if(cur->data && ((Server *) cur->data)->use) {
+			tmp_server = (Server *) cur->data;
+			break;
+		}
+	}
+	if(!tmp_server) {
+		account_console_buffer_append(account, TEXT_TYPE_ERROR, _("No usable servers found."));
+	} else {
+		account_connect_internal(account, tmp_server);
+	}
+}	
+void
+account_connect(Account *account, Server *server)
+{
+	AccountPrivate *priv;
 
         g_return_if_fail(account != NULL);
         g_return_if_fail(IS_ACCOUNT(account));
+	g_return_if_fail(server != NULL);
 	
 	priv = account->priv;
 
@@ -550,22 +573,8 @@ account_connect(Account *account, Server *server)
 				     account_get_name(account));
 		return;
 	}
-
-	if(server != NULL) {
-		account_connect_internal(account, server);
-	} else {
-		for(cur = account->server_list; cur != NULL; cur = cur->next) {
-			if(cur->data && ((Server *) cur->data)->use) {
-				tmp_server = (Server *) cur->data;
-				break;
-			}
-		}
-		if(!tmp_server) {
-			account_console_buffer_append(account, TEXT_TYPE_ERROR, _("No usable servers found."));
-		} else {
-			account_connect_internal(account, tmp_server);
-		}
-	}
+	
+	account_connect_internal(account, server);
 }
 static void
 account_connect_internal(Account *account, Server *server)

@@ -650,6 +650,6 @@ account_manager_connect_all_default(AccountManager *manager)
 		if(!account->use)
 			continue;
 
-		account_connect(account, NULL);
+		account_connect_default(account);
 	}
 }

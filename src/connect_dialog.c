@@ -216,7 +216,11 @@ connect_dialog_response_cb(GtkWidget *widget, gint response, gpointer data)
 			break;
 		} while(gtk_tree_model_iter_next(GTK_TREE_MODEL(priv->tree_store), &iter));
 
-		account_connect(account, server);
+		if(server)
+			account_connect(account, server);
+		else
+			account_connect_default(account);
+		
 	} while(gtk_tree_model_iter_next(GTK_TREE_MODEL(priv->tree_store), &parent));
 }
 GtkWidget*
