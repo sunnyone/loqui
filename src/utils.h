@@ -20,6 +20,7 @@
 #ifndef __UTILS_H__
 #define __UTILS_H__
 #include <glib.h>
+#include <time.h>
 
 #define G_FREE_UNLESS_NULL(str) { \
  if(str != NULL) { \
@@ -45,6 +46,8 @@ gchar *utils_remove_return_code(gchar *str);
 
 GSList *utils_line_separated_text_to_slist(gchar *str);
 gchar *utils_line_separated_text_from_slist(GSList *slist);
+
+gchar *utils_get_iso8601_date_string(time_t t);
 
 /* pairs of flag and characters, terminated with -1 */
 gchar *utils_format(const gchar *format, ...);

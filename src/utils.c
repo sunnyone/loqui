@@ -211,6 +211,23 @@ gchar *utils_format(const gchar *format, ...)
 	return str;
 }
 
+gchar *utils_get_iso8601_date_string(time_t t)
+{
+/* YYYY-MM-DD hh:mm:ss */
+#define DATE_LEN 4+1+2+1+2 +1+ 2+1+2+1+2 +5
+
+	gchar buf[DATE_LEN];
+	struct tm tm;
+
+	localtime_r(&t, &tm);
+	if(strftime(buf, DATE_LEN, "%F %T", &tm) == 0)
+		return NULL;
+
+	return g_strdup(buf);
+
+#undef DATE_LEN
+}
+
 /* copied from Sylpheed. (c) 2002, Hiroyuki Yamamoto. */
 gint make_dir(const gchar *dir)
 {
