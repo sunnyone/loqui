@@ -20,6 +20,7 @@
 #include "config.h"
 
 #include "nick_list.h"
+#include "gtkutils.h"
 
 struct _NickListPrivate
 {
@@ -47,6 +48,9 @@ static void nick_list_finalize(GObject *object);
 static void nick_list_destroy(GtkObject *object);
 
 static void nick_list_create_icons(NickList *list);
+
+static GdkPixbuf* nick_list_get_icon_op(NickList *list, UserPower power);
+static GdkPixbuf* nick_list_get_icon_away(NickList *list, UserPower power);
 
 GType
 nick_list_get_type(void)
@@ -143,7 +147,8 @@ nick_list_destroy (GtkObject *object)
         if (GTK_OBJECT_CLASS(parent_class)->destroy)
                 (* GTK_OBJECT_CLASS(parent_class)->destroy) (object);
 }
-static void nick_list_create_icons(NickList *list)
+static void
+nick_list_create_icons(NickList *list)
 {
 	NickListPrivate *priv;
 
@@ -221,6 +226,7 @@ nick_list_new (void)
         gtk_tree_view_column_set_visible (column, FALSE);
         gtk_tree_view_append_column(GTK_TREE_VIEW(list), column);
 
+#if 0
 	{
 		GtkTreeIter iter;
 		gtk_list_store_append(GTK_LIST_STORE(model), &iter);
@@ -236,17 +242,110 @@ nick_list_new (void)
 				   COLUMN_NICK, "Fugao",
 				   -1);
 	}
+#endif
 
 	return GTK_WIDGET(list);
 }
-void nick_list_add(NickList *list, gchar *nick, UserPower power, gboolean is_away)
+static GdkPixbuf *
+nick_list_get_icon_op(NickList *list, UserPower power)
 {
-        g_return_if_fail(list != NULL);
-        g_return_if_fail(IS_NICK_LIST(list));	
-}
+	NickListPrivate *priv;
 
+	priv = list->priv;
+
+	switch(power) {
+	case USER_POWER_OP:
+		return priv->op_icon;
+	case USER_POWER_V:
+		return priv->speak_ability_icon;
+	case USER_POWER_NOTHING:
+		return priv->nonop_icon;
+	default:
+		break;
+	}
+	return NULL;
+}
+static GdkPixbuf *
+nick_list_get_icon_away(NickList *list, UserExistence exist)
+{
+	NickListPrivate *priv;
+
+	priv = list->priv;
+
+	switch(exist) {
+	case USER_EXISTENCE_HOME:
+		return priv->home_icon;
+	case USER_EXISTENCE_AWAY:
+		return priv->away_icon;
+	default:
+		break;
+	}
+	return NULL;
+}
+void nick_list_append(NickList *list, User *user)
+{
+	GtkTreeModel *model;
+	GtkTreeIter iter;
+
+        g_return_if_fail(list != NULL);
+        g_return_if_fail(IS_NICK_LIST(list));
+
+	model = gtk_tree_view_get_model(GTK_TREE_VIEW(list));
+
+	gtk_list_store_append(GTK_LIST_STORE(model), &iter);
+	gtk_list_store_set(GTK_LIST_STORE(model), &iter,
+			   COLUMN_HOMEAWAY, nick_list_get_icon_away(list, user->exist),
+			   COLUMN_OP, nick_list_get_icon_op(list, user->power),
+			   COLUMN_NICK, user->nick,
+			   COLUMN_POINTER, user,
+			   -1);
+}
+void nick_list_remove(NickList *list, User *user)
+{
+	GtkTreeModel *model;
+	GtkTreeIter iter;
+
+        g_return_if_fail(list != NULL);
+        g_return_if_fail(IS_NICK_LIST(list));
+
+	model = gtk_tree_view_get_model(GTK_TREE_VIEW(list));
+
+	if(!gtk_tree_model_find_by_column_data(model, &iter, NULL,
+					       COLUMN_POINTER, user))
+		return;
+
+	gtk_list_store_remove(GTK_LIST_STORE(model), &iter);
+}
+void nick_list_update(NickList *list, User *user)
+{
+	GtkTreeModel *model;
+	GtkTreeIter iter;
+
+        g_return_if_fail(list != NULL);
+        g_return_if_fail(IS_NICK_LIST(list));
+
+	model = gtk_tree_view_get_model(GTK_TREE_VIEW(list));
+
+	if(!gtk_tree_model_find_by_column_data(model, &iter, NULL,
+					       COLUMN_POINTER, user))
+		return;
+
+	gtk_list_store_set(GTK_LIST_STORE(model), &iter,
+			   COLUMN_HOMEAWAY, nick_list_get_icon_away(list, user->exist),
+			   COLUMN_OP, nick_list_get_icon_op(list, user->power),
+			   COLUMN_NICK, user->nick,
+			   COLUMN_POINTER, user,
+			   -1);
+}
 void nick_list_clear(NickList *list)
 {
+	GtkTreeModel *model;
+	GtkTreeIter iter;
+
         g_return_if_fail(list != NULL);
-        g_return_if_fail(IS_NICK_LIST(list));	
+        g_return_if_fail(IS_NICK_LIST(list));
+
+	model = gtk_tree_view_get_model(GTK_TREE_VIEW(list));
+	
+	gtk_list_store_clear(GTK_LIST_STORE(model));
 }

@@ -198,6 +198,7 @@ void
 account_manager_set_current(AccountManager *manager, Account *account, Channel *channel)
 {
 	AccountManagerPrivate *priv;
+	GSList *cur;
 
         g_return_if_fail(manager != NULL);
         g_return_if_fail(IS_ACCOUNT_MANAGER(manager));
@@ -207,8 +208,15 @@ account_manager_set_current(AccountManager *manager, Account *account, Channel *
 	priv->current_channel = channel;
 	priv->current_account = account;
 
+	account_manager_nick_list_clear(manager);
+
 	if(channel) {
 		channel_book_change_current(priv->app->channel_book, channel->text);
+		/* FIXME */
+		for(cur = channel->user_list; cur != NULL; cur = cur->next) {
+			account_manager_nick_list_append(manager, (User *) cur->data);
+		}
+		
 	} else if(account) {
 		channel_book_change_current(priv->app->channel_book, account->console_text);
 	}
@@ -243,7 +251,6 @@ void account_manager_speak(AccountManager *manager, const gchar *str)
 
 	priv = manager->priv;
 	g_return_if_fail(priv->current_account != NULL || priv->current_channel != NULL);
-
 	
 	if(priv->current_channel)
 		account = account_manager_search_account(manager, priv->current_channel);
@@ -287,4 +294,33 @@ account_manager_common_text_append(AccountManager *manager, TextType type, gchar
         g_return_if_fail(IS_ACCOUNT_MANAGER(manager));
 
 	channel_text_append(manager->priv->app->common_text, type, str);
+}
+void
+account_manager_nick_list_append(AccountManager *manager, User *user)
+{
+        g_return_if_fail(manager != NULL);
+        g_return_if_fail(IS_ACCOUNT_MANAGER(manager));
+
+	nick_list_append(manager->priv->app->nick_list, user);
+}
+void account_manager_nick_list_remove(AccountManager *manager, User *user)
+{
+        g_return_if_fail(manager != NULL);
+        g_return_if_fail(IS_ACCOUNT_MANAGER(manager));
+
+	nick_list_remove(manager->priv->app->nick_list, user);
+}
+void account_manager_nick_list_update(AccountManager *manager, User *user)
+{
+        g_return_if_fail(manager != NULL);
+        g_return_if_fail(IS_ACCOUNT_MANAGER(manager));
+
+	nick_list_update(manager->priv->app->nick_list, user);
+}
+void account_manager_nick_list_clear(AccountManager *manager)
+{
+        g_return_if_fail(manager != NULL);
+        g_return_if_fail(IS_ACCOUNT_MANAGER(manager));
+
+	nick_list_clear(manager->priv->app->nick_list);
 }

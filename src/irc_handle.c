@@ -309,9 +309,12 @@ irc_handle_reply_names(IRCHandle *handle, IRCMessage *msg)
 
 	channel_clear_user(channel);
 	nick_array = g_strsplit(irc_message_get_trailing(msg), " ", 0);
+	gdk_threads_enter();
 	for(i = 0; nick_array[i] != NULL; i++) {
-		channel_append_user(channel, nick_array[i], USER_POWER_UNDETERMINED);
+		channel_append_user(channel, nick_array[i],
+				    USER_POWER_UNDETERMINED, USER_EXISTENCE_UNKNOWN);
 	}
+	gdk_threads_leave();
 	g_strfreev(nick_array);
 
 	irc_handle_channel_append(handle, msg, FALSE, 3, TEXT_TYPE_NORMAL, "%3: %t");

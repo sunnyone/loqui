@@ -45,9 +45,16 @@ typedef enum {
 	USER_POWER_UNDETERMINED = 255,
 } UserPower;
 
+typedef enum {
+	USER_EXISTENCE_UNKNOWN,
+	USER_EXISTENCE_HOME,
+	USER_EXISTENCE_AWAY
+} UserExistence;
+
 typedef struct _User {
-	UserPower power;
 	gchar *nick;
+	UserPower power;
+	UserExistence exist;
 } User;
 
 struct _Channel
@@ -75,13 +82,14 @@ void channel_append_remark(Channel *channel, TextType type, gchar *name, gchar *
 void channel_set_topic(Channel *channel, const gchar *topic);
 gchar *channel_get_topic(Channel *channel);
 
-void channel_append_user(Channel *channel, const gchar *nick, UserPower power);
+void channel_append_user(Channel *channel, const gchar *nick, UserPower power, UserExistence exist);
 void channel_remove_user(Channel *channel, const gchar *nick);
 void channel_clear_user(Channel *channel);
 void channel_change_user_power(Channel *channel, 
 			       const gchar *nick, UserPower power);
 void channel_change_user_nick(Channel *channel, 
 			      const gchar *nick_orig, const gchar *nick_new);
+gboolean channel_find_user(Channel *channel, const gchar *nick, User **user);
 
 G_END_DECLS
 

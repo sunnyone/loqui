@@ -195,7 +195,7 @@ gchar *channel_get_topic(Channel *channel)
 
 	return channel->priv->topic;
 }
-void channel_append_user(Channel *channel, const gchar *nick, UserPower power)
+void channel_append_user(Channel *channel, const gchar *nick, UserPower power, UserExistence exist)
 {
 	User *user;
 	g_return_if_fail(channel != NULL);
@@ -204,6 +204,8 @@ void channel_append_user(Channel *channel, const gchar *nick, UserPower power)
 	g_return_if_fail(*nick != '\0');
 
 	user = g_new0(User, 1);
+
+	user->exist = exist;
 
 	if(power == USER_POWER_UNDETERMINED) {
 		if(*nick == '@') {
@@ -222,41 +224,81 @@ void channel_append_user(Channel *channel, const gchar *nick, UserPower power)
 	}
 
 	channel->user_list = g_slist_append(channel->user_list, user);
+
+	if(account_manager_is_current_channel(account_manager_get(), channel)) {
+		account_manager_nick_list_append(account_manager_get(), user);
+	}
 }
-void channel_remove_user(Channel *channel, const gchar *nick)
+gboolean channel_find_user(Channel *channel, const gchar *nick, User **user)
 {
 	GSList *slist;
+
+	g_return_val_if_fail(channel != NULL, FALSE);
+	g_return_val_if_fail(IS_CHANNEL(channel), FALSE);
+	g_return_val_if_fail(nick != NULL, FALSE);
+
+	slist = g_slist_find_custom(channel->user_list, nick, compare_user_nick_with_nick);
+
+	if(!slist)
+		return FALSE;
+
+	if(user != NULL)
+		*user = (User *) slist->data;
+
+	return TRUE;
+}
+
+void channel_remove_user(Channel *channel, const gchar *nick)
+{
 	User *user;
 
 	g_return_if_fail(channel != NULL);
 	g_return_if_fail(IS_CHANNEL(channel));
 	g_return_if_fail(nick != NULL);
 
-	slist = g_slist_find_custom(channel->user_list, nick, compare_user_nick_with_nick);
-	user = (User *) slist->data;
+	if(!channel_find_user(channel, nick, &user))
+		return;
+
+	g_slist_remove(channel->user_list, user);
 	g_free(user->nick);
 	g_free(user);
 
-	g_slist_delete_link(channel->user_list, slist);
+	if(account_manager_is_current_channel(account_manager_get(), channel)) {
+		account_manager_nick_list_remove(account_manager_get(), user);
+	}
 }
 void channel_change_user_power(Channel *channel, const gchar *nick, UserPower power)
 {
-	GSList *slist;
 	User *user;
 
-	slist = g_slist_find_custom(channel->user_list, nick, compare_user_nick_with_nick);
-	user = (User *)slist->data;
+	g_return_if_fail(channel != NULL);
+	g_return_if_fail(IS_CHANNEL(channel));
+	g_return_if_fail(nick != NULL);
+
+	if(!channel_find_user(channel, nick, &user))
+		return;
 	user->power = power;
+
+	if(account_manager_is_current_channel(account_manager_get(), channel)) {
+		account_manager_nick_list_update(account_manager_get(), user);
+	}
 }
 void channel_change_user_nick(Channel *channel, const gchar *nick_orig, const gchar *nick_new)
 {
-	GSList *slist;
 	User *user;
 
-	slist = g_slist_find_custom(channel->user_list, nick_orig, compare_user_nick_with_nick);
-	user = (User *)slist->data;
+	g_return_if_fail(channel != NULL);
+	g_return_if_fail(IS_CHANNEL(channel));
+	g_return_if_fail(nick_orig != NULL);
+
+	if(!channel_find_user(channel, nick_orig, &user))
+		return;
 	g_free(user->nick);
 	user->nick = g_strdup(nick_new);
+
+	if(account_manager_is_current_channel(account_manager_get(), channel)) {
+		account_manager_nick_list_update(account_manager_get(), user);
+	}
 }
 void channel_clear_user(Channel *channel)
 {
@@ -272,4 +314,8 @@ void channel_clear_user(Channel *channel)
 		g_free(user);
 	}
 	g_slist_free(channel->user_list);
+
+	if(account_manager_is_current_channel(account_manager_get(), channel)) {
+		account_manager_nick_list_clear(account_manager_get());
+	}
 }

@@ -70,6 +70,11 @@ gboolean account_manager_is_current_channel(AccountManager *manager, Channel *ch
 
 void account_manager_common_text_append(AccountManager *manager, TextType type, gchar *str);
 
+void account_manager_nick_list_append(AccountManager *manager, User *user);
+void account_manager_nick_list_remove(AccountManager *manager, User *user);
+void account_manager_nick_list_update(AccountManager *manager, User *user);
+void account_manager_nick_list_clear(AccountManager *manager);
+
 G_END_DECLS
 
 #endif /* __ACCOUNT_MANAGER_H__ */
