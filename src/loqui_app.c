@@ -504,9 +504,12 @@ loqui_app_new(void)
 
 	loqui_app_set_toolbar_style(app, prefs_general.toolbar_style);
 	loqui_app_set_show_statusbar(app, prefs_general.show_statusbar);
+	loqui_app_set_show_channelbar(app, prefs_general.show_channelbar);
 
 	loqui_menu_set_view_toolbar(app->menu, prefs_general.toolbar_style);
 	loqui_menu_set_view_statusbar(app->menu, prefs_general.show_statusbar);
+	loqui_menu_set_view_channelbar(app->menu, prefs_general.show_channelbar);
+
 	loqui_app_set_focus(app);
 
 	return GTK_WIDGET(app);
@@ -630,6 +633,24 @@ loqui_app_set_show_statusbar(LoquiApp *app, gboolean show)
 		gtk_widget_hide(priv->statusbar);
 
 	prefs_general.show_statusbar = show;
+}
+
+void
+loqui_app_set_show_channelbar(LoquiApp *app, gboolean show)
+{
+	LoquiAppPrivate *priv;
+
+        g_return_if_fail(app != NULL);
+        g_return_if_fail(LOQUI_IS_APP(app));
+
+	priv = app->priv;
+
+	if(show)
+		gtk_widget_show(priv->handlebox_channelbar);
+	else
+		gtk_widget_hide(priv->handlebox_channelbar);
+
+	prefs_general.show_channelbar = show;
 }
 
 void

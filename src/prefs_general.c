@@ -44,6 +44,7 @@ PrefElement prefs_general_defs[] = {
 
 	{"toolbar_style", "2", PREF_TYPE_UINT, &prefs_general.toolbar_style},
 	{"show_statusbar", "true", PREF_TYPE_BOOLEAN, &prefs_general.show_statusbar},
+	{"show_channelbar", "true", PREF_TYPE_BOOLEAN, &prefs_general.show_channelbar},
 
 	{"away_message", "Gone.", PREF_TYPE_STRING, &prefs_general.away_message},
 

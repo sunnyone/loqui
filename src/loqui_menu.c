@@ -59,6 +59,7 @@ static void loqui_menu_topic_cb(gpointer data, guint callback_action, GtkWidget 
 static void loqui_menu_nick_cb(gpointer data, guint callback_action, GtkWidget *widget);
 
 static void loqui_menu_view_toolbar_cb(gpointer data, guint callback_action, GtkWidget *widget);
+static void loqui_menu_view_channelbar_cb(gpointer data, guint callback_action, GtkWidget *widget);
 static void loqui_menu_view_statusbar_cb(gpointer data, guint callback_action, GtkWidget *widget);
 static void loqui_menu_view_move_cb(gpointer data, guint callback_action, GtkWidget *widget);
 
@@ -105,6 +106,7 @@ static GtkItemFactoryEntry menu_items[] = {
 	{ N_("/View/Toolbar/Both icons and text"), NULL, loqui_menu_view_toolbar_cb, GTK_TOOLBAR_BOTH, "/View/Toolbar/Icon" },
 	{ N_("/View/Toolbar/Both icons and text horizontally"), NULL, loqui_menu_view_toolbar_cb, GTK_TOOLBAR_BOTH_HORIZ, "/View/Toolbar/Icon"},
 	{ N_("/View/Toolbar/Hide"), NULL, loqui_menu_view_toolbar_cb, 100, "/View/Toolbar/Icon" },
+	{ N_("/View/Channelbar"), NULL, loqui_menu_view_channelbar_cb, 0, "<ToggleItem>" },
 	{ N_("/View/Status bar"), NULL, loqui_menu_view_statusbar_cb, 0, "<ToggleItem>" },
 	{ "/View/sep",        NULL,         0,       0, "<Separator>" },
 	{ N_("/View/Previous updated channel"), "<Alt>P", loqui_menu_view_move_cb, 0, "<StockItem>", GTK_STOCK_GO_UP},
@@ -397,6 +399,21 @@ loqui_menu_view_toolbar_cb(gpointer data, guint callback_action, GtkWidget *widg
 }
 
 static void
+loqui_menu_view_channelbar_cb(gpointer data, guint callback_action, GtkWidget *widget)
+{
+	LoquiMenu *menu;
+	LoquiMenuPrivate *priv;
+
+	menu = LOQUI_MENU(data);
+
+	g_return_if_fail(menu != NULL);
+        g_return_if_fail(LOQUI_IS_MENU(menu));
+
+	priv = menu->priv;
+
+	loqui_app_set_show_channelbar(priv->app, gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(widget)));
+}
+static void
 loqui_menu_view_statusbar_cb(gpointer data, guint callback_action, GtkWidget *widget)
 {
 	LoquiMenu *menu;
@@ -565,7 +582,8 @@ loqui_menu_set_view_toolbar(LoquiMenu *menu, guint style)
 	}
 	gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(item), TRUE);
 }
-void loqui_menu_set_view_statusbar(LoquiMenu *menu, gboolean show)
+void
+loqui_menu_set_view_statusbar(LoquiMenu *menu, gboolean show)
 {
 	LoquiMenuPrivate *priv;
 	GtkWidget *item;
@@ -579,6 +597,22 @@ void loqui_menu_set_view_statusbar(LoquiMenu *menu, gboolean show)
 
 	gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(item), show);
 }
+void
+loqui_menu_set_view_channelbar(LoquiMenu *menu, gboolean show)
+{
+	LoquiMenuPrivate *priv;
+	GtkWidget *item;
+
+	g_return_if_fail(menu != NULL);
+        g_return_if_fail(LOQUI_IS_MENU(menu));
+
+	priv = menu->priv;
+
+	item = gtk_item_factory_get_item(priv->item_factory, "/View/Channelbar");
+
+	gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(item), show);
+}
+
 void
 loqui_menu_buffers_add_account(LoquiMenu *menu, Account *account)
 {

@@ -58,6 +58,7 @@ typedef struct _PrefsGeneral {
 
 	guint toolbar_style;
 	gboolean show_statusbar;
+	gboolean show_channelbar;
 
 	gchar *away_message;
 

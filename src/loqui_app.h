@@ -78,6 +78,7 @@ void loqui_app_set_common_buffer(LoquiApp *app, ChannelBuffer *buffer);
 
 void loqui_app_set_toolbar_style(LoquiApp *app, guint style);
 void loqui_app_set_show_statusbar(LoquiApp *app, gboolean show);
+void loqui_app_set_show_channelbar(LoquiApp *app, gboolean show);
 
 void loqui_app_scroll_channel_buffer(LoquiApp *app);
 void loqui_app_scroll_common_buffer(LoquiApp *app);
