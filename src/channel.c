@@ -28,6 +28,10 @@ struct _ChannelPrivate
 {
 	gchar *topic;
 	gboolean fresh;
+
+	guint user_number;
+	guint op_number;
+
 	gboolean user_number_update_function_added;
 };
 
@@ -224,6 +228,7 @@ void channel_append_user(Channel *channel, const gchar *nick, UserPower power, U
 	const gchar *tmp_nick;
 	UserPower tmp_power;
 	GtkTreeIter iter;
+	ChannelPrivate *priv;
 
 	g_return_if_fail(channel != NULL);
 	g_return_if_fail(IS_CHANNEL(channel));
@@ -231,6 +236,8 @@ void channel_append_user(Channel *channel, const gchar *nick, UserPower power, U
 	g_return_if_fail(*nick != '\0');
 	g_return_if_fail(power != -1);
 	g_return_if_fail(exist != -1);
+
+	priv = channel->priv;
 
 	if(power == USER_POWER_UNDETERMINED) {
 		if(*nick == '@') {
@@ -255,6 +262,9 @@ void channel_append_user(Channel *channel, const gchar *nick, UserPower power, U
 			   USERLIST_COLUMN_NICK, tmp_nick,
 			   -1);
 	
+	priv->user_number++;
+	if(tmp_power == USER_POWER_OP)
+		priv->op_number++;
 	channel_update_user_number(channel);
 }
 gboolean channel_find_user(Channel *channel, const gchar *nick, GtkTreeIter *iter_ptr)
@@ -296,30 +306,51 @@ gboolean channel_find_user(Channel *channel, const gchar *nick, GtkTreeIter *ite
 void channel_remove_user(Channel *channel, const gchar *nick)
 {
 	GtkTreeIter iter;
+	UserPower power;
+	ChannelPrivate *priv;
 
 	g_return_if_fail(channel != NULL);
 	g_return_if_fail(IS_CHANNEL(channel));
 	g_return_if_fail(nick != NULL);
 
+	priv = channel->priv;
+
 	if(!channel_find_user(channel, nick, &iter))
 		return;
 
+	gtk_tree_model_get(GTK_TREE_MODEL(channel->user_list), &iter,
+			   USERLIST_COLUMN_OP, &power, -1);
 	gtk_list_store_remove(channel->user_list, &iter);
+
+	if(power == USER_POWER_OP)
+		priv->op_number--;
+	priv->user_number--;
 
 	channel_update_user_number(channel);
 }
 void channel_change_user_power(Channel *channel, const gchar *nick, UserPower power)
 {
 	GtkTreeIter iter;
+	UserPower old_power;
+	ChannelPrivate *priv;
 
 	g_return_if_fail(channel != NULL);
 	g_return_if_fail(IS_CHANNEL(channel));
 	g_return_if_fail(nick != NULL);
 
+	priv = channel->priv;
+
 	if(!channel_find_user(channel, nick, &iter))
 		return;
 	
+	gtk_tree_model_get(GTK_TREE_MODEL(channel->user_list), &iter,
+			   USERLIST_COLUMN_OP, &old_power, -1);
 	gtk_list_store_set(channel->user_list, &iter, USERLIST_COLUMN_OP, power, -1);
+
+	if(old_power == USER_POWER_OP && power != USER_POWER_OP)
+		priv->op_number--;
+	if(old_power != USER_POWER_OP && power == USER_POWER_OP)
+		priv->op_number++;
 
 	channel_update_user_number(channel);
 }
@@ -361,7 +392,6 @@ channel_update_user_number(Channel *channel)
 		priv->user_number_update_function_added = TRUE;
 	}
 }
-
 static gboolean 
 channel_update_user_number_actually(Channel *channel)
 {
@@ -377,32 +407,16 @@ channel_update_user_number_actually(Channel *channel)
 
 	return FALSE;
 }
-
-void channel_count_users(Channel *channel, guint *all_users, guint *op_users)
+void
+channel_get_user_numbers(Channel *channel, guint *user_number, guint *op_number)
 {
-	GtkTreeIter iter;
-	GtkTreeModel *model;
-	UserPower power;
+	ChannelPrivate *priv;
 
 	g_return_if_fail(channel != NULL);
 	g_return_if_fail(IS_CHANNEL(channel));
-	g_return_if_fail(all_users != NULL);
-	g_return_if_fail(op_users != NULL);
+	
+	priv = channel->priv;
 
-	*all_users = 0;
-	*op_users = 0;
-
-	model = GTK_TREE_MODEL(channel->user_list);
-
-	if(!gtk_tree_model_get_iter_first(model, &iter))
-		return;
-
-	do {
-		(*all_users)++;
-
-		gtk_tree_model_get(model, &iter, USERLIST_COLUMN_OP, &power, -1);
-		
-		if(power == USER_POWER_OP)
-			(*op_users)++;
-	} while(gtk_tree_model_iter_next(model, &iter));
+	*user_number = priv->user_number;
+	*op_number = priv->op_number;
 }
