@@ -1,3 +1,145 @@
+2003-01-27 00:17  y-imai
+
+	* po/: POTFILES.in, ja.po, loqui.pot: update po
+
+2003-01-27 00:16  y-imai
+
+	* configure.in: requires gtk > 2.2.0
+
+2003-01-27 00:15  y-imai
+
+	* src/irc_handle.c: remove needless printing
+
+2003-01-26 23:48  y-imai
+
+	* src/channel_tree.c: disabled rules hint
+
+2003-01-26 23:46  y-imai
+
+	* src/nick_list.c: enable sorting. set rules hint.
+
+2003-01-26 23:45  y-imai
+
+	* src/irc_handle.c: use irc_handle_disconnect
+
+2003-01-26 23:45  y-imai
+
+	* src/channel_tree.c: set rules hint
+
+2003-01-26 23:07  y-imai
+
+	* src/connection.c: fixed the blocking read() bug when quiting the
+	program with NONBLOCK
+
+2003-01-26 21:44  y-imai
+
+	* src/account_dialog.c: implemeneted account_dialog
+
+2003-01-26 21:44  y-imai
+
+	* src/: account.c, account.h: added remove_all_server function
+
+2003-01-26 21:43  y-imai
+
+	* src/: account_manager.c, account_manager.h: added '_with_dialog'
+	and _update_account functions
+
+2003-01-26 00:21  y-imai
+
+	* src/connection.c: fix a bug to continue failed codeconv message
+
+2003-01-25 23:31  y-imai
+
+	* src/: gtkutils.c, gtkutils.h: added gtk_utils_add_label_entry()
+
+2003-01-25 23:30  y-imai
+
+	* src/irc_handle.c: modified the finalizing procedure
+
+2003-01-25 23:30  y-imai
+
+	* src/: channel_tree.c, channel_tree.h: added functions,
+	(update|remove)_account
+
+2003-01-25 23:28  y-imai
+
+	* src/account_list_dialog.c: implemeneted callbacks
+
+2003-01-25 23:27  y-imai
+
+	* src/: Makefile.am, account_dialog.c, account_dialog.h: added
+	account_dialog
+
+2003-01-25 23:26  y-imai
+
+	* src/account.c: modified finalizing procedure
+
+2003-01-25 23:25  y-imai
+
+	* src/: loqui_menu.c, loqui_menu.h: renamed create_connect_submenu
+	to update_connect_submenu
+
+2003-01-25 23:24  y-imai
+
+	* src/main.c: don't save account settings in main.c
+
+2003-01-25 19:58  y-imai
+
+	* src/: connection.c, irc_handle.c: attempting to fix
+	long-time-quitting bug
+
+2003-01-23 23:20  y-imai
+
+	* configure.in, po/POTFILES.in, po/ja.po, po/loqui.pot,
+	src/Makefile.am, src/account_list_dialog.c,
+	src/account_list_dialog.h, src/account_manager.c,
+	src/account_manager.h, src/loqui_menu.c: created account list
+	dialog temporalily
+
+2003-01-23 21:04  y-imai
+
+	* src/account.c: use DEFINE_STRING_ACCESSOR macro
+
+2003-01-23 20:40  y-imai
+
+	* NEWS: 0.0.9 NEWS
+
+2003-01-23 20:34  y-imai
+
+	* src/: connection.c, irc_constants.h, irc_handle.c: fixed the bug
+	when the message which cannot convert codeset appears
+
+2003-01-19 23:39  y-imai
+
+	* src/channel.c: calculate users when idle
+
+2003-01-19 23:09  y-imai
+
+	* src/nick_list.c: removed unused model
+
+2003-01-19 23:05  y-imai
+
+	* src/: account_manager.c, account_manager.h, channel.c, channel.h,
+	channel_tree.c, channel_tree.h: counting users
+
+2003-01-19 22:28  y-imai
+
+	* src/loqui_app.c: change the place to show topic and scroll button
+
+2003-01-19 22:21  y-imai
+
+	* src/: account_manager.c, account_manager.h, channel.c, channel.h,
+	channel_tree.c, channel_tree.h: change channel color when a new
+	message is arrived.
+
+2003-01-19 21:24  y-imai
+
+	* ChangeLog, NEWS: update for 0.0.8
+
+2003-01-19 21:24  y-imai
+
+	* configure.in: update configure.in 0.0.8
+
 2003-01-19 21:17  y-imai
 
 	* src/channel.c: fix wrong handling iter
