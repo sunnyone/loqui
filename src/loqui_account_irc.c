@@ -289,6 +289,7 @@ loqui_account_irc_connection_connected_cb(GObject *object, gboolean is_success, 
 
 	if(!is_success) {
 		loqui_account_console_buffer_append(LOQUI_ACCOUNT(account), TEXT_TYPE_INFO, _("Failed to connect."));
+		loqui_account_set_is_connected(LOQUI_ACCOUNT(account), FALSE);
 		G_OBJECT_UNREF_UNLESS_NULL(priv->connection);
 		return;
 	}
