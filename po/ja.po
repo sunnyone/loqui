@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: loqui 0.1.20\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2004-09-17 03:30+0900\n"
+"POT-Creation-Date: 2004-09-22 01:13+0900\n"
 "PO-Revision-Date: 2002-11-10 13:17+0900\n"
 "Last-Translator: Yoichi Imai <yoichi@silver-forest.com>\n"
 "Language-Team: Japanese <ja@li.org>\n"
@@ -343,19 +343,19 @@ msgstr "再接続の回数が限界に達しました。"
 msgid "Canceled pended reconnecting."
 msgstr "未解決の再接続がキャンセルされました。"
 
-#: src/loqui_account_ipmsg.c:207 src/loqui_account_irc.c:288
+#: src/loqui_account_ipmsg.c:212 src/loqui_account_irc.c:288
 msgid "Already connected."
 msgstr "接続済みです。"
 
-#: src/loqui_account_ipmsg.c:214
+#: src/loqui_account_ipmsg.c:219
 msgid "Failed to create socket. Is used the port?"
 msgstr ""
 
-#: src/loqui_account_ipmsg.c:226
+#: src/loqui_account_ipmsg.c:231
 msgid "Opened the socket."
 msgstr ""
 
-#: src/loqui_account_ipmsg.c:249
+#: src/loqui_account_ipmsg.c:259
 msgid "Disconnected."
 msgstr "切断されました"
 
@@ -364,15 +364,15 @@ msgstr "切断されました"
 msgid "Connecting to %s:%d"
 msgstr "%s:%dに接続しています"
 
-#: src/loqui_account_irc.c:323
+#: src/loqui_account_irc.c:323 src/msn_login.c:196
 msgid "Failed to connect."
 msgstr "接続に失敗しました。"
 
-#: src/loqui_account_irc.c:325
+#: src/loqui_account_irc.c:325 src/msn_login.c:198
 msgid "An error occured on connection."
 msgstr "接続に不明なエラーが発生しました"
 
-#: src/loqui_account_irc.c:351
+#: src/loqui_account_irc.c:351 src/msn_login.c:220
 msgid "Connected."
 msgstr "接続しました。"
 
@@ -380,7 +380,7 @@ msgstr "接続しました。"
 msgid "Sent initial commands."
 msgstr "初期コマンドを送信しました。"
 
-#: src/loqui_account_irc.c:403
+#: src/loqui_account_irc.c:403 src/msn_login.c:251
 msgid "Connection closed."
 msgstr "接続は切断されました。"
 
@@ -388,7 +388,7 @@ msgstr "接続は切断されました。"
 msgid "Terminated."
 msgstr "切断されました。"
 
-#: src/loqui_account_irc.c:519
+#: src/loqui_account_irc.c:519 src/loqui_sender_ipmsg.c:186
 msgid "The account is not connected."
 msgstr "アカウントが接続されていません"
 
@@ -1031,11 +1031,6 @@ msgstr ""
 msgid "Hostname is not set"
 msgstr ""
 
-#: src/loqui_receiver_ipmsg.c:231
-#, c-format
-msgid "The user '%s' exit, but he/she is not registered."
-msgstr ""
-
 #: src/loqui_receiver_ipmsg.c:275
 #, c-format
 msgid ""
@@ -1202,65 +1197,73 @@ msgstr ""
 msgid "Can't find the channel from the message"
 msgstr ""
 
-#: src/loqui_receiver_irc.c:1262
+#: src/loqui_receiver_irc.c:1264
 msgid "*** %2 is marked as begin AWAY, but left the message: %3"
 msgstr ""
 
-#: src/loqui_receiver_irc.c:1271 src/loqui_receiver_irc.c:1275
-#: src/loqui_receiver_irc.c:1279
+#: src/loqui_receiver_irc.c:1273 src/loqui_receiver_irc.c:1277
+#: src/loqui_receiver_irc.c:1281
 msgid "*** %t"
 msgstr ""
 
-#: src/loqui_receiver_irc.c:1282
+#: src/loqui_receiver_irc.c:1284
 msgid "*** You are inviting %2 to %3"
 msgstr ""
 
-#: src/loqui_receiver_irc.c:1285
+#: src/loqui_receiver_irc.c:1287
 msgid "*** %3 is running IRC version %2 (%4)"
 msgstr ""
 
-#: src/loqui_receiver_irc.c:1319
+#: src/loqui_receiver_irc.c:1321
 msgid "%2 is %3@%4: %t"
 msgstr ""
 
-#: src/loqui_receiver_irc.c:1322
+#: src/loqui_receiver_irc.c:1324
 msgid "%2 was %3@%4: %t"
 msgstr ""
 
-#: src/loqui_receiver_irc.c:1325
+#: src/loqui_receiver_irc.c:1327
 msgid "%2: %t"
 msgstr ""
 
-#: src/loqui_receiver_irc.c:1328
+#: src/loqui_receiver_irc.c:1330
 msgid "on via server %3(%t)"
 msgstr ""
 
-#: src/loqui_receiver_irc.c:1334
+#: src/loqui_receiver_irc.c:1336
 msgid "Banned on %2 : %3"
 msgstr ""
 
-#: src/loqui_receiver_irc.c:1337
+#: src/loqui_receiver_irc.c:1339
 msgid "Time: %3(%2)"
 msgstr ""
 
-#: src/loqui_receiver_irc.c:1349 src/loqui_receiver_irc.c:1355
+#: src/loqui_receiver_irc.c:1351 src/loqui_receiver_irc.c:1357
 msgid "%3"
 msgstr ""
 
-#: src/loqui_receiver_irc.c:1360
+#: src/loqui_receiver_irc.c:1362
 msgid "Ison: %*2"
 msgstr ""
 
-#: src/loqui_receiver_irc.c:1386
+#: src/loqui_receiver_irc.c:1365
+msgid "Channel List: Name(Users) Topic"
+msgstr ""
+
+#: src/loqui_receiver_irc.c:1368
+msgid "%2(%3)\t%4"
+msgstr ""
+
+#: src/loqui_receiver_irc.c:1371 src/loqui_receiver_irc.c:1447
+msgid "%t"
+msgstr ""
+
+#: src/loqui_receiver_irc.c:1397
 msgid "%2 %t (%3)"
 msgstr ""
 
-#: src/loqui_receiver_irc.c:1413
+#: src/loqui_receiver_irc.c:1424
 msgid "%t: %2"
-msgstr ""
-
-#: src/loqui_receiver_irc.c:1436
-msgid "%t"
 msgstr ""
 
 #: src/loqui_sender_irc.c:83
@@ -1496,13 +1499,14 @@ msgstr ""
 msgid "Text type"
 msgstr ""
 
-#: src/msn_login.c:202
-msgid "Failed to connect notification server."
-msgstr ""
-
-#: src/msn_login.c:219
+#: src/msn_login.c:229
 msgid "Sending version information..."
 msgstr ""
+
+#: src/msn_login.c:306
+#, c-format
+msgid "Connecting to login server (%s:%d)"
+msgstr "login server (%s:%d) に接続しています"
 
 #: src/prefs_dialog.c:253
 #, c-format
