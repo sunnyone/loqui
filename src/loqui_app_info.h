@@ -21,6 +21,9 @@
 #ifndef __LOQUI_APP_INFO_H__
 #define __LOQUI_APP_INFO_H__
 
+#define LOQUI_APP_INFO_DEFAULT_TITLE_FORMAT_TITLE _("[%channel_name% @ ][%account_name% - ]Loqui version %version%")
+#define LOQUI_APP_INFO_DEFAULT_TITLE_FORMAT_STATUSBAR _("$if($grater(%updated_entry_number%,0),%updated_entry_number% entries updated$if($grater(%updated_private_talk_number%,0), '('%updated_private_talk_number% private talk'(s))')")
+
 #include <gtk/gtk.h>
 #include "loqui_title_format.h"
 
@@ -105,6 +108,11 @@ void loqui_app_info_account_removed(LoquiAppInfo *appinfo, LoquiAccount *account
 
 void loqui_app_info_channel_added(LoquiAppInfo *appinfo, LoquiChannel *channel);
 void loqui_app_info_channel_removed(LoquiAppInfo *appinfo, LoquiChannel *channel);
+
+void loqui_app_info_set_title_format_title(LoquiAppInfo *appinfo, LoquiTitleFormat *ltf);
+void loqui_app_info_set_title_format_statusbar(LoquiAppInfo *appinfo, LoquiTitleFormat *ltf);
+
+void loqui_app_info_load_from_prefs_general(LoquiAppInfo *appinfo);
 
 G_END_DECLS
 

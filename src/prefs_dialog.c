@@ -59,6 +59,9 @@ struct _PrefsDialogPrivate
 	GtkWidget *entry_browser_command;
 	GtkWidget *entry_notification_command;
 
+	GtkWidget *textview_title_format_title;
+	GtkWidget *textview_title_format_statusbar;
+
 	LoquiApp *app;
 };
 
@@ -153,6 +156,7 @@ static void
 prefs_dialog_load_settings(PrefsDialog *dialog)
 {
 	PrefsDialogPrivate *priv;
+	GtkTextBuffer *buffer;
 
 	g_return_if_fail(dialog != NULL);
         g_return_if_fail(IS_PREFS_DIALOG(dialog));
@@ -176,6 +180,12 @@ prefs_dialog_load_settings(PrefsDialog *dialog)
 	gtkutils_set_textview_from_string_list(GTK_TEXT_VIEW(priv->textview_transparent_ignore),
 					       prefs_general.transparent_ignore_list);
 
+	buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(priv->textview_title_format_title));
+	gtk_text_buffer_set_text(GTK_TEXT_BUFFER(buffer), prefs_general.title_format_title, -1);
+	
+	buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(priv->textview_title_format_statusbar));
+	gtk_text_buffer_set_text(GTK_TEXT_BUFFER(buffer), prefs_general.title_format_statusbar, -1);
+
 	gtk_entry_set_text(GTK_ENTRY(priv->entry_away_message), prefs_general.away_message);
 	gtk_entry_set_text(GTK_ENTRY(priv->entry_browser_command), prefs_general.browser_command);
 	gtk_entry_set_text(GTK_ENTRY(priv->entry_notification_command), prefs_general.notification_command);
@@ -191,6 +201,8 @@ static void
 prefs_dialog_save_settings(PrefsDialog *dialog)
 {
 	PrefsDialogPrivate *priv;
+	gchar *buf;
+	LoquiTitleFormat *ltf;
 
 	g_return_if_fail(dialog != NULL);
         g_return_if_fail(IS_PREFS_DIALOG(dialog));
@@ -232,7 +244,28 @@ prefs_dialog_save_settings(PrefsDialog *dialog)
 
 	prefs_general.common_buffer_max_line_number = (guint) gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(priv->spin_common_buffer_max_line_number));
 	prefs_general.channel_buffer_max_line_number = (guint) gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(priv->spin_channel_buffer_max_line_number));
-	
+
+#define SET_TITLE_FORMAT(_textview, _name, _pref, _setter) { \
+	buf = gtkutils_get_text_from_textview(GTK_TEXT_VIEW(_textview)); \
+	if (strlen(buf) > 0) { \
+		ltf = loqui_title_format_new(); \
+		if (!loqui_title_format_parse(ltf, buf, NULL)) { \
+			gtkutils_msgbox_info(GTK_MESSAGE_ERROR, _("Invalid title format: default is used for %s."), _name); \
+			loqui_title_format_free(ltf); \
+			_setter(priv->app->appinfo, NULL); \
+		} else { \
+			_setter(priv->app->appinfo, ltf); \
+		} \
+	} else { \
+		_setter(priv->app->appinfo, NULL); \
+	} \
+	G_FREE_UNLESS_NULL(_pref); \
+	_pref = buf; \
+}
+
+	SET_TITLE_FORMAT(priv->textview_title_format_title, _("title"), prefs_general.title_format_title, loqui_app_info_set_title_format_title);
+	SET_TITLE_FORMAT(priv->textview_title_format_statusbar, _("statusbar"), prefs_general.title_format_statusbar, loqui_app_info_set_title_format_statusbar);
+
 	prefs_general_save();
 }
 
@@ -253,9 +286,11 @@ prefs_dialog_new(LoquiApp *app)
 	PrefsDialogPrivate *priv;
 	GtkWidget *notebook;
 	GtkWidget *vbox;
+	GtkWidget *vbox2;
 	GtkWidget *frame;
 	GtkWidget *label;
-	
+	GtkWidget *scrolled_win;
+
 	dialog = g_object_new(prefs_dialog_get_type(), NULL);
 
 	gtk_window_set_title(GTK_WINDOW(dialog), _("Common Preferences"));
@@ -347,6 +382,55 @@ prefs_dialog_new(LoquiApp *app)
 	gtk_box_pack_start(GTK_BOX(vbox), label, FALSE, FALSE, 0);
 	
 	gtkutils_add_label_entry(vbox, _("Notification: "), &priv->entry_notification_command, "");
+
+	vbox = gtk_vbox_new(FALSE, 0);
+	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), vbox, gtk_label_new(_("Format")));
+
+	label = gtk_label_new(_("See title formatting help of the software 'foobar2000'.\nThe list of variables is at loqui_app_info.c.\nIf you version is input, it is used."));
+	gtk_box_pack_start(GTK_BOX(vbox), label, FALSE, FALSE, 5);
+
+	frame = gtk_frame_new(_("Title format of title"));
+	gtk_box_pack_start(GTK_BOX(vbox), frame, TRUE, TRUE, 5);
+
+	vbox2 = gtk_vbox_new(FALSE, 0);
+	gtk_container_add(GTK_CONTAINER(frame), vbox2);
+	
+	scrolled_win = gtk_scrolled_window_new(NULL, NULL);
+	gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled_win),
+				       GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
+	gtk_box_pack_start(GTK_BOX(vbox2), scrolled_win, TRUE, TRUE, 0);
+
+	priv->textview_title_format_title = gtk_text_view_new();
+	gtk_container_add(GTK_CONTAINER(scrolled_win), priv->textview_title_format_title);
+
+	label = gtk_label_new(_("Default:"));
+	gtk_box_pack_start(GTK_BOX(vbox2), label, FALSE, FALSE, 0);
+
+	label = gtk_label_new(LOQUI_APP_INFO_DEFAULT_TITLE_FORMAT_TITLE);
+	gtk_box_pack_start(GTK_BOX(vbox2), label, FALSE, FALSE, 0);
+	gtk_label_set_selectable(GTK_LABEL(label), TRUE);
+
+	frame = gtk_frame_new(_("Title format of statusbar"));
+	gtk_box_pack_start(GTK_BOX(vbox), frame, TRUE, TRUE, 5);
+
+	vbox2 = gtk_vbox_new(FALSE, 0);
+	gtk_container_add(GTK_CONTAINER(frame), vbox2);
+	
+	scrolled_win = gtk_scrolled_window_new(NULL, NULL);
+	gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled_win),
+				       GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
+	gtk_box_pack_start(GTK_BOX(vbox2), scrolled_win, TRUE, TRUE, 0);
+
+	priv->textview_title_format_statusbar = gtk_text_view_new();
+	gtk_container_add(GTK_CONTAINER(scrolled_win), priv->textview_title_format_statusbar);
+
+	label = gtk_label_new(_("Default:"));
+	gtk_box_pack_start(GTK_BOX(vbox2), label, FALSE, FALSE, 0);
+
+	label = gtk_label_new(LOQUI_APP_INFO_DEFAULT_TITLE_FORMAT_STATUSBAR);
+	gtk_box_pack_start(GTK_BOX(vbox2), label, FALSE, FALSE, 0);
+	gtk_label_set_selectable(GTK_LABEL(label), TRUE);
+	gtk_label_set_line_wrap(GTK_LABEL(label), TRUE);
 
 	prefs_dialog_load_settings(dialog);
 

@@ -80,6 +80,9 @@ PrefElement prefs_general_defs[] = {
 
 	{"select_channel_joined", "true", PREF_TYPE_BOOLEAN, &prefs_general.select_channel_joined},
 
+	{"title_format_title", "", PREF_TYPE_STRING, &prefs_general.title_format_title},
+	{"title_format_statusbar", "", PREF_TYPE_STRING, &prefs_general.title_format_statusbar},
+
 	{NULL, NULL, 0, NULL}
 };
 

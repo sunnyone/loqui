@@ -24,6 +24,8 @@
 #include "loqui_statusbar.h"
 #include "loqui_channelbar.h"
 #include "intl.h"
+#include "prefs_general.h"
+#include <string.h>
 
 enum {
         LAST_SIGNAL
@@ -282,11 +284,8 @@ loqui_app_info_new(LoquiApp *app)
         priv = appinfo->priv;
 	priv->app = app;
 
-	appinfo->ltf_title = loqui_title_format_new();
-	loqui_title_format_parse(appinfo->ltf_title, _("[%channel_name% @ ][%account_name% - ]Loqui version %version%"), NULL);
-
-	appinfo->ltf_statusbar = loqui_title_format_new();
-	loqui_title_format_parse(appinfo->ltf_statusbar, _("$if($grater(%updated_entry_number%,0),%updated_entry_number% entries updated$if($grater(%updated_private_talk_number%,0), '('%updated_private_talk_number% private talk'(s))')"), NULL);
+	loqui_app_info_set_title_format_title(appinfo, NULL);
+	loqui_app_info_set_title_format_statusbar(appinfo, NULL);
 	
         return appinfo;
 }
@@ -570,4 +569,57 @@ loqui_app_info_channel_removed(LoquiAppInfo *appinfo, LoquiChannel *channel)
 		loqui_app_info_update_updated_private_talk_number(appinfo);
 		loqui_app_info_update_string_idle(appinfo);
 	}
+}
+void
+loqui_app_info_set_title_format_title(LoquiAppInfo *appinfo, LoquiTitleFormat *ltf)
+{
+	gboolean is_default_title_format_title_valid;
+
+	if (appinfo->ltf_title) {
+		loqui_title_format_free(appinfo->ltf_title);
+	}
+	if (ltf) {
+		appinfo->ltf_title = ltf;
+	} else {
+		appinfo->ltf_title = loqui_title_format_new();
+		is_default_title_format_title_valid = loqui_title_format_parse(appinfo->ltf_title, LOQUI_APP_INFO_DEFAULT_TITLE_FORMAT_TITLE, NULL);
+		g_assert(is_default_title_format_title_valid);
+	}
+}
+void
+loqui_app_info_set_title_format_statusbar(LoquiAppInfo *appinfo, LoquiTitleFormat *ltf)
+{
+	gboolean is_default_title_format_statusbar_valid;
+
+	if (appinfo->ltf_statusbar) {
+		loqui_title_format_free(appinfo->ltf_statusbar);
+	}
+	if (ltf) {
+		appinfo->ltf_statusbar = ltf;
+	} else {
+		appinfo->ltf_statusbar = loqui_title_format_new();
+		is_default_title_format_statusbar_valid = loqui_title_format_parse(appinfo->ltf_statusbar, LOQUI_APP_INFO_DEFAULT_TITLE_FORMAT_STATUSBAR, NULL);
+		g_assert(is_default_title_format_statusbar_valid);
+	}
+}
+void
+loqui_app_info_load_from_prefs_general(LoquiAppInfo *appinfo)
+{
+	LoquiTitleFormat *ltf;
+
+#define LOAD_TITLE_FORMAT(_pref, _name, _setter) {\
+	if (strlen(_pref) > 0) { \
+		ltf = loqui_title_format_new(); \
+		if (!loqui_title_format_parse(ltf, _pref, NULL)) { \
+			g_warning("Invalid title format: default is used for %s.", _name); \
+			loqui_title_format_free(ltf); \
+			_setter(appinfo, NULL); \
+		} else { \
+			_setter(appinfo, ltf); \
+		} \
+	} \
+}
+
+	LOAD_TITLE_FORMAT(prefs_general.title_format_title, "title", loqui_app_info_set_title_format_title);
+	LOAD_TITLE_FORMAT(prefs_general.title_format_statusbar, "statusbar", loqui_app_info_set_title_format_statusbar);
 }

@@ -48,6 +48,8 @@ void gtkutils_set_label_color(GtkLabel *label, const gchar *color);
 
 void gtkutils_set_textview_from_string_list(GtkTextView *textview, GList *list);
 void gtkutils_set_string_list_from_textview(GList **list, GtkTextView *textview);
+gchar* gtkutils_get_text_from_textview(GtkTextView *textview);
+
 GtkWidget *gtkutils_create_framed_textview(GtkWidget **textview_ptr, const gchar *frame_label);
 
 gboolean gtk_tree_model_find_by_column_data(GtkTreeModel * model, GtkTreeIter * iter,

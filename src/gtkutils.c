@@ -231,21 +231,33 @@ gtkutils_set_textview_from_string_list(GtkTextView *textview, GList *list)
 void
 gtkutils_set_string_list_from_textview(GList **list_ptr, GtkTextView *textview)
 {
-	GtkTextBuffer *buffer;
 	gchar *buf;
-	GtkTextIter start, end;
 
 	g_return_if_fail(list_ptr != NULL);
 	g_return_if_fail(textview != NULL);
 	g_return_if_fail(GTK_IS_TEXT_VIEW(textview));
-	
+
+	buf = gtkutils_get_text_from_textview(textview);
+
+	G_LIST_FREE_WITH_ELEMENT_FREE_UNLESS_NULL(*list_ptr);
+	*list_ptr = utils_line_separated_text_to_list(buf);
+	g_free(buf);
+}
+gchar *
+gtkutils_get_text_from_textview(GtkTextView *textview)
+{
+	gchar *buf;
+	GtkTextBuffer *buffer;
+	GtkTextIter start, end;
+
+	g_return_if_fail(textview != NULL);
+
 	buffer = gtk_text_view_get_buffer(textview);
 	gtk_text_buffer_get_start_iter(GTK_TEXT_BUFFER(buffer), &start);
 	gtk_text_buffer_get_end_iter(GTK_TEXT_BUFFER(buffer), &end);
 	buf = gtk_text_buffer_get_text(GTK_TEXT_BUFFER(buffer), &start, &end, FALSE);
 
-	G_LIST_FREE_WITH_ELEMENT_FREE_UNLESS_NULL(*list_ptr);
-	*list_ptr = utils_line_separated_text_to_list(buf);
+	return buf;
 }
 GtkWidget *
 gtkutils_create_framed_textview(GtkWidget **textview_ptr, const gchar *frame_label)

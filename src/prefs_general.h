@@ -104,6 +104,9 @@ typedef struct _PrefsGeneral {
 	guint nick_list_sort_type;
 
 	gboolean select_channel_joined;
+
+	gchar *title_format_title;
+	gchar *title_format_statusbar;
 } PrefsGeneral;
 
 void prefs_general_load(void);

@@ -57,7 +57,10 @@ loqui_gtk_start_main_loop(LoquiProtocolManager *pmanag)
 	
 	account_manager = loqui_account_manager_new(pmanag);
 	app = LOQUI_APP(loqui_app_new(account_manager));
-	
+
+	loqui_app_info_load_from_prefs_general(app->appinfo);
+	loqui_app_info_update_string_idle(app->appinfo);
+
 	path = g_build_filename(g_get_home_dir(), PREFS_DIR, ACCEL_MAP_FILE, NULL);
 
 	gtk_accel_map_add_filter(SHORTCUT_CHANNEL_ENTRY_ACCEL_MAP_PREFIX "*");
