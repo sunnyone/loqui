@@ -155,6 +155,8 @@ void account_change_channel_user_mode(Account *account, Channel *channel,
 
 void account_fetch_away_information(Account *account, Channel *channel);
 
+void account_get_updated_number(Account *account, gint *updated_private_talk_number, gint *updated_channel_number); 
+
 G_END_DECLS
 
 #endif /* __ACCOUNT_H__ */

@@ -113,8 +113,9 @@ channel_class_init (ChannelClass *klass)
 						G_SIGNAL_RUN_FIRST,
 						G_STRUCT_OFFSET(ChannelClass, updated),
 						NULL, NULL,
-						g_cclosure_marshal_VOID__VOID,
-						G_TYPE_NONE, 0);
+						g_cclosure_marshal_VOID__BOOLEAN,
+						G_TYPE_NONE, 1,
+						G_TYPE_BOOLEAN);
 
 	channel_signals[TOPIC_CHANGED] = g_signal_new("topic-changed",
 						      G_OBJECT_CLASS_TYPE(object_class),
@@ -265,15 +266,17 @@ channel_append_text(Channel *channel, TextType type, gchar *str)
 void channel_set_updated(Channel *channel, gboolean updated)
 {
 	ChannelPrivate *priv;
-
+	gboolean prev;
+	
 	g_return_if_fail(channel != NULL);
 	g_return_if_fail(IS_CHANNEL(channel));
 
 	priv = channel->priv;
 
+	prev = priv->updated;
 	priv->updated = updated;
 
-	g_signal_emit(channel, channel_signals[UPDATED], 0);
+	g_signal_emit(channel, channel_signals[UPDATED], 0, prev);
 }
 gboolean channel_get_updated(Channel *channel)
 {

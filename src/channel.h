@@ -86,7 +86,7 @@ struct _ChannelClass
 {
         GObjectClass parent_class;
 
-	void (* updated)             (Channel *channel);
+	void (* updated)             (Channel *channel, gboolean is_updated_prev);
 	void (* topic_changed)       (Channel *channel);
 	void (* user_number_changed) (Channel *channel);
 	void (* mode_changed)        (Channel *channel);

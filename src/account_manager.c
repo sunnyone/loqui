@@ -46,6 +46,9 @@ struct _AccountManagerPrivate
 	gboolean is_pending_update_account_info;
 	gboolean is_pending_update_channel_info;
 	gboolean is_scroll;
+	
+	guint updated_channel_number;
+	guint updated_private_talk_number;
 };
 
 static GObjectClass *parent_class = NULL;
@@ -57,8 +60,8 @@ static void account_manager_finalize(GObject *object);
 
 static void account_manager_account_changed_cb(GObject *object, gpointer data);
 static void account_manager_channel_changed_cb(GObject *object, gpointer data);
-static void account_manager_channel_updated_cb(Channel *channel, gpointer data);
 
+static void account_manager_channel_updated_cb(AccountManager *manager, gboolean is_updated_prev, Channel *channel);
 static void account_manager_add_channel_cb(Account *account, Channel *channel, AccountManager *manager);
 static void account_manager_remove_channel_cb(Account *account, Channel *channel, AccountManager *manager);
 static void account_manager_channel_buffer_append_cb(ChannelBuffer *buffer, MessageText *msgtext, AccountManager *manager);
@@ -253,8 +256,8 @@ account_manager_add_channel_cb(Account *account, Channel *channel, AccountManage
 
 	priv = manager->priv;
 
-	g_signal_connect(G_OBJECT(channel), "updated",
-			 G_CALLBACK(account_manager_channel_updated_cb), manager);
+	g_signal_connect_swapped(G_OBJECT(channel), "updated",
+			         G_CALLBACK(account_manager_channel_updated_cb), manager);
 	g_signal_connect_swapped(G_OBJECT(channel), "user-number-changed",
 				 G_CALLBACK(channel_tree_update_user_number), priv->app->channel_tree);
 	g_signal_connect(G_OBJECT(channel->buffer), "append",
@@ -359,20 +362,34 @@ static void account_manager_channel_changed_cb(GObject *object, gpointer data)
 	}
 }
 static void
-account_manager_channel_updated_cb(Channel *channel, gpointer data)
+account_manager_channel_updated_cb(AccountManager *manager, gboolean is_updated_prev, Channel *channel)
 {
-	AccountManager *manager;
 	AccountManagerPrivate *priv;
-
+	gchar *str;
+	gboolean updated;
+	gint delta;
+	
 	g_return_if_fail(channel != NULL);
 	g_return_if_fail(IS_CHANNEL(channel));
-        g_return_if_fail(data != NULL);
-        g_return_if_fail(IS_ACCOUNT_MANAGER(data));
-	
-	manager = ACCOUNT_MANAGER(data);
+        g_return_if_fail(manager != NULL);
+        g_return_if_fail(IS_ACCOUNT_MANAGER(manager));
 
 	priv = manager->priv;
 	
+	updated = channel_get_updated(channel);
+	
+	if (is_updated_prev == TRUE && updated == FALSE)
+		delta = -1;
+	else if (is_updated_prev == FALSE && updated == TRUE)
+		delta = +1;
+	else
+		delta = 0;
+		
+	if(channel_is_private_talk(channel))
+		priv->updated_private_talk_number += delta;
+	else
+		priv->updated_channel_number += delta;
+
 	if(channel_get_updated(channel) == TRUE &&
 	   account_manager_is_current_channel(manager, channel) &&
 	   account_manager_get_whether_scrolling(account_manager_get()))
@@ -381,6 +398,26 @@ account_manager_channel_updated_cb(Channel *channel, gpointer data)
 	channel_tree_set_updated(priv->app->channel_tree, NULL, channel);
 	loqui_menu_buffers_update_channel(priv->app->menu, channel);
 	loqui_channelbar_update_channel(LOQUI_CHANNELBAR(priv->app->channelbar), channel);
+	
+	if(is_updated_prev == updated)
+		return;
+		
+	if (priv->updated_private_talk_number > 0 && priv->updated_channel_number > 0)
+		str = g_strdup_printf(_("Updated: %d private talk(s), %d channel(s)."),
+					priv->updated_private_talk_number,
+					priv->updated_channel_number);
+	else if (priv->updated_private_talk_number > 0)
+		str = g_strdup_printf(_("Updated: %d private talk(s)."),
+					priv->updated_private_talk_number);
+	else if (priv->updated_channel_number > 0)
+		str = g_strdup_printf(_("Updated: %d channel(s)."),
+					priv->updated_channel_number);
+	else
+		str = g_strdup("");
+	
+	loqui_statusbar_set_default(LOQUI_STATUSBAR(priv->app->statusbar), str);
+	g_free(str);
+		
 }
 static void
 account_manager_channel_buffer_append_cb(ChannelBuffer *buffer, MessageText *msgtext, AccountManager *manager)

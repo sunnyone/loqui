@@ -1298,3 +1298,32 @@ account_fetch_away_information(Account *account, Channel *channel)
 	irc_connection_push_message(priv->connection, msg);
 	g_object_unref(msg);
 }
+void
+account_get_updated_number(Account *account, gint *updated_private_talk_number, gint *updated_channel_number)
+{
+	Channel *channel;
+	GList *list, *cur;
+		
+        g_return_if_fail(account != NULL);
+        g_return_if_fail(IS_ACCOUNT(account));
+        g_return_if_fail(updated_private_talk_number != NULL);
+        g_return_if_fail(updated_channel_number != NULL);
+
+	*updated_private_talk_number = 0;
+	*updated_channel_number = 0;
+	
+	list = utils_get_value_list_from_hash(account->channel_hash);
+	
+	for(cur = list; cur != NULL; cur = cur->next) {
+		channel = CHANNEL(cur->data);
+		if(channel_is_private_talk(channel)) {
+			if(channel_get_updated(channel))
+				(*updated_private_talk_number)++;
+		} else {
+			if(channel_get_updated(channel))
+				(*updated_channel_number)++;
+		}
+	}
+	
+	g_list_free(list);
+}
