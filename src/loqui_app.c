@@ -23,7 +23,7 @@
 #include "channel_tree.h"
 #include "utils.h"
 #include "nick_list.h"
-#include "account_manager.h"
+#include "loqui_account_manager.h"
 #include "prefs_general.h"
 #include "loqui_channelbar.h"
 #include "loqui_statusbar.h"
@@ -104,9 +104,9 @@ static void loqui_app_save_size(LoquiApp *app);
 
 static void loqui_app_create_tray_icon(LoquiApp *app);
 
-static void loqui_app_add_account_after_cb(AccountManager *manager, LoquiAccount *account, LoquiApp *app);
-static void loqui_app_remove_account_cb(AccountManager *manager, LoquiAccount *account, LoquiApp *app);
-static void loqui_app_remove_account_after_cb(AccountManager *manager, LoquiAccount *account, LoquiApp *app);
+static void loqui_app_add_account_after_cb(LoquiAccountManager *manager, LoquiAccount *account, LoquiApp *app);
+static void loqui_app_remove_account_cb(LoquiAccountManager *manager, LoquiAccount *account, LoquiApp *app);
+static void loqui_app_remove_account_after_cb(LoquiAccountManager *manager, LoquiAccount *account, LoquiApp *app);
 
 static void loqui_app_add_channel_after_cb(LoquiAccount *account, LoquiChannel *channel, LoquiApp *app);
 static void loqui_app_remove_channel_cb(LoquiAccount *account, LoquiChannel *channel, LoquiApp *app);
@@ -249,7 +249,7 @@ loqui_app_delete_event(GtkWidget *widget, GdkEventAny *event)
 
 	app = LOQUI_APP(widget);
 
-	account_manager_disconnect_all(loqui_app_get_account_manager(app));
+	loqui_account_manager_disconnect_all(loqui_app_get_account_manager(app));
 
         if (prefs_general.save_size) {
 		loqui_app_save_size(LOQUI_APP(widget));
@@ -537,7 +537,7 @@ loqui_app_create_tray_icon(LoquiApp *app)
 	g_object_ref(app->tray_icon);
 }
 GtkWidget*
-loqui_app_new(AccountManager *account_manager)
+loqui_app_new(LoquiAccountManager *account_manager)
 {
 	LoquiApp *app;
 	LoquiAppPrivate *priv;
@@ -808,7 +808,7 @@ loqui_app_get_current_widget_editing_status(LoquiApp *app, gboolean *cutable, gb
 	}
 }
 
-AccountManager *
+LoquiAccountManager *
 loqui_app_get_account_manager(LoquiApp *app)
 {
         g_return_val_if_fail(app != NULL, NULL);
@@ -1007,7 +1007,7 @@ loqui_app_account_connect_after_cb(LoquiAccount *account, LoquiApp *app)
 	loqui_app_set_current_channel_entry(app, LOQUI_CHANNEL_ENTRY(account));
 }
 static void
-loqui_app_add_account_after_cb(AccountManager *manager, LoquiAccount *account, LoquiApp *app)
+loqui_app_add_account_after_cb(LoquiAccountManager *manager, LoquiAccount *account, LoquiApp *app)
 {
 	LoquiAppPrivate *priv;
 	LoquiChannelEntryStore *store;
@@ -1015,7 +1015,7 @@ loqui_app_add_account_after_cb(AccountManager *manager, LoquiAccount *account, L
 	GtkWidget *chview;
 
         g_return_if_fail(manager != NULL);
-        g_return_if_fail(IS_ACCOUNT_MANAGER(manager));
+        g_return_if_fail(LOQUI_IS_ACCOUNT_MANAGER(manager));
 	g_return_if_fail(account != NULL);
 	g_return_if_fail(LOQUI_IS_ACCOUNT(account));
         g_return_if_fail(app != NULL);
@@ -1059,7 +1059,7 @@ loqui_app_add_account_after_cb(AccountManager *manager, LoquiAccount *account, L
 	loqui_app_update_channel_entry_accel_key(app);
 }
 static void
-loqui_app_remove_account_cb(AccountManager *manager, LoquiAccount *account, LoquiApp *app)
+loqui_app_remove_account_cb(LoquiAccountManager *manager, LoquiAccount *account, LoquiApp *app)
 {
 	LoquiAppPrivate *priv;
 	ChannelBuffer *buffer;
@@ -1067,7 +1067,7 @@ loqui_app_remove_account_cb(AccountManager *manager, LoquiAccount *account, Loqu
 	GtkWidget *chview;
 
         g_return_if_fail(manager != NULL);
-        g_return_if_fail(IS_ACCOUNT_MANAGER(manager));
+        g_return_if_fail(LOQUI_IS_ACCOUNT_MANAGER(manager));
         g_return_if_fail(app != NULL);
         g_return_if_fail(LOQUI_IS_APP(app));
 	g_return_if_fail(account != NULL);
@@ -1095,10 +1095,10 @@ loqui_app_remove_account_cb(AccountManager *manager, LoquiAccount *account, Loqu
 	g_object_unref(store);
 }
 static void
-loqui_app_remove_account_after_cb(AccountManager *manager, LoquiAccount *was_account, LoquiApp *app)
+loqui_app_remove_account_after_cb(LoquiAccountManager *manager, LoquiAccount *was_account, LoquiApp *app)
 {
         g_return_if_fail(manager != NULL);
-        g_return_if_fail(IS_ACCOUNT_MANAGER(manager));
+        g_return_if_fail(LOQUI_IS_ACCOUNT_MANAGER(manager));
         g_return_if_fail(app != NULL);
         g_return_if_fail(LOQUI_IS_APP(app));
 

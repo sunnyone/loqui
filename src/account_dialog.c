@@ -22,7 +22,7 @@
 #include "account_dialog.h"
 #include "intl.h"
 #include "gtkutils.h"
-#include "account_manager.h"
+#include "loqui_account_manager.h"
 #include "utils.h"
 #include "loqui_profile_account.h"
 #include "loqui_profile_account_irc.h"
@@ -343,7 +343,7 @@ account_dialog_new(LoquiProfileAccount *profile)
 }
 
 void
-account_dialog_open_add_dialog(GtkWindow *parent, AccountManager *manager)
+account_dialog_open_add_dialog(GtkWindow *parent, LoquiAccountManager *manager)
 {
 	AccountDialog *dialog;
 	LoquiProfileAccount *profile;
@@ -359,16 +359,16 @@ account_dialog_open_add_dialog(GtkWindow *parent, AccountManager *manager)
 
 	if (response == GTK_RESPONSE_OK) {
 		account = LOQUI_ACCOUNT(loqui_account_irc_new(profile));
-		account_manager_add_account(manager, account);
+		loqui_account_manager_add_account(manager, account);
 		g_object_unref(account);
-		account_manager_save_accounts(manager);
+		loqui_account_manager_save_accounts(manager);
 	} else {
 		g_object_unref(profile);
 	}
 }
 
 void
-account_dialog_open_configure_dialog(GtkWindow *parent, AccountManager *manager, LoquiAccount *account)
+account_dialog_open_configure_dialog(GtkWindow *parent, LoquiAccountManager *manager, LoquiAccount *account)
 {
 	GtkWidget *dialog;
 	
@@ -379,11 +379,11 @@ account_dialog_open_configure_dialog(GtkWindow *parent, AccountManager *manager,
 
 	/* FIXME: should do
 	   account_manager_update_account(manager, account); */
-	account_manager_save_accounts(manager);
+	loqui_account_manager_save_accounts(manager);
 }
 
 void
-account_dialog_open_remove_dialog(GtkWindow *parent, AccountManager *manager, LoquiAccount *account)
+account_dialog_open_remove_dialog(GtkWindow *parent, LoquiAccountManager *manager, LoquiAccount *account)
 {
 	GtkWidget *dialog;
 	gint response;
@@ -398,8 +398,8 @@ account_dialog_open_remove_dialog(GtkWindow *parent, AccountManager *manager, Lo
 	gtk_widget_destroy(dialog);
 
 	if (response == GTK_RESPONSE_YES) {
-		account_manager_remove_account(manager, account);
-		account_manager_save_accounts(manager);
+		loqui_account_manager_remove_account(manager, account);
+		loqui_account_manager_save_accounts(manager);
 		debug_puts("Removed account.");
 	}
 }

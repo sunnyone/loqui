@@ -23,7 +23,7 @@
 #include "channel_tree.h"
 #include "gtkutils.h"
 #include "utils.h"
-#include "account_manager.h"
+#include "loqui_account_manager.h"
 #include "intl.h"
 #include "loqui_account_manager_store.h"
 #include "loqui_stock.h"

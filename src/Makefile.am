@@ -26,6 +26,7 @@ SRC_PROTOCOL_BASE = \
 	loqui_user.c loqui_user.h \
 	loqui_profile_account.c loqui_profile_account.h \
 	loqui_channel.c loqui_channel.h \
+	loqui_channel_irc. loqui_channel_irc.h \
 	loqui_sender.c loqui_sender.h \
 	loqui_receiver.c loqui_receiver.h \
 	loqui_account.c loqui_account.h \
@@ -64,7 +65,7 @@ SRC_LIBRARY_CORE = \
 	loqui_member_sort_funcs.c loqui_member_sort_funcs.h \
 	loqui_profile_handle.c loqui_profile_handle.h \
 	prefs_general.c prefs_general.h \
-	account_manager.c account_manager.h \
+	loqui_account_manager.c loqui_account_manager.h \
 	loqui_account_manager_iter.c loqui_account_manager_iter.h
 
 SRC_GTK = \

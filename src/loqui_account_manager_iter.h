@@ -21,7 +21,7 @@
 #define __LOQUI_ACCOUNT_MANAGER_ITER_H__
 
 #include <glib.h>
-#include "account_manager.h"
+#include "loqui_account_manager.h"
 
 typedef struct {
 	GList *cur_ac;
@@ -31,11 +31,11 @@ typedef struct {
 	GList *channel_list;
 } LoquiAccountManagerIter;
 
-void loqui_account_manager_iter_init(AccountManager *manager, LoquiAccountManagerIter *iter);
+void loqui_account_manager_iter_init(LoquiAccountManager *manager, LoquiAccountManagerIter *iter);
 
 gboolean loqui_account_manager_iter_equal(LoquiAccountManagerIter *a, LoquiAccountManagerIter *b);
 
-LoquiAccountManagerIter* loqui_account_manager_iter_new(AccountManager *manager);
+LoquiAccountManagerIter* loqui_account_manager_iter_new(LoquiAccountManager *manager);
 void loqui_account_manager_iter_free(LoquiAccountManagerIter *iter);
 
 void loqui_account_manager_iter_set_first_channel_entry(LoquiAccountManagerIter *iter);

@@ -22,7 +22,7 @@
 #include "loqui_stock.h"
 #include "intl.h"
 
-#include "account_manager.h"
+#include "loqui_account_manager.h"
 #include "loqui_account_manager_iter.h"
 #include "about.h"
 #include "remark_entry.h"
@@ -546,9 +546,9 @@ loqui_app_actions_previous_unread_channel_buffer_cb(GtkAction *action, LoquiApp 
 {
 	LoquiChannelEntry *chent;
 
-	chent = account_manager_get_previous_channel_entry(loqui_app_get_account_manager(app),
-							   loqui_app_get_current_channel_entry(app),
-							   TRUE);
+	chent = loqui_account_manager_get_previous_channel_entry(loqui_app_get_account_manager(app),
+								 loqui_app_get_current_channel_entry(app),
+								 TRUE);
 	if (chent)
 		loqui_app_set_current_channel_entry(app, chent);
 }
@@ -557,9 +557,9 @@ loqui_app_actions_next_unread_channel_buffer_cb(GtkAction *action, LoquiApp *app
 {
 	LoquiChannelEntry *chent;
 
-	chent = account_manager_get_next_channel_entry(loqui_app_get_account_manager(app),
-						       loqui_app_get_current_channel_entry(app),
-						       TRUE);
+	chent = loqui_account_manager_get_next_channel_entry(loqui_app_get_account_manager(app),
+							     loqui_app_get_current_channel_entry(app),
+							     TRUE);
 	if (chent)
 		loqui_app_set_current_channel_entry(app, chent);
 }
@@ -568,9 +568,9 @@ loqui_app_actions_previous_channel_buffer_cb(GtkAction *action, LoquiApp *app)
 {
 	LoquiChannelEntry *chent;
 
-	chent = account_manager_get_previous_channel_entry(loqui_app_get_account_manager(app),
-							   loqui_app_get_current_channel_entry(app),
-							   FALSE);
+	chent = loqui_account_manager_get_previous_channel_entry(loqui_app_get_account_manager(app),
+								 loqui_app_get_current_channel_entry(app),
+								 FALSE);
 	if (chent)
 		loqui_app_set_current_channel_entry(app, chent);
 }
@@ -579,9 +579,9 @@ loqui_app_actions_next_channel_buffer_cb(GtkAction *action, LoquiApp *app)
 {
 	LoquiChannelEntry *chent;
 
-	chent = account_manager_get_next_channel_entry(loqui_app_get_account_manager(app),
-						       loqui_app_get_current_channel_entry(app),
-						       FALSE);
+	chent = loqui_account_manager_get_next_channel_entry(loqui_app_get_account_manager(app),
+							     loqui_app_get_current_channel_entry(app),
+							     FALSE);
 	if (chent)
 		loqui_app_set_current_channel_entry(app, chent);
 }

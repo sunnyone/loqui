@@ -21,7 +21,7 @@
 #include "main.h"
 #include "codeconv.h"
 #include "command_table.h"
-#include "account_manager.h"
+#include "loqui_account_manager.h"
 #include "prefs_general.h"
 #include "utils.h"
 #include "loqui_stock.h"

@@ -40,7 +40,7 @@ typedef struct _LoquiAppPrivate     LoquiAppPrivate;
 
 #include "nick_list.h"
 #include "channel_tree.h"
-#include "account_manager.h"
+#include "loqui_account_manager.h"
 #include "prefs_general.h"
 #include "loqui_tray_icon.h"
 
@@ -50,7 +50,7 @@ struct _LoquiApp
 
         LoquiAppPrivate *priv;
 
-	AccountManager *account_manager;
+	LoquiAccountManager *account_manager;
 
 	LoquiChannelEntry *current_channel_entry;
 
@@ -90,7 +90,7 @@ struct _LoquiAppClass
 
 GType        loqui_app_get_type             (void) G_GNUC_CONST;
 
-GtkWidget* loqui_app_new(AccountManager *manager);
+GtkWidget* loqui_app_new(LoquiAccountManager *manager);
 
 gboolean loqui_app_has_toplevel_focus(LoquiApp *app);
 gboolean loqui_app_is_obscured(LoquiApp *app);
@@ -111,7 +111,7 @@ void loqui_app_set_show_channelbar(LoquiApp *app, gboolean show);
 void loqui_app_get_current_widget_editing_status(LoquiApp *app, gboolean *cutable, gboolean *copiable, gboolean *pastable,
 						 gboolean *clearable, gboolean *findable);
 
-AccountManager *loqui_app_get_account_manager(LoquiApp *app);
+LoquiAccountManager *loqui_app_get_account_manager(LoquiApp *app);
 
 LoquiChannelEntry *loqui_app_get_current_channel_entry(LoquiApp *app);
 void loqui_app_set_current_channel_entry(LoquiApp *app, LoquiChannelEntry *chent);

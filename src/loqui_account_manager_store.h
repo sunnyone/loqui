@@ -21,7 +21,7 @@
 #define __LOQUI_ACCOUNT_MANAGER_STORE_H__
 
 #include <gtk/gtk.h>
-#include "account_manager.h"
+#include "loqui_account_manager.h"
 
 G_BEGIN_DECLS
 
@@ -53,7 +53,7 @@ struct _LoquiAccountManagerStore
 {
         GObject parent;
         
-	AccountManager *manager;
+	LoquiAccountManager *manager;
 
 	GType column_types[LOQUI_ACCOUNT_MANAGER_STORE_N_COLUMNS];
 
@@ -70,7 +70,7 @@ struct _LoquiAccountManagerStoreClass
 
 GType loqui_account_manager_store_get_type(void) G_GNUC_CONST;
 
-LoquiAccountManagerStore* loqui_account_manager_store_new(AccountManager *manager);
+LoquiAccountManagerStore* loqui_account_manager_store_new(LoquiAccountManager *manager);
 
 void loqui_account_manager_store_get_iter_by_channel_entry(LoquiAccountManagerStore* store,
 							   GtkTreeIter *iter,

@@ -20,7 +20,7 @@
 #include "config.h"
 
 #include "loqui_channelbar.h"
-#include "account_manager.h"
+#include "loqui_account_manager.h"
 #include "loqui_gtk.h"
 #include "gtkutils.h"
 #include "loqui_dropdown_box.h"

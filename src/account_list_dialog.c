@@ -21,13 +21,13 @@
 
 #include "account_list_dialog.h"
 #include "account_dialog.h"
-#include "account_manager.h"
+#include "loqui_account_manager.h"
 #include "intl.h"
 #include "utils.h"
 
 struct _AccountListDialogPrivate
 {
-	AccountManager *manager;
+	LoquiAccountManager *manager;
 
 	GtkWidget *treeview;
 	GtkWidget *add_button;
@@ -155,7 +155,7 @@ account_list_dialog_construct_list(AccountListDialog *dialog)
 						      LOQUI_TYPE_ACCOUNT);
 	}
 
-	account_list = account_manager_get_account_list(priv->manager);
+	account_list = loqui_account_manager_get_account_list(priv->manager);
 	for(cur = account_list; cur != NULL; cur = cur->next) {
 		account = LOQUI_ACCOUNT(cur->data);
 
@@ -281,7 +281,7 @@ account_list_update_button_status(AccountListDialog *dialog, GtkTreeSelection *s
 	gtk_dialog_set_response_sensitive(GTK_DIALOG(dialog), ACCOUNT_LIST_DIALOG_RESPONSE_CONNECT, (selected_rows > 0));
 }
 GtkWidget*
-account_list_dialog_new(AccountManager *manager, gboolean with_connect_button)
+account_list_dialog_new(LoquiAccountManager *manager, gboolean with_connect_button)
 {
         AccountListDialog *dialog;
 	AccountListDialogPrivate *priv;
@@ -357,7 +357,7 @@ account_list_dialog_new(AccountManager *manager, gboolean with_connect_button)
 }
 
 void 
-account_list_dialog_open(GtkWindow *parent, AccountManager *manager)
+account_list_dialog_open(GtkWindow *parent, LoquiAccountManager *manager)
 {
 	GtkWidget *dialog;
 
@@ -367,7 +367,7 @@ account_list_dialog_open(GtkWindow *parent, AccountManager *manager)
 	gtk_widget_destroy(dialog);
 }
 void
-account_list_dialog_open_for_connect(GtkWindow *parent, AccountManager *manager)
+account_list_dialog_open_for_connect(GtkWindow *parent, LoquiAccountManager *manager)
 {
 	GtkWidget *dialog;
 	GList *ac_list;

@@ -21,20 +21,20 @@
 #include "loqui_account_manager_iter.h"
 
 void
-loqui_account_manager_iter_init(AccountManager *manager, LoquiAccountManagerIter *iter)
+loqui_account_manager_iter_init(LoquiAccountManager *manager, LoquiAccountManagerIter *iter)
 {
-	iter->account_list = account_manager_get_account_list(manager);
+	iter->account_list = loqui_account_manager_get_account_list(manager);
 	iter->cur_ac = NULL;
 	iter->channel_list = NULL;
 	iter->cur_ch = NULL;
 }
 LoquiAccountManagerIter *
-loqui_account_manager_iter_new(AccountManager *manager)
+loqui_account_manager_iter_new(LoquiAccountManager *manager)
 {
 	LoquiAccountManagerIter *iter;
 	
 	g_return_val_if_fail(manager != NULL, NULL);
-        g_return_val_if_fail(IS_ACCOUNT_MANAGER(manager), NULL);
+        g_return_val_if_fail(LOQUI_IS_ACCOUNT_MANAGER(manager), NULL);
 	
 	iter = g_new(LoquiAccountManagerIter, 1);
 	loqui_account_manager_iter_init(manager, iter);

@@ -82,13 +82,13 @@ static gboolean loqui_account_manager_store_iter_parent(GtkTreeModel *tree_model
 static void loqui_account_manager_store_add_channel_after_cb(LoquiAccount *account,
 							     LoquiChannel *channel,
 							     LoquiAccountManagerStore *store);
-static void loqui_account_manager_store_add_account_after_cb(AccountManager *manager,
+static void loqui_account_manager_store_add_account_after_cb(LoquiAccountManager *manager,
 							     LoquiAccount *account,
 							     LoquiAccountManagerStore *store);
 static void loqui_account_manager_store_remove_channel_cb(LoquiAccount *account,
 							  LoquiChannel *channel,
 							  LoquiAccountManagerStore *store);
-static void loqui_account_manager_store_remove_account_cb(AccountManager *manager,
+static void loqui_account_manager_store_remove_account_cb(LoquiAccountManager *manager,
 							  LoquiAccount *account,
 							  LoquiAccountManagerStore *store);
 static void loqui_account_manager_store_channel_notify_cb(LoquiChannel *channel, GParamSpec *pspec, LoquiAccountManagerStore *store);
@@ -290,7 +290,7 @@ loqui_account_manager_store_get_iter(GtkTreeModel *tree_model,
 	g_assert(depth == 1 || depth == 2);
 	n = indices[0];
 
-	account_list = account_manager_get_account_list(store->manager);
+	account_list = loqui_account_manager_get_account_list(store->manager);
 	if (g_list_length(account_list) <= n) {
 		return FALSE;
 	}
@@ -354,7 +354,7 @@ loqui_account_manager_store_get_path(GtkTreeModel *tree_model,
 		account = loqui_channel_get_account(channel);
 	}
 
-	pos_ac = g_list_index(account_manager_get_account_list(store->manager), account);
+	pos_ac = g_list_index(loqui_account_manager_get_account_list(store->manager), account);
 	gtk_tree_path_append_index(path, pos_ac);
 
 	if (channel) {
@@ -534,7 +534,7 @@ loqui_account_manager_store_iter_n_children(GtkTreeModel *tree_model,
 		return -1;
 
 	if (iter->user_data == NULL)
-		return g_list_length(account_manager_get_account_list(store->manager));
+		return g_list_length(loqui_account_manager_get_account_list(store->manager));
 	else if (LOQUI_IS_ACCOUNT(iter->user_data))
 		return g_list_length(loqui_account_get_channel_list(LOQUI_ACCOUNT(iter->user_data)));
 
@@ -558,7 +558,7 @@ loqui_account_manager_store_iter_nth_child(GtkTreeModel *tree_model,
 	priv = store->priv;
 
 	if (parent == NULL) {
-		account_list = account_manager_get_account_list(store->manager);
+		account_list = loqui_account_manager_get_account_list(store->manager);
 		cur = g_list_nth(account_list, n);
 		if (cur == NULL)
 			return FALSE;
@@ -601,7 +601,7 @@ loqui_account_manager_store_iter_parent(GtkTreeModel *tree_model,
 	} else if (LOQUI_IS_CHANNEL(child->user_data)) {
 		iter->stamp = store->stamp;
 		iter->user_data = loqui_channel_get_account(LOQUI_CHANNEL(child->user_data));
-		iter->user_data2 = g_list_find(account_manager_get_account_list(store->manager), iter->user_data);
+		iter->user_data2 = g_list_find(loqui_account_manager_get_account_list(store->manager), iter->user_data);
 		return TRUE;
 	}
 	return FALSE;
@@ -628,7 +628,7 @@ loqui_account_manager_store_add_channel_after_cb(LoquiAccount *account,
 	if (iter.user_data2 == loqui_account_get_channel_list(account)) { /* first appears */
 		iter.stamp = store->stamp;
 		iter.user_data = account;
-		iter.user_data2 = g_list_find(account_manager_get_account_list(store->manager), account);
+		iter.user_data2 = g_list_find(loqui_account_manager_get_account_list(store->manager), account);
 		
 		path = loqui_account_manager_store_get_path(GTK_TREE_MODEL(store), &iter);
 		gtk_tree_model_row_has_child_toggled(GTK_TREE_MODEL(store), path, &iter);
@@ -636,7 +636,7 @@ loqui_account_manager_store_add_channel_after_cb(LoquiAccount *account,
 	}
 }
 static void
-loqui_account_manager_store_add_account_after_cb(AccountManager *manager,
+loqui_account_manager_store_add_account_after_cb(LoquiAccountManager *manager,
 						 LoquiAccount *account,
 						 LoquiAccountManagerStore *store)
 {
@@ -645,7 +645,7 @@ loqui_account_manager_store_add_account_after_cb(AccountManager *manager,
 
 	iter.stamp = store->stamp;
 	iter.user_data = account;
-	iter.user_data2 = g_list_find(account_manager_get_account_list(manager), account);
+	iter.user_data2 = g_list_find(loqui_account_manager_get_account_list(manager), account);
 
 	path = loqui_account_manager_store_get_path(GTK_TREE_MODEL(store), &iter);
 	gtk_tree_model_row_inserted(GTK_TREE_MODEL(store), path, &iter);
@@ -681,14 +681,14 @@ loqui_account_manager_store_remove_channel_cb(LoquiAccount *account,
 
 	iter.stamp = store->stamp;
 	iter.user_data = account;
-	iter.user_data2 = g_list_find(account_manager_get_account_list(store->manager), account);
+	iter.user_data2 = g_list_find(loqui_account_manager_get_account_list(store->manager), account);
 
 	path = loqui_account_manager_store_get_path(GTK_TREE_MODEL(store), &iter);
 	gtk_tree_model_row_has_child_toggled(GTK_TREE_MODEL(store), path, &iter);
 	gtk_tree_path_free(path);
 }
 static void
-loqui_account_manager_store_remove_account_cb(AccountManager *manager,
+loqui_account_manager_store_remove_account_cb(LoquiAccountManager *manager,
 					      LoquiAccount *account,
 					      LoquiAccountManagerStore *store)
 {
@@ -698,7 +698,7 @@ loqui_account_manager_store_remove_account_cb(AccountManager *manager,
 
 	iter.stamp = store->stamp;
 	iter.user_data = account;
-	iter.user_data2 = g_list_find(account_manager_get_account_list(manager), account);
+	iter.user_data2 = g_list_find(loqui_account_manager_get_account_list(manager), account);
 
 	channel_list = loqui_account_get_channel_list(account);
 	for (cur = channel_list; cur != NULL; cur = cur->next)
@@ -733,7 +733,7 @@ loqui_account_manager_store_account_row_changed(LoquiAccountManagerStore *store,
 
 	iter.stamp = store->stamp;
 	iter.user_data = account;
-	iter.user_data2 = g_list_find(account_manager_get_account_list(store->manager), account);
+	iter.user_data2 = g_list_find(loqui_account_manager_get_account_list(store->manager), account);
 
 	path = loqui_account_manager_store_get_path(GTK_TREE_MODEL(store), &iter);
 	gtk_tree_model_row_changed(GTK_TREE_MODEL(store), path, &iter);
@@ -750,7 +750,7 @@ loqui_account_manager_store_account_notify_cb(LoquiAccount *account, GParamSpec 
 	loqui_account_manager_store_account_row_changed(store, account);
 }
 LoquiAccountManagerStore*
-loqui_account_manager_store_new(AccountManager *manager)
+loqui_account_manager_store_new(LoquiAccountManager *manager)
 {
         LoquiAccountManagerStore *store;
 	LoquiAccountManagerStorePrivate *priv;
@@ -764,7 +764,7 @@ loqui_account_manager_store_new(AccountManager *manager)
         priv = store->priv;
 	store->manager = manager;
 
-	account_list = account_manager_get_account_list(manager);
+	account_list = loqui_account_manager_get_account_list(manager);
 
 	for (cur_ac = account_list; cur_ac != NULL; cur_ac = cur_ac->next) {
 		loqui_account_manager_store_add_account_after_cb(manager, cur_ac->data, store);
@@ -795,7 +795,7 @@ loqui_account_manager_store_get_iter_by_channel_entry(LoquiAccountManagerStore* 
 	iter->user_data = chent;
 
 	if (LOQUI_IS_ACCOUNT(chent)) {
-		iter->user_data2 = g_list_find(account_manager_get_account_list(store->manager), chent);
+		iter->user_data2 = g_list_find(loqui_account_manager_get_account_list(store->manager), chent);
 	} else if (LOQUI_IS_CHANNEL(chent)) {
 		iter->user_data2 = g_list_find(loqui_account_get_channel_list(loqui_channel_get_account(LOQUI_CHANNEL(chent))),
 					       chent);

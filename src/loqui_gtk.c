@@ -52,10 +52,10 @@ loqui_gtk_init(int *argc, char **argv[])
 void
 loqui_gtk_start_main_loop(LoquiProtocolManager *pmanag)
 {
-	AccountManager *account_manager;
+	LoquiAccountManager *account_manager;
 	gchar *path;
 	
-	account_manager = account_manager_new(pmanag);
+	account_manager = loqui_account_manager_new(pmanag);
 	app = LOQUI_APP(loqui_app_new(account_manager));
 	
 	path = g_build_filename(g_get_home_dir(), PREFS_DIR, ACCEL_MAP_FILE, NULL);
@@ -63,9 +63,9 @@ loqui_gtk_start_main_loop(LoquiProtocolManager *pmanag)
 	gtk_accel_map_add_filter(SHORTCUT_CHANNEL_ENTRY_ACCEL_MAP_PREFIX "*");
 	gtk_accel_map_load(path);
 
-	account_manager_load_accounts(account_manager);
+	loqui_account_manager_load_accounts(account_manager);
 	if(prefs_general.connect_startup)
-		account_manager_connect_all_default(account_manager);
+		loqui_account_manager_connect_all_default(account_manager);
 	g_object_unref(account_manager); /* app has reference */
 
 	gtk_main();

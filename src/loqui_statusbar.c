@@ -23,7 +23,7 @@
 #include "intl.h"
 #include "loqui_stock.h"
 #include "gtkutils.h"
-#include "account_manager.h"
+#include "loqui_account_manager.h"
 #include "main.h"
 #include "loqui_dropdown_box.h"
 #include "command_dialog.h"
