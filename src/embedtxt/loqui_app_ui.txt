@@ -14,8 +14,8 @@
       <separator name="edit-sep1" />
       <menuitem name="ToggleCommandMode" verb="ToggleCommandMode" />
       <separator name="edit-sep2" />
-      <menuitem name="Find" verb="File" />
-      <menuitem name="FindAgain" verb="FileAgain" />
+      <menuitem name="Find" verb="Find" />
+      <menuitem name="FindAgain" verb="FindAgain" />
     </submenu>
     <submenu name="CommandMenu" verb="StockCommandMenu">
       <menuitem name="Join" verb="Join" />
@@ -58,7 +58,7 @@
         <menuitem name="DepriveOpSelected" verb="DepriveOpSelected" />
 	<menuitem name="DepriveVoiceSelected" verb="DepriveVoiceSelected" />
       </submenu>
-      <submenu name="CTCP" verb="CTCPMenu">
+      <submenu name="CTCPMenu" verb="StockCTCPMenu">
         <menuitem name="CTCPVersionSelected" verb="CTCPVersionSelected" />
 	<menuitem name="CTCPClientinfoSelected" verb="CTCPClientinfoSelected" />
 	<menuitem name="CTCPUserinfoSelected" verb="CTCPUserinfoSelected" />
