@@ -48,10 +48,13 @@ struct _CodeConvClass
         GObjectClass parent_class;
 };
 
+typedef gchar * (*CodeConvFunc) (CodeConv *codeconv, const gchar *input);
+
 typedef struct _CodeConvDef {
 	gchar *title;
 	gchar *locale;
 	gchar *codeset;
+	CodeConvFunc func;
 } CodeConvDef;
 
 typedef enum {
