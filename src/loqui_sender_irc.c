@@ -465,7 +465,7 @@ loqui_sender_irc_join_raw(LoquiSender *sender, const gchar *target, const gchar 
 		return;
 	}
 
-	if (LOQUI_UTILS_IRC_STRING_IS_CHANNEL(target)) {
+	if (!LOQUI_UTILS_IRC_STRING_IS_CHANNEL(target)) {
 		g_warning("This name seems not to be a channel.");
 		return;
 	}
