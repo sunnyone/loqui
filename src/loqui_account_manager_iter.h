@@ -31,11 +31,19 @@ typedef struct {
 	GList *channel_list;
 } LoquiAccountManagerIter;
 
+void loqui_account_manager_iter_init(AccountManager *manager, LoquiAccountManagerIter *iter);
+
+gboolean loqui_account_manager_iter_equal(LoquiAccountManagerIter *a, LoquiAccountManagerIter *b);
+
 LoquiAccountManagerIter* loqui_account_manager_iter_new(AccountManager *manager);
 void loqui_account_manager_iter_free(LoquiAccountManagerIter *iter);
 
 void loqui_account_manager_iter_set_first_channel_entry(LoquiAccountManagerIter *iter);
 void loqui_account_manager_iter_set_last_channel_entry(LoquiAccountManagerIter *iter);
+
+gboolean loqui_account_manager_iter_set_channel_entry(LoquiAccountManagerIter *iter, LoquiChannelEntry *chent);
+
+LoquiChannelEntry * loqui_account_manager_iter_get_current_channel_entry(LoquiAccountManagerIter *iter);
 
 /* this method doesn't not return next in reality. return current and go next/prev */
 LoquiChannelEntry *loqui_account_manager_iter_channel_entry_next(LoquiAccountManagerIter *iter);

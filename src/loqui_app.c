@@ -42,6 +42,7 @@
 #include "loqui_gtk.h"
 #include "loqui_account_manager_store.h"
 #include "loqui_member_sort_funcs.h"
+#include "loqui_account_manager_iter.h"
 
 #include "embedtxt/loqui_app_ui.h"
 
@@ -1356,20 +1357,11 @@ loqui_app_set_channel_entry_accel_key(LoquiApp *app, LoquiChannelEntry *chent)
 static void
 loqui_app_update_channel_entry_accel_key(LoquiApp *app)
 {
-	GList *cur_ac, *cur_ch;
-	GList *account_list, *channel_list;
-	Account *account;
+	LoquiAccountManagerIter iter;
+	LoquiChannelEntry *chent;
 
-	account_list = account_manager_get_account_list(loqui_app_get_account_manager(app));
-
-	for (cur_ac = account_list; cur_ac != NULL; cur_ac = cur_ac->next) {
-		loqui_app_set_channel_entry_accel_key(app, LOQUI_CHANNEL_ENTRY(cur_ac->data));
-
-		account = ACCOUNT(cur_ac->data);
-		channel_list = account_get_channel_list(account);
-
-		for (cur_ch = channel_list; cur_ch != NULL; cur_ch = cur_ch->next) {
-			loqui_app_set_channel_entry_accel_key(app, LOQUI_CHANNEL_ENTRY(cur_ch->data));
-		}
-	}
+	loqui_account_manager_iter_init(loqui_app_get_account_manager(app), &iter);
+	loqui_account_manager_iter_set_first_channel_entry(&iter);
+	while ((chent = loqui_account_manager_iter_channel_entry_next(&iter)))
+		loqui_app_set_channel_entry_accel_key(app, chent);
 }

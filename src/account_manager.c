@@ -324,97 +324,71 @@ account_manager_connect_all_default(AccountManager *manager)
 LoquiChannelEntry *
 account_manager_get_next_channel_entry(AccountManager *manager, LoquiChannelEntry *chent, gboolean require_updated)
 {
-	GList *cur_ac, *cur_ch;
+	LoquiAccountManagerIter iter, iter_chent;
 	AccountManagerPrivate *priv;
-	Account *account;
-	LoquiChannel *channel;
-	gint matched_count = 0;
-	GList *channel_list;
+	gboolean is_exist;
+	LoquiChannelEntry *tmp_chent;
 
 	g_return_val_if_fail(manager != NULL, NULL);
         g_return_val_if_fail(IS_ACCOUNT_MANAGER(manager), NULL);
 
 	priv = manager->priv;
-	
 
-	do {
-		for (cur_ac = priv->account_list; cur_ac != NULL; cur_ac = cur_ac->next) {
-			account = ACCOUNT(cur_ac->data);
-			if (LOQUI_CHANNEL_ENTRY(account) == chent) {
-				matched_count++;
-				/* 0: start, 1: matches at first, 2: after looping */
-				if (matched_count == 2)
-					return NULL;
-			} else {
-				if ((chent == NULL || matched_count > 0) &&
-				    (!require_updated || loqui_channel_entry_get_is_updated(LOQUI_CHANNEL_ENTRY(account))))
-					return cur_ac->data;
-			}
-
-			channel_list = account_get_channel_list(account);
-			for (cur_ch = channel_list; cur_ch != NULL; cur_ch = cur_ch->next) {
-				channel = LOQUI_CHANNEL(cur_ch->data);
-				if (LOQUI_CHANNEL_ENTRY(channel) == chent) {
-					matched_count++;
-					if (matched_count == 2)
-						return NULL;
-				} else {
-					if ((chent == NULL || matched_count > 0) &&
-					    (!require_updated || loqui_channel_entry_get_is_updated(LOQUI_CHANNEL_ENTRY(channel))))
-						return cur_ch->data;
-				}
-			}
+	loqui_account_manager_iter_init(manager, &iter);
+	if (chent)
+		is_exist = loqui_account_manager_iter_set_channel_entry(&iter, chent);
+	else
+		is_exist = FALSE;
+	iter_chent = iter;
+	if (is_exist) {
+		loqui_account_manager_iter_channel_entry_next(&iter);
+		while ((tmp_chent = loqui_account_manager_iter_channel_entry_next(&iter))) {
+			if (!require_updated ||
+			    loqui_channel_entry_get_is_updated(LOQUI_CHANNEL_ENTRY(tmp_chent)))
+				return tmp_chent;
 		}
-	} while (matched_count == 1); /* matched but failed to get next */
-
+	}
+	loqui_account_manager_iter_set_first_channel_entry(&iter);			
+	while ((tmp_chent = loqui_account_manager_iter_channel_entry_next(&iter))) {
+		if (!require_updated ||
+		    loqui_channel_entry_get_is_updated(LOQUI_CHANNEL_ENTRY(tmp_chent)))
+			return tmp_chent;
+	}
 	return NULL;
 }
 LoquiChannelEntry *
 account_manager_get_previous_channel_entry(AccountManager *manager, LoquiChannelEntry *chent, gboolean require_updated)
 {
-	GList *cur_ac, *cur_ch;
+	LoquiAccountManagerIter iter;
 	AccountManagerPrivate *priv;
-	Account *account;
-	LoquiChannel *channel;
-	gint matched_count = 0;
-	GList *channel_list;
+	gboolean is_exist;
+	LoquiChannelEntry *tmp_chent;
 
 	g_return_val_if_fail(manager != NULL, NULL);
         g_return_val_if_fail(IS_ACCOUNT_MANAGER(manager), NULL);
 
 	priv = manager->priv;
 
-	do {
-		for (cur_ac = g_list_last(priv->account_list); cur_ac != NULL; cur_ac = cur_ac->prev) {
-			account = ACCOUNT(cur_ac->data);
+	loqui_account_manager_iter_init(manager, &iter);
+	if (chent)
+		is_exist = loqui_account_manager_iter_set_channel_entry(&iter, chent);
+	else
+		is_exist = FALSE;
 
-			channel_list = account_get_channel_list(account);
-			for (cur_ch = g_list_last(channel_list); cur_ch != NULL; cur_ch = cur_ch->prev) {
-				channel = LOQUI_CHANNEL(cur_ch->data);
-				if (LOQUI_CHANNEL_ENTRY(channel) == chent) {
-					matched_count++;
-					if (matched_count == 2)
-						return NULL;
-				} else {
-					if ((chent == NULL || matched_count > 0) &&
-					    (!require_updated || loqui_channel_entry_get_is_updated(LOQUI_CHANNEL_ENTRY(channel))))
-						return cur_ch->data;
-				}
-			}
-
-			if (LOQUI_CHANNEL_ENTRY(account) == chent) {
-				matched_count++;
-				/* 0: start, 1: matches at first, 2: after looping */
-				if (matched_count == 2)
-					return NULL;
-			} else {
-				if ((chent == NULL || matched_count > 0) &&
-				    (!require_updated || loqui_channel_entry_get_is_updated(LOQUI_CHANNEL_ENTRY(account))))
-					return cur_ac->data;
-			}
+	if (is_exist) {
+		loqui_account_manager_iter_channel_entry_previous(&iter);
+		while ((tmp_chent = loqui_account_manager_iter_channel_entry_previous(&iter))) {
+			if (!require_updated ||
+			    loqui_channel_entry_get_is_updated(LOQUI_CHANNEL_ENTRY(tmp_chent)))
+				return tmp_chent;
 		}
-	} while (matched_count == 1); /* matched but failed to get previous */
-
+	}
+	loqui_account_manager_iter_set_last_channel_entry(&iter);			
+	while ((tmp_chent = loqui_account_manager_iter_channel_entry_previous(&iter))) {
+		if (!require_updated ||
+		    loqui_channel_entry_get_is_updated(LOQUI_CHANNEL_ENTRY(tmp_chent)))
+			return tmp_chent;
+	}
 	return NULL;
 }
 
@@ -427,7 +401,7 @@ void
 account_manager_update_positions(AccountManager *manager)
 {
 	AccountManagerPrivate *priv;
-	LoquiAccountManagerIter *iter;
+	LoquiAccountManagerIter iter;
 	LoquiChannelEntry *chent;
 	gint i;
 
@@ -437,9 +411,9 @@ account_manager_update_positions(AccountManager *manager)
 	priv = manager->priv;
 	
 	i = 0;
-	iter = loqui_account_manager_iter_new(manager);
-	loqui_account_manager_iter_set_first_channel_entry(iter);
-	while ((chent = loqui_account_manager_iter_channel_entry_next(iter))) {
+	loqui_account_manager_iter_init(manager, &iter);
+	loqui_account_manager_iter_set_first_channel_entry(&iter);
+	while ((chent = loqui_account_manager_iter_channel_entry_next(&iter))) {
 		loqui_channel_entry_set_position(chent, i);
 		i++;
 	}
