@@ -49,6 +49,8 @@ struct _LoquiChannel
 	gboolean is_joined;
 	gboolean is_private_talk;
 
+	gchar *identifier;
+
 	gboolean end_names;
 
         LoquiChannelPrivate *priv;
@@ -65,6 +67,7 @@ GType loqui_channel_get_type(void) G_GNUC_CONST;
 
 LoquiChannel* loqui_channel_new(LoquiAccount *account,
 				const gchar *name,
+				const gchar *identifier,
 				gboolean is_joined,
 				gboolean is_private_talk);
 
@@ -76,6 +79,13 @@ gboolean loqui_channel_get_is_private_talk(LoquiChannel *channel);
 
 void loqui_channel_set_is_joined(LoquiChannel *channel, gboolean is_joined);
 gboolean loqui_channel_get_is_joined(LoquiChannel *channel);
+
+#define LOQUI_CHANNEL_ACCESSOR_STRING(attr_name) \
+  ATTR_ACCESSOR_POINTER(g_strdup, g_free, const gchar *, G_CONST_RETURN gchar *, LoquiChannel, loqui_channel, attr_name)
+#define LOQUI_CHANNEL_ACCESSOR_STRING_PROTOTYPE(attr_name) \
+  ATTR_ACCESSOR_POINTER_PROTOTYPE(const gchar *, G_CONST_RETURN gchar *, LoquiChannel, loqui_channel, attr_name)
+
+LOQUI_CHANNEL_ACCESSOR_STRING_PROTOTYPE(identifier);
 
 void loqui_channel_change_mode(LoquiChannel *channel, gboolean is_add, IRCModeFlag flag, gchar *argument);
 void loqui_channel_clear_mode(LoquiChannel *channel);

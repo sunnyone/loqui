@@ -50,8 +50,8 @@ struct _LoquiAccount
 
 	GList *channel_list;
 
-	/* key: channel name(gchar *), value: GList * */
-	GHashTable *channel_name_hash;
+	/* key: channel identifier(gchar *), value: GList * */
+	GHashTable *channel_identifier_table;
 
 	GHashTable *user_nick_table; /* key: user, value: nick */
 	GHashTable *nick_user_table; /* key: nick, value: user */
@@ -100,7 +100,7 @@ void loqui_account_remove_channel(LoquiAccount *account, LoquiChannel *channel);
 void loqui_account_remove_all_channel(LoquiAccount *account);
 
 GList *loqui_account_get_channel_list(LoquiAccount *account);
-LoquiChannel* loqui_account_get_channel_by_name(LoquiAccount *account, const gchar *name);
+LoquiChannel* loqui_account_get_channel_by_identifier(LoquiAccount *account, const gchar *identifier);
 GSList *loqui_account_search_joined_channel(LoquiAccount *account, gchar *nick);
 
 void loqui_account_console_buffer_append(LoquiAccount *account, TextType type, gchar *str);

@@ -199,7 +199,7 @@ loqui_account_init(LoquiAccount *account)
 	account->priv = priv;
 	
 	account->channel_list = NULL;
-	account->channel_name_hash = g_hash_table_new_full(utils_strcase_hash, utils_strcase_equal, g_free, NULL);
+	account->channel_identifier_table = g_hash_table_new_full(utils_strcase_hash, utils_strcase_equal, g_free, NULL);
 	
 	account->user_nick_table = g_hash_table_new_full(g_direct_hash, g_direct_equal, NULL, g_free);
 	account->nick_user_table = g_hash_table_new_full(utils_strcase_hash, utils_strcase_equal, g_free, NULL);
@@ -224,9 +224,9 @@ loqui_account_finalize (GObject *object)
 
 	loqui_account_remove_all_channel(account);
 
-	if(account->channel_name_hash) {
-		g_hash_table_destroy(account->channel_name_hash);
-		account->channel_name_hash = NULL;
+	if (account->channel_identifier_table) {
+		g_hash_table_destroy(account->channel_identifier_table);
+		account->channel_identifier_table = NULL;
 	}
 	if (account->nick_user_table) {
 		g_hash_table_destroy(account->nick_user_table);
@@ -618,14 +618,14 @@ loqui_account_add_channel(LoquiAccount *account, LoquiChannel *channel)
 	l->data = channel;
 
 	account->channel_list = g_list_concat(account->channel_list, l);
-	g_hash_table_insert(account->channel_name_hash, g_strdup(loqui_channel_entry_get_name(LOQUI_CHANNEL_ENTRY(channel))), l);
+	g_hash_table_insert(account->channel_identifier_table, g_strdup(loqui_channel_get_identifier(channel)), l);
 
 	g_signal_emit(account, account_signals[ADD_CHANNEL], 0, channel);
 }
 static void
 loqui_account_remove_channel_real(LoquiAccount *account, LoquiChannel *channel)
 {
-	g_hash_table_remove(account->channel_name_hash, loqui_channel_entry_get_name(LOQUI_CHANNEL_ENTRY(channel)));
+	g_hash_table_remove(account->channel_identifier_table, loqui_channel_get_identifier(channel));
 
 	account->channel_list = g_list_remove(account->channel_list, channel);
 	g_object_unref(channel);
@@ -662,15 +662,15 @@ loqui_account_get_channel_list(LoquiAccount *account)
        return account->channel_list;
 }
 LoquiChannel*
-loqui_account_get_channel_by_name(LoquiAccount *account, const gchar *name)
+loqui_account_get_channel_by_identifier(LoquiAccount *account, const gchar *identifier)
 {
 	GList *l;
 
         g_return_val_if_fail(account != NULL, NULL);
         g_return_val_if_fail(LOQUI_IS_ACCOUNT(account), NULL);
-	g_return_val_if_fail(name != NULL, NULL);
+	g_return_val_if_fail(identifier != NULL, NULL);
 
-	l = g_hash_table_lookup(account->channel_name_hash, name);
+	l = g_hash_table_lookup(account->channel_identifier_table, identifier);
 	if (l)
 		return l->data;
 

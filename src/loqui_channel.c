@@ -36,6 +36,7 @@ enum {
 	PROP_ACCOUNT,
 	PROP_IS_JOINED,
 	PROP_IS_PRIVATE_TALK,
+	PROP_IDENTIFIER,
         LAST_PROP
 };
 
@@ -121,6 +122,8 @@ loqui_channel_dispose(GObject *object)
 
         channel = LOQUI_CHANNEL(object);
 
+	G_FREE_UNLESS_NULL(channel->identifier);
+
 	G_OBJECT_UNREF_UNLESS_NULL(channel->account);
 
         if (G_OBJECT_CLASS(parent_class)->dispose)
@@ -143,6 +146,9 @@ loqui_channel_get_property(GObject *object, guint param_id, GValue *value, GPara
 	case PROP_IS_PRIVATE_TALK:
 		g_value_set_boolean(value, channel->is_private_talk);
 		break;
+	case PROP_IDENTIFIER:
+		g_value_set_string(value, channel->identifier);
+		break;
         default:
                 G_OBJECT_WARN_INVALID_PROPERTY_ID(object, param_id, pspec);
                 break;
@@ -164,6 +170,9 @@ loqui_channel_set_property(GObject *object, guint param_id, const GValue *value,
 		break;
 	case PROP_IS_PRIVATE_TALK:
 		loqui_channel_set_is_private_talk(channel, g_value_get_boolean(value));
+		break;
+	case PROP_IDENTIFIER:
+		loqui_channel_set_identifier(channel, g_value_get_string(value));
 		break;
         default:
                 G_OBJECT_WARN_INVALID_PROPERTY_ID(object, param_id, pspec);
@@ -196,6 +205,12 @@ loqui_channel_class_init(LoquiChannelClass *klass)
 							     _("PrivateTalk or not"),
 							     TRUE, G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
 	g_object_class_install_property(object_class,
+					PROP_IDENTIFIER,
+					g_param_spec_string("identifier",
+							    _("Identifier"),
+							    _("The string to identify the channel"),
+							    NULL, G_PARAM_READWRITE));
+	g_object_class_install_property(object_class,
 					PROP_ACCOUNT,
 					g_param_spec_object("account",
 							    _("Account"),
@@ -222,7 +237,7 @@ loqui_channel_init(LoquiChannel *channel)
 	channel->end_names = TRUE;
 }
 LoquiChannel*
-loqui_channel_new(LoquiAccount *account, const gchar *name, gboolean is_joined, gboolean is_private_talk)
+loqui_channel_new(LoquiAccount *account, const gchar *name, const gchar *identifier, gboolean is_joined, gboolean is_private_talk)
 {
         LoquiChannel *channel;
 	LoquiChannelPrivate *priv;
@@ -230,6 +245,7 @@ loqui_channel_new(LoquiAccount *account, const gchar *name, gboolean is_joined, 
 	channel = g_object_new(loqui_channel_get_type(),
 			       "account", account,
 			       "name", name,
+			       "identifier", identifier,
 			       "is_private_talk", is_private_talk,
 			       "is_joined", is_joined,
 			       "buffer", channel_buffer_new(),
@@ -304,6 +320,8 @@ loqui_channel_get_is_joined(LoquiChannel *channel)
 
 	return channel->is_joined;
 }
+
+LOQUI_CHANNEL_ACCESSOR_STRING(identifier);
 
 void
 loqui_channel_push_user_mode_queue(LoquiChannel *channel, gboolean is_give, IRCModeFlag flag, const gchar *nick)
@@ -415,7 +433,7 @@ loqui_channel_change_mode(LoquiChannel *channel, gboolean is_add, IRCModeFlag fl
 		loqui_channel_mode_free(matched);
 	}
 
-	debug_puts("LoquiChannel mode changed: %s %c%c %s", loqui_channel_entry_get_name(LOQUI_CHANNEL_ENTRY(channel)), is_add ? '+' : '-', flag, argument ? argument : "");
+	debug_puts("LoquiChannel mode changed: %s %c%c %s", loqui_channel_get_identifier(channel), is_add ? '+' : '-', flag, argument ? argument : "");
 
 	g_signal_emit(channel, loqui_channel_signals[MODE_CHANGED], 0);
 }

@@ -219,9 +219,9 @@ loqui_sender_irc_speak(LoquiSenderIRC *sender, LoquiChannel *channel, const gcha
 			continue;
 		
 		if (is_notice)
-			loqui_sender_irc_notice_raw(sender, loqui_channel_entry_get_name(LOQUI_CHANNEL_ENTRY(channel)), array[i]);
+			loqui_sender_irc_notice_raw(sender, loqui_channel_get_identifier(channel), array[i]);
 		else
-			loqui_sender_irc_say_raw(sender, loqui_channel_entry_get_name(LOQUI_CHANNEL_ENTRY(channel)), array[i]);
+			loqui_sender_irc_say_raw(sender, loqui_channel_get_identifier(channel), array[i]);
 
 		loqui_channel_append_remark(channel, is_notice ? TEXT_TYPE_NOTICE : TEXT_TYPE_NORMAL,
 					    TRUE, loqui_user_get_nick(LOQUI_SENDER(sender)->account->user_self), array[i], FALSE);
@@ -326,7 +326,7 @@ loqui_sender_irc_join(LoquiSender *sender, LoquiChannel *channel)
         g_return_if_fail(LOQUI_IS_SENDER_IRC(sender));
 
 	/* FIXME: handle key */
-	loqui_sender_irc_join_raw(sender, loqui_channel_entry_get_name(LOQUI_CHANNEL_ENTRY(channel)), NULL);
+	loqui_sender_irc_join_raw(sender, loqui_channel_get_identifier(channel), NULL);
 }
 static void
 loqui_sender_irc_part(LoquiSender *sender, LoquiChannel *channel, const gchar *part_message)
@@ -350,7 +350,7 @@ loqui_sender_irc_part(LoquiSender *sender, LoquiChannel *channel, const gchar *p
 	g_return_if_fail(conn != NULL);
 
 	msg = irc_message_create(IRCCommandPart,
-				 loqui_channel_entry_get_name(LOQUI_CHANNEL_ENTRY(channel)),
+				 loqui_channel_get_identifier(channel),
 				 part_message,
 				 NULL);
 	irc_connection_push_message(conn, msg);
@@ -378,7 +378,7 @@ loqui_sender_irc_topic(LoquiSender *sender, LoquiChannel *channel, const gchar *
 	g_return_if_fail(conn != NULL);
 
 	msg = irc_message_create(IRCCommandTopic,
-				 loqui_channel_entry_get_name(LOQUI_CHANNEL_ENTRY(channel)),
+				 loqui_channel_get_identifier(channel),
 				 topic,
 				 NULL);
 	irc_connection_push_message(conn, msg);
@@ -399,8 +399,9 @@ loqui_sender_irc_start_private_talk(LoquiSender *sender, LoquiUser *user)
 		return;
 	}
 
-	if ((channel = loqui_account_get_channel_by_name(sender->account, loqui_user_get_nick(user))) == NULL) {
-		channel = loqui_channel_new(sender->account, loqui_user_get_nick(user), TRUE, TRUE);
+	if ((channel = loqui_account_get_channel_by_identifier(sender->account, loqui_user_get_nick(user))) == NULL) {
+		/* FIXME: priv should not have a identifier */
+		channel = loqui_channel_new(sender->account, loqui_user_get_nick(user), loqui_user_get_nick(user), TRUE, TRUE);
 		
 		user_self = loqui_account_get_user_self(sender->account);
 		
@@ -447,7 +448,7 @@ loqui_sender_irc_refresh(LoquiSender *sender, LoquiChannel *channel)
 	handle = loqui_account_get_handle(sender->account);
 	handle->prevent_print_who_reply_count++;
 	
-	msg = irc_message_create(IRCCommandWho, loqui_channel_entry_get_name(LOQUI_CHANNEL_ENTRY(channel)), NULL);
+	msg = irc_message_create(IRCCommandWho, loqui_channel_get_identifier(channel), NULL);
 	irc_connection_push_message(conn, msg);
 	g_object_unref(msg);
 }
@@ -589,7 +590,7 @@ loqui_sender_irc_get_channel_mode(LoquiSender *sender, LoquiChannel *channel)
 	conn = loqui_account_get_connection(sender->account);
 	g_return_if_fail(conn != NULL);
 
-	msg = irc_message_create(IRCCommandMode, loqui_channel_entry_get_name(LOQUI_CHANNEL_ENTRY(channel)), NULL);
+	msg = irc_message_create(IRCCommandMode, loqui_channel_get_identifier(channel), NULL);
 	irc_connection_push_message(conn, msg);
 	g_object_unref(msg);
 }
@@ -656,7 +657,7 @@ loqui_sender_irc_change_member_mode(LoquiSenderIRC *sender, LoquiChannel *channe
 	
 	p = 0;
 	/* MODE #Channel +? user1 user2 user3 */
-	param_array[p] = (gchar *) loqui_channel_entry_get_name(LOQUI_CHANNEL_ENTRY(channel));
+	param_array[p] = (gchar *) loqui_channel_get_identifier(channel);
 	p++;
 
 	if(is_give)
