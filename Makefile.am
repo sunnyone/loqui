@@ -7,6 +7,7 @@ ChangeLog:
 EXTRA_DIST= autogen.sh \
 	README \
 	NEWS \
+	NEWS.ja \
 	ChangeLog \
 	COPYING \
 	ABOUT-NLS \
