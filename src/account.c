@@ -67,12 +67,6 @@ static GObjectClass *parent_class = NULL;
 
 static guint account_signals[LAST_SIGNAL] = { 0 };
 
-enum {
-	USER_RELATION_FIELD_NICK,
-	USER_RELATION_FIELD_USER,
-	USER_RELATION_FIELDS
-};
-
 static void account_class_init(AccountClass *klass);
 static void account_init(Account *account);
 static void account_finalize(GObject *object);
@@ -187,9 +181,9 @@ account_init(Account *account)
 	priv->is_away = FALSE;
 	
 	account->channel_hash = g_hash_table_new_full(utils_strcase_hash, utils_strcase_equal, g_free, g_object_unref);
-	account->user_relation = g_relation_new(USER_RELATION_FIELDS);
-	g_relation_index(account->user_relation, USER_RELATION_FIELD_NICK, utils_strcase_hash, utils_strcase_equal);
-	g_relation_index(account->user_relation, USER_RELATION_FIELD_USER, g_direct_hash, g_direct_equal);
+	
+	account->user_nick_table = g_hash_table_new_full(g_direct_hash, g_direct_equal, NULL, g_free);
+	account->nick_user_table = g_hash_table_new_full(utils_strcase_hash, utils_strcase_equal, g_free, NULL);
 }
 static void 
 account_finalize (GObject *object)
@@ -211,10 +205,11 @@ account_finalize (GObject *object)
 		g_hash_table_destroy(account->channel_hash);
 		account->channel_hash = NULL;
 	}
-	if (account->user_relation) {
-		g_relation_destroy(account->user_relation);
-		account->user_relation = NULL;
+	if (account->nick_user_table) {
+		g_hash_table_destroy(account->nick_user_table);
+		account->nick_user_table = NULL;
 	}
+
 	G_OBJECT_UNREF_UNLESS_NULL(account->console_buffer);
 
         if (G_OBJECT_CLASS(parent_class)->finalize)
@@ -729,8 +724,9 @@ account_search_joined_channel(Account *account, gchar *nick)
 	g_return_val_if_fail(nick != NULL, NULL);
 
 	user = account_peek_user(account, nick);
-	if (!user) 
+	if (!user) {
 		return NULL;
+	}
 
 	channel_list = utils_get_value_list_from_hash(account->channel_hash);
 	for (cur = channel_list; cur != NULL; cur = cur->next) {
@@ -1070,25 +1066,29 @@ account_get_updated_number(Account *account, gint *updated_private_talk_number, 
 static void
 account_user_disposed_cb(Account *account, LoquiUser *user)
 {
+	gchar *nick;
+
         g_return_if_fail(account != NULL);
         g_return_if_fail(IS_ACCOUNT(account));
 
-	g_relation_delete(account->user_relation, user, USER_RELATION_FIELD_USER);
+	nick = g_hash_table_lookup(account->user_nick_table, user);
+	g_hash_table_remove(account->nick_user_table, nick);
+	g_hash_table_remove(account->user_nick_table, user);
 }
 static void
 account_user_notify_nick_cb(LoquiUser *user, GParamSpec *pspec, Account *account)
 {
-	GTuples *tuples;
+	const gchar *nick_old, *nick_new;
 
         g_return_if_fail(account != NULL);
         g_return_if_fail(IS_ACCOUNT(account));
 
-	tuples = g_relation_select(account->user_relation, user, USER_RELATION_FIELD_USER);
-	g_assert(tuples->len > 0);
-	user = g_tuples_index(tuples, 0, USER_RELATION_FIELD_USER);
-	g_relation_delete(account->user_relation, user, USER_RELATION_FIELD_USER);
-	g_relation_insert(account->user_relation, loqui_user_get_nick(user), user);
-	g_tuples_destroy(tuples);
+	nick_old = g_hash_table_lookup(account->user_nick_table, user);
+	nick_new = loqui_user_get_nick(user);
+
+	g_hash_table_remove(account->nick_user_table, nick_old);
+	g_hash_table_insert(account->nick_user_table, g_strdup(nick_new), user);
+	g_hash_table_replace(account->user_nick_table, user, g_strdup(nick_new));
 }
 LoquiUser *
 account_fetch_user(Account *account, const gchar *nick)
@@ -1104,7 +1104,8 @@ account_fetch_user(Account *account, const gchar *nick)
 		g_signal_connect(G_OBJECT(user), "notify::nick",
 				 G_CALLBACK(account_user_notify_nick_cb), account);
 		g_object_weak_ref(G_OBJECT(user), (GWeakNotify) account_user_disposed_cb, account);
-		g_relation_insert(account->user_relation, nick, user);
+		g_hash_table_insert(account->nick_user_table, g_strdup(nick), user);
+		g_hash_table_insert(account->user_nick_table, user, g_strdup(nick));
 	} else {
 		g_object_ref(user);
 	}
@@ -1114,18 +1115,8 @@ account_fetch_user(Account *account, const gchar *nick)
 LoquiUser *
 account_peek_user(Account *account, const gchar *nick)
 {
-	LoquiUser *user;
-	GTuples *tuples;
-
         g_return_val_if_fail(account != NULL, NULL);
         g_return_val_if_fail(IS_ACCOUNT(account), NULL);
 
-	tuples = g_relation_select(account->user_relation, nick, USER_RELATION_FIELD_NICK);
-	if (tuples->len > 0)
-		user = g_tuples_index(tuples, 0, USER_RELATION_FIELD_USER);
-	else 
-		user = NULL;
-	g_tuples_destroy(tuples);
-
-	return user;
+	return g_hash_table_lookup(account->nick_user_table, nick);
 }

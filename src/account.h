@@ -47,7 +47,8 @@ struct _Account
 	/* key: channel name(gchar *), value: channel(LoquiChannel) */
 	GHashTable *channel_hash;
 
-	GRelation *user_relation;
+	GHashTable *user_nick_table; /* key: user, value: nick */
+	GHashTable *nick_user_table; /* key: nick, value: user */
 
 	ChannelBuffer *console_buffer;
 
