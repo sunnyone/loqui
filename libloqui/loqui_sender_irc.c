@@ -722,7 +722,18 @@ loqui_sender_irc_pass(LoquiSenderIRC *sender, const gchar *password)
 	loqui_sender_irc_send_irc_message(LOQUI_SENDER_IRC(sender), msg);
 	g_object_unref(msg);
 }
+void
+loqui_sender_irc_ping_raw(LoquiSenderIRC *sender, const gchar *target)
+{
+	IRCMessage *msg;
 
+        g_return_if_fail(sender != NULL);
+        g_return_if_fail(LOQUI_IS_SENDER_IRC(sender));
+
+	msg = irc_message_create(IRCCommandPing, target, NULL);
+	loqui_sender_irc_send_irc_message(LOQUI_SENDER_IRC(sender), msg);
+	g_object_unref(msg);
+}
 /* the function receives the message sent by AccountIRC */
 void
 loqui_sender_irc_message_sent(LoquiSenderIRC *sender, IRCMessage *msg)
