@@ -50,7 +50,6 @@ static GObjectClass *parent_class = NULL;
 static void account_manager_class_init(AccountManagerClass *klass);
 static void account_manager_init(AccountManager *account_manager);
 static void account_manager_finalize(GObject *object);
-/* static Account* account_manager_search_account(AccountManager *manager, Channel *channel); */
 
 static void account_manager_account_changed_cb(GObject *object, gpointer data);
 static void account_manager_channel_changed_cb(GObject *object, gpointer data);
@@ -388,28 +387,6 @@ Account *account_manager_get_current_account(AccountManager *manager)
 	
 	return NULL;
 }
-
-#if 0
-static Account*
-account_manager_search_account(AccountManager *manager, Channel *channel)
-{
-	AccountManagerPrivate *priv;
-	Account *account;
-	GSList *cur;
-
-        g_return_val_if_fail(manager != NULL, NULL);
-        g_return_val_if_fail(IS_ACCOUNT_MANAGER(manager), NULL);
-
-	priv = manager->priv;
-
-	for(cur = priv->account_list; cur != NULL; cur = cur->next) {
-		account = ACCOUNT(cur->data);
-		if(account_has_channel(account, channel))
-			return account;
-	}
-	return NULL;
-}
-#endif
 
 AccountManager *
 account_manager_get(void)
