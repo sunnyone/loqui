@@ -401,7 +401,7 @@ channel_tree_update_user_number(ChannelTree *tree, Channel *channel)
 	if(!gtk_tree_model_find_by_column_data(model, &iter, NULL, COLUMN_CHANNEL, channel))
 		return;
 	
-	channel_get_user_numbers(channel, &users, &op_users);
+	channel_get_user_number(channel, &users, &op_users);
 
 	gtk_tree_store_set(GTK_TREE_STORE(model), &iter,
 			   COLUMN_USERS, users,

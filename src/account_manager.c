@@ -426,8 +426,8 @@ void account_manager_update_current_info(AccountManager *manager)
 	if(channel) {
 		channel_name = channel->name;
 		topic = channel_get_topic(channel);
-		/* channel_count_users(channel, (guint *) &user_number, (guint *) & op_number); */
-		/* TODO: mode, users */
+		channel_get_user_number(channel, (guint *) &user_number, (guint *) & op_number);
+		/* TODO: mode */
 	}
 
 	loqui_app_set_current_info(manager->priv->app, account_name, 
@@ -439,6 +439,7 @@ void account_manager_update_channel_user_number(AccountManager *manager, Channel
 	g_return_if_fail(manager != NULL);
         g_return_if_fail(IS_ACCOUNT_MANAGER(manager));
 
+	account_manager_update_current_info(manager);
 	channel_tree_update_user_number(manager->priv->app->channel_tree, channel);
 }
 void account_manager_disconnect_all(AccountManager *manager)

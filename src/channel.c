@@ -408,7 +408,7 @@ channel_update_user_number_actually(Channel *channel)
 	return FALSE;
 }
 void
-channel_get_user_numbers(Channel *channel, guint *user_number, guint *op_number)
+channel_get_user_number(Channel *channel, guint *user_number, guint *op_number)
 {
 	ChannelPrivate *priv;
 
