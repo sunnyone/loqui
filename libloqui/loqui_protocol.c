@@ -284,3 +284,20 @@ loqui_protocol_create_account(LoquiProtocol *protocol, LoquiProfileAccount *prof
 					  "profile", profile,
 					  NULL));
 }
+LoquiChannel *
+loqui_protocol_create_channel(LoquiProtocol *protocol, LoquiAccount *account, const gchar *name, const gchar *identifier, gboolean is_joined, gboolean is_private_talk)
+{
+	LoquiChannel *channel;
+
+	g_return_val_if_fail(protocol != NULL, NULL);
+	g_return_val_if_fail(LOQUI_IS_PROTOCOL(protocol), NULL);
+		
+	channel = g_object_new(protocol->type_channel,
+			       "account", account,
+			       "name", name,
+			       "identifier", identifier,
+			       "is_private_talk", is_private_talk,
+			       "is_joined", is_joined,
+			       NULL);
+	return channel;
+}

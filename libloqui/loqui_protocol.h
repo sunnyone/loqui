@@ -92,6 +92,8 @@ LoquiProfileAccountClass *loqui_protocol_get_profile_account_class(LoquiProtocol
 LoquiProfileAccount *loqui_protocol_create_profile_account(LoquiProtocol *protocol);
 LoquiUser* loqui_protocol_create_user(LoquiProtocol *protocol);
 LoquiAccount* loqui_protocol_create_account(LoquiProtocol *protocol, LoquiProfileAccount *profile);
+LoquiChannel* loqui_protocol_create_channel(LoquiProtocol *protocol, LoquiAccount *account,
+					    const gchar *name, const gchar *identifier, gboolean is_joined, gboolean is_private_talk);
 
 G_END_DECLS
 
