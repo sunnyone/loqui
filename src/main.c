@@ -38,6 +38,7 @@
 
 int debug_mode;
 int show_msg_mode;
+int send_status_commands_mode;
 
 struct icon_pair {
 	const gchar *id;
@@ -119,6 +120,8 @@ main(int argc, char *argv[])
 	gtk_rc_parse(path);
 	g_free(path);
 
+	send_status_commands_mode = 1;
+	
 	for(i = 0; i < argc; i++) {
 		if(strcmp(argv[i], "--debug") == 0) {
 			debug_mode = 1;
@@ -130,11 +133,17 @@ main(int argc, char *argv[])
 			g_print("Start show msg mode\n");
 			continue;
 		}
+		if(strcmp(argv[i], "--no-send-status-commands") == 0) {
+			send_status_commands_mode = 0;
+			g_print("Loqui doesn't send commands to get status like MODE, WHO in this session\n");
+			continue;
+		}
 		if(strcmp(argv[i], "--help") == 0) {
 			g_print("Loqui %s\n", VERSION);
-			g_print(_("  --debug      debug mode\n"));
-			g_print(_("  --show-msg   show message mode\n"));
-			g_print(_("  --help       show this help\n"));
+			g_print(_("  --no-send-status-commands don't send commands to get status (like MODE, WHO)"));
+			g_print(_("  --debug                   debug mode\n"));
+			g_print(_("  --show-msg                show message mode\n"));
+			g_print(_("  --help                    show this help\n"));
 			exit(0);
 		}
 	}

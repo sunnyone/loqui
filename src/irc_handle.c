@@ -638,7 +638,8 @@ irc_handle_command_join(IRCHandle *handle, IRCMessage *msg)
 			channel = channel_new(priv->account, name);
 			account_add_channel(priv->account, channel);
 		}
-		account_get_channel_mode(handle->priv->account, channel_get_name(channel));
+		if(send_status_commands_mode)
+			account_get_channel_mode(handle->priv->account, channel_get_name(channel));
 	} else {
 		if(!channel) {
 			g_warning(_("Why do you know that the user join the channel?"));
