@@ -76,7 +76,7 @@ static void irc_handle_command_kick(IRCHandle *handle, IRCMessage *msg);
 static void irc_handle_account_console_append(IRCHandle *handle, IRCMessage *msg, TextType type, gchar *format);
 static void irc_handle_channel_append(IRCHandle *handle, IRCMessage *msg, gboolean make_channel,
 				      gint receiver_num, TextType type, gchar *format);
-static void irc_handle_joined_channel_append(IRCHandle *handle, IRCMessage *msg, GSList *channel_slist, TextType type, gchar *format);
+static void irc_handle_joined_channel_append(IRCHandle *handle, IRCMessage *msg, GList *channel_list, TextType type, gchar *format);
 
 static void irc_handle_reply_welcome(IRCHandle *handle, IRCMessage *msg);
 static void irc_handle_reply_names(IRCHandle *handle, IRCMessage *msg);
@@ -344,32 +344,25 @@ static void
 irc_handle_command_quit(IRCHandle *handle, IRCMessage *msg)
 {
 	IRCHandlePrivate *priv;
-	GSList *slist, *cur;
-	LoquiChannel *channel;
+	GList *list = NULL;
 	LoquiUser *user;
 	
 	priv = handle->priv;
 
-	if(msg->nick == NULL) {
+	if (msg->nick == NULL) {
 		loqui_account_warning(priv->account, _("The message does not contain nick"));
 		return;
 	}
 
-	slist = loqui_account_search_joined_channel(handle->priv->account, msg->nick);
-	for(cur = slist; cur != NULL; cur = cur->next) {
-		channel = LOQUI_CHANNEL(cur->data);
-		if(!channel) {
-			loqui_account_warning(priv->account, "NULL channel");
-			continue;
-		}
-		user = loqui_account_peek_user(handle->priv->account, msg->nick);
-		if (user)
-			loqui_channel_entry_remove_member_by_user(LOQUI_CHANNEL_ENTRY(channel), user);
+	user = loqui_account_peek_user(handle->priv->account, msg->nick);
+	if (user) {
+		list = loqui_account_search_joined_channel(handle->priv->account, user);
+		g_list_foreach(list, (GFunc) loqui_channel_entry_remove_member_by_user, user);
 	}
 
-	irc_handle_joined_channel_append(handle, msg, slist, TEXT_TYPE_INFO, _("*** %n has quit IRC(%t)"));
+	irc_handle_joined_channel_append(handle, msg, list, TEXT_TYPE_INFO, _("*** %n has quit IRC(%t)"));
 
-	g_slist_free(slist);
+	g_list_free(list);
 }
 static void
 irc_handle_command_part(IRCHandle *handle, IRCMessage *msg)
@@ -1063,21 +1056,25 @@ irc_handle_error_nick_unusable(IRCHandle *handle, IRCMessage *msg)
 		loqui_account_disconnect(handle->priv->account);
 }
 static void /* utility function */
-irc_handle_joined_channel_append(IRCHandle *handle, IRCMessage *msg, GSList *channel_slist, TextType type, gchar *format)
+irc_handle_joined_channel_append(IRCHandle *handle, IRCMessage *msg, GList *channel_list, TextType type, gchar *format)
 {
+	IRCHandlePrivate *priv;
 	gchar *str;
-	GSList *slist = NULL, *cur;
-	LoquiChannel *channel;
+	GList *list = NULL, *cur;
+	LoquiUser *user = NULL;
 	MessageText *msgtext;
+
+	priv = handle->priv;
 
 	str = irc_message_format(msg, format);
 
-	if(channel_slist == NULL) {
-		if(msg->nick)
-			slist = loqui_account_search_joined_channel(handle->priv->account, msg->nick);
-	} else {
-		slist = channel_slist;
-	}
+	if (msg->nick)
+		user = loqui_account_peek_user(priv->account, msg->nick);
+
+	if (user && channel_list == NULL)
+		list = loqui_account_search_joined_channel(priv->account, user);
+	else
+		list = channel_list;
 
 	msgtext = message_text_new();
 	g_object_set(G_OBJECT(msgtext), 
@@ -1085,20 +1082,20 @@ irc_handle_joined_channel_append(IRCHandle *handle, IRCMessage *msg, GSList *cha
 		     "text_type", type,
 		     "text", str, NULL);
 
-	if(slist != NULL) {
-		for(cur = slist; cur != NULL; cur = cur->next) {
-			channel = LOQUI_CHANNEL(cur->data);
-			channel_buffer_append_message_text(loqui_channel_entry_get_buffer(LOQUI_CHANNEL_ENTRY(channel)),
+	if (list != NULL) {
+		for(cur = list; cur != NULL; cur = cur->next) {
+			channel_buffer_append_message_text(loqui_channel_entry_get_buffer(LOQUI_CHANNEL_ENTRY(cur->data)),
 							   msgtext, FALSE, FALSE);
 		}
 	} else {
-		loqui_account_console_buffer_append(handle->priv->account, type, str);
+		loqui_account_console_buffer_append(priv->account, type, str);
 	}
 	g_object_unref(msgtext);
 
 	g_free(str);
-	if(channel_slist == NULL && slist != NULL)
-		g_slist_free(slist);
+
+	if(channel_list == NULL && list != NULL)
+		g_list_free(list);
 }
 static void /* utility function */
 irc_handle_account_console_append(IRCHandle *handle, IRCMessage *msg, TextType type, gchar *format)

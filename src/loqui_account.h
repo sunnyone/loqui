@@ -64,13 +64,14 @@ struct _LoquiAccountClass
 {
         LoquiChannelEntryClass parent_class;
 
+	/* must implement */
 	void (* connect)          (LoquiAccount *account);
 	void (* disconnect)       (LoquiAccount *account);
 	gboolean (* is_connected) (LoquiAccount *account);
 
+
 	void (* warn) (LoquiAccount *account, const gchar *str);
 
-	/* signals */
 	void (* disconnected)     (LoquiAccount *account);
 	void (* add_channel)      (LoquiAccount *account,
 				   LoquiChannel *channel);
@@ -99,7 +100,8 @@ void loqui_account_remove_all_channel(LoquiAccount *account);
 
 GList *loqui_account_get_channel_list(LoquiAccount *account);
 LoquiChannel* loqui_account_get_channel_by_identifier(LoquiAccount *account, const gchar *channel_identifier);
-GSList *loqui_account_search_joined_channel(LoquiAccount *account, gchar *user_identifier);
+GList *loqui_account_search_joined_channel(LoquiAccount *account, LoquiUser *user);
+GList *loqui_account_search_joined_channel_by_identifier(LoquiAccount *account, gchar *user_identifier);
 
 void loqui_account_console_buffer_append(LoquiAccount *account, TextType type, const gchar *str);
 

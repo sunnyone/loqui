@@ -523,30 +523,39 @@ loqui_account_console_buffer_append(LoquiAccount *account, TextType type, const 
 		channel_buffer_append_message_text(buffer, msgtext, FALSE, FALSE);
 	g_object_unref(msgtext);
 }
-GSList *
-loqui_account_search_joined_channel(LoquiAccount *account, gchar *identifier)
+
+GList *
+loqui_account_search_joined_channel(LoquiAccount *account, LoquiUser *user)
 {
 	GList *cur;
-	GSList *list = NULL;
+	GList *joined_list = NULL;
 	LoquiChannelEntry *chent;
-	LoquiUser *user;
 
         g_return_val_if_fail(account != NULL, NULL);
         g_return_val_if_fail(LOQUI_IS_ACCOUNT(account), NULL);
-	g_return_val_if_fail(identifier != NULL, NULL);
 
-	user = loqui_account_peek_user(account, identifier);
-	if (!user) {
+	if (user == NULL)
 		return NULL;
-	}
 
 	for (cur = account->channel_list; cur != NULL; cur = cur->next) {
 		chent = LOQUI_CHANNEL_ENTRY(cur->data);
 		if (loqui_channel_entry_get_member_by_user(chent, user))
-			list = g_slist_append(list, chent);
+			joined_list = g_list_prepend(joined_list, chent);
 	}
+	joined_list = g_list_reverse(joined_list);
+
+	return joined_list;
+}
+GList *
+loqui_account_search_joined_channel_by_identifier(LoquiAccount *account, gchar *user_identifier)
+{
+        g_return_val_if_fail(account != NULL, NULL);
+        g_return_val_if_fail(LOQUI_IS_ACCOUNT(account), NULL);
 	
-	return list;
+	if (!user_identifier)
+		return NULL;
+
+	return loqui_account_search_joined_channel(account, loqui_account_peek_user(account, user_identifier));
 }
 void
 loqui_account_get_updated_number(LoquiAccount *account, gint *updated_private_talk_number, gint *updated_channel_number)
