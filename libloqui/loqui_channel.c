@@ -529,13 +529,14 @@ loqui_channel_append_remark(LoquiChannel *channel, LoquiTextType type, gboolean 
 	if (LOQUI_GENERAL_PREF_GET_BOOLEAN(LOQUI_GENERAL_PREF_GROUP_IGNORE,
 					   LOQUI_GENERAL_PREF_KEY_IGNORE_USE_TRANSPARENT_IGNORE) && nick != NULL) {
 		gchar **ignore_list;
-		gsize len;
 
-		ignore_list = LOQUI_GENERAL_PREF_GET_STRING_LIST(LOQUI_GENERAL_PREF_GROUP_IGNORE, LOQUI_GENERAL_PREF_KEY_IGNORE_IGNORE_PATTERNS, &len);
+		ignore_list = LOQUI_GENERAL_PREF_GET_STRING_LIST(LOQUI_GENERAL_PREF_GROUP_IGNORE, LOQUI_GENERAL_PREF_KEY_IGNORE_IGNORE_PATTERNS, NULL);
 
-		for (i = 0; i < len; i++) {
-			if (g_pattern_match_simple(ignore_list[i], nick))
-				type = LOQUI_TEXT_TYPE_TRANSPARENT;
+		if (ignore_list) {
+			for (i = 0; ignore_list[i] != NULL; i++) {
+				if (g_pattern_match_simple(ignore_list[i], nick))
+					type = LOQUI_TEXT_TYPE_TRANSPARENT;
+			}
 		}
 
 		g_strfreev(ignore_list);
@@ -573,10 +574,12 @@ loqui_channel_append_remark(LoquiChannel *channel, LoquiTextType type, gboolean 
 
 		highlight_list = LOQUI_GENERAL_PREF_GET_STRING_LIST(LOQUI_GENERAL_PREF_GROUP_NOTIFICATION, LOQUI_GENERAL_PREF_KEY_NOTIFICATION_HIGHLIGHT_LIST, &len);
 
-		for (i = 0; i < len; i++) {
-			word = highlight_list[i];
-			if (strstr(remark, word) != NULL) {
-				loqui_channel_entry_set_has_unread_keyword(LOQUI_CHANNEL_ENTRY(channel), TRUE);
+		if (highlight_list) {
+			for (i = 0; highlight_list[i] != NULL; i++) {
+				word = highlight_list[i];
+				if (strstr(remark, word) != NULL) {
+					loqui_channel_entry_set_has_unread_keyword(LOQUI_CHANNEL_ENTRY(channel), TRUE);
+				}
 			}
 		}
 
