@@ -15,6 +15,7 @@ libgtk24backports_la_SOURCES = \
 	gtkaction.c gtkaction.h \
 	gtkactiongroup.c gtkactiongroup.h \
 	gtk24ext.c gtk24ext.h \
+	gtkintl.h \
 	gtkuimanager.c gtkuimanager.h \
 	gtkradioaction.c gtkradioaction.h \
         gtk24marshalers.c gtk24marshalers.h \

@@ -173,3 +173,8 @@
 * Prevent from opening duplicated the buffer of private talk.
 * Added icons for away-status to the channel tree.
 * Made the nick list sortable.
+
+2004-04-05   0.3.0pre2
+* Fixed the bug failed to sort.
+* Fixed to receive SEGV when an user is parted/quit.
+
