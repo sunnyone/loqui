@@ -228,9 +228,6 @@ typedef enum {
 	IRC_COMMAND_USERHOST = 1037,
 	IRC_COMMAND_ISON = 1038,
 	IRC_COMMAND_OBJECT = 1039,
-
-	IRC_MESSAGE_FAILED_CODECONV = 9998,
-	IRC_MESSAGE_END = 9999,
 } IRCResponse;
 
 
@@ -279,9 +276,5 @@ typedef enum {
 #define IRCCommandUserhost		        "USERHOST"
 #define IRCCommandIson				"ISON"
 #define IRCCommandObject			"OBJECT"
-
- /* for irc handle */
-#define IRCMessageEnd                          "9999"
-#define IRCMessageFailedCodeconv               "9998"
 
 #endif  /* __LOQUI_IRC_CONSTANTS__ */

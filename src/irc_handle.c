@@ -1141,10 +1141,7 @@ irc_handle_response(IRCHandle *handle, IRCMessage *msg)
         g_return_if_fail(handle != NULL);
         g_return_if_fail(IS_IRC_HANDLE(handle));
 
-	if(msg->response == IRC_MESSAGE_FAILED_CODECONV) {
-		irc_handle_account_console_append(handle, msg, TEXT_TYPE_ERROR, "*** Failed to convert codeset.");
-		proceeded = TRUE;
-	} else if(IRC_MESSAGE_IS_COMMAND(msg)) {
+	if(IRC_MESSAGE_IS_COMMAND(msg)) {
 		proceeded = irc_handle_command(handle, msg);
 	} else if(IRC_MESSAGE_IS_REPLY(msg)) {
 		proceeded = irc_handle_reply(handle, msg);
