@@ -69,7 +69,10 @@ struct _ChannelClass
 GType channel_get_type(void) G_GNUC_CONST;
 
 Channel* channel_new(gchar *name);
+void channel_append_text(Channel *channel, TextType type, gchar *str);
 void channel_append_remark(Channel *channel, TextType type, gchar *name, gchar *remark);
+void channel_set_topic(Channel *channel, const gchar *topic);
+gchar *channel_get_topic(Channel *channel);
 
 G_END_DECLS
 

@@ -23,6 +23,7 @@
 
 struct _ChannelPrivate
 {
+	gchar *topic;
 };
 
 static GObjectClass *parent_class = NULL;
@@ -75,16 +76,20 @@ channel_init (Channel *channel)
 	priv = g_new0(ChannelPrivate, 1);
 
 	channel->priv = priv;
+	priv->topic = NULL;
+
 }
 static void 
 channel_finalize (GObject *object)
 {
 	Channel *channel;
+	ChannelPrivate *priv;
 
         g_return_if_fail(object != NULL);
         g_return_if_fail(IS_CHANNEL(object));
 
         channel = CHANNEL(object);
+	priv = channel->priv;
 
 	if(channel->name) {
 		g_free(channel->name);
@@ -94,11 +99,15 @@ channel_finalize (GObject *object)
 		gtk_widget_destroy(GTK_WIDGET(channel->text));
 		channel->text = NULL;
 	}
+	if(priv->topic) {
+		g_free(priv->topic);
+		priv->topic = NULL;
+	}
 
         if (G_OBJECT_CLASS(parent_class)->finalize)
                 (* G_OBJECT_CLASS(parent_class)->finalize) (object);
 
-	g_free(channel->priv);
+	g_free(priv);
 }
 
 Channel*
@@ -123,8 +132,37 @@ channel_append_remark(Channel *channel, TextType type, gchar *name, gchar *remar
 	g_return_if_fail(channel != NULL);
 	g_return_if_fail(IS_CHANNEL(channel));
 
-	line_with_nick = g_strdup_printf("<%s> %s", name, remark);
+	line_with_nick = g_strdup_printf("<%s> %s\n", name, remark);
 	channel_text_append(CHANNEL_TEXT(channel->text), type, line_with_nick);
 	g_free(line_with_nick);
+}
 
+void
+channel_append_text(Channel *channel, TextType type, gchar *str)
+{
+	g_return_if_fail(channel != NULL);
+	g_return_if_fail(IS_CHANNEL(channel));
+
+	channel_text_append(CHANNEL_TEXT(channel->text), type, str);
+}
+void channel_set_topic(Channel *channel, const gchar *topic)
+{
+	ChannelPrivate *priv;
+
+	g_return_if_fail(channel != NULL);
+	g_return_if_fail(IS_CHANNEL(channel));
+
+	priv = channel->priv;
+
+	if(priv->topic)
+		g_free(priv->topic);
+
+	priv->topic = g_strdup(topic);
+}
+gchar *channel_get_topic(Channel *channel)
+{
+	g_return_val_if_fail(channel != NULL, NULL);
+	g_return_val_if_fail(IS_CHANNEL(channel), NULL);
+
+	return channel->priv->topic;
 }

@@ -177,6 +177,7 @@ static void irc_handle_my_command_join(IRCHandle *handle, IRCMessage *msg)
 {
 	Channel *channel;
 	gchar *name;
+	gchar *topic;
 
         g_return_if_fail(handle != NULL);
         g_return_if_fail(IS_IRC_HANDLE(handle));
@@ -190,6 +191,8 @@ static void irc_handle_my_command_join(IRCHandle *handle, IRCMessage *msg)
 	account_add_channel(handle->priv->account, channel);
 	gdk_threads_leave();
 }
+
+
 static void irc_handle_my_command_nick(IRCHandle *handle, IRCMessage *msg)
 {
         g_return_if_fail(handle != NULL);
