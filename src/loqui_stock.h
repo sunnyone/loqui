@@ -20,6 +20,8 @@
 #ifndef __LOQUI_STOCK_H__
 #define __LOQUI_STOCK_H__
 
+#include "loqui_user.h"
+
 #define LOQUI_STOCK_CONSOLE      "loqui-console"
 #define LOQUI_STOCK_ONLINE       "loqui-online"
 #define LOQUI_STOCK_OFFLINE      "loqui-offline"
@@ -32,5 +34,7 @@
 extern int LOQUI_ICON_SIZE_FONT;
 
 void loqui_stock_init(void);
+
+G_CONST_RETURN gchar* loqui_stock_get_id_from_basic_away_type(LoquiBasicAwayType basic_away);
 
 #endif /* __LOQUI_STOCK_H__ */

@@ -79,3 +79,21 @@ loqui_stock_init(void)
 {
 	make_icons();
 }
+
+G_CONST_RETURN gchar*
+loqui_stock_get_id_from_basic_away_type(LoquiBasicAwayType basic_away)
+{
+	switch (basic_away) {
+	case LOQUI_BASIC_AWAY_TYPE_AWAY:
+		return LOQUI_STOCK_AWAY;
+	case LOQUI_BASIC_AWAY_TYPE_BUSY:
+		return LOQUI_STOCK_BUSY;
+	case LOQUI_BASIC_AWAY_TYPE_ONLINE:
+		return LOQUI_STOCK_ONLINE;
+	case LOQUI_BASIC_AWAY_TYPE_OFFLINE:
+		return LOQUI_STOCK_OFFLINE;
+	default:
+		break;
+	}
+	return NULL;
+}
