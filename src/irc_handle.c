@@ -252,7 +252,7 @@ irc_handle_command_privmsg_notice(IRCHandle *handle, IRCMessage *msg)
 	remark = irc_message_get_param(msg, 2);
 
 	if(remark == NULL) {
-		g_warning(_("This PRIVMSG/NOTICE message doesn't contain a remark."));
+		loqui_account_warning(priv->account, _("This PRIVMSG/NOTICE message doesn't contain a remark."));
 		return;
 	}
 
@@ -331,12 +331,15 @@ irc_handle_command_ping(IRCHandle *handle, IRCMessage *msg)
 static void
 irc_handle_command_quit(IRCHandle *handle, IRCMessage *msg)
 {
+	IRCHandlePrivate *priv;
 	GSList *slist, *cur;
 	LoquiChannel *channel;
 	LoquiUser *user;
+	
+	priv = handle->priv;
 
 	if(msg->nick == NULL) {
-		g_warning(_("The message does not contain nick"));
+		loqui_account_warning(priv->account, _("The message does not contain nick"));
 		return;
 	}
 
@@ -344,7 +347,7 @@ irc_handle_command_quit(IRCHandle *handle, IRCMessage *msg)
 	for(cur = slist; cur != NULL; cur = cur->next) {
 		channel = LOQUI_CHANNEL(cur->data);
 		if(!channel) {
-			g_warning("NULL channel");
+			loqui_account_warning(priv->account, "NULL channel");
 			continue;
 		}
 		user = loqui_account_peek_user(handle->priv->account, msg->nick);
@@ -359,25 +362,28 @@ irc_handle_command_quit(IRCHandle *handle, IRCMessage *msg)
 static void
 irc_handle_command_part(IRCHandle *handle, IRCMessage *msg)
 {
+	IRCHandlePrivate *priv;
 	LoquiChannel *channel;
 	LoquiUser *user;
 	gchar *name;
 
+	priv = handle->priv;
+
 	if(msg->nick == NULL) {
-		g_warning(_("The message does not contain nick"));
+		loqui_account_warning(priv->account, _("The message does not contain nick"));
 		return;
 	}
 
 	name = irc_message_get_param(msg, 1);
 	if(!name) {
-		g_warning(_("The message does not contain the channal name"));
+		loqui_account_warning(priv->account, _("The message does not contain the channal name"));
 		return;
 	}
 
 	channel = loqui_account_get_channel_by_identifier(handle->priv->account, name);
 	user = loqui_account_peek_user(handle->priv->account, msg->nick);
 	if (!channel || !user) {
-		g_warning("Why do you know the user '%s' is joined to %s?", msg->nick, name);
+		loqui_account_warning(priv->account, "Why do you know the user '%s' is joined to %s?", msg->nick, name);
 	}
 
 	if (channel && user)
@@ -395,26 +401,29 @@ irc_handle_command_part(IRCHandle *handle, IRCMessage *msg)
 static void
 irc_handle_command_kick(IRCHandle *handle, IRCMessage *msg)
 {
+	IRCHandlePrivate *priv;
 	LoquiChannel *channel;
 	LoquiUser *user;
 	gchar *name;
 	gchar *sender, *receiver;
 
+	priv = handle->priv;
+
 	sender = msg->nick;
 	if(sender == NULL) {
-		g_warning(_("The message does not contain nick"));
+		loqui_account_warning(priv->account, _("The message does not contain nick"));
 		return;
 	}
 
 	name = irc_message_get_param(msg, 1);
 	if(!name) {
-		g_warning(_("The message does not contain the channal name"));
+		loqui_account_warning(priv->account, _("The message does not contain the channal name"));
 		return;
 	}
 
 	receiver = irc_message_get_param(msg, 2);
 	if(!receiver) {
-		g_warning(_("The KICK message doesn't contain the user to be kicked."));
+		loqui_account_warning(priv->account, _("The KICK message doesn't contain the user to be kicked."));
 		return;
 	}
 	
@@ -436,18 +445,21 @@ irc_handle_command_nick(IRCHandle *handle, IRCMessage *msg)
 	gchar *nick_new;
 	LoquiUser *user;
 	LoquiChannel *channel;
+	IRCHandlePrivate *priv;
 
         g_return_if_fail(handle != NULL);
         g_return_if_fail(IS_IRC_HANDLE(handle));
 
+	priv = handle->priv;
+
 	if(msg->nick == NULL) {
-		g_warning(_("The message does not contain nick"));
+		loqui_account_warning(priv->account, _("The message does not contain nick"));
 		return;
 	}
 
 	nick_new = irc_message_get_param(msg, 1);
 	if(nick_new == NULL) {
-		g_warning(_("The NICK message does not contain new nick"));
+		loqui_account_warning(priv->account, _("The NICK message does not contain new nick"));
 		return;
 	}
 
@@ -476,13 +488,16 @@ irc_handle_parse_mode_arguments(IRCHandle *handle, IRCMessage *msg, LoquiChannel
 	gchar *flags, *target;
 	gint is_add = -1; /* -1: uninitialized, 0: false, 1: true */
 	LoquiMember *member;
+	IRCHandlePrivate *priv;
+
+	priv = handle->priv;
 
 	cur = mode_start;
 	param_num = irc_message_count_parameters(msg);
 
 	flags = irc_message_get_param(msg, cur);
 	if(flags == NULL) {
-		g_warning(_("Flags are not found in MODE command"));
+		loqui_account_warning(priv->account, _("Flags are not found in MODE command"));
 		return;
 	}
 	cur++;
@@ -490,7 +505,7 @@ irc_handle_parse_mode_arguments(IRCHandle *handle, IRCMessage *msg, LoquiChannel
 #define GET_TARGET_OR_RETURN(msg, i, str_ptr) { \
   *str_ptr = irc_message_get_param(msg, i); \
   if(*str_ptr == NULL) { \
-        g_warning(_("Can't find a nick to change mode")); \
+        loqui_account_warning(priv->account, _("Can't find a nick to change mode")); \
         return; \
   } \
   i++; \
@@ -502,12 +517,12 @@ irc_handle_parse_mode_arguments(IRCHandle *handle, IRCMessage *msg, LoquiChannel
   GET_TARGET_OR_RETURN(msg, i, &target); \
   user = loqui_account_peek_user(channel->account, target); \
   if (!user) { \
-        g_warning("User not found."); \
+        loqui_account_warning(priv->account, "User not found."); \
         return; \
   } \
   *member_ptr = loqui_channel_entry_get_member_by_user(LOQUI_CHANNEL_ENTRY(channel), user); \
   if (*member_ptr == NULL) { \
-       g_warning("Member not found."); \
+       loqui_account_warning(priv->account, "Member not found."); \
        return; \
   } \
 }
@@ -522,7 +537,7 @@ irc_handle_parse_mode_arguments(IRCHandle *handle, IRCMessage *msg, LoquiChannel
 			}
 			
 			if (is_add < 0) {
-				g_warning(_("Flags don't have + or -"));
+				loqui_account_warning(priv->account, _("Flags don't have + or -"));
 				break;
 			}
 			
@@ -557,7 +572,7 @@ irc_handle_parse_mode_arguments(IRCHandle *handle, IRCMessage *msg, LoquiChannel
 			case IRC_CHANNEL_MODE_INVITATION_MASK:
 				break;
 			default:
-				g_warning(_("Unknown mode flag"));
+				loqui_account_warning(priv->account, _("Unknown mode flag"));
 				break;
 			}
 		}
@@ -572,7 +587,7 @@ irc_handle_parse_mode_arguments(IRCHandle *handle, IRCMessage *msg, LoquiChannel
 		case IRC_USER_MODE_LOCAL_OPERATOR:
 		case IRC_USER_MODE_RECEIVES_SERVER_NOTICES:
 		default:
-			g_warning(_("User mode is not implemented."));
+			loqui_account_warning(priv->account, _("User mode is not implemented."));
 			break;
 		}
 	}
@@ -581,15 +596,18 @@ irc_handle_parse_mode_arguments(IRCHandle *handle, IRCMessage *msg, LoquiChannel
 static void
 irc_handle_reply_channelmodeis(IRCHandle *handle, IRCMessage *msg)
 {
+	IRCHandlePrivate *priv;
 	LoquiChannel *channel;
 	gint cur;
 	gchar *name;
+
+	priv = handle->priv;
 
 	cur = 2;
 
 	name = irc_message_get_param(msg, cur);
 	if(name == NULL) {
-		g_warning(_("The target is not found in MODE command"));
+		loqui_account_warning(priv->account, _("The target is not found in MODE command"));
 		return;
 	}
 	cur++;
@@ -599,7 +617,7 @@ irc_handle_reply_channelmodeis(IRCHandle *handle, IRCMessage *msg)
 		if(!channel)
 			return;
 	} else {
-		g_warning(_("RPL_CHANNELMODEIS didn't return a channel name: %s"), name);
+		loqui_account_warning(priv->account, _("RPL_CHANNELMODEIS didn't return a channel name: %s"), name);
 		return;
 	}
 	loqui_channel_clear_mode(channel);
@@ -610,22 +628,25 @@ irc_handle_reply_channelmodeis(IRCHandle *handle, IRCMessage *msg)
 static void
 irc_handle_command_mode(IRCHandle *handle, IRCMessage *msg)
 {
+	IRCHandlePrivate *priv;
 	gchar *changer = NULL;
 	gchar *format, *name;
 	LoquiChannel *channel = NULL;
 	gint cur;
+
+	priv = handle->priv;
 
 	if(msg->nick)
 		changer = msg->nick;
 	else if(msg->prefix)
 		changer = msg->prefix;
 	else {
-		g_warning(_("Who can change mode?"));
+		loqui_account_warning(priv->account, _("Who can change mode?"));
 		return;
 	}
 
 	if(strchr(changer, '%')) {
-		g_warning(_("Nick must not contain '%%'"));
+		loqui_account_warning(priv->account, _("Nick must not contain '%%'"));
 		return;
 	}
 
@@ -633,7 +654,7 @@ irc_handle_command_mode(IRCHandle *handle, IRCMessage *msg)
 
 	name = irc_message_get_param(msg, cur);
 	if(name == NULL) {
-		g_warning(_("The target is not found in MODE command"));
+		loqui_account_warning(priv->account, _("The target is not found in MODE command"));
 		return;
 	}
 	cur++;
@@ -641,7 +662,7 @@ irc_handle_command_mode(IRCHandle *handle, IRCMessage *msg)
 	if(LOQUI_UTILS_IRC_STRING_IS_CHANNEL(name)) {
 		channel = loqui_account_get_channel_by_identifier(handle->priv->account, name);
 		if(!channel) {
-			g_warning(_("Why can you know the change of his mode?"));
+			loqui_account_warning(priv->account, _("Why can you know the change of his mode?"));
 			return;
 		}
 	} else {
@@ -673,12 +694,12 @@ irc_handle_command_join(IRCHandle *handle, IRCMessage *msg)
 	priv = handle->priv;
 
 	if(msg->nick == NULL) {
-		g_warning(_("The message does not contain nick."));
+		loqui_account_warning(priv->account, _("The message does not contain nick."));
 		return;
 	}
 	name = irc_message_get_param(msg, 1);
 	if(name == NULL) {
-		g_warning(_("Invalid JOIN command"));
+		loqui_account_warning(priv->account, _("Invalid JOIN command"));
 		return;
 	}
 	
@@ -695,7 +716,7 @@ irc_handle_command_join(IRCHandle *handle, IRCMessage *msg)
 			loqui_sender_irc_get_channel_mode(loqui_account_get_sender(handle->priv->account), channel);
 	} else {
 		if(!channel) {
-			g_warning(_("Why do you know that the user join the channel?"));
+			loqui_account_warning(priv->account, _("Why do you know that the user join the channel?"));
 			return;
 		}
 		loqui_channel_add_member_by_nick(channel, msg->nick, FALSE, FALSE, FALSE);
@@ -761,25 +782,28 @@ irc_handle_reply_endofnames(IRCHandle *handle, IRCMessage *msg)
 static void
 irc_handle_reply_creationtime(IRCHandle *handle, IRCMessage *msg)
 {
+	IRCHandlePrivate *priv;
 	gchar *time_str;
 	time_t t;
 	gchar *str;
 	gchar *format;
 
+	priv = handle->priv;
+
 	time_str = irc_message_get_param(msg, 3);
 	if(time_str == NULL) {
-		g_warning(_("Invalid CREATIONTIME reply."));
+		loqui_account_warning(priv->account, _("Invalid CREATIONTIME reply."));
 		return;
 	}
 	t = (time_t) g_ascii_strtoull(time_str, NULL, 10);
 	if(t == 0) {
-		g_warning(_("Invalid time string"));
+		loqui_account_warning(priv->account, _("Invalid time string"));
 		return;
 	}
 	
 	str = utils_get_iso8601_date_string(t);
 	if(str == NULL) {
-		g_warning(_("Invalid time"));
+		loqui_account_warning(priv->account, _("Invalid time"));
 		return;
 	}
 
@@ -793,26 +817,29 @@ irc_handle_reply_creationtime(IRCHandle *handle, IRCMessage *msg)
 static void
 irc_handle_reply_topicwhotime(IRCHandle *handle, IRCMessage *msg)
 {
+	IRCHandlePrivate *priv;
 	gchar *time_str;
 	time_t t;
 	gchar *str;
 	gchar *format;
 
+	priv = handle->priv;
+
 	time_str = irc_message_get_param(msg, 4);
 	if(time_str == NULL) {
-		g_warning(_("Invalid TOPICWHOTIME reply."));
+		loqui_account_warning(priv->account, _("Invalid TOPICWHOTIME reply."));
 		return;
 	}
 
 	t = (time_t) g_ascii_strtoull(time_str, NULL, 10);
 	if(t == 0) {
-		g_warning(_("Invalid time string"));
+		loqui_account_warning(priv->account, _("Invalid time string"));
 		return;
 	}
 	
 	str = utils_get_iso8601_date_string(t);
 	if(str == NULL) {
-		g_warning(_("Invalid time"));
+		loqui_account_warning(priv->account, _("Invalid time"));
 		return;
 	}
 
@@ -825,19 +852,22 @@ irc_handle_reply_topicwhotime(IRCHandle *handle, IRCMessage *msg)
 static void
 irc_handle_reply_whoisidle(IRCHandle *handle, IRCMessage *msg)
 {
+	IRCHandlePrivate *priv;
 	gchar *str;
 	gchar *sec_str;
 	gint sec;
 
+	priv = handle->priv;
+
 	sec_str = irc_message_get_param(msg, 3);
 	if(!sec_str) {
-		irc_handle_account_console_append(handle, msg, TEXT_TYPE_ERROR, _("Invalid WHOISIDLE reply."));
+		loqui_account_warning(priv->account, _("Invalid WHOISIDLE reply."));
 		return;
 	}
 
 	sec = (gint) g_ascii_strtoull(sec_str, NULL, 10);
 	if((*sec_str != '0' || *(sec_str+1) != '\0') && sec == 0) {
-		irc_handle_account_console_append(handle, msg, TEXT_TYPE_ERROR, _("Invalid WHOISIDLE reply."));
+		loqui_account_warning(priv->account, _("Invalid WHOISIDLE reply."));
 		return;
 	}
 
@@ -880,7 +910,7 @@ irc_handle_reply_who(IRCHandle *handle, IRCMessage *msg)
 	flags = irc_message_get_param(msg, 7);
 	trailing = irc_message_get_param(msg, 8);
 	if (!channel_name || !username || !hostname || !server_name || !nick || !flags || !trailing) {
-		loqui_account_console_buffer_append(priv->account, TEXT_TYPE_ERROR, _("Invalid WHO reply"));
+		loqui_account_warning(priv->account, _("Invalid WHO reply."));
 		return;
 	}
 	
@@ -1063,7 +1093,7 @@ irc_handle_channel_append(IRCHandle *handle, IRCMessage *msg, gboolean make_chan
 
 	receiver_name = irc_message_get_param(msg, receiver_num);
 	if(receiver_name == NULL) {
-		g_warning(_("Can't find the channel from the message"));
+		loqui_account_warning(priv->account, _("Can't find the channel from the message"));
 		return;
 	}
 
