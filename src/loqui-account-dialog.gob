@@ -162,6 +162,66 @@ class Loqui:Account:Dialog from Gtk:Dialog {
         radio_toggled_cb(GtkWidget *radio, Loqui:Account:Dialog *self) {
         	self_update_codeconv_sensitivity(self);
         }
+	
+	private void
+	load(self, LoquiProfileAccount *profile) {
+        	const gchar *name;
+        	LoquiCodeConvTableItem *table;
+        	gint i;
+        	GtkTreeIter iter;
+
+		gtk_entry_set_text(GTK_ENTRY(selfp->entry_name),
+				   LOQUI_UTILS_EMPTY_IF_NULL(loqui_profile_account_get_name(profile)));
+        	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(selfp->check_use),
+					     loqui_profile_account_get_use(profile));
+
+		gtk_entry_set_text(GTK_ENTRY(selfp->entry_nick),
+				   LOQUI_UTILS_EMPTY_IF_NULL(loqui_profile_account_get_nick(profile)));
+		gtk_entry_set_text(GTK_ENTRY(selfp->entry_username),
+				   LOQUI_UTILS_EMPTY_IF_NULL(loqui_profile_account_get_username(profile)));
+		gtk_entry_set_text(GTK_ENTRY(selfp->entry_password),
+				   LOQUI_UTILS_EMPTY_IF_NULL(loqui_profile_account_get_password(profile)));
+		gtk_entry_set_text(GTK_ENTRY(selfp->entry_servername),
+				   LOQUI_UTILS_EMPTY_IF_NULL(loqui_profile_account_get_servername(profile)));
+        	gtk_spin_button_set_value(GTK_SPIN_BUTTON(selfp->spin_port),
+					  loqui_profile_account_get_port(profile));
+		
+        	gtk_entry_set_text(GTK_ENTRY(selfp->entry_realname),
+				   LOQUI_UTILS_EMPTY_IF_NULL(loqui_profile_account_irc_get_realname(LOQUI_PROFILE_ACCOUNT_IRC(profile))));
+        	gtk_entry_set_text(GTK_ENTRY(selfp->entry_userinfo),
+				   LOQUI_UTILS_EMPTY_IF_NULL(loqui_profile_account_irc_get_userinfo(LOQUI_PROFILE_ACCOUNT_IRC(profile))));
+        	gtk_entry_set_text(GTK_ENTRY(selfp->entry_autojoin),
+				   LOQUI_UTILS_EMPTY_IF_NULL(loqui_profile_account_irc_get_autojoin(LOQUI_PROFILE_ACCOUNT_IRC(profile))));
+        	gtk_entry_set_text(GTK_ENTRY(selfp->entry_quit_message),
+				   LOQUI_UTILS_EMPTY_IF_NULL(loqui_profile_account_irc_get_quit_message(LOQUI_PROFILE_ACCOUNT_IRC(profile))));
+        
+		gtk_list_store_clear(GTK_LIST_STORE(selfp->model_codeconv_table));
+
+		table = loqui_protocol_get_codeconv_table(loqui_profile_account_get_protocol(profile));
+        	name = loqui_profile_account_get_codeconv_item_name(profile);
+
+        	for (i = 0; table[i].name != NULL; i++) {
+        		gtk_list_store_append(GTK_LIST_STORE(selfp->model_codeconv_table), &iter);
+        		gtk_list_store_set(GTK_LIST_STORE(selfp->model_codeconv_table),
+        				   &iter,
+        				   CODECONV_COLUMN_TITLE, loqui_codeconv_translate(table[i].title),
+        				   CODECONV_COLUMN_NAME, table[i].name,
+        				   -1);
+        
+        		if (name != NULL && strcmp(table[i].name, name) == 0) {
+        			gtk_combo_box_set_active_iter(GTK_COMBO_BOX(selfp->combobox_table), &iter);
+        		}
+        	}
+        
+		gtk_entry_set_text(GTK_ENTRY(selfp->entry_codeset),
+				   LOQUI_UTILS_EMPTY_IF_NULL(loqui_profile_account_get_codeset(LOQUI_PROFILE_ACCOUNT(profile))));
+
+        	self_set_codeconv_mode(self, loqui_profile_account_get_codeconv_mode(LOQUI_PROFILE_ACCOUNT(profile)));
+        	self_update_codeconv_sensitivity(self);
+
+        	gtkutils_set_textview_from_string_list(GTK_TEXT_VIEW(selfp->textview_nicklist),
+        					       loqui_profile_account_get_nick_list(profile));
+	}
 
         public GtkWidget*
         new(LoquiProfileAccount *profile) {
@@ -174,10 +234,6 @@ class Loqui:Account:Dialog from Gtk:Dialog {
         	GtkWidget *label;
                 GSList *group_codeconv = NULL;
                
-        	gint i;
-        	const gchar *codeset, *name;
-        	LoquiCodeConvTableItem *table;
-        	GtkTreeIter iter;
         	GtkCellRenderer *cell;
         
 		self = GET_NEW;
@@ -205,11 +261,10 @@ class Loqui:Account:Dialog from Gtk:Dialog {
         	hbox = gtk_hbox_new(TRUE, 0);
         	gtk_box_pack_start(GTK_BOX(vbox), hbox, FALSE, TRUE, 0);
         	
-        	gtkutils_add_label_entry(hbox, _("Account name:"), &selfp->entry_name, loqui_profile_account_get_name(profile));
+        	gtkutils_add_label_entry(hbox, _("Account name:"), &selfp->entry_name, NULL);
         	
         	selfp->check_use = gtk_check_button_new_with_label(_("Connect by default"));
         	gtk_box_pack_start(GTK_BOX(hbox), selfp->check_use, TRUE, TRUE, 0);
-        	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(selfp->check_use), loqui_profile_account_get_use(profile));
         
         	frame = gtk_frame_new(_("User"));
         	gtk_box_pack_start(GTK_BOX(vbox), frame, TRUE, TRUE, 0);
@@ -217,9 +272,9 @@ class Loqui:Account:Dialog from Gtk:Dialog {
         	vbox_c = gtk_vbox_new(TRUE, 0);
         	gtk_container_add(GTK_CONTAINER(frame), vbox_c);
         	
-        	gtkutils_add_label_entry(vbox_c, _("Nickname:"), &selfp->entry_nick, loqui_profile_account_get_nick(profile));
-        	gtkutils_add_label_entry(vbox_c, _("User name:"), &selfp->entry_username, loqui_profile_account_get_username(profile));
-        	gtkutils_add_label_entry(vbox_c, _("Password:"), &selfp->entry_password, loqui_profile_account_get_password(profile));
+        	gtkutils_add_label_entry(vbox_c, _("Nickname:"), &selfp->entry_nick, NULL);
+        	gtkutils_add_label_entry(vbox_c, _("User name:"), &selfp->entry_username, NULL);
+        	gtkutils_add_label_entry(vbox_c, _("Password:"), &selfp->entry_password, NULL);
         	gtk_entry_set_visibility(GTK_ENTRY(selfp->entry_password), FALSE);
         
         	frame = gtk_frame_new(_("Server"));
@@ -228,21 +283,16 @@ class Loqui:Account:Dialog from Gtk:Dialog {
         	vbox_c = gtk_vbox_new(TRUE, 0);
         	gtk_container_add(GTK_CONTAINER(frame), vbox_c);
         	
-        	gtkutils_add_label_entry(vbox_c, _("Hostname:"), &selfp->entry_servername, loqui_profile_account_get_servername(profile));
+        	gtkutils_add_label_entry(vbox_c, _("Hostname:"), &selfp->entry_servername, NULL);
         	gtkutils_add_label_spin_button(vbox_c, _("Port:"), &selfp->spin_port, 1, 65535, 1);
-        	gtk_spin_button_set_value(GTK_SPIN_BUTTON(selfp->spin_port), loqui_profile_account_get_port(profile));
         
         	vbox = gtk_vbox_new(FALSE, 0);
         	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), vbox, gtk_label_new(_("IRC")));
         	
-        	gtkutils_add_label_entry(vbox, _("Realname:"), &selfp->entry_realname,
-        				 loqui_profile_account_irc_get_realname(LOQUI_PROFILE_ACCOUNT_IRC(profile)));
-        	gtkutils_add_label_entry(vbox, _("User information:"), &selfp->entry_userinfo,
-        				 loqui_profile_account_irc_get_userinfo(LOQUI_PROFILE_ACCOUNT_IRC(profile)));
-        	gtkutils_add_label_entry(vbox, _("Auto join channels:"), &selfp->entry_autojoin,
-        				 loqui_profile_account_irc_get_autojoin(LOQUI_PROFILE_ACCOUNT_IRC(profile)));
-        	gtkutils_add_label_entry(vbox, _("Quit message:"), &selfp->entry_quit_message,
-        				 loqui_profile_account_irc_get_quit_message(LOQUI_PROFILE_ACCOUNT_IRC(profile)));
+        	gtkutils_add_label_entry(vbox, _("Realname:"), &selfp->entry_realname, NULL);
+        	gtkutils_add_label_entry(vbox, _("User information:"), &selfp->entry_userinfo, NULL);
+        	gtkutils_add_label_entry(vbox, _("Auto join channels:"), &selfp->entry_autojoin, NULL);
+        	gtkutils_add_label_entry(vbox, _("Quit message:"), &selfp->entry_quit_message, NULL);
         
         	vbox = gtk_vbox_new(FALSE, 0);
         	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), vbox, gtk_label_new(_("Code")));
@@ -286,22 +336,6 @@ class Loqui:Account:Dialog from Gtk:Dialog {
         				       "text", 0,
         				       NULL);
         
-        	table = loqui_protocol_get_codeconv_table(loqui_profile_account_get_protocol(profile));
-        	name = loqui_profile_account_get_codeconv_item_name(profile);
-        
-        	for (i = 0; table[i].name != NULL; i++) {
-        		gtk_list_store_append(GTK_LIST_STORE(selfp->model_codeconv_table), &iter);
-        		gtk_list_store_set(GTK_LIST_STORE(selfp->model_codeconv_table),
-        				   &iter,
-        				   CODECONV_COLUMN_TITLE, loqui_codeconv_translate(table[i].title),
-        				   CODECONV_COLUMN_NAME, table[i].name,
-        				   -1);
-        
-        		if (name != NULL && strcmp(table[i].name, name) == 0) {
-        			gtk_combo_box_set_active_iter(GTK_COMBO_BOX(selfp->combobox_table), &iter);
-        		}
-        	}
-        
                 selfp->radio_codeset = gtk_radio_button_new_with_mnemonic(NULL, _("Specify codeset"));
                 gtk_box_pack_start(GTK_BOX(vbox1), selfp->radio_codeset, FALSE, FALSE, 0);
                 gtk_radio_button_set_group(GTK_RADIO_BUTTON(selfp->radio_codeset), group_codeconv);
@@ -317,22 +351,18 @@ class Loqui:Account:Dialog from Gtk:Dialog {
         
                 selfp->entry_codeset = gtk_entry_new();
                 gtk_box_pack_start(GTK_BOX(hbox1), selfp->entry_codeset, TRUE, TRUE, 0);
-        	codeset = loqui_profile_account_get_codeset(LOQUI_PROFILE_ACCOUNT(profile));
-        	if (codeset)
-        		gtk_entry_set_text(GTK_ENTRY(selfp->entry_codeset), codeset);
-        	self_set_codeconv_mode(self, loqui_profile_account_get_codeconv_mode(LOQUI_PROFILE_ACCOUNT(profile)));
-        	self_update_codeconv_sensitivity(self);
+
         
         	vbox = gtk_vbox_new(FALSE, 0);
         	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), vbox, gtk_label_new(_("Nick")));
         
         	frame = gtkutils_create_framed_textview(&selfp->textview_nicklist,
         						_("List of often used nick(Separate each words with linefeeds)"));
-        	gtkutils_set_textview_from_string_list(GTK_TEXT_VIEW(selfp->textview_nicklist),
-        					       loqui_profile_account_get_nick_list(profile));
         
         	gtk_box_pack_start(GTK_BOX(vbox), frame, TRUE, TRUE, 0);
         
+		self_load(self, profile);
+
         	gtk_widget_show_all(GTK_WIDGET(self));
         
         	return GTK_WIDGET(self);
