@@ -648,7 +648,7 @@ loqui_menu_buffers_remove_account(LoquiMenu *menu, Account *account)
 			removing_items = g_list_append(removing_items, cur->data);
 	}
 	for(cur = removing_items; cur != NULL; cur = cur->next) {
-		gtk_widget_destroy(cur->data);
+		gtk_container_remove(GTK_CONTAINER(submenu), GTK_WIDGET(cur->data));
 	}
 	g_list_free(removing_items);
 }
