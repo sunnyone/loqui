@@ -28,11 +28,28 @@ requires 2.0.0
 
 
 %h{
-/* FIXME */
-typedef void (*LoquiPrefChangedFunction) (gpointer pref, const gchar *group_name, const gchar *key, gpointer data);
+#ifndef __TYPEDEF_LOQUI_PREF__
+#define __TYPEDEF_LOQUI_PREF__
+typedef struct _LoquiPref LoquiPref;
+#endif
+
+typedef void (*LoquiPrefForeachFunc) (LoquiPref *pref, const gchar *group_name, const gchar *key, gpointer data);
 %}
+
 %{
 #define IS_NOT_FOUND_ERROR(tmp_err) (tmp_err->domain == LQG_KEY_FILE_ERROR && (tmp_err->code == LQG_KEY_FILE_ERROR_KEY_NOT_FOUND || tmp_err->code == LQG_KEY_FILE_ERROR_GROUP_NOT_FOUND))
+#define GET_WITH_DEFAULT_MACRO(_tmp, _return_type, _get_func, _group_name, _key, _default_value, _error) { \
+	GError *tmp_err = NULL;					\
+	_tmp = _get_func(self, group_name, key, &tmp_err);	\
+	if (tmp_err != NULL) {					\
+		if (IS_NOT_FOUND_ERROR(tmp_err)) {		\
+			g_error_free(tmp_err);			\
+			_tmp = (_return_type) _default_value;			\
+		} else {					\
+			g_propagate_error(_error, tmp_err);	\
+		}						\
+	}							\
+}
 %}
 
 class Loqui:Pref from G:Object
@@ -48,18 +65,18 @@ class Loqui:Pref from G:Object
 	signal last NONE (STRING, STRING)
 	void changed(self, const gchar *group_name, const gchar *key);
 
-	public void changed_all_with_callback(self, LoquiPrefChangedFunction callback, gpointer data) {
+	public void foreach(self, LoquiPrefForeachFunc func, gpointer data) {
 		gchar **groups;
 		gchar **keys;
 		int i, j;
 
 		groups = lqg_key_file_get_groups(selfp->keyfile, NULL);
 		for (i = 0; groups[i] != NULL; i++) {
-			/* the group should be exist, but continue */
+			/* the group should be exist, but continue if can't find */
 			if (!(keys = lqg_key_file_get_keys(selfp->keyfile, groups[i], NULL, NULL)))
 				continue;
 			for (j = 0; keys[j] != NULL; j++) {
-				callback(self, groups[i], keys[j], data);
+				func(self, groups[i], keys[j], data);
 			}
 			g_strfreev(keys);
 		}
@@ -108,6 +125,12 @@ class Loqui:Pref from G:Object
 	public gchar **get_string_list(self, const gchar *group_name, const gchar *key, gsize *length, GError **error) {
 		return lqg_key_file_get_string_list(selfp->keyfile, group_name, key, length, error);
 	}
+	public gint *get_integer_list(self, const gchar *group_name, const gchar *key, gsize *length, GError **error) {
+		return lqg_key_file_get_integer_list(selfp->keyfile, group_name, key, length, error);
+	}
+	public gboolean *get_boolean_list(self, const gchar *group_name, const gchar *key, gsize *length, GError **error) {
+		return lqg_key_file_get_boolean_list(selfp->keyfile, group_name, key, length, error);
+	}
 
 	public void set_string(self, const gchar *group_name, const gchar *key, const gchar *value) {
 		lqg_key_file_set_string(selfp->keyfile, group_name, key, value);
@@ -123,6 +146,14 @@ class Loqui:Pref from G:Object
 	}
 	public void set_string_list(self, const gchar *group_name, const gchar *key, gchar **value, gsize length) {
 		lqg_key_file_set_string_list(selfp->keyfile, group_name, key, (const gchar **) value, length);
+		self_changed(self, group_name, key);
+	}
+	public void set_integer_list(self, const gchar *group_name, const gchar *key, gint *value, gsize length) {
+		lqg_key_file_set_integer_list(selfp->keyfile, group_name, key, value, length);
+		self_changed(self, group_name, key);
+	}
+	public void set_boolean_list(self, const gchar *group_name, const gchar *key, gboolean *value, gsize length) {
+		lqg_key_file_set_boolean_list(selfp->keyfile, group_name, key, value, length);
 		self_changed(self, group_name, key);
 	}
 
@@ -150,51 +181,32 @@ class Loqui:Pref from G:Object
 			return;
 		self_set_string_list(self, group_name, key, default_value, length);
 	}
+	public void set_default_integer_list(self, const gchar *group_name, const gchar *key, gint *default_value, gsize length) {
+		if (self_has_key(self, group_name, key, NULL))
+			return;
+		self_set_integer_list(self, group_name, key, default_value, length);
+	}
+	public void set_default_boolean_list(self, const gchar *group_name, const gchar *key, gboolean *default_value, gsize length) {
+		if (self_has_key(self, group_name, key, NULL))
+			return;
+		self_set_boolean_list(self, group_name, key, default_value, length);
+	}
 
 	public gchar *get_with_default_string(self, const gchar *group_name (check null), const gchar *key (check null), const gchar *default_value, GError **error) onerror NULL {
-		GError *tmp_err = NULL;
 		gchar *tmp;
-		if ((tmp = self_get_string(self, group_name, key, &tmp_err)) == NULL) {
-			if (IS_NOT_FOUND_ERROR(tmp_err)) {
-				g_error_free(tmp_err);
-				return g_strdup(default_value);
-			} else {
-				g_propagate_error(error, tmp_err);
-				return NULL;
-			}
-		}
+		GET_WITH_DEFAULT_MACRO(tmp, gchar *, self_get_string, group_name, key, default_value, error);
+		if (tmp)
+			return g_strdup(tmp);
 		return tmp;
 	}
 	public gint get_with_default_integer(self, const gchar *group_name (check null), const gchar *key (check null), gint default_value, GError **error) {
-		GError *tmp_err = NULL;
 		gint tmp;
-
-		tmp = self_get_integer(self, group_name, key, &tmp_err);
-		if (tmp_err != NULL) {
-			if (IS_NOT_FOUND_ERROR(tmp_err)) {
-				g_error_free(tmp_err);
-				return default_value;
-			} else {
-				g_propagate_error(error, tmp_err);
-				return 0;
-			}
-		}
+		GET_WITH_DEFAULT_MACRO(tmp, gint, self_get_integer, group_name, key, default_value, error);
 		return tmp;
 	}
 	public gboolean get_with_default_boolean(self, const gchar *group_name (check null), const gchar *key (check null), gboolean default_value, GError **error) {
-		GError *tmp_err = NULL;
 		gboolean tmp;
-
-		tmp = self_get_boolean(self, group_name, key, &tmp_err);
-		if (tmp_err != NULL) {
-			if (IS_NOT_FOUND_ERROR(tmp_err)) {
-				g_error_free(tmp_err);
-				return default_value;
-			} else {
-				g_propagate_error(error, tmp_err);
-				return 0;
-			}
-		}
+		GET_WITH_DEFAULT_MACRO(tmp, gboolean, self_get_boolean, group_name, key, default_value, error);
 		return tmp;
 	}
 }
