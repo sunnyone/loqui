@@ -464,6 +464,7 @@ loqui_app_new(AccountManager *account_manager)
 	app->channel_entry_group = gtk_action_group_new("channel-entry-group");
 	
 	app->ui_manager = gtk_ui_manager_new();
+	gtk_ui_manager_set_add_tearoffs(app->ui_manager, TRUE);
 	gtk_window_add_accel_group(GTK_WINDOW(app),
 				   gtk_ui_manager_get_accel_group(app->ui_manager));
 	gtk_ui_manager_insert_action_group(app->ui_manager, app->action_group, 0);
