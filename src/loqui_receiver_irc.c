@@ -1284,6 +1284,9 @@ loqui_receiver_irc_error(LoquiReceiverIRC *receiver, IRCMessage *msg)
 	case IRC_ERR_USERNOTINCHANNEL:
      /* case IRC_ERR_BANLISTFULL: */
 		return FALSE;
+	case IRC_ERR_USERONCHANNEL:
+		loqui_receiver_irc_account_console_append(receiver, msg, TEXT_TYPE_ERROR, _("%2 %t (%3)"));
+		return TRUE;
 	case IRC_ERR_NOSUCHNICK:
 	case IRC_ERR_NOSUCHSERVER:
 	case IRC_ERR_NOSUCHCHANNEL:
@@ -1376,6 +1379,9 @@ loqui_receiver_irc_command(LoquiReceiverIRC *receiver, IRCMessage *msg)
 		return TRUE;
 	case IRC_COMMAND_PONG:
 		/* do nothing currently */
+		return TRUE;
+	case IRC_COMMAND_INVITE:
+		loqui_receiver_irc_account_console_append(receiver, msg, TEXT_TYPE_INFO, "*** You were invited to %2 by %1");
 		return TRUE;
 	default:
 		break;
