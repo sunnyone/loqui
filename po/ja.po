@@ -5,7 +5,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: loqui 0.0.6\n"
-"POT-Creation-Date: 2003-02-23 22:16+0900\n"
+"POT-Creation-Date: 2003-02-25 00:09+0900\n"
 "PO-Revision-Date: 2002-11-10 13:17+0900\n"
 "Last-Translator: Yoichi Imai <yoichi@silver-forest.com>\n"
 "Language-Team: Japanese <ja@li.org>\n"
@@ -26,7 +26,11 @@ msgstr "このアカウントでは接続されていません"
 msgid "No channel is selected"
 msgstr "チャンネルが選択されていません"
 
-#: src/account.c:601
+#: src/account.c:580 src/account.c:599 src/account.c:623 src/account.c:645
+msgid "Account is not connected."
+msgstr ""
+
+#: src/account.c:673
 msgid "Too many users in change mode request!"
 msgstr ""
 
@@ -344,127 +348,131 @@ msgstr "無効なパラメータ番号"
 msgid "No accounts are selected!"
 msgstr "アカウントが選択されていません"
 
-#: src/loqui_menu.c:65
+#: src/loqui_menu.c:74
 msgid "/_File"
 msgstr "/ファイル(_F)"
 
-#: src/loqui_menu.c:66
+#: src/loqui_menu.c:75
 msgid "/File/_Connect"
 msgstr "/File/接続(_C)"
 
-#: src/loqui_menu.c:67
+#: src/loqui_menu.c:76
 msgid "/File/_Quit"
 msgstr "/File/終了(_Q)"
 
-#: src/loqui_menu.c:68
+#: src/loqui_menu.c:77
 msgid "/_Edit"
 msgstr "/編集(_E)"
 
-#: src/loqui_menu.c:69
+#: src/loqui_menu.c:78
 msgid "/Edit/Cut"
 msgstr "/Edit/切り取り"
 
-#: src/loqui_menu.c:70
+#: src/loqui_menu.c:79
 msgid "/Edit/_Copy"
 msgstr "/Edit/コピー(_C)"
 
-#: src/loqui_menu.c:71
+#: src/loqui_menu.c:80
 msgid "/Edit/_Paste"
 msgstr "/Edit/ペースト(_P)"
 
-#: src/loqui_menu.c:72
+#: src/loqui_menu.c:81
 msgid "/Edit/Paste with linefeeds cut"
 msgstr "/Edit/改行を削除してペースト"
 
-#: src/loqui_menu.c:74
+#: src/loqui_menu.c:83
 msgid "/Edit/Clear"
 msgstr "/Edit/クリア"
 
-#: src/loqui_menu.c:76
+#: src/loqui_menu.c:85
 msgid "/Edit/_Find"
 msgstr "/Edit/検索(_F)"
 
-#: src/loqui_menu.c:77
+#: src/loqui_menu.c:86
 msgid "/Edit/_Find again"
 msgstr "/Edit/次を検索"
 
-#: src/loqui_menu.c:78
-msgid "/_Server"
-msgstr "/サーバ(_S)"
-
-#: src/loqui_menu.c:79
-msgid "/_Channel"
-msgstr "/チャンネル(_C)"
-
-#: src/loqui_menu.c:80
-msgid "/_User"
-msgstr "/ユーザ(_U)"
-
-#: src/loqui_menu.c:81
-msgid "/_View"
-msgstr "/表示(_V)"
-
-#: src/loqui_menu.c:82
-msgid "/View/Toolbar"
-msgstr "/View/ツールバー"
-
-#: src/loqui_menu.c:83
-msgid "/View/Toolbar/Icon"
-msgstr "/View/Toolbar/アイコン"
-
-#: src/loqui_menu.c:84
-msgid "/View/Toolbar/Text"
-msgstr "/View/Toolbar/テキスト"
-
-#: src/loqui_menu.c:85
-msgid "/View/Toolbar/Both icons and text"
-msgstr "/View/Toolbar/アイコンとテキスト"
-
-#: src/loqui_menu.c:86
-msgid "/View/Toolbar/Both icons and text horizontally"
-msgstr ""
-
 #: src/loqui_menu.c:87
-msgid "/View/Toolbar/Hide"
-msgstr "/View/Toolbar/隠す"
+msgid "/_Command"
+msgstr "/コマンド(_C)"
 
 #: src/loqui_menu.c:88
-msgid "/View/Status bar"
-msgstr "/View/ステータスバー"
+msgid "/Command/_Join channel"
+msgstr ""
 
-#: src/loqui_menu.c:90
-msgid "/View/Previous fresh channel"
+#: src/loqui_menu.c:89
+msgid "/Command/_Part channel"
 msgstr ""
 
 #: src/loqui_menu.c:91
+msgid "/Command/_Set channel topic"
+msgstr ""
+
+#: src/loqui_menu.c:92
+msgid "/_View"
+msgstr "/表示(_V)"
+
+#: src/loqui_menu.c:93
+msgid "/View/Toolbar"
+msgstr "/View/ツールバー"
+
+#: src/loqui_menu.c:94
+msgid "/View/Toolbar/Icon"
+msgstr "/View/Toolbar/アイコン"
+
+#: src/loqui_menu.c:95
+msgid "/View/Toolbar/Text"
+msgstr "/View/Toolbar/テキスト"
+
+#: src/loqui_menu.c:96
+msgid "/View/Toolbar/Both icons and text"
+msgstr "/View/Toolbar/アイコンとテキスト"
+
+#: src/loqui_menu.c:97
+msgid "/View/Toolbar/Both icons and text horizontally"
+msgstr ""
+
+#: src/loqui_menu.c:98
+msgid "/View/Toolbar/Hide"
+msgstr "/View/Toolbar/隠す"
+
+#: src/loqui_menu.c:99
+msgid "/View/Status bar"
+msgstr "/View/ステータスバー"
+
+#: src/loqui_menu.c:101
+msgid "/View/Previous fresh channel"
+msgstr ""
+
+#: src/loqui_menu.c:102
 msgid "/View/Next fresh channel"
 msgstr ""
 
-#: src/loqui_menu.c:93
+#: src/loqui_menu.c:104
 msgid "/View/Previous channel"
-msgstr ""
+msgstr "/View/前のチャンネル"
 
-#: src/loqui_menu.c:94
+#: src/loqui_menu.c:105
 msgid "/View/Next channel"
-msgstr ""
+msgstr "/View/次のチャンネル"
 
-#: src/loqui_menu.c:95
+#: src/loqui_menu.c:106
 msgid "/_Settings"
 msgstr "/設定(_S)"
 
-#: src/loqui_menu.c:96
+#: src/loqui_menu.c:107
 msgid "/Settings/Common preferences..."
 msgstr "/Settings/全般の設定..."
 
-#: src/loqui_menu.c:97
+#: src/loqui_menu.c:108
 msgid "/Settings/Account settings..."
 msgstr "/Settings/アカウント設定..."
 
-#: src/loqui_menu.c:98
+#: src/loqui_menu.c:109
 msgid "/_Help"
 msgstr "/ヘルプ(_H)"
 
-#: src/loqui_menu.c:99
+#: src/loqui_menu.c:110
 msgid "/Help/_About"
 msgstr "/Help/このプログラムについて(_A)"
 
@@ -576,14 +584,17 @@ msgstr ""
 msgid "Can't open %s: %s"
 msgstr "%sが開けませんでした: %s"
 
+#: src/prefs_dialog.c:261
+msgid "Common Preferences"
+msgstr "/Settings/全般の設定..."
 
 #: src/prefs_dialog.c:278
 msgid "General"
-msgstr ""
+msgstr "全般"
 
 #: src/prefs_dialog.c:280
 msgid "Save window/widget sizes"
-msgstr ""
+msgstr "ウィンドウとウィジットのサイズを保存する"
 
 #: src/prefs_dialog.c:282
 msgid "Switch whether scrolling or not automatically"
@@ -595,11 +606,11 @@ msgstr "コード変換"
 
 #: src/prefs_dialog.c:304
 msgid "Away message: "
-msgstr ""
+msgstr "離席メッセージ: "
 
 #: src/prefs_dialog.c:307
 msgid "Highlight"
-msgstr ""
+msgstr "強調"
 
 #: src/prefs_dialog.c:309
 msgid "Use notification"
@@ -634,3 +645,12 @@ msgstr ""
 #: src/prefs_general.c:186 src/prefs_general.c:209
 msgid "Unsupported pref type!"
 msgstr ""
+
+#~ msgid "/_Server"
+#~ msgstr "/サーバ(_S)"
+
+#~ msgid "/_Channel"
+#~ msgstr "/チャンネル(_C)"
+
+#~ msgid "/_User"
+#~ msgstr "/ユーザ(_U)"

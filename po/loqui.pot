@@ -7,7 +7,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2003-02-23 22:16+0900\n"
+"POT-Creation-Date: 2003-02-25 00:09+0900\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -28,7 +28,11 @@ msgstr ""
 msgid "No channel is selected"
 msgstr ""
 
-#: src/account.c:601
+#: src/account.c:580 src/account.c:599 src/account.c:623 src/account.c:645
+msgid "Account is not connected."
+msgstr ""
+
+#: src/account.c:673
 msgid "Too many users in change mode request!"
 msgstr ""
 
@@ -344,127 +348,131 @@ msgstr ""
 msgid "No accounts are selected!"
 msgstr ""
 
-#: src/loqui_menu.c:65
+#: src/loqui_menu.c:74
 msgid "/_File"
 msgstr ""
 
-#: src/loqui_menu.c:66
+#: src/loqui_menu.c:75
 msgid "/File/_Connect"
 msgstr ""
 
-#: src/loqui_menu.c:67
+#: src/loqui_menu.c:76
 msgid "/File/_Quit"
 msgstr ""
 
-#: src/loqui_menu.c:68
+#: src/loqui_menu.c:77
 msgid "/_Edit"
 msgstr ""
 
-#: src/loqui_menu.c:69
+#: src/loqui_menu.c:78
 msgid "/Edit/Cut"
 msgstr ""
 
-#: src/loqui_menu.c:70
+#: src/loqui_menu.c:79
 msgid "/Edit/_Copy"
 msgstr ""
 
-#: src/loqui_menu.c:71
+#: src/loqui_menu.c:80
 msgid "/Edit/_Paste"
 msgstr ""
 
-#: src/loqui_menu.c:72
+#: src/loqui_menu.c:81
 msgid "/Edit/Paste with linefeeds cut"
 msgstr ""
 
-#: src/loqui_menu.c:74
+#: src/loqui_menu.c:83
 msgid "/Edit/Clear"
 msgstr ""
 
-#: src/loqui_menu.c:76
+#: src/loqui_menu.c:85
 msgid "/Edit/_Find"
 msgstr ""
 
-#: src/loqui_menu.c:77
+#: src/loqui_menu.c:86
 msgid "/Edit/_Find again"
 msgstr ""
 
-#: src/loqui_menu.c:78
-msgid "/_Server"
-msgstr ""
-
-#: src/loqui_menu.c:79
-msgid "/_Channel"
-msgstr ""
-
-#: src/loqui_menu.c:80
-msgid "/_User"
-msgstr ""
-
-#: src/loqui_menu.c:81
-msgid "/_View"
-msgstr ""
-
-#: src/loqui_menu.c:82
-msgid "/View/Toolbar"
-msgstr ""
-
-#: src/loqui_menu.c:83
-msgid "/View/Toolbar/Icon"
-msgstr ""
-
-#: src/loqui_menu.c:84
-msgid "/View/Toolbar/Text"
-msgstr ""
-
-#: src/loqui_menu.c:85
-msgid "/View/Toolbar/Both icons and text"
-msgstr ""
-
-#: src/loqui_menu.c:86
-msgid "/View/Toolbar/Both icons and text horizontally"
-msgstr ""
-
 #: src/loqui_menu.c:87
-msgid "/View/Toolbar/Hide"
+msgid "/_Command"
 msgstr ""
 
 #: src/loqui_menu.c:88
-msgid "/View/Status bar"
+msgid "/Command/_Join channel"
 msgstr ""
 
-#: src/loqui_menu.c:90
-msgid "/View/Previous fresh channel"
+#: src/loqui_menu.c:89
+msgid "/Command/_Part channel"
 msgstr ""
 
 #: src/loqui_menu.c:91
-msgid "/View/Next fresh channel"
+msgid "/Command/_Set channel topic"
+msgstr ""
+
+#: src/loqui_menu.c:92
+msgid "/_View"
 msgstr ""
 
 #: src/loqui_menu.c:93
-msgid "/View/Previous channel"
+msgid "/View/Toolbar"
 msgstr ""
 
 #: src/loqui_menu.c:94
-msgid "/View/Next channel"
+msgid "/View/Toolbar/Icon"
 msgstr ""
 
 #: src/loqui_menu.c:95
-msgid "/_Settings"
+msgid "/View/Toolbar/Text"
 msgstr ""
 
 #: src/loqui_menu.c:96
-msgid "/Settings/Common prefsrences..."
+msgid "/View/Toolbar/Both icons and text"
 msgstr ""
 
 #: src/loqui_menu.c:97
-msgid "/Settings/Account settings..."
+msgid "/View/Toolbar/Both icons and text horizontally"
 msgstr ""
 
 #: src/loqui_menu.c:98
-msgid "/_Help"
+msgid "/View/Toolbar/Hide"
 msgstr ""
 
 #: src/loqui_menu.c:99
+msgid "/View/Status bar"
+msgstr ""
+
+#: src/loqui_menu.c:101
+msgid "/View/Previous fresh channel"
+msgstr ""
+
+#: src/loqui_menu.c:102
+msgid "/View/Next fresh channel"
+msgstr ""
+
+#: src/loqui_menu.c:104
+msgid "/View/Previous channel"
+msgstr ""
+
+#: src/loqui_menu.c:105
+msgid "/View/Next channel"
+msgstr ""
+
+#: src/loqui_menu.c:106
+msgid "/_Settings"
+msgstr ""
+
+#: src/loqui_menu.c:107
+msgid "/Settings/Common preferences..."
+msgstr ""
+
+#: src/loqui_menu.c:108
+msgid "/Settings/Account settings..."
+msgstr ""
+
+#: src/loqui_menu.c:109
+msgid "/_Help"
+msgstr ""
+
+#: src/loqui_menu.c:110
 msgid "/Help/_About"
 msgstr ""
 
