@@ -62,6 +62,8 @@ void irc_handle_push_message(IRCHandle *handle, IRCMessage *msg);
 
 gchar *irc_handle_get_current_nick(IRCHandle *handle);
 
+void irc_handle_disconnect(IRCHandle *handle);
+
 G_END_DECLS
 
 #endif /* __IRC_HANDLE_H__ */

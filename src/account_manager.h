@@ -79,7 +79,9 @@ void account_manager_set_topic(AccountManager *manager, const gchar *topic);
 
 void account_manager_select_channel(AccountManager *manager, Channel *channel);
 void account_manager_select_account(AccountManager *manager, Account *account);
+void account_manager_remove_channels_of_account(AccountManager *manager, Account *account);
 
+void account_manager_disconnect_all(AccountManager *manager);
 G_END_DECLS
 
 #endif /* __ACCOUNT_MANAGER_H__ */

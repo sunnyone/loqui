@@ -134,6 +134,8 @@ loqui_app_finalize (GObject *object)
 static gint
 loqui_app_delete_event_cb(GtkWidget *widget, GdkEventAny *event)
 {
+	account_manager_disconnect_all(account_manager_get());
+
         if (eel_gconf_get_boolean(LOQUI_GCONF_SIZE "/save_size")) {
 		loqui_app_save_size(LOQUI_APP(widget));
         }

@@ -131,7 +131,6 @@ irc_handle_init(IRCHandle *irc_handle)
 	priv->thread = NULL;
 	priv->send_thread = NULL;
 	priv->msg_queue = NULL;
-
 }
 static void 
 irc_handle_finalize(GObject *object)
@@ -980,17 +979,24 @@ static gpointer irc_handle_thread_func(IRCHandle *handle)
 	account_console_text_append(account, TRUE, TEXT_TYPE_INFO, _("Done."));
 	gdk_threads_leave();
 
-        while((msg = connection_get_irc_message(priv->connection, NULL)) != NULL) {
+        while(priv->connection) {
+		if((msg = connection_get_irc_message(priv->connection, NULL)) == NULL)
+			break;
+
 		if(show_msg_mode)
 			irc_message_print(msg);
 
 		irc_handle_response(handle, msg);
 		g_object_unref(msg);
 	}
+	debug_puts("lost connection");
 
-	gdk_threads_enter();
+	/* FIXME: this "Connection terminated." message is shown whether when joined or not. 
+	 When this thread is joined, locking gdk_threads_mutex make this program stopped. 
+	 When this thread is not joined, not locking gdk_threads_mutex is dangerous. */
+	g_mutex_trylock(gdk_threads_mutex);
 	account_console_text_append(account, TRUE, TEXT_TYPE_INFO, _("Connection terminated."));
-	gdk_threads_leave();
+	g_mutex_unlock(gdk_threads_mutex);
 
 	debug_puts("Putting IRCMessageEnd message...");
 	msg = irc_message_create(IRCMessageEnd, NULL);
@@ -1002,8 +1008,13 @@ static gpointer irc_handle_thread_func(IRCHandle *handle)
 	g_thread_join(priv->send_thread);
 	debug_puts("Done.");
 
-	connection_disconnect(priv->connection);
+	if(priv->connection) {
+		connection_disconnect(priv->connection);
+		g_object_unref(priv->connection);
+		priv->connection = NULL;
+	}
 
+	debug_puts("Exiting thread.");
 	g_thread_exit(NULL);
 	return NULL;
 }
@@ -1059,6 +1070,21 @@ irc_handle_new(Account *account, guint server_num, gboolean fallback)
 				       NULL); 
 
 	return handle;
+}
+void irc_handle_disconnect(IRCHandle *handle)
+{
+	IRCHandlePrivate *priv;	
+
+	priv = handle->priv;
+
+	if(priv->connection) {
+		connection_disconnect(priv->connection);
+		g_object_unref(priv->connection);
+		priv->connection = NULL;
+	}
+
+	if(priv->thread)
+		g_thread_join(priv->thread);
 }
 void irc_handle_push_message(IRCHandle *handle, IRCMessage *msg)
 {

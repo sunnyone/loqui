@@ -357,8 +357,6 @@ account_connect(Account *account, gint server_num, gboolean fallback)
 
 	priv = account->priv;
 
-	g_return_if_fail(account != NULL);
-
 	if(priv->handle) {
 		gtkutils_msgbox_info(GTK_MESSAGE_ERROR,
 				     _("Account '%s' has already connected."),
@@ -368,6 +366,26 @@ account_connect(Account *account, gint server_num, gboolean fallback)
 	account_manager_select_account(account_manager_get(), account); 
 	priv->handle = irc_handle_new(account, server_num, fallback);
 }
+void
+account_disconnect(Account *account)
+{
+	AccountPrivate *priv;
+
+        g_return_if_fail(account != NULL);
+        g_return_if_fail(IS_ACCOUNT(account));
+	
+	priv = account->priv;
+
+	if(!priv->handle)
+		return;
+
+	/* TODO: remove channels from channel tree */
+	account_manager_remove_channels_of_account(account_manager_get(), account);
+
+	irc_handle_disconnect(priv->handle);
+	priv->handle = NULL;
+}
+
 void
 account_add_channel(Account *account, Channel *channel)
 {

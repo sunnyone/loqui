@@ -371,3 +371,18 @@ void account_manager_set_topic(AccountManager *manager, const gchar *topic)
 
 	loqui_app_set_topic(manager->priv->app, topic);
 }
+void account_manager_disconnect_all(AccountManager *manager)
+{
+	g_return_if_fail(manager != NULL);
+        g_return_if_fail(IS_ACCOUNT_MANAGER(manager));
+
+	g_slist_foreach(manager->priv->account_list, (GFunc) account_disconnect, NULL);
+}
+void account_manager_remove_channels_of_account(AccountManager *manager, Account *account)
+{
+	g_return_if_fail(manager != NULL);
+        g_return_if_fail(IS_ACCOUNT_MANAGER(manager));
+
+	channel_tree_remove_channels_of_account(manager->priv->app->channel_tree, 
+						account);
+}

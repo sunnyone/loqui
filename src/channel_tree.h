@@ -62,6 +62,9 @@ void channel_tree_remove_channel(ChannelTree *tree, Channel *channel);
 void channel_tree_select_channel(ChannelTree *tree, Channel *channel);
 void channel_tree_select_account(ChannelTree *tree, Account *account);
 
+
+void channel_tree_remove_channels_of_account(ChannelTree *tree, Account *account);
+
 G_END_DECLS
 
 #endif /* __CHANNEL_TREE_H__ */
