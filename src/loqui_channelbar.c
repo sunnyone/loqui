@@ -24,6 +24,9 @@
 #include "loqui_gtk.h"
 #include "gtkutils.h"
 #include "loqui_dropdown_box.h"
+#include "command_dialog.h"
+#include "intl.h"
+#include "gtkutils.h"
 
 struct _LoquiChannelbarPrivate
 {
@@ -50,6 +53,7 @@ static void loqui_channelbar_destroy(GtkObject *object);
 
 static void loqui_channelbar_entry_topic_activated_cb(GtkWidget *widget, gpointer data);
 static void loqui_channelbar_entry_changed_cb(GtkWidget *widget, gpointer data);
+static void loqui_channelbar_channel_button_clicked_cb(GtkWidget *widget, gpointer data);
 
 GType
 loqui_channelbar_get_type(void)
@@ -159,7 +163,24 @@ loqui_channelbar_entry_changed_cb(GtkWidget *widget, gpointer data)
 	priv->entry_changed = TRUE;
 	gtk_widget_set_sensitive(priv->button_ok, TRUE);
 }
+static void
+loqui_channelbar_channel_button_clicked_cb(GtkWidget *widget, gpointer data)
+{
+	LoquiChannelbar *channelbar;
+	LoquiChannelbarPrivate *priv;
+	Account *account;
 
+	g_return_if_fail(data != NULL);
+	
+	channelbar = LOQUI_CHANNELBAR(data);
+	priv = channelbar->priv;
+
+	account = loqui_app_get_current_account(priv->app);
+        if (account)
+                command_dialog_join(priv->app, account);
+        else
+                gtkutils_msgbox_info(GTK_MESSAGE_ERROR, _("Not selected an account!"));
+}
 GtkWidget*
 loqui_channelbar_new(LoquiApp *app, GtkWidget *menu_dropdown)
 {
@@ -178,6 +199,8 @@ loqui_channelbar_new(LoquiApp *app, GtkWidget *menu_dropdown)
 
 	priv->button_channel = gtk_button_new();
 	gtk_box_pack_start(GTK_BOX(priv->dbox_buffers), priv->button_channel, FALSE, FALSE, 0);
+	g_signal_connect(G_OBJECT(priv->button_channel), "clicked",
+			 G_CALLBACK(loqui_channelbar_channel_button_clicked_cb), channelbar);
 
 	priv->label_channel_name = gtk_label_new("");
 	gtk_container_add(GTK_CONTAINER(priv->button_channel), priv->label_channel_name);
