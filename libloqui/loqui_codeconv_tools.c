@@ -18,7 +18,8 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 #include "config.h"
-#include "codeconv_ja.h"
+#include "loqui_codeconv_tools.h"
+
 #include <ctype.h>
 #include <string.h>
 
@@ -60,7 +61,7 @@ typedef enum {
 #define EUC_JP_CHAR_MAX_LEN 3
 
 gchar *
-codeconv_ja_jis_to_utf8(const gchar *input)
+loqui_codeconv_tools_jis_to_utf8(const gchar *input)
 {
 	const gchar *cur;
 	gboolean shift_out_mode = FALSE;

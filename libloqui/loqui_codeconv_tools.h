@@ -17,11 +17,11 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
-#ifndef __CODECONV_JA_H__
-#define __CODECONV_JA_H__
+#ifndef __LOQUI_CODECONV_TOOLS_H__
+#define __LOQUI_CODECONV_TOOLS_H__
 
 #include <glib.h>
 
-gchar *codeconv_ja_jis_to_utf8(const gchar *input);
+gchar *loqui_codeconv_tools_jis_to_utf8(const gchar *input);
 
-#endif /* __CODECONV_JA_H__ */
+#endif /* __LOQUI_CODECONV_TOOLS_H__ */

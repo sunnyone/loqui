@@ -28,7 +28,8 @@
 #include <locale.h>
 #include <errno.h>
 #include "utils.h"
-#include "codeconv_ja.h"
+
+#include "loqui_codeconv_tools.h"
 
 #define GTK_CODESET "UTF-8"
 #define BUFFER_LEN 2048
@@ -39,7 +40,7 @@ CodeConvDef conv_table[] = {
 	{N_("Auto Detection"), NULL,       NULL, NULL}, /* for the setting */
 	{N_("No conv"),        NULL,       NULL, NULL}, /* for the setting */
 	{N_("Custom"),         NULL,       NULL, NULL}, /* for the setting */
-	{N_("Japanese"),       "ja_JP",    "ISO-2022-JP",  codeconv_ja_jis_to_utf8},
+	{N_("Japanese"),       "ja_JP",    "ISO-2022-JP", loqui_codeconv_tools_jis_to_utf8},
 };
 
 struct _CodeConvPrivate
