@@ -497,7 +497,9 @@ void account_manager_set_current_account(AccountManager *manager, Account *accou
 			 G_CALLBACK(account_manager_account_changed_cb), manager);
 	g_signal_connect(G_OBJECT(account), "away-changed",
 			 G_CALLBACK(account_manager_account_changed_cb), manager);
-
+	g_signal_connect(G_OBJECT(account), "disconnected",
+			 G_CALLBACK(account_manager_account_changed_cb), manager);
+			 
 	if(prefs_general.auto_switch_scrolling)
 		account_manager_set_whether_scrolling(manager, TRUE);
 
