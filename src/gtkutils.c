@@ -20,6 +20,8 @@
 
 /* Copyright (C) 2002-2003  Takuo KITAME
    gtk_tree_model_find_by_column_data() is written by him. */
+/* Copyright (C) 2002 Marco Pesenti Gritti
+   gtkut_menu_position_under_widget() (gul_gui_menu_position_under_widget) is written by him. */
 
 #include "config.h"
 #include "gtkutils.h"
@@ -183,4 +185,29 @@ gtkutils_set_label_color(GtkLabel *label, const gchar *color)
 	gtk_label_set_attributes(label, pattr_list);
 	/* pango_attr_list_unref(pattr_list);
 	   pango_attribute_destroy(pattr); */
+}
+
+void
+gtkut_menu_position_under_widget(GtkMenu   *menu,
+				 gint      *x,
+				 gint      *y,
+				 gboolean  *push_in,
+				 gpointer   user_data)
+{
+        GtkWidget *w = GTK_WIDGET(user_data);
+        const GtkAllocation *allocation = &w->allocation;
+        gint screen_width, screen_height;
+        GtkRequisition requisition;
+
+        gdk_window_get_origin(w->window, x, y);
+        *x += allocation->x;
+        *y += allocation->y + allocation->height;
+
+        gtk_widget_size_request(GTK_WIDGET (menu), &requisition);
+      
+        screen_width = gdk_screen_width();
+        screen_height = gdk_screen_height();
+          
+        *x = CLAMP(*x, 0, MAX(0, screen_width - requisition.width));
+        *y = CLAMP(*y, 0, MAX(0, screen_height - requisition.height));
 }

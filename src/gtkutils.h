@@ -32,14 +32,20 @@ void gtkutils_add_label_entry(GtkWidget *box, const gchar *label_text,
 			      GtkWidget **entry, const gchar *default_string);
 void gtkutils_toggle_button_with_signal_handler_blocked(GtkToggleButton *button, guint signal_handler_id, gboolean bool);
 
-gboolean gtk_tree_model_find_by_column_data(GtkTreeModel * model, GtkTreeIter * iter,
-					    GtkTreeIter * start, gint col,
-					    gpointer data);
 gchar *gtkutils_menu_translate(const gchar *path, gpointer data);
 
 void gtkutils_exec_command_argument_with_error_dialog(const gchar *command, const gchar *argument);
 void gtkutils_exec_command_with_error_dialog(const gchar *command);
 
 void gtkutils_set_label_color(GtkLabel *label, const gchar *color);
+
+gboolean gtk_tree_model_find_by_column_data(GtkTreeModel * model, GtkTreeIter * iter,
+					    GtkTreeIter * start, gint col,
+					    gpointer data);
+void gtkut_menu_position_under_widget(GtkMenu   *menu,
+				      gint      *x,
+				      gint      *y,
+				      gboolean  *push_in,
+				      gpointer   user_data);
 
 #endif /* __GTKUTILS_H__ */
