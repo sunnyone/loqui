@@ -277,6 +277,10 @@ loqui_statusbar_set_away_menu(LoquiStatusbar *statusbar)
 	GtkWidget *menuitem;
 	GtkWidget *image;
 	GList *cur, *tmp_list = NULL;
+	LoquiUserClass *user_class;
+	LoquiAwayType away_type;
+	LoquiAwayInfo *awinfo;
+	const gchar *stock_id;
 
         g_return_if_fail(statusbar != NULL);
         g_return_if_fail(LOQUI_IS_STATUSBAR(statusbar));
@@ -303,26 +307,28 @@ loqui_statusbar_set_away_menu(LoquiStatusbar *statusbar)
 	gtk_menu_shell_append(GTK_MENU_SHELL(priv->menu_away), menuitem); \
 }
 
-	ADD_MENU_ITEM(_("Online"), LOQUI_STOCK_ONLINE, LOQUI_BASIC_AWAY_TYPE_ONLINE, TRUE);
-	
-	menuitem = gtk_separator_menu_item_new();
-	gtk_widget_show(menuitem);
-	gtk_menu_shell_append(GTK_MENU_SHELL(priv->menu_away), menuitem);
-		
-	ADD_MENU_ITEM(_("Away"), LOQUI_STOCK_AWAY, LOQUI_BASIC_AWAY_TYPE_AWAY, TRUE);
-	/*
-	ADD_MENU_ITEM(_("Busy"), LOQUI_STOCK_BUSY, LOQUI_BASIC_AWAY_TYPE_BUSY, FALSE);
-	ADD_MENU_ITEM(_("Away message..."), LOQUI_STOCK_AWAY, LOQUI_BASIC_AWAY_TYPE_AWAY_WITH_MESSAGE, FALSE);
-	ADD_MENU_ITEM(_("Configure away messages..."), GTK_STOCK_PREFERENCES, LOQUI_BASIC_AWAY_TYPE_CONFIGURE, FALSE);
-	
-	menuitem = gtk_separator_menu_item_new();
-	gtk_widget_show(menuitem);
-	gtk_menu_shell_append(GTK_MENU_SHELL(priv->menu_away), menuitem);
-	
-	ADD_MENU_ITEM(_("Quit..."), LOQUI_STOCK_OFFLINE, LOQUI_BASIC_AWAY_TYPE_QUIT, FALSE);
-	ADD_MENU_ITEM(_("Offline"), LOQUI_STOCK_OFFLINE, LOQUI_BASIC_AWAY_TYPE_OFFLINE, FALSE);
-	ADD_MENU_ITEM(_("Disconnect"), LOQUI_STOCK_OFFLINE, LOQUI_BASIC_AWAY_TYPE_DISCONNECT, FALSE);
-	*/
+	user_class = g_type_class_ref(LOQUI_TYPE_USER);
+	tmp_list = loqui_user_class_get_away_type_list(user_class);
+	for (cur = tmp_list; cur != NULL; cur = cur->next) {
+		away_type = GPOINTER_TO_INT(cur->data);
+		if (away_type == LOQUI_AWAY_TYPE_UNKNOWN) {
+			menuitem = gtk_separator_menu_item_new();
+			gtk_widget_show(menuitem);
+			gtk_menu_shell_append(GTK_MENU_SHELL(priv->menu_away), menuitem);
+			continue;
+		}
+
+		awinfo = loqui_user_class_away_type_get_info(user_class, GPOINTER_TO_INT(cur->data));
+		g_assert(awinfo != NULL);
+
+		stock_id = loqui_stock_get_id_from_basic_away_type(awinfo->basic_away_type);
+		g_assert(stock_id != NULL);
+		g_assert(awinfo->nick != NULL);
+
+		ADD_MENU_ITEM(awinfo->nick, stock_id, awinfo->basic_away_type, TRUE);
+	}
+
+	g_type_class_unref(user_class);
 }
 static void
 loqui_statusbar_nick_button_clicked_cb(GtkWidget *widget, LoquiStatusbar *statusbar)

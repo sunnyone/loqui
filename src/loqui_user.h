@@ -87,6 +87,8 @@ struct _LoquiUserClass
         GObjectClass parent_class;
 
 	GPtrArray *away_type_array;
+
+	GList* (* get_away_type_list) (LoquiUserClass *user_class);
 };
 
 #define LOQUI_USER_ACCESSOR_STRING(attr_name) \
@@ -109,6 +111,7 @@ LoquiAwayType loqui_user_class_install_away_type(LoquiUserClass *user_class,
 						 const gchar *nick);
 
 LoquiAwayInfo* loqui_user_class_away_type_get_info(LoquiUserClass *user_class, LoquiAwayType away_type);
+GList* loqui_user_class_get_away_type_list(LoquiUserClass *user_class); /* <LoquiAwayType> */
 
 void loqui_user_set_nick(LoquiUser *user, const gchar *nick);
 G_CONST_RETURN gchar *loqui_user_get_nick(LoquiUser *user);

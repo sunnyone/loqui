@@ -56,6 +56,8 @@ static void loqui_user_dispose(GObject *object);
 static void loqui_user_get_property(GObject *object, guint param_id, GValue *value, GParamSpec *pspec);
 static void loqui_user_set_property(GObject *object, guint param_id, const GValue *value, GParamSpec *pspec);
 
+static GList *loqui_user_class_get_away_type_list_real(LoquiUserClass *user_class);
+
 GType
 loqui_user_get_type(void)
 {
@@ -210,6 +212,7 @@ loqui_user_class_init(LoquiUserClass *klass)
         object_class->dispose = loqui_user_dispose;
         object_class->get_property = loqui_user_get_property;
         object_class->set_property = loqui_user_set_property;
+	klass->get_away_type_list = loqui_user_class_get_away_type_list_real;
 
 	g_object_class_install_property(object_class,
 					PROP_NICK,
@@ -351,6 +354,37 @@ loqui_user_class_away_type_get_info(LoquiUserClass *user_class, LoquiAwayType aw
 	info = g_ptr_array_index(user_class->away_type_array, away_type);
 	
 	return info;
+}
+
+/**
+   @returns: GList contains LoquiAwayType and 0(can be used as separator). must be freed.
+*/
+GList *
+loqui_user_class_get_away_type_list(LoquiUserClass *user_class)
+{
+	return user_class->get_away_type_list(user_class);
+}
+
+/* default implemetation */
+static GList *
+loqui_user_class_get_away_type_list_real(LoquiUserClass *user_class)
+{
+	LoquiAwayInfo *info;
+	GList *list = NULL;
+	int i;
+
+	list = g_list_append(list, GINT_TO_POINTER(LOQUI_AWAY_TYPE_ONLINE));
+	list = g_list_append(list, GINT_TO_POINTER(0));
+
+	for (i = LOQUI_AWAY_TYPE_AWAY; i < user_class->away_type_array->len; i++) {
+		info = g_ptr_array_index(user_class->away_type_array, i);
+		list = g_list_append(list, GINT_TO_POINTER(info->away_type));
+	}
+
+	list = g_list_append(list, GINT_TO_POINTER(0));
+	list = g_list_append(list, GINT_TO_POINTER(LOQUI_AWAY_TYPE_OFFLINE));
+
+	return list;
 }
 
 LOQUI_USER_ACCESSOR_GENERIC(gint, idle_time);
