@@ -681,6 +681,8 @@ loqui_app_new(LoquiAccountManager *account_manager)
 
 	priv->common_buffer = channel_buffer_new();
 	channel_buffer_set_whether_common_buffer(priv->common_buffer, TRUE);
+	channel_buffer_set_show_channel_name(priv->common_buffer, TRUE);
+	channel_buffer_set_show_account_name(priv->common_buffer, TRUE);
 	loqui_channel_text_view_set_channel_buffer(LOQUI_CHANNEL_TEXT_VIEW(app->common_textview), priv->common_buffer);
 
 	loqui_app_info_update_all(app->appinfo, NULL);
@@ -1240,7 +1242,7 @@ loqui_app_channel_buffer_append_cb(ChannelBuffer *buffer, LoquiMessageText *msgt
 	    buffer == loqui_channel_entry_get_buffer(app->current_channel_entry))
 		return;
 	
-	channel_buffer_append_message_text(priv->common_buffer, msgtext, TRUE, FALSE);
+	channel_buffer_append_message_text(priv->common_buffer, msgtext, FALSE);
 
 	if (priv->last_msgtext)
 		g_object_unref(priv->last_msgtext);

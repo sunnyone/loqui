@@ -192,6 +192,8 @@ channel_buffer_init (ChannelBuffer *channel_buffer)
 	channel_buffer->priv = priv;
 
 	priv->is_common_buffer = FALSE;
+	channel_buffer->show_account_name = FALSE;
+	channel_buffer->show_channel_name = FALSE;
 }
 static void 
 channel_buffer_finalize (GObject *object)
@@ -478,8 +480,7 @@ channel_buffer_append(ChannelBuffer *buffer, LoquiTextType type, gchar *str,
 						 style, highlight, NULL);
 }
 void
-channel_buffer_append_message_text(ChannelBuffer *buffer, LoquiMessageText *msgtext, 
-				   gboolean verbose, gboolean exec_notification)
+channel_buffer_append_message_text(ChannelBuffer *buffer, LoquiMessageText *msgtext, gboolean exec_notification)
 {
 	gchar *buf;
 	LoquiTextType type;
@@ -502,12 +503,13 @@ channel_buffer_append_message_text(ChannelBuffer *buffer, LoquiMessageText *msgt
 					type = LOQUI_TEXT_TYPE_TRANSPARENT;
 			}
 		}
-		buf = loqui_message_text_get_nick_string(msgtext, verbose);
+		buf = loqui_message_text_get_nick_string(msgtext, channel_buffer_get_show_channel_name(buffer));
 		channel_buffer_append(buffer, type, buf, FALSE, FALSE);
 		g_free(buf);
 	}
 
-	if(verbose && loqui_message_text_get_account_name(msgtext))
+	if(channel_buffer_get_show_account_name(buffer) &&
+	   loqui_message_text_get_account_name(msgtext))
 		buf = g_strdup_printf("[%s] %s\n",
 				      loqui_message_text_get_account_name(msgtext),
 				      loqui_message_text_get_text(msgtext));
@@ -533,4 +535,36 @@ channel_buffer_set_whether_common_buffer(ChannelBuffer *buffer, gboolean is_comm
 	priv = buffer->priv;
 	
 	priv->is_common_buffer = TRUE;
+}
+void
+channel_buffer_set_show_account_name(ChannelBuffer *buffer, gboolean show_account_name)
+{
+        g_return_if_fail(buffer != NULL);
+        g_return_if_fail(IS_CHANNEL_BUFFER(buffer));
+
+	buffer->show_account_name = show_account_name;
+}
+gboolean
+channel_buffer_get_show_account_name(ChannelBuffer *buffer)
+{
+	g_return_val_if_fail(buffer != NULL, FALSE);
+	g_return_val_if_fail(IS_CHANNEL_BUFFER(buffer), FALSE);
+	
+	return buffer->show_account_name;
+}
+void
+channel_buffer_set_show_channel_name(ChannelBuffer *buffer, gboolean show_channel_name)
+{
+        g_return_if_fail(buffer != NULL);
+        g_return_if_fail(IS_CHANNEL_BUFFER(buffer));
+
+	buffer->show_channel_name = show_channel_name;
+}
+gboolean
+channel_buffer_get_show_channel_name(ChannelBuffer *buffer)
+{
+	g_return_val_if_fail(buffer != NULL, FALSE);
+	g_return_val_if_fail(IS_CHANNEL_BUFFER(buffer), FALSE);
+	
+	return buffer->show_channel_name;
 }

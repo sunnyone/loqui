@@ -1169,7 +1169,7 @@ loqui_receiver_irc_joined_channel_append(LoquiReceiverIRC *receiver, IRCMessage 
 	if (list != NULL) {
 		for(cur = list; cur != NULL; cur = cur->next) {
 			channel_buffer_append_message_text(loqui_channel_entry_get_buffer(LOQUI_CHANNEL_ENTRY(cur->data)),
-							   msgtext, FALSE, FALSE);
+							   msgtext, FALSE);
 		}
 	} else {
 		loqui_account_console_buffer_append(account, type, str);

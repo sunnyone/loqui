@@ -544,7 +544,7 @@ loqui_channel_append_remark(LoquiChannel *channel, LoquiTextType type, gboolean 
 	if (!prefs_general.exec_notification_by_notice && type == LOQUI_TEXT_TYPE_NOTICE)
 		exec_notification = FALSE;
 	
-	channel_buffer_append_message_text(buffer, msgtext, FALSE, exec_notification);
+	channel_buffer_append_message_text(buffer, msgtext, exec_notification);
 	g_object_unref(msgtext);
 }
 void
@@ -565,6 +565,6 @@ loqui_channel_append_text(LoquiChannel *channel, LoquiTextType type, gchar *str)
 		     "text", str,
 		     NULL);
 
-	channel_buffer_append_message_text(buffer, msgtext, FALSE, FALSE);
+	channel_buffer_append_message_text(buffer, msgtext, FALSE);
 	g_object_unref(msgtext);
 }
