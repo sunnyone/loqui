@@ -135,6 +135,7 @@ void account_set_away_message(Account *account, const gchar *away_message);
 void account_change_nick(Account *account, const gchar *nick);
 void account_whois(Account *account, const gchar *target);
 void account_join(Account *account, const gchar *target);
+void account_start_private_talk(Account *account, const gchar *target);
 void account_part(Account *account, const gchar *target, const gchar *part_message);
 void account_set_topic(Account *account, const gchar *target, const gchar *topic);
 void account_send_ctcp_request(Account *account, const gchar *target, const gchar *command);

@@ -50,6 +50,7 @@ static void loqui_menu_edit_cb(gpointer data, guint callback_action, GtkWidget *
 static void loqui_menu_find_cb(gpointer data, guint callback_action, GtkWidget *widget);
 
 static void loqui_menu_join_channel_cb(gpointer data, guint callback_action, GtkWidget *widget);
+static void loqui_menu_start_private_talk_cb(gpointer data, guint callback_action, GtkWidget *widget);
 static void loqui_menu_part_channel_cb(gpointer data, guint callback_action, GtkWidget *widget);
 static void loqui_menu_topic_cb(gpointer data, guint callback_action, GtkWidget *widget);
 static void loqui_menu_nick_cb(gpointer data, guint callback_action, GtkWidget *widget);
@@ -87,6 +88,7 @@ static GtkItemFactoryEntry menu_items[] = {
 	{ N_("/Edit/_Find again"), NULL, loqui_menu_find_cb, 1, "<StockItem>", GTK_STOCK_FIND },
 	{ N_("/_Command"), NULL, 0, 0, "<Branch>" },
 	{ N_("/Command/_Join channel"), "<Alt>J", loqui_menu_join_channel_cb, 0 },
+	{ N_("/Command/Start private talk"), NULL, loqui_menu_start_private_talk_cb, 0 },
 	{ N_("/Command/_Part channel"), NULL, loqui_menu_part_channel_cb, 0, },
 	{ "/Command/sep",        NULL,         0,       0, "<Separator>" },
 	{ N_("/Command/_Set channel topic"), "<Alt>T", loqui_menu_topic_cb, 0, },
@@ -446,7 +448,25 @@ loqui_menu_join_channel_cb(gpointer data, guint callback_action, GtkWidget *widg
 	command_dialog_join(GTK_WINDOW(priv->app),
 			    account_manager_get_current_account(account_manager_get()));
 }
-static void loqui_menu_part_channel_cb(gpointer data, guint callback_action, GtkWidget *widget)
+static void
+loqui_menu_start_private_talk_cb(gpointer data, guint callback_action, GtkWidget *widget)
+{
+	LoquiMenu *menu;
+	LoquiMenuPrivate *priv;
+
+	menu = LOQUI_MENU(data);
+
+	g_return_if_fail(menu != NULL);
+        g_return_if_fail(LOQUI_IS_MENU(menu));
+
+	priv = menu->priv;
+
+	command_dialog_private_talk(GTK_WINDOW(priv->app),
+				    account_manager_get_current_account(account_manager_get()));
+}
+
+static void
+loqui_menu_part_channel_cb(gpointer data, guint callback_action, GtkWidget *widget)
 {
 	LoquiMenu *menu;
 	LoquiMenuPrivate *priv;

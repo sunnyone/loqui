@@ -24,6 +24,8 @@
 #include "intl.h"
 #include <string.h>
 
+
+static void command_dialog_private_talk_cb(Account *account, const gchar *channel_text, const gchar *text, gpointer data);
 static void command_dialog_join_cb(Account *account, const gchar *channel_text, const gchar *text, gpointer data);
 static void command_dialog_part_cb(Account *account, const gchar *channel_text, const gchar *text, gpointer data);
 static void command_dialog_topic_cb(Account *account, const gchar *channel_text, const gchar *text, gpointer data);
@@ -67,6 +69,15 @@ static void command_dialog_join_cb(Account *account, const gchar *channel_text, 
 	account_join(account, channel_text);
 }
 
+static void command_dialog_private_talk_cb(Account *account, const gchar *channel_text, const gchar *text, gpointer data)
+{
+	if(!check_account_connected(account) ||
+	   !check_target_valid(text))
+		return;
+	
+	account_start_private_talk(account, text);
+}
+
 static void command_dialog_part_cb(Account *account, const gchar *channel_text, const gchar *text, gpointer data)
 {
 	if(!check_account_connected(account) ||
@@ -96,10 +107,19 @@ void command_dialog_join(GtkWindow *parent_window, Account *account)
 {
 	channel_input_dialog_open(parent_window, 
 				  _("Join channel/private message"),
-				  _("Type channel name to join or nick to send private message."),
+				  _("Type channel name to join."),
 				  CHANNEL_HISTORY_SAVED,
 				  command_dialog_join_cb, NULL,
 				  TRUE, account, TRUE, NULL, FALSE, NULL);
+}
+void command_dialog_private_talk(GtkWindow *parent_window, Account *account)
+{
+	channel_input_dialog_open(parent_window, 
+				  _("Start private talk"),
+				  _("Type nick to start private talk."),
+				  CHANNEL_HISTORY_NONE,
+				  command_dialog_private_talk_cb, NULL,
+				  TRUE, account, FALSE, NULL, TRUE, NULL);
 }
 void command_dialog_part(GtkWindow *parent_window, Account *account, Channel *channel)
 {
