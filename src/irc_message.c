@@ -233,7 +233,8 @@ irc_message_parse_line(const gchar *line)
 
 	g_return_val_if_fail(line != NULL, NULL);
 	
-	buf = g_strstrip(g_strdup(line));
+	buf = g_strdup(line);
+	g_strstrip(buf);
 
 	cur = buf;
 
@@ -262,7 +263,7 @@ irc_message_parse_line(const gchar *line)
 	num = i;
 
 	if(num < 1) {
-		debug_puts("No prefix/command/parameters given.");
+		debug_puts("No prefix/command/parameters given: '%s'.", line);
 		g_free(buf);
 		return NULL;
 	}
