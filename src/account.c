@@ -568,6 +568,25 @@ account_search_joined_channel(Account *account, gchar *nick)
 	return list;
 }
 
+void account_change_nick(Account *account, const gchar *nick)
+{
+	IRCMessage *msg;
+	AccountPrivate *priv;
+
+        g_return_if_fail(account != NULL);
+        g_return_if_fail(IS_ACCOUNT(account));
+	
+	if(!account_is_connected(account)) {
+		g_warning(_("Account is not connected."));
+		return;
+	}
+
+	priv = account->priv;
+
+	msg = irc_message_create(IRCCommandNick, nick, NULL);
+	irc_handle_push_message(priv->handle, msg);
+}
+
 void account_whois(Account *account, const gchar *target)
 {
 	IRCMessage *msg;

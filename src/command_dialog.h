@@ -25,5 +25,6 @@
 void command_dialog_join(GtkWindow *parent_window, Account *account);
 void command_dialog_part(GtkWindow *parent_window, Account *account, Channel *channel);
 void command_dialog_topic(GtkWindow *parent_window, Account *account, Channel *channel);
+void command_dialog_nick(GtkWindow *parent_window, Account *account);
 
 #endif /* __COMMAND_DIALOG_H__ */

@@ -27,6 +27,7 @@
 static void command_dialog_join_cb(Account *account, const gchar *channel_text, const gchar *text, gpointer data);
 static void command_dialog_part_cb(Account *account, const gchar *channel_text, const gchar *text, gpointer data);
 static void command_dialog_topic_cb(Account *account, const gchar *channel_text, const gchar *text, gpointer data);
+static void command_dialog_nick_cb(Account *account, const gchar *channel_text, const gchar *text, gpointer data);
 
 static gboolean check_account_connected(Account *account);
 static gboolean check_target_valid(const gchar *str);
@@ -82,6 +83,14 @@ static void command_dialog_topic_cb(Account *account, const gchar *channel_text,
 	
 	account_set_topic(account, channel_text, text);
 }
+static void command_dialog_nick_cb(Account *account, const gchar *channel_text, const gchar *text, gpointer data)
+{
+	if(!check_account_connected(account) ||
+	   !check_target_valid(text))
+		return;
+	
+	account_change_nick(account, text);
+}
 
 void command_dialog_join(GtkWindow *parent_window, Account *account)
 {
@@ -122,4 +131,13 @@ void command_dialog_topic(GtkWindow *parent_window, Account *account, Channel *c
 				  CHANNEL_HISTORY_JOINED,
 				  command_dialog_topic_cb, NULL,
 				  TRUE, account, TRUE, channel_name, TRUE, topic);
+}
+void command_dialog_nick(GtkWindow *parent_window, Account *account)
+{
+	channel_input_dialog_open(parent_window, 
+				  _("Change nickname"),
+				  _("Type nickname."),
+				  CHANNEL_HISTORY_NONE,
+				  command_dialog_nick_cb, NULL,
+				  TRUE, account, FALSE, NULL, TRUE, NULL);
 }
