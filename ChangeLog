@@ -1,3 +1,40 @@
+2003-02-11 00:01  y-imai
+
+	* po/: ja.po, loqui.pot: update po
+
+2003-02-11 00:00  y-imai
+
+	* src/loqui_menu.c: enable translation of menu
+
+2003-02-10 23:37  y-imai
+
+	* src/codeconv.c: new code convertion method
+
+2003-02-10 21:42  y-imai
+
+	* src/irc_message.c: Abolished g_strdup(format) (removed the change
+	of 1.20 -> 1.21). Fixed the bug that irc_message_get_trailing quit
+	the program when parameter number < 1
+
+2003-02-10 17:36  y-imai
+
+	* src/account_dialog.c: disabled userinfo/autojoin on the account
+	dialog
+
+2003-02-10 17:31  y-imai
+
+	* src/: account_list_dialog.c, account_list_dialog.h,
+	account_manager.c: set_transient_for account_list_dialog
+
+2003-02-10 16:51  y-imai
+
+	* src/account.h: removed account_restore prototype
+
+2003-02-08 23:03  y-imai
+
+	* ChangeLog, NEWS, configure.in, po/POTFILES.in, po/loqui.pot:
+	0.1.1
+
 2003-02-08 23:01  y-imai
 
 	* po/ja.po: update po

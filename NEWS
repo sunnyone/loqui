@@ -28,3 +28,7 @@
 * Fix a bug to fail sending a message that contains no parameters.
 * Implemented a feature to toggle home/away.
 
+2003-02-10     0.1.2 Release
+* Fix the bug the program quits when it received a QUIT message that doesn't contain no parameters.
+* New code convertion method.
+
