@@ -918,6 +918,8 @@ loqui_account_open_private_talk(LoquiAccount *account, const gchar *identifier, 
 		g_object_unref(channel);
 	}
 
+	loqui_channel_set_is_joined(channel, TRUE);
+
 	user_self = loqui_account_get_user_self(account);
 	if (!loqui_channel_entry_get_member_by_user(LOQUI_CHANNEL_ENTRY(channel), user_self)) {
 		member = loqui_member_new(user_self);
