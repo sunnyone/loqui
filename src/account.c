@@ -583,7 +583,6 @@ gboolean account_is_connected(Account *account)
 	
 	return (account->priv->handle != NULL);
 }
-
 void
 account_add_channel(Account *account, Channel *channel)
 {

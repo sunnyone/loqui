@@ -323,8 +323,9 @@ channel_buffer_new(void)
 				   "weight", PANGO_WEIGHT_BOLD,
 				   "foreground", "purple",
 				   NULL);
+	gtk_text_buffer_create_tag(textbuf, "transparent", NULL);
 	priv->highlight_area_tag = gtk_text_buffer_create_tag(textbuf, "highlight-area",
-							 NULL);
+							      NULL);
 	priv->notification_area_tag = gtk_text_buffer_create_tag(textbuf, "notification-area",
 								 NULL);
 
@@ -392,7 +393,6 @@ channel_buffer_append(ChannelBuffer *buffer, TextType type, gchar *str,
 	} else {
 		highlight = NULL;
 	}
-
 	gtk_text_buffer_insert_with_tags_by_name(GTK_TEXT_BUFFER(buffer), &iter, str, -1, 
 						 style, highlight, NULL);
 }

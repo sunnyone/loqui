@@ -46,6 +46,7 @@ typedef enum {
 	TEXT_TYPE_TIME,
 	TEXT_TYPE_URI,
 	TEXT_TYPE_EMPHASIS,
+	TEXT_TYPE_TRANSPARENT,
 } TextType;
 
 struct _MessageText
