@@ -28,12 +28,10 @@
 #include <locale.h>
 #include <errno.h>
 #include "utils.h"
+#include "codeconv_ja.h"
 
 #define GTK_CODESET "UTF-8"
 #define BUFFER_LEN 2048
-
-
-static gchar *codeconv_jis_to_utf8(CodeConv *codeconv, const gchar *input);
 
 /* tell me other languages if you know */
 /* if you changed this table, make sure to change codeconv.h */
@@ -41,7 +39,7 @@ CodeConvDef conv_table[] = {
 	{N_("Auto Detection"), NULL,       NULL, NULL}, /* for the setting */
 	{N_("No conv"),        NULL,       NULL, NULL}, /* for the setting */
 	{N_("Custom"),         NULL,       NULL, NULL}, /* for the setting */
-	{N_("Japanese"),       "ja_JP",    "ISO-2022-JP",  codeconv_jis_to_utf8},
+	{N_("Japanese"),       "ja_JP",    "ISO-2022-JP",  codeconv_ja_jis_to_utf8},
 };
 
 struct _CodeConvPrivate
@@ -330,140 +328,6 @@ codeconv_convert(CodeConv *codeconv, const gchar *input, GIConv cd)
 	
 	return tmp;	
 }
-static gchar *
-codeconv_jis_to_utf8(CodeConv *codeconv, const gchar *input)
-{
-#define ISO_2022_JP_SHIFT_OUT 0x0E
-#define ISO_2022_JP_SHIFT_IN  0x0F
-#define ISO_2022_ESC          0x1B
-#define HALFWIDTH_KATAKANA_UCS4_OFFSET 0xFF60
-#define HALFWIDTH_KATAKANA_7BIT_OFFSET 0x20
-#define HALFWIDTH_KATAKANA_8BIT_OFFSET 0xA0
-#define ISO_2022_JP_IS_8BIT_HALFWIDTH_KANA(c) ((0xA0 < c && c <= 0xDF))
-#define ISO_2022_JP_IS_7BIT_HALFWIDTH_KANA(c) ((0x20 < c && c <= 0x5F))
-
-typedef enum {
-	ISO_2022_JP_TYPE_INVALID,
-	ISO_2022_JP_TYPE_UNESCAPED,
-	ISO_2022_JP_TYPE_ASCII,
-	ISO_2022_JP_TYPE_ROMAN,
-	ISO_2022_JP_TYPE_KANA,
-	ISO_2022_JP_TYPE_KANJI,
-} ISO2022JPAreaType;
-
-	CodeConvPrivate *priv;
-	
-	GString *string;
-	gchar *tmp1, *tmp2;
-	const gchar *end, *cur;
-	const gchar *c1, *c2;
-	unsigned char c;
-	gboolean in_kana = FALSE;
-	const gchar *end_escaped;
-	gunichar u;
-	ISO2022JPAreaType area_type;
-	
-        g_return_val_if_fail(codeconv != NULL, NULL);
-        g_return_val_if_fail(IS_CODECONV(codeconv), NULL);
-	
-	priv = codeconv->priv;
-	
-	string = g_string_new(NULL);
-	
-	cur = input;
-	end = cur + strlen(cur) - 1;
-	while (*cur != '\0') {
-		area_type = ISO_2022_JP_TYPE_UNESCAPED;
-		if (*cur == ISO_2022_ESC) {
-			c1 = cur;
-			c1++;
-			if (*c1 == '\0' || *(c1 + 1) == '\0')
-				break;
-			if (*c1 == '(') {
-				c1++;
-				if (*c1 == 'B') {
-					area_type = ISO_2022_JP_TYPE_ASCII;
-				} else if (*c1 == 'J') {
-					area_type = ISO_2022_JP_TYPE_ROMAN;
-				} else if (*c1 == 'I') {
-					area_type = ISO_2022_JP_TYPE_KANA;
-				}
-			} else if (*c1 == '$') {
-				c1++;
-				if (*c1 == '@' || *c1 == 'B') {
-					area_type = ISO_2022_JP_TYPE_KANJI;
-				}
-			}
-		}
-		if (*(cur + 1) != '\0' && (c2 = strchr(cur + 1, ISO_2022_ESC)) != NULL)
-			end_escaped = c2 - 1;
-		else
-			end_escaped = end;
-		
-		switch (area_type) {
-		case ISO_2022_JP_TYPE_INVALID:
-			while (cur <= end_escaped) {
-				string = g_string_append(string, "[?]");
-				cur++;
-			}
-			break;
-		case ISO_2022_JP_TYPE_KANA:
-			in_kana = TRUE;
-		case ISO_2022_JP_TYPE_ASCII:
-		case ISO_2022_JP_TYPE_ROMAN:
-			cur += 3;
-		case ISO_2022_JP_TYPE_UNESCAPED:
-			while (cur <= end_escaped) {
-				c = (unsigned char) *cur;
-				if (in_kana && ISO_2022_JP_IS_7BIT_HALFWIDTH_KANA(c)) {
-						u = HALFWIDTH_KATAKANA_UCS4_OFFSET + c - HALFWIDTH_KATAKANA_7BIT_OFFSET;
-						tmp1 = g_ucs4_to_utf8(&u, 1, NULL, NULL, NULL);
-						if(tmp1 != NULL) {
-							string = g_string_append(string, tmp1);
-							g_free(tmp1);
-						} else {
-							string = g_string_append(string, "[?]");
-						}
-				} else if (isascii(*cur)) {
-					string = g_string_append_c(string, *cur);
-				} else if (c == ISO_2022_JP_SHIFT_OUT) {
-					in_kana = TRUE;
-				} else if (c == ISO_2022_JP_SHIFT_IN) {
-					in_kana = FALSE;
-				} else if (ISO_2022_JP_IS_8BIT_HALFWIDTH_KANA(c)) {
-					u = HALFWIDTH_KATAKANA_UCS4_OFFSET + c - HALFWIDTH_KATAKANA_8BIT_OFFSET;
-					tmp1 = g_ucs4_to_utf8(&u, 1, NULL, NULL, NULL);
-					if(tmp1 != NULL) {
-						string = g_string_append(string, tmp1);
-						g_free(tmp1);
-					} else {
-						string = g_string_append(string, "[?]");
-					}
-				} else {
-					string = g_string_append(string, "[?]");
-				}
-				cur++;
-			}
-			break;
-		case ISO_2022_JP_TYPE_KANJI:
-		   tmp1 = g_memdup(cur, end_escaped - cur + 2);
-		   tmp1[end_escaped - cur + 1] = '\0';
-		   cur = end_escaped + 1;
-		   tmp2 = codeconv_convert(codeconv, tmp1, priv->cd_from);
-		   g_free(tmp1);
-		   if(tmp2) {
-		   	string = g_string_append(string, tmp2);
-		   	g_free(tmp2);
-		   }
-		}
-	}
-	
-	tmp1 = string->str;
-	g_string_free(string, FALSE);
-	
-	return tmp1;
-}
-
 gchar *
 codeconv_to_local(CodeConv *codeconv, const gchar *input)
 {
@@ -481,7 +345,7 @@ codeconv_to_local(CodeConv *codeconv, const gchar *input)
 		return g_strdup(input);
 
 	if(priv->func) {
-		buf = priv->func(codeconv, input);
+		buf = priv->func(input);
 	} else {
 		buf = codeconv_convert(codeconv, input, priv->cd_from);
 	}

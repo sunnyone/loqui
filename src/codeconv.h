@@ -48,7 +48,7 @@ struct _CodeConvClass
         GObjectClass parent_class;
 };
 
-typedef gchar * (*CodeConvFunc) (CodeConv *codeconv, const gchar *input);
+typedef gchar * (*CodeConvFunc) (const gchar *input);
 
 typedef struct _CodeConvDef {
 	gchar *title;
