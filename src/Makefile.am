@@ -10,6 +10,7 @@ loqui_SOURCES = \
 	utils.c utils.h \
 	gobject_utils.c gobject_utils.h \
 	loqui_user.c loqui_user.h \
+	loqui_user_irc.c loqui_user_irc.h \
 	loqui_profile_account.c loqui_profile_account.h \
 	loqui_profile_account_irc.c loqui_profile_account_irc.h \
 	loqui_profile_handle.c loqui_profile_handle.h \
