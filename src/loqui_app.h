@@ -49,6 +49,7 @@ struct _LoquiApp
 	LoquiMenu *menu;
 	GtkWidget *toolbar;
 
+	GtkWidget *channel_textview;
 	NickList *nick_list;
 	ChannelTree *channel_tree;
 };

@@ -21,7 +21,7 @@
 #define __CHANNEL_H__
 
 #include "channel_buffer.h"
-#include <gtk/gtk.h>
+#include <glib.h>
 
 G_BEGIN_DECLS
 
@@ -36,6 +36,8 @@ typedef struct _Channel            Channel;
 typedef struct _ChannelClass       ChannelClass;
 
 typedef struct _ChannelPrivate     ChannelPrivate;
+
+#include "account.h"
 
 typedef enum {
 	USER_POWER_UNKNOWN,
@@ -54,7 +56,9 @@ typedef enum {
 struct _Channel
 {
         GObject parent;
-	
+
+	Account *account;
+
 	gchar *name;
 	GtkListStore *user_list;
 	ChannelBuffer *buffer;
@@ -75,7 +79,7 @@ struct _ChannelClass
 
 GType channel_get_type(void) G_GNUC_CONST;
 
-Channel* channel_new(gchar *name);
+Channel* channel_new(Account *account, gchar *name);
 void channel_append_text(Channel *channel, gboolean with_common_buffer, TextType type, gchar *str);
 void channel_append_remark(Channel *channel, TextType type, gboolean is_self, const gchar *nick, const gchar *remark);
 

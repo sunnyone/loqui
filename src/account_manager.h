@@ -68,6 +68,7 @@ void account_manager_update_channel_user_number(AccountManager *manager, Channel
 
 gboolean account_manager_is_current_account(AccountManager *manager, Account *account);
 gboolean account_manager_is_current_channel(AccountManager *manager, Channel *channel);
+gboolean account_manager_is_current_channel_buffer(AccountManager *manager, ChannelBuffer *buffer);
 
 void account_manager_common_buffer_append(AccountManager *manager, TextType type, gchar *str);
 void account_manager_common_buffer_append_remark(AccountManager *manager, TextType type,

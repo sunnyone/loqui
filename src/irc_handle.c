@@ -157,14 +157,17 @@ irc_handle_finalize(GObject *object)
 static void
 irc_handle_command_privmsg_notice(IRCHandle *handle, IRCMessage *msg)
 {
+	IRCHandlePrivate *priv;
 	gchar *receiver_name;
 	gchar *channel_name;
 	gchar *remark;
 	Channel *channel = NULL;
 	TextType type;
-
+	
         g_return_if_fail(handle != NULL);
         g_return_if_fail(IS_IRC_HANDLE(handle));
+
+	priv = handle->priv;
 
 	receiver_name = irc_message_get_param(msg, 1);
 	remark = irc_message_get_param(msg, 2);
@@ -186,11 +189,11 @@ irc_handle_command_privmsg_notice(IRCHandle *handle, IRCMessage *msg)
 		else
 			channel_name = msg->nick;
 
-		channel = account_search_channel_by_name(handle->priv->account, channel_name);
+		channel = account_search_channel_by_name(priv->account, channel_name);
 		if(channel == NULL) {
 			gdk_threads_enter();
-			channel = channel_new(channel_name);
-			account_add_channel(handle->priv->account, channel);
+			channel = channel_new(priv->account, channel_name);
+			account_add_channel(priv->account, channel);
 			gdk_threads_leave();
 		}
 	}
@@ -199,7 +202,7 @@ irc_handle_command_privmsg_notice(IRCHandle *handle, IRCMessage *msg)
 	if(channel != NULL) {
 		channel_append_remark(channel, type, FALSE, msg->nick, remark);
 	} else {
-		account_console_buffer_append(handle->priv->account, TRUE, type, remark);
+		account_console_buffer_append(priv->account, TRUE, type, remark);
 	}
 	gdk_threads_leave();
 
@@ -481,12 +484,15 @@ irc_handle_command_join(IRCHandle *handle, IRCMessage *msg)
 static void
 irc_handle_my_command_join(IRCHandle *handle, IRCMessage *msg)
 {
+	IRCHandlePrivate *priv;
 	Channel *channel;
 	gchar *name;
 
         g_return_if_fail(handle != NULL);
         g_return_if_fail(IS_IRC_HANDLE(handle));
 	g_return_if_fail(msg != NULL);
+
+	priv = handle->priv;
 
 	name = irc_message_get_param(msg, 1);
 	if(name == NULL) {
@@ -495,8 +501,8 @@ irc_handle_my_command_join(IRCHandle *handle, IRCMessage *msg)
 	}
 
 	gdk_threads_enter();
-	channel = channel_new(name);
-	account_add_channel(handle->priv->account, channel);
+	channel = channel_new(priv->account, name);
+	account_add_channel(priv->account, channel);
 	account_manager_select_channel(account_manager_get(), channel);
 	gdk_threads_leave();
 }
@@ -734,9 +740,12 @@ static void /* utility function for threading */
 irc_handle_channel_append(IRCHandle *handle, IRCMessage *msg, gboolean make_channel,
 			  gint receiver_num, TextType type, gchar *format)
 {
+	IRCHandlePrivate *priv;
 	Channel *channel;
 	gchar *str;
 	gchar *receiver_name;
+
+	priv = handle->priv;
 
 	receiver_name = irc_message_get_param(msg, receiver_num);
 	if(receiver_name == NULL) {
@@ -744,11 +753,11 @@ irc_handle_channel_append(IRCHandle *handle, IRCMessage *msg, gboolean make_chan
 		return;
 	}
 
-	channel = account_search_channel_by_name(handle->priv->account, receiver_name);
+	channel = account_search_channel_by_name(priv->account, receiver_name);
 	if(make_channel == TRUE && channel == NULL) { /* FIXME as well as privmsg_notice */
 		gdk_threads_enter();
-		channel = channel_new(receiver_name);
-		account_add_channel(handle->priv->account, channel);
+		channel = channel_new(priv->account, receiver_name);
+		account_add_channel(priv->account, channel);
 		gdk_threads_leave();
 	}
 
@@ -756,7 +765,7 @@ irc_handle_channel_append(IRCHandle *handle, IRCMessage *msg, gboolean make_chan
 
 	gdk_threads_enter();
 	if(channel == NULL) {
-		account_console_buffer_append(handle->priv->account, TRUE, type, str);
+		account_console_buffer_append(priv->account, TRUE, type, str);
 	} else {
 		channel_append_text(channel, TRUE, type, str);
 
@@ -769,8 +778,12 @@ irc_handle_channel_append(IRCHandle *handle, IRCMessage *msg, gboolean make_chan
 static gboolean 
 irc_handle_reply(IRCHandle *handle, IRCMessage *msg)
 {
+	IRCHandlePrivate *priv;
+
 	g_return_val_if_fail(handle != NULL, FALSE);
         g_return_val_if_fail(IS_IRC_HANDLE(handle), FALSE);
+
+	priv = handle->priv;
 
 	switch(msg->response) {
 	case IRC_RPL_AWAY:
@@ -784,11 +797,11 @@ irc_handle_reply(IRCHandle *handle, IRCMessage *msg)
 		irc_handle_account_console_append(handle, msg, TEXT_TYPE_INFO, _("*** %t"));
 		return TRUE;
 	case IRC_RPL_UNAWAY:
-		account_set_is_away(handle->priv->account, FALSE);
+		account_set_is_away(priv->account, FALSE);
 		irc_handle_account_console_append(handle, msg, TEXT_TYPE_INFO, _("*** %t"));
 		return TRUE;
 	case IRC_RPL_NOWAWAY:
-		account_set_is_away(handle->priv->account, TRUE);
+		account_set_is_away(priv->account, TRUE);
 		irc_handle_account_console_append(handle, msg, TEXT_TYPE_INFO, _("*** %t"));
 		return TRUE;
 	case IRC_RPL_INVITING:
@@ -811,7 +824,7 @@ irc_handle_reply(IRCHandle *handle, IRCMessage *msg)
 		return TRUE;
 	case IRC_RPL_ENDOFMOTD:
 		irc_handle_account_console_append(handle, msg, TEXT_TYPE_INFO, "*** %t");
-		handle->priv->end_motd = TRUE;
+		priv->end_motd = TRUE;
 		return TRUE;
 	case IRC_RPL_NAMREPLY: /* <nick> = <channel> :... */
 		irc_handle_reply_names(handle, msg);

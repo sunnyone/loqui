@@ -35,7 +35,6 @@
 
 struct _LoquiAppPrivate
 {
-	GtkWidget *channel_textview;
 	GtkWidget *common_textview;
 	GtkWidget *entry;
 	GtkWidget *statusbar;
@@ -330,10 +329,10 @@ loqui_app_new (void)
 	vbox = gtk_vbox_new(FALSE, 0);
 	gtk_paned_pack1(GTK_PANED(vpaned), vbox, TRUE, TRUE);
 
-	priv->channel_textview = gtk_text_view_new();
-	gtk_text_view_set_editable(GTK_TEXT_VIEW(priv->channel_textview), FALSE);
-	gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(priv->channel_textview), GTK_WRAP_CHAR);
-	SET_SCROLLED_WINDOW(scrolled_win, priv->channel_textview, 
+	app->channel_textview = gtk_text_view_new();
+	gtk_text_view_set_editable(GTK_TEXT_VIEW(app->channel_textview), FALSE);
+	gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(app->channel_textview), GTK_WRAP_CHAR);
+	SET_SCROLLED_WINDOW(scrolled_win, app->channel_textview, 
 			    GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
 	gtk_box_pack_start_defaults(GTK_BOX(vbox), scrolled_win);
 
@@ -391,8 +390,8 @@ void loqui_app_scroll_channel_textview(LoquiApp *app)
 
 	priv = app->priv;
 
-	textbuf = gtk_text_view_get_buffer(GTK_TEXT_VIEW(priv->channel_textview));
-	gtk_text_view_scroll_mark_onscreen(GTK_TEXT_VIEW(priv->channel_textview),
+	textbuf = gtk_text_view_get_buffer(GTK_TEXT_VIEW(app->channel_textview));
+	gtk_text_view_scroll_mark_onscreen(GTK_TEXT_VIEW(app->channel_textview),
 					   gtk_text_buffer_get_mark(textbuf, "end"));
 }
 void loqui_app_scroll_common_textview(LoquiApp *app)
@@ -419,7 +418,7 @@ void loqui_app_set_channel_buffer(LoquiApp *app, GtkTextBuffer *textbuf)
 
 	priv = app->priv;
 
-	gtk_text_view_set_buffer(GTK_TEXT_VIEW(priv->channel_textview), textbuf);
+	gtk_text_view_set_buffer(GTK_TEXT_VIEW(app->channel_textview), textbuf);
 	loqui_app_scroll_channel_textview(app);
 }
 void loqui_app_set_common_buffer(LoquiApp *app, GtkTextBuffer *textbuf)

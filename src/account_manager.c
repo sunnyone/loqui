@@ -47,7 +47,7 @@ static GObjectClass *parent_class = NULL;
 static void account_manager_class_init(AccountManagerClass *klass);
 static void account_manager_init(AccountManager *account_manager);
 static void account_manager_finalize(GObject *object);
-static Account* account_manager_search_account(AccountManager *manager, Channel *channel);
+/* static Account* account_manager_search_account(AccountManager *manager, Channel *channel); */
 
 static void account_manager_add_account(AccountManager *manager, Account *account);
 static void account_manager_update_account(AccountManager *manager, Account *account);
@@ -294,6 +294,8 @@ account_manager_select_account(AccountManager *manager, Account *account)
 	
 	channel_tree_select_account(manager->priv->app->channel_tree, account);
 }
+
+#if 0
 static Account*
 account_manager_search_account(AccountManager *manager, Channel *channel)
 {
@@ -313,6 +315,7 @@ account_manager_search_account(AccountManager *manager, Channel *channel)
 	}
 	return NULL;
 }
+#endif
 
 void account_manager_speak(AccountManager *manager, const gchar *str)
 {
@@ -327,7 +330,7 @@ void account_manager_speak(AccountManager *manager, const gchar *str)
 	g_return_if_fail(priv->current_account != NULL || priv->current_channel != NULL);
 	
 	if(priv->current_channel)
-		account = account_manager_search_account(manager, priv->current_channel);
+		account = priv->current_channel->account;
 	else
 		account = priv->current_account;
 
@@ -346,10 +349,19 @@ account_manager_get(void)
 gboolean
 account_manager_is_current_account(AccountManager *manager, Account *account)
 {
+	AccountManagerPrivate *priv;
+
         g_return_val_if_fail(manager != NULL, FALSE);
         g_return_val_if_fail(IS_ACCOUNT_MANAGER(manager), FALSE);
 
-	return (manager->priv->current_account == account);
+	priv = manager->priv;
+
+	if(priv->current_account == account)
+		return (priv->current_account == account);
+	else if(priv->current_channel) {
+		return (priv->current_channel->account == account);
+	}
+	return FALSE;
 }
 gboolean
 account_manager_is_current_channel(AccountManager *manager, Channel *channel)
@@ -359,6 +371,17 @@ account_manager_is_current_channel(AccountManager *manager, Channel *channel)
 
 	return (manager->priv->current_channel == channel);
 }
+gboolean
+account_manager_is_current_channel_buffer(AccountManager *manager, ChannelBuffer *buffer)
+{
+	ChannelBuffer *buffer2;
+        g_return_val_if_fail(manager != NULL, FALSE);
+        g_return_val_if_fail(IS_ACCOUNT_MANAGER(manager), FALSE);
+
+	buffer2 = CHANNEL_BUFFER(gtk_text_view_get_buffer(GTK_TEXT_VIEW(manager->priv->app->channel_textview)));
+	return (buffer == buffer2);
+}
+
 void
 account_manager_scroll_channel_textview(AccountManager *manager)
 {
@@ -410,7 +433,7 @@ void account_manager_update_current_info(AccountManager *manager)
 	priv = manager->priv;
 
 	if(priv->current_channel) {
-		account = account_manager_search_account(manager, priv->current_channel);
+		account = priv->current_channel->account;
 		channel = priv->current_channel;
 	} else
 		account = priv->current_account;

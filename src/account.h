@@ -20,7 +20,7 @@
 #ifndef __ACCOUNT_H__
 #define __ACCOUNT_H__
 
-#include "channel.h"
+#include <glib.h>
 
 G_BEGIN_DECLS
 
@@ -36,6 +36,8 @@ typedef struct _AccountClass       AccountClass;
 
 typedef struct _AccountPrivate     AccountPrivate;
 typedef struct _Server Server;
+
+#include "channel.h"
 
 struct _Account
 {

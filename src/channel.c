@@ -113,7 +113,7 @@ channel_finalize (GObject *object)
 }
 
 Channel*
-channel_new (gchar *name)
+channel_new(Account *account, gchar *name)
 {
         Channel *channel;
 
@@ -126,7 +126,8 @@ channel_new (gchar *name)
 						G_TYPE_INT,
 						G_TYPE_STRING);
 	channel->end_names = TRUE;
-	
+	channel->account = account;
+
 	return channel;
 }
 
@@ -149,7 +150,7 @@ channel_append_remark(Channel *channel, TextType type, gboolean is_self, const g
 
 	channel_buffer_append_remark(buffer, type, exec_noticer, is_self, is_priv, NULL, nick, remark);
 
-	if(account_manager_is_current_channel(account_manager_get(), channel)) {
+	if(account_manager_is_current_channel_buffer(account_manager_get(), buffer)) {
 		account_manager_scroll_channel_textview(account_manager_get());
 	} else {
 		account_manager_common_buffer_append_remark(account_manager_get(), type, 
@@ -161,15 +162,19 @@ channel_append_remark(Channel *channel, TextType type, gboolean is_self, const g
 void
 channel_append_text(Channel *channel, gboolean with_common_buffer, TextType type, gchar *str)
 {
+	ChannelBuffer *buffer;
+
 	g_return_if_fail(channel != NULL);
 	g_return_if_fail(IS_CHANNEL(channel));
 
-	channel_buffer_append_line(CHANNEL_BUFFER(channel->buffer), type, str);
+	buffer = channel->buffer;
+
+	channel_buffer_append_line(buffer, type, str);
 	if(with_common_buffer &&
-	   !account_manager_is_current_channel(account_manager_get(), channel)) {
+	   !account_manager_is_current_channel_buffer(account_manager_get(), buffer)) {
 		account_manager_common_buffer_append(account_manager_get(), type, str);
 	}
-	if(account_manager_is_current_channel(account_manager_get(), channel)) {
+	if(account_manager_is_current_channel_buffer(account_manager_get(), buffer)) {
 		account_manager_scroll_channel_textview(account_manager_get());
 	}
 }
