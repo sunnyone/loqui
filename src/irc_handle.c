@@ -371,6 +371,10 @@ irc_handle_command_part(IRCHandle *handle, IRCMessage *msg)
 
 	channel = account_get_channel_by_name(handle->priv->account, name);
 	user = account_peek_user(handle->priv->account, msg->nick);
+	if (!channel || !user) {
+		g_warning("Why do you know the user '%s' is joined to %s?", msg->nick, name);
+	}
+
 	if (channel && user)
 		loqui_channel_entry_remove_member_by_user(LOQUI_CHANNEL_ENTRY(channel), user);
 
