@@ -49,3 +49,8 @@
 * Fix the high load when selected a channel.
 * Show channel modes.
 
+2003-02-19     0.1.6 Release
+* Implemented Cut/Copy/Paste
+* Fix scrollbar behavior.
+* Function to determine whether scrolling or not with scrollbar operation.
+

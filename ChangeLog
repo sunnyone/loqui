@@ -1,3 +1,38 @@
+2003-02-19 22:34  y-imai
+
+	* po/: ja.po, loqui.pot: updated po
+
+2003-02-19 22:27  y-imai
+
+	* src/loqui_app.c: null checking
+
+2003-02-19 22:20  y-imai
+
+	* src/: account_manager.c, channel.c, loqui_app.c, loqui_toolbar.c:
+	common buffer always scrolls
+
+2003-02-19 22:01  y-imai
+
+	* src/: loqui_app.c, prefs_dialog.c, prefs_general.c,
+	prefs_general.h: implemented auto-switch-scrolling
+
+2003-02-19 20:43  y-imai
+
+	* src/: loqui_app.c, loqui_app.h, loqui_menu.c, loqui_menu.h:
+	implemented cut/copy/paste
+
+2003-02-19 18:01  y-imai
+
+	* src/loqui_app.c: always show vertical scrollbar of channel buffer
+
+2003-02-19 17:50  y-imai
+
+	* src/loqui_app.c: disable horizontal scrollbar of channel buffer
+
+2003-02-19 15:38  y-imai
+
+	* ChangeLog, NEWS, configure.in, po/ja.po, po/loqui.pot: 0.1.5
+
 2003-02-19 15:08  y-imai
 
 	* src/: account.c, account_manager.c, account_manager.h,
