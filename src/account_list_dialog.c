@@ -216,7 +216,7 @@ account_list_dialog_properties_cb(GtkWidget *widget, AccountListDialog *dialog)
 	if(!account)
 		return;
 
-	account_dialog_open_remove_dialog(GTK_WINDOW(dialog), account);
+	account_dialog_open_configure_dialog(GTK_WINDOW(dialog), account);
 	account_list_dialog_construct_list(dialog);
 }
 
