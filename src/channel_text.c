@@ -158,6 +158,9 @@ channel_text_insert_current_time(ChannelText *channel_text, GtkTextBuffer *textb
 	time_t t;
 	struct tm tm;
 
+        g_return_if_fail(channel_text != NULL);
+        g_return_if_fail(IS_CHANNEL_TEXT(channel_text));
+
 	t = time(NULL);
 	localtime_r(&t, &tm);
 	strftime(buf, TIME_LEN, "%H:%M ", &tm);
@@ -172,8 +175,10 @@ void channel_text_append(ChannelText *channel_text, TextType type, gchar *str)
 	GtkTextView *text;
 	gchar *style;
 
-	g_return_if_fail(channel_text != NULL);
+        g_return_if_fail(channel_text != NULL);
+        g_return_if_fail(IS_CHANNEL_TEXT(channel_text));
 	g_return_if_fail(channel_text->text != NULL);
+
 	text = GTK_TEXT_VIEW(channel_text->text);
 
 	textbuf = GTK_TEXT_BUFFER(gtk_text_view_get_buffer(text));

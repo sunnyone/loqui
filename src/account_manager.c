@@ -125,6 +125,9 @@ void account_manager_load_accounts(AccountManager *account_manager)
         Account *account;
 	AccountManagerPrivate *priv;
 
+        g_return_if_fail(account_manager != NULL);
+        g_return_if_fail(IS_ACCOUNT_MANAGER(account_manager));
+
         priv = account_manager->priv;
 
 	list = eel_gconf_get_dirs(LOQUI_GCONF_ACCOUNT);
@@ -149,6 +152,9 @@ void account_manager_add_channel_text(AccountManager *manager, ChannelText *text
 {
 	AccountManagerPrivate *priv;
 
+        g_return_if_fail(manager != NULL);
+        g_return_if_fail(IS_ACCOUNT_MANAGER(manager));
+
 	priv = manager->priv;
 
 	channel_book_add_channel_text(priv->app->channel_book, text);
@@ -156,12 +162,16 @@ void account_manager_add_channel_text(AccountManager *manager, ChannelText *text
 }
 void account_manager_add_channel(AccountManager *manager, Account *account, Channel *channel)
 {
+        g_return_if_fail(manager != NULL);
+        g_return_if_fail(IS_ACCOUNT_MANAGER(manager));
+
 	account_manager_add_channel_text(manager, channel->text);
 	channel_tree_add_channel(manager->priv->app->channel_tree, account, channel);
 }
 void account_manager_set_current(AccountManager *manager, Account *account, Channel *channel)
 {
-	g_return_if_fail(manager != NULL);
+        g_return_if_fail(manager != NULL);
+        g_return_if_fail(IS_ACCOUNT_MANAGER(manager));
 
 	manager->priv->current_channel = channel;
 	manager->priv->current_account = account;

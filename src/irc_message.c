@@ -194,34 +194,40 @@ irc_message_new(const gchar *prefix, const gchar *command, gchar **parameter)
 gchar *
 irc_message_inspect(IRCMessage *msg)
 {
-		int i;
-		GString *string;
-		gchar *str;
+	int i;
+	GString *string;
+	gchar *str;
+		
+        g_return_val_if_fail(msg != NULL, NULL);
+        g_return_val_if_fail(IS_IRC_MESSAGE(msg), NULL);
 
-		string = g_string_new(NULL);
-		g_string_printf(string, "prefix: %s, command: %s, numeric: %d\n", msg->prefix, msg->command, msg->response);
-		if(msg->prefix != NULL) {
-			if(msg->nick) {
-				g_string_append_printf(string, "nick: %s, user: %s, host: %s\n", 
-						       msg->nick, msg->user, msg->host);
-			} else {
-				g_string_append_printf(string, "server: %s\n", msg->prefix);
-			}
+	string = g_string_new(NULL);
+	g_string_printf(string, "prefix: %s, command: %s, numeric: %d\n", msg->prefix, msg->command, msg->response);
+	if(msg->prefix != NULL) {
+		if(msg->nick) {
+			g_string_append_printf(string, "nick: %s, user: %s, host: %s\n", 
+					       msg->nick, msg->user, msg->host);
+		} else {
+			g_string_append_printf(string, "server: %s\n", msg->prefix);
 		}
-
-		for(i = 0; msg->parameter[i] != NULL; i++) {
-			g_string_append_printf(string, "para[%d]: '%s'\n", i, msg->parameter[i]);
-		}
-
-		str = string->str;
-		g_string_free(string, FALSE);
-		return str;
+	}
+	
+	for(i = 0; msg->parameter[i] != NULL; i++) {
+		g_string_append_printf(string, "para[%d]: '%s'\n", i, msg->parameter[i]);
+	}
+	
+	str = string->str;
+	g_string_free(string, FALSE);
+	return str;
 }
 void
 irc_message_print(IRCMessage *msg)
 {
 	gchar *str;
 	
+        g_return_if_fail(msg != NULL);
+        g_return_if_fail(IS_IRC_MESSAGE(msg));
+
 	str = irc_message_inspect(msg);
 	g_print("%s", str);
 	g_free(str);

@@ -200,8 +200,10 @@ channel_tree_add_account(ChannelTree *tree, Account *account)
 	GtkTreeIter iter;
 	GtkTreeModel *model;
 
-	g_return_if_fail(tree != NULL);
+        g_return_if_fail(tree != NULL);
+        g_return_if_fail(IS_CHANNEL_TREE(tree));
 	g_return_if_fail(account != NULL);
+	g_return_if_fail(IS_ACCOUNT(account));
 	
 	model = gtk_tree_view_get_model(GTK_TREE_VIEW(tree));
 	gtk_tree_store_append(GTK_TREE_STORE(model), &iter, NULL);	
@@ -217,6 +219,13 @@ channel_tree_add_channel(ChannelTree *tree, Account *account, Channel *channel)
 	GtkTreeIter iter, parent;
 	GtkTreeModel *model;
 	gboolean is_found;
+
+        g_return_if_fail(tree != NULL);
+        g_return_if_fail(IS_CHANNEL_TREE(tree));
+	g_return_if_fail(account != NULL);
+	g_return_if_fail(IS_ACCOUNT(account));
+	g_return_if_fail(channel != NULL);
+	g_return_if_fail(IS_CHANNEL(channel));
 
 	model = gtk_tree_view_get_model(GTK_TREE_VIEW(tree));
 	is_found = gtk_tree_model_find_by_column_data(model, &parent, NULL, COLUMN_ACCOUNT, account);

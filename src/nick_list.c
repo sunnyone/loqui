@@ -147,6 +147,9 @@ static void nick_list_create_icons(NickList *list)
 {
 	NickListPrivate *priv;
 
+        g_return_if_fail(list != NULL);
+        g_return_if_fail(IS_NICK_LIST(list));
+
 	priv = list->priv;
 
 	priv->op_icon = gtk_widget_render_icon(GTK_WIDGET(list), GTK_STOCK_YES,
@@ -238,10 +241,12 @@ nick_list_new (void)
 }
 void nick_list_add(NickList *list, gchar *nick, UserPower power, gboolean is_away)
 {
-	
+        g_return_if_fail(list != NULL);
+        g_return_if_fail(IS_NICK_LIST(list));	
 }
 
 void nick_list_clear(NickList *list)
 {
-	
+        g_return_if_fail(list != NULL);
+        g_return_if_fail(IS_NICK_LIST(list));	
 }

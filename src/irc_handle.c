@@ -125,6 +125,9 @@ static void irc_handle_command_privmsg_notice(IRCHandle *handle, IRCMessage *msg
 	Channel *channel = NULL;
 	TextType type;
 
+        g_return_if_fail(handle != NULL);
+        g_return_if_fail(IS_IRC_HANDLE(handle));
+
 	receiver_name = irc_message_get_param(msg, 0);
 	remark = irc_message_get_param(msg, 1);
 
@@ -158,6 +161,10 @@ static void irc_handle_command_privmsg_notice(IRCHandle *handle, IRCMessage *msg
 static void irc_handle_command_ping(IRCHandle *handle, IRCMessage *msg)
 {
 	gchar *server;
+
+        g_return_if_fail(handle != NULL);
+        g_return_if_fail(IS_IRC_HANDLE(handle));
+
 	server = irc_message_get_param(msg, 0);
 
 	msg = irc_message_create(IRCCommandPong, server, NULL);
@@ -171,6 +178,8 @@ static void irc_handle_my_command_join(IRCHandle *handle, IRCMessage *msg)
 	Channel *channel;
 	gchar *name;
 
+        g_return_if_fail(handle != NULL);
+        g_return_if_fail(IS_IRC_HANDLE(handle));
 	g_return_if_fail(msg != NULL);
 
 	name = irc_message_get_param(msg, 0);
@@ -183,7 +192,8 @@ static void irc_handle_my_command_join(IRCHandle *handle, IRCMessage *msg)
 }
 static void irc_handle_my_command_nick(IRCHandle *handle, IRCMessage *msg)
 {
-	g_return_if_fail(handle != NULL);
+        g_return_if_fail(handle != NULL);
+        g_return_if_fail(IS_IRC_HANDLE(handle));
 
 	if(handle->priv->current_nick) {
 		g_free(handle->priv->current_nick);
@@ -196,7 +206,9 @@ static void irc_handle_my_command_nick(IRCHandle *handle, IRCMessage *msg)
 static gboolean
 irc_handle_is_my_message(IRCHandle *handle, IRCMessage *msg)
 {
-	g_return_val_if_fail(handle != NULL, FALSE);
+        g_return_val_if_fail(handle != NULL, FALSE);
+        g_return_val_if_fail(IS_IRC_HANDLE(handle), FALSE);
+
 	g_return_val_if_fail(msg != NULL, FALSE);
 	g_return_val_if_fail(handle->priv->current_nick != NULL, TRUE);
 	
@@ -210,18 +222,24 @@ irc_handle_inspect_message(IRCHandle *handle, IRCMessage *msg)
 {
 	gchar *str;
 
+        g_return_if_fail(handle != NULL);
+        g_return_if_fail(IS_IRC_HANDLE(handle));
+
 	str = irc_message_inspect(msg);
 			
 	gdk_threads_enter();
 	account_console_text_append(handle->priv->account, TEXT_TYPE_NORMAL, str);
 	gdk_threads_leave();
 	
-	g_free(str);	
+	g_free(str);
 }
 
 static void
 irc_handle_response(IRCHandle *handle, IRCMessage *msg)
 {
+        g_return_if_fail(handle != NULL);
+        g_return_if_fail(IS_IRC_HANDLE(handle));
+
 	if(irc_handle_is_my_message(handle, msg)) {
 		switch(msg->response) {
 		case IRC_COMMAND_NICK:

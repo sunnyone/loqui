@@ -142,6 +142,9 @@ gchar *connection_gets(Connection *connection, GIOError *error)
 	gchar *local;
 	guint len;
 
+        g_return_val_if_fail(connection != NULL, NULL);
+        g_return_val_if_fail(IS_CONNECTION(connection), NULL);
+
 	priv = connection->priv;
 	tmp_err = gnet_io_channel_readline_strdup(priv->io, &str, &len);
 	if(tmp_err != G_IO_ERROR_NONE) {
@@ -161,6 +164,9 @@ IRCMessage *connection_get_irc_message(Connection *connection, GIOError *error)
 {
 	IRCMessage *msg;
 	gchar *str;
+
+        g_return_val_if_fail(connection != NULL, NULL);
+        g_return_val_if_fail(IS_CONNECTION(connection), NULL);
 
 	str = connection_gets(connection, error);
 	if(str == NULL)
@@ -206,5 +212,8 @@ GIOError connection_put_irc_message(Connection *connection, IRCMessage *msg)
 }
 void connection_disconnect(Connection *connection)
 {
+        g_return_if_fail(connection != NULL);
+        g_return_if_fail(IS_CONNECTION(connection));
+
 	gnet_tcp_socket_delete(connection->priv->sock);
 }

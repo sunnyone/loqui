@@ -121,7 +121,8 @@ channel_book_new (void)
 }
 void channel_book_add_channel_text(ChannelBook *book, ChannelText *text)
 {
-	g_return_if_fail(book != NULL);
+        g_return_if_fail(book != NULL);
+        g_return_if_fail(IS_CHANNEL_BOOK(book));
 	g_return_if_fail(text != NULL);
 
 	gtk_notebook_append_page(GTK_NOTEBOOK(book), GTK_WIDGET(text), NULL);
