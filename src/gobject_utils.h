@@ -37,8 +37,8 @@ void class_name_lowercase ## _set_ ## attr_name(class_name_capitalized *obj, in_
  	g_return_if_fail(obj != NULL); \
         g_return_if_fail(G_TYPE_CHECK_INSTANCE_TYPE(obj, class_name_lowercase ## _get_type())); \
 \
-        g_object_notify(G_OBJECT(obj), # attr_name); \
         obj->attr_name = foo; \
+        g_object_notify(G_OBJECT(obj), # attr_name); \
 }
 #define ATTR_READER_GENERIC_PROTOTYPE(type, class_name_capitalized, class_name_lowercase, attr_name) \
   type class_name_lowercase ## _get_ ## attr_name(class_name_capitalized *obj)
