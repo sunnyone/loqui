@@ -92,6 +92,7 @@ static void
 account_finalize (GObject *object)
 {
 	Account *account;
+	AccountPrivate *priv;
 	GSList *cur;
 	Server *server;
 
@@ -99,6 +100,12 @@ account_finalize (GObject *object)
         g_return_if_fail(IS_ACCOUNT(object));
 
         account = ACCOUNT(object);
+	priv = account->priv;
+
+	if(priv->handle) {
+		g_object_unref(priv->handle);
+		priv->handle = NULL;
+	}
 
 	G_FREE_UNLESS_NULL(account->name);
 	G_FREE_UNLESS_NULL(account->nick);
@@ -127,6 +134,10 @@ account_finalize (GObject *object)
 		}
 		g_slist_free(account->channel_list);
 		account->channel_list = NULL;
+	}
+
+	if(account->console_buffer) {
+		g_object_unref(account->console_buffer);
 	}
 
         if (G_OBJECT_CLASS(parent_class)->finalize)
