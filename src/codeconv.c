@@ -20,7 +20,7 @@
 #include "config.h"
 
 #include "codeconv.h"
-#include "loqui_gconf.h"
+#include "prefs_general.h"
 
 static gchar *server_codeset = NULL;
 #define GTK_CODESET "UTF-8"
@@ -42,14 +42,14 @@ codeconv_init(void)
 	length = 0;
 	while(conv_table[length][0] != NULL) length++;
 	
-	num = eel_gconf_get_integer(LOQUI_GCONF_BASEDIR "codeconv");
+	num = prefs_general->codeconv;
 	if(num > length) {
 		g_warning(_("the setting of codeconv was invalid; now 'Auto Detection' is selected."));
 		num = 0;
 	}
 	
 	if(num == -1) {
-		server_codeset = eel_gconf_get_string(LOQUI_GCONF_BASEDIR "codeset");
+		server_codeset = prefs_general->codeset;
 	} else if(num == 0) {
 		i = 2;
 		ctype = setlocale(LC_CTYPE, NULL);
@@ -123,7 +123,7 @@ codeconv_to_local(const gchar *input)
 	cur = input;
 	while(cur < input + original_len) {
 		tmp = g_convert_with_iconv(cur, strlen(cur)+1, cd,
-				&len_to_read, NULL, &error);
+					   &len_to_read, NULL, &error);
 		if(error == NULL) {
 			cur += len_to_read;
 			add_unknown_mark = FALSE;
@@ -153,8 +153,10 @@ codeconv_to_local(const gchar *input)
 			add_unknown_mark = TRUE;
 			cur += len_to_read+1;
 		}
-		if(tmp != NULL)
+		if(tmp != NULL) {
 			string = g_string_append(string, tmp);
+			g_free(tmp);
+		}
 		if(add_unknown_mark) {
 			string = g_string_append(string, "[?]");
 		}
