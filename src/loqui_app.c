@@ -559,17 +559,10 @@ loqui_app_new(void)
 
 	ACTION_GROUP_ACTION_SET_SENSITIVE(app->action_group, "ToggleStatusbar", prefs_general.show_statusbar);
 	ACTION_GROUP_ACTION_SET_SENSITIVE(app->action_group, "ToggleChannelbar", prefs_general.show_channelbar);
-	
-	loqui_app_set_focus(app);
+
+	gtk_widget_grab_focus(app->remark_entry);
 
 	return GTK_WIDGET(app);
-}
-void loqui_app_set_focus(LoquiApp *app)
-{
-        g_return_if_fail(app != NULL);
-        g_return_if_fail(LOQUI_IS_APP(app));
-
-	remark_entry_grab_focus(REMARK_ENTRY(app->remark_entry));
 }
 static void
 scroll_channel_buffer(GtkWidget *textview)

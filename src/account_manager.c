@@ -576,8 +576,6 @@ void account_manager_set_current_channel(AccountManager *manager, Channel *chann
 
 	if(prefs_general.auto_switch_scrolling)
 		account_manager_set_whether_scrolling(manager, TRUE);
-
-	loqui_app_set_focus(priv->app);
 }
 
 void account_manager_set_current_account(AccountManager *manager, Account *account)
@@ -621,8 +619,6 @@ void account_manager_set_current_account(AccountManager *manager, Account *accou
 			 
 	if(prefs_general.auto_switch_scrolling)
 		account_manager_set_whether_scrolling(manager, TRUE);
-
-	loqui_app_set_focus(priv->app);
 }
 
 Channel *account_manager_get_current_channel(AccountManager *manager)

@@ -76,6 +76,7 @@ static void remark_entry_class_init(RemarkEntryClass *klass);
 static void remark_entry_init(RemarkEntry *remark_entry);
 static void remark_entry_finalize(GObject *object);
 static void remark_entry_destroy(GtkObject *object);
+static void remark_entry_grab_focus(GtkWidget *widget);
 
 static void remark_entry_entry_text_shown_cb(GtkWidget *widget, gpointer data);
 static void remark_entry_entry_multiline_toggled_cb(GtkWidget *widget, gpointer data);
@@ -129,6 +130,8 @@ remark_entry_class_init(RemarkEntryClass *klass)
 	klass->call_history = remark_entry_call_history;
 	klass->scroll_channel_textview = remark_entry_scroll_channel_textview;
 	klass->scroll_common_textview = remark_entry_scroll_common_textview;
+
+	GTK_WIDGET_CLASS(klass)->grab_focus = remark_entry_grab_focus;
 
         remark_entry_signals[ACTIVATE] = g_signal_new("activate",
 						      G_OBJECT_CLASS_TYPE(object_class),
@@ -223,6 +226,25 @@ remark_entry_destroy(GtkObject *object)
         if(GTK_OBJECT_CLASS(parent_class)->destroy)
                 (* GTK_OBJECT_CLASS(parent_class)->destroy) (object);
 }
+static void
+remark_entry_grab_focus(GtkWidget *widget)
+{
+	RemarkEntry *entry;
+	RemarkEntryPrivate *priv;
+	
+        g_return_if_fail(widget != NULL);
+        g_return_if_fail(IS_REMARK_ENTRY(widget));
+
+	entry = REMARK_ENTRY(widget);
+	priv = entry->priv;
+
+	if(remark_entry_get_multiline(entry))
+		gtk_widget_grab_focus(priv->textview);
+	else {
+		gtk_widget_grab_focus(priv->entry);
+		gtk_editable_select_region(GTK_EDITABLE(priv->entry), -1, -1);
+	}
+}
 
 GtkWidget*
 remark_entry_new(LoquiApp *app, GtkToggleAction *toggle_command_action)
@@ -247,7 +269,8 @@ remark_entry_new(LoquiApp *app, GtkToggleAction *toggle_command_action)
 	priv->toggle_command = gtk_toggle_button_new();
 	gtk_action_connect_proxy(GTK_ACTION(toggle_command_action), priv->toggle_command);
 	gtk_container_remove(GTK_CONTAINER(priv->toggle_command), gtk_bin_get_child(GTK_BIN(priv->toggle_command)));
-	
+	gtk_button_set_focus_on_click(GTK_BUTTON(priv->toggle_command), FALSE);
+
 	image = gtk_image_new_from_stock(LOQUI_STOCK_COMMAND, GTK_ICON_SIZE_BUTTON);
 	gtk_container_add(GTK_CONTAINER(priv->toggle_command), image);
 
@@ -304,7 +327,7 @@ remark_entry_new(LoquiApp *app, GtkToggleAction *toggle_command_action)
 	gtk_box_pack_start(GTK_BOX(hbox), priv->toggle_palette, FALSE, FALSE, 0);
 	gtk_widget_set_sensitive(priv->toggle_palette, FALSE);
 	*/
-	
+
 	priv->string_list = g_list_prepend(priv->string_list, NULL);
 
 	return GTK_WIDGET(remark_entry);
@@ -383,7 +406,7 @@ remark_entry_set_multiline(RemarkEntry *entry, gboolean is_multiline)
 	gtkutils_toggle_button_with_signal_handler_blocked(GTK_TOGGLE_BUTTON(priv->toggle_multiline),
 							   priv->toggle_multiline_toggled_id,
 							   is_multiline);
-	remark_entry_grab_focus(entry);
+	gtk_widget_grab_focus(GTK_WIDGET(entry));
 }
 gboolean
 remark_entry_get_multiline(RemarkEntry *entry)
@@ -420,25 +443,6 @@ remark_entry_get_command_mode(RemarkEntry *entry)
 	priv = entry->priv;
 
 	return gtk_toggle_action_get_active(priv->toggle_command_action);
-}
-
-/* FIXME: this should be done with gtk_widget_grab_focus */
-void
-remark_entry_grab_focus(RemarkEntry *entry)
-{
-	RemarkEntryPrivate *priv;
-
-        g_return_if_fail(entry != NULL);
-        g_return_if_fail(IS_REMARK_ENTRY(entry));
-
-	priv = entry->priv;
-
-	if(remark_entry_get_multiline(entry))
-		gtk_widget_grab_focus(priv->textview);
-	else {
-		gtk_widget_grab_focus(priv->entry);
-		gtk_editable_select_region(GTK_EDITABLE(priv->entry), -1, -1);
-	}
 }
 
 static void
