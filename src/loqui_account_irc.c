@@ -72,6 +72,7 @@ static void loqui_account_irc_conn_readline_cb(GConn *conn, const gchar *buffer,
 
 static void loqui_account_irc_connect(LoquiAccount *account);
 static void loqui_account_irc_disconnect(LoquiAccount *account);
+static void loqui_account_irc_terminate(LoquiAccount *account);
 
 GType
 loqui_account_irc_get_type(void)
@@ -178,6 +179,8 @@ loqui_account_irc_class_init(LoquiAccountIRCClass *klass)
 
 	account_class->connect = loqui_account_irc_connect;
 	account_class->disconnect = loqui_account_irc_disconnect;
+	account_class->terminate = loqui_account_irc_terminate;
+	
 }
 static void 
 loqui_account_irc_init(LoquiAccountIRC *account_irc)
@@ -324,11 +327,13 @@ loqui_account_irc_conn_error_cb(GConn *conn, LoquiAccountIRC *account)
 
 	priv->is_conn_connected = FALSE;
 	loqui_account_set_is_connected(LOQUI_ACCOUNT(account), FALSE);
-	
+
 	if (priv->conn) {
 		gnet_conn_unref(priv->conn);
 		priv->conn = NULL;
 	}
+
+	loqui_account_closed(LOQUI_ACCOUNT(account));
 }
 static void
 loqui_account_irc_conn_connected_cb(GConn *conn, LoquiAccountIRC *account)
@@ -389,16 +394,13 @@ loqui_account_irc_conn_closed_cb(GConn *conn, LoquiAccountIRC *account)
 	loqui_account_set_is_connected(LOQUI_ACCOUNT(account), FALSE);
 	loqui_receiver_irc_reset(LOQUI_RECEIVER_IRC(LOQUI_ACCOUNT(account)->receiver));
 
-	loqui_account_information(LOQUI_ACCOUNT(account), _("Connection terminated."));
+	loqui_account_information(LOQUI_ACCOUNT(account), _("Connection closed."));
 	loqui_user_set_away(LOQUI_ACCOUNT(account)->user_self, LOQUI_AWAY_TYPE_OFFLINE);
 
 	for (cur = LOQUI_ACCOUNT(account)->channel_list; cur != NULL; cur = cur->next)
 		loqui_channel_set_is_joined(LOQUI_CHANNEL(cur->data), FALSE);
-
-	if(prefs_general.auto_reconnect) {
-		loqui_account_information(LOQUI_ACCOUNT(account), _("Trying to reconnect..."));
-		loqui_account_connect(LOQUI_ACCOUNT(account));
-	}
+		
+	loqui_account_closed(LOQUI_ACCOUNT(account));
 }
 static void
 loqui_account_irc_conn_readline_cb(GConn *conn, const gchar *buffer, LoquiAccountIRC *account)
@@ -443,19 +445,48 @@ loqui_account_irc_disconnect(LoquiAccount *account)
 	
 	priv = LOQUI_ACCOUNT_IRC(account)->priv;
 
+	if (LOQUI_ACCOUNT_GET_CLASS(account)->disconnect) {
+		LOQUI_ACCOUNT_GET_CLASS(account)->disconnect(account);
+	}
+
 	if (priv->conn) {
 		gnet_conn_delete(priv->conn);
 		priv->conn = NULL;
 		
-		loqui_account_set_is_connected(LOQUI_ACCOUNT(account), FALSE);
-		loqui_receiver_irc_reset(LOQUI_RECEIVER_IRC(LOQUI_ACCOUNT(account)->receiver));
-
 		loqui_account_information(LOQUI_ACCOUNT(account), _("Disconnected."));
 		loqui_account_remove_all_channel(LOQUI_ACCOUNT(account));
 		
 		loqui_user_set_away(loqui_account_get_user_self(LOQUI_ACCOUNT(account)), LOQUI_AWAY_TYPE_OFFLINE);
+
+		loqui_account_set_is_connected(LOQUI_ACCOUNT(account), FALSE);
+		loqui_receiver_irc_reset(LOQUI_RECEIVER_IRC(LOQUI_ACCOUNT(account)->receiver));
+	}
+}
+static void
+loqui_account_irc_terminate(LoquiAccount *account)
+{
+	LoquiAccountIRCPrivate *priv;
+
+        g_return_if_fail(account != NULL);
+        g_return_if_fail(LOQUI_IS_ACCOUNT_IRC(account));
+	
+	priv = LOQUI_ACCOUNT_IRC(account)->priv;
+
+	if (LOQUI_ACCOUNT_GET_CLASS(account)->terminate) {
+		LOQUI_ACCOUNT_GET_CLASS(account)->terminate(account);
+	}
+
+	if (priv->conn) {
+		gnet_conn_delete(priv->conn);
+		priv->conn = NULL;
 		
-		loqui_account_disconnected(LOQUI_ACCOUNT(account));
+		loqui_account_information(LOQUI_ACCOUNT(account), _("Terminated."));
+		loqui_account_remove_all_channel(LOQUI_ACCOUNT(account));
+		
+		loqui_user_set_away(loqui_account_get_user_self(LOQUI_ACCOUNT(account)), LOQUI_AWAY_TYPE_OFFLINE);
+
+		loqui_account_set_is_connected(LOQUI_ACCOUNT(account), FALSE);
+		loqui_receiver_irc_reset(LOQUI_RECEIVER_IRC(LOQUI_ACCOUNT(account)->receiver));
 	}
 }
 gboolean

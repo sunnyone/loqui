@@ -41,6 +41,7 @@ void loqui_app_actions_update_sensitivity_related_channel(LoquiApp *app);
 #define LOQUI_ACTION_CONNECT_CURRENT_ACCOUNT "ConnectCurrentAccount"
 #define LOQUI_ACTION_RECONNECT_CURRENT_ACCOUNT "ReconnectCurrentAccount"
 #define LOQUI_ACTION_DISCONNECT_CURRENT_ACCOUNT "DisconnectCurrentAccount"
+#define LOQUI_ACTION_TERMINATE_CURRENT_ACCOUNT "TerminateCurrentAccount"
 
 #define LOQUI_ACTION_JOIN "Join"
 #define LOQUI_ACTION_PART "Part"

@@ -25,6 +25,7 @@
         <menuitem name="ConnectCurrentAccount" action="ConnectCurrentAccount"/>
         <menuitem name="ReconnectCurrentAccount" action="ReconnectCurrentAccount"/>
         <menuitem name="DisconnectCurrentAccount" action="DisconnectCurrentAccount"/>
+	<menuitem name="TerminateCurrentAccount" action="TerminateCurrentAccount"/>
       </placeholder>
       <menuitem name="ChangeNick" action="ChangeNick"/>
     </menu>
@@ -113,6 +114,7 @@
       <menuitem name="ConnectCurrentAccount" action="ConnectCurrentAccount"/>
       <menuitem name="ReconnectCurrentAccount" action="ReconnectCurrentAccount"/>
       <menuitem name="DisconnectCurrentAccount" action="DisconnectCurrentAccount"/>
+      <menuitem name="TerminateCurrentAccount" action="TerminateCurrentAccount"/>
     </placeholder>
     <placeholder>
       <menuitem name="ChangeNick" action="ChangeNick"/>

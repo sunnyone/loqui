@@ -32,7 +32,8 @@
 enum {
 	SIGNAL_CONNECT,
 	SIGNAL_DISCONNECT,
-	DISCONNECTED,
+	SIGNAL_TERMINATE,
+	SIGNAL_CLOSED,
 	SIGNAL_ADD_CHANNEL,
 	SIGNAL_REMOVE_CHANNEL,
 	SIGNAL_WARN,
@@ -74,6 +75,10 @@ static void loqui_account_set_property(GObject *object,
 				 GParamSpec *pspec);
 static void loqui_account_warn_real(LoquiAccount *account, const gchar *str);
 static void loqui_account_info_real(LoquiAccount *account, const gchar *str);
+
+static void loqui_account_disconnect_real(LoquiAccount *account);
+static void loqui_account_terminate_real(LoquiAccount *account);
+static void loqui_account_closed_real(LoquiAccount *account);
 
 static void loqui_account_set_profile(LoquiAccount *account, LoquiProfileAccount *profile);
 
@@ -123,6 +128,9 @@ loqui_account_class_init(LoquiAccountClass *klass)
 	klass->remove_channel = loqui_account_remove_channel_real;
 	klass->warn = loqui_account_warn_real;
 	klass->info = loqui_account_info_real;
+	klass->disconnect = loqui_account_disconnect_real;
+	klass->terminate = loqui_account_terminate_real;
+	klass->closed = loqui_account_closed_real;
 
 	g_object_class_install_property(object_class,
 					PROP_USER_SELF,
@@ -173,6 +181,13 @@ loqui_account_class_init(LoquiAccountClass *klass)
 						       NULL, NULL,
 						       g_cclosure_marshal_VOID__VOID,
 						       G_TYPE_NONE, 0);
+	account_signals[SIGNAL_TERMINATE] = g_signal_new("terminate",
+							 G_OBJECT_CLASS_TYPE(object_class),
+							 G_SIGNAL_RUN_LAST,
+							 G_STRUCT_OFFSET(LoquiAccountClass, terminate),
+							 NULL, NULL,
+							 g_cclosure_marshal_VOID__VOID,
+							 G_TYPE_NONE, 0);
 	account_signals[SIGNAL_ADD_CHANNEL] = g_signal_new("add-channel",
 						    G_OBJECT_CLASS_TYPE(object_class),
 						    G_SIGNAL_RUN_LAST,
@@ -206,13 +221,13 @@ loqui_account_class_init(LoquiAccountClass *klass)
 						    G_TYPE_NONE, 1,
 						    G_TYPE_STRING);
 
-	account_signals[DISCONNECTED] = g_signal_new("disconnected",
-						     G_OBJECT_CLASS_TYPE(object_class),
-						     G_SIGNAL_RUN_LAST,
-						     G_STRUCT_OFFSET(LoquiAccountClass, disconnected),
-						     NULL, NULL,
-						     g_cclosure_marshal_VOID__VOID,
-						     G_TYPE_NONE, 0);
+	account_signals[SIGNAL_CLOSED] = g_signal_new("closed",
+						      G_OBJECT_CLASS_TYPE(object_class),
+						      G_SIGNAL_RUN_LAST,
+						      G_STRUCT_OFFSET(LoquiAccountClass, closed),
+						      NULL, NULL,
+						      g_cclosure_marshal_VOID__VOID,
+						      G_TYPE_NONE, 0);
 }
 static void 
 loqui_account_init(LoquiAccount *account)
@@ -222,7 +237,7 @@ loqui_account_init(LoquiAccount *account)
 	priv = g_new0(LoquiAccountPrivate, 1);
 
 	account->priv = priv;
-	
+
 	/* FIXME: identifier should be case sensitive */
 	account->channel_list = NULL;
 	account->identifier_channel_table = g_hash_table_new_full(utils_strcase_hash, utils_strcase_equal, g_free, NULL);
@@ -231,6 +246,7 @@ loqui_account_init(LoquiAccount *account)
 	account->identifier_user_table = g_hash_table_new_full(utils_strcase_hash, utils_strcase_equal, g_free, NULL);
 
 	account->is_connected = FALSE;
+	account->reconnect_try_count = 0;
 }
 static void 
 loqui_account_finalize(GObject *object)
@@ -353,7 +369,29 @@ loqui_account_info_real(LoquiAccount *account, const gchar *str)
 	loqui_account_console_buffer_append(account, TEXT_TYPE_INFO, tmp);
 	g_free(tmp);
 }
-
+static void
+loqui_account_disconnect_real(LoquiAccount *account)
+{
+	account->reconnect_try_count = 0;
+}
+static void
+loqui_account_terminate_real(LoquiAccount *account)
+{
+	account->reconnect_try_count = 0;
+}
+static void
+loqui_account_closed_real(LoquiAccount *account)
+{
+	if (prefs_general.auto_reconnect) {
+		if (account->reconnect_try_count <= LOQUI_ACCOUNT_RECONNECT_COUNT_MAX) {
+			loqui_account_information(LOQUI_ACCOUNT(account), _("Trying to reconnect..."));
+			loqui_account_connect(LOQUI_ACCOUNT(account));
+		} else {
+			loqui_account_information(LOQUI_ACCOUNT(account), _("Reconnect count over."));
+			account->reconnect_try_count = 0;
+		}
+	}
+}
 LoquiAccount*
 loqui_account_new(LoquiProfileAccount *profile)
 {
@@ -486,12 +524,20 @@ loqui_account_disconnect(LoquiAccount *account)
 	g_signal_emit(G_OBJECT(account), account_signals[SIGNAL_DISCONNECT], 0);
 }
 void
-loqui_account_disconnected(LoquiAccount *account)
+loqui_account_terminate(LoquiAccount *account)
 {
         g_return_if_fail(account != NULL);
         g_return_if_fail(LOQUI_IS_ACCOUNT(account));
 
-	g_signal_emit(G_OBJECT(account), account_signals[DISCONNECTED], 0);	
+	g_signal_emit(G_OBJECT(account), account_signals[SIGNAL_TERMINATE], 0);
+}
+void
+loqui_account_closed(LoquiAccount *account)
+{
+        g_return_if_fail(account != NULL);
+        g_return_if_fail(LOQUI_IS_ACCOUNT(account));
+
+	g_signal_emit(G_OBJECT(account), account_signals[SIGNAL_CLOSED], 0);
 }
 static void
 loqui_account_channel_notify_identifier_cb(LoquiChannel *channel, GParamSpec *pspec, LoquiAccount *account)

@@ -43,6 +43,7 @@ typedef struct _LoquiAccountPrivate     LoquiAccountPrivate;
 #include "loqui_profile_account.h"
 
 #define LOQUI_ACCOUNT_USER_SELF_ACCOUNT_KEY "parent-account"
+#define LOQUI_ACCOUNT_RECONNECT_COUNT_MAX 5
 
 struct _LoquiAccount
 {
@@ -63,6 +64,8 @@ struct _LoquiAccount
 
 	gboolean is_connected;
 
+	gint reconnect_try_count;
+
         LoquiAccountPrivate *priv;
 };
 
@@ -70,14 +73,19 @@ struct _LoquiAccountClass
 {
         LoquiChannelEntryClass parent_class;
 
-	/* must implement */
+	/* must implement start */
 	void (* connect)          (LoquiAccount *account);
 	void (* disconnect)       (LoquiAccount *account);
+	void (* terminate)        (LoquiAccount *account);
+	/* must implement end */
 
 	void (* warn) (LoquiAccount *account, const gchar *str);
 	void (* info) (LoquiAccount *account, const gchar *str);
 
-	void (* disconnected)     (LoquiAccount *account);
+	/* When child class detected the connection is closed unexpectedly, this method is called.
+	   Default handler will try to reconnect if enabled. */
+	void (* closed)           (LoquiAccount *account);
+
 	void (* add_channel)      (LoquiAccount *account,
 				   LoquiChannel *channel);
 	void (* remove_channel)   (LoquiAccount *account,
@@ -95,8 +103,10 @@ LoquiUser* loqui_account_get_user_self(LoquiAccount *account);
 
 void loqui_account_connect(LoquiAccount *account);
 void loqui_account_disconnect(LoquiAccount *account);
+void loqui_account_terminate(LoquiAccount *account);
 
-void loqui_account_disconnected(LoquiAccount *account);
+/* send signal */
+void loqui_account_closed(LoquiAccount *account);
 
 LoquiSender *loqui_account_get_sender(LoquiAccount *account);
 void loqui_account_set_sender(LoquiAccount *account, LoquiSender *sender);
