@@ -509,6 +509,9 @@ account_speak(Account *account, Channel *channel, const gchar *str)
 		array = g_strsplit(buf, "\n", -1);
 		g_free(buf);
 		for(i = 0; array[i] != NULL; i++) {
+			if(strlen(array[i]) == 0)
+				continue;
+
 			msg = irc_message_create(IRCCommandPrivmsg, channel_get_name(channel), array[i], NULL);
 			irc_handle_push_message(priv->handle, msg);
 			channel_append_remark(channel, TEXT_TYPE_NORMAL, TRUE, account_get_current_nick(account), array[i]);

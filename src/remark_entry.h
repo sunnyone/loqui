@@ -57,6 +57,9 @@ void remark_entry_clear_text(RemarkEntry *entry);
 void remark_entry_set_nick(RemarkEntry *entry, const gchar *nick);
 void remark_entry_grab_focus(RemarkEntry *entry);
 
+void remark_entry_set_multiline(RemarkEntry *entry, gboolean is_multiline);
+gboolean remark_entry_get_multiline(RemarkEntry *entry);
+
 G_END_DECLS
 
 #endif /* __REMARK_ENTRY_H__ */
