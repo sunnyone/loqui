@@ -38,6 +38,7 @@
 #include "loqui_channel_entry_action.h"
 #include "loqui_channel_entry_store.h"
 #include "loqui_channel_entry_ui.h"
+#include "loqui_channel_text_view.h"
 
 #include "embedtxt/loqui_app_ui.h"
 
@@ -366,7 +367,11 @@ loqui_app_textview_scroll_value_changed_cb(GtkAdjustment *adj, gpointer data)
 	if(channel && reached_to_end && loqui_channel_entry_get_is_updated(LOQUI_CHANNEL_ENTRY(channel)))
 		loqui_channel_entry_set_is_updated(LOQUI_CHANNEL_ENTRY(channel), FALSE);
 }
-
+static void
+loqui_app_channel_text_view_needless_key_press_cb(LoquiChannelTextView *view, LoquiApp *app)
+{
+	gtk_widget_grab_focus(app->remark_entry);
+}
 void
 loqui_app_update_info(LoquiApp *app, 
 		      gboolean is_account_changed, Account *account,
@@ -512,9 +517,9 @@ loqui_app_new(AccountManager *account_manager)
 	vbox = gtk_vbox_new(FALSE, 0);
 	gtk_paned_pack1(GTK_PANED(vpaned), vbox, TRUE, TRUE);
 
-	app->channel_textview = gtk_text_view_new();
-	gtk_text_view_set_editable(GTK_TEXT_VIEW(app->channel_textview), FALSE);
-	gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(app->channel_textview), GTK_WRAP_CHAR);
+	app->channel_textview = loqui_channel_text_view_new();
+	g_signal_connect(G_OBJECT(app->channel_textview), "needless_key_press",
+			 G_CALLBACK(loqui_app_channel_text_view_needless_key_press_cb), app);
 	SET_SCROLLED_WINDOW(scrolled_win, app->channel_textview, 
 			    GTK_POLICY_NEVER, GTK_POLICY_ALWAYS);
 	gtk_box_pack_start_defaults(GTK_BOX(vbox), scrolled_win);
@@ -526,9 +531,9 @@ loqui_app_new(AccountManager *account_manager)
 	g_signal_connect(G_OBJECT(app->remark_entry), "activate",
 			 G_CALLBACK(loqui_app_entry_activate_cb), app);
 
-	priv->common_textview = gtk_text_view_new();
-	gtk_text_view_set_editable(GTK_TEXT_VIEW(priv->common_textview), FALSE);
-	gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(priv->common_textview), GTK_WRAP_CHAR);
+	priv->common_textview = loqui_channel_text_view_new();
+	g_signal_connect(G_OBJECT(priv->common_textview), "needless_key_press",
+			 G_CALLBACK(loqui_app_channel_text_view_needless_key_press_cb), app);
 	SET_SCROLLED_WINDOW(scrolled_win, priv->common_textview, 
 			    GTK_POLICY_NEVER, GTK_POLICY_ALWAYS);
 	gtk_paned_pack2(GTK_PANED(vpaned), scrolled_win, FALSE, TRUE);
