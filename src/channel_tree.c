@@ -147,11 +147,12 @@ channel_tree_row_selected_cb(GtkTreeSelection *selection, GtkTreeModel *model, G
 			   COLUMN_ACCOUNT, &account,
 			   COLUMN_CHANNEL, &channel,
 			   -1);
-	if(account == NULL && channel == NULL) {
+	if(account)
+		account_manager_set_current_account(account_manager_get(), account);
+	else if(channel)
+		account_manager_set_current_channel(account_manager_get(), channel);
+	else
 		return FALSE;
-	} else {
-		account_manager_set_current(account_manager_get(), account, channel);
-	}
 
 	return TRUE;
 }

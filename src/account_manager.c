@@ -244,34 +244,74 @@ account_manager_set_fresh(AccountManager *manager, Account *account, Channel *ch
 
 	channel_tree_set_fresh(priv->app->channel_tree, account, channel);
 }
-/* called from select_cb */
-void
-account_manager_set_current(AccountManager *manager, Account *account, Channel *channel)
+
+void account_manager_set_current_channel(AccountManager *manager, Channel *channel)
 {
 	AccountManagerPrivate *priv;
 
         g_return_if_fail(manager != NULL);
         g_return_if_fail(IS_ACCOUNT_MANAGER(manager));
+	g_return_if_fail(IS_CHANNEL(channel));
+	
+	priv = manager->priv;
+	
+	priv->current_account = NULL; /* FIXME: this should be not NULL but channel->account */
+
+	loqui_app_set_channel_buffer(priv->app, GTK_TEXT_BUFFER(channel->buffer));
+	nick_list_set_store(priv->app->nick_list, channel->user_list);
+	account_manager_update_current_info(manager);
+	channel_set_fresh(channel, FALSE);
+	account_manager_update_away_status(manager, account_get_away_status(channel->account));
+
+	loqui_app_set_focus(priv->app);
+}
+
+void account_manager_set_current_account(AccountManager *manager, Account *account)
+{
+	AccountManagerPrivate *priv;
+
+        g_return_if_fail(manager != NULL);
+        g_return_if_fail(IS_ACCOUNT_MANAGER(manager));
+        g_return_if_fail(IS_ACCOUNT(account));
+
+	priv = manager->priv;
+	priv->current_channel = NULL; /* FIXME */
+
+	loqui_app_set_channel_buffer(priv->app, GTK_TEXT_BUFFER(account->console_buffer));
+	nick_list_set_store(priv->app->nick_list, NULL);
+	account_manager_update_current_info(manager);
+	account_manager_update_away_status(manager, account_get_away_status(account));
+
+	loqui_app_set_focus(priv->app);
+}
+
+Channel *account_manager_get_current_channel(AccountManager *manager)
+{
+	AccountManagerPrivate *priv;
+
+        g_return_val_if_fail(manager != NULL, NULL);
+        g_return_val_if_fail(IS_ACCOUNT_MANAGER(manager), NULL);
 
 	priv = manager->priv;
 
-	priv->current_channel = channel;
-	priv->current_account = account;
-
-	if(channel) {
-		loqui_app_set_channel_buffer(priv->app, GTK_TEXT_BUFFER(channel->buffer));
-		nick_list_set_store(priv->app->nick_list, channel->user_list);
-		account_manager_update_current_info(manager);
-		channel_set_fresh(channel, FALSE);
-		account_manager_update_away_status(manager, account_get_away_status(channel->account));
-	} else if(account) {
-		loqui_app_set_channel_buffer(priv->app, GTK_TEXT_BUFFER(account->console_buffer));
-		nick_list_set_store(priv->app->nick_list, NULL);
-		account_manager_update_current_info(manager);
-		account_manager_update_away_status(manager, account_get_away_status(account));
-	}
-	loqui_app_set_focus(priv->app);
+	return priv->current_channel;
 }
+Account *account_manager_get_current_account(AccountManager *manager)
+{
+	AccountManagerPrivate *priv;
+
+        g_return_val_if_fail(manager != NULL, NULL);
+        g_return_val_if_fail(IS_ACCOUNT_MANAGER(manager), NULL);
+	priv = manager->priv;
+
+	if(priv->current_account)
+		return priv->current_account;
+	else if(priv->current_channel)
+		return priv->current_channel->account;
+	
+	return NULL;
+}
+
 /* mainly called */
 void
 account_manager_select_channel(AccountManager *manager, Channel *channel)
