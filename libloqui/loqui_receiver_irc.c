@@ -1371,6 +1371,9 @@ loqui_receiver_irc_error(LoquiReceiverIRC *receiver, IRCMessage *msg)
 	case IRC_ERR_USERONCHANNEL:
 		loqui_receiver_irc_account_console_append(receiver, msg, LOQUI_TEXT_TYPE_ERROR, _("%2 %t (%3)"));
 		return TRUE;
+	case IRC_ERR_UNKNOWNMODE: /* [$msgto, ?, is unknown mode char to me for ...] */
+		loqui_receiver_irc_account_console_append(receiver, msg, LOQUI_TEXT_TYPE_ERROR, _("%2 %3"));
+		return TRUE;
 	case IRC_ERR_NOSUCHNICK:
 	case IRC_ERR_NOSUCHSERVER:
 	case IRC_ERR_NOSUCHCHANNEL:
@@ -1389,7 +1392,6 @@ loqui_receiver_irc_error(LoquiReceiverIRC *receiver, IRCMessage *msg)
 	case IRC_ERR_NEEDMOREPARAMS:
 	case IRC_ERR_KEYSET:
 	case IRC_ERR_CHANNELISFULL:
-	case IRC_ERR_UNKNOWNMODE:
 	case IRC_ERR_INVITEONLYCHAN:
 	case IRC_ERR_BANNEDFROMCHAN:
 	case IRC_ERR_BADCHANNELKEY:
