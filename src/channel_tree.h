@@ -67,6 +67,8 @@ void channel_tree_remove_channels_of_account(ChannelTree *tree, Account *account
 
 void channel_tree_set_fresh(ChannelTree *tree, Account *account, Channel *channel);
 
+void channel_tree_update_user_number(ChannelTree *tree, Channel *channel);
+
 G_END_DECLS
 
 #endif /* __CHANNEL_TREE_H__ */

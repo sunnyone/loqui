@@ -328,6 +328,13 @@ void account_manager_set_topic(AccountManager *manager, const gchar *topic)
 
 	loqui_app_set_topic(manager->priv->app, topic);
 }
+void account_manager_update_channel_user_number(AccountManager *manager, Channel *channel)
+{
+	g_return_if_fail(manager != NULL);
+        g_return_if_fail(IS_ACCOUNT_MANAGER(manager));
+
+	channel_tree_update_user_number(manager->priv->app->channel_tree, channel);
+}
 void account_manager_disconnect_all(AccountManager *manager)
 {
 	g_return_if_fail(manager != NULL);

@@ -252,6 +252,8 @@ void channel_append_user(Channel *channel, const gchar *nick, UserPower power, U
 			   USERLIST_COLUMN_NICK, tmp_nick,
 			   -1);
 	
+	account_manager_update_channel_user_number(account_manager_get(), channel);
+
 }
 gboolean channel_find_user(Channel *channel, const gchar *nick, GtkTreeIter *iter_ptr)
 {
@@ -301,6 +303,8 @@ void channel_remove_user(Channel *channel, const gchar *nick)
 		return;
 
 	gtk_list_store_remove(channel->user_list, &iter);
+
+	account_manager_update_channel_user_number(account_manager_get(), channel);
 }
 void channel_change_user_power(Channel *channel, const gchar *nick, UserPower power)
 {
@@ -314,6 +318,8 @@ void channel_change_user_power(Channel *channel, const gchar *nick, UserPower po
 		return;
 	
 	gtk_list_store_set(channel->user_list, &iter, USERLIST_COLUMN_OP, power, -1);
+
+	account_manager_update_channel_user_number(account_manager_get(), channel);
 }
 void channel_change_user_nick(Channel *channel, const gchar *nick_orig, const gchar *nick_new)
 {
@@ -331,5 +337,39 @@ void channel_change_user_nick(Channel *channel, const gchar *nick_orig, const gc
 }
 void channel_clear_user(Channel *channel)
 {
+	g_return_if_fail(channel != NULL);
+	g_return_if_fail(IS_CHANNEL(channel));
+
 	gtk_list_store_clear(channel->user_list);
+
+	account_manager_update_channel_user_number(account_manager_get(), channel);
+}
+
+void channel_count_users(Channel *channel, guint *all_users, guint *op_users)
+{
+	GtkTreeIter iter;
+	GtkTreeModel *model;
+	UserPower power;
+
+	g_return_if_fail(channel != NULL);
+	g_return_if_fail(IS_CHANNEL(channel));
+	g_return_if_fail(all_users != NULL);
+	g_return_if_fail(op_users != NULL);
+
+	*all_users = 0;
+	*op_users = 0;
+
+	model = GTK_TREE_MODEL(channel->user_list);
+
+	if(!gtk_tree_model_get_iter_first(model, &iter))
+		return;
+
+	do {
+		(*all_users)++;
+
+		gtk_tree_model_get(model, &iter, USERLIST_COLUMN_OP, &power, -1);
+		
+		if(power == USER_POWER_OP)
+			(*op_users)++;
+	} while(gtk_tree_model_iter_next(model, &iter));
 }

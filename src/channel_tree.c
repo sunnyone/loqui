@@ -48,6 +48,9 @@ enum {
 	COLUMN_ACCOUNT,
 	COLUMN_CHANNEL,
 	COLUMN_COLOR,
+	COLUMN_USERS,
+	COLUMN_OP_USERS,
+	COLUMN_NONOP_USERS,
 	COLUMN_NUMBER
 };
 
@@ -163,18 +166,21 @@ channel_tree_new(void)
 
 	tree = g_object_new(channel_tree_get_type(), NULL);
 
-        gtk_tree_view_set_headers_visible(GTK_TREE_VIEW(tree), FALSE);
+        gtk_tree_view_set_headers_visible(GTK_TREE_VIEW(tree), TRUE);
 	selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(tree));
 
 	model = gtk_tree_store_new(COLUMN_NUMBER, 
 				   G_TYPE_STRING, 
 				   G_TYPE_POINTER,
 				   G_TYPE_POINTER,
-				   G_TYPE_STRING);
+				   G_TYPE_STRING,
+				   G_TYPE_UINT,
+				   G_TYPE_UINT,
+				   G_TYPE_UINT);
 	gtk_tree_view_set_model(GTK_TREE_VIEW(tree), GTK_TREE_MODEL(model));
 
         renderer = gtk_cell_renderer_text_new();
-	column = gtk_tree_view_column_new_with_attributes ("Text",
+	column = gtk_tree_view_column_new_with_attributes (_("Name"),
 							   renderer,
 							   "text", COLUMN_TEXT,
 							   "foreground", COLUMN_COLOR,
@@ -182,19 +188,24 @@ channel_tree_new(void)
 	gtk_tree_view_append_column (GTK_TREE_VIEW (tree), column);
 
         renderer = gtk_cell_renderer_text_new();
-	column = gtk_tree_view_column_new_with_attributes ("Account",
+	column = gtk_tree_view_column_new_with_attributes ("Users",
 							   renderer,
-							   "text", COLUMN_ACCOUNT,
+							   "text", COLUMN_USERS,
 							   NULL);
-        gtk_tree_view_column_set_visible(column, FALSE);
         gtk_tree_view_append_column(GTK_TREE_VIEW(tree), column);
 
         renderer = gtk_cell_renderer_text_new();
-	column = gtk_tree_view_column_new_with_attributes ("Channel",
+	column = gtk_tree_view_column_new_with_attributes ("Op",
 							   renderer,
-							   "text", COLUMN_CHANNEL,
+							   "text", COLUMN_OP_USERS,
 							   NULL);
-        gtk_tree_view_column_set_visible(column, FALSE);
+        gtk_tree_view_append_column(GTK_TREE_VIEW(tree), column);
+
+        renderer = gtk_cell_renderer_text_new();
+	column = gtk_tree_view_column_new_with_attributes ("Nonop",
+							   renderer,
+							   "text", COLUMN_NONOP_USERS,
+							   NULL);
         gtk_tree_view_append_column(GTK_TREE_VIEW(tree), column);
 
 	g_signal_connect(G_OBJECT(tree), "row_activated",
@@ -331,6 +342,32 @@ channel_tree_select_account(ChannelTree *tree, Account *account)
 
 	if(gtk_tree_model_find_by_column_data(model, &iter, NULL, COLUMN_ACCOUNT, account))
 		gtk_tree_selection_select_iter(selection, &iter);
+}
+void
+channel_tree_update_user_number(ChannelTree *tree, Channel *channel)
+{
+	GtkTreeModel *model;
+	GtkTreeIter iter;
+	guint users;
+	guint op_users;
+
+        g_return_if_fail(tree != NULL);
+        g_return_if_fail(IS_CHANNEL_TREE(tree));
+        g_return_if_fail(channel != NULL);
+        g_return_if_fail(IS_CHANNEL(channel));
+
+	model = gtk_tree_view_get_model(GTK_TREE_VIEW(tree));
+
+	if(!gtk_tree_model_find_by_column_data(model, &iter, NULL, COLUMN_CHANNEL, channel))
+		return;
+	
+	channel_count_users(channel, &users, &op_users);
+
+	gtk_tree_store_set(GTK_TREE_STORE(model), &iter,
+			   COLUMN_USERS, users,
+			   COLUMN_OP_USERS, op_users,
+			   COLUMN_NONOP_USERS, users - op_users,
+			   -1);
 }
 void
 channel_tree_set_fresh(ChannelTree *tree, Account *account, Channel *channel)
