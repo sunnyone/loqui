@@ -289,7 +289,7 @@ prefs_dialog_new(LoquiApp *app)
 
 	priv->check_connect_startup = gtk_check_button_new_with_label(_("Connect default accounts when the program started"));
 	gtk_box_pack_start(GTK_BOX(vbox), priv->check_connect_startup, FALSE, FALSE, 0);
-	priv->check_select_channel_joined = gtk_check_button_new_with_label(_("Select a channel automatically when joined."));
+	priv->check_select_channel_joined = gtk_check_button_new_with_label(_("Select a new channel automatically."));
 	gtk_box_pack_start(GTK_BOX(vbox), priv->check_select_channel_joined, FALSE, FALSE, 0);
 
 	gtkutils_add_label_entry(vbox, _("Away message: "), &priv->entry_away_message, "");
