@@ -575,7 +575,7 @@ account_dialog_new(Account *account)
 	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), vbox, gtk_label_new(_("Nick")));
 
 	frame = gtkutils_create_framed_textview(&priv->textview_nicklist,
-						_("List of often using nick(Separate each words with linefeeds)"));
+						_("List of often used nick(Separate each words with linefeeds)"));
 	gtkutils_set_textview_from_string_list(GTK_TEXT_VIEW(priv->textview_nicklist),
 					       account->nick_list);
 
