@@ -256,13 +256,15 @@ loqui_app_actions_update_sensitivity_related_channel(LoquiApp *app)
 	LoquiChannelEntry *chent;
 	LoquiAccount *account;
 	LoquiChannel *channel;
-	gboolean is_connected, is_joined, is_private_talk;
+	gboolean is_connected, is_joined, is_private_talk, is_account;
 	
 	chent = loqui_app_get_current_channel_entry(app);
-
+	
 	if (chent == NULL) {
 		ACTION_GROUP_ACTION_SET_SENSITIVE(app->action_group, LOQUI_ACTION_JOIN, FALSE);
+		ACTION_GROUP_ACTION_SET_SENSITIVE(app->action_group, LOQUI_ACTION_JOIN_CURRENT_CHANNEL, FALSE);
 		ACTION_GROUP_ACTION_SET_SENSITIVE(app->action_group, LOQUI_ACTION_PART, FALSE);
+		ACTION_GROUP_ACTION_SET_SENSITIVE(app->action_group, LOQUI_ACTION_CLOSE_CHANNEL, FALSE);
 		ACTION_GROUP_ACTION_SET_SENSITIVE(app->action_group, LOQUI_ACTION_SET_TOPIC, FALSE);
 		ACTION_GROUP_ACTION_SET_SENSITIVE(app->action_group, LOQUI_ACTION_CHANGE_NICK, FALSE);
 		ACTION_GROUP_ACTION_SET_SENSITIVE(app->action_group, LOQUI_ACTION_REFRESH, FALSE);
@@ -273,9 +275,10 @@ loqui_app_actions_update_sensitivity_related_channel(LoquiApp *app)
 		ACTION_GROUP_ACTION_SET_SENSITIVE(app->action_group, LOQUI_ACTION_RECONNECT_CURRENT_ACCOUNT, FALSE);
 		ACTION_GROUP_ACTION_SET_SENSITIVE(app->action_group, LOQUI_ACTION_DISCONNECT_CURRENT_ACCOUNT, FALSE);
 		ACTION_GROUP_ACTION_SET_SENSITIVE(app->action_group, LOQUI_ACTION_TERMINATE_CURRENT_ACCOUNT, FALSE);
+		
 		return;
 	}
-
+	
 	account = loqui_app_get_current_account(app);
 	is_connected = (account != NULL && loqui_account_get_is_connected(account));
 
@@ -300,6 +303,10 @@ loqui_app_actions_update_sensitivity_related_channel(LoquiApp *app)
 
 	is_private_talk = (channel != NULL && loqui_channel_get_is_private_talk(channel));
 	ACTION_GROUP_ACTION_SET_SENSITIVE(app->action_group, LOQUI_ACTION_END_PRIVATE_TALK, is_private_talk);
+	
+	is_account = LOQUI_IS_ACCOUNT(chent);
+	ACTION_GROUP_ACTION_SET_SENSITIVE(app->action_group, LOQUI_ACTION_CLOSE_CHANNEL, !is_joined && !is_account);
+	ACTION_GROUP_ACTION_SET_SENSITIVE(app->action_group, LOQUI_ACTION_JOIN_CURRENT_CHANNEL, !is_joined && !is_account);
 }
 
 /* callbacks */
@@ -681,7 +688,7 @@ loqui_app_actions_close_channel_cb(GtkAction *action, LoquiApp *app)
 	}
 	account = loqui_channel_get_account(channel);
 
-	if (loqui_channel_get_is_joined(channel)) {
+	if (!loqui_channel_get_is_private_talk(channel) && loqui_channel_get_is_joined(channel)) {
 		gtkutils_msgbox_info(GTK_MESSAGE_ERROR,
 				     _("The channel has not be parted yet."));
 		return;
@@ -702,7 +709,7 @@ loqui_app_actions_join_current_channel_cb(GtkAction *action, LoquiApp *app)
 		return;
 	}
 	account = loqui_channel_get_account(channel);
-
+		
 	if (loqui_channel_get_is_joined(channel)) {
 		gtkutils_msgbox_info(GTK_MESSAGE_ERROR,
 				     _("You have already joined in the channel."));

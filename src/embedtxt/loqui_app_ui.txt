@@ -140,7 +140,6 @@
   </popup>
 
   <popup name="PrivateTalkPopup" action="PrivateTalkPopup">
-    <menuitem name="CloseChannel" action="CloseChannel"/>
     <menuitem name="EndPrivateTalk" action="EndPrivateTalk"/>
   </popup>
 
