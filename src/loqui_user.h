@@ -35,8 +35,6 @@ G_BEGIN_DECLS
 typedef struct _LoquiUser            LoquiUser;
 typedef struct _LoquiUserClass       LoquiUserClass;
 
-typedef struct _LoquiUserPrivate     LoquiUserPrivate;
-
 typedef enum {
 	LOQUI_BASIC_AWAY_TYPE_UNKNOWN = 0,
 	LOQUI_BASIC_AWAY_TYPE_ONLINE,
@@ -81,8 +79,6 @@ struct _LoquiUser
 	gint idle_time; /* time_t ? */
 	
 	gboolean is_ignored;
-
-        LoquiUserPrivate *priv;
 };
 
 struct _LoquiUserClass

@@ -38,8 +38,6 @@ G_BEGIN_DECLS
 typedef struct _LoquiMember            LoquiMember;
 typedef struct _LoquiMemberClass       LoquiMemberClass;
 
-typedef struct _LoquiMemberPrivate     LoquiMemberPrivate;
-
 typedef enum {
 	LOQUI_MEMBER_POWER_UNDETERMINED = -1,
 	LOQUI_MEMBER_POWER_VOICE = 1 << 1,
@@ -52,8 +50,6 @@ struct _LoquiMember
         
 	LoquiMemberPowerFlags power;
 	LoquiUser *user;
-
-        LoquiMemberPrivate *priv;
 };
 
 struct _LoquiMemberClass

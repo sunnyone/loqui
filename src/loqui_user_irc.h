@@ -45,8 +45,6 @@ struct _LoquiUserIRC
 	gchar *joined_channels_string;
 	gboolean is_irc_operator;
 	guint hop_count;
-
-        LoquiUserIRCPrivate *priv;
 };
 
 struct _LoquiUserIRCClass

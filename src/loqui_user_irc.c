@@ -35,10 +35,6 @@ enum {
         LAST_PROP
 };
 
-struct _LoquiUserIRCPrivate
-{
-};
-
 static LoquiUserClass *parent_class = NULL;
 
 /* static guint loqui_user_irc_signals[LAST_SIGNAL] = { 0 }; */
@@ -89,8 +85,6 @@ loqui_user_irc_finalize(GObject *object)
 
         if (G_OBJECT_CLASS(parent_class)->finalize)
                 (* G_OBJECT_CLASS(parent_class)->finalize)(object);
-
-	g_free(user->priv);
 }
 static void 
 loqui_user_irc_dispose(GObject *object)
@@ -197,22 +191,14 @@ loqui_user_irc_class_init(LoquiUserIRCClass *klass)
 static void 
 loqui_user_irc_init(LoquiUserIRC *user)
 {
-	LoquiUserIRCPrivate *priv;
-
-	priv = g_new0(LoquiUserIRCPrivate, 1);
-
-	user->priv = priv;
 }
 LoquiUserIRC*
 loqui_user_irc_new(void)
 {
         LoquiUserIRC *user;
-	LoquiUserIRCPrivate *priv;
 
 	user = g_object_new(loqui_user_irc_get_type(), NULL);
 	
-        priv = user->priv;
-
         return user;
 }
 

@@ -34,10 +34,6 @@ enum {
         LAST_PROP
 };
 
-struct _LoquiMemberPrivate
-{
-};
-
 static GObjectClass *parent_class = NULL;
 
 /* static guint loqui_member_signals[LAST_SIGNAL] = { 0 }; */
@@ -88,8 +84,6 @@ loqui_member_finalize(GObject *object)
 
         if (G_OBJECT_CLASS(parent_class)->finalize)
                 (* G_OBJECT_CLASS(parent_class)->finalize)(object);
-
-	g_free(member->priv);
 }
 static void 
 loqui_member_dispose(GObject *object)
@@ -189,22 +183,14 @@ loqui_member_class_init(LoquiMemberClass *klass)
 static void 
 loqui_member_init(LoquiMember *member)
 {
-	LoquiMemberPrivate *priv;
-
-	priv = g_new0(LoquiMemberPrivate, 1);
-
-	member->priv = priv;
 }
 LoquiMember*
 loqui_member_new(LoquiUser *user)
 {
         LoquiMember *member;
-	LoquiMemberPrivate *priv;
 
 	member = g_object_new(loqui_member_get_type(), "user", user, NULL);
 	
-        priv = member->priv;
-
         return member;
 }
 void

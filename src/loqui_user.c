@@ -42,10 +42,6 @@ enum {
         LAST_PROP
 };
 
-struct _LoquiUserPrivate
-{
-};
-
 static GObjectClass *parent_class = NULL;
 
 #define AWAY_TYPE_ARRAY_DEFAULT_SIZE 10
@@ -98,8 +94,6 @@ loqui_user_finalize(GObject *object)
 
         if (G_OBJECT_CLASS(parent_class)->finalize)
                 (* G_OBJECT_CLASS(parent_class)->finalize)(object);
-
-	g_free(user->priv);
 }
 static void 
 loqui_user_dispose(GObject *object)
@@ -289,22 +283,14 @@ loqui_user_class_init(LoquiUserClass *klass)
 static void 
 loqui_user_init(LoquiUser *user)
 {
-	LoquiUserPrivate *priv;
-
-	priv = g_new0(LoquiUserPrivate, 1);
-
-	user->priv = priv;
 }
 LoquiUser*
 loqui_user_new(void)
 {
         LoquiUser *user;
-	LoquiUserPrivate *priv;
 
 	user = g_object_new(loqui_user_get_type(), NULL);
 	
-        priv = user->priv;
-
         return user;
 }
 /**

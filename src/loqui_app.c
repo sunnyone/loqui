@@ -925,7 +925,8 @@ loqui_app_add_account_cb(AccountManager *manager, Account *account, LoquiApp *ap
 
 	priv = app->priv;
 
-	/* store = loqui_channel_entry_store_new(LOQUI_CHANNEL_ENTRY(account));
+	/* FIXME:
+	   store = loqui_channel_entry_store_new(LOQUI_CHANNEL_ENTRY(account));
 	   g_object_set_data_full(G_OBJECT(account), CHANNEL_ENTRY_STORE_KEY, store, (GDestroyNotify) g_object_unref); */
 
 	loqui_channel_entry_ui_attach_channel_entry_action(app, G_OBJECT(account)); /* FIXME */
