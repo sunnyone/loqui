@@ -191,6 +191,8 @@ loqui_channel_buffer_gtk_init(LoquiChannelBufferGtk *channel_buffer)
 	priv->is_common_buffer = FALSE;
 	channel_buffer->show_account_name = FALSE;
 	channel_buffer->show_channel_name = FALSE;
+
+	
 }
 static void 
 loqui_channel_buffer_gtk_finalize(GObject *object)
@@ -437,7 +439,7 @@ loqui_channel_buffer_gtk_load_styles(LoquiChannelBufferGtk *buffer)
 	SET_STRING_DEFAULT("HighlightColor", "purple");
 
 #undef SET_STRING_DEFAULT
-	loqui_pref_changed_all_with_callback(pref, (LoquiPrefChangedFunction) loqui_channel_buffer_gtk_pref_changed_cb, buffer);
+	loqui_pref_foreach(pref, loqui_channel_buffer_gtk_pref_changed_cb, buffer);
 	loqui_pref_connect__changed(pref, loqui_channel_buffer_gtk_pref_changed_cb, buffer);
 }
 static void
