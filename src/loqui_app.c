@@ -256,8 +256,6 @@ loqui_app_delete_event(GtkWidget *widget, GdkEventAny *event)
 
 	app = LOQUI_APP(widget);
 
-	loqui_account_manager_disconnect_all(loqui_app_get_account_manager(app));
-
         if (loqui_pref_get_with_default_boolean(loqui_get_general_pref(),
 						LOQUI_GENERAL_PREF_GTK_GROUP_SIZE, "SaveSize",
 						LOQUI_GENERAL_PREF_GTK_DEFAULT_SIZE_SAVE_SIZE, NULL)) {
