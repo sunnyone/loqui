@@ -50,14 +50,13 @@ SRC_PROTOCOL_IRC = \
 	ctcp_message.c ctcp_message.h \
 	ctcp_handle.c ctcp_handle.h
 
-define(`M4_SRC_PROTOCOL_IPMSG_GOB',`loqui-account-ipmsg.gob')
+define(`M4_SRC_PROTOCOL_IPMSG_GOB',`loqui-account-ipmsg.gob loqui-receiver-ipmsg.gob')
 
 SRC_PROTOCOL_IPMSG = \
 	loqui_protocol_ipmsg.c loqui_protocol_ipmsg.h \
 	loqui_user_ipmsg.c loqui_user_ipmsg.h \
 	loqui_profile_account_ipmsg.c loqui_profile_account_ipmsg.h \
 	loqui_sender_ipmsg.c loqui_sender_ipmsg.h \
-	loqui_receiver_ipmsg.c loqui_receiver_ipmsg.h \
 	ipmsg.h \
 	ipmsg_socket.c ipmsg_socket.h \
 	ipmsg_packet.c ipmsg_packet.h \

@@ -1,0 +1,188 @@
+requires 2.0.0
+
+%alltop{
+/*
+ * libloqui -- Chat/IM client library for GLib <http://loqui.good-day.net/>
+ * Copyright (C) 2004 Yoichi Imai <yoichi@silver-forest.com>
+ *
+ * This Library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Library General Public License as
+ * published by the Free Software Foundation; either version 2 of the
+ * License, or (at your option) any later version.
+ *
+ * This Library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Library General Public License for more details.
+ *
+ * You should have received a copy of the GNU Library General Public
+ * License along with the Gnome Library; see the file COPYING.LIB.  If not,
+ * write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+ * Boston, MA 02111-1307, USA.
+ */
+%}
+
+%h{
+#include <loqui_receiver.h>
+#include "loqui_account.h"
+#include "ipmsg_packet.h"
+%}
+
+%{
+#include <libloqui-intl.h>
+#include "utils.h"
+
+#include "loqui_user_ipmsg.h"
+#include "ipmsg.h"
+%}
+
+%{
+/* account: Loqui:Account */
+#define SELF_GET_ACCOUNT(receiver) (LOQUI_RECEIVER(receiver)->account)
+%}
+
+class Loqui:Receiver:IPMsg from Loqui:Receiver
+{
+	private gboolean validate_and_warn_packet(self, IPMsgPacket *packet) {
+		gchar *identifier;
+		LoquiAccount *account;
+
+		account = LOQUI_RECEIVER(self)->account;
+
+		identifier = ipmsg_packet_get_identifier(packet);
+		if (!identifier) {
+			loqui_account_warning(account, _("Invalid IP address or port"));
+			return FALSE;
+		}
+		if (!packet->username) {
+			loqui_account_warning(account, _("Username is not set"));
+			g_free(identifier);
+			return FALSE;
+		}
+		if (!packet->hostname) {
+			loqui_account_warning(account, _("Hostname is not set"));
+			g_free(identifier);
+			return FALSE;
+		}
+
+		g_free(identifier);
+		return TRUE;
+	}
+
+	private void command_br_entry(self, IPMsg:Packet *packet) {
+		LoquiAccount *account;
+		LoquiUser *user;
+		LoquiMember *member;
+		gchar *identifier;
+		gchar *str;
+		gchar *ip_addr;
+
+		account = SELF_GET_ACCOUNT(self);
+
+		if (!self_validate_and_warn_packet(self, packet))
+			return;
+		
+		identifier = ipmsg_packet_get_identifier(packet);
+
+		if ((user = loqui_account_peek_user(account, identifier)) == NULL) {
+			user = LOQUI_USER(loqui_user_ipmsg_new());
+
+			ip_addr = ipmsg_packet_get_ip_addr(packet);
+			loqui_user_ipmsg_set_ip_addr(LOQUI_USER_IPMSG(user), ip_addr);
+			g_free(ip_addr);
+			loqui_user_ipmsg_set_port(LOQUI_USER_IPMSG(user), ipmsg_packet_get_port(packet));
+
+			loqui_account_add_user(account, user);
+		} else {
+			g_object_ref(user);
+		}
+		g_free(identifier);
+
+		loqui_user_set_nick(user, packet->username);
+		loqui_user_set_hostname(user, packet->hostname);
+		loqui_user_ipmsg_set_group_name(LOQUI_USER_IPMSG(user), packet->group_name);
+
+		if (!loqui_channel_entry_get_member_by_user(LOQUI_CHANNEL_ENTRY(account), user)) {
+			member = loqui_member_new(user);
+			loqui_channel_entry_add_member(LOQUI_CHANNEL_ENTRY(account), member);
+			g_object_unref(member);
+		
+			str = g_strdup_printf("*** Appeared %s@%s (%s)",
+					      packet->username, packet->hostname, packet->group_name ? packet->group_name : "");
+			loqui_account_append_text(account, NULL, LOQUI_TEXT_TYPE_INFO, str);
+			g_free(str);
+		}
+
+		g_object_unref(user);
+	}
+	
+	private void command_br_exit(self, IPMsg:Packet *packet) {
+		LoquiAccount *account;
+		LoquiUser *user;
+		gchar *identifier;
+		gchar *str;
+
+		account = SELF_GET_ACCOUNT(self);
+
+		if (!self_validate_and_warn_packet(self, packet))
+			return;
+
+		identifier = ipmsg_packet_get_identifier(packet);
+
+		if ((user = loqui_account_peek_user(account, identifier)) == NULL) {
+			/* two BR_EXIT packet come from original IPMsg, so just ignore the packet */
+			/* loqui_account_warning(account, _("The user '%s' exit, but he/she is not registered."), identifier); */
+			g_free(identifier);
+			return;
+		}
+		g_free(identifier);
+
+		str = g_strdup_printf("*** Disappeared %s@%s (%s)",
+				      packet->username, packet->hostname, packet->group_name ? packet->group_name : "");
+		loqui_account_append_text(account, NULL, LOQUI_TEXT_TYPE_INFO, str);
+		g_free(str);
+	
+		/* TODO: loqui_account_remove_user(user); */
+		loqui_channel_entry_remove_member_by_user(LOQUI_CHANNEL_ENTRY(account), user);
+	}
+
+	public void handle(self, :IPMsg:Packet *packet (check null type)) {
+		gchar *str;
+
+		if (packet->version != 1) {
+			loqui_account_warning(SELF_GET_ACCOUNT(self),
+					      _("Only supports IPMessenger Protocol Version 1 (the message is version '%d')"), packet->version);
+			return;
+		}
+
+		switch (IPMSG_GET_MODE(packet->command_num)) {
+		case IPMSG_NOOPERATION:
+			return;
+		case IPMSG_BR_ENTRY:
+			self_command_br_entry(self, packet);
+			return;
+		case IPMSG_BR_EXIT:
+			self_command_br_exit(self, packet);
+			return;
+		case IPMSG_SENDMSG:
+//		loqui_receiver_ipmsg_command_sendmsg(self, packet);
+//		return;
+		default:
+			break;
+		}
+
+		str = ipmsg_packet_inspect(packet);
+		loqui_account_append_text(SELF_GET_ACCOUNT(self), NULL, LOQUI_TEXT_TYPE_NORMAL, str);
+		g_free(str);
+	}
+
+	public LoquiReceiverIPMsg *
+	new(Loqui:Account *account) {
+		Self *self;
+
+		self = GET_NEW;
+		LOQUI_RECEIVER(self)->account = account;
+		
+		return self;
+	}
+}

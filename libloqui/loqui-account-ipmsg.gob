@@ -34,7 +34,7 @@ requires 2.0.0
 
 #include "loqui_user_ipmsg.h"
 #include "loqui_sender_ipmsg.h"
-#include "loqui_receiver_ipmsg.h"
+#include "loqui-receiver-ipmsg.h"
 
 #include "ipmsg_socket.h"
 #include "ipmsg_packet.h"
