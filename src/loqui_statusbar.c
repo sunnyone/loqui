@@ -26,6 +26,7 @@
 #include "account_manager.h"
 #include "main.h"
 #include "loqui_dropdown_box.h"
+#include "command_dialog.h"
 
 #include <string.h>
 
@@ -33,9 +34,6 @@
 #define STRING_UNSELECTED _("(unselected)")
 
 enum {
-	NICK_CHANGE,
-	NICK_SELECTED,
-	AWAY_SELECTED,
         LAST_SIGNAL
 };
 
@@ -64,7 +62,7 @@ struct _LoquiStatusbarPrivate
 static GtkStatusbarClass *parent_class = NULL;
 #define PARENT_TYPE GTK_TYPE_STATUSBAR
 
-static guint loqui_statusbar_signals[LAST_SIGNAL] = { 0 };
+/* static guint loqui_statusbar_signals[LAST_SIGNAL] = { 0 }; */
 
 static void loqui_statusbar_class_init(LoquiStatusbarClass *klass);
 static void loqui_statusbar_init(LoquiStatusbar *statusbar);
@@ -113,31 +111,6 @@ loqui_statusbar_class_init (LoquiStatusbarClass *klass)
 
         parent_class = g_type_class_peek_parent(klass);
 
-
-        loqui_statusbar_signals[NICK_CHANGE] = g_signal_new("nick-change",
-							    G_OBJECT_CLASS_TYPE(object_class),
-							    G_SIGNAL_RUN_FIRST,
-							    0,
-						            NULL, NULL,
-							    g_cclosure_marshal_VOID__VOID,
-							    G_TYPE_NONE, 0);
-        loqui_statusbar_signals[NICK_SELECTED] = g_signal_new("nick-selected",
-						  	      G_OBJECT_CLASS_TYPE(object_class),
-						   	      G_SIGNAL_RUN_FIRST,
-						   	      0,
-						              NULL, NULL,
-						   	      g_cclosure_marshal_VOID__STRING,
-						              G_TYPE_NONE, 1,
-						   	      G_TYPE_STRING);
-        loqui_statusbar_signals[AWAY_SELECTED] = g_signal_new("away-selected",
-						  	      G_OBJECT_CLASS_TYPE(object_class),
-						   	      G_SIGNAL_RUN_FIRST,
-						   	      0,
-						              NULL, NULL,
-						   	      g_cclosure_marshal_VOID__STRING,
-						              G_TYPE_NONE, 1,
-						   	      G_TYPE_INT);
-						   	      
 	object_class->finalize = loqui_statusbar_finalize;
         gtk_object_class->destroy = loqui_statusbar_destroy;
 }
@@ -212,7 +185,8 @@ static void
 loqui_statusbar_preset_menuitem_activated_cb(GtkWidget *widget, LoquiStatusbar *statusbar)
 {
 	LoquiStatusbarPrivate *priv;
-	const gchar *str;
+	const gchar *nick;
+	Account *account;
 
 	g_return_if_fail(GTK_IS_MENU_ITEM(widget));
         g_return_if_fail(statusbar != NULL);
@@ -220,14 +194,20 @@ loqui_statusbar_preset_menuitem_activated_cb(GtkWidget *widget, LoquiStatusbar *
 
         priv = statusbar->priv;		
 
-	str = g_object_get_data(G_OBJECT(widget), "nick");
-	g_signal_emit(statusbar, loqui_statusbar_signals[NICK_SELECTED], 0, str);
+	nick = g_object_get_data(G_OBJECT(widget), "nick");
+
+	account = account_manager_get_current_account(loqui_app_get_account_manager(priv->app));
+	if (account)
+		account_change_nick(account, nick);
+	else
+		gtkutils_msgbox_info(GTK_MESSAGE_ERROR, _("Not selected an account!"));	
 }
 static void
 loqui_statusbar_away_menuitem_activated_cb(GtkWidget *widget, LoquiStatusbar *statusbar)
 {
 	LoquiStatusbarPrivate *priv;
 	gint away_state;
+	Account *account;
 
 	g_return_if_fail(GTK_IS_MENU_ITEM(widget));
         g_return_if_fail(statusbar != NULL);
@@ -236,7 +216,26 @@ loqui_statusbar_away_menuitem_activated_cb(GtkWidget *widget, LoquiStatusbar *st
         priv = statusbar->priv;		
 
 	away_state = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(widget), "away-state"));
-	g_signal_emit(statusbar, loqui_statusbar_signals[AWAY_SELECTED], 0, away_state);
+
+	account = account_manager_get_current_account(loqui_app_get_account_manager(priv->app));
+	if (account) {
+		if (account_is_connected(account)) {
+			switch (away_state) {
+			case AWAY_STATE_ONLINE:
+				account_set_away(account, FALSE);
+				break;
+			case AWAY_STATE_AWAY:
+				account_set_away(account, TRUE);
+				break;
+			default:
+				break;
+			}
+		} else {
+			gtkutils_msgbox_info(GTK_MESSAGE_ERROR, _("The account is not connected!"));
+		}
+	} else {
+		gtkutils_msgbox_info(GTK_MESSAGE_ERROR, _("Not selected an account!"));	
+	}
 }
 
 static void
@@ -327,13 +326,18 @@ static void
 loqui_statusbar_nick_button_clicked_cb(GtkWidget *widget, LoquiStatusbar *statusbar)
 {
 	LoquiStatusbarPrivate *priv;
+	Account *account;
 
         g_return_if_fail(statusbar != NULL);
         g_return_if_fail(LOQUI_IS_STATUSBAR(statusbar));
 
 	priv = statusbar->priv;
 	
-	g_signal_emit(statusbar, loqui_statusbar_signals[NICK_CHANGE], 0);
+	account = account_manager_get_current_account(loqui_app_get_account_manager(priv->app));
+	if (account)
+		command_dialog_nick(priv->app, account);
+	else
+		gtkutils_msgbox_info(GTK_MESSAGE_ERROR, _("Not selected an account!"));
 }
 GtkWidget*
 loqui_statusbar_new(LoquiApp *app, GtkToggleAction *toggle_scroll_action)

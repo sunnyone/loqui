@@ -82,9 +82,6 @@ static void loqui_app_common_textview_inserted_cb(GtkTextBuffer *textbuf,
 						  gpointer data);
 
 static void loqui_app_textview_scroll_value_changed_cb(GtkAdjustment *adj, gpointer data);
-static void loqui_app_statusbar_nick_clicked_cb(GtkWidget *widget, gpointer data);
-static void loqui_app_statusbar_nick_selected_cb(GtkWidget *widget, gchar *nick, gpointer data);
-static void loqui_app_statusbar_away_selected_cb(GtkWidget *widget, AwayState away_state, gpointer data);
 
 static void loqui_app_menu_account_activate_cb(GtkWidget *widget, gpointer data);
 static void loqui_app_menu_channel_activate_cb(GtkWidget *widget, gpointer data);
@@ -262,69 +259,6 @@ loqui_app_entry_activate_cb(GtkWidget *widget, gpointer data)
 
 	remark_entry_clear_text(remark_entry);
 }
-static void
-loqui_app_statusbar_nick_clicked_cb(GtkWidget *widget, gpointer data)
-{
-	Account *account;
-	LoquiApp *app;
-
-	g_return_if_fail(data != NULL);
-	g_return_if_fail(LOQUI_IS_APP(data));
-
-	app = LOQUI_APP(data);
-	account = account_manager_get_current_account(loqui_app_get_account_manager(app));
-	if (account)
-		command_dialog_nick(app, account);
-	else
-		gtkutils_msgbox_info(GTK_MESSAGE_ERROR, _("Not selected an account!"));
-}
-static void
-loqui_app_statusbar_nick_selected_cb(GtkWidget *widget, gchar *nick, gpointer data)
-{
-	Account *account;
-	LoquiApp *app;
-
-	g_return_if_fail(data != NULL);
-	g_return_if_fail(LOQUI_IS_APP(data));
-
-	app = LOQUI_APP(data);
-	account = account_manager_get_current_account(loqui_app_get_account_manager(app));
-	if(account)
-		account_change_nick(account, nick);
-	else
-		gtkutils_msgbox_info(GTK_MESSAGE_ERROR, _("Not selected an account!"));	
-}
-static void
-loqui_app_statusbar_away_selected_cb(GtkWidget *widget, AwayState away_state, gpointer data)
-{
-	Account *account;
-	LoquiApp *app;
-
-	g_return_if_fail(data != NULL);
-	g_return_if_fail(LOQUI_IS_APP(data));
-
-	app = LOQUI_APP(data);
-	account = account_manager_get_current_account(loqui_app_get_account_manager(app));
-	if(account) {
-		if(account_is_connected(account)) {
-			switch(away_state) {
-			case AWAY_STATE_ONLINE:
-				account_set_away(account, FALSE);
-				break;
-			case AWAY_STATE_AWAY:
-				account_set_away(account, TRUE);
-				break;
-			default:
-				break;
-			}
-		} else {
-			gtkutils_msgbox_info(GTK_MESSAGE_ERROR, _("The account is not connected!"));
-		}
-	} else {
-		gtkutils_msgbox_info(GTK_MESSAGE_ERROR, _("Not selected an account!"));	
-	}
-}
-
 static void loqui_app_channel_textview_inserted_cb(GtkTextBuffer *textbuf,
 						   GtkTextIter *pos,
 						   const gchar *text,
@@ -538,12 +472,6 @@ loqui_app_new(void)
 	gtk_box_pack_end(GTK_BOX(vbox), app->remark_entry, FALSE, FALSE, 0);
 	g_signal_connect(G_OBJECT(app->remark_entry), "activate",
 			 G_CALLBACK(loqui_app_entry_activate_cb), app);
-	g_signal_connect(G_OBJECT(app->statusbar), "nick-change",
-			 G_CALLBACK(loqui_app_statusbar_nick_clicked_cb), app);
-	g_signal_connect(G_OBJECT(app->statusbar), "nick-selected",
-			 G_CALLBACK(loqui_app_statusbar_nick_selected_cb), app);
-	g_signal_connect(G_OBJECT(app->statusbar), "away-selected",
-			 G_CALLBACK(loqui_app_statusbar_away_selected_cb), app);
 
 	priv->common_textview = gtk_text_view_new();
 	gtk_text_view_set_editable(GTK_TEXT_VIEW(priv->common_textview), FALSE);
