@@ -101,6 +101,8 @@ loqui_member_dispose(GObject *object)
 
         member = LOQUI_MEMBER(object);
 
+	G_OBJECT_UNREF_UNLESS_NULL(member->user);
+	
         if (G_OBJECT_CLASS(parent_class)->dispose)
                 (* G_OBJECT_CLASS(parent_class)->dispose)(object);
 }
@@ -146,18 +148,16 @@ loqui_member_set_property(GObject *object, guint param_id, const GValue *value, 
 GType
 loqui_member_power_type_get_type(void)
 {
-	static GType etype = 0;
-	if (etype == 0) {
-		static const GEnumValue values[] = {
-			{LOQUI_MEMBER_POWER_UNDETERMINED, "LOQUI_MEMBER_POWER_UNDETERMINED", "Undetermined" },
-			{LOQUI_MEMBER_POWER_NONE, "LOQUI_MEMBER_POWER_NONE", "None"},
+	static GType ftype = 0;
+	if (ftype == 0) {
+		static const GFlagsValue values[] = {
 			{LOQUI_MEMBER_POWER_VOICE, "LOQUI_MEMBER_POWER_VOICE", "Voice"},
-			{LOQUI_MEMBER_POWER_OP, "LOQUI_MEMBER_POWER_OP", "Op"},
+			{LOQUI_MEMBER_POWER_OPERATOR, "LOQUI_MEMBER_POWER_OP", "Op"},
 			{0, NULL, NULL}
 		};
-		etype = g_enum_register_static("LoquiMemberPowerType", values);
+		ftype = g_flags_register_static("LoquiMemberPowerFlags", values);
 	}
-	return etype;
+	return ftype;
 }
 static void
 loqui_member_class_init(LoquiMemberClass *klass)
@@ -176,15 +176,15 @@ loqui_member_class_init(LoquiMemberClass *klass)
 					g_param_spec_object("user",
 							    _("User"),
 							    _("User"),
-							    LOQUI_TYPE_USER, G_PARAM_READWRITE));
+							    LOQUI_TYPE_USER, G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
 	g_object_class_install_property(object_class,
 					PROP_POWER,
-					g_param_spec_enum("power",
-							  _("Power"),
-							  _("Power"),
-							  LOQUI_TYPE_MEMBER_POWER_TYPE,
-							  LOQUI_MEMBER_POWER_UNDETERMINED,
-							  G_PARAM_READWRITE));
+					g_param_spec_flags("power",
+							   _("Power"),
+							   _("Power"),
+							   LOQUI_TYPE_MEMBER_POWER_TYPE,
+							   0,
+							   G_PARAM_READWRITE));
 }
 static void 
 loqui_member_init(LoquiMember *member)
@@ -196,12 +196,12 @@ loqui_member_init(LoquiMember *member)
 	member->priv = priv;
 }
 LoquiMember*
-loqui_member_new(void)
+loqui_member_new(LoquiUser *user)
 {
         LoquiMember *member;
 	LoquiMemberPrivate *priv;
 
-	member = g_object_new(loqui_member_get_type(), NULL);
+	member = g_object_new(loqui_member_get_type(), "user", user, NULL);
 	
         priv = member->priv;
 
@@ -230,7 +230,7 @@ loqui_member_get_user(LoquiMember *member)
 	return member->user;
 }
 void
-loqui_member_set_power(LoquiMember *member, LoquiMemberPowerType power)
+loqui_member_set_power(LoquiMember *member, LoquiMemberPowerFlags power)
 {
         g_return_if_fail(member != NULL);
         g_return_if_fail(LOQUI_IS_MEMBER(member));
@@ -240,7 +240,7 @@ loqui_member_set_power(LoquiMember *member, LoquiMemberPowerType power)
 	g_object_notify(G_OBJECT(member), "power");
 }
 
-LoquiMemberPowerType
+LoquiMemberPowerFlags
 loqui_member_get_power(LoquiMember *member)
 {
         g_return_val_if_fail(member != NULL, 0);

@@ -21,7 +21,7 @@
 #define __ACCOUNT_MANAGER_H__
 
 #include "account.h"
-#include "channel.h"
+#include "loqui_channel.h"
 
 G_BEGIN_DECLS
 

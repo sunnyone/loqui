@@ -73,10 +73,10 @@ void loqui_channel_set_account(LoquiChannel *channel, Account *account);
 Account *loqui_channel_get_account(LoquiChannel *channel);
 
 void loqui_channel_set_is_private_talk(LoquiChannel *channel, gboolean is_private_talk);
-gboolean loqui_channel_is_private_talk(LoquiChannel *channel);
+gboolean loqui_channel_get_is_private_talk(LoquiChannel *channel);
 
 void loqui_channel_set_is_joined(LoquiChannel *channel, gboolean is_joined);
-gboolean loqui_channel_is_joined(LoquiChannel *channel);
+gboolean loqui_channel_get_is_joined(LoquiChannel *channel);
 
 void loqui_channel_change_mode(LoquiChannel *channel, gboolean is_add, IRCModeFlag flag, gchar *argument);
 void loqui_channel_clear_mode(LoquiChannel *channel);
@@ -84,6 +84,11 @@ gchar *loqui_channel_get_mode(LoquiChannel *channel);
 
 void loqui_channel_push_user_mode_queue(LoquiChannel *channel, gboolean is_give, IRCModeFlag flag, const gchar *nick);
 void loqui_channel_flush_user_mode_queue(LoquiChannel *channel);
+
+LoquiMember *loqui_channel_add_member_by_nick(LoquiChannel *channel, const gchar *nick, LoquiMemberPowerFlags power);
+
+void loqui_channel_append_remark(LoquiChannel *channel, TextType type, gboolean is_self, const gchar *nick, const gchar *remark);
+void loqui_channel_append_text(LoquiChannel *channel, TextType type, gchar *str);
 
 G_END_DECLS
 

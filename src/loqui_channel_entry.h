@@ -75,9 +75,10 @@ GType loqui_channel_entry_get_type(void) G_GNUC_CONST;
 
 LoquiChannelEntry* loqui_channel_entry_new(void);
 
-void loqui_channel_entry_add(LoquiChannelEntry *chent, LoquiMember *member);
-void loqui_channel_entry_remove(LoquiChannelEntry *chent, LoquiUser *user);
-LoquiMember *loqui_channel_entry_get_member(LoquiChannelEntry *entry, LoquiUser *user);
+void loqui_channel_entry_add_member(LoquiChannelEntry *chent, LoquiMember *member);
+void loqui_channel_entry_remove_member_by_user(LoquiChannelEntry *chent, LoquiUser *user);
+void loqui_channel_entry_clear_member(LoquiChannelEntry *chent);
+LoquiMember *loqui_channel_entry_get_member_by_user(LoquiChannelEntry *entry, LoquiUser *user);
 
 void loqui_channel_entry_set_sort_func(LoquiChannelEntry *chent, GCompareFunc func);
 void loqui_channel_entry_sort(LoquiChannelEntry *chent);
@@ -89,7 +90,7 @@ void loqui_channel_entry_set_buffer(LoquiChannelEntry *chent, ChannelBuffer *buf
 ChannelBuffer *loqui_channel_entry_get_buffer(LoquiChannelEntry *chent);
 
 void loqui_channel_entry_set_is_updated(LoquiChannelEntry *chent, gboolean is_updated);
-gboolean loqui_channel_entry_is_updated(LoquiChannelEntry *chent);
+gboolean loqui_channel_entry_get_is_updated(LoquiChannelEntry *chent);
 
 #define LOQUI_CHANNEL_ENTRY_ACCESSOR_STRING(attr_name) \
   ATTR_ACCESSOR_POINTER(g_strdup, g_free, const gchar *, G_CONST_RETURN gchar *, LoquiChannelEntry, loqui_channel_entry, attr_name)

@@ -121,16 +121,16 @@ void command_dialog_private_talk(LoquiApp *app, Account *account)
 				  command_dialog_private_talk_cb, NULL,
 				  TRUE, account, FALSE, NULL, TRUE, NULL);
 }
-void command_dialog_part(LoquiApp *app, Account *account, Channel *channel)
+void command_dialog_part(LoquiApp *app, Account *account, LoquiChannel *channel)
 {
 	channel_input_dialog_open(app, 
 				  _("Part channel"),
 				  _("Type channel name to part and the part message."),
 				  CHANNEL_HISTORY_JOINED,
 				  command_dialog_part_cb, NULL,
-				  TRUE, account, TRUE, channel ? channel_get_name(channel) : NULL, TRUE, NULL);
+				  TRUE, account, TRUE, channel ? loqui_channel_entry_get_name(LOQUI_CHANNEL_ENTRY(channel)) : NULL, TRUE, NULL);
 }
-void command_dialog_topic(LoquiApp *app, Account *account, Channel *channel)
+void command_dialog_topic(LoquiApp *app, Account *account, LoquiChannel *channel)
 {
 	channel_input_dialog_open(app, 
 				  _("Set the topic of the channel"),
@@ -138,8 +138,8 @@ void command_dialog_topic(LoquiApp *app, Account *account, Channel *channel)
 				  CHANNEL_HISTORY_JOINED,
 				  command_dialog_topic_cb, NULL,
 				  TRUE, account,
-				  TRUE, channel ? channel_get_name(channel) : NULL,
-				  TRUE, channel ? channel_get_topic(channel) : NULL);
+				  TRUE, channel ? loqui_channel_entry_get_name(LOQUI_CHANNEL_ENTRY(channel)) : NULL,
+				  TRUE, channel ? loqui_channel_entry_get_topic(LOQUI_CHANNEL_ENTRY(channel)) : NULL);
 }
 void command_dialog_nick(LoquiApp *app, Account *account)
 {

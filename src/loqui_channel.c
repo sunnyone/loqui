@@ -22,6 +22,7 @@
 
 #include "loqui_channel.h"
 #include "intl.h"
+#include "loqui_utils_irc.h"
 
 enum {
 	MODE_CHANGED,
@@ -191,13 +192,13 @@ loqui_channel_class_init(LoquiChannelClass *klass)
 					g_param_spec_boolean("is_private_talk",
 							     _("PrivateTalk"),
 							     _("PrivateTalk or not"),
-							     TRUE, G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY));
+							     TRUE, G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
 	g_object_class_install_property(object_class,
 					PROP_ACCOUNT,
 					g_param_spec_object("account",
 							    _("Account"),
 							    _("Parent account"),
-							    TYPE_ACCOUNT, G_PARAM_READWRITE));
+							    TYPE_ACCOUNT, G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
 
         loqui_channel_signals[MODE_CHANGED] = g_signal_new("mode-changed",
 							   G_OBJECT_CLASS_TYPE(object_class),
@@ -223,6 +224,7 @@ loqui_channel_new(Account *account, const gchar *name, gboolean is_joined, gbool
 	LoquiChannelPrivate *priv;
 
 	channel = g_object_new(loqui_channel_get_type(),
+			       "account", account,
 			       "name", name,
 			       "is_private_talk", is_private_talk,
 			       "is_joined", is_joined,
@@ -271,7 +273,7 @@ loqui_channel_set_is_private_talk(LoquiChannel *channel, gboolean is_private_tal
 	g_object_notify(G_OBJECT(channel), "is_private_talk");
 }
 gboolean
-loqui_channel_is_private_talk(LoquiChannel *channel)
+loqui_channel_get_is_private_talk(LoquiChannel *channel)
 {
         g_return_val_if_fail(channel != NULL, 0);
         g_return_val_if_fail(LOQUI_IS_CHANNEL(channel), 0);
@@ -291,7 +293,7 @@ loqui_channel_set_is_joined(LoquiChannel *channel, gboolean is_joined)
 	g_object_notify(G_OBJECT(channel), "is_joined");
 }
 gboolean
-loqui_channel_is_joined(LoquiChannel *channel)
+loqui_channel_get_is_joined(LoquiChannel *channel)
 {
         g_return_val_if_fail(channel != NULL, 0);
         g_return_val_if_fail(LOQUI_IS_CHANNEL(channel), 0);
@@ -419,7 +421,7 @@ loqui_channel_clear_mode(LoquiChannel *channel)
 	LoquiChannelPrivate *priv;
 
 	g_return_if_fail(channel != NULL);
-	g_return_if_fail(IS_CHANNEL(channel));
+	g_return_if_fail(LOQUI_IS_CHANNEL(channel));
 	
 	priv = channel->priv;
 
@@ -444,7 +446,7 @@ loqui_channel_get_mode(LoquiChannel *channel)
 	LoquiChannelMode *mode;
 
 	g_return_val_if_fail(channel != NULL, NULL);
-	g_return_val_if_fail(IS_CHANNEL(channel), NULL);
+	g_return_val_if_fail(LOQUI_IS_CHANNEL(channel), NULL);
 	
 	priv = channel->priv;
 
@@ -472,4 +474,88 @@ loqui_channel_get_mode(LoquiChannel *channel)
 	g_string_free(flag_string, FALSE);
 
 	return str;
+}
+LoquiMember *
+loqui_channel_add_member_by_nick(LoquiChannel *channel, const gchar *nick, LoquiMemberPowerFlags power)
+{
+	gchar *tmp_nick;
+        LoquiMemberPowerFlags tmp_power = 0;
+	LoquiMember *member;
+	LoquiUser *user;
+
+        g_return_val_if_fail(channel != NULL, NULL);
+        g_return_val_if_fail(LOQUI_IS_CHANNEL(channel), NULL);
+        g_return_val_if_fail(nick != NULL, NULL);
+        g_return_val_if_fail(*nick != '\0', NULL);
+	
+	if (power == LOQUI_MEMBER_POWER_UNDETERMINED) {
+		loqui_utils_irc_parse_nick(nick, &tmp_power, &tmp_nick);
+		nick = tmp_nick;
+		power = tmp_power;
+	}
+	
+	user = account_fetch_user(channel->account, nick);
+	member = loqui_member_new(user);
+	g_object_unref(user); /* member has reference count */
+	loqui_member_set_power(member, power);
+	loqui_channel_entry_add_member(LOQUI_CHANNEL_ENTRY(channel), member);
+	g_object_unref(member); /* channel entry has reference count */
+
+	return member;
+}
+void
+loqui_channel_append_remark(LoquiChannel *channel, TextType type, gboolean is_self, const gchar *nick, const gchar *remark)
+{
+	ChannelBuffer *buffer;
+	LoquiChannelPrivate *priv;
+	MessageText *msgtext;
+
+	gboolean is_priv = FALSE;
+	gboolean exec_notification = TRUE;
+
+	g_return_if_fail(channel != NULL);
+	g_return_if_fail(LOQUI_IS_CHANNEL(channel));
+
+	priv = channel->priv;
+	buffer = loqui_channel_entry_get_buffer(LOQUI_CHANNEL_ENTRY(channel));
+
+	is_priv = loqui_channel_get_is_private_talk(channel);
+
+	if(is_self)
+		exec_notification = FALSE;
+
+	msgtext = message_text_new();
+	g_object_set(G_OBJECT(msgtext),
+		     "is_remark", TRUE,
+		     "text_type", type,
+		     "is_priv", is_priv,
+		     "is_self", is_self,
+		     "text", remark,
+		     "nick", nick,
+		     "channel_name", loqui_channel_entry_get_name(LOQUI_CHANNEL_ENTRY(channel)), NULL);
+	loqui_channel_entry_set_is_updated(LOQUI_CHANNEL_ENTRY(channel), TRUE);
+  
+	channel_buffer_append_message_text(buffer, msgtext, FALSE, exec_notification);
+	g_object_unref(msgtext);
+}
+void
+loqui_channel_append_text(LoquiChannel *channel, TextType type, gchar *str)
+{
+	ChannelBuffer *buffer;
+	MessageText *msgtext;
+
+	g_return_if_fail(channel != NULL);
+	g_return_if_fail(LOQUI_IS_CHANNEL(channel));
+
+	buffer = loqui_channel_entry_get_buffer(LOQUI_CHANNEL_ENTRY(channel));
+
+	msgtext = message_text_new();
+	g_object_set(G_OBJECT(msgtext),
+		     "is_remark", FALSE,
+		     "text_type", type,
+		     "text", str,
+		     NULL);
+
+	channel_buffer_append_message_text(buffer, msgtext, FALSE, FALSE);
+	g_object_unref(msgtext);
 }

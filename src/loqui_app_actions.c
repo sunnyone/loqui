@@ -373,7 +373,7 @@ loqui_app_actions_nick_cb(GtkAction *action, LoquiApp *app)
 static void
 loqui_app_actions_away_info_cb(GtkAction *action, LoquiApp *app)
 {
-	Channel *channel;
+	LoquiChannel *channel;
 
 	channel = loqui_app_get_current_channel(app);
 	if (channel)

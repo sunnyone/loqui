@@ -17,16 +17,15 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
-#ifndef __LOQUI_CHANNEL_ENTRY_UI_H__
-#define __LOQUI_CHANNEL_ENTRY_UI_H__
-#include "loqui_app.h"
-#include "loqui_channel_entry_action.h"
+#ifndef __LOQUI_UTILS_IRC_H__
+#define __LOQUI_UTILS_IRC_H__
 
-void loqui_channel_entry_ui_attach_channel_entry_action(LoquiApp *app, GObject *channel_entry);
-void loqui_channel_entry_ui_add_account(LoquiApp *app, Account *account, const gchar *path, const gchar *data_prefix);
-void loqui_channel_entry_ui_remove_account(LoquiApp *app, Account *account, const gchar *path, const gchar *data_prefix);
+#include <glib.h>
 
-void loqui_channel_entry_ui_add_channel(LoquiApp *app, LoquiChannel *channel, const gchar *path, const gchar *data_prefix);
-void loqui_channel_entry_ui_remove_channel(LoquiApp *app, LoquiChannel *channel, const gchar *data_prefix);
+#include "loqui_member.h"
 
-#endif /* __LOQUI_CHANNEL_ENTRY_UI_H__ */
+void loqui_utils_irc_parse_nick(const gchar *nick, LoquiMemberPowerFlags *flags_ptr, gchar **nick_ptr);
+
+#define LOQUI_UTILS_IRC_STRING_IS_CHANNEL(s) ((*s == '#' || *s =='&' || *s =='!' || *s == '+'))
+
+#endif /* __LOQUI_UTILS_IRC_H__ */

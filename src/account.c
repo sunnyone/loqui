@@ -31,6 +31,8 @@
 #include "prefs_general.h"
 #include "ctcp_message.h"
 #include "loqui_profile_account_irc.h"
+#include "loqui_user_irc.h"
+#include "loqui_utils_irc.h"
 
 #include <string.h>
 
@@ -65,6 +67,12 @@ static GObjectClass *parent_class = NULL;
 
 static guint account_signals[LAST_SIGNAL] = { 0 };
 
+enum {
+	USER_RELATION_FIELD_NICK,
+	USER_RELATION_FIELD_USER,
+	USER_RELATION_FIELDS
+};
+
 static void account_class_init(AccountClass *klass);
 static void account_init(Account *account);
 static void account_finalize(GObject *object);
@@ -83,6 +91,8 @@ static void account_connection_disconnected_cb(GObject *object, Account *account
 static void account_connection_terminated_cb(GObject *object, Account *account);
 static void account_connection_warn_cb(GObject *object, gchar *str, Account *account);
 static void account_connection_info_cb(GObject *object, gchar *str, Account *account);
+
+static void account_user_notify_nick_cb(LoquiUser *user, GParamSpec *pspec, Account *account);
 
 GType
 account_get_type(void)
@@ -156,7 +166,7 @@ account_class_init (AccountClass *klass)
 						    NULL, NULL,
 						    g_cclosure_marshal_VOID__OBJECT,
 						    G_TYPE_NONE, 1,
-						    TYPE_CHANNEL);
+						    LOQUI_TYPE_CHANNEL);
 	account_signals[REMOVE_CHANNEL] = g_signal_new("remove-channel",
 						       G_OBJECT_CLASS_TYPE(object_class),
 						       G_SIGNAL_RUN_FIRST,
@@ -164,7 +174,7 @@ account_class_init (AccountClass *klass)
 						       NULL, NULL,
 						       g_cclosure_marshal_VOID__OBJECT,
 						       G_TYPE_NONE, 1,
-						       TYPE_CHANNEL);
+						       LOQUI_TYPE_CHANNEL);
 }
 static void 
 account_init(Account *account)
@@ -176,7 +186,10 @@ account_init(Account *account)
 	account->priv = priv;
 	priv->is_away = FALSE;
 	
-	account->channel_hash = g_hash_table_new_full(channel_name_hash, channel_name_equal, g_free, g_object_unref);
+	account->channel_hash = g_hash_table_new_full(utils_strcase_hash, utils_strcase_equal, g_free, g_object_unref);
+	account->user_relation = g_relation_new(USER_RELATION_FIELDS);
+	g_relation_index(account->user_relation, USER_RELATION_FIELD_NICK, utils_strcase_hash, utils_strcase_equal);
+	g_relation_index(account->user_relation, USER_RELATION_FIELD_USER, g_direct_hash, g_direct_equal);
 }
 static void 
 account_finalize (GObject *object)
@@ -198,7 +211,10 @@ account_finalize (GObject *object)
 		g_hash_table_destroy(account->channel_hash);
 		account->channel_hash = NULL;
 	}
-
+	if (account->user_relation) {
+		g_relation_destroy(account->user_relation);
+		account->user_relation = NULL;
+	}
 	G_OBJECT_UNREF_UNLESS_NULL(account->console_buffer);
 
         if (G_OBJECT_CLASS(parent_class)->finalize)
@@ -469,29 +485,29 @@ account_is_connected(Account *account)
 	return (account->priv->connection != NULL);
 }
 void
-account_add_channel(Account *account, Channel *channel)
+account_add_channel(Account *account, LoquiChannel *channel)
 {
         g_return_if_fail(account != NULL);
         g_return_if_fail(IS_ACCOUNT(account));
 
-	g_hash_table_insert(account->channel_hash, g_strdup(channel_get_name(channel)), channel);
+	g_hash_table_insert(account->channel_hash, g_strdup(loqui_channel_entry_get_name(LOQUI_CHANNEL_ENTRY(channel))), channel);
 
 	g_signal_emit(account, account_signals[ADD_CHANNEL], 0, channel);
 }
 void
-account_remove_channel(Account *account, Channel *channel)
+account_remove_channel(Account *account, LoquiChannel *channel)
 {
         g_return_if_fail(account != NULL);
         g_return_if_fail(IS_ACCOUNT(account));
 
 	g_signal_emit(account, account_signals[REMOVE_CHANNEL], 0, channel);
 
-	g_hash_table_remove(account->channel_hash, channel_get_name(channel));
+	g_hash_table_remove(account->channel_hash, loqui_channel_entry_get_name(LOQUI_CHANNEL_ENTRY(channel)));
 }
 static gboolean
 account_remove_channel_func(gpointer key, gpointer value, Account *account)
 {
-	g_signal_emit(account, account_signals[REMOVE_CHANNEL], 0, CHANNEL(value));
+	g_signal_emit(account, account_signals[REMOVE_CHANNEL], 0, LOQUI_CHANNEL(value));
 	return TRUE;
 }
 void
@@ -503,14 +519,14 @@ account_remove_all_channel(Account *account)
 	g_hash_table_foreach_remove(account->channel_hash, (GHRFunc) account_remove_channel_func, account);
 }
 
-Channel*
+LoquiChannel*
 account_get_channel(Account *account, const gchar *name)
 {
         g_return_val_if_fail(account != NULL, NULL);
         g_return_val_if_fail(IS_ACCOUNT(account), NULL);
 	g_return_val_if_fail(name != NULL, NULL);
 
-	return (Channel *) g_hash_table_lookup(account->channel_hash, name);
+	return (LoquiChannel *) g_hash_table_lookup(account->channel_hash, name);
 }
 void
 account_console_buffer_append(Account *account, TextType type, gchar *str)
@@ -532,7 +548,7 @@ account_console_buffer_append(Account *account, TextType type, gchar *str)
 	g_object_unref(msgtext);
 }
 void
-account_speak(Account *account, Channel *channel, const gchar *str, gboolean command_mode)
+account_speak(Account *account, LoquiChannel *channel, const gchar *str, gboolean command_mode)
 {
 	AccountPrivate *priv;
 	const gchar *cur;
@@ -585,10 +601,10 @@ account_speak(Account *account, Channel *channel, const gchar *str, gboolean com
 			if(strlen(array[i]) == 0)
 				continue;
 
-			msg = irc_message_create(IRCCommandPrivmsg, channel_get_name(channel), array[i], NULL);
+			msg = irc_message_create(IRCCommandPrivmsg, loqui_channel_entry_get_name(LOQUI_CHANNEL_ENTRY(channel)), array[i], NULL);
 			irc_connection_push_message(priv->connection, msg);
 			g_object_unref(msg);
-			channel_append_remark(channel, TEXT_TYPE_NORMAL, TRUE, account_get_current_nick(account), array[i]);
+			loqui_channel_append_remark(channel, TEXT_TYPE_NORMAL, TRUE, account_get_current_nick(account), array[i]);
 		}
 		g_strfreev(array);
 	}
@@ -705,20 +721,24 @@ account_search_joined_channel(Account *account, gchar *nick)
 {
 	GList *channel_list, *cur;
 	GSList *list = NULL;
-	Channel *channel = NULL;
+	LoquiChannelEntry *chent;
+	LoquiUser *user;
 
         g_return_val_if_fail(account != NULL, NULL);
         g_return_val_if_fail(IS_ACCOUNT(account), NULL);
 	g_return_val_if_fail(nick != NULL, NULL);
 
+	user = account_peek_user(account, nick);
+	if (!user) 
+		return NULL;
+
 	channel_list = utils_get_value_list_from_hash(account->channel_hash);
-	for(cur = channel_list; cur != NULL; cur = cur->next) {
-		channel = CHANNEL(cur->data);
-		if(channel_find_user(channel, nick, NULL)) {
-			list = g_slist_append(list, channel);
-		}
+	for (cur = channel_list; cur != NULL; cur = cur->next) {
+		chent = LOQUI_CHANNEL_ENTRY(cur->data);
+		if (loqui_channel_entry_get_member_by_user(chent, user))
+			list = g_slist_append(list, chent);
 	}
-	if(channel_list)
+	if (channel_list)
 		g_list_free(channel_list);
 	
 	return list;
@@ -814,7 +834,7 @@ account_join(Account *account, const gchar *target)
 void
 account_start_private_talk(Account *account, const gchar *target)
 {
-	Channel *channel;
+	LoquiChannel *channel;
 
         g_return_if_fail(account != NULL);
         g_return_if_fail(IS_ACCOUNT(account));
@@ -824,12 +844,12 @@ account_start_private_talk(Account *account, const gchar *target)
 		return;
 	}
 
-	if(STRING_IS_CHANNEL(target)) {
+	if(LOQUI_UTILS_IRC_STRING_IS_CHANNEL(target)) {
 		gtkutils_msgbox_info(GTK_MESSAGE_ERROR,
 				     _("This nick seems to be channel."));
 	}
 
-	channel = channel_new(account, target);
+	channel = loqui_channel_new(account, target, TRUE, TRUE);
 	account_add_channel(account, channel);
 }
 void account_part(Account *account, const gchar *target, const gchar *part_message)
@@ -847,7 +867,7 @@ void account_part(Account *account, const gchar *target, const gchar *part_messa
 
 	priv = account->priv;
 
-	if(STRING_IS_CHANNEL(target)) {
+	if(LOQUI_UTILS_IRC_STRING_IS_CHANNEL(target)) {
 		msg = irc_message_create(IRCCommandPart, target, part_message, NULL);
 		irc_connection_push_message(priv->connection, msg);
 	} else {
@@ -869,13 +889,13 @@ void account_set_topic(Account *account, const gchar *target, const gchar *topic
 
 	priv = account->priv;
 
-	if(STRING_IS_CHANNEL(target)) {
+	if(LOQUI_UTILS_IRC_STRING_IS_CHANNEL(target)) {
 		msg = irc_message_create(IRCCommandTopic, target, topic, NULL);
 		irc_connection_push_message(priv->connection, msg);
 		g_object_unref(msg);
 	}
 }
-void account_change_channel_user_mode(Account *account, Channel *channel, 
+void account_change_channel_user_mode(Account *account, LoquiChannel *channel, 
 				      gboolean is_give, IRCModeFlag flag, GList *str_list)
 {
 	IRCMessage *msg;
@@ -898,7 +918,7 @@ void account_change_channel_user_mode(Account *account, Channel *channel,
 	
 	p = 0;
 	/* MODE #Channel +? user1 user2 user3 */
-	param_array[p] = (gchar *) channel_get_name(channel);
+	param_array[p] = (gchar *) loqui_channel_entry_get_name(LOQUI_CHANNEL_ENTRY(channel));
 	p++;
 
 	if(is_give)
@@ -991,7 +1011,7 @@ account_notice(Account *account, const gchar *target, const gchar *str)
 	g_object_unref(msg);
 }
 void
-account_fetch_away_information(Account *account, Channel *channel)
+account_fetch_away_information(Account *account, LoquiChannel *channel)
 {
 	IRCMessage *msg;
 	AccountPrivate *priv;
@@ -999,7 +1019,7 @@ account_fetch_away_information(Account *account, Channel *channel)
         g_return_if_fail(account != NULL);
         g_return_if_fail(IS_ACCOUNT(account));
         g_return_if_fail(channel != NULL);
-        g_return_if_fail(IS_CHANNEL(channel));        
+        g_return_if_fail(LOQUI_IS_CHANNEL(channel));        
 
 	priv = account->priv;
 
@@ -1010,14 +1030,14 @@ account_fetch_away_information(Account *account, Channel *channel)
 
 	priv->handle->prevent_print_who_reply_count++;
 	
-	msg = irc_message_create(IRCCommandWho, channel_get_name(channel), NULL);
+	msg = irc_message_create(IRCCommandWho, loqui_channel_entry_get_name(LOQUI_CHANNEL_ENTRY(channel)), NULL);
 	irc_connection_push_message(priv->connection, msg);
 	g_object_unref(msg);
 }
 void
 account_get_updated_number(Account *account, gint *updated_private_talk_number, gint *updated_channel_number)
 {
-	Channel *channel;
+	LoquiChannel *channel;
 	GList *list, *cur;
 		
         g_return_if_fail(account != NULL);
@@ -1031,15 +1051,77 @@ account_get_updated_number(Account *account, gint *updated_private_talk_number, 
 	list = utils_get_value_list_from_hash(account->channel_hash);
 	
 	for(cur = list; cur != NULL; cur = cur->next) {
-		channel = CHANNEL(cur->data);
-		if(channel_is_private_talk(channel)) {
-			if(channel_get_updated(channel))
+		channel = LOQUI_CHANNEL(cur->data);
+		if (loqui_channel_entry_get_is_updated(LOQUI_CHANNEL_ENTRY(channel))) {
+			if(loqui_channel_get_is_private_talk(channel)) {
 				(*updated_private_talk_number)++;
-		} else {
-			if(channel_get_updated(channel))
+			} else {
 				(*updated_channel_number)++;
+			}
 		}
 	}
 	
 	g_list_free(list);
+}
+static void
+account_user_disposed_cb(Account *account, LoquiUser *user)
+{
+        g_return_if_fail(account != NULL);
+        g_return_if_fail(IS_ACCOUNT(account));
+
+	g_relation_delete(account->user_relation, user, USER_RELATION_FIELD_USER);
+}
+static void
+account_user_notify_nick_cb(LoquiUser *user, GParamSpec *pspec, Account *account)
+{
+	GTuples *tuples;
+
+        g_return_if_fail(account != NULL);
+        g_return_if_fail(IS_ACCOUNT(account));
+
+	tuples = g_relation_select(account->user_relation, user, USER_RELATION_FIELD_USER);
+	g_assert(tuples->len > 0);
+	user = g_tuples_index(tuples, 0, USER_RELATION_FIELD_USER);
+	g_relation_delete(account->user_relation, user, USER_RELATION_FIELD_USER);
+	g_relation_insert(account->user_relation, loqui_user_get_nick(user), user);
+	g_tuples_destroy(tuples);
+}
+LoquiUser *
+account_fetch_user(Account *account, const gchar *nick)
+{
+	LoquiUser *user;
+		
+        g_return_val_if_fail(account != NULL, NULL);
+        g_return_val_if_fail(IS_ACCOUNT(account), NULL);
+
+	if((user = account_peek_user(account, nick)) == NULL) {
+		user = LOQUI_USER(loqui_user_irc_new());
+		loqui_user_set_nick(user, nick);
+		g_signal_connect(G_OBJECT(user), "notify::nick",
+				 G_CALLBACK(account_user_notify_nick_cb), account);
+		g_object_weak_ref(G_OBJECT(user), (GWeakNotify) account_user_disposed_cb, account);
+		g_relation_insert(account->user_relation, nick, user);
+	} else {
+		g_object_ref(user);
+	}
+
+	return user;
+}
+LoquiUser *
+account_peek_user(Account *account, const gchar *nick)
+{
+	LoquiUser *user;
+	GTuples *tuples;
+
+        g_return_val_if_fail(account != NULL, NULL);
+        g_return_val_if_fail(IS_ACCOUNT(account), NULL);
+
+	tuples = g_relation_select(account->user_relation, nick, USER_RELATION_FIELD_NICK);
+	if (tuples->len > 0)
+		user = g_tuples_index(tuples, 0, USER_RELATION_FIELD_USER);
+	else 
+		user = NULL;
+	g_tuples_destroy(tuples);
+
+	return user;
 }

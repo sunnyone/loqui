@@ -65,10 +65,10 @@ struct _LoquiChannelEntryStoreClass
 
 GType loqui_channel_entry_store_get_type(void) G_GNUC_CONST;
 
-LoquiChannelEntryStore* loqui_channel_entry_store_new(void);
+LoquiChannelEntryStore* loqui_channel_entry_store_new(LoquiChannelEntry *chent);
 
-void loqui_channel_entry_store_set_entry(LoquiChannelEntryStore *store, LoquiChannelEntry *chent);
-LoquiChannelEntry *loqui_channel_entry_store_get_entry(LoquiChannelEntryStore *store);
+/* void loqui_channel_entry_store_set_entry(LoquiChannelEntryStore *store, LoquiChannelEntry *chent);
+   LoquiChannelEntry *loqui_channel_entry_store_get_entry(LoquiChannelEntryStore *store); */
 
 G_END_DECLS
 

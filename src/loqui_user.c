@@ -50,7 +50,7 @@ static GObjectClass *parent_class = NULL;
 
 #define AWAY_TYPE_ARRAY_DEFAULT_SIZE 10
 
-/* static guint loqui_user_signals[LAST_SIGNAL] = { 0 }; */
+/* static guint user_signals[LAST_SIGNAL] = { 0 }; */
 
 static void loqui_user_class_init(LoquiUserClass *klass);
 static void loqui_user_init(LoquiUser *user);
@@ -307,7 +307,6 @@ loqui_user_new(void)
 
         return user;
 }
-
 /**
    loqui_user_class_install_away_type:
    @name: away name like "protocol-busy". must be unique.
@@ -377,6 +376,7 @@ LOQUI_USER_ACCESSOR_STRING(hostname);
 LOQUI_USER_ACCESSOR_STRING(realname);
 LOQUI_USER_ACCESSOR_STRING(servername);
 LOQUI_USER_ACCESSOR_STRING(away_message);
+
 
 LoquiBasicAwayType
 loqui_user_get_basic_away(LoquiUser *user)

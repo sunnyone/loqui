@@ -24,7 +24,7 @@
 #include "intl.h"
 
 /* FIXME */
-#include "channel.h"
+#include "loqui_channel.h"
 #include "account.h"
 #include "loqui_stock.h"
 
@@ -212,7 +212,7 @@ loqui_channel_entry_action_set_channel_entry(LoquiChannelEntryAction *action, GO
 
 	/* FIXME */
 	if (channel_entry)
-		g_return_if_fail(IS_CHANNEL(channel_entry) || IS_ACCOUNT(channel_entry));
+		g_return_if_fail(LOQUI_IS_CHANNEL(channel_entry) || IS_ACCOUNT(channel_entry));
 
 	G_OBJECT_UNREF_UNLESS_NULL(action->channel_entry);
 
@@ -220,8 +220,8 @@ loqui_channel_entry_action_set_channel_entry(LoquiChannelEntryAction *action, GO
 		g_object_ref(channel_entry);
 		action->channel_entry = channel_entry;
 		/* FIXME */
-		if (IS_CHANNEL(channel_entry))
-			name = channel_get_name(CHANNEL(channel_entry));
+		if (LOQUI_IS_CHANNEL(channel_entry))
+			name = loqui_channel_entry_get_name(LOQUI_CHANNEL_ENTRY(channel_entry));
 		else if (IS_ACCOUNT(channel_entry)) {
 			name = loqui_profile_account_get_name(account_get_profile(ACCOUNT(channel_entry)));
 			g_object_set(G_OBJECT(action), "stock_id", LOQUI_STOCK_CONSOLE, NULL);

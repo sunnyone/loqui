@@ -59,7 +59,6 @@ static void loqui_channel_entry_dispose(GObject *object);
 static void loqui_channel_entry_get_property(GObject *object, guint param_id, GValue *value, GParamSpec *pspec);
 static void loqui_channel_entry_set_property(GObject *object, guint param_id, const GValue *value, GParamSpec *pspec);
 
-static void loqui_channel_entry_remove_user_from_hash(LoquiChannelEntry *chent, LoquiUser *user);
 static void loqui_channel_entry_real_remove(LoquiChannelEntry *chent, LoquiMember *member);
 
 GType
@@ -269,24 +268,27 @@ loqui_channel_entry_new(void)
         return chent;
 }
 static void
-loqui_channel_entry_remove_user_from_hash(LoquiChannelEntry *chent, LoquiUser *user)
+loqui_channel_entry_real_remove(LoquiChannelEntry *chent, LoquiMember *member)
 {
+	gint i;
+	gint old_pos;
+	LoquiMember *mcur;
+
         g_return_if_fail(chent != NULL);
         g_return_if_fail(LOQUI_IS_CHANNEL_ENTRY(chent));
 
-	g_hash_table_remove(chent->user_hash, user);
-}
-static void
-loqui_channel_entry_real_remove(LoquiChannelEntry *chent, LoquiMember *member)
-{
-        g_return_if_fail(chent != NULL);
-        g_return_if_fail(LOQUI_IS_CHANNEL_ENTRY(chent));
-	
-	loqui_channel_entry_remove_user_from_hash(chent, member->user);
+	old_pos = GPOINTER_TO_INT(g_hash_table_lookup(chent->user_hash, member->user)) - 1;
+	g_return_if_fail(old_pos < 0);
+	g_array_remove_index(chent->member_array, old_pos);
+	g_hash_table_remove(chent->user_hash, GINT_TO_POINTER(chent->member_array->len - 1 + 1));
+	for (i = 0; i < chent->member_array->len; i++) {
+		mcur = loqui_channel_entry_get_nth_member(chent, i);
+		g_hash_table_replace(chent->user_hash, mcur->user, GINT_TO_POINTER(i + 1));
+	}
 	g_object_unref(member);
 }
 void
-loqui_channel_entry_add(LoquiChannelEntry *chent, LoquiMember *member)
+loqui_channel_entry_add_member(LoquiChannelEntry *chent, LoquiMember *member)
 {
 	LoquiChannelEntryPrivate *priv;
 	gint i, pos;
@@ -314,20 +316,37 @@ loqui_channel_entry_add(LoquiChannelEntry *chent, LoquiMember *member)
 	}
 	g_hash_table_insert(chent->user_hash, member->user, GINT_TO_POINTER(pos + 1));
 
-	g_signal_emit(chent, loqui_channel_entry_signals[SIGNAL_INSERTED], 2, member, pos);
+	g_signal_emit(chent, loqui_channel_entry_signals[SIGNAL_INSERTED], 0, member, pos);
 }
 void
-loqui_channel_entry_remove(LoquiChannelEntry *chent, LoquiUser *user)
+loqui_channel_entry_remove_member_by_user(LoquiChannelEntry *chent, LoquiUser *user)
 {
 	LoquiMember *member;
         g_return_if_fail(chent != NULL);
         g_return_if_fail(LOQUI_IS_CHANNEL_ENTRY(chent));
 	
-	member = loqui_channel_entry_get_member(chent, user);
-	g_signal_emit(G_OBJECT(chent), loqui_channel_entry_signals[SIGNAL_REMOVE], 1, member);
+	member = loqui_channel_entry_get_member_by_user(chent, user);
+	g_signal_emit(G_OBJECT(chent), loqui_channel_entry_signals[SIGNAL_REMOVE], 0, member);
 }
+void
+loqui_channel_entry_clear_member(LoquiChannelEntry *chent)
+{
+	LoquiMember *member;
+	GList *list = NULL, *cur;
+	int i, num;
+	
+	num = loqui_channel_entry_get_member_number(chent);
+	for (i = 0; i < num; i++)
+		list = g_list_append(list, loqui_channel_entry_get_nth_member(chent, i));
+	for (cur = list; cur != NULL; cur = cur->next) {
+		member = LOQUI_MEMBER(cur->data);
+		loqui_channel_entry_remove_member_by_user(chent, member->user);
+	}
+	g_list_free(list);
+}
+
 LoquiMember *
-loqui_channel_entry_get_member(LoquiChannelEntry *chent, LoquiUser *user)
+loqui_channel_entry_get_member_by_user(LoquiChannelEntry *chent, LoquiUser *user)
 {
 	gint pos;
 
@@ -376,8 +395,9 @@ loqui_channel_entry_get_nth_member(LoquiChannelEntry *chent, gint n)
         g_return_val_if_fail(chent != NULL, NULL);
         g_return_val_if_fail(LOQUI_IS_CHANNEL_ENTRY(chent), NULL);
 	
-	if (n < 0 || chent->member_array->len >= n)
+	if (n < 0 || chent->member_array->len <= n) {
 		return NULL;
+	}
 
 	return g_array_index(chent->member_array, LoquiMember *, n);
 }
@@ -426,7 +446,7 @@ loqui_channel_entry_set_is_updated(LoquiChannelEntry *chent, gboolean is_updated
 	g_object_notify(G_OBJECT(chent), "is_updated");
 }
 gboolean
-loqui_channel_entry_is_updated(LoquiChannelEntry *chent)
+loqui_channel_entry_get_is_updated(LoquiChannelEntry *chent)
 {
         g_return_val_if_fail(chent != NULL, 0);
         g_return_val_if_fail(LOQUI_IS_CHANNEL_ENTRY(chent), 0);

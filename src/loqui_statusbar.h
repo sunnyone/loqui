@@ -22,7 +22,7 @@
 
 #include <gtk/gtk.h>
 
-#include "channel.h"
+#include "loqui_channel.h"
 #include "account.h"
 #include "loqui_app.h"
 
@@ -57,7 +57,7 @@ GtkType loqui_statusbar_get_type (void) G_GNUC_CONST;
 
 GtkWidget* loqui_statusbar_new(LoquiApp *app, GtkToggleAction *toggle_scroll_action);
 
-void loqui_statusbar_set_current_channel(LoquiStatusbar *statusbar, Channel *channel);
+void loqui_statusbar_set_current_channel(LoquiStatusbar *statusbar, LoquiChannel *channel);
 void loqui_statusbar_set_current_account(LoquiStatusbar *statusbar, Account *account);
 void loqui_statusbar_set_default(LoquiStatusbar *statusbar, const gchar *str);
 

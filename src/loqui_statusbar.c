@@ -71,7 +71,7 @@ static void loqui_statusbar_destroy(GtkObject *object);
 
 static void loqui_statusbar_set_preset_menu(LoquiStatusbar *statusbar, GList *nick_list);
 
-static void loqui_statusbar_set_away_state(LoquiStatusbar *statusbar, AwayState away_state);
+static void loqui_statusbar_set_basic_away(LoquiStatusbar *statusbar, LoquiBasicAwayType basic_away);
 static void loqui_statusbar_away_menuitem_activated_cb(GtkWidget *widget, LoquiStatusbar *statusbar);
 static void loqui_statusbar_set_away_menu(LoquiStatusbar *statusbar);
 
@@ -152,7 +152,7 @@ loqui_statusbar_destroy (GtkObject *object)
                 (* GTK_OBJECT_CLASS(parent_class)->destroy) (object);
 }
 static void
-loqui_statusbar_set_away_state(LoquiStatusbar *statusbar, AwayState away_state)
+loqui_statusbar_set_basic_away(LoquiStatusbar *statusbar, LoquiBasicAwayType basic_away)
 {
 	LoquiStatusbarPrivate *priv;
 	const gchar *stock_id;
@@ -162,17 +162,17 @@ loqui_statusbar_set_away_state(LoquiStatusbar *statusbar, AwayState away_state)
         
         priv = statusbar->priv;	
 		
-	switch (away_state) {
-	case AWAY_STATE_ONLINE:
+	switch (basic_away) {
+	case LOQUI_BASIC_AWAY_TYPE_ONLINE:
 		stock_id = LOQUI_STOCK_ONLINE;
 		break;
-	case AWAY_STATE_AWAY:
+	case LOQUI_BASIC_AWAY_TYPE_AWAY:
 		stock_id = LOQUI_STOCK_AWAY;
 		break;
-	case AWAY_STATE_BUSY:
+	case LOQUI_BASIC_AWAY_TYPE_BUSY:
 		stock_id = LOQUI_STOCK_BUSY;
 		break;		
-	case AWAY_STATE_OFFLINE:
+	case LOQUI_BASIC_AWAY_TYPE_OFFLINE:
 		stock_id = LOQUI_STOCK_OFFLINE;
 		break;
 	default:
@@ -221,10 +221,10 @@ loqui_statusbar_away_menuitem_activated_cb(GtkWidget *widget, LoquiStatusbar *st
 	if (account) {
 		if (account_is_connected(account)) {
 			switch (away_state) {
-			case AWAY_STATE_ONLINE:
+			case LOQUI_BASIC_AWAY_TYPE_ONLINE:
 				account_set_away(account, FALSE);
 				break;
-			case AWAY_STATE_AWAY:
+			case LOQUI_BASIC_AWAY_TYPE_AWAY:
 				account_set_away(account, TRUE);
 				break;
 			default:
@@ -301,25 +301,25 @@ loqui_statusbar_set_away_menu(LoquiStatusbar *statusbar)
 	gtk_menu_shell_append(GTK_MENU_SHELL(priv->menu_away), menuitem); \
 }
 
-	ADD_MENU_ITEM(_("Online"), LOQUI_STOCK_ONLINE, AWAY_STATE_ONLINE, TRUE);
+	ADD_MENU_ITEM(_("Online"), LOQUI_STOCK_ONLINE, LOQUI_BASIC_AWAY_TYPE_ONLINE, TRUE);
 	
 	menuitem = gtk_separator_menu_item_new();
 	gtk_widget_show(menuitem);
 	gtk_menu_shell_append(GTK_MENU_SHELL(priv->menu_away), menuitem);
 		
-	ADD_MENU_ITEM(_("Away"), LOQUI_STOCK_AWAY, AWAY_STATE_AWAY, TRUE);
+	ADD_MENU_ITEM(_("Away"), LOQUI_STOCK_AWAY, LOQUI_BASIC_AWAY_TYPE_AWAY, TRUE);
 	/*
-	ADD_MENU_ITEM(_("Busy"), LOQUI_STOCK_BUSY, AWAY_STATE_BUSY, FALSE);
-	ADD_MENU_ITEM(_("Away message..."), LOQUI_STOCK_AWAY, AWAY_STATE_AWAY_WITH_MESSAGE, FALSE);
-	ADD_MENU_ITEM(_("Configure away messages..."), GTK_STOCK_PREFERENCES, AWAY_STATE_CONFIGURE, FALSE);
+	ADD_MENU_ITEM(_("Busy"), LOQUI_STOCK_BUSY, LOQUI_BASIC_AWAY_TYPE_BUSY, FALSE);
+	ADD_MENU_ITEM(_("Away message..."), LOQUI_STOCK_AWAY, LOQUI_BASIC_AWAY_TYPE_AWAY_WITH_MESSAGE, FALSE);
+	ADD_MENU_ITEM(_("Configure away messages..."), GTK_STOCK_PREFERENCES, LOQUI_BASIC_AWAY_TYPE_CONFIGURE, FALSE);
 	
 	menuitem = gtk_separator_menu_item_new();
 	gtk_widget_show(menuitem);
 	gtk_menu_shell_append(GTK_MENU_SHELL(priv->menu_away), menuitem);
 	
-	ADD_MENU_ITEM(_("Quit..."), LOQUI_STOCK_OFFLINE, AWAY_STATE_QUIT, FALSE);
-	ADD_MENU_ITEM(_("Offline"), LOQUI_STOCK_OFFLINE, AWAY_STATE_OFFLINE, FALSE);
-	ADD_MENU_ITEM(_("Disconnect"), LOQUI_STOCK_OFFLINE, AWAY_STATE_DISCONNECT, FALSE);
+	ADD_MENU_ITEM(_("Quit..."), LOQUI_STOCK_OFFLINE, LOQUI_BASIC_AWAY_TYPE_QUIT, FALSE);
+	ADD_MENU_ITEM(_("Offline"), LOQUI_STOCK_OFFLINE, LOQUI_BASIC_AWAY_TYPE_OFFLINE, FALSE);
+	ADD_MENU_ITEM(_("Disconnect"), LOQUI_STOCK_OFFLINE, LOQUI_BASIC_AWAY_TYPE_DISCONNECT, FALSE);
 	*/
 }
 static void
@@ -411,7 +411,7 @@ loqui_statusbar_new(LoquiApp *app, GtkToggleAction *toggle_scroll_action)
 }
 
 void
-loqui_statusbar_set_current_channel(LoquiStatusbar *statusbar, Channel *channel)
+loqui_statusbar_set_current_channel(LoquiStatusbar *statusbar, LoquiChannel *channel)
 {
 	LoquiStatusbarPrivate *priv;
 	
@@ -424,7 +424,7 @@ void
 loqui_statusbar_set_current_account(LoquiStatusbar *statusbar, Account *account)
 {
 	LoquiStatusbarPrivate *priv;
-	AwayState away_state;
+	LoquiBasicAwayType basic_away;
         g_return_if_fail(statusbar != NULL);
         g_return_if_fail(LOQUI_IS_STATUSBAR(statusbar));
         
@@ -455,16 +455,16 @@ loqui_statusbar_set_current_account(LoquiStatusbar *statusbar, Account *account)
         
         // set icon
         if (account == NULL) {
-        	away_state = AWAY_STATE_OFFLINE;
+        	basic_away = LOQUI_BASIC_AWAY_TYPE_OFFLINE;
         } else if (!account_is_connected(account)) {
-        	away_state = AWAY_STATE_OFFLINE;
+        	basic_away = LOQUI_BASIC_AWAY_TYPE_OFFLINE;
         } else if (account_get_away_status(account)) {
-        	away_state = AWAY_STATE_AWAY;
+        	basic_away = LOQUI_BASIC_AWAY_TYPE_AWAY;
         } else {
-        	away_state = AWAY_STATE_ONLINE;
+        	basic_away = LOQUI_BASIC_AWAY_TYPE_ONLINE;
         }
         
-        loqui_statusbar_set_away_state(statusbar, away_state);
+        loqui_statusbar_set_basic_away(statusbar, basic_away);
 }
 void
 loqui_statusbar_set_default(LoquiStatusbar *statusbar, const gchar *str)

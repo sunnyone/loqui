@@ -31,7 +31,6 @@ enum {
 
 struct _LoquiChannelEntryStorePrivate
 {
-	LoquiChannelEntry *chent;
 };
 
 static GObjectClass *parent_class = NULL;
@@ -135,7 +134,7 @@ loqui_channel_entry_store_dispose(GObject *object)
 
         store = LOQUI_CHANNEL_ENTRY_STORE(object);
 
-	G_OBJECT_UNREF_UNLESS_NULL(store->priv->chent);
+	G_OBJECT_UNREF_UNLESS_NULL(store->chent);
 
         if (G_OBJECT_CLASS(parent_class)->dispose)
                 (* G_OBJECT_CLASS(parent_class)->dispose)(object);
@@ -187,8 +186,8 @@ loqui_channel_entry_store_init(LoquiChannelEntryStore *store)
 	priv = g_new0(LoquiChannelEntryStorePrivate, 1);
 
 	store->column_types[LOQUI_CHANNEL_ENTRY_STORE_COLUMN_MEMBER] = LOQUI_TYPE_MEMBER;
-	store->column_types[LOQUI_CHANNEL_ENTRY_STORE_COLUMN_BASIC_AWAY] = GDK_TYPE_PIXBUF;
-	store->column_types[LOQUI_CHANNEL_ENTRY_STORE_COLUMN_POWER] = GDK_TYPE_PIXBUF;
+	store->column_types[LOQUI_CHANNEL_ENTRY_STORE_COLUMN_BASIC_AWAY] = G_TYPE_INT;
+	store->column_types[LOQUI_CHANNEL_ENTRY_STORE_COLUMN_POWER] = G_TYPE_INT;
 	store->column_types[LOQUI_CHANNEL_ENTRY_STORE_COLUMN_NICK] = G_TYPE_STRING;
 
 	store->stamp = g_random_int();
@@ -266,9 +265,12 @@ loqui_channel_entry_store_get_iter(GtkTreeModel *tree_model,
 	g_assert(depth == 1);
 	n = indices[0];
 
-	member = loqui_channel_entry_get_nth_member(store->chent, n);
-	if (member == NULL)
+	if(loqui_channel_entry_get_member_number(store->chent) <= n) {
 		return FALSE;
+	}
+
+	member = loqui_channel_entry_get_nth_member(store->chent, n);
+	g_assert(member != NULL);
 
 	iter->stamp = store->stamp;
 	iter->user_data = member;
@@ -339,7 +341,7 @@ loqui_channel_entry_store_get_value(GtkTreeModel *tree_model,
 		g_value_set_int(value, loqui_user_get_basic_away(member->user));
 		break;
 	case LOQUI_CHANNEL_ENTRY_STORE_COLUMN_POWER:
-		g_value_set_enum(value, loqui_member_get_power(member));
+		g_value_set_int(value, loqui_member_get_power(member));
 		break;
 	}
 }
@@ -354,19 +356,23 @@ loqui_channel_entry_store_iter_next(GtkTreeModel *tree_model,
 
 	g_return_val_if_fail(tree_model != NULL, FALSE);
 	g_return_val_if_fail(LOQUI_IS_CHANNEL_ENTRY_STORE(tree_model), FALSE);
-	g_return_val_if_fail(iter != NULL, FALSE);
-	g_return_val_if_fail(iter->user_data != NULL, FALSE);
 
 	store = LOQUI_CHANNEL_ENTRY_STORE(tree_model);
 	priv = store->priv;
 
+	g_return_val_if_fail(iter != NULL, FALSE);
+	g_return_val_if_fail(store->stamp == iter->stamp, FALSE);
+	g_return_val_if_fail(iter->user_data != NULL, FALSE);
+
 	pos = GPOINTER_TO_INT(iter->user_data2) - 1;
-	member = loqui_channel_entry_get_nth_member(priv->chent, pos + 1);
+	pos++;
+
+	member = loqui_channel_entry_get_nth_member(store->chent, pos);
 	if (member == NULL)
 		return FALSE;
 
 	iter->user_data = member;
-	iter->user_data2 = GINT_TO_POINTER(pos) + 1;
+	iter->user_data2 = GINT_TO_POINTER(pos + 1);
 
 	return TRUE;
 }
@@ -399,10 +405,10 @@ loqui_channel_entry_store_iter_n_children(GtkTreeModel *tree_model,
 	store = LOQUI_CHANNEL_ENTRY_STORE(tree_model);
 	priv = store->priv;
 	
-	if (priv->chent)
+	if (!store->chent)
 		return -1;
 
-	return loqui_channel_entry_get_member_number(priv->chent);
+	return loqui_channel_entry_get_member_number(store->chent);
 }
 static gboolean
 loqui_channel_entry_store_iter_nth_child(GtkTreeModel *tree_model,
@@ -422,15 +428,15 @@ loqui_channel_entry_store_iter_nth_child(GtkTreeModel *tree_model,
 
 	if (parent)
 		return FALSE;
-	if (!priv->chent)
+	if (!store->chent)
 		return FALSE;
 
-	member = loqui_channel_entry_get_nth_member(priv->chent, n);
+	member = loqui_channel_entry_get_nth_member(store->chent, n);
 	g_assert(member != NULL);
 	
 	iter->stamp = store->stamp;
 	iter->user_data = member;
-	iter->user_data2 = GINT_TO_POINTER(n) + 1;
+	iter->user_data2 = GINT_TO_POINTER(n + 1);
 
 	return TRUE;
 }
@@ -441,15 +447,49 @@ loqui_channel_entry_store_iter_parent(GtkTreeModel *tree_model,
 {
 	return FALSE;
 }
+static void
+loqui_channel_entry_store_inserted_cb(LoquiChannelEntry *entry,
+				      LoquiMember *member,
+				      gint pos,
+				      LoquiChannelEntryStore *store)
+{
+	GtkTreeIter iter;
+	GtkTreePath *path;
+
+	iter.user_data = member;
+	iter.user_data2 = GINT_TO_POINTER(pos + 1);
+	path = loqui_channel_entry_store_get_path(GTK_TREE_MODEL(store), &iter);
+	gtk_tree_model_row_inserted(GTK_TREE_MODEL(store), path, &iter);
+	gtk_tree_path_free(path);
+}
+
 LoquiChannelEntryStore*
-loqui_channel_entry_store_new(void)
+loqui_channel_entry_store_new(LoquiChannelEntry *chent)
 {
         LoquiChannelEntryStore *store;
 	LoquiChannelEntryStorePrivate *priv;
+	int i, num;
+	GtkTreeIter iter;
+	GtkTreePath *path;
+
+	g_return_val_if_fail(chent != NULL, NULL);
 
 	store = g_object_new(loqui_channel_entry_store_get_type(), NULL);
 	
         priv = store->priv;
+	store->chent = chent;
+	num = loqui_channel_entry_get_member_number(chent);
+
+	for(i = 0; i < num; i++) {
+		iter.user_data = loqui_channel_entry_get_nth_member(chent, i);
+		iter.user_data2 = GINT_TO_POINTER(i + 1);
+		path = loqui_channel_entry_store_get_path(GTK_TREE_MODEL(store), &iter);
+		gtk_tree_model_row_inserted(GTK_TREE_MODEL(store), path, &iter);
+		gtk_tree_path_free(path);
+	}
+	
+	g_signal_connect(G_OBJECT(chent), "inserted",
+			 G_CALLBACK(loqui_channel_entry_store_inserted_cb), store);
 
         return store;
 }

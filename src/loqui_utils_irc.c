@@ -17,16 +17,24 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
-#ifndef __LOQUI_CHANNEL_ENTRY_UI_H__
-#define __LOQUI_CHANNEL_ENTRY_UI_H__
-#include "loqui_app.h"
-#include "loqui_channel_entry_action.h"
+#include "config.h"
+#include "loqui_utils_irc.h"
 
-void loqui_channel_entry_ui_attach_channel_entry_action(LoquiApp *app, GObject *channel_entry);
-void loqui_channel_entry_ui_add_account(LoquiApp *app, Account *account, const gchar *path, const gchar *data_prefix);
-void loqui_channel_entry_ui_remove_account(LoquiApp *app, Account *account, const gchar *path, const gchar *data_prefix);
-
-void loqui_channel_entry_ui_add_channel(LoquiApp *app, LoquiChannel *channel, const gchar *path, const gchar *data_prefix);
-void loqui_channel_entry_ui_remove_channel(LoquiApp *app, LoquiChannel *channel, const gchar *data_prefix);
-
-#endif /* __LOQUI_CHANNEL_ENTRY_UI_H__ */
+void
+loqui_utils_irc_parse_nick(const gchar *nick, LoquiMemberPowerFlags *flags_ptr, gchar **nick_ptr)
+{
+        const gchar *tmp_nick;
+	LoquiMemberPowerFlags tmp_power = 0;
+	
+	if(*nick == '@') {
+		tmp_nick = nick+1;
+		tmp_power |= LOQUI_MEMBER_POWER_OPERATOR;
+	} else if (*nick == '+') {
+		tmp_nick = nick+1;
+		tmp_power |= LOQUI_MEMBER_POWER_VOICE;
+	} else {
+		tmp_nick = nick;
+	}
+	*nick_ptr = (gchar *) tmp_nick;
+	*flags_ptr = tmp_power;
+}

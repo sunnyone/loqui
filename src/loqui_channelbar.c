@@ -130,7 +130,7 @@ loqui_channelbar_entry_topic_activated_cb(GtkWidget *widget, gpointer data)
 {
 	LoquiChannelbar *channelbar;
 	LoquiChannelbarPrivate *priv;
-	Channel *channel;
+	LoquiChannel *channel;
 	const gchar *str;
 
 	g_return_if_fail(data != NULL);
@@ -143,7 +143,7 @@ loqui_channelbar_entry_topic_activated_cb(GtkWidget *widget, gpointer data)
 	
 	channel = loqui_app_get_current_channel(priv->app);
 	str = gtk_entry_get_text(GTK_ENTRY(priv->entry_topic));
-	account_set_topic(channel->account, channel_get_name(channel), str);
+	account_set_topic(channel->account, loqui_channel_entry_get_name(LOQUI_CHANNEL_ENTRY(channel)), str);
 }
 static void
 loqui_channelbar_entry_changed_cb(GtkWidget *widget, gpointer data)
@@ -209,7 +209,7 @@ loqui_channelbar_new(LoquiApp *app, GtkWidget *menu_dropdown)
 }
 
 void
-loqui_channelbar_set_current_channel(LoquiChannelbar *channelbar, Channel *channel)
+loqui_channelbar_set_current_channel(LoquiChannelbar *channelbar, LoquiChannel *channel)
 {
 	LoquiChannelbarPrivate *priv;
 	const gchar *topic;
@@ -230,22 +230,23 @@ loqui_channelbar_set_current_channel(LoquiChannelbar *channelbar, Channel *chann
 	gtk_label_set(GTK_LABEL(priv->label_channel_mode), "");
 	gtk_label_set(GTK_LABEL(priv->label_user_number), "");
 	
-	if(channel && !channel_is_private_talk(channel)) {
-		topic = channel_get_topic(channel);
+	if(channel && !loqui_channel_get_is_private_talk(channel)) {
+		topic = loqui_channel_entry_get_topic(LOQUI_CHANNEL_ENTRY(channel));
 		if(topic)
 			gtk_entry_set_text(GTK_ENTRY(priv->entry_topic), topic);
 		gtk_widget_set_sensitive(priv->entry_topic, TRUE);
 		
-		channel_mode = channel_get_mode(channel);
+		channel_mode = loqui_channel_get_mode(channel);
 		buf = g_strdup_printf("[%s]", channel_mode);
 		g_free(channel_mode);
 		gtk_label_set(GTK_LABEL(priv->label_channel_mode), buf);
 		g_free(buf);
 		
-		channel_get_user_number(channel, &user_num_all, &user_num_op);
-		buf = g_strdup_printf("(%d/%d)", user_num_op, user_num_all);
+/* FIXME: user number setting
+                channel_get_user_number(channel, &user_num_all, &user_num_op);
+                buf = g_strdup_printf("(%d/%d)", user_num_op, user_num_all);
 		gtk_label_set(GTK_LABEL(priv->label_user_number), buf);
-		g_free(buf);
+		g_free(buf); */
 	} else {
 		gtk_widget_set_sensitive(priv->entry_topic, FALSE);
 	}

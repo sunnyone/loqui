@@ -38,14 +38,16 @@ typedef struct _AccountClass       AccountClass;
 
 typedef struct _AccountPrivate     AccountPrivate;
 
-#include "channel.h"
+#include "loqui_channel.h"
 
 struct _Account
 {
         GObject parent;
 
-	/* key: channel name(gchar *), value: channel(Channel) */
+	/* key: channel name(gchar *), value: channel(LoquiChannel) */
 	GHashTable *channel_hash;
+
+	GRelation *user_relation;
 
 	ChannelBuffer *console_buffer;
 
@@ -62,9 +64,9 @@ struct _AccountClass
 	void (* nick_changed)     (Account *account);
 	void (* away_changed)     (Account *account);
 	void (* add_channel)      (Account *account,
-				   Channel *channel);
+				   LoquiChannel *channel);
 	void (* remove_channel)   (Account *account,
-				   Channel *channel);
+				   LoquiChannel *channel);
 };
 
 GType account_get_type(void) G_GNUC_CONST;
@@ -81,15 +83,15 @@ gboolean account_is_connected(Account *account);
 void account_set_codeconv(Account *account, CodeConv *codeconv);
 CodeConv *account_get_codeconv(Account *account);
 
-void account_add_channel(Account *account, Channel *channel);
-void account_remove_channel(Account *account, Channel *channel);
+void account_add_channel(Account *account, LoquiChannel *channel);
+void account_remove_channel(Account *account, LoquiChannel *channel);
 void account_remove_all_channel(Account *account);
 
-Channel* account_get_channel(Account *account, const gchar *name);
+LoquiChannel* account_get_channel(Account *account, const gchar *name);
 GSList *account_search_joined_channel(Account *account, gchar *nick);
 
 void account_console_buffer_append(Account *account, TextType type, gchar *str);
-void account_speak(Account *account, Channel *channel, const gchar *str, gboolean command_mode);
+void account_speak(Account *account, LoquiChannel *channel, const gchar *str, gboolean command_mode);
 
 void account_set_current_nick(Account *account, const gchar *nick);
 G_CONST_RETURN gchar* account_get_current_nick(Account *account);
@@ -113,12 +115,15 @@ void account_notice(Account *account, const gchar *target, const gchar *str);
 
 void account_send_ctcp_request(Account *account, const gchar *target, const gchar *command);
 
-void account_change_channel_user_mode(Account *account, Channel *channel, 
+void account_change_channel_user_mode(Account *account, LoquiChannel *channel, 
 				      gboolean is_give, IRCModeFlag flag, GList *str_list);
 
-void account_fetch_away_information(Account *account, Channel *channel);
+void account_fetch_away_information(Account *account, LoquiChannel *channel);
 
 void account_get_updated_number(Account *account, gint *updated_private_talk_number, gint *updated_channel_number); 
+
+LoquiUser* account_fetch_user(Account *account, const gchar *nick);
+LoquiUser* account_peek_user(Account *account, const gchar *nick);
 
 G_END_DECLS
 

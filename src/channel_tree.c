@@ -143,7 +143,7 @@ channel_tree_row_selected_cb(GtkTreeSelection *selection, gpointer data)
 	GtkTreeIter iter;
 	GtkTreeModel *model;
 	Account *account;
-	Channel *channel;
+	LoquiChannel *channel;
 	
         g_return_if_fail(data != NULL);
         g_return_if_fail(IS_CHANNEL_TREE(data));
@@ -310,7 +310,7 @@ channel_tree_remove_account(ChannelTree *tree, Account *account)
 	channel_tree_update_buffer_number(tree);
 }
 void
-channel_tree_add_channel(ChannelTree *tree, Account *account, Channel *channel)
+channel_tree_add_channel(ChannelTree *tree, Account *account, LoquiChannel *channel)
 {
 	GtkTreeIter iter, parent;
 	GtkTreeModel *model;
@@ -320,7 +320,7 @@ channel_tree_add_channel(ChannelTree *tree, Account *account, Channel *channel)
 	g_return_if_fail(account != NULL);
 	g_return_if_fail(IS_ACCOUNT(account));
 	g_return_if_fail(channel != NULL);
-	g_return_if_fail(IS_CHANNEL(channel));
+	g_return_if_fail(LOQUI_IS_CHANNEL(channel));
 
 	model = gtk_tree_view_get_model(GTK_TREE_VIEW(tree));
 
@@ -330,7 +330,7 @@ channel_tree_add_channel(ChannelTree *tree, Account *account, Channel *channel)
 	}
 	gtk_tree_store_append(GTK_TREE_STORE(model), &iter, &parent);
 	gtk_tree_store_set(GTK_TREE_STORE(model), &iter,
-			   COLUMN_TEXT, channel_get_name(channel),
+			   COLUMN_TEXT, loqui_channel_entry_get_name(LOQUI_CHANNEL_ENTRY(channel)),
 			   COLUMN_ACCOUNT, NULL,
 			   COLUMN_CHANNEL, channel, -1);
 
@@ -339,7 +339,7 @@ channel_tree_add_channel(ChannelTree *tree, Account *account, Channel *channel)
 	channel_tree_update_buffer_number(tree);
 }
 void
-channel_tree_remove_channel(ChannelTree *tree, Channel *channel)
+channel_tree_remove_channel(ChannelTree *tree, LoquiChannel *channel)
 {
 	GtkTreeModel *model;
 	GtkTreeIter iter;
@@ -347,7 +347,7 @@ channel_tree_remove_channel(ChannelTree *tree, Channel *channel)
         g_return_if_fail(tree != NULL);
         g_return_if_fail(IS_CHANNEL_TREE(tree));
 	g_return_if_fail(channel != NULL);
-	g_return_if_fail(IS_CHANNEL(channel));
+	g_return_if_fail(LOQUI_IS_CHANNEL(channel));
 	
 	model = gtk_tree_view_get_model(GTK_TREE_VIEW(tree));
 
@@ -357,7 +357,7 @@ channel_tree_remove_channel(ChannelTree *tree, Channel *channel)
 	channel_tree_update_buffer_number(tree);
 }
 void
-channel_tree_select_channel(ChannelTree *tree, Channel *channel)
+channel_tree_select_channel(ChannelTree *tree, LoquiChannel *channel)
 {
 	GtkTreeModel *model;
 	GtkTreeIter iter;
@@ -367,7 +367,7 @@ channel_tree_select_channel(ChannelTree *tree, Channel *channel)
         g_return_if_fail(tree != NULL);
         g_return_if_fail(IS_CHANNEL_TREE(tree));
         g_return_if_fail(channel != NULL);
-        g_return_if_fail(IS_CHANNEL(channel));
+        g_return_if_fail(LOQUI_IS_CHANNEL(channel));
 	
 	priv = tree->priv;
 
@@ -404,7 +404,7 @@ channel_tree_select_account(ChannelTree *tree, Account *account)
 
 }
 void
-channel_tree_update_user_number(ChannelTree *tree, Channel *channel)
+channel_tree_update_user_number(ChannelTree *tree, LoquiChannel *channel)
 {
 	GtkTreeModel *model;
 	GtkTreeIter iter;
@@ -414,14 +414,19 @@ channel_tree_update_user_number(ChannelTree *tree, Channel *channel)
         g_return_if_fail(tree != NULL);
         g_return_if_fail(IS_CHANNEL_TREE(tree));
         g_return_if_fail(channel != NULL);
-        g_return_if_fail(IS_CHANNEL(channel));
+        g_return_if_fail(LOQUI_IS_CHANNEL(channel));
 
 	model = gtk_tree_view_get_model(GTK_TREE_VIEW(tree));
 
 	if(!gtk_tree_model_find_by_column_data(model, &iter, NULL, COLUMN_CHANNEL, channel))
 		return;
-	
+
+	/* FIXME: number 
 	channel_get_user_number(channel, &users, &op_users);
+	*/
+
+	users = 0;
+	op_users = 0;
 
 	gtk_tree_store_set(GTK_TREE_STORE(model), &iter,
 			   COLUMN_USERS, users,
@@ -429,7 +434,7 @@ channel_tree_update_user_number(ChannelTree *tree, Channel *channel)
 			   -1);
 }
 void
-channel_tree_set_updated(ChannelTree *tree, Account *account, Channel *channel)
+channel_tree_set_updated(ChannelTree *tree, Account *account, LoquiChannel *channel)
 {
 	GtkTreeModel *model;
 	GtkTreeIter iter;
@@ -449,7 +454,7 @@ channel_tree_set_updated(ChannelTree *tree, Account *account, Channel *channel)
 		if(!gtk_tree_model_find_by_column_data(model, &iter, NULL, COLUMN_CHANNEL, channel))
 			return;
 
-		if(channel_get_updated(channel))
+		if(loqui_channel_entry_get_is_updated(LOQUI_CHANNEL_ENTRY(channel)))
 			color = FRESH_COLOR;
 		else
 			color = NONFRESH_COLOR;
@@ -466,7 +471,7 @@ channel_tree_select_prev_channel(ChannelTree *tree, gboolean require_updated)
 	GtkTreeSelection *selection;
 	GtkTreeIter start_iter, iter, tmp;
 	GtkTreePath *path;
-	Channel *channel;
+	LoquiChannel *channel;
 	gint matched_count = 0;
 	gboolean child_start;
 
@@ -497,7 +502,7 @@ channel_tree_select_prev_channel(ChannelTree *tree, gboolean require_updated)
 			} else {
 				gtk_tree_model_get(model, &iter, COLUMN_CHANNEL, &channel, -1);
 				
-				if (channel && (!require_updated || channel_get_updated(channel))) {
+				if (channel && (!require_updated || loqui_channel_entry_get_is_updated(LOQUI_CHANNEL_ENTRY(channel)))) {
 					gtk_tree_selection_select_iter(selection, &iter);
 					return;
 				}
@@ -553,7 +558,7 @@ channel_tree_select_next_channel(ChannelTree *tree, gboolean require_updated)
 	GtkTreeModel *model;
 	GtkTreeSelection *selection;
 	GtkTreeIter start_iter, tmp, iter;
-	Channel *channel;
+	LoquiChannel *channel;
 	gint matched_count = 0;
 	gboolean child_start;
 
@@ -579,7 +584,9 @@ channel_tree_select_next_channel(ChannelTree *tree, gboolean require_updated)
 			} else {
 				gtk_tree_model_get(model, &iter, COLUMN_CHANNEL, &channel, -1);
 				
-				if (channel && (!require_updated || channel_get_updated(channel))) {
+				if (channel &&
+				    (!require_updated ||
+				     loqui_channel_entry_get_is_updated(LOQUI_CHANNEL_ENTRY(channel)))) {
 					gtk_tree_selection_select_iter(selection, &iter);
 					return;
 				}

@@ -41,17 +41,16 @@ typedef struct _LoquiMemberClass       LoquiMemberClass;
 typedef struct _LoquiMemberPrivate     LoquiMemberPrivate;
 
 typedef enum {
-	LOQUI_MEMBER_POWER_UNDETERMINED,
-	LOQUI_MEMBER_POWER_NONE,
-	LOQUI_MEMBER_POWER_VOICE,
-	LOQUI_MEMBER_POWER_OP
-} LoquiMemberPowerType;
+	LOQUI_MEMBER_POWER_UNDETERMINED = -1,
+	LOQUI_MEMBER_POWER_VOICE = 1 << 1,
+	LOQUI_MEMBER_POWER_OPERATOR = 1 << 2,
+} LoquiMemberPowerFlags;
 
 struct _LoquiMember
 {
         GObject parent;
         
-	LoquiMemberPowerType power;
+	LoquiMemberPowerFlags power;
 	LoquiUser *user;
 
         LoquiMemberPrivate *priv;
@@ -66,10 +65,10 @@ struct _LoquiMemberClass
 GType loqui_member_power_type_get_type(void) G_GNUC_CONST;
 GType loqui_member_get_type(void) G_GNUC_CONST;
 
-LoquiMember* loqui_member_new(void);
+LoquiMember* loqui_member_new(LoquiUser *user);
 
-void loqui_member_set_power(LoquiMember *member, LoquiMemberPowerType power);
-LoquiMemberPowerType loqui_member_get_power(LoquiMember *member);
+void loqui_member_set_power(LoquiMember *member, LoquiMemberPowerFlags power);
+LoquiMemberPowerFlags loqui_member_get_power(LoquiMember *member);
 
 void loqui_member_set_user(LoquiMember *member, LoquiUser *user);
 LoquiUser* loqui_member_get_user(LoquiMember *member);

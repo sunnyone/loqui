@@ -24,7 +24,7 @@
 #define __CHANNEL_TREE_H__
 
 #include "account.h"
-#include "channel.h"
+#include "loqui_channel.h"
 
 G_BEGIN_DECLS
 
@@ -63,15 +63,15 @@ void channel_tree_add_account(ChannelTree *tree, Account *account);
 void channel_tree_update_account(ChannelTree *tree, Account *account);
 void channel_tree_remove_account(ChannelTree *tree, Account *account);
 
-void channel_tree_add_channel(ChannelTree *tree, Account *account, Channel *channel);
-void channel_tree_remove_channel(ChannelTree *tree, Channel *channel);
+void channel_tree_add_channel(ChannelTree *tree, Account *account, LoquiChannel *channel);
+void channel_tree_remove_channel(ChannelTree *tree, LoquiChannel *channel);
 
-void channel_tree_select_channel(ChannelTree *tree, Channel *channel);
+void channel_tree_select_channel(ChannelTree *tree, LoquiChannel *channel);
 void channel_tree_select_account(ChannelTree *tree, Account *account);
 
-void channel_tree_set_updated(ChannelTree *tree, Account *account, Channel *channel);
+void channel_tree_set_updated(ChannelTree *tree, Account *account, LoquiChannel *channel);
 
-void channel_tree_update_user_number(ChannelTree *tree, Channel *channel);
+void channel_tree_update_user_number(ChannelTree *tree, LoquiChannel *channel);
 
 void channel_tree_select_next_channel(ChannelTree *tree, gboolean require_updated);
 void channel_tree_select_prev_channel(ChannelTree *tree, gboolean require_updated);

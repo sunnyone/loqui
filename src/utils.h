@@ -54,6 +54,8 @@
    g_timer_destroy(timer); \
 }
 
+#define UTILS_MASK_BIT(src,field,is_add) ((is_add) ? (src | field) : (src & ~field))
+
 void debug_puts(const gchar *format, ...) G_GNUC_PRINTF(1, 2);
 void debug_print(const gchar *format, ...) G_GNUC_PRINTF(1, 2);
 
@@ -77,7 +79,10 @@ gpointer utils_get_key_from_value(GHashTable *hash_table);
 gboolean utils_search_uri(const gchar *buf, gchar **got_uri,
 			  const gchar **start_uri, const gchar **end_uri);
 
-void g_list_foreach_swapped(GList *list, GFunc func, gpointer user_data);
+void utils_g_list_foreach_swapped(GList *list, GFunc func, gpointer user_data);
+
+gboolean utils_strcase_equal(gconstpointer a, gconstpointer b);
+guint utils_strcase_hash(gconstpointer v);
 
 /* copied from Sylpheed. (c) 2002, Hiroyuki Yamamoto. */
 gint make_dir(const gchar *dir);

@@ -34,8 +34,8 @@ loqui_channel_entry_action_activate_cb(LoquiChannelEntryAction *action, LoquiApp
 	GObject *channel_entry; /* FIXME */
 	
 	channel_entry = loqui_channel_entry_action_get_channel_entry(action);
-	if (IS_CHANNEL(channel_entry)) {
-		loqui_app_set_current_channel(app, CHANNEL(channel_entry));
+	if (LOQUI_IS_CHANNEL(channel_entry)) {
+		loqui_app_set_current_channel(app, LOQUI_CHANNEL(channel_entry));
 	} else if (IS_ACCOUNT(channel_entry)) {
 		loqui_app_set_current_account(app, ACCOUNT(channel_entry));
 	}
@@ -121,7 +121,7 @@ loqui_channel_entry_ui_remove_account(LoquiApp *app, Account *account, const gch
 	g_free(data_name);
 }
 void
-loqui_channel_entry_ui_add_channel(LoquiApp *app, Channel *channel, const gchar *path, const gchar *data_prefix)
+loqui_channel_entry_ui_add_channel(LoquiApp *app, LoquiChannel *channel, const gchar *path, const gchar *data_prefix)
 {
 	gchar *ph_name, *ph_path, *data_name;
 	const gchar *ce_name;
@@ -129,7 +129,7 @@ loqui_channel_entry_ui_add_channel(LoquiApp *app, Channel *channel, const gchar 
 	LoquiChannelEntryAction *ce_action;
 
 	g_return_if_fail(channel != NULL);
-	g_return_if_fail(IS_CHANNEL(channel));
+	g_return_if_fail(LOQUI_IS_CHANNEL(channel));
         g_return_if_fail(app != NULL);
         g_return_if_fail(LOQUI_IS_APP(app));
 
@@ -152,13 +152,13 @@ loqui_channel_entry_ui_add_channel(LoquiApp *app, Channel *channel, const gchar 
 }
 
 void
-loqui_channel_entry_ui_remove_channel(LoquiApp *app, Channel *channel, const gchar *data_prefix)
+loqui_channel_entry_ui_remove_channel(LoquiApp *app, LoquiChannel *channel, const gchar *data_prefix)
 {
 	gchar *data_name;
 	guint id;
 
 	g_return_if_fail(channel != NULL);
-	g_return_if_fail(IS_CHANNEL(channel));
+	g_return_if_fail(LOQUI_IS_CHANNEL(channel));
         g_return_if_fail(app != NULL);
         g_return_if_fail(LOQUI_IS_APP(app));
 

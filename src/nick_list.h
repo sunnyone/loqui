@@ -20,7 +20,8 @@
 #ifndef __NICK_LIST_H__
 #define __NICK_LIST_H__
 
-#include "channel.h"
+#include "loqui_channel.h"
+#include "loqui_channel_entry_store.h"
 
 G_BEGIN_DECLS
 

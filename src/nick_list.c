@@ -171,24 +171,18 @@ static void nick_list_cell_data_func_op(GtkTreeViewColumn *tree_column,
 					GtkTreeIter *iter,
 					gpointer data)
 {
-	UserPower power;
+	LoquiMemberPowerFlags power;
 	NickList *nick_list;
 
 	nick_list = NICK_LIST(data);
-	gtk_tree_model_get(tree_model, iter, USERLIST_COLUMN_OP, &power, -1);
+	gtk_tree_model_get(tree_model, iter, LOQUI_CHANNEL_ENTRY_STORE_COLUMN_POWER, &power, -1);
 
-	switch(power) {
-	case USER_POWER_OP:
+	if (power & LOQUI_MEMBER_POWER_OPERATOR) {
 		g_object_set(G_OBJECT(cell), "pixbuf", nick_list->priv->op_icon, NULL);
-		return;
-	case USER_POWER_VOICE:
+	} else if (power & LOQUI_MEMBER_POWER_VOICE) {
 		g_object_set(G_OBJECT(cell), "pixbuf", nick_list->priv->speak_ability_icon, NULL);
-		return;
-	case USER_POWER_NOTHING:
+	} else {
 		g_object_set(G_OBJECT(cell), "pixbuf", NULL, NULL);
-		return;
-	default:
-		break;
 	}
 }
 static void nick_list_cell_data_func_away(GtkTreeViewColumn *tree_column,
@@ -197,29 +191,29 @@ static void nick_list_cell_data_func_away(GtkTreeViewColumn *tree_column,
 					  GtkTreeIter *iter,
 					  gpointer data)
 {
-	AwayState away_state;
+	LoquiBasicAwayType basic_away;
 	NickList *nick_list;
 	NickListPrivate *priv;
 	
 	nick_list = NICK_LIST(data);
-	gtk_tree_model_get(tree_model, iter, USERLIST_COLUMN_HOMEAWAY, &away_state, -1);
+	gtk_tree_model_get(tree_model, iter, LOQUI_CHANNEL_ENTRY_STORE_COLUMN_BASIC_AWAY, &basic_away, -1);
 
 	priv = nick_list->priv;
 	
-	switch(away_state) {
-	case AWAY_STATE_NONE:
+	switch(basic_away) {
+	case LOQUI_BASIC_AWAY_TYPE_UNKNOWN:
 		g_object_set(G_OBJECT(cell), "pixbuf", NULL, NULL);
 		return;
-	case AWAY_STATE_AWAY:
+	case LOQUI_BASIC_AWAY_TYPE_AWAY:
 		g_object_set(G_OBJECT(cell), "pixbuf", priv->away_icon, NULL);
 		return;
-	case AWAY_STATE_BUSY:
+	case LOQUI_BASIC_AWAY_TYPE_BUSY:
 		g_object_set(G_OBJECT(cell), "pixbuf", priv->busy_icon, NULL);
 		return;
-	case AWAY_STATE_ONLINE:
+	case LOQUI_BASIC_AWAY_TYPE_ONLINE:
 		g_object_set(G_OBJECT(cell), "pixbuf", priv->online_icon, NULL);
 		return;
-	case AWAY_STATE_OFFLINE:
+	case LOQUI_BASIC_AWAY_TYPE_OFFLINE:
 		g_object_set(G_OBJECT(cell), "pixbuf", priv->offline_icon, NULL);
 		return;
 	default:
@@ -253,7 +247,7 @@ nick_list_menu_get_selected_nicks(NickList *nick_list)
 		if(!gtk_tree_model_get_iter(model, &iter, path)) {
 			continue;
                 }
-		gtk_tree_model_get(model, &iter, USERLIST_COLUMN_NICK, &nick, -1);
+		gtk_tree_model_get(model, &iter, LOQUI_CHANNEL_ENTRY_STORE_COLUMN_NICK, &nick, -1);
 		str_list = g_slist_append(str_list, nick);
 	}
 	g_list_foreach(row_list, (GFunc) gtk_tree_path_free, NULL);
@@ -305,7 +299,7 @@ void
 nick_list_change_mode_selected(NickList *nick_list, gboolean is_give, IRCModeFlag flag)
 {
 	NickListPrivate *priv;
-	Channel *channel;
+	LoquiChannel *channel;
 	GSList *str_list, *cur;
 	
 	priv = nick_list->priv;
@@ -316,11 +310,11 @@ nick_list_change_mode_selected(NickList *nick_list, gboolean is_give, IRCModeFla
 
 	str_list = nick_list_menu_get_selected_nicks(nick_list);
 	for(cur = str_list; cur != NULL; cur = cur->next) {
-		channel_push_user_mode_queue(channel, is_give, (IRCModeFlag) flag, (gchar *) cur->data);
+		loqui_channel_push_user_mode_queue(channel, is_give, (IRCModeFlag) flag, (gchar *) cur->data);
 		g_free(cur->data);
 	}
 	g_slist_free(str_list);
-	channel_flush_user_mode_queue(channel);
+	loqui_channel_flush_user_mode_queue(channel);
 	
 }
 void
@@ -401,7 +395,7 @@ static void nick_list_row_activated_cb(NickList *list, GtkTreePath *path, GtkTre
 	if(!gtk_tree_model_get_iter(model, &iter, path)) {
 		return;
 	}
-	gtk_tree_model_get(model, &iter, USERLIST_COLUMN_NICK, &nick, -1);
+	gtk_tree_model_get(model, &iter, LOQUI_CHANNEL_ENTRY_STORE_COLUMN_NICK, &nick, -1);
 
 	account = loqui_app_get_current_account(priv->app);
 	if(!account)
@@ -437,7 +431,7 @@ nick_list_new(LoquiApp *app, GtkWidget *menu)
 						list, NULL);
 	gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
 	gtk_tree_view_column_set_fixed_width(column, 20);
-	gtk_tree_view_column_set_sort_column_id(column, USERLIST_COLUMN_HOMEAWAY);
+	gtk_tree_view_column_set_sort_column_id(column, LOQUI_CHANNEL_ENTRY_STORE_COLUMN_BASIC_AWAY);
         gtk_tree_view_append_column(GTK_TREE_VIEW(list), column);
 
         renderer = gtk_cell_renderer_pixbuf_new();
@@ -448,20 +442,20 @@ nick_list_new(LoquiApp *app, GtkWidget *menu)
 						list, NULL);
 	gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
 	gtk_tree_view_column_set_fixed_width(column, 20);
-	gtk_tree_view_column_set_sort_column_id(column, USERLIST_COLUMN_OP);
+	gtk_tree_view_column_set_sort_column_id(column, LOQUI_CHANNEL_ENTRY_STORE_COLUMN_POWER);
         gtk_tree_view_append_column(GTK_TREE_VIEW(list), column);
 
         renderer = gtk_cell_renderer_text_new();
 	g_object_set(renderer, "ypad", 0, NULL);
         column = gtk_tree_view_column_new_with_attributes(_("Nick"),
 							  renderer,
-							  "text", USERLIST_COLUMN_NICK,
+							  "text", LOQUI_CHANNEL_ENTRY_STORE_COLUMN_NICK,
 							  NULL);
-	gtk_tree_view_column_set_sort_column_id(column, USERLIST_COLUMN_NICK);
+	gtk_tree_view_column_set_sort_column_id(column, LOQUI_CHANNEL_ENTRY_STORE_COLUMN_NICK);
         gtk_tree_view_append_column(GTK_TREE_VIEW(list), column);
 	
 	gtk_tree_view_set_rules_hint(GTK_TREE_VIEW(list), TRUE);
-	gtk_tree_view_set_search_column(GTK_TREE_VIEW(list), USERLIST_COLUMN_NICK);
+	gtk_tree_view_set_search_column(GTK_TREE_VIEW(list), LOQUI_CHANNEL_ENTRY_STORE_COLUMN_NICK);
 	gtk_tree_view_set_enable_search(GTK_TREE_VIEW(list), TRUE);
 
 	priv->popup_menu = menu;

@@ -364,12 +364,23 @@ utils_strftime(const gchar *format, struct tm *time)
 	return NULL;
 }
 void
-g_list_foreach_swapped(GList *list, GFunc func, gpointer user_data)
+utils_g_list_foreach_swapped(GList *list, GFunc func, gpointer user_data)
 {
 	GList *cur;
 
 	for (cur = list; cur != NULL; cur = cur->next)
 		(*func)(user_data, cur->data);
+}
+
+gboolean
+utils_strcase_equal(gconstpointer a, gconstpointer b)
+{
+	return (g_ascii_strcasecmp(a, b) == 0);
+}
+guint
+utils_strcase_hash(gconstpointer v)
+{
+       return g_str_hash(g_ascii_strdown(v, -1));
 }
 
 /* copied from Sylpheed. (c) 2002, Hiroyuki Yamamoto. */

@@ -23,7 +23,7 @@
 #include <gtk/gtk.h>
 
 #include "account.h"
-#include "channel.h"
+#include "loqui_channel.h"
 #include "loqui_app.h"
 
 G_BEGIN_DECLS
@@ -60,10 +60,10 @@ GtkWidget* loqui_channelbar_new(LoquiApp *app, GtkWidget *menu_dropdown);
 void loqui_channelbar_add_account(LoquiChannelbar *channelbar, Account *account);
 void loqui_channelbar_update_account(LoquiChannelbar *channelbar, Account *account);
 void loqui_channelbar_remove_account(LoquiChannelbar *channelbar, Account *account);
-void loqui_channelbar_add_channel(LoquiChannelbar *channelbar, Channel *channel);
-void loqui_channelbar_remove_channel(LoquiChannelbar *channelbar, Channel *channel);
-void loqui_channelbar_update_channel(LoquiChannelbar *channelbar, Channel *channel);
-void loqui_channelbar_set_current_channel(LoquiChannelbar *channelbar, Channel *channel);
+void loqui_channelbar_add_channel(LoquiChannelbar *channelbar, LoquiChannel *channel);
+void loqui_channelbar_remove_channel(LoquiChannelbar *channelbar, LoquiChannel *channel);
+void loqui_channelbar_update_channel(LoquiChannelbar *channelbar, LoquiChannel *channel);
+void loqui_channelbar_set_current_channel(LoquiChannelbar *channelbar, LoquiChannel *channel);
 void loqui_channelbar_set_current_account(LoquiChannelbar *channelbar, Account *account);
 
 G_END_DECLS
