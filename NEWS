@@ -135,3 +135,8 @@
 2004-01-19     0.2.1
 * Implemented feature to fetch away information of users of a channel.
 
+2004-01-22     0.2.2
+* Fixed the problem to handle a message that nick is used.
+* Implemented limitation of lines in buffers.
+* Show the number of updated channels.
+

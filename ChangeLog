@@ -1,3 +1,67 @@
+2004-01-22 15:23  y-imai
+
+	* po/: ja.po, loqui.pot: updated po
+
+2004-01-22 15:06  y-imai
+
+	* src/: account.c, account.h, account_manager.c, channel.c,
+	  channel.h: Count updated channel/private talk numbers.
+	  ("updated" signal of Channel is changed.)
+
+2004-01-22 12:57  y-imai
+
+	* src/loqui_app.c: Don't update statusbar in loqui_app.
+
+2004-01-22 12:22  y-imai
+
+	* loqui.spec.in: Improved the .spec file by iwaim.
+
+2004-01-22 02:09  y-imai
+
+	* src/: account_manager.c, channel_buffer.c, channel_buffer.h:
+	  Implemented the feature to delete old lines.
+
+2004-01-21 23:17  y-imai
+
+	* src/: prefs_dialog.c, prefs_general.c, prefs_general.h: Added
+	  preferences of max line numbers.
+
+2004-01-21 23:15  y-imai
+
+	* src/: gtkutils.c, gtkutils.h: gtkutils_add_label_spin_button():
+	  Added.
+
+2004-01-20 15:32  y-imai
+
+	* src/: account.c, account.h, account_manager.c, connect_dialog.c:
+	  Created account_connect_default.
+
+2004-01-20 13:12  y-imai
+
+	* src/account_manager.c: Update information on the screen when the
+	  account is disconnected.
+
+2004-01-20 13:04  y-imai
+
+	* src/irc_handle.c: Added handlers for < 100 responses.  Disconnect
+	  when the nick is already used until RPL_WELCOME, not END_MOTD.
+
+2004-01-20 12:59  y-imai
+
+	* src/irc_message.h: Include < 100 in IRC_MESSAGE_IS_REPLY.
+
+2004-01-19 00:57  y-imai
+
+	* ChangeLog: updated ChangeLog
+
+2004-01-19 00:50  y-imai
+
+	* debian/changelog: updated debian changelog
+
+2004-01-19 00:50  y-imai
+
+	* po/: ja.po, loqui.pot: updated po
+
 2004-01-19 00:48  y-imai
 
 	* ChangeLog, NEWS, NEWS.ja, configure.in, po/ja.po: 0.2.1
