@@ -3,6 +3,8 @@
 #include "egg-action-group.h"
 #include "egg-toggle-action.h"
 #include "egg-radio-action.h"
+#include "egg-entry-action.h"
+#include "egg-history-action.h"
 #include "intl.h"
 
 static void egg_action_group_init       (EggActionGroup *self);
@@ -258,7 +260,13 @@ egg_action_group_add_actions (EggActionGroup *action_group,
 		case RADIO_ACTION:
 			action_type = EGG_TYPE_RADIO_ACTION;
 			break;
-		default:
+                case ENTRY_ACTION:
+                        action_type = EGG_TYPE_ENTRY_ACTION;
+                        break;
+                case HISTORY_ACTION:
+                        action_type = EGG_TYPE_HISTORY_ACTION;
+                        break;
+	        default:
 			g_warning("unsupported action type");
 			action_type = EGG_TYPE_ACTION;
 		}

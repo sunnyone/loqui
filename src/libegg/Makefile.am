@@ -15,6 +15,8 @@ CPPFLAGS= \
 libegg_la_SOURCES = \
 	egg-action-group.c egg-action-group.h \
 	egg-action.c egg-action.h \
+        egg-entry-action.c egg-entry-action.h \
+        egg-history-action.c egg-history-action.h \
 	egg-markup.c egg-markup.h \
 	egg-marshalers.c egg-marshalers.h \
 	egg-menu-merge.c egg-menu-merge.h \

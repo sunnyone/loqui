@@ -38,6 +38,8 @@ typedef enum {
 	NORMAL_ACTION,
 	TOGGLE_ACTION,
 	RADIO_ACTION,
+	ENTRY_ACTION,
+	HISTORY_ACTION
 } EggActionGroupEntryType;
 
 struct _EggActionGroupEntry {
