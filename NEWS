@@ -1,0 +1,12 @@
+2003-01-09     0.0.5 Release
+* First release.
+
+2003-01-10     0.0.6 Release
+* Fixed a incorrect handling with a private message.
+* Fixed some small bugs.
+
+2003-01-19     0.0.7 Release
+* Fixed a bug sometimes nicklist is broken by user's part/quit.
+* Improved performance of scrolling
+* Removed dependency of GConf/GNOME2
+
