@@ -55,6 +55,7 @@ define(`M4_SRC_PROTOCOL_IPMSG_GOB',`loqui-account-ipmsg.gob loqui-receiver-ipmsg
 SRC_PROTOCOL_IPMSG = \
 	loqui_protocol_ipmsg.c loqui_protocol_ipmsg.h \
 	loqui_user_ipmsg.c loqui_user_ipmsg.h \
+	loqui-utils-ipmsg.c loqui-utils-ipmsg.h \
 	loqui_profile_account_ipmsg.c loqui_profile_account_ipmsg.h \
 	ipmsg.h \
 	ipmsg_packet.c ipmsg_packet.h \

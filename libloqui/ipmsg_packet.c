@@ -24,6 +24,7 @@
 #include "ipmsg.h"
 #include "gobject_utils.h"
 #include "utils.h"
+#include "loqui-utils-ipmsg.h"
 
 #include <string.h>
 
@@ -388,7 +389,7 @@ ipmsg_packet_get_identifier(IPMsgPacket *packet)
 		return NULL;
 
 	addr_str = ipmsg_packet_get_ip_addr(packet);
-	str = g_strdup_printf("%s:%d", addr_str, ipmsg_packet_get_port(packet));
+	str = loqui_utils_ipmsg_create_identifier(addr_str, ipmsg_packet_get_port(packet));
 	g_free(addr_str);
 
 	return str;

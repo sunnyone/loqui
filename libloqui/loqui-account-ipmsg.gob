@@ -26,16 +26,17 @@ requires 2.0.0
 #include "loqui_account.h"
 #include "ipmsg_packet.h"
 #include "loqui-socket-ipmsg.h"
+#include "loqui_user_ipmsg.h"
 %}
 
 %{
 #include <libloqui-intl.h>
 #include "utils.h"
 
-#include "loqui_user_ipmsg.h"
 #include "loqui-sender-ipmsg.h"
 #include "loqui-receiver-ipmsg.h"
 
+#include "loqui-utils-ipmsg.h"
 #include "ipmsg_packet.h"
 #include "ipmsg.h"
 %}
@@ -144,5 +145,25 @@ class Loqui:Account:IPMsg from Loqui:Account
 					   command_num,
 					   extra,
 					   loqui_user_ipmsg_get_group_name(LOQUI_USER_IPMSG(user)));
+	}
+
+	public LoquiUserIPMsg *fetch_user_by_pair(self, const gchar *ip_addr, gint port) {
+		gchar *identifier;
+		LoquiUser *user;
+
+		identifier = loqui_utils_ipmsg_create_identifier(ip_addr, port);
+		if ((user = loqui_account_peek_user(LOQUI_ACCOUNT(self), identifier)) == NULL) {
+			user = LOQUI_USER(loqui_user_ipmsg_new());
+
+			loqui_user_ipmsg_set_ip_addr(LOQUI_USER_IPMSG(user), ip_addr);
+			loqui_user_ipmsg_set_port(LOQUI_USER_IPMSG(user), port);
+
+			loqui_account_add_user(LOQUI_ACCOUNT(self), user);
+		} else {
+			g_object_ref(user);
+		}
+		g_free(identifier);
+
+		return LOQUI_USER_IPMSG(user);
 	}
 }
