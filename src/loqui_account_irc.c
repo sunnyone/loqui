@@ -249,15 +249,14 @@ loqui_account_irc_connect(LoquiAccount *account)
 	gint codeset_type;
 	
 	CodeConv *codeconv;
-	gchar *str;
 	
         g_return_if_fail(account != NULL);
         g_return_if_fail(LOQUI_IS_ACCOUNT_IRC(account));
 	
 	priv = LOQUI_ACCOUNT_IRC(account)->priv;
 
-	if(loqui_account_get_is_connected(account)) {
-		loqui_account_console_buffer_append(account, TEXT_TYPE_ERROR, _("Already connected."));
+	if (loqui_account_get_is_connected(account)) {
+		loqui_account_warning(account, _("Already connected."));
 		return;
 	}
 	
@@ -275,9 +274,7 @@ loqui_account_irc_connect(LoquiAccount *account)
 		codeconv_set_codeset(codeconv, codeset);
 	irc_connection_set_codeconv(priv->connection, codeconv);
 	
-	str = g_strdup_printf(_("Connecting to %s:%d"), servername, port);
-	loqui_account_console_buffer_append(account, TEXT_TYPE_INFO, str);
-	g_free(str);
+	loqui_account_information(account, _("Connecting to %s:%d"), servername, port);
 
 	irc_connection_connect(priv->connection);
 	
@@ -308,13 +305,13 @@ loqui_account_irc_connection_connected_cb(GObject *object, gboolean is_success, 
 	priv = account->priv;
 
 	if(!is_success) {
-		loqui_account_console_buffer_append(LOQUI_ACCOUNT(account), TEXT_TYPE_INFO, _("Failed to connect."));
+		loqui_account_information(LOQUI_ACCOUNT(account), _("Failed to connect."));
 		loqui_account_set_is_connected(LOQUI_ACCOUNT(account), FALSE);
 		G_OBJECT_UNREF_UNLESS_NULL(priv->connection);
 		return;
 	}
 
-	loqui_account_console_buffer_append(LOQUI_ACCOUNT(account), TEXT_TYPE_INFO, _("Connected. Sending Initial command..."));
+	loqui_account_information(LOQUI_ACCOUNT(account), _("Connected. Sending Initial command..."));
 
 	password = loqui_profile_account_get_password(loqui_account_get_profile(LOQUI_ACCOUNT(account)));
 	nick = loqui_profile_account_get_nick(loqui_account_get_profile(LOQUI_ACCOUNT(account)));	
@@ -335,7 +332,7 @@ loqui_account_irc_connection_connected_cb(GObject *object, gboolean is_success, 
 	loqui_sender_irc_user_raw(sender, username, realname);
 	debug_puts("Sending USER...");
 
-	loqui_account_console_buffer_append(LOQUI_ACCOUNT(account), TEXT_TYPE_INFO, _("Done."));
+	loqui_account_information(LOQUI_ACCOUNT(account), _("Done."));
 
 	loqui_user_set_away(LOQUI_ACCOUNT(account)->user_self, LOQUI_AWAY_TYPE_ONLINE);
 }
@@ -355,14 +352,14 @@ loqui_account_irc_connection_terminated_cb(GObject *object, LoquiAccountIRC *acc
 	loqui_account_set_is_connected(LOQUI_ACCOUNT(account), FALSE);
 	loqui_receiver_irc_reset(LOQUI_RECEIVER_IRC(LOQUI_ACCOUNT(account)->receiver));
 
-	loqui_account_console_buffer_append(LOQUI_ACCOUNT(account), TEXT_TYPE_INFO, _("Connection terminated."));
+	loqui_account_information(LOQUI_ACCOUNT(account), _("Connection terminated."));
 	loqui_user_set_away(LOQUI_ACCOUNT(account)->user_self, LOQUI_AWAY_TYPE_OFFLINE);
 
 	for (cur = LOQUI_ACCOUNT(account)->channel_list; cur != NULL; cur = cur->next)
 		loqui_channel_set_is_joined(LOQUI_CHANNEL(cur->data), FALSE);
 
 	if(prefs_general.auto_reconnect) {
-		loqui_account_console_buffer_append(LOQUI_ACCOUNT(account), TEXT_TYPE_INFO, _("Trying to reconnect..."));
+		loqui_account_information(LOQUI_ACCOUNT(account), _("Trying to reconnect..."));
 		loqui_account_connect(LOQUI_ACCOUNT(account));
 	}
 }
@@ -381,11 +378,12 @@ loqui_account_irc_connection_disconnected_cb(GObject *object, LoquiAccountIRC *a
 	loqui_account_set_is_connected(LOQUI_ACCOUNT(account), FALSE);
 	loqui_receiver_irc_reset(LOQUI_RECEIVER_IRC(LOQUI_ACCOUNT(account)->receiver));
 
-	loqui_account_console_buffer_append(LOQUI_ACCOUNT(account), TEXT_TYPE_INFO, _("Disconnected."));
+	loqui_account_information(LOQUI_ACCOUNT(account), _("Disconnected."));
 	loqui_account_remove_all_channel(LOQUI_ACCOUNT(account));
 
 	loqui_user_set_away(loqui_account_get_user_self(LOQUI_ACCOUNT(account)), LOQUI_AWAY_TYPE_OFFLINE);
-	g_signal_emit_by_name(account, "disconnected", 0);
+
+	loqui_account_disconnected(LOQUI_ACCOUNT(account));
 }
 static void
 loqui_account_irc_connection_warn_cb(GObject *object, gchar *str, LoquiAccountIRC *account)
@@ -393,7 +391,7 @@ loqui_account_irc_connection_warn_cb(GObject *object, gchar *str, LoquiAccountIR
         g_return_if_fail(account != NULL);
         g_return_if_fail(LOQUI_IS_ACCOUNT_IRC(account));
 
-	loqui_account_console_buffer_append(LOQUI_ACCOUNT(account), TEXT_TYPE_ERROR, str);
+	loqui_account_warning(LOQUI_ACCOUNT(account), "%s", str);
 }
 static void
 loqui_account_irc_connection_info_cb(GObject *object, gchar *str, LoquiAccountIRC *account)
@@ -401,7 +399,7 @@ loqui_account_irc_connection_info_cb(GObject *object, gchar *str, LoquiAccountIR
         g_return_if_fail(account != NULL);
         g_return_if_fail(LOQUI_IS_ACCOUNT_IRC(account));
 
-	loqui_account_console_buffer_append(LOQUI_ACCOUNT(account), TEXT_TYPE_INFO, str);
+	loqui_account_information(LOQUI_ACCOUNT(account), "%s", str);
 }
 static void
 loqui_account_irc_connection_arrive_message_cb(IRCConnection *connection, IRCMessage *msg, LoquiAccountIRC *account)

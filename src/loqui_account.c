@@ -485,6 +485,14 @@ loqui_account_disconnect(LoquiAccount *account)
 
 	g_signal_emit(G_OBJECT(account), account_signals[SIGNAL_DISCONNECT], 0);
 }
+void
+loqui_account_disconnected(LoquiAccount *account)
+{
+        g_return_if_fail(account != NULL);
+        g_return_if_fail(LOQUI_IS_ACCOUNT(account));
+
+	g_signal_emit(G_OBJECT(account), account_signals[DISCONNECTED], 0);	
+}
 static void
 loqui_account_channel_notify_identifier_cb(LoquiChannel *channel, GParamSpec *pspec, LoquiAccount *account)
 {

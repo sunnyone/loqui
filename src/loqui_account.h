@@ -96,6 +96,8 @@ LoquiUser* loqui_account_get_user_self(LoquiAccount *account);
 void loqui_account_connect(LoquiAccount *account);
 void loqui_account_disconnect(LoquiAccount *account);
 
+void loqui_account_disconnected(LoquiAccount *account);
+
 LoquiSender *loqui_account_get_sender(LoquiAccount *account);
 void loqui_account_set_sender(LoquiAccount *account, LoquiSender *sender);
 

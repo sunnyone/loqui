@@ -780,7 +780,7 @@ loqui_receiver_irc_reply_welcome(LoquiReceiverIRC *receiver, IRCMessage *msg)
 	autojoin = loqui_profile_account_irc_get_autojoin(LOQUI_PROFILE_ACCOUNT_IRC(loqui_account_get_profile(account)));
 	if (autojoin && strlen(autojoin) > 0) {
 		loqui_sender_join_raw(loqui_account_get_sender(account), autojoin, NULL);
-		loqui_account_console_buffer_append(account, TEXT_TYPE_INFO, _("Sent join command for autojoin."));
+		loqui_account_information(account, _("Sent join command for autojoin."));
 	}
 
 	loqui_receiver_irc_account_console_append(receiver, msg, TEXT_TYPE_INFO, "*** %*2");
