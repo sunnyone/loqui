@@ -301,15 +301,12 @@ connect_dialog_new(void)
 		gtk_tree_store_append(priv->tree_store, &iter, &parent);
 		gtk_tree_store_set(priv->tree_store, &iter,
 				   COLUMN_USE, TRUE,
-				   COLUMN_NAME, "Fallback",
+				   COLUMN_NAME, _("Default"),
 				   COLUMN_ACTIVATABLE, TRUE,
 				   -1);
 
 		for(tmp = account->server_list; tmp != NULL; tmp = tmp->next) {
 			server = (Server *) tmp->data;
-			
-			if(!server->use)
-				continue;
 
 			gtk_tree_store_append(priv->tree_store, &iter, &parent);
 			gtk_tree_store_set(priv->tree_store, &iter,

@@ -209,22 +209,21 @@ account_dialog_response_cb(GtkWidget *widget, gint response, gpointer data)
 }
 static void
 account_dialog_list_use_toggled_cb(GtkCellRendererToggle *cell,
-					       gchar *path_str, gpointer data)
+				   gchar *path_str, gpointer data)
 {
 	AccountDialog *dialog;
 	AccountDialogPrivate *priv;
 	GtkTreeIter  iter;
-	gboolean is_active;
 
 	dialog = ACCOUNT_DIALOG(data);
 	priv = dialog->priv;
-
-	gtk_tree_model_get_iter_from_string(GTK_TREE_MODEL(priv->list_store), &iter, path_str);
-	gtk_tree_model_get(GTK_TREE_MODEL(priv->list_store), &iter, COLUMN_USE, &is_active, -1);
+	gtk_tree_model_get_iter_first(GTK_TREE_MODEL(priv->list_store), &iter);
+	do {
+		gtk_list_store_set(priv->list_store, &iter, COLUMN_USE, FALSE, -1);
+	} while(gtk_tree_model_iter_next(GTK_TREE_MODEL(priv->list_store), &iter));
 	
-	is_active ^= 1;
-
-	gtk_list_store_set(priv->list_store, &iter, COLUMN_USE, is_active, -1);
+	gtk_tree_model_get_iter_from_string(GTK_TREE_MODEL(priv->list_store), &iter, path_str);
+	gtk_list_store_set(priv->list_store, &iter, COLUMN_USE, TRUE, -1);
 }
 static void
 account_dialog_list_column_edited_cb(GtkCellRendererText *cell,
@@ -506,7 +505,8 @@ account_dialog_new(Account *account)
 
 	renderer = gtk_cell_renderer_toggle_new();
 	g_signal_connect(G_OBJECT(renderer), "toggled",
-	G_CALLBACK(account_dialog_list_use_toggled_cb), dialog);
+			 G_CALLBACK(account_dialog_list_use_toggled_cb), dialog);
+	gtk_cell_renderer_toggle_set_radio(GTK_CELL_RENDERER_TOGGLE(renderer), TRUE);
 	column = gtk_tree_view_column_new_with_attributes("Use",
 							  renderer,
 							  "active", COLUMN_USE,
