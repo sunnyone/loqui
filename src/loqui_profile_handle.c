@@ -52,9 +52,6 @@ struct _LoquiProfileHandlePrivate
 	GQueue *value_array_queue;
 	
 	GList *profile_list;
-	
-	GHashTable *type_table;
-	GHashTable *type_table_reverse;
 };
 
 #define GET_CURRENT_ELEMENT(handle) GPOINTER_TO_INT(g_queue_peek_tail(handle->priv->element_queue))
@@ -158,14 +155,6 @@ loqui_profile_handle_dispose(GObject *object)
 	priv = handle->priv;
 
 	loqui_profile_handle_clear(handle);
-	if (priv->type_table) {
-		g_hash_table_destroy(priv->type_table);
-		priv->type_table = NULL;
-	}
-	if (priv->type_table_reverse) {
-		g_hash_table_destroy(priv->type_table_reverse);
-		priv->type_table_reverse = NULL;
-	}
         if (G_OBJECT_CLASS(parent_class)->dispose)
                 (* G_OBJECT_CLASS(parent_class)->dispose)(object);
 }
@@ -229,6 +218,7 @@ start_element_handler(GMarkupParseContext *context,
 {
 	LoquiProfileHandle *handle;
 	LoquiProfileHandlePrivate *priv;
+	LoquiProtocol *protocol;
 	GObject *obj;
 	GParamSpec *pspec;
 	ElementType elem;
@@ -263,7 +253,6 @@ start_element_handler(GMarkupParseContext *context,
 	
 	if (elem == ELEMENT_PROFILES) {
 		const gchar *type_id;
-		GType type;
 		
 		if (strcmp(element_name, "profile") == 0) {
 			type_id = loqui_profile_handle_parse_attribute("type", attribute_names, attribute_values);
@@ -274,8 +263,8 @@ start_element_handler(GMarkupParseContext *context,
                    			    _("Invalid content: profile has no type'"));
                    		return;
 			}
-			type = (GType) g_hash_table_lookup(priv->type_table, type_id);
-			if (!type) {
+			protocol = loqui_protocol_manager_get_protocol(handle->protocol_manager, type_id);
+			if (!protocol) {
       				g_set_error(error,
                    			    G_MARKUP_ERROR,
                    			    G_MARKUP_ERROR_INVALID_CONTENT,
@@ -283,7 +272,7 @@ start_element_handler(GMarkupParseContext *context,
                    		return;
 			}
 			g_queue_push_tail(priv->element_queue, GINT_TO_POINTER(ELEMENT_PROFILE));
-			g_queue_push_tail(priv->object_queue, g_object_new(type, NULL));
+			g_queue_push_tail(priv->object_queue, loqui_protocol_create_profile_account(protocol));
 		} else {
       			g_set_error(error,
                    		    G_MARKUP_ERROR,
@@ -659,7 +648,7 @@ loqui_profile_handle_clear(LoquiProfileHandle *handle)
 }
 
 LoquiProfileHandle*
-loqui_profile_handle_new(void)
+loqui_profile_handle_new(LoquiProtocolManager *protocol_manager)
 {
         LoquiProfileHandle *handle;
 	LoquiProfileHandlePrivate *priv;
@@ -667,26 +656,10 @@ loqui_profile_handle_new(void)
 	handle = g_object_new(loqui_profile_handle_get_type(), NULL);
 	
         priv = handle->priv;
-
-	priv->type_table = g_hash_table_new(g_str_hash, g_str_equal);
-	priv->type_table_reverse = g_hash_table_new(g_int_hash, g_int_equal);
+	handle->protocol_manager = protocol_manager;
 
         return handle;
 }
-void
-loqui_profile_handle_register_type(LoquiProfileHandle *handle, const gchar* name, GType type)
-{
-	LoquiProfileHandlePrivate *priv;
-	
-        g_return_if_fail(handle != NULL);
-        g_return_if_fail(LOQUI_IS_PROFILE_HANDLE(handle));
-
-        priv = handle->priv;
-        
-	g_hash_table_insert(priv->type_table, (gpointer) name, GINT_TO_POINTER((int) type));
-	g_hash_table_insert(priv->type_table_reverse, GINT_TO_POINTER((int) type), (gpointer) name);
-}
-
 gboolean
 loqui_profile_handle_read_from_buffer(LoquiProfileHandle *handle, GList **profiles, const gchar *buf)
 {
@@ -877,7 +850,7 @@ gboolean
 loqui_profile_handle_write_to_buffer(LoquiProfileHandle *handle, GList *profile_list, gchar **buf)
 {
 	LoquiProfileHandlePrivate *priv;
-	GObject *profile;
+	LoquiProfileAccount *profile;
 	GList *cur;
 	GString *string;
 	gchar *tmp;
@@ -892,14 +865,8 @@ loqui_profile_handle_write_to_buffer(LoquiProfileHandle *handle, GList *profile_
 	g_string_append_printf(string, "<profiles>\n");
 
 	for (cur = profile_list; cur != NULL; cur = cur->next) {
-		profile = G_OBJECT(cur->data);
-
-		tmp = g_hash_table_lookup(priv->type_table_reverse, GINT_TO_POINTER((int) G_OBJECT_TYPE(profile)));
-		if (!tmp) {
-			g_warning("ProfileHandle: type not registered: %s", G_OBJECT_TYPE_NAME(profile));
-			continue;
-		}
-		g_string_append_printf(string, "<profile type=\"%s\">\n", tmp);
+		profile = LOQUI_PROFILE_ACCOUNT(cur->data);
+		g_string_append_printf(string, "<profile type=\"%s\">\n", loqui_protocol_get_identifier(profile->protocol));
 
 		tmp = loqui_profile_handle_object_to_xml(handle, FALSE, G_OBJECT(profile));
 		g_string_append(string, tmp);

@@ -22,6 +22,7 @@
 
 #include <glib-object.h>
 #include "loqui_profile_account.h"
+#include "loqui_protocol_manager.h"
 
 G_BEGIN_DECLS
 
@@ -41,6 +42,8 @@ struct _LoquiProfileHandle
 {
         GObject parent;
         
+	LoquiProtocolManager *protocol_manager;
+
         LoquiProfileHandlePrivate *priv;
 };
 
@@ -49,19 +52,15 @@ struct _LoquiProfileHandleClass
         GObjectClass parent_class;
 };
 
-
 GType loqui_profile_handle_get_type(void) G_GNUC_CONST;
 
-LoquiProfileHandle* loqui_profile_handle_new(void);
+LoquiProfileHandle* loqui_profile_handle_new(LoquiProtocolManager *protocol_manager);
 
 gboolean loqui_profile_handle_read_from_buffer(LoquiProfileHandle *handle, GList **profile_list, const gchar *buf);
 gboolean loqui_profile_handle_read_from_file(LoquiProfileHandle *handle, GList **profile_list, const gchar *path);
 
 gboolean loqui_profile_handle_write_to_buffer(LoquiProfileHandle *handle, GList *profile_list, gchar **buf);
 gboolean loqui_profile_handle_write_to_file(LoquiProfileHandle *handle, GList *profile_list, const gchar *path);
-
-/* name must be static gchararray */
-void loqui_profile_handle_register_type(LoquiProfileHandle *handle, const gchar *name, GType type);
 
 G_END_DECLS
 

@@ -41,6 +41,8 @@ static void loqui_protocol_irc_init(LoquiProtocolIRC *protocol);
 static void loqui_protocol_irc_finalize(GObject *object);
 static void loqui_protocol_irc_dispose(GObject *object);
 
+static LoquiProtocolIRC* loqui_protocol_irc_new(void);
+
 GType
 loqui_protocol_irc_get_type(void)
 {
@@ -117,7 +119,7 @@ loqui_protocol_irc_init(LoquiProtocolIRC *protocol)
 
 	loqui_protocol_set_identifier(LOQUI_PROTOCOL(protocol), "IRC");
 }
-LoquiProtocolIRC*
+static LoquiProtocolIRC*
 loqui_protocol_irc_new(void)
 {
         LoquiProtocolIRC *protocol;
@@ -125,4 +127,14 @@ loqui_protocol_irc_new(void)
 	protocol = g_object_new(loqui_protocol_irc_get_type(), NULL);
 	
         return protocol;
+}
+LoquiProtocol*
+loqui_protocol_irc_get(void)
+{
+	static LoquiProtocol *protocol = NULL;
+
+	if (protocol == NULL)
+		protocol = LOQUI_PROTOCOL(loqui_protocol_irc_new());
+
+	return protocol;
 }

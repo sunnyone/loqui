@@ -71,6 +71,7 @@ main(int argc, char *argv[])
 {
 	int i;
 	LoquiProtocolManager *pmanag;
+	LoquiProtocol *protocol;
 
         bindtextdomain(GETTEXT_PACKAGE, PACKAGE_LOCALE_DIR);
 #ifdef HAVE_BIND_TEXTDOMAIN_CODESET
@@ -117,7 +118,9 @@ main(int argc, char *argv[])
 	}
 
 	pmanag = loqui_protocol_manager_new();
-	
+
+	loqui_protocol_manager_register(pmanag, loqui_protocol_irc_get());
+
 	prefs_general_load();
 	loqui_gtk_start_main_loop(pmanag);
 	prefs_general_save();

@@ -52,7 +52,8 @@ struct _LoquiProtocolIRCClass
 
 GType loqui_protocol_irc_get_type(void) G_GNUC_CONST;
 
-LoquiProtocolIRC* loqui_protocol_irc_new(void);
+LoquiProtocol* loqui_protocol_irc_get(void);
+
 G_END_DECLS
 
 #endif /* __LOQUI_PROTOCOL_IRC_H__ */

@@ -55,8 +55,8 @@ loqui_gtk_start_main_loop(LoquiProtocolManager *pmanag)
 	AccountManager *account_manager;
 	gchar *path;
 	
-	account_manager = account_manager_new();
-	app = LOQUI_APP(loqui_app_new(pmanag, account_manager));
+	account_manager = account_manager_new(pmanag);
+	app = LOQUI_APP(loqui_app_new(account_manager));
 	
 	path = g_build_filename(g_get_home_dir(), PREFS_DIR, ACCEL_MAP_FILE, NULL);
 

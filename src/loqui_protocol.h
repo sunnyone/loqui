@@ -82,6 +82,8 @@ LoquiReceiverClass *loqui_protocol_get_receiver_class(LoquiProtocol *protocol);
 LoquiUserClass *loqui_protocol_get_user_class(LoquiProtocol *protocol);
 LoquiProfileAccountClass *loqui_protocol_get_profile_account_class(LoquiProtocol *protocol);
 
+LoquiProfileAccount *loqui_protocol_create_profile_account(LoquiProtocol *protocol);
+
 G_END_DECLS
 
 #endif /* __LOQUI_PROTOCOL_H__ */

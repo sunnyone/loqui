@@ -22,6 +22,8 @@
 #include "intl.h"
 #include "loqui_profile_account.h"
 
+#include "loqui_protocol.h"
+
 enum {
         LAST_SIGNAL
 };
@@ -302,7 +304,7 @@ loqui_profile_account_init(LoquiProfileAccount *profile)
 	loqui_profile_account_set_name(profile, _("Untitled"));
 }
 LoquiProfileAccount*
-loqui_profile_account_new(void)
+loqui_profile_account_new(LoquiProtocol *protocol)
 {
         LoquiProfileAccount *profile;
 	LoquiProfileAccountPrivate *priv;
@@ -310,6 +312,7 @@ loqui_profile_account_new(void)
 	profile = g_object_new(loqui_profile_account_get_type(), NULL);
 	
         priv = profile->priv;
+	profile->protocol = protocol;
 
         return profile;
 }

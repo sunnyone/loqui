@@ -545,7 +545,7 @@ loqui_app_create_tray_icon(LoquiApp *app)
 	g_object_ref(app->tray_icon);
 }
 GtkWidget*
-loqui_app_new(LoquiProtocolManager *protocol_manager, AccountManager *account_manager)
+loqui_app_new(AccountManager *account_manager)
 {
 	LoquiApp *app;
 	LoquiAppPrivate *priv;
@@ -573,9 +573,6 @@ loqui_app_new(LoquiProtocolManager *protocol_manager, AccountManager *account_ma
 	g_object_ref(account_manager);
 	app->account_manager = account_manager;
 	
-	g_object_ref(protocol_manager);
-	app->protocol_manager = protocol_manager;
-
 	gtk_window_set_policy(GTK_WINDOW (app), TRUE, TRUE, TRUE);
 
 	/* set icon */
@@ -827,15 +824,6 @@ loqui_app_get_account_manager(LoquiApp *app)
 
 	return app->account_manager;
 }
-LoquiProtocolManager *
-loqui_app_get_protocol_manager(LoquiApp *app)
-{
-        g_return_val_if_fail(app != NULL, NULL);
-        g_return_val_if_fail(LOQUI_IS_APP(app), NULL);
-
-	return app->protocol_manager;
-}
-
 GtkWidget *
 loqui_app_get_current_channel_text_view(LoquiApp *app)
 {

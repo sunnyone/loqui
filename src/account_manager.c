@@ -144,6 +144,8 @@ account_manager_dispose(GObject *object)
 
 	account_manager_remove_all_account(account_manager);
 
+	G_OBJECT_UNREF_UNLESS_NULL(account_manager->protocol_manager);
+
         if (G_OBJECT_CLASS(parent_class)->dispose)
                 (* G_OBJECT_CLASS(parent_class)->dispose) (object);
 }
@@ -167,7 +169,7 @@ account_manager_finalize (GObject *object)
 }
 
 AccountManager*
-account_manager_new (void)
+account_manager_new (LoquiProtocolManager *protocol_manager)
 {
         AccountManager *account_manager;
 	AccountManagerPrivate *priv;
@@ -175,6 +177,10 @@ account_manager_new (void)
 	account_manager = g_object_new(account_manager_get_type(), NULL);
 
 	priv = account_manager->priv;
+
+	g_object_ref(protocol_manager);
+	account_manager->protocol_manager = protocol_manager;
+
 	return account_manager;
 }
 
@@ -305,9 +311,7 @@ account_manager_load_accounts(AccountManager *account_manager)
         priv = account_manager->priv;
 
 	path = g_build_filename(g_get_home_dir(), PREFS_DIR, ACCOUNT_CONFIG_FILENAME, NULL);
-	handle = loqui_profile_handle_new();
-	loqui_profile_handle_register_type(handle, "IRC", LOQUI_TYPE_PROFILE_ACCOUNT_IRC);
-	loqui_profile_handle_register_type(handle, "IPMsg", LOQUI_TYPE_PROFILE_ACCOUNT_IPMSG);
+	handle = loqui_profile_handle_new(account_manager->protocol_manager);
 	loqui_profile_handle_read_from_file(handle, &list, path);
 
 	for(cur = list; cur != NULL; cur = cur->next) {
@@ -341,8 +345,7 @@ account_manager_save_accounts(AccountManager *account_manager)
 	}
 
 	path = g_build_filename(g_get_home_dir(), PREFS_DIR, ACCOUNT_CONFIG_FILENAME, NULL);
-	handle = loqui_profile_handle_new();
-	loqui_profile_handle_register_type(handle, "IRC", LOQUI_TYPE_PROFILE_ACCOUNT_IRC);
+	handle = loqui_profile_handle_new(account_manager->protocol_manager);
 	loqui_profile_handle_write_to_file(handle, list, path);
 	g_object_unref(handle);
 	g_list_free(list);

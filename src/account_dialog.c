@@ -350,6 +350,7 @@ account_dialog_open_add_dialog(GtkWindow *parent, AccountManager *manager)
 	LoquiAccount *account;
 	gint response;
 
+	/* FIXME */
 	profile = LOQUI_PROFILE_ACCOUNT(loqui_profile_account_irc_new());
 	dialog = ACCOUNT_DIALOG(account_dialog_new(profile));
 	gtk_window_set_transient_for(GTK_WINDOW(dialog), parent);

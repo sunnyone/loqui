@@ -241,6 +241,8 @@ loqui_profile_account_irc_new(void)
 	
         priv = profile->priv;
 
+	LOQUI_PROFILE_ACCOUNT(profile)->protocol = loqui_protocol_irc_get();
+
         return profile;
 }
 

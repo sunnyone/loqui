@@ -40,7 +40,9 @@ typedef struct _LoquiProfileAccountPrivate     LoquiProfileAccountPrivate;
 struct _LoquiProfileAccount
 {
         GObject parent;
-        
+
+        struct _LoquiProtocol *protocol;
+
 	gchar *name;
 	gboolean use;
 	
@@ -65,7 +67,7 @@ struct _LoquiProfileAccountClass
 
 GType loqui_profile_account_get_type(void) G_GNUC_CONST;
 
-LoquiProfileAccount* loqui_profile_account_new(void);
+LoquiProfileAccount* loqui_profile_account_new(struct _LoquiProtocol *protocol);
 
 #define LOQUI_PROFILE_ACCOUNT_ACCESSOR_STRING(attr_name) \
   ATTR_ACCESSOR_POINTER(g_strdup, g_free, const gchar *, G_CONST_RETURN gchar *, LoquiProfileAccount, loqui_profile_account, attr_name)

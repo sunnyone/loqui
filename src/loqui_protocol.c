@@ -173,7 +173,7 @@ loqui_protocol_set_identifier(LoquiProtocol *protocol, const gchar *identifier)
 {
 	G_FREE_UNLESS_NULL(protocol->identifier);
 	if (identifier)
-		identifier = g_strdup(identifier);
+		protocol->identifier = g_strdup(identifier);
 }
 G_CONST_RETURN gchar *
 loqui_protocol_get_identifier(LoquiProtocol *protocol)
@@ -232,3 +232,20 @@ loqui_protocol_get_profile_account_class(LoquiProtocol *protocol)
 
 	return g_type_class_ref(protocol->type_profile_account);
 }
+
+LoquiProfileAccount *
+loqui_protocol_create_profile_account(LoquiProtocol *protocol)
+{
+	LoquiProfileAccount *profile;
+
+	g_return_val_if_fail(protocol != NULL, NULL);
+	g_return_val_if_fail(LOQUI_IS_PROTOCOL(protocol), NULL);
+	
+	/* FIXME: this should be done with argument of g_object_new,
+	   but it can't because a property will be serialized. */
+	profile = LOQUI_PROFILE_ACCOUNT(g_object_new(protocol->type_profile_account, NULL));
+	profile->protocol = protocol;
+
+	return profile;
+}
+

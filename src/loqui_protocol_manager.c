@@ -96,6 +96,11 @@ loqui_protocol_manager_dispose(GObject *object)
 
         manager = LOQUI_PROTOCOL_MANAGER(object);
 
+	if (manager->protocol_table) {
+		g_hash_table_destroy(manager->protocol_table);
+		manager->protocol_table = NULL;
+	}
+
         if (G_OBJECT_CLASS(parent_class)->dispose)
                 (* G_OBJECT_CLASS(parent_class)->dispose)(object);
 }
@@ -147,7 +152,7 @@ loqui_protocol_manager_init(LoquiProtocolManager *manager)
 
 	manager->priv = priv;
 	
-	manager->protocol_table = g_hash_table_new_full(g_str_hash, g_str_equal, (GDestroyNotify) g_free, NULL);
+	manager->protocol_table = g_hash_table_new_full(g_str_hash, g_str_equal, (GDestroyNotify) g_free, g_object_unref);
 }
 LoquiProtocolManager*
 loqui_protocol_manager_new(void)
