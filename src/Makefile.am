@@ -51,6 +51,7 @@ SRC_PROTOCOL_IPMSG = \
 	loqui_user_ipmsg.c loqui_user_ipmsg.h \
 	loqui_profile_account_ipmsg.c loqui_profile_account_ipmsg.h \
 	loqui_sender_ipmsg.c loqui_sender_ipmsg.h \
+	loqui_receiver_ipmsg.c loqui_receiver_ipmsg.h \
 	loqui_account_ipmsg.c loqui_account_ipmsg.h \
 	ipmsg.h \
 	ipmsg_socket.c ipmsg_socket.h \

@@ -21,6 +21,7 @@
 #define __IPMSG_SOCKET_H__
 
 #include <glib-object.h>
+#include "ipmsg_packet.h"
 
 G_BEGIN_DECLS
 
@@ -46,6 +47,9 @@ struct _IPMsgSocket
 struct _IPMsgSocketClass
 {
         GObjectClass parent_class;
+
+	void (* warn) (IPMsgSocket *socket, gchar *str);
+	void (* arrive_packet) (IPMsgSocket *socket, IPMsgPacket *packet);
 };
 
 

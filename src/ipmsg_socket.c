@@ -27,6 +27,8 @@
 #include "main.h"
 
 enum {
+	SIGNAL_WARN,
+	SIGNAL_ARRIVE_PACKET,
         LAST_SIGNAL
 };
 
@@ -44,7 +46,7 @@ struct _IPMsgSocketPrivate
 
 static GObjectClass *parent_class = NULL;
 
-/* static guint ipmsg_socket_signals[LAST_SIGNAL] = { 0 }; */
+static guint signals[LAST_SIGNAL] = { 0 };
 
 static void ipmsg_socket_class_init(IPMsgSocketClass *klass);
 static void ipmsg_socket_init(IPMsgSocket *sock);
@@ -55,6 +57,7 @@ static void ipmsg_socket_get_property(GObject *object, guint param_id, GValue *v
 static void ipmsg_socket_set_property(GObject *object, guint param_id, const GValue *value, GParamSpec *pspec);
 
 static gboolean ipmsg_socket_watch_in_cb(GIOChannel *ioch, GIOCondition condition, gpointer data);
+static void ipmsg_socket_warning(IPMsgSocket *sock, const gchar *str);
 
 GType
 ipmsg_socket_get_type(void)
@@ -148,6 +151,23 @@ ipmsg_socket_class_init(IPMsgSocketClass *klass)
         object_class->dispose = ipmsg_socket_dispose;
         object_class->get_property = ipmsg_socket_get_property;
         object_class->set_property = ipmsg_socket_set_property;
+
+	signals[SIGNAL_WARN] = g_signal_new("warn",
+				     G_OBJECT_CLASS_TYPE(object_class),
+				     G_SIGNAL_RUN_FIRST,
+				     G_STRUCT_OFFSET(IPMsgSocketClass, warn),
+				     NULL, NULL,
+				     g_cclosure_marshal_VOID__STRING,
+				     G_TYPE_NONE, 1,
+				     G_TYPE_STRING);
+	signals[SIGNAL_ARRIVE_PACKET] = g_signal_new("arrive_packet",
+						     G_OBJECT_CLASS_TYPE(object_class),
+						     G_SIGNAL_RUN_FIRST,
+						     G_STRUCT_OFFSET(IPMsgSocketClass, arrive_packet),
+						     NULL, NULL,
+						     g_cclosure_marshal_VOID__OBJECT,
+						     G_TYPE_NONE, 1,
+						     TYPE_IPMSG_PACKET);
 }
 static void 
 ipmsg_socket_init(IPMsgSocket *sock)
@@ -168,6 +188,7 @@ ipmsg_socket_watch_in_cb(GIOChannel *ioch, GIOCondition condition, gpointer data
 	IPMsgSocketPrivate *priv;
 	IPMsgPacket *packet;
 	GInetAddr *addr;
+	gchar *str;
 
 	sock = IPMSG_SOCKET(data);
 
@@ -175,11 +196,11 @@ ipmsg_socket_watch_in_cb(GIOChannel *ioch, GIOCondition condition, gpointer data
 
 	len = gnet_udp_socket_receive(priv->udpsock, buf, MAXBUF, &addr);
 	if (len < 0) {
-		g_warning("Error: receiving.");
+		ipmsg_socket_warning(sock, "Error: receiving.");
 		priv->in_watch = 0;
 		return FALSE;
 	} else if (len == 0) {
-		g_warning("No characters is arrived.");
+		ipmsg_socket_warning(sock, "No characters is arrived.");
 		return TRUE;
 	}
 
@@ -187,15 +208,23 @@ ipmsg_socket_watch_in_cb(GIOChannel *ioch, GIOCondition condition, gpointer data
 
 	packet = ipmsg_packet_parse(buf, len);
 	if (!packet) {
-		g_warning("Invalid packet: '%s'", buf);
+		str = g_strdup_printf("Invalid packet: '%s'", buf);
+		ipmsg_socket_warning(sock, str);
+		g_free(str);
 		return TRUE;
 	}
 	ipmsg_packet_set_inetaddr(packet, addr);
 	if (show_msg_mode)
 		ipmsg_packet_print(packet);
+	g_signal_emit(G_OBJECT(sock), signals[SIGNAL_ARRIVE_PACKET], 0, packet);
 	g_object_unref(packet);
 
 	return TRUE;
+}
+static void
+ipmsg_socket_warning(IPMsgSocket *sock, const gchar *str)
+{
+	g_signal_emit(G_OBJECT(sock), signals[SIGNAL_WARN], 0, str);
 }
 IPMsgSocket*
 ipmsg_socket_new(void)
@@ -207,7 +236,6 @@ ipmsg_socket_new(void)
 	
         priv = sock->priv;
 	
-
         return sock;
 }
 gboolean

@@ -22,8 +22,10 @@
 #include "loqui_account_ipmsg.h"
 #include "loqui_user_ipmsg.h"
 #include "loqui_sender_ipmsg.h"
+#include "loqui_receiver_ipmsg.h"
 
 #include "ipmsg_socket.h"
+#include "ipmsg_packet.h"
 #include "intl.h"
 
 enum {
@@ -52,6 +54,9 @@ static void loqui_account_ipmsg_get_property(GObject *object, guint param_id, GV
 static void loqui_account_ipmsg_set_property(GObject *object, guint param_id, const GValue *value, GParamSpec *pspec);
 
 static void loqui_account_ipmsg_connect(LoquiAccount *account);
+
+static void loqui_account_ipmsg_socket_arrive_packet_cb(IPMsgSocket *socket, IPMsgPacket *packet, LoquiAccount *account);
+static void loqui_account_ipmsg_socket_warn_cb(IPMsgSocket *socket, const gchar *warn, LoquiAccount *account);
 
 GType
 loqui_account_ipmsg_get_type(void)
@@ -159,6 +164,7 @@ loqui_account_ipmsg_init(LoquiAccountIPMsg *account)
 	account->priv = priv;
 
 	loqui_account_set_sender(LOQUI_ACCOUNT(account), LOQUI_SENDER(loqui_sender_ipmsg_new(LOQUI_ACCOUNT(account))));
+	loqui_account_set_receiver(LOQUI_ACCOUNT(account), LOQUI_RECEIVER(loqui_receiver_ipmsg_new(LOQUI_ACCOUNT(account))));
 }
 static void
 loqui_account_ipmsg_connect(LoquiAccount *account)
@@ -177,9 +183,28 @@ loqui_account_ipmsg_connect(LoquiAccount *account)
 		return;
 	}
 	
+	g_signal_connect(G_OBJECT(priv->sock), "arrive_packet",
+			 G_CALLBACK(loqui_account_ipmsg_socket_arrive_packet_cb), account);
+	g_signal_connect(G_OBJECT(priv->sock), "warn",
+			 G_CALLBACK(loqui_account_ipmsg_socket_warn_cb), account);
+
 	str = g_strdup_printf(_("Opened the socket."));
 	loqui_account_console_buffer_append(account, TEXT_TYPE_INFO, str);
 	g_free(str);
+}
+static void
+loqui_account_ipmsg_socket_arrive_packet_cb(IPMsgSocket *socket, IPMsgPacket *packet, LoquiAccount *account)
+{
+	gchar *str;
+
+	str = ipmsg_packet_inspect(packet);
+	loqui_account_console_buffer_append(LOQUI_ACCOUNT(account), TEXT_TYPE_NORMAL, str);
+	g_free(str);
+}
+static void
+loqui_account_ipmsg_socket_warn_cb(IPMsgSocket *socket, const gchar *warn, LoquiAccount *account)
+{
+	loqui_account_warning(account, "%s", warn);
 }
 LoquiAccountIPMsg*
 loqui_account_ipmsg_new(LoquiProfileAccount *profile)

@@ -243,25 +243,39 @@ ipmsg_packet_parse(const gchar *str, gint len)
 
 	return packet;
 }
-void
-ipmsg_packet_print(IPMsgPacket *packet)
+gchar *
+ipmsg_packet_inspect(IPMsgPacket *packet)
 {
 	GInetAddr *addr;
 	gchar *addr_str;
+	GString *string;
+
+	string = g_string_new(NULL);
 
 	addr = ipmsg_packet_get_inetaddr(packet);
-	g_print("-- \n");
-
 	addr_str = gnet_inetaddr_get_canonical_name(addr);
-	g_print("From: %s:%d\n", utils_remove_ipv6_prefix_ffff(addr_str), gnet_inetaddr_get_port(addr));
+	g_string_append_printf(string, "From: %s:%d\n", utils_remove_ipv6_prefix_ffff(addr_str), gnet_inetaddr_get_port(addr));
 	g_free(addr_str);
 
-	g_print("Version: %d, PacketNumber: %d\n", packet->version, packet->packet_num);
-	g_print("Username: %s, Hostname: %s, Group: %s\n",
+	g_string_append_printf(string, "Version: %d, PacketNumber: %d\n", packet->version, packet->packet_num);
+	g_string_append_printf(string, "Username: %s, Hostname: %s, Group: %s\n",
 		packet->username, packet->hostname, packet->group_name ? packet->group_name : "(not set)");
-	g_print("Command Number: %d\n", packet->command_num);
-	g_print("Extra: %s\n", packet->extra);
+	g_string_append_printf(string, "Command Number: %d\n", packet->command_num);
+	g_string_append_printf(string, "Extra: %s", packet->extra);
+
+	return g_string_free(string, FALSE);
 }
+void
+ipmsg_packet_print(IPMsgPacket *packet)
+{
+	gchar *str;
+	
+	g_print("-- \n");
+	str = ipmsg_packet_inspect(packet);
+	g_print("%s\n", str);
+	g_free(str);
+}
+
 void
 ipmsg_packet_set_inetaddr(IPMsgPacket *packet, GInetAddr *inetaddr)
 {

@@ -65,6 +65,7 @@ GType ipmsg_packet_get_type(void) G_GNUC_CONST;
 
 IPMsgPacket* ipmsg_packet_new(void);
 IPMsgPacket* ipmsg_packet_parse(const gchar *str, gint len);
+gchar * ipmsg_packet_inspect(IPMsgPacket *packet);
 void ipmsg_packet_print(IPMsgPacket *packet);
 
 void ipmsg_packet_set_inetaddr(IPMsgPacket *packet, GInetAddr *inetaddr);
