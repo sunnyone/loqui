@@ -28,6 +28,8 @@
 
 struct _ChannelBufferPrivate
 {
+	GtkTextTag *emphasis_area_tag;
+	GtkTextTag *adviser_area_tag;
 };
 
 static GtkTextBufferClass *parent_class = NULL;
@@ -38,7 +40,8 @@ static void channel_buffer_init(ChannelBuffer *channel_buffer);
 static void channel_buffer_finalize(GObject *object);
 
 static void channel_buffer_append_current_time(ChannelBuffer *channel_buffer);
-static void channel_buffer_append(ChannelBuffer *buffer, TextType type, gchar *str);
+static void channel_buffer_append(ChannelBuffer *buffer, TextType type, gchar *str,
+				  gboolean enable_emphasis, gboolean exec_adviser);
 
 static void channel_buffer_text_inserted_cb(GtkTextBuffer *buffer,
 					    GtkTextIter *pos,
@@ -55,6 +58,12 @@ static gboolean channel_buffer_link_tag_event_cb(GtkTextTag *texttag,
 						 GdkEvent *event,
 						 GtkTextIter *arg2,
 						 gpointer user_data);
+
+static void channel_buffer_apply_tag_cb(GtkTextBuffer *buffer,
+					GtkTextTag *tag,
+					GtkTextIter *start,
+					GtkTextIter *end,
+					gpointer user_data);
 
 #define TIME_LEN 11
 
@@ -117,6 +126,52 @@ channel_buffer_finalize (GObject *object)
 
 	g_free(channel_buffer->priv);
 }
+static void channel_buffer_apply_tag_cb(GtkTextBuffer *buffer,
+					GtkTextTag *tag,
+					GtkTextIter *start,
+					GtkTextIter *end,
+					gpointer user_data)
+{
+	ChannelBuffer *channel_buffer;
+	ChannelBufferPrivate *priv;
+	GtkTextIter tmp_start, tmp_end;
+	GtkTextIter region_start, region_end;
+	gboolean matched = FALSE;
+
+	channel_buffer = CHANNEL_BUFFER(buffer);
+	priv = channel_buffer->priv;
+
+	if(!(tag == priv->emphasis_area_tag || tag == priv->adviser_area_tag))
+		return;
+
+	tmp_start = *start;
+	tmp_end = *end;
+
+/*	for(cur = word_list; cur != NULL; cur = cur->next) { */
+	while(gtk_text_iter_forward_search(&tmp_start,
+					   "word",
+					   GTK_TEXT_SEARCH_VISIBLE_ONLY,
+					   &region_start,
+					   &region_end,
+					   &tmp_end)) {
+
+		gtk_text_buffer_apply_tag_by_name(buffer,
+						  "emphasis",
+						  &region_start,
+						  &region_end);
+		tmp_start = region_end;
+		matched = TRUE;
+	}
+/*  } */
+
+	if(tag == priv->adviser_area_tag && matched) {
+		g_print("Sound.\n");
+	}
+
+	gtk_text_buffer_remove_tag(buffer, tag,
+				   start, end);
+}
+
 static gboolean channel_buffer_link_tag_event_cb(GtkTextTag *texttag,
 						 GObject *arg1,
 						 GdkEvent *event,
@@ -192,7 +247,7 @@ static void channel_buffer_tag_uri(GtkTextBuffer *buffer,
 	g_free(buf);
 
 }
-				    
+
 static void channel_buffer_text_inserted_cb(GtkTextBuffer *buffer,
 					    GtkTextIter *pos,
 					    const gchar *text,
@@ -243,13 +298,20 @@ channel_buffer_new(void)
 					 NULL);
 	gtk_text_buffer_create_tag(textbuf, "emphasis",
 				   "weight", PANGO_WEIGHT_BOLD,
+				   "foreground", "purple",
 				   NULL);
+	priv->emphasis_area_tag = gtk_text_buffer_create_tag(textbuf, "emphasis-area",
+							 NULL);
+	priv->adviser_area_tag = gtk_text_buffer_create_tag(textbuf, "adviser-area",
+								 NULL);
 
 	g_signal_connect(G_OBJECT(tag), "event",
 			 G_CALLBACK(channel_buffer_link_tag_event_cb), NULL);
 	g_signal_connect_after(G_OBJECT(textbuf), "insert-text",
 			       G_CALLBACK(channel_buffer_text_inserted_cb), NULL);
-	
+	g_signal_connect_after(G_OBJECT(textbuf), "apply-tag",
+			       G_CALLBACK(channel_buffer_apply_tag_cb), NULL);
+
 	return channel_buffer;
 }
 static void
@@ -266,14 +328,17 @@ channel_buffer_append_current_time(ChannelBuffer *buffer)
 	localtime_r(&t, &tm);
 	strftime(buf, TIME_LEN, "%H:%M ", &tm);
 
-	channel_buffer_append(buffer, TEXT_TYPE_TIME, buf);
+	channel_buffer_append(buffer, TEXT_TYPE_TIME, buf, FALSE, FALSE);
 }
 
 static void
-channel_buffer_append(ChannelBuffer *buffer, TextType type, gchar *str)
+channel_buffer_append(ChannelBuffer *buffer, TextType type, gchar *str, 
+		      gboolean enable_emphasis,
+		      gboolean exec_adviser)
 {
 	GtkTextIter iter;
 	gchar *style;
+	gchar *emphasis;
 
         g_return_if_fail(buffer != NULL);
         g_return_if_fail(IS_CHANNEL_BUFFER(buffer));
@@ -296,7 +361,17 @@ channel_buffer_append(ChannelBuffer *buffer, TextType type, gchar *str)
 	default:
 		style = "normal";
 	}
-	gtk_text_buffer_insert_with_tags_by_name(GTK_TEXT_BUFFER(buffer), &iter, str, -1, style, NULL);
+	if(enable_emphasis) {
+		if(exec_adviser)
+			emphasis = "adviser-area";
+		else
+			emphasis = "emphasis-area";
+	} else {
+		emphasis = NULL;
+	}
+
+	gtk_text_buffer_insert_with_tags_by_name(GTK_TEXT_BUFFER(buffer), &iter, str, -1, 
+						 style, emphasis, NULL);
 }
 void
 channel_buffer_append_line(ChannelBuffer *buffer, TextType type, gchar *str)
@@ -309,12 +384,12 @@ channel_buffer_append_line(ChannelBuffer *buffer, TextType type, gchar *str)
 	channel_buffer_append_current_time(buffer);
 
 	buf = g_strconcat(str, "\n", NULL);
-	channel_buffer_append(buffer, type, buf);
+	channel_buffer_append(buffer, type, buf, FALSE, FALSE);
 	g_free(buf);
 }
 
 void
-channel_buffer_append_remark(ChannelBuffer *buffer, TextType type, gboolean exec_noticer,
+channel_buffer_append_remark(ChannelBuffer *buffer, TextType type, gboolean exec_adviser,
 			     gboolean is_self, gboolean is_priv, 
 			     const gchar *channel_name, const gchar *nick, const gchar *remark)
 {
@@ -345,10 +420,10 @@ channel_buffer_append_remark(ChannelBuffer *buffer, TextType type, gboolean exec
 			nick_str = g_strdup_printf("<%s> ", nick);
 	}
 	
-	channel_buffer_append(buffer, type, nick_str);
+	channel_buffer_append(buffer, type, nick_str, FALSE, FALSE);
 	
 	buf = g_strconcat(remark, "\n", NULL);
-	channel_buffer_append(buffer, type, buf);
+	channel_buffer_append(buffer, type, buf, TRUE, exec_adviser);
 
 	g_free(buf);
 	g_free(nick_str);

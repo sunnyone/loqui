@@ -148,7 +148,7 @@ channel_append_remark(Channel *channel, TextType type, gboolean is_self, const g
 {
 	ChannelBuffer *buffer;
 	gboolean is_priv = FALSE;
-	gboolean exec_noticer = TRUE;
+	gboolean exec_adviser = TRUE;
 
 	g_return_if_fail(channel != NULL);
 	g_return_if_fail(IS_CHANNEL(channel));
@@ -158,9 +158,9 @@ channel_append_remark(Channel *channel, TextType type, gboolean is_self, const g
 	if(!STRING_IS_CHANNEL(channel->name))
 		is_priv = TRUE;
 	if(is_self)
-		exec_noticer = FALSE;
+		exec_adviser = FALSE;
 
-	channel_buffer_append_remark(buffer, type, exec_noticer, is_self, is_priv, NULL, nick, remark);
+	channel_buffer_append_remark(buffer, type, exec_adviser, is_self, is_priv, NULL, nick, remark);
 
 	if(!account_manager_is_current_channel_buffer(account_manager_get(), buffer)) {
 		account_manager_common_buffer_append_remark(account_manager_get(), type, 
