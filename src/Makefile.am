@@ -45,7 +45,6 @@ SRC_PROTOCOL_IRC = \
 	irc_constants.h \
 	irc_message.c irc_message.h \
 	ctcp_message.c ctcp_message.h \
-	irc_connection.c irc_connection.h \
 	ctcp_handle.c ctcp_handle.h \
 	command_table.c command_table.h
 

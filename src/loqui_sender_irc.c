@@ -235,12 +235,7 @@ loqui_sender_irc_new(LoquiAccount *account)
 static void
 loqui_sender_irc_send_irc_message(LoquiSenderIRC *sender, IRCMessage *msg)
 {
-	IRCConnection *conn;
-
-	conn = loqui_account_irc_get_connection(LOQUI_ACCOUNT_IRC(loqui_sender_get_account(LOQUI_SENDER(sender))));
-	g_return_if_fail(conn != NULL);
-
-	irc_connection_push_message(conn, msg);
+	loqui_account_irc_push_message(LOQUI_ACCOUNT_IRC(loqui_sender_get_account(LOQUI_SENDER(sender))), msg);
 }
 /* helper */
 static void

@@ -24,7 +24,7 @@
 
 #include "loqui_account.h"
 #include "loqui_user_irc.h"
-#include "irc_connection.h"
+#include "irc_message.h"
 
 G_BEGIN_DECLS
 
@@ -58,9 +58,8 @@ GType loqui_account_irc_get_type(void) G_GNUC_CONST;
 LoquiAccountIRC* loqui_account_irc_new(LoquiProfileAccount *profile);
 LoquiUserIRC* loqui_account_irc_fetch_user(LoquiAccountIRC *account, const gchar *nick);
 
-IRCConnection *loqui_account_irc_get_connection(LoquiAccountIRC *account);
-
 gboolean loqui_account_irc_is_current_nick(LoquiAccountIRC *account, const gchar *str);
+void loqui_account_irc_push_message(LoquiAccountIRC *account, IRCMessage *msg);
 
 G_END_DECLS
 
