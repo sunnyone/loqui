@@ -316,19 +316,19 @@ loqui_channelbar_update_channel(LoquiChannelbar *channelbar, Channel *channel)
 	/* for current menuitem and others. FIXME: quick hack */
 	menuitem = GTK_OPTION_MENU(priv->option_menu)->menu_item;
 
-	tmp_ch = CHANNEL(g_object_get_data(G_OBJECT(menuitem), "channel"));
-	if(tmp_ch == channel) {
+	if (menuitem)
+		tmp_ch = CHANNEL(g_object_get_data(G_OBJECT(menuitem), "channel"));
+	if (menuitem && tmp_ch == channel) {
 		children = gtk_container_get_children(GTK_CONTAINER(priv->option_menu));
-
+		
 		if(children == NULL)
 			return;
-
+		
 		label = children->data;
-
+		
 		gtkutils_set_label_color(GTK_LABEL(label), 
 					 channel_get_updated(channel) ?
 					 FRESH_COLOR : NONFRESH_COLOR);
-
 	} else {
 		buffer_menu_update_channel(menu, channel);
 	}
