@@ -158,7 +158,7 @@ void prefs_general_load(void)
 	if(!prefs_general) {
 		prefs_general = g_new0(PrefsGeneral, 1);
 	} else {
-		STR_FREE_UNLESS_NULL(prefs_general->codeset);
+		G_FREE_UNLESS_NULL(prefs_general->codeset);
 	}
 	prefs_general_set_default();
 	

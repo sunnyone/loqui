@@ -93,14 +93,8 @@ channel_finalize (GObject *object)
         channel = CHANNEL(object);
 	priv = channel->priv;
 
-	if(channel->name) {
-		g_free(channel->name);
-		channel->name = NULL;
-	}
-	if(priv->topic) {
-		g_free(priv->topic);
-		priv->topic = NULL;
-	}
+	G_FREE_UNLESS_NULL(channel->name);
+	G_FREE_UNLESS_NULL(priv->topic);
 
         if (G_OBJECT_CLASS(parent_class)->finalize)
                 (* G_OBJECT_CLASS(parent_class)->finalize) (object);

@@ -21,7 +21,7 @@
 #define __UTILS_H__
 #include <glib.h>
 
-#define STR_FREE_UNLESS_NULL(str) { \
+#define G_FREE_UNLESS_NULL(str) { \
  if(str != NULL) { \
     g_free(str); \
     str = NULL; \

@@ -100,12 +100,12 @@ account_finalize (GObject *object)
 
         account = ACCOUNT(object);
 
-	STR_FREE_UNLESS_NULL(account->name);
-	STR_FREE_UNLESS_NULL(account->nick);
-	STR_FREE_UNLESS_NULL(account->username);
-	STR_FREE_UNLESS_NULL(account->realname);
-	STR_FREE_UNLESS_NULL(account->userinfo);
-	STR_FREE_UNLESS_NULL(account->autojoin);
+	G_FREE_UNLESS_NULL(account->name);
+	G_FREE_UNLESS_NULL(account->nick);
+	G_FREE_UNLESS_NULL(account->username);
+	G_FREE_UNLESS_NULL(account->realname);
+	G_FREE_UNLESS_NULL(account->userinfo);
+	G_FREE_UNLESS_NULL(account->autojoin);
 
 	for(cur = account->server_list; cur != NULL; cur = cur->next) {
 		if(cur->data) {
@@ -156,7 +156,7 @@ void account_set_name(Account *account, const gchar *name)
 	g_return_if_fail(account != NULL);
         g_return_if_fail(IS_ACCOUNT(account));
 
-	STR_FREE_UNLESS_NULL(account->name);
+	G_FREE_UNLESS_NULL(account->name);
 	if(name)
 		account->name = g_strdup(name);
 }
@@ -173,7 +173,7 @@ void account_set_nick(Account *account, const gchar *nick)
 	g_return_if_fail(account != NULL);
         g_return_if_fail(IS_ACCOUNT(account));
 
-	STR_FREE_UNLESS_NULL(account->nick);
+	G_FREE_UNLESS_NULL(account->nick);
 	if(nick)
 		account->nick = g_strdup(nick);
 }
@@ -193,7 +193,7 @@ void account_set_username(Account *account, const gchar *username)
 	g_return_if_fail(account != NULL);
         g_return_if_fail(IS_ACCOUNT(account));
 
-	STR_FREE_UNLESS_NULL(account->username);
+	G_FREE_UNLESS_NULL(account->username);
 	if(username)
 		account->username = g_strdup(username);
 }
@@ -210,7 +210,7 @@ void account_set_realname(Account *account, const gchar *realname)
 	g_return_if_fail(account != NULL);
         g_return_if_fail(IS_ACCOUNT(account));
 
-	STR_FREE_UNLESS_NULL(account->realname);
+	G_FREE_UNLESS_NULL(account->realname);
 	if(realname)
 		account->realname = g_strdup(realname);
 }
@@ -227,7 +227,7 @@ void account_set_userinfo(Account *account, const gchar *userinfo)
 	g_return_if_fail(account != NULL);
         g_return_if_fail(IS_ACCOUNT(account));
 
-	STR_FREE_UNLESS_NULL(account->userinfo);
+	G_FREE_UNLESS_NULL(account->userinfo);
 	if(userinfo)
 		account->userinfo = g_strdup(userinfo);
 }
@@ -244,7 +244,7 @@ void account_set_autojoin(Account *account, const gchar *autojoin)
 	g_return_if_fail(account != NULL);
         g_return_if_fail(IS_ACCOUNT(account));
 
-	STR_FREE_UNLESS_NULL(account->autojoin);
+	G_FREE_UNLESS_NULL(account->autojoin);
 	if(autojoin)
 		account->autojoin = g_strdup(autojoin);
 }
