@@ -103,6 +103,7 @@ static void irc_handle_reply_endofnames(IRCHandle *handle, IRCMessage *msg);
 static void irc_handle_reply_channelmodeis(IRCHandle *handle, IRCMessage *msg);
 static void irc_handle_reply_creationtime(IRCHandle *handle, IRCMessage *msg);
 static void irc_handle_reply_topicwhotime(IRCHandle *handle, IRCMessage *msg);
+static void irc_handle_reply_whoisidle(IRCHandle *handle, IRCMessage *msg);
 
 static void irc_handle_parse_mode_arguments(IRCHandle *handle, IRCMessage *msg, Channel *channel, gint mode_start);
 static gboolean irc_handle_parse_plum_recent(IRCHandle *handle, const gchar *line);
@@ -812,6 +813,34 @@ irc_handle_reply_topicwhotime(IRCHandle *handle, IRCMessage *msg)
 	irc_handle_channel_append(handle, msg, TRUE, 2, TEXT_TYPE_INFO, format);
 	g_free(format);
 }
+static void
+irc_handle_reply_whoisidle(IRCHandle *handle, IRCMessage *msg)
+{
+	gchar *str;
+	gchar *sec_str;
+	gint sec;
+
+	sec_str = irc_message_get_param(msg, 3);
+	if(!sec_str) {
+		irc_handle_account_console_append(handle, msg, TEXT_TYPE_ERROR, _("Invalid WHOISIDLE reply."));
+		return;
+	}
+
+	sec = (gint) g_ascii_strtoull(sec_str, NULL, 10);
+	if((*sec_str != '0' || *(sec_str+1) != '\0') && sec == 0) {
+		irc_handle_account_console_append(handle, msg, TEXT_TYPE_ERROR, _("Invalid WHOISIDLE reply."));
+		return;
+	}
+
+	str = g_strdup_printf("Idle time: %d day(s), %.2d:%.2d:%.2d",
+			      sec / (24 * 60 * 60),
+			      (sec % (24 * 60 * 60)) / (60 * 60),
+			      (sec % (60 * 60)) / 60,
+			      (sec % 60));
+
+	irc_handle_account_console_append(handle, msg, TEXT_TYPE_NORMAL, str);
+	g_free(str);
+}
 
 static void
 irc_handle_reply_topic(IRCHandle *handle, IRCMessage *msg)
@@ -1008,7 +1037,7 @@ irc_handle_reply(IRCHandle *handle, IRCMessage *msg)
 		irc_handle_account_console_append(handle, msg, TEXT_TYPE_NORMAL, _("on via server %3(%t)"));
 		return TRUE;
 	case IRC_RPL_WHOISIDLE:
-		irc_handle_account_console_append(handle, msg, TEXT_TYPE_NORMAL, _("%3 %t"));
+		irc_handle_reply_whoisidle(handle, msg);
 		return TRUE;
 	case IRC_RPL_BANLIST:
 		irc_handle_account_console_append(handle, msg, TEXT_TYPE_NORMAL, _("Banned on %2 : %3"));
