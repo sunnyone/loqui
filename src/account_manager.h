@@ -70,6 +70,13 @@ void account_manager_disconnect_all(AccountManager *manager);
 
 GList *account_manager_get_account_list(AccountManager *manager);
 
+LoquiChannelEntry * account_manager_get_next_channel_entry(AccountManager *manager,
+							   LoquiChannelEntry *chent,
+							   gboolean require_updated);
+
+LoquiChannelEntry * account_manager_get_previous_channel_entry(AccountManager *manager,
+							       LoquiChannelEntry *chent,
+							       gboolean require_updated);
 G_END_DECLS
 
 #endif /* __ACCOUNT_MANAGER_H__ */

@@ -73,9 +73,6 @@ void channel_tree_set_updated(ChannelTree *tree, Account *account, LoquiChannel 
 
 void channel_tree_update_user_number(ChannelTree *tree, LoquiChannel *channel);
 
-void channel_tree_select_next_channel(ChannelTree *tree, gboolean require_updated);
-void channel_tree_select_prev_channel(ChannelTree *tree, gboolean require_updated);
-
 G_END_DECLS
 
 #endif /* __CHANNEL_TREE_H__ */

@@ -760,6 +760,23 @@ loqui_app_get_account_manager(LoquiApp *app)
 	return app->account_manager;
 }
 
+LoquiChannelEntry *
+loqui_app_get_current_channel_entry(LoquiApp *app)
+{
+	if (app->priv->current_channel)
+		return LOQUI_CHANNEL_ENTRY(app->priv->current_channel);
+	else
+		return LOQUI_CHANNEL_ENTRY(app->priv->current_account);
+}
+void
+loqui_app_set_current_channel_entry(LoquiApp *app, LoquiChannelEntry *chent)
+{
+	if (LOQUI_IS_CHANNEL(chent))
+		loqui_app_set_current_channel(app, LOQUI_CHANNEL(chent));
+	else
+		loqui_app_set_current_account(app, ACCOUNT(chent));
+}
+
 LoquiChannel *
 loqui_app_get_current_channel(LoquiApp *app)
 {

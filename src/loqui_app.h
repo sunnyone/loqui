@@ -112,6 +112,9 @@ void loqui_app_get_current_widget_editing_status(LoquiApp *app, gboolean *cutabl
 
 AccountManager *loqui_app_get_account_manager(LoquiApp *app);
 
+LoquiChannelEntry *loqui_app_get_current_channel_entry(LoquiApp *app);
+void loqui_app_set_current_channel_entry(LoquiApp *app, LoquiChannelEntry *chent);
+
 LoquiChannel *loqui_app_get_current_channel(LoquiApp *app);
 Account *loqui_app_get_current_account(LoquiApp *app);
 void loqui_app_set_current_channel(LoquiApp *app, LoquiChannel *channel);

@@ -48,10 +48,10 @@ static void loqui_app_actions_cut_cb(GtkAction *action, LoquiApp *app);
 static void loqui_app_actions_copy_cb(GtkAction *action, LoquiApp *app);
 static void loqui_app_actions_paste_cb(GtkAction *action, LoquiApp *app);
 static void loqui_app_actions_clear_cb(GtkAction *action, LoquiApp *app);
-static void loqui_app_actions_previous_updated_channel_cb(GtkAction *action, LoquiApp *app);
-static void loqui_app_actions_next_updated_channel_cb(GtkAction *action, LoquiApp *app);
-static void loqui_app_actions_previous_channel_cb(GtkAction *action, LoquiApp *app);
-static void loqui_app_actions_next_channel_cb(GtkAction *action, LoquiApp *app);
+static void loqui_app_actions_previous_updated_channel_buffer_cb(GtkAction *action, LoquiApp *app);
+static void loqui_app_actions_next_updated_channel_buffer_cb(GtkAction *action, LoquiApp *app);
+static void loqui_app_actions_previous_channel_buffer_cb(GtkAction *action, LoquiApp *app);
+static void loqui_app_actions_next_channel_buffer_cb(GtkAction *action, LoquiApp *app);
 static void loqui_app_actions_join_cb(GtkAction *action, LoquiApp *app);
 static void loqui_app_actions_part_cb(GtkAction *action, LoquiApp *app);
 static void loqui_app_actions_set_topic_cb(GtkAction *action, LoquiApp *app);
@@ -117,10 +117,10 @@ static GtkActionEntry loqui_action_entries[] =
         {"ChangeNick",            NULL, N_("_Change Nickname"), CTRL ALT "N", NULL, G_CALLBACK(loqui_app_actions_nick_cb)},
         {"RefreshAway",           NULL, N_("_Refresh users' away information of current channel"), CTRL ALT "A", NULL, G_CALLBACK(loqui_app_actions_away_info_cb)},
 
-        {"PreviousUpdatedChannel", GTK_STOCK_GOTO_TOP, N_("_Previous Updated Channel"), CTRL SHIFT "space", NULL, G_CALLBACK(loqui_app_actions_previous_updated_channel_cb)},
-        {"NextUpdatedChannel",     GTK_STOCK_GOTO_BOTTOM, N_("_Next Updated Channel"), CTRL "space", NULL, G_CALLBACK(loqui_app_actions_next_updated_channel_cb)},
-        {"PreviousChannel",        GTK_STOCK_GO_UP, N_("Previous Channel"),CTRL "Up", NULL, G_CALLBACK(loqui_app_actions_previous_channel_cb)},
-        {"NextChannel",            GTK_STOCK_GO_DOWN, N_("Next Channel"), CTRL "Down", NULL, G_CALLBACK(loqui_app_actions_next_channel_cb)},
+        {"PreviousUpdatedChannel", GTK_STOCK_GOTO_TOP, N_("_Previous updated channel buffer"), CTRL SHIFT "space", NULL, G_CALLBACK(loqui_app_actions_previous_updated_channel_buffer_cb)},
+        {"NextUpdatedChannel",     GTK_STOCK_GOTO_BOTTOM, N_("_Next updated channel buffer"), CTRL "space", NULL, G_CALLBACK(loqui_app_actions_next_updated_channel_buffer_cb)},
+        {"PreviousChannel",        GTK_STOCK_GO_UP, N_("Previous channel buffer"),CTRL "Up", NULL, G_CALLBACK(loqui_app_actions_previous_channel_buffer_cb)},
+        {"NextChannel",            GTK_STOCK_GO_DOWN, N_("Next channel buffer"), CTRL "Down", NULL, G_CALLBACK(loqui_app_actions_next_channel_buffer_cb)},
         {"GeneralSettings",        NULL, N_("_General Settings"), NULL, NULL, G_CALLBACK(loqui_app_actions_common_settings_cb)},
         {"AccountSettings",        NULL, N_("_Account Settings"), NULL, NULL, G_CALLBACK(loqui_app_actions_account_settings_cb)},
 
@@ -325,24 +325,48 @@ loqui_app_actions_toggle_command_mode_cb(GtkAction *action, LoquiApp *app)
         remark_entry_set_command_mode(REMARK_ENTRY(app->remark_entry), gtk_toggle_action_get_active(GTK_TOGGLE_ACTION(action)));
 }
 static void
-loqui_app_actions_previous_updated_channel_cb(GtkAction *action, LoquiApp *app)
+loqui_app_actions_previous_updated_channel_buffer_cb(GtkAction *action, LoquiApp *app)
 {
-	channel_tree_select_prev_channel(app->channel_tree, TRUE);
+	LoquiChannelEntry *chent;
+
+	chent = account_manager_get_previous_channel_entry(loqui_app_get_account_manager(app),
+							   loqui_app_get_current_channel_entry(app),
+							   TRUE);
+	if (chent)
+		loqui_app_set_current_channel_entry(app, chent);
 }
 static void
-loqui_app_actions_next_updated_channel_cb(GtkAction *action, LoquiApp *app)
+loqui_app_actions_next_updated_channel_buffer_cb(GtkAction *action, LoquiApp *app)
 {
-	channel_tree_select_next_channel(app->channel_tree, TRUE);	
+	LoquiChannelEntry *chent;
+
+	chent = account_manager_get_next_channel_entry(loqui_app_get_account_manager(app),
+						       loqui_app_get_current_channel_entry(app),
+						       TRUE);
+	if (chent)
+		loqui_app_set_current_channel_entry(app, chent);
 }
 static void
-loqui_app_actions_previous_channel_cb(GtkAction *action, LoquiApp *app)
+loqui_app_actions_previous_channel_buffer_cb(GtkAction *action, LoquiApp *app)
 {
-	channel_tree_select_prev_channel(app->channel_tree, FALSE);
+	LoquiChannelEntry *chent;
+
+	chent = account_manager_get_previous_channel_entry(loqui_app_get_account_manager(app),
+							   loqui_app_get_current_channel_entry(app),
+							   FALSE);
+	if (chent)
+		loqui_app_set_current_channel_entry(app, chent);
 }
 static void
-loqui_app_actions_next_channel_cb(GtkAction *action, LoquiApp *app)
+loqui_app_actions_next_channel_buffer_cb(GtkAction *action, LoquiApp *app)
 {
-	channel_tree_select_next_channel(app->channel_tree, FALSE);
+	LoquiChannelEntry *chent;
+
+	chent = account_manager_get_next_channel_entry(loqui_app_get_account_manager(app),
+						       loqui_app_get_current_channel_entry(app),
+						       FALSE);
+	if (chent)
+		loqui_app_set_current_channel_entry(app, chent);
 }
 static void
 loqui_app_actions_join_cb(GtkAction *action, LoquiApp *app)

@@ -309,3 +309,104 @@ account_manager_connect_all_default(AccountManager *manager)
 		account_connect(account);
 	}
 }
+
+/**
+   @chent: ChannelEntry or NULL
+   @returns: next channel entry or NULL(not changed)
+*/
+LoquiChannelEntry *
+account_manager_get_next_channel_entry(AccountManager *manager, LoquiChannelEntry *chent, gboolean require_updated)
+{
+	GList *cur_ac, *cur_ch;
+	AccountManagerPrivate *priv;
+	Account *account;
+	LoquiChannel *channel;
+	gint matched_count = 0;
+	GList *channel_list;
+
+	g_return_val_if_fail(manager != NULL, NULL);
+        g_return_val_if_fail(IS_ACCOUNT_MANAGER(manager), NULL);
+
+	priv = manager->priv;
+	
+
+	do {
+		for (cur_ac = priv->account_list; cur_ac != NULL; cur_ac = cur_ac->next) {
+			account = ACCOUNT(cur_ac->data);
+			if (LOQUI_CHANNEL_ENTRY(account) == chent) {
+				matched_count++;
+				/* 0: start, 1: matches at first, 2: after looping */
+				if (matched_count == 2)
+					return NULL;
+			} else {
+				if ((chent == NULL || matched_count > 0) &&
+				    (!require_updated || loqui_channel_entry_get_is_updated(LOQUI_CHANNEL_ENTRY(account))))
+					return cur_ac->data;
+			}
+
+			channel_list = account_get_channel_list(account);
+			for (cur_ch = channel_list; cur_ch != NULL; cur_ch = cur_ch->next) {
+				channel = LOQUI_CHANNEL(cur_ch->data);
+				if (LOQUI_CHANNEL_ENTRY(channel) == chent) {
+					matched_count++;
+					if (matched_count == 2)
+						return NULL;
+				} else {
+					if ((chent == NULL || matched_count > 0) &&
+					    (!require_updated || loqui_channel_entry_get_is_updated(LOQUI_CHANNEL_ENTRY(channel))))
+						return cur_ch->data;
+				}
+			}
+		}
+	} while (matched_count == 1); /* matched but failed to get next */
+
+	return NULL;
+}
+LoquiChannelEntry *
+account_manager_get_previous_channel_entry(AccountManager *manager, LoquiChannelEntry *chent, gboolean require_updated)
+{
+	GList *cur_ac, *cur_ch;
+	AccountManagerPrivate *priv;
+	Account *account;
+	LoquiChannel *channel;
+	gint matched_count = 0;
+	GList *channel_list;
+
+	g_return_val_if_fail(manager != NULL, NULL);
+        g_return_val_if_fail(IS_ACCOUNT_MANAGER(manager), NULL);
+
+	priv = manager->priv;
+
+	do {
+		for (cur_ac = g_list_last(priv->account_list); cur_ac != NULL; cur_ac = cur_ac->prev) {
+			account = ACCOUNT(cur_ac->data);
+
+			channel_list = account_get_channel_list(account);
+			for (cur_ch = g_list_last(channel_list); cur_ch != NULL; cur_ch = cur_ch->prev) {
+				channel = LOQUI_CHANNEL(cur_ch->data);
+				if (LOQUI_CHANNEL_ENTRY(channel) == chent) {
+					matched_count++;
+					if (matched_count == 2)
+						return NULL;
+				} else {
+					if ((chent == NULL || matched_count > 0) &&
+					    (!require_updated || loqui_channel_entry_get_is_updated(LOQUI_CHANNEL_ENTRY(channel))))
+						return cur_ch->data;
+				}
+			}
+
+			if (LOQUI_CHANNEL_ENTRY(account) == chent) {
+				matched_count++;
+				/* 0: start, 1: matches at first, 2: after looping */
+				if (matched_count == 2)
+					return NULL;
+			} else {
+				if ((chent == NULL || matched_count > 0) &&
+				    (!require_updated || loqui_channel_entry_get_is_updated(LOQUI_CHANNEL_ENTRY(account))))
+					return cur_ac->data;
+			}
+		}
+	} while (matched_count == 1); /* matched but failed to get previous */
+
+	return NULL;
+}

@@ -548,14 +548,7 @@ account_add_channel(Account *account, LoquiChannel *channel)
 	l = g_list_alloc();
 	l->data = channel;
 
-	if (account->channel_list) {
-		account->tail->next = l;
-		account->tail = l;
-	} else {
-		account->channel_list = l;
-		account->tail = l;
-	}
-
+	account->channel_list = g_list_concat(account->channel_list, l);
 	g_hash_table_insert(account->channel_name_hash, g_strdup(loqui_channel_entry_get_name(LOQUI_CHANNEL_ENTRY(channel))), l);
 
 	g_signal_emit(account, account_signals[ADD_CHANNEL], 0, channel);
@@ -565,16 +558,7 @@ account_remove_channel_real(Account *account, LoquiChannel *channel)
 {
 	g_hash_table_remove(account->channel_name_hash, loqui_channel_entry_get_name(LOQUI_CHANNEL_ENTRY(channel)));
 
-	if (!account->tail)
-		return;
-
-	if (account->tail->data == channel) {
-		account->tail = account->tail->prev;
-		if (account->tail == NULL)
-			account->channel_list = NULL;
-	} else if (account->channel_list) {
-		account->channel_list = g_list_remove(account->channel_list, channel);
-	}
+	account->channel_list = g_list_remove(account->channel_list, channel);
 	g_object_unref(channel);
 }
 void

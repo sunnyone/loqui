@@ -46,7 +46,6 @@ struct _Account
 	LoquiChannelEntry parent;
 
 	GList *channel_list;
-	GList *tail;
 
 	/* key: channel name(gchar *), value: GList * */
 	GHashTable *channel_name_hash;
