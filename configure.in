@@ -37,7 +37,7 @@ AC_DEFINE_UNQUOTED(GETTEXT_PACKAGE,"$GETTEXT_PACKAGE",[Define the gettext packag
 
 ALL_LINGUAS="ja"
 
-AM_GNU_GETTEXT
+AM_GLIB_GNU_GETTEXT
 
 dnl Set PACKAGE_LOCALE_DIR in config.h.
 if test "x${prefix}" = "xNONE"; then
@@ -64,7 +64,6 @@ src/Makefile
 src/icons/Makefile
 src/embedtxt/Makefile
 po/Makefile.in
-intl/Makefile
 m4/Makefile
 loqui.spec
 )
