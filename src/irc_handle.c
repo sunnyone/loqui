@@ -411,6 +411,10 @@ irc_handle_response(IRCHandle *handle, IRCMessage *msg)
 		proceeded = irc_handle_reply(handle, msg);
 	if(400 < msg->response && msg->response < 1000)
 		proceeded = irc_handle_error(handle, msg);
+	if(msg->response < 10) { /* FIXME: what's this? */
+		irc_handle_account_console_append(handle, msg, TEXT_TYPE_INFO, "%*2");
+		proceeded = TRUE;
+	}
 
 	if(!proceeded)
 		irc_handle_inspect_message(handle, msg);

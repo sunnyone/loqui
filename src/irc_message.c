@@ -38,6 +38,7 @@ static void irc_message_finalize(GObject *object);
 /* this function returns TRUE if str is nick!user@host
    Then nick, user and host must be freed. */
 static gboolean irc_message_parse_prefix(const gchar *str, gchar **nick, gchar **user, gchar **host);
+static gint irc_message_count_parameters(IRCMessage *msg);
 
 GType
 irc_message_get_type(void)
@@ -343,22 +344,30 @@ irc_message_to_string(IRCMessage *msg)
 
 	return str;
 }
+static gint
+irc_message_count_parameters(IRCMessage *msg)
+{
+	gint num;
+	for(num = 0; msg->parameter[num] != NULL; num++); /* count the number of parameters */
+
+	return num;
+}
 gchar *
 irc_message_get_trailing(IRCMessage *msg)
 {
 	int num;
-	for(num = 0; msg->parameter[num] != NULL; num++); /* count the number of parameters */
 
+	num = irc_message_count_parameters(msg);
 	return msg->parameter[num-1];
 }
 gchar *
 irc_message_get_param(IRCMessage *msg, guint i)
 {
-	g_return_val_if_fail(1 <= i && i <= 15, NULL);
 	int num;
+	g_return_val_if_fail(1 <= i && i <= 15, NULL);
 
 	i--;
-	for(num = 0; msg->parameter[num] != NULL; num++); /* count the number of parameters */
+	num = irc_message_count_parameters(msg);
 	g_return_val_if_fail(num >= i, NULL);
 	
 	return msg->parameter[i];
@@ -371,7 +380,7 @@ irc_message_format(IRCMessage *msg, const gchar *format)
 	const gchar *cur;
 	gchar *tmp, *buf;
 	gsize read;
-	guint64 i;
+	guint64 i, end;
 
         g_return_val_if_fail(msg != NULL, NULL);
         g_return_val_if_fail(IS_IRC_MESSAGE(msg), NULL);
@@ -395,17 +404,42 @@ irc_message_format(IRCMessage *msg, const gchar *format)
 		}
 
 		switch(*cur) {
-		case 't':
-			buf = irc_message_get_trailing(msg);
-			string = g_string_append(string, buf);
+		case '*': /* %*n : all params after n */
+			cur++;
+			i = g_ascii_strtoull(cur, &tmp, 10);
+			cur = tmp;
+			if(i == 0) break;
+
+			end = irc_message_count_parameters(msg);
+			for(; i <= end; i++) {
+				string = g_string_append(string, irc_message_get_param(msg, i));
+				string = g_string_append_c(string, ' '); /* FIXME: this way remains a space as the last character */
+			}
+			break;
+
+		case 'n': /* nick */
+			string = g_string_append(string, msg->nick);
+			cur++;
+			break;
+		case 'u': /* user */
+			string = g_string_append(string, msg->user);
+			cur++;
+			break;
+		case 'h': /* host */
+			string = g_string_append(string, msg->host);
+			cur++;
+			break;
+		case 't': /* trailing */
+			string = g_string_append(string, irc_message_get_trailing(msg));
+			cur++;
 			break;
 		case '%': /* %% */
 			string = g_string_append_c(string, '%');
+			cur++;
 			break;
 		default:
 			break;
 		}
-		cur++;
 	}
 	string = g_string_append(string, cur);
 
