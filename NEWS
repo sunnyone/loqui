@@ -209,3 +209,7 @@
 * Added an option: "Select a new channel automatically"
 * Don't execute notification when a message came from server.
 
+2004-05-26   0.3.5
+* Handle informal Japanese characters(JIS X 0201 kana, 13ku-NEC special characters)
+* Connect with double-clicking the account node of channel tree.
+
