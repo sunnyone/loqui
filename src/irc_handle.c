@@ -963,16 +963,28 @@ static gpointer irc_handle_thread_func(IRCHandle *handle)
 
 	if(priv->server->password) {
 		msg = irc_message_create(IRCCommandPass, priv->server->password, NULL);
+		if(debug_mode) {
+			debug_puts("Sending PASS...");
+			irc_message_print(msg);
+		}
 		irc_handle_push_message(handle, msg);
 	}
 
 	msg = irc_message_create(IRCCommandNick, priv->account->nick, NULL);
+	if(debug_mode) {
+		debug_puts("Sending NICK...");
+		irc_message_print(msg);
+	}
 	irc_handle_push_message(handle, msg);
 	priv->current_nick = g_strdup(priv->account->nick);
 
 	msg = irc_message_create(IRCCommandUser, 
 				 priv->account->username, "*", "*", 
 				 priv->account->realname, NULL);
+	if(debug_mode) {
+		debug_puts("Sending USER...");
+		irc_message_print(msg);
+	}
 	irc_handle_push_message(handle, msg);
 
 	gdk_threads_enter();

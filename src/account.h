@@ -82,6 +82,26 @@ void account_set(Account *account,
 		 const gchar *realname,
 		 const gchar *userinfo,
 		 const gchar *autojoin);
+void account_print(Account *account);
+
+void account_set_name(Account *account, const gchar *name);
+gchar *account_get_name(Account *account);
+
+void account_set_nick(Account *account, const gchar *nick);
+gchar *account_get_nick(Account *account);
+
+void account_set_username(Account *account, const gchar *username);
+gchar *account_get_username(Account *account);
+
+void account_set_realname(Account *account, const gchar *realname);
+gchar *account_get_realname(Account *account);
+
+void account_set_userinfo(Account *account, const gchar *userinfo);
+gchar *account_get_userinfo(Account *account);
+
+void account_set_autojoin(Account *account, const gchar *autojoin);
+gchar *account_get_autojoin(Account *account);
+
 void account_add_server(Account *account, const gchar *hostname,
 			gint port, const gchar *password,
 			gboolean use);

@@ -24,6 +24,7 @@
 #include "account.h"
 #include "utils.h"
 #include "loqui_app.h"
+#include "prefs_account.h"
 
 struct _AccountManagerPrivate
 {
@@ -121,10 +122,7 @@ account_manager_new (void)
 void
 account_manager_load_accounts(AccountManager *account_manager)
 {
-	GSList *list;
         GSList *cur;
-        gchar *name;
-        Account *account;
 	AccountManagerPrivate *priv;
 
         g_return_if_fail(account_manager != NULL);
@@ -132,30 +130,20 @@ account_manager_load_accounts(AccountManager *account_manager)
 
         priv = account_manager->priv;
 
-	list = eel_gconf_get_dirs(LOQUI_GCONF_ACCOUNT);
-        if(list == NULL) {
-		debug_puts("No accounts on setting dirs");
-		return;
+	priv->account_list = prefs_account_load();
+	for(cur = priv->account_list; cur != NULL; cur = cur->next) {
+		channel_tree_add_account(CHANNEL_TREE(priv->app->channel_tree), ACCOUNT(cur->data));
 	}
 
-        for(cur = list; cur != NULL; cur = cur->next) {
-                name = utils_gconf_get_basename((gchar *) cur->data);
-		g_free(cur->data);
-		if(!name) continue;
-                account = account_new();
-                if(!account_restore(account, name)) {
-			g_object_unref(account);
-			debug_puts("Failed to restore account setting!");
-			continue;
-		}
- 		priv->account_list = g_slist_append(priv->account_list, account);
-		channel_tree_add_account(CHANNEL_TREE(priv->app->channel_tree), account);
-
-                g_free(name);
-        }
-        g_slist_free(list);
-
 	loqui_menu_create_connect_submenu(priv->app->menu, priv->account_list);
+}
+void
+account_manager_save_accounts(AccountManager *account_manager)
+{
+        g_return_if_fail(account_manager != NULL);
+        g_return_if_fail(IS_ACCOUNT_MANAGER(account_manager));
+
+	prefs_account_save(account_manager->priv->account_list);
 }
 void
 account_manager_add_channel_text(AccountManager *manager, ChannelText *text)

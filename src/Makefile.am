@@ -8,6 +8,7 @@ loqui_SOURCES = \
 	stringtable.c stringtable.h \
 	xml.c xml.h \
 	prefs_general.c prefs_general.h \
+	prefs_account.c prefs_account.h \
 	loqui_menu.c loqui_menu.h \
 	account_manager.c account_manager.h \
 	loqui_app.c loqui_app.h \

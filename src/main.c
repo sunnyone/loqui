@@ -93,12 +93,12 @@ main(int argc, char *argv[])
 	if(show_msg_mode)
 		g_print("Start show msg mode\n");
 
-
 	account_manager = account_manager_get();
 	account_manager_load_accounts(account_manager);
 
 	gtk_main();
 
+	account_manager_save_accounts(account_manager);
 	prefs_general_save();
 
 	return 0;

@@ -99,18 +99,12 @@ account_finalize (GObject *object)
 
         account = ACCOUNT(object);
 
-	if(account->name)
-		g_free(account->name);
-	if(account->nick)
-		g_free(account->nick);
-	if(account->username)
-		g_free(account->username);
-	if(account->realname)
-		g_free(account->realname);
-	if(account->userinfo)
-		g_free(account->userinfo);
-	if(account->autojoin)
-		g_free(account->autojoin);
+	STR_FREE_UNLESS_NULL(account->name);
+	STR_FREE_UNLESS_NULL(account->nick);
+	STR_FREE_UNLESS_NULL(account->username);
+	STR_FREE_UNLESS_NULL(account->realname);
+	STR_FREE_UNLESS_NULL(account->userinfo);
+	STR_FREE_UNLESS_NULL(account->autojoin);
 
 	for(cur = account->server_list; cur != NULL; cur = cur->next) {
 		if(cur->data) {
@@ -157,6 +151,111 @@ account_new (void)
 	return account;
 }
 
+void account_set_name(Account *account, const gchar *name)
+{
+	g_return_if_fail(account != NULL);
+        g_return_if_fail(IS_ACCOUNT(account));
+
+	STR_FREE_UNLESS_NULL(account->name);
+	if(name)
+		account->name = g_strdup(name);
+}
+gchar *account_get_name(Account *account)
+{
+	g_return_val_if_fail(account != NULL, NULL);
+        g_return_val_if_fail(IS_ACCOUNT(account), NULL);
+
+	return account->name;
+}
+
+void account_set_nick(Account *account, const gchar *nick)
+{
+	g_return_if_fail(account != NULL);
+        g_return_if_fail(IS_ACCOUNT(account));
+
+	STR_FREE_UNLESS_NULL(account->nick);
+	if(nick)
+		account->nick = g_strdup(nick);
+}
+gchar *account_get_nick(Account *account)
+{
+	g_return_val_if_fail(account != NULL, NULL);
+        g_return_val_if_fail(IS_ACCOUNT(account), NULL);
+
+	g_return_val_if_fail(account != NULL, NULL);
+        g_return_val_if_fail(IS_ACCOUNT(account), NULL);
+
+	return account->nick;
+}
+
+void account_set_username(Account *account, const gchar *username)
+{
+	g_return_if_fail(account != NULL);
+        g_return_if_fail(IS_ACCOUNT(account));
+
+	STR_FREE_UNLESS_NULL(account->username);
+	if(username)
+		account->username = g_strdup(username);
+}
+gchar *account_get_username(Account *account)
+{
+	g_return_val_if_fail(account != NULL, NULL);
+        g_return_val_if_fail(IS_ACCOUNT(account), NULL);
+
+	return account->username;
+}
+
+void account_set_realname(Account *account, const gchar *realname)
+{
+	g_return_if_fail(account != NULL);
+        g_return_if_fail(IS_ACCOUNT(account));
+
+	STR_FREE_UNLESS_NULL(account->realname);
+	if(realname)
+		account->realname = g_strdup(realname);
+}
+gchar *account_get_realname(Account *account)
+{
+	g_return_val_if_fail(account != NULL, NULL);
+        g_return_val_if_fail(IS_ACCOUNT(account), NULL);
+
+	return account->realname;
+}
+
+void account_set_userinfo(Account *account, const gchar *userinfo)
+{
+	g_return_if_fail(account != NULL);
+        g_return_if_fail(IS_ACCOUNT(account));
+
+	STR_FREE_UNLESS_NULL(account->userinfo);
+	if(userinfo)
+		account->userinfo = g_strdup(userinfo);
+}
+gchar *account_get_userinfo(Account *account)
+{
+	g_return_val_if_fail(account != NULL, NULL);
+        g_return_val_if_fail(IS_ACCOUNT(account), NULL);
+
+	return account->userinfo;
+}
+
+void account_set_autojoin(Account *account, const gchar *autojoin)
+{
+	g_return_if_fail(account != NULL);
+        g_return_if_fail(IS_ACCOUNT(account));
+
+	STR_FREE_UNLESS_NULL(account->autojoin);
+	if(autojoin)
+		account->autojoin = g_strdup(autojoin);
+}
+gchar *account_get_autojoin(Account *account)
+{
+	g_return_val_if_fail(account != NULL, NULL);
+        g_return_val_if_fail(IS_ACCOUNT(account), NULL);
+
+	return account->autojoin;
+}
+
 void
 account_set(Account *account,
 	    const gchar *name,
@@ -166,38 +265,38 @@ account_set(Account *account,
 	    const gchar *userinfo,
 	    const gchar *autojoin)
 {
-	AccountPrivate *priv;
+        g_return_if_fail(account != NULL);
+        g_return_if_fail(IS_ACCOUNT(account));
+
+	account_set_name(account, name);
+	account_set_nick(account, nick);
+	account_set_username(account, username);
+	account_set_realname(account, realname);
+	account_set_userinfo(account, userinfo);
+	account_set_autojoin(account, autojoin);
+}
+void
+account_print(Account *account)
+{
+	GSList *cur;
+	Server *server;
 
         g_return_if_fail(account != NULL);
         g_return_if_fail(IS_ACCOUNT(account));
 
-	g_return_if_fail(account != NULL);
-
-	priv = account->priv;
-
-	if(account->name)
-		g_free(account->name);
-	account->name = g_strdup(name);
-
-	if(account->nick)
-		g_free(account->nick);
-	account->nick = g_strdup(nick);
-
-	if(account->username)
-		g_free(account->username);
-	account->username = g_strdup(username);
-
-	if(account->realname)
-		g_free(account->realname);
-	account->realname = g_strdup(realname);
-
-	if(account->userinfo)
-		g_free(account->userinfo);
-	account->userinfo = g_strdup(userinfo);
-
-	if(account->userinfo)
-		g_free(account->autojoin);
-	account->autojoin = g_strdup(autojoin);
+	g_print("ACCOUNT[%s] {\n", account_get_name(account));
+	g_print(" nick: %s\n", account_get_nick(account));
+	g_print(" username: %s\n", account_get_username(account));
+	g_print(" realname: %s\n", account_get_realname(account));
+	g_print(" userinfo: %s\n", account_get_userinfo(account));
+	g_print(" autojoin: %s\n", account_get_autojoin(account));
+	
+	for(cur = account->server_list; cur != NULL; cur = cur->next) {
+		server = (Server *) cur->data;
+		g_print(" server: hostname => %s, port => %d, password => %s, use => %d\n",
+			server->hostname, server->port, server->password, server->use);
+	}
+	g_print("}\n");
 }
 
 void
