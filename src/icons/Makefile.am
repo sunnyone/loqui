@@ -1,4 +1,4 @@
-IMAGES_ID = console online offline away busy command
+IMAGES_ID = console online offline away busy command naruto speaker
 IMAGES = $(IMAGES_ID:%=%.png)
 IMAGES_H = $(IMAGES_ID:%=%.h)
 
