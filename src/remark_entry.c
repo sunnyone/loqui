@@ -274,6 +274,7 @@ remark_entry_new(LoquiApp *app, GtkToggleAction *toggle_command_action)
 			     
 	image = gtk_image_new_from_stock(LOQUI_STOCK_COMMAND, GTK_ICON_SIZE_BUTTON);
 	gtk_container_add(GTK_CONTAINER(priv->toggle_command), image);
+	gtk_widget_show(image);
 
 	gtk_button_set_relief(GTK_BUTTON(priv->toggle_command), GTK_RELIEF_NONE);
 	gtk_box_pack_start(GTK_BOX(hbox), priv->toggle_command, FALSE, FALSE, 0);

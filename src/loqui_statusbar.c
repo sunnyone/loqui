@@ -402,6 +402,7 @@ loqui_statusbar_new(LoquiApp *app, GtkToggleAction *toggle_scroll_common_buffer_
 	gtk_container_remove(GTK_CONTAINER(priv->toggle_scroll_common_buffer), gtk_bin_get_child(GTK_BIN(priv->toggle_scroll_common_buffer)));
 	image = gtk_image_new_from_stock(LOQUI_STOCK_WHETHER_SCROLL, LOQUI_ICON_SIZE_FONT);
 	gtk_container_add(GTK_CONTAINER(priv->toggle_scroll_common_buffer), image);
+	gtk_widget_show(image);
 	gtk_button_set_focus_on_click(GTK_BUTTON(priv->toggle_scroll_common_buffer), FALSE);
 	g_object_get(G_OBJECT(toggle_scroll_common_buffer_action), "tooltip", &text, NULL);
 	gtk_tooltips_set_tip(app->tooltips, priv->toggle_scroll_common_buffer, text, NULL);

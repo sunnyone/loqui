@@ -240,6 +240,7 @@ loqui_channelbar_new(LoquiApp *app, GtkWidget *menu_dropdown, GtkToggleAction *t
 	gtk_container_remove(GTK_CONTAINER(priv->toggle_scroll), gtk_bin_get_child(GTK_BIN(priv->toggle_scroll)));
 	image = gtk_image_new_from_stock(LOQUI_STOCK_WHETHER_SCROLL, GTK_ICON_SIZE_SMALL_TOOLBAR);
 	gtk_container_add(GTK_CONTAINER(priv->toggle_scroll), image);
+	gtk_widget_show(image);
 	gtk_button_set_focus_on_click(GTK_BUTTON(priv->toggle_scroll), FALSE);
 	g_object_get(G_OBJECT(toggle_scroll_action), "tooltip", &text, NULL);
 	gtk_tooltips_set_tip(app->tooltips, priv->toggle_scroll, text, NULL);
