@@ -106,7 +106,8 @@ void account_add_server(Account *account, const gchar *hostname,
 			gboolean use);
 void account_remove_all_server(Account *account);
 
-void account_connect(Account *account, gint server_num, gboolean fallback);
+/* if server is null, account will be connected with fallback */
+void account_connect(Account *account, Server *server);
 void account_disconnect(Account *account);
 gboolean account_is_connected(Account *account);
 

@@ -338,6 +338,6 @@ static void loqui_menu_connect_cb(GtkWidget *widget, gpointer data)
 	Account *account;
 	
 	account = ACCOUNT(data);
-	account_connect(account, 0, TRUE);
+	account_connect(account, NULL);
 }
 

@@ -43,6 +43,7 @@ static void loqui_toolbar_destroy(GtkObject *object);
 
 static void loqui_toolbar_toggle_scrolling_cb(GtkWidget *widget, gpointer data);
 static void loqui_toolbar_toggle_away_cb(GtkWidget *widget, gpointer data);
+static void loqui_toolbar_connect_cb(GtkWidget *widget, gpointer data);
 
 GType
 loqui_toolbar_get_type(void)
@@ -158,6 +159,18 @@ loqui_toolbar_toggle_away_cb(GtkWidget *widget, gpointer data)
 	/* cancel toggling */
 	loqui_toolbar_toggle_away_with_signal_handler_blocked(toolbar, !is_active);
 }
+static void
+loqui_toolbar_connect_cb(GtkWidget *widget, gpointer data)
+{
+	LoquiToolbar *toolbar;
+
+        g_return_if_fail(data != NULL);
+        g_return_if_fail(LOQUI_IS_TOOLBAR(data));
+
+	toolbar = LOQUI_TOOLBAR(data);
+
+	account_manager_open_connect_dialog(account_manager_get());
+}
 GtkWidget*
 loqui_toolbar_new(LoquiApp *app)
 {
@@ -183,7 +196,8 @@ loqui_toolbar_new(LoquiApp *app)
 					    _("Connect to IRC server"),
 					    NULL,
 					    image, NULL, NULL);
-	gtk_widget_set_sensitive(button, FALSE);
+	g_signal_connect(G_OBJECT(button), "clicked",
+			 G_CALLBACK(loqui_toolbar_connect_cb), toolbar);
 
 	image = gtk_image_new_from_stock(GTK_STOCK_HOME, TOOLBAR_ICON_SIZE);
 	toolbar->toggle_away = gtk_toolbar_append_element(GTK_TOOLBAR(toolbar),

@@ -324,7 +324,7 @@ account_parse_server_string(const gchar *input)
 #endif
 
 void
-account_connect(Account *account, gint server_num, gboolean fallback)
+account_connect(Account *account, Server *server)
 {
 	AccountPrivate *priv;
 
@@ -333,14 +333,15 @@ account_connect(Account *account, gint server_num, gboolean fallback)
 
 	priv = account->priv;
 
-	if(priv->handle) {
+	if(account_is_connected(account)) {
 		gtkutils_msgbox_info(GTK_MESSAGE_ERROR,
 				     _("Account '%s' has already connected."),
-				     account->name);
+				     account_get_name(account));
 		return;
 	}
+
 	account_manager_set_current_account(account_manager_get(), account); 
-	priv->handle = irc_handle_new(account, server_num, fallback);
+	priv->handle = irc_handle_new(account, server);
 }
 void
 account_disconnect(Account *account)

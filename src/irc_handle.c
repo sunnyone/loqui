@@ -1045,17 +1045,37 @@ static gpointer irc_handle_thread_func(IRCHandle *handle)
 	Account *account;
 	gchar *str, *tmp;
 	GError *error;
+	GSList *fallback_cur = NULL;
 
 	priv = handle->priv;
 	account = priv->account;
 
-	gdk_threads_enter();
-	str = g_strdup_printf(_("Connecting to %s:%d"), priv->server->hostname, priv->server->port);
-	account_console_buffer_append(account, TRUE, TEXT_TYPE_INFO, str);
-	g_free(str);
-	gdk_threads_leave();
+	if(!priv->server)
+		fallback_cur = priv->account->server_list;
+	
+	do {
+		if(fallback_cur)
+			priv->server = (Server *) fallback_cur->data;
 
-	priv->connection = connection_new(priv->server);
+		if(!priv->server)
+			return NULL;
+
+		gdk_threads_enter();
+		str = g_strdup_printf(_("Connecting to %s:%d"), priv->server->hostname, priv->server->port);
+		account_console_buffer_append(account, TRUE, TEXT_TYPE_INFO, str);
+		g_free(str);
+		gdk_threads_leave();
+		
+		priv->connection = connection_new(priv->server);
+		if(!priv->connection) {
+			gdk_threads_enter();
+			account_console_buffer_append(account, TRUE, TEXT_TYPE_INFO, _("Failed to connect."));
+			gdk_threads_leave();
+		}
+	} while(!priv->connection && fallback_cur && (fallback_cur = fallback_cur->next) != NULL);
+
+	if(!priv->connection)
+		return NULL;
 
 	gdk_threads_enter();
 	str = g_strdup(_("Connected. Sending Initial command..."));
@@ -1188,7 +1208,7 @@ static gpointer irc_handle_send_thread_func(IRCHandle *handle)
 	return NULL;
 }
 IRCHandle*
-irc_handle_new(Account *account, guint server_num, gboolean fallback)
+irc_handle_new(Account *account, Server *server)
 {
         IRCHandle *handle;
 	IRCHandlePrivate *priv;
@@ -1197,14 +1217,8 @@ irc_handle_new(Account *account, guint server_num, gboolean fallback)
 	
 	priv = handle->priv;
 
-	g_return_val_if_fail(server_num < g_slist_length(account->server_list), NULL);
-	priv->server = g_slist_nth(account->server_list, server_num)->data;
-	g_return_val_if_fail(priv->server != NULL, NULL);
-
 	priv->account = account;
-
-	handle->server_num = server_num;
-	handle->fallback = fallback;
+	priv->server = server;
 
 	priv->msg_queue = g_async_queue_new();
 

@@ -30,6 +30,7 @@
 #include "intl.h"
 #include "loqui_toolbar.h"
 #include "prefs_dialog.h"
+#include "connect_dialog.h"
 
 struct _AccountManagerPrivate
 {
@@ -522,4 +523,12 @@ account_manager_update_away_status(AccountManager *manager, gboolean is_away)
 	
 	loqui_toolbar_toggle_away_with_signal_handler_blocked(LOQUI_TOOLBAR(manager->priv->app->toolbar),
 							      is_away);
+}
+void
+account_manager_open_connect_dialog(AccountManager *manager)
+{
+	g_return_if_fail(manager != NULL);
+        g_return_if_fail(IS_ACCOUNT_MANAGER(manager));
+
+	connect_dialog_open(GTK_WINDOW(manager->priv->app));
 }
