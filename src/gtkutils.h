@@ -55,6 +55,7 @@ gboolean gtk_tree_model_find_by_column_data(GtkTreeModel * model, GtkTreeIter * 
 					    gpointer data);
 
 void gtkutils_get_current_font_pixel_size(GtkWidget *widget, gint *width, gint *height);
+gboolean gtkutils_bindings_has_matched_entry(const gchar *class_name, guint modifiers, guint keyval);
 
 void gtkutils_menu_position_under_widget(GtkMenu   *menu,
 					 gint      *x,

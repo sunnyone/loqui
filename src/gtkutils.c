@@ -276,6 +276,25 @@ gtkutils_get_current_font_pixel_size(GtkWidget *widget, gint *width, gint *heigh
 	pango_layout_get_pixel_size(layout, width, height);
 	g_object_unref(layout);
 }
+gboolean
+gtkutils_bindings_has_matched_entry(const gchar *class_name, guint modifiers, guint keyval)
+{
+	GtkBindingSet *bset;
+	GtkBindingEntry *bentry;
+	gboolean found = FALSE;
+	
+	bset = gtk_binding_set_find(class_name);
+	bentry = bset->entries;
+	while (bentry != NULL) {
+		if (keyval == bentry->keyval &&
+		    modifiers == bentry->modifiers) {
+			found = TRUE;
+			break;
+		}
+		bentry = bentry->set_next;
+	}
+	return found;
+}
 
 void
 gtkutils_menu_position_under_widget(GtkMenu   *menu,

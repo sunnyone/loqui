@@ -20,6 +20,8 @@
 #include "config.h"
 
 #include "loqui_channel_text_view.h"
+#include "gtkutils.h"
+
 #include <gdk/gdkkeysyms.h>
 
 enum {
@@ -183,8 +185,7 @@ static gboolean
 loqui_channel_text_view_key_press_event(GtkWidget *widget,
 					GdkEventKey *event)
 {
-	GtkBindingSet *bset;
-	GtkBindingEntry *bentry;
+	gboolean found = FALSE;
 
 	switch (event->keyval) {
 	case GDK_Shift_L:
@@ -201,23 +202,21 @@ loqui_channel_text_view_key_press_event(GtkWidget *widget,
 	case GDK_Super_R:
 	case GDK_Hyper_L:
 	case GDK_Hyper_R: /* FIXME: modifiers, enough? */
-		return FALSE;
+		break;
+	case GDK_ISO_Left_Tab: /* FIXME: if this doesn't exist, shift + tab does not work... */
+		break;
 	default:
-		bset = gtk_binding_set_find("GtkTextView");
-		bentry = bset->entries;
-		while (bentry != NULL) {
-			if (event->keyval == bentry->keyval &&
-			    event->state == bentry->modifiers)
-				return FALSE;
-
-			bentry = bentry->set_next;
-		}
-		g_signal_emit(widget, channel_text_view_signals[SIGNAL_NEEDLESS_KEY_PRESS], 0);
+		found = gtkutils_bindings_has_matched_entry("GtkTextView", event->state, event->keyval);
+		if (!found)
+			found = gtkutils_bindings_has_matched_entry("GtkWindow", event->state, event->keyval);
+		if (!found)
+			g_signal_emit(widget, channel_text_view_signals[SIGNAL_NEEDLESS_KEY_PRESS], 0);
 	}
 
 	if (* GTK_WIDGET_CLASS(parent_class)->key_press_event)
 		return (* GTK_WIDGET_CLASS(parent_class)->key_press_event)(widget, event);
-	return TRUE;
+
+	return FALSE;
 }
 GtkWidget *
 loqui_channel_text_view_new(void)
