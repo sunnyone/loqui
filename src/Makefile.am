@@ -10,6 +10,7 @@ loqui_SOURCES = \
 	utils.c utils.h \
 	gobject_utils.c gobject_utils.h \
 	loqui_marshalers.c loqui_marshalers.h \
+	loqui_title_format.c loqui_title_format.h \
 	loqui_user.c loqui_user.h \
 	loqui_user_irc.c loqui_user_irc.h \
 	loqui_member.c loqui_member.h \
@@ -26,6 +27,7 @@ loqui_SOURCES = \
 	loqui_app.c loqui_app.h \
 	loqui_channel_entry_store.c loqui_channel_entry_store.h \
 	loqui_channel_entry_action.c loqui_channel_entry_action.h \
+	loqui_channel_entry_ui.c loqui_channel_entry_ui.h \
 	account.c account.h \
 	codeconv.c codeconv.h \
 	loqui_dropdown_box.c loqui_dropdown_box.h \
@@ -50,7 +52,6 @@ loqui_SOURCES = \
 	command_dialog.c command_dialog.h \
 	remark_entry.c remark_entry.h \
 	message_text.c message_text.h \
-	buffer_menu.c buffer_menu.h \
 	loqui_channelbar.c loqui_channelbar.h
 
 loqui_LDADD = \

@@ -60,10 +60,13 @@ struct _LoquiApp
 	/* cache, use action to set */
 	gboolean is_scroll;
 
+	guint channel_entry_id_max;
+
 	GAsyncQueue *error_connections;
 
 	GtkActionGroup *action_group;
 	GtkUIManager *ui_manager;
+	GtkActionGroup *channel_entry_group;
 
 	GtkWidget *channelbar;
 	GtkWidget *statusbar;

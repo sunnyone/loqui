@@ -35,6 +35,9 @@
 #include "loqui_app_actions.h"
 #include "buffer_menu.h"
 #include "main.h"
+#include "loqui_channel_entry.h"
+#include "loqui_channel_entry_action.h"
+#include "loqui_channel_entry_ui.h"
 
 #include "embedtxt/loqui_app_ui.h"
 
@@ -97,9 +100,6 @@ static void loqui_app_common_textview_inserted_cb(GtkTextBuffer *textbuf,
 						  gpointer data);
 
 static void loqui_app_textview_scroll_value_changed_cb(GtkAdjustment *adj, gpointer data);
-
-static void loqui_app_menu_account_activate_cb(GtkWidget *widget, gpointer data);
-static void loqui_app_menu_channel_activate_cb(GtkWidget *widget, gpointer data);
 
 static void loqui_app_add_account_cb(AccountManager *manager, Account *account, LoquiApp *app);
 static void loqui_app_remove_account_cb(AccountManager *manager, Account *account, LoquiApp *app);
@@ -423,8 +423,8 @@ loqui_app_update_info(LoquiApp *app,
 static void
 loqui_app_ui_manager_add_widget_cb(GtkUIManager *ui_manager, GtkWidget *widget, GtkBox *box)
 {
-        gtk_box_pack_start(box, widget, FALSE, FALSE, 0);
-        gtk_widget_show(widget);
+//        gtk_box_pack_start(box, widget, FALSE, FALSE, 0);
+//        gtk_widget_show(widget);
 }
 GtkWidget*
 loqui_app_new(AccountManager *account_manager)
@@ -442,6 +442,7 @@ loqui_app_new(AccountManager *account_manager)
 	GtkWidget *scrolled_win;
 	
 	GtkWidget *menu_box;
+	GtkWidget *menu_channelbar;
 
 	GtkAction *toggle_command_action;
 
@@ -467,10 +468,13 @@ loqui_app_new(AccountManager *account_manager)
 	app->action_group = loqui_app_actions_create_group(app);
 	toggle_command_action = gtk_action_group_get_action(app->action_group, "ToggleCommandMode");
 
+	app->channel_entry_group = gtk_action_group_new("channel-entry-group");
+	
 	app->ui_manager = gtk_ui_manager_new();
 	gtk_window_add_accel_group(GTK_WINDOW(app),
 				   gtk_ui_manager_get_accel_group(app->ui_manager));
 	gtk_ui_manager_insert_action_group(app->ui_manager, app->action_group, 0);
+	gtk_ui_manager_insert_action_group(app->ui_manager, app->channel_entry_group, 1);
 
 	g_signal_connect(app->ui_manager, "add_widget",
 			 G_CALLBACK(loqui_app_ui_manager_add_widget_cb), menu_box);
@@ -478,11 +482,14 @@ loqui_app_new(AccountManager *account_manager)
 		g_error("Failed to load UI XML: %s", error->message);
 
 	gtk_ui_manager_ensure_update(app->ui_manager);
+	gtk_box_pack_start(GTK_BOX(menu_box), gtk_ui_manager_get_widget(app->ui_manager, "/menubar"), FALSE, FALSE, 0);
 	
+	menu_channelbar = gtk_ui_manager_get_widget(app->ui_manager, "/ChannelListPopup");
+
 	priv->handlebox_channelbar = gtk_handle_box_new();
 	gtk_box_pack_start(GTK_BOX(vbox), priv->handlebox_channelbar, FALSE, FALSE, 0);
 
-	app->channelbar = loqui_channelbar_new(app);
+	app->channelbar = loqui_channelbar_new(app, menu_channelbar);
 	gtk_container_add(GTK_CONTAINER(priv->handlebox_channelbar), app->channelbar);
 
 #define SET_SCROLLED_WINDOW(s, w, vpolicy, hpolicy) \
@@ -556,8 +563,8 @@ loqui_app_new(AccountManager *account_manager)
 	loqui_app_set_show_statusbar(app, prefs_general.show_statusbar);
 	loqui_app_set_show_channelbar(app, prefs_general.show_channelbar);
 
-	ACTION_GROUP_ACTION_SET_SENSITIVE(app->action_group, "ToggleStatusbar", prefs_general.show_statusbar);
-	ACTION_GROUP_ACTION_SET_SENSITIVE(app->action_group, "ToggleChannelbar", prefs_general.show_channelbar);
+	loqui_app_actions_toggle_action_set_active(app, "ToggleStatusbar", prefs_general.show_statusbar);
+	loqui_app_actions_toggle_action_set_active(app, "ToggleChannelbar", prefs_general.show_channelbar);
 
 	gtk_widget_grab_focus(app->remark_entry);
 
@@ -744,111 +751,6 @@ loqui_app_get_current_widget_editing_status(LoquiApp *app, gboolean *cutable, gb
 	}
 }
 
-static GtkWidget *
-loqui_app_menu_get_buffers_menu(LoquiApp *app)
-{
-	GtkWidget *widget;
-
-        g_return_val_if_fail(app != NULL, NULL);
-        g_return_val_if_fail(LOQUI_IS_APP(app), NULL);
-	
-        widget = gtk_ui_manager_get_widget(app->ui_manager, "/menubar/Buffers");
-
-	if (GTK_IS_MENU_ITEM(widget))
-		return gtk_menu_item_get_submenu(GTK_MENU_ITEM(widget));
-	if (GTK_IS_MENU_SHELL(widget))
-		return widget;
-
-	g_error("Can't get buffers menu");
-	return NULL;
-}
-
-static void
-loqui_app_menu_account_activate_cb(GtkWidget *widget, gpointer data)
-{
-	Account *account;
-	LoquiApp *app;
-	LoquiAppPrivate *priv;
-
-        g_return_if_fail(data != NULL);
-        g_return_if_fail(LOQUI_IS_APP(data));
-	g_return_if_fail(widget != NULL);
-
-	app = LOQUI_APP(data);
-	priv = app->priv;
-
-	account = g_object_get_data(G_OBJECT(widget), "account");
-	g_return_if_fail(account != NULL);
-
-	loqui_app_set_current_account(app, account);
-}
-static void
-loqui_app_menu_channel_activate_cb(GtkWidget *widget, gpointer data)
-{	
-	Channel *channel;
-	LoquiApp *app;
-	LoquiAppPrivate *priv;
-
-        g_return_if_fail(data != NULL);
-        g_return_if_fail(LOQUI_IS_APP(data));
-	g_return_if_fail(widget != NULL);
-
-	app = LOQUI_APP(data);
-	priv = app->priv;
-
-	channel = g_object_get_data(G_OBJECT(widget), "channel");
-	g_return_if_fail(channel != NULL);
-
-	loqui_app_set_current_channel(app, channel);
-}
-void
-loqui_app_menu_buffers_add_account(LoquiApp *app, Account *account)
-{
-	GtkWidget *menuitem;
-
-	menuitem = buffer_menu_add_account(GTK_MENU_SHELL(loqui_app_menu_get_buffers_menu(app)),
-					   account);
-	g_signal_connect(G_OBJECT(menuitem), "activate",
-			 G_CALLBACK(loqui_app_menu_account_activate_cb), app);
-	buffer_menu_update_accel_keys(GTK_MENU_SHELL(loqui_app_menu_get_buffers_menu(app)));
-}
-void
-loqui_app_menu_buffers_update_account(LoquiApp *app, Account *account)
-{
-	buffer_menu_update_account(GTK_MENU_SHELL(loqui_app_menu_get_buffers_menu(app)),
-				   account);
-}
-
-void
-loqui_app_menu_buffers_remove_account(LoquiApp *app, Account *account)
-{
-	buffer_menu_remove_account(GTK_MENU_SHELL(loqui_app_menu_get_buffers_menu(app)),
-				   account);
-	buffer_menu_update_accel_keys(GTK_MENU_SHELL(loqui_app_menu_get_buffers_menu(app)));
-}
-void
-loqui_app_menu_buffers_add_channel(LoquiApp *app, Channel *channel)
-{
-	GtkWidget *menuitem;
-
-	menuitem = buffer_menu_add_channel(GTK_MENU_SHELL(loqui_app_menu_get_buffers_menu(app)), channel);
-	g_signal_connect(G_OBJECT(menuitem), "activate",
-			 G_CALLBACK(loqui_app_menu_channel_activate_cb), app);
-	buffer_menu_update_accel_keys(GTK_MENU_SHELL(loqui_app_menu_get_buffers_menu(app)));
-}
-void
-loqui_app_menu_buffers_remove_channel(LoquiApp *app, Channel *channel)
-{
-	buffer_menu_remove_channel(GTK_MENU_SHELL(loqui_app_menu_get_buffers_menu(app)),
-				   channel);
-	buffer_menu_update_accel_keys(GTK_MENU_SHELL(loqui_app_menu_get_buffers_menu(app)));
-}
-void
-loqui_app_menu_buffers_update_channel(LoquiApp *app, Channel *channel)
-{
-	buffer_menu_update_channel(GTK_MENU_SHELL(loqui_app_menu_get_buffers_menu(app)),
-				   channel);
-}
 AccountManager *
 loqui_app_get_account_manager(LoquiApp *app)
 {
@@ -928,7 +830,8 @@ loqui_app_set_current_channel(LoquiApp *app, Channel *channel)
 }
 void
 loqui_app_set_current_account(LoquiApp *app, Account *account)
-{	LoquiAppPrivate *priv;
+{
+	LoquiAppPrivate *priv;
 	gboolean is_account_changed, is_channel_changed;
 
         g_return_if_fail(app != NULL);
@@ -1009,10 +912,7 @@ loqui_app_update_account(LoquiApp *app, Account *account)
 	priv = app->priv;
 	
 	channel_tree_update_account(app->channel_tree, account);
-	loqui_app_menu_buffers_update_account(app, account);
-	loqui_channelbar_update_account(LOQUI_CHANNELBAR(app->channelbar), account);
 }
-
 static void
 loqui_app_add_account_cb(AccountManager *manager, Account *account, LoquiApp *app)
 {
@@ -1026,6 +926,9 @@ loqui_app_add_account_cb(AccountManager *manager, Account *account, LoquiApp *ap
         g_return_if_fail(LOQUI_IS_APP(app));
 
 	priv = app->priv;
+	loqui_channel_entry_ui_attach_channel_entry_action(app, G_OBJECT(account)); /* FIXME */
+	loqui_channel_entry_ui_add_account(app, account, "/menubar/Buffers", "menubar");
+	loqui_channel_entry_ui_add_account(app, account, "/ChannelListPopup", "channelbar");
 
 	g_signal_connect_swapped(G_OBJECT(account), "connected",
 				 G_CALLBACK(loqui_app_set_current_account), app);
@@ -1035,11 +938,8 @@ loqui_app_add_account_cb(AccountManager *manager, Account *account, LoquiApp *ap
 			 G_CALLBACK(loqui_app_remove_channel_cb), app);
 	g_signal_connect(G_OBJECT(account->console_buffer), "append",
 			 G_CALLBACK(loqui_app_channel_buffer_append_cb), app);
-
 	channel_tree_add_account(app->channel_tree, account);
 
-	loqui_app_menu_buffers_add_account(app, account);
-	loqui_channelbar_add_account(LOQUI_CHANNELBAR(app->channelbar), account);
 }
 static void
 loqui_app_remove_account_cb(AccountManager *manager, Account *account, LoquiApp *app)
@@ -1055,8 +955,10 @@ loqui_app_remove_account_cb(AccountManager *manager, Account *account, LoquiApp 
 
 	priv = app->priv;
 
+	loqui_channel_entry_ui_remove_account(app, account, "/menubar/Buffers", "menubar");
+	loqui_channel_entry_ui_remove_account(app, account, "/ChannelListPopup", "channelbar");
+
 	channel_tree_remove_account(app->channel_tree, account);
-	loqui_channelbar_remove_account(LOQUI_CHANNELBAR(app->channelbar), account);
 
 	g_signal_handlers_disconnect_by_func(G_OBJECT(account), loqui_app_set_current_account, app);
 	g_signal_handlers_disconnect_by_func(G_OBJECT(account), loqui_app_add_channel_cb, app);
@@ -1079,6 +981,10 @@ loqui_app_add_channel_cb(Account *account, Channel *channel, LoquiApp *app)
 
 	priv = app->priv;
 
+	loqui_channel_entry_ui_attach_channel_entry_action(app, G_OBJECT(channel)); /* FIXME: ChannelEntry */
+	loqui_channel_entry_ui_add_channel(app, channel, "/menubar/Buffers", "menubar");
+	loqui_channel_entry_ui_add_channel(app, channel, "/ChannelListPopup", "channelbar");
+
 	g_signal_connect_swapped(G_OBJECT(channel), "updated",
 			         G_CALLBACK(loqui_app_channel_updated_cb), app);
 	g_signal_connect_swapped(G_OBJECT(channel), "user-number-changed",
@@ -1087,8 +993,6 @@ loqui_app_add_channel_cb(Account *account, Channel *channel, LoquiApp *app)
 			 G_CALLBACK(loqui_app_channel_buffer_append_cb), app);
 
 	channel_tree_add_channel(app->channel_tree, account, channel);
-	loqui_app_menu_buffers_add_channel(app, channel);
-	loqui_channelbar_add_channel(LOQUI_CHANNELBAR(app->channelbar), channel);
 
 	loqui_app_set_current_channel(app, channel);
 }
@@ -1106,14 +1010,15 @@ loqui_app_remove_channel_cb(Account *account, Channel *channel, LoquiApp *app)
 
 	priv = app->priv;
 
+	loqui_channel_entry_ui_remove_channel(app, channel, "menubar");
+	loqui_channel_entry_ui_remove_channel(app, channel, "channelbar");
+
 	loqui_app_set_current_account(app, account);
 	g_signal_handlers_disconnect_by_func(channel, loqui_app_channel_updated_cb, app);
 	g_signal_handlers_disconnect_by_func(channel, channel_tree_update_user_number, app->channel_tree);
 	g_signal_handlers_disconnect_by_func(channel->buffer, loqui_app_channel_buffer_append_cb, app);
 
 	channel_tree_remove_channel(app->channel_tree, channel);
-	loqui_app_menu_buffers_remove_channel(app, channel);
-	loqui_channelbar_remove_channel(LOQUI_CHANNELBAR(app->channelbar), channel);
 }
 static gboolean
 loqui_app_update_account_info(LoquiApp *app)
@@ -1220,8 +1125,6 @@ loqui_app_channel_updated_cb(LoquiApp *app, gboolean is_updated_prev, Channel *c
 		channel_set_updated(channel, FALSE);
 
 	channel_tree_set_updated(app->channel_tree, NULL, channel);
-	loqui_app_menu_buffers_update_channel(app, channel);
-	loqui_channelbar_update_channel(LOQUI_CHANNELBAR(app->channelbar), channel);
 	
 	if (is_updated_prev == updated)
 		return;

@@ -54,7 +54,7 @@ struct _LoquiChannelEntryActionClass
 
 GType loqui_channel_entry_action_get_type(void) G_GNUC_CONST;
 
-LoquiChannelEntryAction* loqui_channel_entry_action_new(void);
+LoquiChannelEntryAction* loqui_channel_entry_action_new(const gchar *name);
 
 void loqui_channel_entry_action_set_channel_entry(LoquiChannelEntryAction *action, GObject *channel_entry);
 GObject *loqui_channel_entry_action_get_channel_entry(LoquiChannelEntryAction *action);  /* FIXME */ 

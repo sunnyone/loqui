@@ -172,12 +172,12 @@ loqui_channel_entry_action_init(LoquiChannelEntryAction *action)
 	action->priv = priv;
 }
 LoquiChannelEntryAction*
-loqui_channel_entry_action_new(void)
+loqui_channel_entry_action_new(const gchar *name)
 {
         LoquiChannelEntryAction *action;
 	LoquiChannelEntryActionPrivate *priv;
 
-	action = g_object_new(loqui_channel_entry_action_get_type(), NULL);
+	action = g_object_new(loqui_channel_entry_action_get_type(), "name", name, NULL);
 	
         priv = action->priv;
 
@@ -205,12 +205,12 @@ loqui_channel_entry_action_set_channel_entry(LoquiChannelEntryAction *action, GO
 			name = channel_get_name(CHANNEL(channel_entry));
 		else if (IS_ACCOUNT(channel_entry)) {
 			name = loqui_profile_account_get_name(account_get_profile(ACCOUNT(channel_entry)));
-			g_object_set(G_OBJECT(action), "stock_id", LOQUI_STOCK_CONSOLE);
+			g_object_set(G_OBJECT(action), "stock_id", LOQUI_STOCK_CONSOLE, NULL);
 		} else {
 			name = NULL;
 		}
 
-		g_object_set(G_OBJECT(action), "label", name);
+		g_object_set(G_OBJECT(action), "label", name, NULL);
 	}
 }
 GObject * /* FIXME */

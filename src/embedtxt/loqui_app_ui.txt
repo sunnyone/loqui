@@ -53,6 +53,7 @@
       <menuitem name="About" action="About"/>
     </menu>
   </menubar>
+
   <popup name="NickListPopup" action="FakeToplevel">
     <menuitem name="StartPrivateTalkSelected" action="StartPrivateTalkSelected"/>
     <menuitem name="WhoisSelected" action="WhoisSelected"/>
@@ -71,5 +72,8 @@
       <menuitem name="CTCPTimeSelected" action="CTCPTimeSelected"/>
       <menuitem name="CTCPFingerSelected" action="CTCPFingerSelected"/>
     </menu>
+  </popup>
+
+  <popup name="ChannelListPopup" action="StockChannelEntry">
   </popup>
 </ui>

@@ -80,6 +80,7 @@ static GtkActionEntry loqui_action_entries[] =
 	
 	{"StockModeMenu",        NULL, N_("Change user mode [Mode]"), NULL, NULL},
 	{"StockCTCPMenu",        NULL, N_("CTCP"),        NULL, NULL},
+	{"StockChannelEntry",    NULL, "",                NULL, NULL},
 
 	{"FakeToplevel",         NULL, (""),               NULL, NULL, NULL},
 
