@@ -114,6 +114,7 @@ loqui_channel_entry_dispose(GObject *object)
 {
 	LoquiChannelEntry *chent;
 	LoquiMember *member;
+	GSList *member_slist = NULL, *cur;
 	gint i;
 
         g_return_if_fail(object != NULL);
@@ -125,11 +126,15 @@ loqui_channel_entry_dispose(GObject *object)
 	G_FREE_UNLESS_NULL(chent->topic);
 	G_OBJECT_UNREF_UNLESS_NULL(chent->buffer);
 
-	for (i = 0; i < chent->member_ptr_array->len; i++) {
-		member = g_ptr_array_index(chent->member_ptr_array, i);
-		g_object_unref(member);
-	}
 	if (chent->member_ptr_array) {
+		for (i = 0; i < chent->member_ptr_array->len; i++) {
+			member_slist = g_slist_append(member_slist, g_ptr_array_index(chent->member_ptr_array, i));
+		}
+		for (cur = member_slist; cur != NULL; cur = cur->next) {
+			member = cur->data;
+			g_signal_emit(G_OBJECT(chent), loqui_channel_entry_signals[SIGNAL_REORDERED], 0, member);
+		}
+		g_slist_free(member_slist);
 		g_ptr_array_free(chent->member_ptr_array, TRUE);
 		chent->member_ptr_array = NULL;
 	}
@@ -292,7 +297,7 @@ loqui_channel_entry_class_init(LoquiChannelEntryClass *klass)
 
 	loqui_channel_entry_signals[SIGNAL_ADD] = g_signal_new("add",
 							       G_OBJECT_CLASS_TYPE(object_class),
-							       G_SIGNAL_RUN_FIRST,
+							       G_SIGNAL_RUN_LAST,
 							       G_STRUCT_OFFSET(LoquiChannelEntryClass, add),
 							       NULL, NULL,
 							       g_cclosure_marshal_VOID__OBJECT,

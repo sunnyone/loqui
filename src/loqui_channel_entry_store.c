@@ -84,6 +84,9 @@ static void loqui_channel_entry_store_add_after_cb(LoquiChannelEntry *entry,
 static void loqui_channel_entry_store_remove_cb(LoquiChannelEntry *chent,
 						LoquiMember *member,
 						LoquiChannelEntryStore *store);
+static void loqui_channel_entry_store_reordered_cb(LoquiChannelEntry *chent,
+						   LoquiChannelEntryStore *store);
+
 static void loqui_channel_entry_store_member_notify_cb(LoquiMember *member, GParamSpec *pspec, LoquiChannelEntryStore *store);
 static void loqui_channel_entry_store_user_notify_cb(LoquiUser *user, GParamSpec *pspec, LoquiChannelEntryStore *store);
 
@@ -144,6 +147,12 @@ loqui_channel_entry_store_dispose(GObject *object)
         g_return_if_fail(LOQUI_IS_CHANNEL_ENTRY_STORE(object));
 
         store = LOQUI_CHANNEL_ENTRY_STORE(object);
+
+	if (store->chent) {
+		g_signal_handlers_disconnect_by_func(store->chent, loqui_channel_entry_store_add_after_cb, store);
+		g_signal_handlers_disconnect_by_func(store->chent, loqui_channel_entry_store_remove_cb, store);
+		g_signal_handlers_disconnect_by_func(store->chent, loqui_channel_entry_store_reordered_cb, store);
+	}
 
         if (G_OBJECT_CLASS(parent_class)->dispose)
                 (* G_OBJECT_CLASS(parent_class)->dispose)(object);
@@ -397,6 +406,9 @@ loqui_channel_entry_store_iter_children(GtkTreeModel *tree_model,
 					GtkTreeIter *iter,
 					GtkTreeIter *parent)
 {
+	g_return_val_if_fail(tree_model != NULL, FALSE);
+	g_return_val_if_fail(LOQUI_IS_CHANNEL_ENTRY_STORE(tree_model), FALSE);
+
 	if (parent != NULL)
 		return FALSE;
 
@@ -473,6 +485,13 @@ loqui_channel_entry_store_add_after_cb(LoquiChannelEntry *entry,
 	GtkTreePath *path;
 	gint pos;
 
+        g_return_if_fail(entry != NULL);
+        g_return_if_fail(LOQUI_IS_CHANNEL_ENTRY(entry));
+        g_return_if_fail(member != NULL);
+        g_return_if_fail(LOQUI_IS_MEMBER(member));
+        g_return_if_fail(store != NULL);
+        g_return_if_fail(LOQUI_IS_CHANNEL_ENTRY_STORE(store));
+
 	iter.user_data = member;
 	pos = loqui_channel_entry_get_member_pos(entry, member);
 	g_return_if_fail(pos >= 0);
@@ -482,14 +501,14 @@ loqui_channel_entry_store_add_after_cb(LoquiChannelEntry *entry,
 	gtk_tree_model_row_inserted(GTK_TREE_MODEL(store), path, &iter);
 	gtk_tree_path_free(path);
 
-	g_signal_connect(G_OBJECT(member), "notify::is-channel-operator", 
-			 G_CALLBACK(loqui_channel_entry_store_member_notify_cb), store);
-	g_signal_connect(G_OBJECT(member), "notify::speakable", 
-			 G_CALLBACK(loqui_channel_entry_store_member_notify_cb), store);
-	g_signal_connect(G_OBJECT(member->user), "notify::nick",
-			 G_CALLBACK(loqui_channel_entry_store_user_notify_cb), store);
-	g_signal_connect(G_OBJECT(member->user), "notify::away",
-			 G_CALLBACK(loqui_channel_entry_store_user_notify_cb), store);
+	g_signal_connect_object(G_OBJECT(member), "notify::is-channel-operator", 
+				G_CALLBACK(loqui_channel_entry_store_member_notify_cb), store, 0);
+	g_signal_connect_object(G_OBJECT(member), "notify::speakable", 
+				G_CALLBACK(loqui_channel_entry_store_member_notify_cb), store, 0);
+	g_signal_connect_object(G_OBJECT(member->user), "notify::nick",
+				G_CALLBACK(loqui_channel_entry_store_user_notify_cb), store, 0);
+	g_signal_connect_object(G_OBJECT(member->user), "notify::away",
+				G_CALLBACK(loqui_channel_entry_store_user_notify_cb), store, 0);
 }
 static void
 loqui_channel_entry_store_remove_cb(LoquiChannelEntry *chent,
@@ -499,6 +518,13 @@ loqui_channel_entry_store_remove_cb(LoquiChannelEntry *chent,
 	gint pos;
 	GtkTreePath *path;
 	GtkTreeIter iter;
+
+        g_return_if_fail(chent != NULL);
+        g_return_if_fail(LOQUI_IS_CHANNEL_ENTRY(chent));
+        g_return_if_fail(member != NULL);
+        g_return_if_fail(LOQUI_IS_MEMBER(member));
+        g_return_if_fail(store != NULL);
+        g_return_if_fail(LOQUI_IS_CHANNEL_ENTRY_STORE(store));
 
 	pos = loqui_channel_entry_get_member_pos(chent, member);
 	g_return_if_fail(pos >= 0);
@@ -521,8 +547,13 @@ loqui_channel_entry_store_reordered_cb(LoquiChannelEntry *chent,
 	GtkTreePath *path;
 	GtkTreeIter iter;
 
+        g_return_if_fail(store != NULL);
+        g_return_if_fail(LOQUI_IS_CHANNEL_ENTRY_STORE(store));
+        g_return_if_fail(chent != NULL);
+        g_return_if_fail(LOQUI_IS_CHANNEL_ENTRY(chent));
+
 	num = loqui_channel_entry_get_member_number(chent);
-	for(i = 0; i < num; i++) {
+	for (i = 0; i < num; i++) {
 		iter.user_data = loqui_channel_entry_get_nth_member(chent, i);
 		iter.user_data2 = GINT_TO_POINTER(i + 1);
 
@@ -541,6 +572,8 @@ loqui_channel_entry_store_user_notify_cb(LoquiUser *user, GParamSpec *pspec, Loq
 
 	g_return_if_fail(user != NULL);
 	g_return_if_fail(LOQUI_IS_USER(user));
+        g_return_if_fail(store != NULL);
+        g_return_if_fail(LOQUI_IS_CHANNEL_ENTRY_STORE(store));
 
 	member = loqui_channel_entry_get_member_by_user(store->chent, user);
 
@@ -563,6 +596,8 @@ loqui_channel_entry_store_member_notify_cb(LoquiMember *member, GParamSpec *pspe
 
 	g_return_if_fail(member != NULL);
 	g_return_if_fail(LOQUI_IS_MEMBER(member));
+        g_return_if_fail(store != NULL);
+        g_return_if_fail(LOQUI_IS_CHANNEL_ENTRY_STORE(store));
 
 	pos = loqui_channel_entry_get_member_pos(store->chent, member);
 	g_return_if_fail(pos >= 0);
@@ -595,11 +630,11 @@ loqui_channel_entry_store_new(LoquiChannelEntry *chent)
 		loqui_channel_entry_store_add_after_cb(chent, member, store);
 	}
 
-	g_signal_connect_after(G_OBJECT(chent), "add",
-			       G_CALLBACK(loqui_channel_entry_store_add_after_cb), store);
-	g_signal_connect(G_OBJECT(chent), "remove",
-			 G_CALLBACK(loqui_channel_entry_store_remove_cb), store);
-	g_signal_connect(G_OBJECT(chent), "reordered",
-			 G_CALLBACK(loqui_channel_entry_store_reordered_cb), store);
+	g_signal_connect_object(G_OBJECT(chent), "add",
+				G_CALLBACK(loqui_channel_entry_store_add_after_cb), store, G_CONNECT_AFTER);
+	g_signal_connect_object(G_OBJECT(chent), "remove",
+				G_CALLBACK(loqui_channel_entry_store_remove_cb), store, 0);
+	g_signal_connect_object(G_OBJECT(chent), "reordered",
+				G_CALLBACK(loqui_channel_entry_store_reordered_cb), store, 0);
         return store;
 }
