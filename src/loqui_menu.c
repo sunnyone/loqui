@@ -51,6 +51,7 @@ static void loqui_menu_account_settings_cb(gpointer data, guint callback_action,
 static void loqui_menu_common_settings_cb(gpointer data, guint callback_action, GtkWidget *widget);
 static void loqui_menu_view_toolbar_cb(gpointer data, guint callback_action, GtkWidget *widget);
 static void loqui_menu_view_statusbar_cb(gpointer data, guint callback_action, GtkWidget *widget);
+static void loqui_menu_view_move_cb(gpointer data, guint callback_action, GtkWidget *widget);
 
 enum {
 	LOQUI_MENU_CUT,
@@ -65,15 +66,15 @@ static GtkItemFactoryEntry menu_items[] = {
 	{ N_("/File/_Connect"), NULL, loqui_menu_connect_cb, 0 },
 	{ N_("/File/_Quit"), "<control>Q", loqui_menu_quit_cb, 0, "<StockItem>", GTK_STOCK_QUIT },
 	{ N_("/_Edit"),     NULL, 0, 0, "<Branch>" },
-	{ N_("/Edit/Cut"),      "<control>X", loqui_menu_edit_cb, LOQUI_MENU_CUT, "<StockItem>", GTK_STOCK_CUT },
-	{ N_("/Edit/_Copy"),    "<control>C", loqui_menu_edit_cb, LOQUI_MENU_COPY, "<StockItem>", GTK_STOCK_COPY },
-	{ N_("/Edit/_Paste"),   "<control>P", loqui_menu_edit_cb, LOQUI_MENU_PASTE, "<StockItem>", GTK_STOCK_PASTE },
+	{ N_("/Edit/Cut"),      NULL, loqui_menu_edit_cb, LOQUI_MENU_CUT, "<StockItem>", GTK_STOCK_CUT },
+	{ N_("/Edit/_Copy"),    NULL, loqui_menu_edit_cb, LOQUI_MENU_COPY, "<StockItem>", GTK_STOCK_COPY },
+	{ N_("/Edit/_Paste"),   NULL, loqui_menu_edit_cb, LOQUI_MENU_PASTE, "<StockItem>", GTK_STOCK_PASTE },
 	{ N_("/Edit/Paste with linefeeds cut"), NULL, loqui_menu_edit_cb, LOQUI_MENU_PASTE_WITH_LINEFEEDS_CUT,
 	  "<StockItem>", GTK_STOCK_PASTE },
 	{ N_("/Edit/Clear"), NULL, loqui_menu_edit_cb,  LOQUI_MENU_CLEAR, "<StockItem>", GTK_STOCK_CLEAR },
 	{ "/Edit/sep",        NULL,         0,       0, "<Separator>" },
 	{ N_("/Edit/_Find"),    "<control>F", loqui_menu_find_cb, 0, "<StockItem>", GTK_STOCK_FIND },
-	{ N_("/Edit/_Find again"), "<control>N", loqui_menu_find_cb, 1, "<StockItem>", GTK_STOCK_FIND },
+	{ N_("/Edit/_Find again"), NULL, loqui_menu_find_cb, 1, "<StockItem>", GTK_STOCK_FIND },
 	{ N_("/_Server"), NULL, 0, 0, "<Branch>" },
 	{ N_("/_Channel"), NULL, 0, 0, "<Branch>" },
 	{ N_("/_User"), NULL, 0, 0, "<Branch>" },
@@ -85,9 +86,15 @@ static GtkItemFactoryEntry menu_items[] = {
 	{ N_("/View/Toolbar/Both icons and text horizontally"), NULL, loqui_menu_view_toolbar_cb, GTK_TOOLBAR_BOTH_HORIZ, "/View/Toolbar/Icon"},
 	{ N_("/View/Toolbar/Hide"), NULL, loqui_menu_view_toolbar_cb, 100, "/View/Toolbar/Icon" },
 	{ N_("/View/Status bar"), NULL, loqui_menu_view_statusbar_cb, 0, "<ToggleItem>" },
+	{ "/View/sep",        NULL,         0,       0, "<Separator>" },
+	{ N_("/View/Previous fresh channel"), NULL, loqui_menu_view_move_cb, 0 },
+	{ N_("/View/Next fresh channel"), NULL, loqui_menu_view_move_cb, 1},
+	{ "/View/sep2",        NULL,         0,       0, "<Separator>" },
+	{ N_("/View/Previous channel"), "<Control>P", loqui_menu_view_move_cb, 2},
+	{ N_("/View/Next channel"), "<Control>N", loqui_menu_view_move_cb, 3 },
 	{ N_("/_Settings"), NULL, 0, 0, "<Branch>" },
-	{ N_("/Settings/Common Prefsrences..."), NULL, loqui_menu_common_settings_cb, 0 },
-	{ N_("/Settings/Account Settings..."), NULL, loqui_menu_account_settings_cb, 0 },
+	{ N_("/Settings/Common prefsrences..."), NULL, loqui_menu_common_settings_cb, 0 },
+	{ N_("/Settings/Account settings..."), NULL, loqui_menu_account_settings_cb, 0 },
 	{ N_("/_Help"), NULL, 0, 0, "<Branch>" },
 	{ N_("/Help/_About"), NULL, loqui_menu_about_cb, 0 },
 };
@@ -341,7 +348,35 @@ static void loqui_menu_view_statusbar_cb(gpointer data, guint callback_action, G
 
 	loqui_app_set_show_statusbar(priv->app, gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(widget)));
 }
+static void loqui_menu_view_move_cb(gpointer data, guint callback_action, GtkWidget *widget)
+{
+	LoquiMenu *menu;
+	LoquiMenuPrivate *priv;
 
+	menu = LOQUI_MENU(data);
+
+	g_return_if_fail(menu != NULL);
+        g_return_if_fail(LOQUI_IS_MENU(menu));
+
+	priv = menu->priv;
+
+	switch(callback_action) {
+	case 0:
+		channel_tree_select_prev_channel(priv->app->channel_tree, TRUE);
+		break;
+	case 1:
+		channel_tree_select_next_channel(priv->app->channel_tree, TRUE);
+		break;
+	case 2:
+		channel_tree_select_prev_channel(priv->app->channel_tree, FALSE);
+		break;
+	case 3:
+		channel_tree_select_next_channel(priv->app->channel_tree, FALSE);
+		break;
+	default:
+		break;
+	}
+}
 void loqui_menu_set_view_toolbar(LoquiMenu *menu, guint style)
 {
 	LoquiMenuPrivate *priv;
