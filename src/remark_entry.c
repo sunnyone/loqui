@@ -21,6 +21,8 @@
 
 #include "remark_entry.h"
 #include "prefs_general.h"
+#include "gdk/gdkkeysyms.h"
+#include "utils.h"
 
 #include <string.h>
 
@@ -32,12 +34,13 @@ enum {
 struct _RemarkEntryPrivate
 {
 	GList *string_list;
+	gint current_index;
 
 	gboolean is_multiline;
 
 	GtkWidget *label_nick;
 	GtkWidget *vbox;
-	GtkWidget *combo;
+	GtkWidget *entry;
 	GtkWidget *hbox_text;
 	GtkWidget *textview;
 	GtkWidget *button_ok;
@@ -61,6 +64,8 @@ static void remark_entry_destroy(GtkObject *object);
 static void remark_entry_entry_text_shown_cb(GtkWidget *widget, gpointer data);
 static void remark_entry_entry_multiline_toggled_cb(GtkWidget *widget, gpointer data);
 static void remark_entry_activated_cb(GtkWidget *widget, gpointer data);
+static gint remark_entry_entry_key_pressed_cb(GtkEntry *widget, GdkEventKey *event,
+					      gpointer data);
 
 static void remark_entry_history_add(RemarkEntry *entry, const gchar *str);
 
@@ -118,6 +123,7 @@ remark_entry_init(RemarkEntry *remark_entry)
 	priv = g_new0(RemarkEntryPrivate, 1);
 
 	priv->is_multiline = FALSE;
+	priv->current_index = 0;
 
 	remark_entry->priv = priv;
 }
@@ -176,14 +182,14 @@ remark_entry_new(void)
 	priv->vbox = gtk_vbox_new(FALSE, 0);
 	gtk_box_pack_start(GTK_BOX(hbox), priv->vbox, TRUE, TRUE, 0);
 
-	priv->combo = gtk_combo_new();
-	gtk_combo_disable_activate(GTK_COMBO(priv->combo));
-	gtk_combo_set_case_sensitive(GTK_COMBO(priv->combo), TRUE);
-	g_signal_connect(G_OBJECT(GTK_COMBO(priv->combo)->entry), "activate",
+	priv->entry = gtk_entry_new();
+	g_signal_connect(G_OBJECT(priv->entry), "activate",
 			 G_CALLBACK(remark_entry_activated_cb), remark_entry);
-	g_signal_connect(G_OBJECT(priv->combo), "show",
+	g_signal_connect(G_OBJECT(priv->entry), "show",
 			 G_CALLBACK(remark_entry_entry_text_shown_cb), remark_entry);
-	gtk_box_pack_start(GTK_BOX(priv->vbox), priv->combo, TRUE, TRUE, 0);
+	g_signal_connect(G_OBJECT(priv->entry), "key_press_event",
+			 G_CALLBACK(remark_entry_entry_key_pressed_cb), remark_entry);
+	gtk_box_pack_start(GTK_BOX(priv->vbox), priv->entry, TRUE, TRUE, 0);
 
 	priv->hbox_text = gtk_hbox_new(FALSE, 0);
 	g_signal_connect(G_OBJECT(priv->hbox_text), "show",
@@ -219,12 +225,13 @@ remark_entry_new(void)
 	gtk_box_pack_start(GTK_BOX(hbox), priv->toggle_palette, FALSE, FALSE, 0);
 	gtk_widget_set_sensitive(priv->toggle_palette, FALSE);
 
-	priv->string_list = g_list_append(priv->string_list, NULL);
+	priv->string_list = g_list_prepend(priv->string_list, NULL);
 
 	return GTK_WIDGET(remark_entry);
 }
 
-G_CONST_RETURN gchar *remark_entry_get_text(RemarkEntry *entry)
+G_CONST_RETURN gchar *
+remark_entry_get_text(RemarkEntry *entry)
 {
 	RemarkEntryPrivate *priv;
 	GtkTextBuffer *buffer;
@@ -241,12 +248,13 @@ G_CONST_RETURN gchar *remark_entry_get_text(RemarkEntry *entry)
 		gtk_text_buffer_get_end_iter(buffer, &end);
 		str = gtk_text_buffer_get_text(buffer, &start, &end, TRUE);
 	} else {
-		str = gtk_entry_get_text(GTK_ENTRY(GTK_COMBO(priv->combo)->entry));
+		str = gtk_entry_get_text(GTK_ENTRY(priv->entry));
 	}
 
 	return str;
 }
-void remark_entry_clear_text(RemarkEntry *entry)
+void
+remark_entry_clear_text(RemarkEntry *entry)
 {
 	RemarkEntryPrivate *priv;
 
@@ -255,7 +263,7 @@ void remark_entry_clear_text(RemarkEntry *entry)
 
 	priv = entry->priv;
 
-	gtk_entry_set_text(GTK_ENTRY(GTK_COMBO(priv->combo)->entry), "");
+	gtk_entry_set_text(GTK_ENTRY(priv->entry), "");
 	gtk_text_buffer_set_text(gtk_text_view_get_buffer(GTK_TEXT_VIEW(priv->textview)), "", 0);
 }
 
@@ -279,17 +287,17 @@ remark_entry_set_multiline(RemarkEntry *entry, gboolean is_multiline)
 
 	buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(priv->textview));
 	if(is_multiline) {
-		str = gtk_entry_get_text(GTK_ENTRY(GTK_COMBO(priv->combo)->entry));
+		str = gtk_entry_get_text(GTK_ENTRY(priv->entry));
 		gtk_text_buffer_set_text(buffer, str, -1);
-		gtk_widget_hide(priv->combo);
+		gtk_widget_hide(priv->entry);
 		gtk_widget_show_all(priv->hbox_text);
 	} else {
 		gtk_text_buffer_get_start_iter(buffer, &start);
 		gtk_text_buffer_get_end_iter(buffer, &end);
 		str = gtk_text_buffer_get_text(buffer, &start, &end, TRUE);
-		gtk_entry_set_text(GTK_ENTRY(GTK_COMBO(priv->combo)->entry), str);
+		gtk_entry_set_text(GTK_ENTRY(priv->entry), str);
 		gtk_widget_hide_all(priv->hbox_text);
-		gtk_widget_show(priv->combo);
+		gtk_widget_show(priv->entry);
 	}
 
 	g_signal_handler_block(priv->toggle_multiline, priv->toggled_id);
@@ -337,11 +345,10 @@ remark_entry_grab_focus(RemarkEntry *entry)
 	if(remark_entry_get_multiline(entry))
 		gtk_widget_grab_focus(priv->textview);
 	else {
-		gtk_widget_grab_focus(GTK_COMBO(priv->combo)->entry);
-		gtk_editable_select_region(GTK_EDITABLE(GTK_COMBO(priv->combo)->entry), -1, -1);
+		gtk_widget_grab_focus(priv->entry);
+		gtk_editable_select_region(GTK_EDITABLE(priv->entry), -1, -1);
 	}
 }
-
 static void
 remark_entry_history_add(RemarkEntry *entry, const gchar *str)
 {
@@ -367,7 +374,52 @@ remark_entry_history_add(RemarkEntry *entry, const gchar *str)
 		}
 	}
 
-	gtk_combo_set_popdown_strings(GTK_COMBO(priv->combo), priv->string_list);
+}
+static gint remark_entry_entry_key_pressed_cb(GtkEntry *widget, GdkEventKey *event,
+					      gpointer data)
+{
+        RemarkEntry *remark_entry;
+	RemarkEntryPrivate *priv;
+	gint length;
+	GList *cur;
+	gchar *new_str;
+	gboolean is_up, is_down;
+
+        g_return_val_if_fail(data != NULL, FALSE);
+        g_return_val_if_fail(IS_REMARK_ENTRY(data), FALSE);
+	
+	remark_entry = REMARK_ENTRY(data);
+	priv = remark_entry->priv;
+
+	is_up = (event->keyval == GDK_Up || event->keyval == GDK_KP_Up);
+	is_down = (event->keyval == GDK_Down || event->keyval == GDK_KP_Down);
+
+	if(!(is_up || is_down))
+		return FALSE;
+	length = g_list_length(priv->string_list);
+
+	if(priv->current_index >= length)
+		return TRUE;
+	if(is_down && priv->current_index == 0)
+		return TRUE;
+	if(is_up && priv->current_index == length-1)
+		return TRUE;
+
+	cur = g_list_nth(priv->string_list, priv->current_index);
+	if(cur->data)
+		g_free(cur->data);
+	cur->data = g_strdup(gtk_entry_get_text(GTK_ENTRY(priv->entry)));
+	
+	if(is_up) {
+		priv->current_index++;
+		new_str = cur->next->data;
+	} else {
+		priv->current_index--;
+		new_str = cur->prev->data;
+	}
+	gtk_entry_set_text(GTK_ENTRY(priv->entry), new_str == NULL ? "" : new_str);
+
+	return TRUE;
 }
 static void
 remark_entry_activated_cb(GtkWidget *widget, gpointer data)
@@ -389,6 +441,8 @@ remark_entry_activated_cb(GtkWidget *widget, gpointer data)
 	if(strlen(str) > 0)
 		remark_entry_history_add(remark_entry, str);
 	g_free(str);
+	priv->current_index = 0;
+	G_FREE_UNLESS_NULL(priv->string_list->data);
 }
 static void
 remark_entry_entry_multiline_toggled_cb(GtkWidget *widget, gpointer data)
@@ -418,7 +472,7 @@ remark_entry_entry_text_shown_cb(GtkWidget *widget, gpointer data)
 	priv = remark_entry->priv;
 
 	if(remark_entry_get_multiline(remark_entry))
-		gtk_widget_hide(priv->combo);
+		gtk_widget_hide(priv->entry);
 	else
 		gtk_widget_hide_all(priv->hbox_text);
 }
