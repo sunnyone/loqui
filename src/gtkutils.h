@@ -26,6 +26,10 @@
         while (gtk_events_pending()) \
                 gtk_main_iteration(); \
 }
+#define GTKUTILS_TREE_ITER_COMPARE(a,b) ((a.stamp == b.stamp) && \
+					 (a.user_data == b.user_data) && \
+					 (a.user_data2 == b.user_data2) && \
+					 (a.user_data3 == b.user_data3))
 
 void gtkutils_msgbox_info(GtkMessageType icon, const gchar *format, ...) G_GNUC_PRINTF(2, 3);
 void gtkutils_add_label_entry(GtkWidget *box, const gchar *label_text, 
