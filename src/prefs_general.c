@@ -61,12 +61,13 @@ PrefElement prefs_general_defs[] = {
 	{"channel_buffer_max_line_number", "2000", PREF_TYPE_UINT, &prefs_general.channel_buffer_max_line_number },
 	
 	{"auto_reconnect", "true", PREF_TYPE_BOOLEAN, &prefs_general.auto_reconnect },
-
+	
 	{"use_transparent_ignore", "true", PREF_TYPE_BOOLEAN, &prefs_general.use_transparent_ignore },
 	{"transparent_ignore_list", "", PREF_TYPE_STRING_LIST, &prefs_general.transparent_ignore_list },
 
 	{"connect_startup", "false", PREF_TYPE_BOOLEAN, &prefs_general.connect_startup },
 
+	{"time_format", "%H:%M ", PREF_TYPE_STRING, &prefs_general.time_format },
 	{NULL, NULL, 0, NULL}
 };
 

@@ -36,6 +36,7 @@ struct _PrefsDialogPrivate
 	GtkWidget *check_auto_reconnect;
 	GtkWidget *check_connect_startup;
 	GtkWidget *entry_away_message;
+	GtkWidget *entry_time_format;
 	
 	GtkWidget *spin_common_buffer_max_line_number;
 	GtkWidget *spin_channel_buffer_max_line_number;
@@ -162,6 +163,7 @@ prefs_dialog_load_settings(PrefsDialog *dialog)
 	gtk_entry_set_text(GTK_ENTRY(priv->entry_away_message), prefs_general.away_message);
 	gtk_entry_set_text(GTK_ENTRY(priv->entry_browser_command), prefs_general.browser_command);
 	gtk_entry_set_text(GTK_ENTRY(priv->entry_notification_command), prefs_general.notification_command);
+	gtk_entry_set_text(GTK_ENTRY(priv->entry_time_format), prefs_general.time_format);
 
 	gtk_spin_button_set_value(GTK_SPIN_BUTTON(priv->spin_common_buffer_max_line_number),
 				  prefs_general.common_buffer_max_line_number);
@@ -198,6 +200,9 @@ prefs_dialog_save_settings(PrefsDialog *dialog)
 
 	G_FREE_UNLESS_NULL(prefs_general.notification_command);
 	prefs_general.notification_command = g_strdup(gtk_entry_get_text(GTK_ENTRY(priv->entry_notification_command)));
+
+	G_FREE_UNLESS_NULL(prefs_general.time_format);
+	prefs_general.time_format = g_strdup(gtk_entry_get_text(GTK_ENTRY(priv->entry_time_format)));
 
 	prefs_general.common_buffer_max_line_number = (guint) gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(priv->spin_common_buffer_max_line_number));
 	prefs_general.channel_buffer_max_line_number = (guint) gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(priv->spin_channel_buffer_max_line_number));
@@ -258,6 +263,7 @@ prefs_dialog_new(void)
 	gtk_box_pack_start(GTK_BOX(vbox), priv->check_connect_startup, FALSE, FALSE, 0);
 
 	gtkutils_add_label_entry(vbox, _("Away message: "), &priv->entry_away_message, "");
+	gtkutils_add_label_entry(vbox, _("Format of time in buffers: "), &priv->entry_time_format, "");
 
 	gtkutils_add_label_spin_button(vbox,
 				       _("Max line number of a common buffer(0: unlimited): "),

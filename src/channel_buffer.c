@@ -383,18 +383,23 @@ channel_buffer_new(void)
 static void
 channel_buffer_append_current_time(ChannelBuffer *buffer)
 {
-	gchar buf[TIME_LEN];
+	gchar *buf;
 	time_t t;
 	struct tm tm;
-
+	
         g_return_if_fail(buffer != NULL);
         g_return_if_fail(IS_CHANNEL_BUFFER(buffer));
 
 	t = time(NULL);
 	localtime_r(&t, &tm);
-	strftime(buf, TIME_LEN, "%H:%M ", &tm);
-
+	buf = utils_strftime(prefs_general.time_format, &tm);
+	if(buf == NULL) {
+		g_warning("Failed to strftime time string");
+		return;
+	}
+	
 	channel_buffer_append(buffer, TEXT_TYPE_TIME, buf, FALSE, FALSE);
+	g_free(buf);
 }
 
 static void

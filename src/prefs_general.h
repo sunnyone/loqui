@@ -79,6 +79,8 @@ typedef struct _PrefsGeneral {
 	GList *transparent_ignore_list;
 
 	gboolean connect_startup;
+	
+	gchar *time_format;
 } PrefsGeneral;
 
 void prefs_general_load(void);
