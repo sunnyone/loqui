@@ -1,243 +1,334 @@
-2003-01-09     0.0.5
-* First release.
-
-2003-01-10     0.0.6
-* Fixed a incorrect handling with a private message.
-* Fixed some small bugs.
-
-2003-01-19     0.0.7
-* Fixed a bug sometimes nicklist is broken by user's part/quit.
-* Improved performance of scrolling
-* Removed dependency of GConf/GNOME2
-
-2003-01-19     0.0.8
-* Changed the way to change buffers/userlists.
-* Saving channel tree/common buffer size.
-
-2003-01-23     0.0.9
-* Fix the bug a connection is terminated when failed to convert codeset.
-* Change color of the channel on the channel tree when new messages are arrived.
-
-2003-01-27     0.1.0
-* Created account settings.
-* Fix the bug blocking when disconnecting.
-* Enabled nicklist sorting.
-
-2003-02-08     0.1.1
-* Changed interface.
-* Fix a bug to fail sending a message that contains no parameters.
-* Implemented a feature to toggle home/away.
-
-2003-02-10     0.1.2
-* Fix the bug the program quits when it received a QUIT message that doesn't contain no parameters.
-* New code convertion method.
-* Enabled translation of menu.
-
-2003-02-12     0.1.3
-* Change the charset of .po file into UTF-8
-* Change implementation of prefs_general(data saved in loquirc.xml will be lost.)
-* Popup menu of NickList is implemented.
-
-2003-02-16     0.1.4
-* Autojoin feature.
-* Notification feature.
-* Clickable URL.
-* Common Preferences dialog.
-
-2003-02-19     0.1.5
-* Replaced emphasis with highlight.
-* Fix the high load when selected a channel.
-* Show channel modes.
-
-2003-02-19     0.1.6
-* Implemented Cut/Copy/Paste
-* Fix scrollbar behavior.
-* Function to determine whether scrolling or not with scrollbar operation.
-
-2003-02-23     0.1.7
-* Connect dialog.
-* View menu.
-* Next/Previous channel.
-
-2003-02-25     0.1.8
-* Join/Part/Topic command with dialog.
-* Added new toolbar button.
-
-2003-03-16     0.1.9
-* Support CREATIONTIME/TOPICWHOTIME reply.
-* Feature to parse plum-recent.
-* Changed saving method of highlighting words(old settings will be lost!).
-* History of remarks.
-
-2003-03-16     0.1.10
-* Implemented multiline editing mode.
-* Fix the bug about threading.
-
-2003-03-17     0.1.11
-* Stop using multi-threading in Loqui.
-* Enable reconnecting.
-* Auto-reconnect feature.
-
-2003-03-24     0.1.12
-* Changed method to manage Account/Channel.
-* Supports CTCP.
-
-2003-03-26     0.1.13
-* Fixed the bug that some messages are shown when a user that joined some channals quit/parted.
-* Fixed the bug the coming messages are not shown at all.
-
-2003-04-17     0.1.14
-* Separated channel/private talk in the menus.
-* double-clicking nicklist make start private talk.
-* Transparent ignore.
-
-2003-05-29     0.1.15
-* Use GNet-2.0(Support IPv6?)
-* Parse ~/.loqui/gtkrc-2.0.
-* Fixed the problem loqui distinguishes #case and #CASE.
-
-2003-06-07     0.1.16
-* Fixed the bug around the KICK message.
-* Added "Buffers" menu.
-* Added loqui.spec.
-
-2003-06-16     0.1.17
-* Created channelbar.
-* Fixed the case sensitibity of RemarkEntry.
-* Remove needless padding of ChannelTree/NickList.
-
-2003-07-01     0.1.18
-* Now it preserves the current message to the history.
-* Changing topic is only allowed if the entry is changed.
-* Added Next/Prev channel button to the toolbar.
-* Fixed the bug that the program quits if you tried to configure accounts when they are connected.
-* Added the feature that all default accounts will be connected when the program started automatically.
-* Fixed the parser of plum-recent.
-
-2003-09-11     0.1.19
-* Fixed some bugs.
-* Settings of code convertion is moved to account configuration.
-* Made it easy to change nick if you register nick at account configuration.
-* Always show idle time with WHOIS command with NickList.
-* Made idle time human readable.
-
-2003-12-21     0.1.20
-* Abolished fallbacking servers (closed Bug #13)
-* Handle used nick when connecting (fixed Bug #14)
-* Show the sender of CTCP.
-* Handle in case that the speaker is myself.
-* Fixed the problem of auto detection of the locale.
-
-2004-01-18     0.2.0
-* Fixed some bugs.
-* Changed user interface(Abolished toolbar, enhanced statusbar, etc).
-
-2004-01-19     0.2.1
-* Implemented feature to fetch away information of users of a channel.
-
-2004-01-22     0.2.2
-* Fixed the problem to handle a message that nick is used.
-* Implemented limitation of lines in buffers.
-* Show the number of updated channels.
-
-2004-02-08     0.2.3
-* Fixed the bug to fail reconnect once loqui failed to connect.
-* Implemented command mode.
-
-2004-02-26     0.2.4
-* Fixed some bugs.
-* Use the current nick as the default value of the nick-change-dialog.
-* Implemented short-cut keys to select a channel.
-* Fixed the bug failed to parse channel mode.
-* Changed icons of +o and +v.
-
-2004-03-07     0.2.5
-* Implemented feature to save logs experimentally.
-* Show buffer numbers at the channel tree.
-* PageUp/Down scrolls the channel buffer, Alt+PageUp/Down scrolls the common buffer.
-
-2004-04-04   0.3.0pre1
-* Changed the framework of the preference of accounts.
-* Performance improvement?
-* Using GtkAction.
-* Fixed memory-leaks.
-* Changed menu.
-* Changed the style of the channelbar.
-* Use current nick on the dialog to change nick.
-* Loop to select the next/previous channel buffer.
-* Changed the accel keys of next / previous channel buffer (Ctrl+Up/Down, Ctrl+Space, Ctrl+Shift+Space)
-* Improvement accuracy of automatic toggling scrolling.
-* Can specify the channel key with the dialog.
-* 'Channel > Part' closes private talk.
-* Move focus when pressed a key on the channel buffer / common buffer / nick list / channel tree.
-* Prevent from opening duplicated the buffer of private talk.
-* Added icons for away-status to the channel tree.
-* Made the nick list sortable.
-
-2004-04-05   0.3.0pre2
-* Fixed the bug failed to sort.
-* Fixed to receive SEGV when an user is parted/quit.
-
-2004-04-09   0.3.0pre3
-* Fixed the bug the program quit when received WHO on the special condition.
-* Added icon and desktop file.
-* Changed the dialog for commands.
-* Menu changes according to the current status.
-
-2004-04-09   0.3.0pre4
-* Fixed the bug failed to save codeset.
-* Changed the method to manage channel buffers.
-
-2004-04-16   0.3.1
-* Set tooltips to buttons.
-* Split the preference switching whether or not to scroll between channel buffer nad common buffer.
-* Attach menu to channel tree.
-* Re-fixed the bug loqui crashes when received WHO after re-joining.
-
-2004-05-01   0.3.2
-* Bugfix: about .spec
-* Bugfix: failed to remove account
-* Created menuitems to connect/reconnect/disconnect.
-
-2004-05-04   0.3.3
-* Feature: Jump to next/previous keyword.
-* Set different color when the channel has normal message / notice message / keyword.
-
-2004-05-13   0.3.4
-* Sends NOTICE with Ctrl+Enter.
-* Fixed the context menu of the channel tree.
-* Added an option: "Select a new channel automatically"
-* Don't execute notification when a message came from server.
-
-2004-05-26   0.3.5
-* Handle informal Japanese characters(JIS X 0201 kana, 13ku-NEC special characters)
-* Connect with double-clicking the account node of channel tree.
-
-2004-06-15  0.3.6
-* Save the configuration of accel keys at ~/.loqui/accelmaprc.
-* Changed accel keys for (Previous|Next)UnreadChannel from Ctrl+(Shift+)Space to Alt+Up/Down.
-* Save the key-event when focusing the entry.
-* Fixed the bug that failed to show some icons on gtk-2.4 environment.
-* Implemented the system tray icon (notification area).
-
-2004-06-19  0.3.7
-* Fixed the condition to hilight the system tray icon (whether focused or not)
-* Clicking the system tray icon iconify/deiconify the window.
-* Blink the system tray icon when the new keyword is arrived.
-* The feature to select a channel/account from the system tray icon.
-* An option whether to execute notification or not when the new keyword in the NOTICE message is arrived.
-* The feature to clear all unread flags of buffers.
-
-2004-08-26  0.3.8
-* Large change of structure.
-* Fixed bugs / memory leaks.
-* Printing CTCP Action.
-* Fixed the parser of plum recent.
-* Fixed the timing of automatically-join.
-* Customizing title and statusbar with title formatting.
-
-2004-09-22 0.3.9
-* Send QUIT when the program exit.
-* Fixed the reconnecting flow.
-* Fixed the problem the other channel's topic appeared on the current channel.
- 
+--- 
+- 
+  date: 2004-09-22
+  version: 0.3.9
+  changes: 
+    - Send QUIT when the program exit.
+    - Fixed the reconnecting flow.
+    - Fixed the problem the other channel's topic appeared on the current channel.
+- 
+  date: 2004-08-26
+  version: 0.3.8
+  changes: 
+    - Large change of structure.
+    - Fixed bugs / memory leaks.
+    - Printing CTCP Action.
+    - Fixed the parser of plum recent.
+    - Fixed the timing of automatically-join.
+    - Customizing title and statusbar with title formatting.
+- 
+  date: 2004-06-19
+  version: 0.3.7
+  changes: 
+    - Fixed the condition to hilight the system tray icon (whether focused or not)
+    - Clicking the system tray icon iconify/deiconify the window.
+    - Blink the system tray icon when the new keyword is arrived.
+    - The feature to select a channel/account from the system tray icon.
+    - An option whether to execute notification or not when the new keyword in the NOTICE message is arrived.
+    - The feature to clear all unread flags of buffers.
+- 
+  date: 2004-06-15
+  version: 0.3.6
+  changes: 
+    - Save the configuration of accel keys at ~/.loqui/accelmaprc.
+    - Changed accel keys for (Previous|Next)UnreadChannel from Ctrl+(Shift+)Space to Alt+Up/Down.
+    - Save the key-event when focusing the entry.
+    - Fixed the bug that failed to show some icons on gtk-2.4 environment.
+    - Implemented the system tray icon (notification area).
+- 
+  date: 2004-05-26
+  version: 0.3.5
+  changes: 
+    - Handle informal Japanese characters(JIS X 0201 kana, 13ku-NEC special characters)
+    - Connect with double-clicking the account node of channel tree.
+- 
+  date: 2004-05-13
+  version: 0.3.4
+  changes: 
+    - Sends NOTICE with Ctrl+Enter.
+    - Fixed the context menu of the channel tree.
+    - Added an option: "Select a new channel automatically"
+    - Don't execute notification when a message came from server.
+- 
+  date: 2004-05-04
+  version: 0.3.3
+  changes: 
+    - Feature: Jump to next/previous keyword.
+    - Set different color when the channel has normal message / notice message / keyword.
+- 
+  date: 2004-05-01
+  version: 0.3.2
+  changes: 
+    - Bugfix: about .spec
+    - Bugfix: failed to remove account
+    - Created menuitems to connect/reconnect/disconnect.
+- 
+  date: 2004-04-16
+  version: 0.3.1
+  changes: 
+    - Set tooltips to buttons.
+    - Split the preference switching whether or not to scroll between channel buffer nad common buffer.
+    - Attach menu to channel tree.
+    - Re-fixed the bug loqui crashes when received WHO after re-joining.
+- 
+  date: 2004-04-09
+  version: 0.3.0pre4
+  changes: 
+    - Fixed the bug failed to save codeset.
+    - Changed the method to manage channel buffers.
+- 
+  date: 2004-04-09
+  version: 0.3.0pre3
+  changes: 
+    - Fixed the bug the program quit when received WHO on the special condition.
+    - Added icon and desktop file.
+    - Changed the dialog for commands.
+    - Menu changes according to the current status.
+- 
+  date: 2004-04-05
+  version: 0.3.0pre2
+  changes: 
+    - Fixed the bug failed to sort.
+    - Fixed to receive SEGV when an user is parted/quit.
+- 
+  date: 2004-04-04
+  version: 0.3.0pre1
+  changes: 
+    - Changed the framework of the preference of accounts.
+    - Performance improvement?
+    - Using GtkAction.
+    - Fixed memory-leaks.
+    - Changed menu.
+    - Changed the style of the channelbar.
+    - Use current nick on the dialog to change nick.
+    - Loop to select the next/previous channel buffer.
+    - Changed the accel keys of next / previous channel buffer (Ctrl+Up/Down, Ctrl+Space, Ctrl+Shift+Space)
+    - Improvement accuracy of automatic toggling scrolling.
+    - Can specify the channel key with the dialog.
+    - "'Channel > Part' closes private talk."
+    - Move focus when pressed a key on the channel buffer / common buffer / nick list / channel tree.
+    - Prevent from opening duplicated the buffer of private talk.
+    - Added icons for away-status to the channel tree.
+    - Made the nick list sortable.
+- 
+  date: 2004-03-07
+  version: 0.2.5
+  changes: 
+    - Implemented feature to save logs experimentally.
+    - Show buffer numbers at the channel tree.
+    - PageUp/Down scrolls the channel buffer, Alt+PageUp/Down scrolls the common buffer.
+- 
+  date: 2004-02-26
+  version: 0.2.4
+  changes: 
+    - Fixed some bugs.
+    - Use the current nick as the default value of the nick-change-dialog.
+    - Implemented short-cut keys to select a channel.
+    - Fixed the bug failed to parse channel mode.
+    - Changed icons of +o and +v.
+- 
+  date: 2004-02-08
+  version: 0.2.3
+  changes: 
+    - Fixed the bug to fail reconnect once loqui failed to connect.
+    - Implemented command mode.
+- 
+  date: 2004-01-22
+  version: 0.2.2
+  changes: 
+    - Fixed the problem to handle a message that nick is used.
+    - Implemented limitation of lines in buffers.
+    - Show the number of updated channels.
+- 
+  date: 2004-01-19
+  version: 0.2.1
+  changes: 
+    - Implemented feature to fetch away information of users of a channel.
+- 
+  date: 2004-01-18
+  version: 0.2.0
+  changes: 
+    - Fixed some bugs.
+    - Changed user interface(Abolished toolbar, enhanced statusbar, etc).
+- 
+  date: 2003-12-21
+  version: 0.1.20
+  changes: 
+    - Abolished fallbacking servers (closed Bug #13)
+    - Handle used nick when connecting (fixed Bug #14)
+    - Show the sender of CTCP.
+    - Handle in case that the speaker is myself.
+    - Fixed the problem of auto detection of the locale.
+- 
+  date: 2003-09-11
+  version: 0.1.19
+  changes: 
+    - Fixed some bugs.
+    - Settings of code convertion is moved to account configuration.
+    - Made it easy to change nick if you register nick at account configuration.
+    - Always show idle time with WHOIS command with NickList.
+    - Made idle time human readable.
+- 
+  date: 2003-07-01
+  version: 0.1.18
+  changes: 
+    - Now it preserves the current message to the history.
+    - Changing topic is only allowed if the entry is changed.
+    - Added Next/Prev channel button to the toolbar.
+    - Fixed the bug that the program quits if you tried to configure accounts when they are connected.
+    - Added the feature that all default accounts will be connected when the program started automatically.
+    - Fixed the parser of plum-recent.
+- 
+  date: 2003-06-16
+  version: 0.1.17
+  changes: 
+    - Created channelbar.
+    - Fixed the case sensitibity of RemarkEntry.
+    - Remove needless padding of ChannelTree/NickList.
+- 
+  date: 2003-06-07
+  version: 0.1.16
+  changes: 
+    - Fixed the bug around the KICK message.
+    - Added "Buffers" menu.
+    - Added loqui.spec.
+- 
+  date: 2003-05-29
+  version: 0.1.15
+  changes: 
+    - Use GNet-2.0(Support IPv6?)
+    - Parse ~/.loqui/gtkrc-2.0.
+    - Fixed the problem loqui distinguishes #case and #CASE.
+- 
+  date: 2003-04-17
+  version: 0.1.14
+  changes: 
+    - Separated channel/private talk in the menus.
+    - double-clicking nicklist make start private talk.
+    - Transparent ignore.
+- 
+  date: 2003-03-26
+  version: 0.1.13
+  changes: 
+    - Fixed the bug that some messages are shown when a user that joined some channals quit/parted.
+    - Fixed the bug the coming messages are not shown at all.
+- 
+  date: 2003-03-24
+  version: 0.1.12
+  changes: 
+    - Changed method to manage Account/Channel.
+    - Supports CTCP.
+- 
+  date: 2003-03-17
+  version: 0.1.11
+  changes: 
+    - Stop using multi-threading in Loqui.
+    - Enable reconnecting.
+    - Auto-reconnect feature.
+- 
+  date: 2003-03-16
+  version: 0.1.10
+  changes: 
+    - Implemented multiline editing mode.
+    - Fix the bug about threading.
+- 
+  date: 2003-03-16
+  version: 0.1.9
+  changes: 
+    - Support CREATIONTIME/TOPICWHOTIME reply.
+    - Feature to parse plum-recent.
+    - Changed saving method of highlighting words(old settings will be lost!).
+    - History of remarks.
+- 
+  date: 2003-02-25
+  version: 0.1.8
+  changes: 
+    - Join/Part/Topic command with dialog.
+    - Added new toolbar button.
+- 
+  date: 2003-02-23
+  version: 0.1.7
+  changes: 
+    - Connect dialog.
+    - View menu.
+    - Next/Previous channel.
+- 
+  date: 2003-02-19
+  version: 0.1.6
+  changes: 
+    - Implemented Cut/Copy/Paste
+    - Fix scrollbar behavior.
+    - Function to determine whether scrolling or not with scrollbar operation.
+- 
+  date: 2003-02-19
+  version: 0.1.5
+  changes: 
+    - Replaced emphasis with highlight.
+    - Fix the high load when selected a channel.
+    - Show channel modes.
+- 
+  date: 2003-02-16
+  version: 0.1.4
+  changes: 
+    - Autojoin feature.
+    - Notification feature.
+    - Clickable URL.
+    - Common Preferences dialog.
+- 
+  date: 2003-02-12
+  version: 0.1.3
+  changes: 
+    - Change the charset of .po file into UTF-8
+    - Change implementation of prefs_general(data saved in loquirc.xml will be lost.)
+    - Popup menu of NickList is implemented.
+- 
+  date: 2003-02-10
+  version: 0.1.2
+  changes: 
+    - Fix the bug the program quits when it received a QUIT message that doesn't contain no parameters.
+    - New code convertion method.
+    - Enabled translation of menu.
+- 
+  date: 2003-02-08
+  version: 0.1.1
+  changes: 
+    - Changed interface.
+    - Fix a bug to fail sending a message that contains no parameters.
+    - Implemented a feature to toggle home/away.
+- 
+  date: 2003-01-27
+  version: 0.1.0
+  changes: 
+    - Created account settings.
+    - Fix the bug blocking when disconnecting.
+    - Enabled nicklist sorting.
+- 
+  date: 2003-01-23
+  version: 0.0.9
+  changes: 
+    - Fix the bug a connection is terminated when failed to convert codeset.
+    - Change color of the channel on the channel tree when new messages are arrived.
+- 
+  date: 2003-01-19
+  version: 0.0.8
+  changes: 
+    - Changed the way to change buffers/userlists.
+    - Saving channel tree/common buffer size.
+- 
+  date: 2003-01-19
+  version: 0.0.7
+  changes: 
+    - Fixed a bug sometimes nicklist is broken by user's part/quit.
+    - Improved performance of scrolling
+    - Removed dependency of GConf/GNOME2
+- 
+  date: 2003-01-10
+  version: 0.0.6
+  changes: 
+    - Fixed a incorrect handling with a private message.
+    - Fixed some small bugs.
+- 
+  date: 2003-01-09
+  version: 0.0.5
+  changes: 
+    - First release.
