@@ -32,51 +32,24 @@
 
 #include "codeconv.h"
 #include <string.h>
-#include <gnet.h>
 
 struct _IRCHandlePrivate
 {
-	GTcpSocket *socket;
-	GTcpSocketConnectAsyncID connect_id;
-	guint in_watch;
-	guint out_watch;
-
 	CTCPHandle *ctcp_handle;
 
 	Account *account;
-	Server *server;
 	gboolean fallback;
 
 	gboolean end_motd;
-
-	GQueue *msg_queue;
-};
-
-enum {
-	DISCONNECTED,
-	TERMINATED,
-	LAST_SIGNAL
 };
 
 static GObjectClass *parent_class = NULL;
 #define PARENT_TYPE G_TYPE_OBJECT
-static guint signals[LAST_SIGNAL] = { 0 };
 
 static void irc_handle_class_init(IRCHandleClass *klass);
 static void irc_handle_init(IRCHandle *irc_handle);
 static void irc_handle_finalize(GObject *object);
 
-static void irc_handle_connect_cb(GTcpSocket *socket,
-				  GTcpSocketConnectAsyncStatus status,
-				  gpointer data);
-static gboolean irc_handle_watch_in_cb(GIOChannel *ioch, 
-				       GIOCondition condition, gpointer data);
-static gboolean irc_handle_watch_out_cb(GIOChannel *ioch, 
-					GIOCondition condition, gpointer data);
-
-static void irc_handle_disconnect_internal(IRCHandle *handle);
-
-static void irc_handle_response(IRCHandle *handle, IRCMessage *msg);
 static gboolean irc_handle_command(IRCHandle *handle, IRCMessage *msg);
 static gboolean irc_handle_reply(IRCHandle *handle, IRCMessage *msg);
 static gboolean irc_handle_error(IRCHandle *handle, IRCMessage *msg);
@@ -142,22 +115,6 @@ irc_handle_class_init(IRCHandleClass *klass)
         parent_class = g_type_class_peek_parent(klass);
         
         object_class->finalize = irc_handle_finalize;
-
-	signals[DISCONNECTED] = g_signal_new("disconnected",
-					     G_OBJECT_CLASS_TYPE(object_class),
-					     G_SIGNAL_RUN_FIRST,
-					     G_STRUCT_OFFSET(IRCHandleClass, disconnected),
-					     NULL, NULL,
-					     g_cclosure_marshal_VOID__VOID,
-					     G_TYPE_NONE, 0);
-
-	signals[TERMINATED] = g_signal_new("terminated",
-					   G_OBJECT_CLASS_TYPE(object_class),
-					   G_SIGNAL_RUN_FIRST,
-					   G_STRUCT_OFFSET(IRCHandleClass, terminated),
-					   NULL, NULL,
-					   g_cclosure_marshal_VOID__VOID,
-					   G_TYPE_NONE, 0);
 }
 static void 
 irc_handle_init(IRCHandle *irc_handle)
@@ -167,8 +124,6 @@ irc_handle_init(IRCHandle *irc_handle)
 	priv = g_new0(IRCHandlePrivate, 1);
 
 	irc_handle->priv = priv;
-
-	priv->msg_queue = NULL;
 }
 static void 
 irc_handle_finalize(GObject *object)
@@ -182,8 +137,6 @@ irc_handle_finalize(GObject *object)
         handle = IRC_HANDLE(object);
 	priv = handle->priv;
 	
-	irc_handle_disconnect_internal(handle);
-
         if (G_OBJECT_CLASS(parent_class)->finalize)
                 (* G_OBJECT_CLASS(parent_class)->finalize) (object);
 
@@ -346,18 +299,10 @@ irc_handle_command_privmsg_notice(IRCHandle *handle, IRCMessage *msg)
 static void
 irc_handle_command_ping(IRCHandle *handle, IRCMessage *msg)
 {
-	gchar *server;
-
         g_return_if_fail(handle != NULL);
-        g_return_if_fail(IS_IRC_HANDLE(handle));
+	g_return_if_fail(IS_IRC_HANDLE(handle));
 
-	server = irc_message_get_param(msg, 1);
-
-	msg = irc_message_create(IRCCommandPong, server, NULL);
-	irc_handle_push_message(handle, msg);
-	g_object_unref(msg);
-
-	debug_puts("put PONG to %s", server);
+	account_pong(handle->priv->account, irc_message_get_param(msg, 1));
 }
 static void
 irc_handle_command_quit(IRCHandle *handle, IRCMessage *msg)
@@ -693,10 +638,7 @@ irc_handle_command_join(IRCHandle *handle, IRCMessage *msg)
 			channel = channel_new(priv->account, name);
 			account_add_channel(priv->account, channel);
 		}
-
-		mode_msg = irc_message_create(IRCCommandMode, channel_get_name(channel), NULL);
-		irc_handle_push_message(handle, mode_msg);
-		g_object_unref(mode_msg);
+		account_get_channel_mode(handle->priv->account, channel_get_name(channel));
 	} else {
 		if(!channel) {
 			g_warning(_("Why do you know that the user join the channel?"));
@@ -1125,7 +1067,7 @@ irc_handle_command(IRCHandle *handle, IRCMessage *msg)
 
 	return FALSE;
 }
-static void
+void
 irc_handle_response(IRCHandle *handle, IRCMessage *msg)
 {
 	gboolean proceeded = FALSE;
@@ -1150,257 +1092,7 @@ irc_handle_response(IRCHandle *handle, IRCMessage *msg)
 	if(!proceeded)
 		irc_handle_inspect_message(handle, msg);
 }
-static gboolean
-irc_handle_watch_out_cb(GIOChannel *ioch, GIOCondition condition, gpointer data)
-{
-	IRCHandle *handle;
-	IRCHandlePrivate *priv;
-	IRCMessage *msg;
-	GIOStatus status;
-	GError *error;
-	gchar *buf, *tmp, *serv_str;
-	CodeConv *codeconv;
 
-        g_return_val_if_fail(data != NULL, FALSE);
-        g_return_val_if_fail(IS_IRC_HANDLE(data), FALSE);
-
-	handle = IRC_HANDLE(data);
-
-	priv = handle->priv;
-
-	if(g_queue_is_empty(priv->msg_queue)) {
-		priv->out_watch = 0;
-		return FALSE;
-	}
-
-	msg = IRC_MESSAGE(g_queue_pop_head(priv->msg_queue));
-	buf = irc_message_to_string(msg);
-	g_object_unref(msg);
-
-	codeconv = account_get_codeconv(priv->account);
-	if(!codeconv) {
-		g_warning(_("Failed to get code converter from account."));
-		return FALSE;
-	}
-	serv_str = codeconv_to_server(codeconv, buf);
-	
-	g_free(buf);
-	tmp = g_strdup_printf("%s\r\n", serv_str);
-	g_free(serv_str);
-
-	error = NULL;
-	status = g_io_channel_write_chars(ioch, tmp, -1, NULL, &error);
-	g_free(tmp);
-	
-	if(status == G_IO_STATUS_ERROR) {
-		tmp = g_strdup_printf(_("IOChannel write error: %s"), error->message);
-		account_console_buffer_append(priv->account, TEXT_TYPE_INFO, tmp);
-		g_free(tmp);
-		g_error_free(error);
-		priv->out_watch = 0;
-		return FALSE;
-	}
-
-	return TRUE;
-}
-
-static gboolean
-irc_handle_watch_in_cb(GIOChannel *ioch, GIOCondition condition, gpointer data)
-{
-	IRCHandle *handle;
-	IRCHandlePrivate *priv;
-	IRCMessage *msg;
-	GIOError io_error;
-	gchar *buf, *local;
-	gsize len;
-	CodeConv *codeconv;
-
-        g_return_val_if_fail(data != NULL, FALSE);
-        g_return_val_if_fail(IS_IRC_HANDLE(data), FALSE);
-
-	handle = IRC_HANDLE(data);
-
-	priv = handle->priv;
-
-	if(condition == G_IO_HUP || condition == G_IO_ERR) {
-		priv->in_watch = 0;
-		irc_handle_disconnect_internal(handle);
-		g_signal_emit(handle, signals[TERMINATED], 0);
-		return FALSE;
-	}
-
-	io_error = gnet_io_channel_readline_strdup(ioch, &buf, &len);
-
-	if(io_error != G_IO_ERROR_NONE) {
-		priv->in_watch = 0;
-		irc_handle_disconnect_internal(handle);
-		g_signal_emit(handle, signals[TERMINATED], 0);
-		return FALSE;
-	}
-	
-	if(len == 0) {
-		if(buf)
-			g_free(buf);
-		priv->in_watch = 0;
-		irc_handle_disconnect(handle);
-		return FALSE;
-	}
-
-	codeconv = account_get_codeconv(priv->account);
-	if(!codeconv) {
-		g_warning(_("Failed to get code converter from account."));
-		return FALSE;
-	}
-	local = codeconv_to_local(codeconv, buf);
-	g_free(buf);
-
-	if(len > 0 && local == NULL) {
-		account_console_buffer_append(priv->account, TEXT_TYPE_ERROR, _("*** Failed to convert codeset."));
-		return TRUE;
-	}
-
-	msg = irc_message_parse_line(local);
-	g_free(local);
-
-	if(msg == NULL) {
-		g_warning("NULL IRCMessage");
-		return TRUE;
-	}
-
-	irc_handle_response(handle, msg);
-	g_object_unref(msg);
-
-	return TRUE;
-}	
-
-static void
-irc_handle_connect_cb(GTcpSocket *socket,
-		      GTcpSocketConnectAsyncStatus status,
-		      gpointer data)
-{
-	IRCHandle *handle;
-	IRCHandlePrivate *priv;
-	IRCMessage *msg;
-	GIOChannel *ioch;
-	const gchar *tmp;
-
-        g_return_if_fail(data != NULL);
-        g_return_if_fail(IS_IRC_HANDLE(data));
-
-	handle = IRC_HANDLE(data);
-
-	priv = handle->priv;
-
-	priv->connect_id = 0;
-
-	if(status != GTCP_SOCKET_CONNECT_ASYNC_STATUS_OK || socket == NULL) {
-		account_console_buffer_append(priv->account, TEXT_TYPE_INFO, _("Failed to connect"));
-		if(priv->fallback)
-			irc_handle_connect(handle, priv->fallback, priv->server);
-		return;
-	}
-
-	priv->socket = socket;
-	account_console_buffer_append(priv->account, TEXT_TYPE_INFO, _("Connected. Sending Initial command..."));
-
-	ioch = gnet_tcp_socket_get_io_channel(socket);
-	priv->in_watch = g_io_add_watch(ioch, G_IO_IN | G_IO_ERR | G_IO_HUP | G_IO_NVAL,
-					(GIOFunc) irc_handle_watch_in_cb, handle);
-
-	if(priv->server->password && strlen(priv->server->password) > 0) {
-		msg = irc_message_create(IRCCommandPass, priv->server->password, NULL);
-		if(debug_mode) {
-			debug_puts("Sending PASS...");
-			irc_message_print(msg);
-		}
-		irc_handle_push_message(handle, msg);
-		g_object_unref(msg);
-	}
-
-	msg = irc_message_create(IRCCommandNick, priv->account->nick, NULL);
-	if(debug_mode) {
-		debug_puts("Sending NICK...");
-		irc_message_print(msg);
-	}
-	irc_handle_push_message(handle, msg);
-	g_object_unref(msg);
-
-	account_set_current_nick(priv->account, account_get_nick(priv->account));
-
-	msg = irc_message_create(IRCCommandUser, 
-				 priv->account->username, "*", "*", 
-				 priv->account->realname, NULL);
-	if(debug_mode) {
-		debug_puts("Sending USER...");
-		irc_message_print(msg);
-	}
-	irc_handle_push_message(handle, msg);
-	g_object_unref(msg);
-
-	tmp = account_get_autojoin(priv->account);
-	if(tmp && strlen(tmp) > 0) {
-		msg = irc_message_create(IRCCommandJoin, tmp, NULL);
-		if(debug_mode) {
-			debug_puts("Sending JOIN for autojoin...");
-			irc_message_print(msg);
-		}
-		irc_handle_push_message(handle, msg);
-		g_object_unref(msg);
-
-		account_console_buffer_append(priv->account, TEXT_TYPE_INFO, _("Sent join command for autojoin."));
-	}
-
-	account_console_buffer_append(priv->account, TEXT_TYPE_INFO, _("Done."));
-}
-void
-irc_handle_connect(IRCHandle *handle, gboolean fallback, Server *server)
-{
-	IRCHandlePrivate *priv;
-	GSList *cur;
-	gchar *str;
-
-        g_return_if_fail(handle != NULL);
-        g_return_if_fail(IS_IRC_HANDLE(handle));
-
-	priv = handle->priv;
-
-	priv->fallback = fallback;
-	priv->server = server;
-
-	if(priv->fallback) {
-		if(priv->server) {
-			cur = g_slist_find(priv->account->server_list, priv->server);
-			if(cur) {
-				cur = g_slist_next(cur);
-			}
-		} else {
-			cur = priv->account->server_list;
-		}
-
-		if(cur == NULL) {
-			account_console_buffer_append(priv->account, TEXT_TYPE_INFO, _("No valid servers left."));
-			return;
-		}
-
-		for(; cur != NULL; cur = cur->next) {
-			priv->server = (Server *) cur->data;
-			if(priv->server && priv->server->use)
-				break;
-		}
-		if(priv->server == NULL) {
-			account_console_buffer_append(priv->account, TEXT_TYPE_INFO, _("No valid servers left."));
-			return;
-		}
-	}
-	g_return_if_fail(priv->server != NULL);
-
-	str = g_strdup_printf(_("Connecting to %s:%d"), priv->server->hostname, priv->server->port);
-	account_console_buffer_append(priv->account, TEXT_TYPE_INFO, str);
-	g_free(str);
-
-	priv->connect_id = gnet_tcp_socket_connect_async(priv->server->hostname, priv->server->port,
-							 irc_handle_connect_cb, handle);
-}
 IRCHandle*
 irc_handle_new(Account *account)
 {
@@ -1412,71 +1104,7 @@ irc_handle_new(Account *account)
 	priv = handle->priv;
 
 	priv->account = account;
-	priv->msg_queue = g_queue_new();
 	priv->ctcp_handle = ctcp_handle_new(handle, account);
 
 	return handle;
-}
-static void
-irc_handle_disconnect_internal(IRCHandle *handle)
-{
-	IRCHandlePrivate *priv;	
-
-        g_return_if_fail(handle != NULL);
-        g_return_if_fail(IS_IRC_HANDLE(handle));
-
-	priv = handle->priv;
-
-	if(priv->connect_id != 0) {
-		gnet_tcp_socket_connect_async_cancel(priv->connect_id);
-		priv->connect_id = 0;
-	}
-	if(priv->in_watch != 0) {
-		g_source_remove(priv->in_watch);
-		priv->in_watch = 0;
-	}
-	if(priv->out_watch != 0) {
-		g_source_remove(priv->out_watch);
-		priv->out_watch = 0;
-	}
-	if(priv->socket) {
-		gnet_tcp_socket_delete(priv->socket);
-		priv->socket = NULL;
-	}
-
-}
-void
-irc_handle_disconnect(IRCHandle *handle)
-{
-	irc_handle_disconnect_internal(handle);
-	g_signal_emit(handle, signals[DISCONNECTED], 0);
-}
-
-void
-irc_handle_push_message(IRCHandle *handle, IRCMessage *msg)
-{
-	IRCHandlePrivate *priv;
-	GIOChannel *ioch;
-
-        g_return_if_fail(handle != NULL);
-        g_return_if_fail(IS_IRC_HANDLE(handle));
-
-	priv = handle->priv;
-
-	if(!priv->msg_queue) {
-		g_warning(_("Message queue is not created."));
-		return;
-	}
-	if(!priv->socket) {
-		g_warning(_("Not connected."));
-		return;
-	}
-	g_object_ref(msg);
-	g_queue_push_tail(priv->msg_queue, msg);
-
-	if(priv->out_watch == 0) {
-		ioch = gnet_tcp_socket_get_io_channel(priv->socket);
-		priv->out_watch = g_io_add_watch(ioch, G_IO_OUT | G_IO_ERR | G_IO_HUP | G_IO_NVAL,
-						 (GIOFunc) irc_handle_watch_out_cb, handle);
-	}
 }

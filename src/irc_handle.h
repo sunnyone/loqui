@@ -44,28 +44,18 @@ struct _IRCHandle
 	gboolean fallback;
 	guint server_num;
 
-	GError *error;
-	
         IRCHandlePrivate *priv;
 };
 
 struct _IRCHandleClass
 {
         GObjectClass parent_class;
-
-	void (* disconnected) (IRCHandle *handle);
-	/* when connection is terminated by force, 
-	   "terminated" signal is called instead of "disconnected". */
-	void (* terminated) (IRCHandle *handle);
 };
 
 GType irc_handle_get_type(void) G_GNUC_CONST;
 
 IRCHandle* irc_handle_new(Account *account);
-void irc_handle_push_message(IRCHandle *handle, IRCMessage *msg);
-
-void irc_handle_connect(IRCHandle *handle, gboolean fallback, Server *server);
-void irc_handle_disconnect(IRCHandle *handle);
+void irc_handle_response(IRCHandle *handle, IRCMessage *msg);
 
 G_END_DECLS
 

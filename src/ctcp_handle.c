@@ -205,7 +205,6 @@ static void
 ctcp_handle_send_ctcp_reply(CTCPHandle *ctcp_handle, CTCPMessage *ctcp_msg, const gchar *target)
 {
 	CTCPHandlePrivate *priv;
-	IRCMessage *msg;
 	gchar *buf, *tmp;
 
         g_return_if_fail(ctcp_handle != NULL);
@@ -214,10 +213,8 @@ ctcp_handle_send_ctcp_reply(CTCPHandle *ctcp_handle, CTCPMessage *ctcp_msg, cons
 	priv = ctcp_handle->priv;
 
 	buf = ctcp_message_to_str(ctcp_msg);
-	msg = irc_message_create(IRCCommandNotice, target, buf, NULL);
+	account_notice(priv->account, target, buf);
 	g_free(buf);
-	irc_handle_push_message(priv->handle, msg);
-	g_object_unref(msg);
 
 	if(ctcp_msg->argument)
 		tmp = g_strdup_printf("%s %s", ctcp_msg->command, ctcp_msg->argument);

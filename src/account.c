@@ -21,6 +21,7 @@
 
 #include "account.h"
 #include "loqui_app.h"
+#include "irc_connection.h"
 #include "irc_handle.h"
 #include "gtkutils.h"
 #include "utils.h"
@@ -58,6 +59,7 @@ enum {
 struct _AccountPrivate
 {
 	IRCHandle *handle;
+	IRCConnection *connection;
 
 	CodeConv *codeconv;
 	Server *server_on_connecting;
@@ -85,8 +87,12 @@ static void account_set_property(GObject *object,
 				 const GValue *value,
 				 GParamSpec *pspec);
 
-static void account_handle_disconnected_cb(GObject *object, Account *account);
-static void account_handle_terminated_cb(GObject *object, Account *account);
+static void account_connection_connected_cb(GObject *object, gboolean is_succes, Account *account);
+static void account_connection_disconnected_cb(GObject *object, Account *account);
+static void account_connection_terminated_cb(GObject *object, Account *account);
+static void account_connection_warn_cb(GObject *object, gchar *str, Account *account);
+static void account_connection_info_cb(GObject *object, gchar *str, Account *account);
+static void account_connect_internal(Account *account, Server *server);
 
 GType
 account_get_type(void)
@@ -530,10 +536,12 @@ void
 account_connect(Account *account, Server *server)
 {
 	AccountPrivate *priv;
+	GSList *cur;
+	Server *tmp_server = NULL;
 
         g_return_if_fail(account != NULL);
         g_return_if_fail(IS_ACCOUNT(account));
-
+	
 	priv = account->priv;
 
 	if(account_is_connected(account)) {
@@ -543,20 +551,132 @@ account_connect(Account *account, Server *server)
 		return;
 	}
 
+	if(server != NULL) {
+		account_connect_internal(account, server);
+	} else {
+		for(cur = account->server_list; cur != NULL; cur = cur->next) {
+			if(cur->data && ((Server *) cur->data)->use) {
+				tmp_server = (Server *) cur->data;
+				break;
+			}
+		}
+		if(!tmp_server) {
+			account_console_buffer_append(account, TEXT_TYPE_ERROR, _("No usable servers found."));
+		} else {
+			account_connect_internal(account, tmp_server);
+		}
+	}
+}
+static void
+account_connect_internal(Account *account, Server *server)
+{
+	AccountPrivate *priv;
+	gchar *str;
+
+        g_return_if_fail(account != NULL);
+        g_return_if_fail(IS_ACCOUNT(account));
+	g_return_if_fail(server != NULL);
+	g_return_if_fail(!account_is_connected(account));
+
+	priv = account->priv;
+
 	priv->handle = irc_handle_new(account);
-	g_signal_connect(G_OBJECT(priv->handle), "disconnected",
-			 G_CALLBACK(account_handle_disconnected_cb), account);
-	g_signal_connect(G_OBJECT(priv->handle), "terminated",
-			 G_CALLBACK(account_handle_terminated_cb), account);
 
 	priv->server_on_connecting = server;
-	irc_handle_connect(priv->handle, (server == NULL) ? TRUE : FALSE, server);
+	priv->connection = irc_connection_new(server->hostname, server->port);
+	irc_connection_set_codeconv(priv->connection, account_get_codeconv(account));
+	irc_connection_set_irc_handle(priv->connection, priv->handle);
+
+	str = g_strdup_printf(_("Connecting to %s:%d"), server->hostname, server->port);
+	account_console_buffer_append(account, TEXT_TYPE_INFO, str);
+	g_free(str);
+
+	irc_connection_connect(priv->connection);
+
+	g_signal_connect(G_OBJECT(priv->connection), "connected",
+			 G_CALLBACK(account_connection_connected_cb), account);
+	g_signal_connect(G_OBJECT(priv->connection), "disconnected",
+			 G_CALLBACK(account_connection_disconnected_cb), account);
+	g_signal_connect(G_OBJECT(priv->connection), "terminated",
+			 G_CALLBACK(account_connection_terminated_cb), account);
+	g_signal_connect(G_OBJECT(priv->connection), "warn",
+			 G_CALLBACK(account_connection_warn_cb), account);
+	g_signal_connect(G_OBJECT(priv->connection), "info",
+			 G_CALLBACK(account_connection_info_cb), account);
 
 	g_signal_emit(account, account_signals[CONNECTED], 0);
 }
 
 static void
-account_handle_terminated_cb(GObject *object, Account *account)
+account_connection_connected_cb(GObject *object, gboolean is_success, Account *account)
+{
+	AccountPrivate *priv;
+	IRCMessage *msg;
+	Server *server;
+	const gchar *tmp;
+
+        g_return_if_fail(account != NULL);
+        g_return_if_fail(IS_ACCOUNT(account));
+
+	priv = account->priv;
+	server = priv->server_on_connecting;
+
+	if(!is_success) {
+		account_console_buffer_append(account, TEXT_TYPE_INFO, _("Failed to connect."));
+//		if(priv->fallback_current)
+//			account_connect_internal(account, server); /* FIXME: not NULL */
+		return;
+	}
+
+	account_console_buffer_append(account, TEXT_TYPE_INFO, _("Connected. Sending Initial command..."));
+
+	if(server->password && strlen(server->password) > 0) {
+		msg = irc_message_create(IRCCommandPass, server->password, NULL);
+		if(debug_mode) {
+			debug_puts("Sending PASS...");
+			irc_message_print(msg);
+		}
+		irc_connection_push_message(priv->connection, msg);
+		g_object_unref(msg);
+	}
+
+	msg = irc_message_create(IRCCommandNick, account->nick, NULL);
+	if(debug_mode) {
+		debug_puts("Sending NICK...");
+		irc_message_print(msg);
+	}
+	irc_connection_push_message(priv->connection, msg);
+	g_object_unref(msg);
+
+	account_set_current_nick(account, account->nick);
+	
+	msg = irc_message_create(IRCCommandUser, 
+				 account->username, "*", "*", 
+				 account->realname, NULL);
+	if(debug_mode) {
+		debug_puts("Sending USER...");
+		irc_message_print(msg);
+	}
+	irc_connection_push_message(priv->connection, msg);
+	g_object_unref(msg);
+
+	tmp = account_get_autojoin(account);
+	if(tmp && strlen(tmp) > 0) {
+		msg = irc_message_create(IRCCommandJoin, tmp, NULL);
+		if(debug_mode) {
+			debug_puts("Sending JOIN for autojoin...");
+			irc_message_print(msg);
+		}
+		irc_connection_push_message(priv->connection, msg);
+		g_object_unref(msg);
+
+		account_console_buffer_append(account, TEXT_TYPE_INFO, _("Sent join command for autojoin."));
+	}
+
+	account_console_buffer_append(account, TEXT_TYPE_INFO, _("Done."));
+}
+static void
+account_connection_terminated_cb(GObject *object, Account *account)
 {
 	AccountPrivate *priv;
 
@@ -565,21 +685,22 @@ account_handle_terminated_cb(GObject *object, Account *account)
 
 	priv = account->priv;
 
-	if(priv->handle)
-		g_object_unref(priv->handle);
-	priv->handle = NULL;
+	G_OBJECT_UNREF_UNLESS_NULL(priv->connection);
+	G_OBJECT_UNREF_UNLESS_NULL(priv->handle);
 
 	account_console_buffer_append(account, TEXT_TYPE_INFO, _("Connection terminated."));
 
 	if(prefs_general.auto_reconnect) {
+		if(!priv->server_on_connecting) {
+			g_warning(_("Can't find the server connecting."));
+			return;
+		}
 		account_console_buffer_append(account, TEXT_TYPE_INFO, _("Trying to reconnect..."));
-		priv->handle = irc_handle_new(account);
-		irc_handle_connect(priv->handle, (priv->server_on_connecting == NULL) ? TRUE : FALSE,
-				   priv->server_on_connecting);
+		account_connect_internal(account, priv->server_on_connecting);
 	}
 }
 static void
-account_handle_disconnected_cb(GObject *object, Account *account)
+account_connection_disconnected_cb(GObject *object, Account *account)
 {
 	AccountPrivate *priv;
 
@@ -587,15 +708,27 @@ account_handle_disconnected_cb(GObject *object, Account *account)
         g_return_if_fail(IS_ACCOUNT(account));
 
 	priv = account->priv;
-
-	if(priv->handle)
-		g_object_unref(priv->handle);
-	priv->handle = NULL;
+	G_OBJECT_UNREF_UNLESS_NULL(priv->connection);
+	G_OBJECT_UNREF_UNLESS_NULL(priv->handle);
 
 	account_console_buffer_append(account, TEXT_TYPE_INFO, _("Disconnected."));
 	account_remove_all_channel(account);
 
 	g_signal_emit(account, account_signals[DISCONNECTED], 0);
+}
+static void account_connection_warn_cb(GObject *object, gchar *str, Account *account)
+{
+        g_return_if_fail(account != NULL);
+        g_return_if_fail(IS_ACCOUNT(account));
+
+	account_console_buffer_append(account, TEXT_TYPE_ERROR, str);
+}
+static void account_connection_info_cb(GObject *object, gchar *str, Account *account)
+{
+        g_return_if_fail(account != NULL);
+        g_return_if_fail(IS_ACCOUNT(account));
+
+	account_console_buffer_append(account, TEXT_TYPE_INFO, str);
 }
 void
 account_disconnect(Account *account)
@@ -607,15 +740,16 @@ account_disconnect(Account *account)
 	
 	priv = account->priv;
 
-	if(priv->handle)
-		irc_handle_disconnect(priv->handle);
+	if(priv->connection)
+		irc_connection_disconnect(priv->connection);
 }
-gboolean account_is_connected(Account *account)
+gboolean
+account_is_connected(Account *account)
 {
         g_return_val_if_fail(account != NULL, FALSE);
         g_return_val_if_fail(IS_ACCOUNT(account), FALSE);
 	
-	return (account->priv->handle != NULL);
+	return (account->priv->connection != NULL);
 }
 void
 account_add_channel(Account *account, Channel *channel)
@@ -676,6 +810,7 @@ account_console_buffer_append(Account *account, TextType type, gchar *str)
 		     "text_type", type,
 		     "text", str,
 		     NULL);
+
 	channel_buffer_append_message_text(account->console_buffer, msgtext, FALSE, FALSE);
 	g_object_unref(msgtext);
 }
@@ -694,7 +829,7 @@ account_speak(Account *account, Channel *channel, const gchar *str)
 
 	priv = account->priv;
 
-	if(priv->handle == NULL) {
+	if(!account_is_connected(account)) {
 		gtkutils_msgbox_info(GTK_MESSAGE_WARNING,
 				     _("Not connected with this account"));
 		return;
@@ -709,7 +844,7 @@ account_speak(Account *account, Channel *channel, const gchar *str)
 			debug_puts("msg: %s", buf);
 			g_free(buf);
 		}
-		irc_handle_push_message(priv->handle, msg);
+		irc_connection_push_message(priv->connection, msg);
 		g_object_unref(msg);
 	} else {
 		if(channel == NULL) {
@@ -726,7 +861,7 @@ account_speak(Account *account, Channel *channel, const gchar *str)
 				continue;
 
 			msg = irc_message_create(IRCCommandPrivmsg, channel_get_name(channel), array[i], NULL);
-			irc_handle_push_message(priv->handle, msg);
+			irc_connection_push_message(priv->connection, msg);
 			g_object_unref(msg);
 			channel_append_remark(channel, TEXT_TYPE_NORMAL, TRUE, account_get_current_nick(account), array[i]);
 		}
@@ -836,7 +971,7 @@ account_set_away_message(Account *account, const gchar *away_message)
 	else
 		msg = irc_message_create(IRCCommandAway, away_message, NULL);
 	
-	irc_handle_push_message(priv->handle, msg);
+	irc_connection_push_message(priv->connection, msg);
 	g_object_unref(msg);
 }
 
@@ -880,7 +1015,7 @@ void account_change_nick(Account *account, const gchar *nick)
 	priv = account->priv;
 
 	msg = irc_message_create(IRCCommandNick, nick, NULL);
-	irc_handle_push_message(priv->handle, msg);
+	irc_connection_push_message(priv->connection, msg);
 	g_object_unref(msg);
 }
 void account_send_ctcp_request(Account *account, const gchar *target, const gchar *command)
@@ -905,7 +1040,7 @@ void account_send_ctcp_request(Account *account, const gchar *target, const gcha
 	g_object_unref(ctcp_msg);
 	msg = irc_message_create(IRCCommandPrivmsg, target, buf, NULL);
 	g_free(buf);
-	irc_handle_push_message(priv->handle, msg);
+	irc_connection_push_message(priv->connection, msg);
 	g_object_unref(msg);
 
 	buf = g_strdup_printf(_("Sent CTCP request to %s: %s"), target, command);
@@ -928,7 +1063,7 @@ void account_whois(Account *account, const gchar *target)
 	priv = account->priv;
 
 	msg = irc_message_create(IRCCommandWhois, target, target, NULL);
-	irc_handle_push_message(priv->handle, msg);
+	irc_connection_push_message(priv->connection, msg);
 	g_object_unref(msg);
 }
 void
@@ -948,7 +1083,7 @@ account_join(Account *account, const gchar *target)
 	priv = account->priv;
 
 	msg = irc_message_create(IRCCommandJoin, target, NULL);
-	irc_handle_push_message(priv->handle, msg);
+	irc_connection_push_message(priv->connection, msg);
 	g_object_unref(msg);
 }
 void
@@ -989,7 +1124,7 @@ void account_part(Account *account, const gchar *target, const gchar *part_messa
 
 	if(STRING_IS_CHANNEL(target)) {
 		msg = irc_message_create(IRCCommandPart, target, part_message, NULL);
-		irc_handle_push_message(priv->handle, msg);
+		irc_connection_push_message(priv->connection, msg);
 	} else {
 		/* FIXME: close private message page? */
 	}	
@@ -1011,7 +1146,7 @@ void account_set_topic(Account *account, const gchar *target, const gchar *topic
 
 	if(STRING_IS_CHANNEL(target)) {
 		msg = irc_message_create(IRCCommandTopic, target, topic, NULL);
-		irc_handle_push_message(priv->handle, msg);
+		irc_connection_push_message(priv->connection, msg);
 		g_object_unref(msg);
 	}
 }
@@ -1063,6 +1198,70 @@ void account_change_channel_user_mode(Account *account, Channel *channel,
 	debug_puts("Sending MODE command.\n");
 	if(show_msg_mode)
 		irc_message_print(msg);
-	irc_handle_push_message(priv->handle, msg);
+	irc_connection_push_message(priv->connection, msg);
+	g_object_unref(msg);
+}
+void
+account_pong(Account *account, gchar *target)
+{
+	IRCMessage *msg;
+	AccountPrivate *priv;
+
+        g_return_if_fail(account != NULL);
+        g_return_if_fail(IS_ACCOUNT(account));
+	
+	if(!account_is_connected(account)) {
+		g_warning(_("Account is not connected."));
+		return;
+	}
+
+	priv = account->priv;
+
+	msg = irc_message_create(IRCCommandPong, target, NULL);
+	irc_connection_push_message(priv->connection, msg);
+	g_object_unref(msg);
+
+	debug_puts("put PONG to %s", target);
+}
+void
+account_get_channel_mode(Account *account, const gchar *channel_name)
+{
+	IRCMessage *msg;
+	AccountPrivate *priv;
+
+        g_return_if_fail(account != NULL);
+        g_return_if_fail(IS_ACCOUNT(account));
+	g_return_if_fail(channel_name != NULL);
+
+	if(!account_is_connected(account)) {
+		g_warning(_("Account is not connected."));
+		return;
+	}
+
+	priv = account->priv;
+
+	msg = irc_message_create(IRCCommandMode, channel_name, NULL);
+	irc_connection_push_message(priv->connection, msg);
+	g_object_unref(msg);
+}
+void
+account_notice(Account *account, gchar *target, gchar *str)
+{
+	IRCMessage *msg;
+	AccountPrivate *priv;
+
+        g_return_if_fail(account != NULL);
+        g_return_if_fail(IS_ACCOUNT(account));
+	g_return_if_fail(str != NULL);
+
+	priv = account->priv;
+
+	if(!account_is_connected(account)) {
+		g_warning(_("Account is not connected."));
+		return;
+	}
+
+	msg = irc_message_create(IRCCommandNotice, target, str, NULL);
+	irc_connection_push_message(priv->connection, msg);
 	g_object_unref(msg);
 }
