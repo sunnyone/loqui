@@ -692,7 +692,6 @@ irc_handle_my_command_part(IRCHandle *handle, IRCMessage *msg)
 	irc_handle_account_console_append(handle, msg, TEXT_TYPE_INFO, "*** You has left %1");
 
 	account_remove_channel(handle->priv->account, channel);
-	g_object_unref(channel);
 }
 static void
 irc_handle_my_command_kick(IRCHandle *handle, IRCMessage *msg)
@@ -714,9 +713,7 @@ irc_handle_my_command_kick(IRCHandle *handle, IRCMessage *msg)
 		return;
 
 	irc_handle_account_console_append(handle, msg, TEXT_TYPE_INFO, "*** You were kicked from %1 by %n (%3)");
-
 	account_remove_channel(handle->priv->account, channel);
-	g_object_unref(channel);
 }
 
 static void

@@ -456,7 +456,9 @@ account_handle_disconnected_cb(GObject *object, Account *account)
 	priv->handle = NULL;
 
 	account_console_buffer_append(account, TRUE, TEXT_TYPE_INFO, _("Disconnected."));
-	account_manager_remove_channels_of_account(account_manager_get(), account);
+	account_remove_all_channel(account);
+
+	g_signal_emit(account, account_signals[DISCONNECTED], 0);
 }
 void
 account_disconnect(Account *account)
@@ -489,15 +491,36 @@ account_add_channel(Account *account, Channel *channel)
 
 	g_signal_emit(account, account_signals[ADD_CHANNEL], 0, channel);
 }
-void account_remove_channel(Account *account, Channel *channel)
+void
+account_remove_channel(Account *account, Channel *channel)
 {
         g_return_if_fail(account != NULL);
         g_return_if_fail(IS_ACCOUNT(account));
 
-	account->channel_list = g_slist_remove(account->channel_list, channel);
-
 	g_signal_emit(account, account_signals[REMOVE_CHANNEL], 0, channel);
+
+	account->channel_list = g_slist_remove(account->channel_list, channel);
+	g_object_unref(channel);
 }
+void
+account_remove_all_channel(Account *account)
+{
+	GSList *cur;
+	Channel *channel;
+
+        g_return_if_fail(account != NULL);
+        g_return_if_fail(IS_ACCOUNT(account));
+	
+	for(cur = account->channel_list; cur != NULL; cur = cur->next) {
+		channel = CHANNEL(cur->data);
+		g_signal_emit(account, account_signals[REMOVE_CHANNEL], 0, channel);
+		g_object_unref(channel);
+	}
+
+	g_slist_free(account->channel_list);
+	account->channel_list = NULL;
+}
+
 Channel*
 account_search_channel_by_name(Account *account, gchar *name)
 {

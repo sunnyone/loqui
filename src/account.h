@@ -126,6 +126,7 @@ gboolean account_is_connected(Account *account);
 
 void account_add_channel(Account *account, Channel *channel);
 void account_remove_channel(Account *account, Channel *channel);
+void account_remove_all_channel(Account *account);
 
 gboolean account_has_channel(Account *account, Channel *channel);
 
