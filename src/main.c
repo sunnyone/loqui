@@ -59,6 +59,7 @@ main(int argc, char *argv[])
 {
 	AccountManager *account_manager;
 	int i;
+	gchar *path;
 
         bindtextdomain(GETTEXT_PACKAGE, PACKAGE_LOCALE_DIR);
 #ifdef HAVE_BIND_TEXTDOMAIN_CODESET
@@ -74,6 +75,10 @@ main(int argc, char *argv[])
 
 	gnet_init();
 	gtk_init(&argc, &argv);
+
+	path = g_build_filename(g_get_home_dir(), PREFS_DIR, "gtkrc-2.0", NULL);
+	gtk_rc_parse(path);
+	g_free(path);
 
 	for(i = 0; i < argc; i++) {
 		if(strcmp(argv[i], "--debug") == 0) {
