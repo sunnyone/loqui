@@ -1,71 +1,67 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<Root>
-  <menu>
-    <submenu name="FileMenu" verb="StockFileMenu">
-      <menuitem name="Connect" verb="Connect" />
-      <menuitem name="Quit" verb="Quit" />
-    </submenu>
-    <submenu name="EditMenu" verb="StockEditMenu">
-      <menuitem name="Cut" verb="Cut" />
-      <menuitem name="Copy" verb="Copy" />
-      <menuitem name="Paste" verb="Paste" />
-      <menuitem name="PasteWithLinefeedsCut" verb="PasteWithLinefeedsCut" />
-      <menuitem name="Clear" verb="Clear" />
-      <separator name="edit-sep1" />
-      <menuitem name="ToggleCommandMode" verb="ToggleCommandMode" />
-      <separator name="edit-sep2" />
-      <menuitem name="Find" verb="Find" />
-      <menuitem name="FindAgain" verb="FindAgain" />
-    </submenu>
-    <submenu name="CommandMenu" verb="StockCommandMenu">
-      <menuitem name="Join" verb="Join" />
-      <menuitem name="StartPrivateTalk" verb="StartPrivateTalk" />
-      <menuitem name="Part" verb="Part" />
-      <separator name="command-sep1" />
-      <menuitem name="SetTopic" verb="SetTopic" />
-      <menuitem name="ChangeNick" verb="ChangeNick" />
-      <menuitem name="RefreshAway" verb="RefreshAway" />
-    </submenu>
-    <submenu name="ViewMenu" verb="StockViewMenu">
-      <menuitem name="ToggleChannelbar" verb="ToggleChannelbar" />
-      <menuitem name="ToggleStatusbar" verb="ToggleStatusbar" />
-      <separator name="view-sep1" />
-      <menuitem name="PreviousUpdatedChannel" verb="PreviousUpdatedChannel" />
-      <menuitem name="NextUpdatedChannel" verb="NextUpdatedChannel" />
-      <separator name="view-sep2" />
-      <menuitem name="PreviousChannel" verb="PreviousChannel" />
-      <menuitem name="NextChannel" verb="NextChannel" />
-    </submenu>
-    <submenu name="Buffers" verb="StockBuffersMenu">
-    </submenu>
-    <submenu name="SettingsMenu" verb="StockSettingsMenu">
-      <menuitem name="GeneralSettings" verb="GeneralSettings" />
-      <menuitem name="AccountSettings" verb="AccountSettings" />
-    </submenu>
-    <submenu name="HelpMenu" verb="StockHelpMenu">
-      <menuitem name="About" verb="About" />
-    </submenu>
-  </menu>
-
-  <popups>
-    <popup name="NickListPopup" verb="FakeToplevel">
-      <menuitem name="StartPrivateTalkSelected" verb="StartPrivateTalkSelected" />
-      <menuitem name="WhoisSelected" verb="WhoisSelected" />
-      <submenu name="ModeMenu" verb="StockModeMenu">
-        <menuitem name="GiveOpSelected" verb="GiveOpSelected" />
-	<menuitem name="GiveVoiceSelected" verb="GiveVoiceSelected" />
-        <separator name="mode-sep1" />
-        <menuitem name="DepriveOpSelected" verb="DepriveOpSelected" />
-	<menuitem name="DepriveVoiceSelected" verb="DepriveVoiceSelected" />
-      </submenu>
-      <submenu name="CTCPMenu" verb="StockCTCPMenu">
-        <menuitem name="CTCPVersionSelected" verb="CTCPVersionSelected" />
-	<menuitem name="CTCPClientinfoSelected" verb="CTCPClientinfoSelected" />
-	<menuitem name="CTCPUserinfoSelected" verb="CTCPUserinfoSelected" />
-	<menuitem name="CTCPPingSelected" verb="CTCPPingSelected" />
-	<menuitem name="CTCPTimeSelected" verb="CTCPTimeSelected" />
-	<menuitem name="CTCPFingerSelected" verb="CTCPFingerSelected" />
-      </submenu>
-   </popup>
-  </popups>
-</Root>
+<ui>
+  <menubar>
+    <menu name="FileMenu" action="StockFileMenu">
+      <menuitem name="Connect" action="Connect"/>
+      <menuitem name="Quit" action="Quit"/>
+    </menu>
+    <menu name="EditMenu" action="StockEditMenu">
+      <menuitem name="Cut" action="Cut"/>
+      <menuitem name="Copy" action="Copy"/>
+      <menuitem name="Paste" action="Paste"/>
+      <menuitem name="PasteWithLinefeedsCut" action="PasteWithLinefeedsCut"/>
+      <menuitem name="Clear" action="Clear"/>
+      <separator name="edit-sep1"/>
+      <menuitem name="ToggleCommandMode" action="ToggleCommandMode"/>
+      <separator name="edit-sep2"/>
+      <menuitem name="Find" action="Find"/>
+      <menuitem name="FindAgain" action="FindAgain"/>
+    </menu>
+    <menu name="CommandMenu" action="StockCommandMenu">
+      <menuitem name="Join" action="Join"/>
+      <menuitem name="StartPrivateTalk" action="StartPrivateTalk"/>
+      <menuitem name="Part" action="Part"/>
+      <separator name="command-sep1"/>
+      <menuitem name="SetTopic" action="SetTopic"/>
+      <menuitem name="ChangeNick" action="ChangeNick"/>
+      <menuitem name="RefreshAway" action="RefreshAway"/>
+    </menu>
+    <menu name="ViewMenu" action="StockViewMenu">
+      <menuitem name="ToggleChannelbar" action="ToggleChannelbar"/>
+      <menuitem name="ToggleStatusbar" action="ToggleStatusbar"/>
+      <separator name="view-sep1"/>
+      <menuitem name="PreviousUpdatedChannel" action="PreviousUpdatedChannel"/>
+      <menuitem name="NextUpdatedChannel" action="NextUpdatedChannel"/>
+      <separator name="view-sep2"/>
+      <menuitem name="PreviousChannel" action="PreviousChannel"/>
+      <menuitem name="NextChannel" action="NextChannel"/>
+    </menu>
+    <menu name="Buffers" action="StockBuffersMenu">
+    </menu>
+    <menu name="SettingsMenu" action="StockSettingsMenu">
+      <menuitem name="GeneralSettings" action="GeneralSettings"/>
+      <menuitem name="AccountSettings" action="AccountSettings"/>
+    </menu>
+    <menu name="HelpMenu" action="StockHelpMenu">
+      <menuitem name="About" action="About"/>
+    </menu>
+  </menubar>
+  <popup name="NickListPopup" action="FakeToplevel">
+    <menuitem name="StartPrivateTalkSelected" action="StartPrivateTalkSelected"/>
+    <menuitem name="WhoisSelected" action="WhoisSelected"/>
+    <menu name="ModeMenu" action="StockModeMenu">
+      <menuitem name="GiveOpSelected" action="GiveOpSelected"/>
+      <menuitem name="GiveVoiceSelected" action="GiveVoiceSelected"/>
+      <separator name="mode-sep1"/>
+      <menuitem name="DepriveOpSelected" action="DepriveOpSelected"/>
+      <menuitem name="DepriveVoiceSelected" action="DepriveVoiceSelected"/>
+    </menu>
+    <menu name="CTCPMenu" action="StockCTCPMenu">
+      <menuitem name="CTCPVersionSelected" action="CTCPVersionSelected"/>
+      <menuitem name="CTCPClientinfoSelected" action="CTCPClientinfoSelected"/>
+      <menuitem name="CTCPUserinfoSelected" action="CTCPUserinfoSelected"/>
+      <menuitem name="CTCPPingSelected" action="CTCPPingSelected"/>
+      <menuitem name="CTCPTimeSelected" action="CTCPTimeSelected"/>
+      <menuitem name="CTCPFingerSelected" action="CTCPFingerSelected"/>
+    </menu>
+  </popup>
+</ui>
