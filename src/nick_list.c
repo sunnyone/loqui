@@ -196,8 +196,8 @@ nick_list_create_icons(NickList *list)
 
 	priv = list->priv;
 
-	priv->op_icon = gtk_widget_render_icon(GTK_WIDGET(list), LOQUI_STOCK_NARUTO, LOQUI_ICON_SIZE_FONT, NULL);
-	priv->speak_ability_icon = gtk_widget_render_icon(GTK_WIDGET(list), LOQUI_STOCK_SPEAKER, LOQUI_ICON_SIZE_FONT, NULL);
+	priv->op_icon = gtk_widget_render_icon(GTK_WIDGET(list), LOQUI_STOCK_OPERATOR, LOQUI_ICON_SIZE_FONT, NULL);
+	priv->speak_ability_icon = gtk_widget_render_icon(GTK_WIDGET(list), LOQUI_STOCK_SPEAK_ABILITY, LOQUI_ICON_SIZE_FONT, NULL);
 	priv->online_icon = gtk_widget_render_icon(GTK_WIDGET(list), LOQUI_STOCK_ONLINE, LOQUI_ICON_SIZE_FONT, NULL);
 	priv->offline_icon = gtk_widget_render_icon(GTK_WIDGET(list), LOQUI_STOCK_OFFLINE, LOQUI_ICON_SIZE_FONT, NULL);
 	priv->busy_icon = gtk_widget_render_icon(GTK_WIDGET(list), LOQUI_STOCK_BUSY, LOQUI_ICON_SIZE_FONT, NULL);

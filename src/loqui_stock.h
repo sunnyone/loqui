@@ -26,8 +26,8 @@
 #define LOQUI_STOCK_AWAY         "loqui-away"
 #define LOQUI_STOCK_BUSY         "loqui-busy"
 #define LOQUI_STOCK_COMMAND      "loqui-command"
-#define LOQUI_STOCK_NARUTO	 "loqui-naruto"
-#define LOQUI_STOCK_SPEAKER	 "loqui-speaker"
+#define LOQUI_STOCK_OPERATOR     "loqui-operator"
+#define LOQUI_STOCK_SPEAK_ABILITY "loqui-speak-ability"
 
 extern int LOQUI_ICON_SIZE_FONT;
 
