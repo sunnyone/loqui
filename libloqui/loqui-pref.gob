@@ -1,0 +1,117 @@
+requires 2.0.0
+
+%alltop{
+/*
+ * libloqui -- Chat/IM client library for GLib <http://loqui.good-day.net/>
+ * Copyright (C) 2004 Yoichi Imai <yoichi@silver-forest.com>
+ *
+ * This Library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Library General Public License as
+ * published by the Free Software Foundation; either version 2 of the
+ * License, or (at your option) any later version.
+ *
+ * This Library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Library General Public License for more details.
+ *
+ * You should have received a copy of the GNU Library General Public
+ * License along with the Gnome Library; see the file COPYING.LIB.  If not,
+ * write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+ * Boston, MA 02111-1307, USA.
+ */
+%}
+
+%h{
+#include "lqgkeyfile.h"
+%}
+
+
+%h{
+/* FIXME */
+typedef void (*LoquiPrefChangedFunction) (gpointer pref, const gchar *group_name, const gchar *key, gpointer data);
+%}
+
+class Loqui:Pref from G:Object
+{
+	private LqGKeyFile *keyfile = { lqg_key_file_new() }
+	  unrefwith lqg_key_file_free;
+	
+	public LoquiPref * new(void) {
+		LoquiPref *ret = GET_NEW;
+		return ret;
+	}
+	
+	signal last NONE (STRING, STRING)
+	void changed(self, const gchar *group_name, const gchar *key);
+
+	public void changed_all_with_callback(self, LoquiPrefChangedFunction callback, gpointer data) {
+		gchar **groups;
+		gchar **keys;
+		int i, j;
+
+		groups = lqg_key_file_get_groups(selfp->keyfile, NULL);
+		for (i = 0; groups[i] != NULL; i++) {
+			/* the group should be exist, but continue */
+			if (!(keys = lqg_key_file_get_keys(selfp->keyfile, groups[i], NULL, NULL)))
+				continue;
+			for (j = 0; keys[j] != NULL; j++) {
+				callback(self, groups[i], keys[j], data);
+			}
+			g_strfreev(keys);
+		}
+		g_strfreev(groups);
+	}
+
+	public gboolean load_from_file(self, const gchar *file, LqGKeyFileFlags flags, GError **error) {
+		return lqg_key_file_load_from_file(selfp->keyfile, file, flags, error);
+	}
+	public gboolean save_to_file(self, const gchar *file, GError **error) {
+		gchar *buf;
+		GIOChannel *io;
+
+		if ((io = g_io_channel_new_file(file, "w", error)) == NULL) {
+			return FALSE;
+		}
+		if ((buf = lqg_key_file_to_data(selfp->keyfile, NULL, error)) == NULL) {
+			g_io_channel_unref(io);
+			return FALSE;
+		}
+		if (g_io_channel_write_chars(io, buf, -1, NULL, error) == 0) {
+			g_free(buf);
+			g_io_channel_unref(io);
+			return FALSE;
+		}
+
+		g_free(buf);
+		g_io_channel_unref(io);
+
+		return TRUE;
+	}
+
+	public gchar* to_data(self, gsize *length, GError **error) {
+		return lqg_key_file_to_data(selfp->keyfile, length, error);
+	}
+
+	public gchar *get_string(self, const gchar *group_name, const gchar *key, GError **error) {
+		return lqg_key_file_get_string(selfp->keyfile, group_name, key, error);
+	}
+	public gint get_integer(self, const gchar *group_name, const gchar *key, GError **error) {
+		return lqg_key_file_get_integer(selfp->keyfile, group_name, key, error);
+	}
+
+	public void set_string(self, const gchar *group_name, const gchar *key, const gchar *value) {
+		lqg_key_file_set_string(selfp->keyfile, group_name, key, value);
+		self_changed(self, group_name, key);
+	}
+	public void set_integer(self, const gchar *group_name, const gchar *key, gint value) {
+		lqg_key_file_set_integer(selfp->keyfile, group_name, key, value);
+		self_changed(self, group_name, key);
+	}
+	
+	public void set_string_default(self, const gchar *group_name, const gchar *key, const gchar *default_value) {
+		if (lqg_key_file_has_key(selfp->keyfile, group_name, key, NULL))
+			return;
+		self_set_string(self, group_name, key, default_value);
+	}
+}
