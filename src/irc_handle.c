@@ -967,7 +967,7 @@ static gpointer irc_handle_thread_func(IRCHandle *handle)
 	IRCHandlePrivate *priv;
 	IRCMessage *msg;
 	Account *account;
-	gchar *str;
+	gchar *str, *tmp;
 
 	priv = handle->priv;
 	account = priv->account;
@@ -991,7 +991,7 @@ static gpointer irc_handle_thread_func(IRCHandle *handle)
 					   TRUE,
 					   NULL);
 
-	if(priv->server->password) {
+	if(priv->server->password && strlen(priv->server->password) > 0) {
 		msg = irc_message_create(IRCCommandPass, priv->server->password, NULL);
 		if(debug_mode) {
 			debug_puts("Sending PASS...");
@@ -1016,11 +1016,25 @@ static gpointer irc_handle_thread_func(IRCHandle *handle)
 		irc_message_print(msg);
 	}
 	irc_handle_push_message(handle, msg);
-
+		
 	gdk_threads_enter();
 	account_console_buffer_append(account, TRUE, TEXT_TYPE_INFO, _("Done."));
 	gdk_threads_leave();
 
+	tmp = account_get_autojoin(priv->account);
+	if(tmp && strlen(tmp) > 0) {
+		msg = irc_message_create(IRCCommandJoin, tmp, NULL);
+		if(debug_mode) {
+			debug_puts("Sending JOIN for autojoin...");
+			irc_message_print(msg);
+		}
+		irc_handle_push_message(handle, msg);
+	}
+
+	gdk_threads_enter();
+	account_console_buffer_append(account, TRUE, TEXT_TYPE_INFO, _("Sent join command for autojoin."));
+	gdk_threads_leave();
+	
         while(priv->connection) {
 		if((msg = connection_get_irc_message(priv->connection, NULL)) == NULL)
 			break;
