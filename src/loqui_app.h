@@ -23,7 +23,6 @@
 #include "loqui_menu.h"
 #include "channel_tree.h"
 #include "nick_list.h"
-#include "channel_book.h"
 #include "channel_text.h"
 
 G_BEGIN_DECLS
@@ -49,8 +48,6 @@ struct _LoquiApp
 	GAsyncQueue *error_connections;
 
 	LoquiMenu *menu;
-	ChannelBook *channel_book;
-	ChannelText *common_text;
 	NickList *nick_list;
 	ChannelTree *channel_tree;
 };
@@ -67,6 +64,12 @@ GtkWidget*      loqui_app_new                 (void);
 void loqui_app_set_topic(LoquiApp *app, const gchar *str);
 gboolean loqui_app_is_scroll(LoquiApp *app);
 void loqui_app_set_focus(LoquiApp *app);
+
+void loqui_app_set_channel_buffer(LoquiApp *app, GtkTextBuffer *textbuf);
+void loqui_app_set_common_buffer(LoquiApp *app, GtkTextBuffer *textbuf);
+
+void loqui_app_scroll_channel_textview(LoquiApp *app);
+void loqui_app_scroll_common_textview(LoquiApp *app);
 
 G_END_DECLS
 

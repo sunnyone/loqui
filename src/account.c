@@ -146,8 +146,7 @@ account_new (void)
 
 	account = g_object_new(account_get_type(), NULL);
 	
-	account->console_text = CHANNEL_TEXT(channel_text_new());
-	account_manager_add_channel_text(account_manager_get(), account->console_text);
+	account->console_text = channel_text_new();
 	
 	return account;
 }
@@ -478,6 +477,9 @@ account_console_text_append(Account *account, gboolean with_common_text, TextTyp
 	g_return_if_fail(str != NULL);
 
 	channel_text_append(account->console_text, type, str);
+	if(account_manager_is_current_account(account_manager_get(), account)) {
+		account_manager_scroll_channel_textview(account_manager_get());
+	}
 	if(with_common_text &&
 	   !account_manager_is_current_account(account_manager_get(), account)) {
 		buf = g_strdup_printf("[%s] %s", account->name, str);

@@ -35,15 +35,14 @@ typedef struct _URIChunk {
 	gchar *str;
 } URIChunk;
 
-static GtkScrolledWindowClass *parent_class = NULL;
-#define PARENT_TYPE GTK_TYPE_SCROLLED_WINDOW
+static GtkTextBufferClass *parent_class = NULL;
+#define PARENT_TYPE GTK_TYPE_TEXT_BUFFER
 
 static void channel_text_class_init(ChannelTextClass *klass);
 static void channel_text_init(ChannelText *channel_text);
 static void channel_text_finalize(GObject *object);
-static void channel_text_destroy(GtkObject *object);
 
-static void channel_text_insert_current_time(ChannelText *channel_text, GtkTextBuffer *textbuf, GtkTextIter *iter);
+static void channel_text_insert_current_time(ChannelText *channel_text, GtkTextIter *iter);
 static GSList* channel_text_get_uri_chunk(const gchar *buf);
 
 #define TIME_LEN 11
@@ -78,12 +77,10 @@ static void
 channel_text_class_init (ChannelTextClass *klass)
 {
         GObjectClass *object_class = G_OBJECT_CLASS(klass);
-        GtkObjectClass *gtk_object_class = GTK_OBJECT_CLASS(klass);
 
         parent_class = g_type_class_peek_parent(klass);
         
         object_class->finalize = channel_text_finalize;
-        gtk_object_class->destroy = channel_text_destroy;
 }
 static void 
 channel_text_init (ChannelText *channel_text)
@@ -109,21 +106,8 @@ channel_text_finalize (GObject *object)
 
 	g_free(channel_text->priv);
 }
-static void 
-channel_text_destroy (GtkObject *object)
-{
-        ChannelText *channel_text;
 
-        g_return_if_fail(object != NULL);
-        g_return_if_fail(IS_CHANNEL_TEXT(object));
-
-        channel_text = CHANNEL_TEXT(object);
-
-        if (GTK_OBJECT_CLASS(parent_class)->destroy)
-                (* GTK_OBJECT_CLASS(parent_class)->destroy) (object);
-}
-
-GtkWidget*
+ChannelText*
 channel_text_new(void)
 {
         ChannelText *channel_text;
@@ -134,11 +118,8 @@ channel_text_new(void)
 	channel_text = g_object_new(channel_text_get_type(), NULL);
 	priv = channel_text->priv;
 
-	channel_text->text = gtk_text_view_new();
-	gtk_text_view_set_editable(GTK_TEXT_VIEW(channel_text->text), FALSE);
-	gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(channel_text->text), GTK_WRAP_CHAR);
+	textbuf = GTK_TEXT_BUFFER(channel_text);
 
-	textbuf = gtk_text_view_get_buffer(GTK_TEXT_VIEW(channel_text->text));
 	gtk_text_buffer_get_start_iter(textbuf, &iter);
 	gtk_text_buffer_create_mark(textbuf, "end", &iter, FALSE);
 
@@ -158,14 +139,10 @@ channel_text_new(void)
 				   "foreground", "grey", 
 				   NULL);
 
-	gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(channel_text), 
-				       GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC);
-	gtk_container_add(GTK_CONTAINER(channel_text), channel_text->text);
-
-	return GTK_WIDGET(channel_text);
+	return channel_text;
 }
 static void
-channel_text_insert_current_time(ChannelText *channel_text, GtkTextBuffer *textbuf, GtkTextIter *iter)
+channel_text_insert_current_time(ChannelText *channel_text, GtkTextIter *iter)
 {
 	gchar buf[TIME_LEN];
 	time_t t;
@@ -178,7 +155,7 @@ channel_text_insert_current_time(ChannelText *channel_text, GtkTextBuffer *textb
 	localtime_r(&t, &tm);
 	strftime(buf, TIME_LEN, "%H:%M ", &tm);
 
-	gtk_text_buffer_insert_with_tags_by_name(textbuf, iter, buf, -1, "time", NULL);
+	gtk_text_buffer_insert_with_tags_by_name(GTK_TEXT_BUFFER(channel_text), iter, buf, -1, "time", NULL);
 }
 
 static GSList *
@@ -259,20 +236,16 @@ channel_text_append(ChannelText *channel_text, TextType type, gchar *str)
 {
 	GtkTextIter iter;
 	GtkTextBuffer *textbuf;
-	GtkTextView *text;
 	gchar *style;
 	gchar *buf;
 
         g_return_if_fail(channel_text != NULL);
         g_return_if_fail(IS_CHANNEL_TEXT(channel_text));
-	g_return_if_fail(channel_text->text != NULL);
 
-	text = GTK_TEXT_VIEW(channel_text->text);
-
-	textbuf = GTK_TEXT_BUFFER(gtk_text_view_get_buffer(text));
+	textbuf = GTK_TEXT_BUFFER(channel_text);
 	gtk_text_buffer_get_end_iter(textbuf, &iter);
 
-	channel_text_insert_current_time(channel_text, textbuf, &iter);
+	channel_text_insert_current_time(channel_text, &iter);
 /*	channel_text_get_uri_chunk(str); */
 
 	switch(type) {
@@ -291,8 +264,4 @@ channel_text_append(ChannelText *channel_text, TextType type, gchar *str)
 	buf = g_strconcat(str, "\n", NULL);
 	gtk_text_buffer_insert_with_tags_by_name(textbuf, &iter, buf, -1, style, NULL);
 	g_free(buf);
-
-	if(account_manager_whether_scroll(account_manager_get())) {;
-		gtk_text_view_scroll_mark_onscreen(text, gtk_text_buffer_get_mark(textbuf, "end"));
-	}
 }

@@ -23,7 +23,6 @@
 #include "channel_tree.h"
 #include "connection.h"
 #include "utils.h"
-#include "channel_book.h"
 #include "nick_list.h"
 #include "account_manager.h"
 #include "prefs_general.h"
@@ -36,6 +35,8 @@ struct _LoquiAppPrivate
 {
 	GtkWidget *label_topic;
 	GtkWidget *toggle_scroll;
+	GtkWidget *channel_textview;
+	GtkWidget *common_textview;
 	GtkWidget *entry;
 };
 
@@ -153,6 +154,9 @@ static void loqui_app_save_size(LoquiApp *app)
 	gint height;
 	gint width;
 
+        g_return_if_fail(app != NULL);
+        g_return_if_fail(LOQUI_IS_APP(app));
+
 	gtk_window_get_size(GTK_WINDOW(app), &width, &height);
 	prefs_general->window_width = width;
 	prefs_general->window_height = height;
@@ -161,6 +165,9 @@ static void loqui_app_save_size(LoquiApp *app)
 }
 static void loqui_app_restore_size(LoquiApp *app)
 {
+        g_return_if_fail(app != NULL);
+        g_return_if_fail(LOQUI_IS_APP(app));
+
         gtk_window_set_default_size(GTK_WINDOW(app),
 				    prefs_general->window_width,
 				    prefs_general->window_height);
@@ -184,10 +191,8 @@ loqui_app_new (void)
 	LoquiApp *app;
 	LoquiAppPrivate *priv;
 
-	GtkWidget *channel_book;
 	GtkWidget *channel_tree;
 	GtkWidget *nick_list;
-	GtkWidget *common_text;
 
 	GtkWidget *vbox;
 	GtkWidget *hbox;
@@ -242,8 +247,12 @@ loqui_app_new (void)
 	vbox = gtk_vbox_new(FALSE, 0);
 	gtk_paned_pack1(GTK_PANED(vpaned), vbox, TRUE, TRUE);
 
-	channel_book = channel_book_new();
-	gtk_box_pack_start_defaults(GTK_BOX(vbox), channel_book);
+	priv->channel_textview = gtk_text_view_new();
+	gtk_text_view_set_editable(GTK_TEXT_VIEW(priv->channel_textview), FALSE);
+	gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(priv->channel_textview), GTK_WRAP_CHAR);
+	SET_SCROLLED_WINDOW(scrolled_win, priv->channel_textview, 
+			    GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
+	gtk_box_pack_start_defaults(GTK_BOX(vbox), scrolled_win);
 
 	/* TODO: this should be replaced with a widget considered multiline editing */
 	priv->entry = gtk_entry_new();
@@ -251,8 +260,12 @@ loqui_app_new (void)
 	g_signal_connect(G_OBJECT(priv->entry), "activate",
                          G_CALLBACK(loqui_app_entry_activate_cb), NULL);
 
-	common_text = channel_text_new();
-	gtk_paned_pack2(GTK_PANED(vpaned), common_text, FALSE, TRUE);
+	priv->common_textview = gtk_text_view_new();
+	gtk_text_view_set_editable(GTK_TEXT_VIEW(priv->channel_textview), FALSE);
+	gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(priv->channel_textview), GTK_WRAP_CHAR);
+	SET_SCROLLED_WINDOW(scrolled_win, priv->common_textview, 
+			    GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
+	gtk_paned_pack2(GTK_PANED(vpaned), scrolled_win, FALSE, TRUE);
 
 	/* right side */
 	vpaned = gtk_vpaned_new();
@@ -267,9 +280,7 @@ loqui_app_new (void)
 	gtk_paned_pack2(GTK_PANED(vpaned), scrolled_win, FALSE, TRUE);
 	
 	app->channel_tree = CHANNEL_TREE(channel_tree);
-	app->channel_book = CHANNEL_BOOK(channel_book);
 	app->nick_list = NICK_LIST(nick_list);
-	app->common_text = CHANNEL_TEXT(common_text);
 
 	loqui_app_restore_size(app);
 
@@ -279,20 +290,24 @@ loqui_app_new (void)
 
 	return GTK_WIDGET(app);
 }
-
 void
 loqui_app_set_topic(LoquiApp *app, const gchar *str)
 {
+        g_return_if_fail(app != NULL);
+        g_return_if_fail(LOQUI_IS_APP(app));
+
 	if(str)
 		gtk_label_set_text(GTK_LABEL(app->priv->label_topic), str);
 	else
 		gtk_label_set_text(GTK_LABEL(app->priv->label_topic), _("No topic"));
 }
-
 gboolean
 loqui_app_is_scroll(LoquiApp *app)
 {
 	LoquiAppPrivate *priv;
+
+        g_return_val_if_fail(app != NULL, FALSE);
+        g_return_val_if_fail(LOQUI_IS_APP(app), FALSE);
 
 	priv = app->priv;
 
@@ -300,5 +315,61 @@ loqui_app_is_scroll(LoquiApp *app)
 }
 void loqui_app_set_focus(LoquiApp *app)
 {
+        g_return_if_fail(app != NULL);
+        g_return_if_fail(LOQUI_IS_APP(app));
+
 	gtk_widget_grab_focus(app->priv->entry);
+}
+void loqui_app_scroll_channel_textview(LoquiApp *app)
+{
+	GtkTextBuffer *textbuf;
+	LoquiAppPrivate *priv;
+
+        g_return_if_fail(app != NULL);
+        g_return_if_fail(LOQUI_IS_APP(app));
+
+	priv = app->priv;
+
+	textbuf = gtk_text_view_get_buffer(GTK_TEXT_VIEW(priv->channel_textview));
+	gtk_text_view_scroll_mark_onscreen(GTK_TEXT_VIEW(priv->channel_textview),
+					   gtk_text_buffer_get_mark(textbuf, "end"));
+}
+void loqui_app_scroll_common_textview(LoquiApp *app)
+{
+	GtkTextBuffer *textbuf;
+	LoquiAppPrivate *priv;
+
+        g_return_if_fail(app != NULL);
+        g_return_if_fail(LOQUI_IS_APP(app));
+
+	priv = app->priv;
+
+	textbuf = gtk_text_view_get_buffer(GTK_TEXT_VIEW(priv->common_textview));
+	gtk_text_view_scroll_mark_onscreen(GTK_TEXT_VIEW(priv->common_textview),
+					   gtk_text_buffer_get_mark(textbuf, "end"));
+}
+
+void loqui_app_set_channel_buffer(LoquiApp *app, GtkTextBuffer *textbuf)
+{
+	LoquiAppPrivate *priv;
+
+        g_return_if_fail(app != NULL);
+        g_return_if_fail(LOQUI_IS_APP(app));
+
+	priv = app->priv;
+
+	gtk_text_view_set_buffer(GTK_TEXT_VIEW(priv->channel_textview), textbuf);
+	loqui_app_scroll_channel_textview(app);
+}
+void loqui_app_set_common_buffer(LoquiApp *app, GtkTextBuffer *textbuf)
+{
+	LoquiAppPrivate *priv;
+
+        g_return_if_fail(app != NULL);
+        g_return_if_fail(LOQUI_IS_APP(app));
+
+	priv = app->priv;
+
+	gtk_text_view_set_buffer(GTK_TEXT_VIEW(priv->common_textview), textbuf);
+	loqui_app_scroll_common_textview(app);
 }

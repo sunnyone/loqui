@@ -45,22 +45,20 @@ typedef enum {
 
 struct _ChannelText
 {
-        GtkScrolledWindow parent;
-        
-	GtkWidget *text; /* textview */
+	GtkTextBuffer buffer;
 
         ChannelTextPrivate *priv;
 };
 
 struct _ChannelTextClass
 {
-        GtkScrolledWindowClass parent_class;
+        GtkTextBufferClass parent_class;
 };
 
 
 GtkType channel_text_get_type (void) G_GNUC_CONST;
 
-GtkWidget* channel_text_new (void);
+ChannelText* channel_text_new (void);
 void channel_text_append(ChannelText *channel_text, TextType type, gchar *str);
 
 G_END_DECLS

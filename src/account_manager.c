@@ -31,6 +31,7 @@ struct _AccountManagerPrivate
 	Account *current_account;
 	Channel *current_channel;
 
+	ChannelText *common_buffer;
 	LoquiApp *app;
 };
 
@@ -41,6 +42,7 @@ static void account_manager_class_init(AccountManagerClass *klass);
 static void account_manager_init(AccountManager *account_manager);
 static void account_manager_finalize(GObject *object);
 static Account* account_manager_search_account(AccountManager *manager, Channel *channel);
+static gboolean account_manager_whether_scroll(AccountManager *account_manager);
 
 static AccountManager *main_account_manager = NULL;
 
@@ -92,16 +94,23 @@ static void
 account_manager_finalize (GObject *object)
 {
 	AccountManager *account_manager;
+	AccountManagerPrivate *priv;
 
         g_return_if_fail(object != NULL);
         g_return_if_fail(IS_ACCOUNT_MANAGER(object));
 
         account_manager = ACCOUNT_MANAGER(object);
+	priv = account_manager->priv;
 
         if (G_OBJECT_CLASS(parent_class)->finalize)
                 (* G_OBJECT_CLASS(parent_class)->finalize) (object);
 
-	g_free(account_manager->priv);
+	if(priv->common_buffer) {
+		g_object_unref(priv->common_buffer);
+		priv->common_buffer = NULL;
+	}
+
+	g_free(priv);
 }
 
 AccountManager*
@@ -114,6 +123,8 @@ account_manager_new (void)
 
 	priv = account_manager->priv;
 	priv->app = LOQUI_APP(loqui_app_new());
+	priv->common_buffer = channel_text_new();
+	loqui_app_set_common_buffer(priv->app, GTK_TEXT_BUFFER(priv->common_buffer));
 	gtk_widget_show_all(GTK_WIDGET(priv->app));
 
 	return account_manager;
@@ -145,38 +156,11 @@ account_manager_save_accounts(AccountManager *account_manager)
 	prefs_account_save(account_manager->priv->account_list);
 }
 void
-account_manager_add_channel_text(AccountManager *manager, ChannelText *text)
-{
-	AccountManagerPrivate *priv;
-
-        g_return_if_fail(manager != NULL);
-        g_return_if_fail(IS_ACCOUNT_MANAGER(manager));
-
-	priv = manager->priv;
-
-	channel_book_add_channel_text(priv->app->channel_book, text);
-	gtk_widget_show_all(GTK_WIDGET(text));
-}
-static void
-account_manager_remove_channel_text(AccountManager *manager, ChannelText *text)
-{
-	AccountManagerPrivate *priv;
-
-        g_return_if_fail(manager != NULL);
-        g_return_if_fail(IS_ACCOUNT_MANAGER(manager));
-
-	priv = manager->priv;
-
-	channel_book_remove_channel_text(priv->app->channel_book, text);
-}
-
-void
 account_manager_add_channel(AccountManager *manager, Account *account, Channel *channel)
 {
         g_return_if_fail(manager != NULL);
         g_return_if_fail(IS_ACCOUNT_MANAGER(manager));
 
-	account_manager_add_channel_text(manager, channel->text);
 	channel_tree_add_channel(manager->priv->app->channel_tree, account, channel);
 }
 void
@@ -185,7 +169,6 @@ account_manager_remove_channel(AccountManager *manager, Account *account, Channe
         g_return_if_fail(manager != NULL);
         g_return_if_fail(IS_ACCOUNT_MANAGER(manager));
 
-	account_manager_remove_channel_text(manager, channel->text);
 	channel_tree_remove_channel(manager->priv->app->channel_tree, channel);
 }
 /* called from select_cb */
@@ -207,7 +190,7 @@ account_manager_set_current(AccountManager *manager, Account *account, Channel *
 	account_manager_nick_list_clear(manager);
 
 	if(channel) {
-		channel_book_change_current(priv->app->channel_book, channel->text);
+		loqui_app_set_channel_buffer(priv->app, GTK_TEXT_BUFFER(channel->text));
 		/* FIXME */
 		for(cur = channel->user_list; cur != NULL; cur = cur->next) {
 			user = (User *) cur->data;
@@ -219,10 +202,10 @@ account_manager_set_current(AccountManager *manager, Account *account, Channel *
 		}
 		account_manager_set_topic(manager, channel_get_topic(channel));
 	} else if(account) {
-		channel_book_change_current(priv->app->channel_book, account->console_text);
+		loqui_app_set_channel_buffer(priv->app, GTK_TEXT_BUFFER(account->console_text));
 		account_manager_set_topic(manager, "");
 	}
-	loqui_app_set_focus(manager->priv->app);
+	loqui_app_set_focus(priv->app);
 }
 /* mainly called */
 void
@@ -264,6 +247,11 @@ account_manager_search_account(AccountManager *manager, Channel *channel)
 	}
 	return NULL;
 }
+static gboolean
+account_manager_whether_scroll(AccountManager *account_manager)
+{
+	return loqui_app_is_scroll(account_manager->priv->app);
+}
 void account_manager_speak(AccountManager *manager, const gchar *str)
 {
 	AccountManagerPrivate *priv;
@@ -293,11 +281,7 @@ account_manager_get(void)
 		main_account_manager = account_manager_new();
 	return main_account_manager;
 }
-gboolean
-account_manager_whether_scroll(AccountManager *account_manager)
-{
-	return loqui_app_is_scroll(account_manager->priv->app);
-}
+
 gboolean
 account_manager_is_current_account(AccountManager *manager, Account *account)
 {
@@ -315,12 +299,25 @@ account_manager_is_current_channel(AccountManager *manager, Channel *channel)
 	return (manager->priv->current_channel == channel);
 }
 void
+account_manager_scroll_channel_textview(AccountManager *manager)
+{
+        g_return_if_fail(manager != NULL);
+        g_return_if_fail(IS_ACCOUNT_MANAGER(manager));	
+
+	if(account_manager_whether_scroll(manager)) {
+		loqui_app_scroll_channel_textview(manager->priv->app);
+	}
+}
+void
 account_manager_common_text_append(AccountManager *manager, TextType type, gchar *str)
 {
         g_return_if_fail(manager != NULL);
         g_return_if_fail(IS_ACCOUNT_MANAGER(manager));
 
-	channel_text_append(manager->priv->app->common_text, type, str);
+	channel_text_append(manager->priv->common_buffer, type, str);
+	if(account_manager_whether_scroll(manager)) {
+		loqui_app_scroll_common_textview(manager->priv->app);
+	}
 }
 void
 account_manager_nick_list_append(AccountManager *manager, User *user)

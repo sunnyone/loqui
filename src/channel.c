@@ -143,7 +143,9 @@ channel_append_remark(Channel *channel, TextType type, gchar *nick, gchar *remar
 	channel_text_append(CHANNEL_TEXT(channel->text), type, line_with_nick);
 	g_free(line_with_nick);
 
-	if(!account_manager_is_current_channel(account_manager_get(), channel)) {
+	if(account_manager_is_current_channel(account_manager_get(), channel)) {
+		account_manager_scroll_channel_textview(account_manager_get());
+	} else {
 		if(STRING_IS_CHANNEL(channel->name))
 			line_with_channel = g_strdup_printf("<%s:%s> %s", channel->name, nick, remark);
 		else
@@ -163,6 +165,9 @@ channel_append_text(Channel *channel, gboolean with_common_text, TextType type, 
 	if(with_common_text &&
 	   !account_manager_is_current_channel(account_manager_get(), channel)) {
 		account_manager_common_text_append(account_manager_get(), type, str);
+	}
+	if(account_manager_is_current_channel(account_manager_get(), channel)) {
+		account_manager_scroll_channel_textview(account_manager_get());
 	}
 }
 void channel_set_topic(Channel *channel, const gchar *topic)
