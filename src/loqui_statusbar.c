@@ -33,6 +33,8 @@
 typedef enum {
 	AWAY_STATE_NONE,
 	AWAY_STATE_ONLINE,
+	AWAY_STATE_AWAY,
+	AWAY_STATE_BUSY,
 	AWAY_STATE_OFFLINE
 } AwayState;
 
@@ -48,7 +50,9 @@ struct _LoquiStatusbarPrivate
 	
 	GtkWidget *image_online;
 	GtkWidget *image_offline;
-	
+	GtkWidget *image_away;
+	GtkWidget *image_busy;
+		
 	GtkWidget *button_away;
 	GtkWidget *button_nick;
 	GtkWidget *label_nick;
@@ -187,6 +191,12 @@ loqui_statusbar_set_away_status(LoquiStatusbar *statusbar, AwayState away_state)
 	case AWAY_STATE_ONLINE:
 		gtk_container_add(GTK_CONTAINER(priv->button_away), priv->image_online);
 		break;
+	case AWAY_STATE_AWAY:
+		gtk_container_add(GTK_CONTAINER(priv->button_away), priv->image_away);
+		break;
+	case AWAY_STATE_BUSY:
+		gtk_container_add(GTK_CONTAINER(priv->button_away), priv->image_busy);
+		break;		
 	case AWAY_STATE_OFFLINE:
 		gtk_container_add(GTK_CONTAINER(priv->button_away), priv->image_offline);
 		break;
@@ -276,6 +286,25 @@ loqui_statusbar_nick_button_clicked_cb(GtkWidget *widget, LoquiStatusbar *status
 
 	g_signal_emit(statusbar, loqui_statusbar_signals[NICK_CHANGE], 0);
 }
+static GtkWidget*
+loqui_statusbar_create_icon_image(const guint8 *data)
+{
+	GtkWidget *image;
+	GdkPixbuf *pixbuf, *pixbuf_scaled;
+	
+	pixbuf = gdk_pixbuf_new_from_inline(-1, data, FALSE, NULL);
+	if(pixbuf == NULL)
+		g_error("Can't get pixbuf");
+	pixbuf_scaled = gdk_pixbuf_scale_simple(pixbuf, STATUSBAR_ICON_SIZE, STATUSBAR_ICON_SIZE, GDK_INTERP_BILINEAR);
+	if(pixbuf_scaled == NULL)
+		g_error("Can't scale pixbuf");
+	image = gtk_image_new_from_pixbuf(pixbuf_scaled);
+	gtk_widget_show(image);
+	g_object_unref(pixbuf);
+	g_object_unref(pixbuf_scaled);
+	
+	return image;
+}
 
 GtkWidget*
 loqui_statusbar_new (void)
@@ -284,7 +313,6 @@ loqui_statusbar_new (void)
 	LoquiStatusbarPrivate *priv;
 	GtkWidget *hsep;
 	GtkWidget *arrow;
-	GdkPixbuf *pixbuf, *pixbuf_scaled;
 	
 	statusbar = g_object_new(loqui_statusbar_get_type(), NULL);
 	priv = statusbar->priv;
@@ -292,27 +320,10 @@ loqui_statusbar_new (void)
 	gtk_statusbar_set_has_resize_grip(GTK_STATUSBAR(statusbar), FALSE);
 	gtk_label_set_selectable(GTK_LABEL(GTK_STATUSBAR(statusbar)->label), TRUE);
 	
-	pixbuf = gdk_pixbuf_new_from_inline(-1, offline_pixbuf, FALSE, NULL);
-	if(pixbuf == NULL)
-		g_error("Can't get pixbuf: offline");
-	pixbuf_scaled = gdk_pixbuf_scale_simple(pixbuf, STATUSBAR_ICON_SIZE, STATUSBAR_ICON_SIZE, GDK_INTERP_BILINEAR);
-	if(pixbuf_scaled == NULL)
-		g_error("Can't scale pixbuf: offline");
-	priv->image_offline = gtk_image_new_from_pixbuf(pixbuf_scaled);
-	gtk_widget_show(priv->image_offline);
-	g_object_unref(pixbuf);
-	g_object_unref(pixbuf_scaled);
-	
-	pixbuf = gdk_pixbuf_new_from_inline(-1, online_pixbuf, FALSE, NULL);
-	if(pixbuf == NULL)
-		g_error("Can't get pixbuf: online");
-	pixbuf_scaled = gdk_pixbuf_scale_simple(pixbuf, STATUSBAR_ICON_SIZE, STATUSBAR_ICON_SIZE, GDK_INTERP_BILINEAR);
-	if(pixbuf_scaled == NULL)
-		g_error("Can't scale pixbuf: online");
-	priv->image_online = gtk_image_new_from_pixbuf(pixbuf_scaled);
-	gtk_widget_show(priv->image_online);
-	g_object_unref(pixbuf);
-	g_object_unref(pixbuf_scaled);
+	priv->image_offline = loqui_statusbar_create_icon_image(offline_pixbuf);
+	priv->image_online = loqui_statusbar_create_icon_image(online_pixbuf);
+	priv->image_away = loqui_statusbar_create_icon_image(away_pixbuf);
+	priv->image_busy = loqui_statusbar_create_icon_image(busy_pixbuf);
 
 /* FIXME: why statusbar becomes taller when button widget is on it? */
 #define WIDGET_MINIMIZE_HEIGHT(widget) gtk_widget_set_usize(widget, -1, 1);
@@ -409,6 +420,8 @@ loqui_statusbar_set_current_account(LoquiStatusbar *statusbar, Account *account)
         	away_state = AWAY_STATE_OFFLINE;
         } else if (!account_is_connected(account)) {
         	away_state = AWAY_STATE_OFFLINE;
+        } else if (account_get_away_status(account)) {
+        	away_state = AWAY_STATE_AWAY;
         } else {
         	away_state = AWAY_STATE_ONLINE;
         }
