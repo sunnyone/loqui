@@ -26,6 +26,7 @@
 #include "ctcp_message.h"
 #include "intl.h"
 #include "loqui_utils_irc.h"
+#include "loqui_account_irc.h"
 
 #include <string.h>
 
@@ -261,7 +262,7 @@ loqui_sender_irc_nick(LoquiSender *sender, const gchar *text)
 		return;
 	}
 
-	conn = loqui_account_get_connection(sender->account);
+	conn = loqui_account_irc_get_connection(LOQUI_ACCOUNT_IRC(sender->account));
 	g_return_if_fail(conn != NULL);
 
 	msg = irc_message_create(IRCCommandNick, text, NULL);
@@ -283,7 +284,7 @@ loqui_sender_irc_away(LoquiSender *sender, LoquiAwayType away_type, const gchar 
 		return;
 	}
 
-	conn = loqui_account_get_connection(sender->account);
+	conn = loqui_account_irc_get_connection(LOQUI_ACCOUNT_IRC(sender->account));
 	g_return_if_fail(conn != NULL);
 
 	if (away_type == LOQUI_AWAY_TYPE_AWAY) {
@@ -312,7 +313,7 @@ loqui_sender_irc_whois(LoquiSender *sender, LoquiUser *user)
 		return;
 	}
 
-	conn = loqui_account_get_connection(sender->account);
+	conn = loqui_account_irc_get_connection(LOQUI_ACCOUNT_IRC(sender->account));
 	g_return_if_fail(conn != NULL);
 
 	msg = irc_message_create(IRCCommandWhois, loqui_user_get_nick(user), loqui_user_get_nick(user), NULL);
@@ -346,7 +347,7 @@ loqui_sender_irc_part(LoquiSender *sender, LoquiChannel *channel, const gchar *p
 		return;
 	}
 
-	conn = loqui_account_get_connection(sender->account);
+	conn = loqui_account_irc_get_connection(LOQUI_ACCOUNT_IRC(sender->account));
 	g_return_if_fail(conn != NULL);
 
 	msg = irc_message_create(IRCCommandPart,
@@ -374,7 +375,7 @@ loqui_sender_irc_topic(LoquiSender *sender, LoquiChannel *channel, const gchar *
 		return;
 	}
 
-	conn = loqui_account_get_connection(sender->account);
+	conn = loqui_account_irc_get_connection(LOQUI_ACCOUNT_IRC(sender->account));
 	g_return_if_fail(conn != NULL);
 
 	msg = irc_message_create(IRCCommandTopic,
@@ -442,10 +443,10 @@ loqui_sender_irc_refresh(LoquiSender *sender, LoquiChannel *channel)
 		return;
 	}
 
-	conn = loqui_account_get_connection(sender->account);
+	conn = loqui_account_irc_get_connection(LOQUI_ACCOUNT_IRC(sender->account));
 	g_return_if_fail(conn != NULL);
 
-	handle = loqui_account_get_handle(sender->account);
+	handle = loqui_account_irc_get_handle(LOQUI_ACCOUNT_IRC(sender->account));
 	handle->prevent_print_who_reply_count++;
 	
 	msg = irc_message_create(IRCCommandWho, loqui_channel_get_identifier(channel), NULL);
@@ -471,7 +472,7 @@ loqui_sender_irc_join_raw(LoquiSender *sender, const gchar *target, const gchar 
 		return;
 	}
 
-	conn = loqui_account_get_connection(LOQUI_SENDER(sender)->account);
+	conn = loqui_account_irc_get_connection(LOQUI_ACCOUNT_IRC(LOQUI_SENDER(sender)->account));
 	g_return_if_fail(conn != NULL);
 
 	if (key == NULL || strlen(key) == 0)
@@ -495,7 +496,7 @@ loqui_sender_irc_pong_raw(LoquiSenderIRC *sender, const gchar *target)
 		return;
 	}
 
-	conn = loqui_account_get_connection(LOQUI_SENDER(sender)->account);
+	conn = loqui_account_irc_get_connection(LOQUI_ACCOUNT_IRC(LOQUI_SENDER(sender)->account));
 	g_return_if_fail(conn != NULL);
 
 	msg = irc_message_create(IRCCommandPong, target, NULL);
@@ -516,7 +517,7 @@ loqui_sender_irc_say_raw(LoquiSenderIRC *sender, const gchar *target, const gcha
 		return;
 	}
 
-	conn = loqui_account_get_connection(LOQUI_SENDER(sender)->account);
+	conn = loqui_account_irc_get_connection(LOQUI_ACCOUNT_IRC(LOQUI_SENDER(sender)->account));
 	g_return_if_fail(conn != NULL);
 	
 	msg = irc_message_create(IRCCommandPrivmsg, 
@@ -538,7 +539,7 @@ loqui_sender_irc_notice_raw(LoquiSenderIRC *sender, const gchar *target, const g
 		return;
 	}
 
-	conn = loqui_account_get_connection(LOQUI_SENDER(sender)->account);
+	conn = loqui_account_irc_get_connection(LOQUI_ACCOUNT_IRC(LOQUI_SENDER(sender)->account));
 	g_return_if_fail(conn != NULL);
 	
 	msg = irc_message_create(IRCCommandNotice,
@@ -561,7 +562,7 @@ void loqui_sender_irc_send_raw(LoquiSenderIRC *sender, const gchar *str)
 		return;
 	}
 
-	conn = loqui_account_get_connection(LOQUI_SENDER(sender)->account);
+	conn = loqui_account_irc_get_connection(LOQUI_ACCOUNT_IRC(LOQUI_SENDER(sender)->account));
 	g_return_if_fail(conn != NULL);
 	
 	msg = irc_message_parse_line(str);
@@ -587,7 +588,7 @@ loqui_sender_irc_get_channel_mode(LoquiSender *sender, LoquiChannel *channel)
 		return;
 	}
 
-	conn = loqui_account_get_connection(sender->account);
+	conn = loqui_account_irc_get_connection(LOQUI_ACCOUNT_IRC(sender->account));
 	g_return_if_fail(conn != NULL);
 
 	msg = irc_message_create(IRCCommandMode, loqui_channel_get_identifier(channel), NULL);
@@ -611,7 +612,7 @@ loqui_sender_irc_ctcp_request_raw(LoquiSenderIRC *sender, const gchar *target, c
 		return;
 	}
 
-	conn = loqui_account_get_connection(LOQUI_SENDER(sender)->account);
+	conn = loqui_account_irc_get_connection(LOQUI_ACCOUNT_IRC(LOQUI_SENDER(sender)->account));
 	g_return_if_fail(conn != NULL);
 	
 	ctcp_msg = ctcp_message_new(command, NULL);
@@ -646,7 +647,7 @@ loqui_sender_irc_change_member_mode(LoquiSenderIRC *sender, LoquiChannel *channe
 		return;
 	}
 
-	conn = loqui_account_get_connection(LOQUI_SENDER(sender)->account);
+	conn = loqui_account_irc_get_connection(LOQUI_ACCOUNT_IRC(LOQUI_SENDER(sender)->account));
 	g_return_if_fail(conn != NULL);
 	
 	list_num = g_list_length(str_list);

@@ -21,7 +21,7 @@
 
 #include "irc_handle.h"
 #include "utils.h"
-#include "loqui_account.h"
+
 #include "account_manager.h"
 #include "irc_constants.h"
 #include "main.h"
@@ -32,6 +32,7 @@
 #include "loqui_user_irc.h"
 #include "loqui_utils_irc.h"
 #include "loqui_sender_irc.h"
+#include "loqui_account_irc.h"
 
 #include "codeconv.h"
 #include <string.h>
@@ -255,7 +256,7 @@ irc_handle_command_privmsg_notice(IRCHandle *handle, IRCMessage *msg)
 	}
 
 	if(msg->nick)
-		is_self = loqui_account_is_current_nick(handle->priv->account, msg->nick);
+		is_self = loqui_account_irc_is_current_nick(LOQUI_ACCOUNT_IRC(handle->priv->account), msg->nick);
 	else
 		is_self = FALSE;
 
@@ -381,7 +382,7 @@ irc_handle_command_part(IRCHandle *handle, IRCMessage *msg)
 	if (channel && user)
 		loqui_channel_entry_remove_member_by_user(LOQUI_CHANNEL_ENTRY(channel), user);
 
-	if(loqui_account_is_current_nick(handle->priv->account, msg->nick)) {
+	if(loqui_account_irc_is_current_nick(LOQUI_ACCOUNT_IRC(handle->priv->account), msg->nick)) {
 		if(channel) {
 			irc_handle_account_console_append(handle, msg, TEXT_TYPE_INFO, "*** You have left %1");
 			loqui_account_remove_channel(handle->priv->account, channel);
@@ -421,7 +422,7 @@ irc_handle_command_kick(IRCHandle *handle, IRCMessage *msg)
 	if (channel && user)
 		loqui_channel_entry_remove_member_by_user(LOQUI_CHANNEL_ENTRY(channel), user);
 
-	if(loqui_account_is_current_nick(handle->priv->account, receiver)) {
+	if(loqui_account_irc_is_current_nick(LOQUI_ACCOUNT_IRC(handle->priv->account), receiver)) {
 		irc_handle_account_console_append(handle, msg, TEXT_TYPE_INFO, "*** You were kicked from %1 by %n (%3)");
 		loqui_account_remove_channel(handle->priv->account, channel);
 	} else {
@@ -454,7 +455,7 @@ irc_handle_command_nick(IRCHandle *handle, IRCMessage *msg)
 	if (user)
 		loqui_user_set_nick(user, nick_new);
 
-	if(loqui_account_is_current_nick(handle->priv->account, msg->nick))
+	if(loqui_account_irc_is_current_nick(LOQUI_ACCOUNT_IRC(handle->priv->account), msg->nick))
 		loqui_user_set_nick(loqui_account_get_user_self(handle->priv->account), nick_new);
 
 	if (!LOQUI_UTILS_IRC_STRING_IS_CHANNEL(msg->nick)) {
@@ -681,7 +682,7 @@ irc_handle_command_join(IRCHandle *handle, IRCMessage *msg)
 	}
 	
 	channel = loqui_account_get_channel_by_identifier(handle->priv->account, name);
-	if(loqui_account_is_current_nick(handle->priv->account, msg->nick)) {
+	if(loqui_account_irc_is_current_nick(LOQUI_ACCOUNT_IRC(handle->priv->account), msg->nick)) {
 		if(!channel) {
 			channel = loqui_channel_new(priv->account, name, name, TRUE, !LOQUI_UTILS_IRC_STRING_IS_CHANNEL(name));
 			loqui_account_add_channel(priv->account, channel);

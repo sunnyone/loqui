@@ -23,6 +23,8 @@
 #include "intl.h"
 #include <string.h>
 
+#include "loqui_account_irc.h" /* FIXME: needless originally */
+
 static gboolean check_account_connected(LoquiAccount *account);
 static gboolean check_target_valid(const gchar *str);
 
@@ -159,7 +161,6 @@ command_dialog_private_talk(LoquiApp *app, LoquiAccount *account)
 		}
 
 		/* FIXME */
-#include "loqui_account_irc.h"
 		user = LOQUI_USER(loqui_account_irc_fetch_user(LOQUI_ACCOUNT_IRC(account), text_name));
 		if (!user) {
 			g_warning("Can't fetch user for private talk");

@@ -26,6 +26,7 @@
 #include "utils.h"
 #include "loqui_profile_account.h"
 #include "loqui_profile_account_irc.h"
+#include "codeconv.h"
 
 #include "loqui_account_irc.h"
 
@@ -356,7 +357,7 @@ account_dialog_open_add_dialog(GtkWindow *parent, AccountManager *manager)
 	gtk_widget_destroy(GTK_WIDGET(dialog));
 
 	if (response == GTK_RESPONSE_OK) {
-		account = LOQUI_ACCOUNT_IRC(loqui_account_irc_new(profile));
+		account = LOQUI_ACCOUNT(loqui_account_irc_new(profile));
 		account_manager_add_account(manager, account);
 		g_object_unref(account);
 		account_manager_save_accounts(manager);

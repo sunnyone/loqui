@@ -21,9 +21,7 @@
 #define __LOQUI_ACCOUNT_H__
 
 #include <glib.h>
-#include "codeconv.h"
 #include "loqui_profile_account.h"
-#include "irc_connection.h"
 
 G_BEGIN_DECLS
 
@@ -42,7 +40,6 @@ typedef struct _LoquiAccountPrivate     LoquiAccountPrivate;
 #include "loqui_channel_entry.h"
 #include "loqui_channel.h"
 #include "loqui_sender.h"
-#include "irc_handle.h"
 
 struct _LoquiAccount
 {
@@ -67,8 +64,11 @@ struct _LoquiAccountClass
 {
         LoquiChannelEntryClass parent_class;
 
+	void (* connect)          (LoquiAccount *account);
+	void (* disconnect)       (LoquiAccount *account);
+	gboolean (* is_connected) (LoquiAccount *account);
+
 	/* signals */
-	void (* connected)        (LoquiAccount *account);
 	void (* disconnected)     (LoquiAccount *account);
 	void (* add_channel)      (LoquiAccount *account,
 				   LoquiChannel *channel);
@@ -88,12 +88,8 @@ void loqui_account_connect(LoquiAccount *account);
 void loqui_account_disconnect(LoquiAccount *account);
 gboolean loqui_account_is_connected(LoquiAccount *account);
 
-IRCConnection *loqui_account_get_connection(LoquiAccount *account);
-IRCHandle *loqui_account_get_handle(LoquiAccount *account);
 LoquiSender *loqui_account_get_sender(LoquiAccount *account);
-
-void loqui_account_set_codeconv(LoquiAccount *account, CodeConv *codeconv);
-CodeConv *loqui_account_get_codeconv(LoquiAccount *account);
+void loqui_account_set_sender(LoquiAccount *account, LoquiSender *sender);
 
 void loqui_account_add_channel(LoquiAccount *account, LoquiChannel *channel);
 void loqui_account_remove_channel(LoquiAccount *account, LoquiChannel *channel);
@@ -104,8 +100,6 @@ LoquiChannel* loqui_account_get_channel_by_identifier(LoquiAccount *account, con
 GSList *loqui_account_search_joined_channel(LoquiAccount *account, gchar *user_identifier);
 
 void loqui_account_console_buffer_append(LoquiAccount *account, TextType type, gchar *str);
-
-gboolean loqui_account_is_current_nick(LoquiAccount *account, const gchar *str);
 
 void loqui_account_get_updated_number(LoquiAccount *account, gint *updated_private_talk_number, gint *updated_channel_number); 
 
