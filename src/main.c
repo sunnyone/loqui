@@ -44,10 +44,10 @@ static void make_program_dir(void);
 
 static void make_program_dir(void)
 {
-	gchar *dirname;
+	const gchar *dirname;
 	gchar *log_dirname;
 	
-	dirname = g_build_filename(g_get_home_dir(), PREFS_DIR, NULL);
+	dirname = loqui_get_user_dir();
 	if(!g_file_test(dirname, G_FILE_TEST_EXISTS)) {
 		loqui_utils_mkdir_and_chmod(dirname);
 	}
@@ -55,9 +55,8 @@ static void make_program_dir(void)
 	if(!g_file_test(dirname, G_FILE_TEST_IS_DIR)) {
 		g_error(_("Invalid \"%s\""), dirname);
 	}
-	g_free(dirname);
 
-	log_dirname = g_build_filename(g_get_home_dir(), PREFS_DIR, LOG_DIR, NULL);
+	log_dirname = g_build_filename(dirname, LOG_DIR, NULL);
 	if(!g_file_test(log_dirname, G_FILE_TEST_EXISTS))
 		loqui_utils_mkdir_and_chmod(log_dirname);
 	
@@ -75,7 +74,6 @@ main(int argc, char *argv[])
         bind_textdomain_codeset(GETTEXT_PACKAGE, "UTF-8");
 #endif
         textdomain(GETTEXT_PACKAGE);
-
 	make_program_dir();
 
 	if(!g_threads_got_initialized)

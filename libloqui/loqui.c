@@ -24,6 +24,7 @@
 static gboolean loqui_debug_mode = FALSE;
 static gboolean loqui_show_msg_mode = FALSE;
 static gboolean loqui_send_status_commands_mode = TRUE;
+static gchar *loqui_user_dir = NULL;
 
 void
 loqui_set_debug_mode(gboolean debug_mode)
@@ -57,4 +58,29 @@ gboolean
 loqui_get_send_status_commands_mode(void)
 {
 	return loqui_send_status_commands_mode;
+}
+void
+loqui_set_user_dir(const gchar *path)
+{
+	const gchar *env_userdir;
+
+	if (loqui_user_dir) {
+		g_free(loqui_user_dir);
+		loqui_user_dir = NULL;
+	}
+	if (path) {
+		loqui_user_dir = g_strdup(path);
+	} else {
+		if ((env_userdir = g_getenv(LOQUI_USER_DIR_ENV_KEY)) != NULL)
+			loqui_user_dir = g_strdup(env_userdir);
+		else
+			loqui_user_dir = g_build_filename(g_get_home_dir(), LOQUI_USER_DIR_DEFAULT_BASENAME, NULL);
+	}
+}
+G_CONST_RETURN gchar *
+loqui_get_user_dir(void)
+{
+	if (!loqui_user_dir)
+		loqui_set_user_dir(NULL);
+	return loqui_user_dir;
 }

@@ -304,7 +304,7 @@ loqui_account_manager_load_accounts(LoquiAccountManager *account_manager)
 
         priv = account_manager->priv;
 
-	path = g_build_filename(g_get_home_dir(), PREFS_DIR, ACCOUNT_CONFIG_FILENAME, NULL);
+	path = g_build_filename(loqui_get_user_dir(), ACCOUNT_CONFIG_FILENAME, NULL);
 	handle = loqui_profile_handle_new(account_manager->protocol_manager);
 	loqui_profile_handle_read_from_file(handle, &list, path);
 
@@ -334,7 +334,7 @@ loqui_account_manager_save_accounts(LoquiAccountManager *account_manager)
 		list = g_list_append(list, loqui_account_get_profile(cur->data));
 	}
 
-	path = g_build_filename(g_get_home_dir(), PREFS_DIR, ACCOUNT_CONFIG_FILENAME, NULL);
+	path = g_build_filename(loqui_get_user_dir(), ACCOUNT_CONFIG_FILENAME, NULL);
 	handle = loqui_profile_handle_new(account_manager->protocol_manager);
 	loqui_profile_handle_write_to_file(handle, list, path);
 	g_object_unref(handle);

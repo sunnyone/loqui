@@ -1317,7 +1317,7 @@ loqui_app_append_log(LoquiApp *app, LoquiMessageText *msgtext)
         t = time(NULL);
         
         filename = utils_strftime_epoch("log-%Y%m%d.txt", t);
-	path = g_build_filename(g_get_home_dir(), PREFS_DIR, LOG_DIR, filename, NULL);
+	path = g_build_filename(loqui_get_user_dir(), LOG_DIR, filename, NULL);
 	g_free(filename);
 	
 	if ((io = g_io_channel_new_file(path, "a", NULL)) == NULL) {

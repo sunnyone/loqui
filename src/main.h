@@ -20,7 +20,6 @@
 #ifndef __MAIN_H__
 #define __MAIN_H__
 
-#define PREFS_DIR ".loqui"
 #define LOG_DIR "logs"
 
 #endif /* __MAIN_H__ */

@@ -18,6 +18,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 #include "config.h"
+#include "loqui.h"
 #include "loqui_gtk.h"
 #include "loqui_app.h"
 
@@ -43,7 +44,7 @@ loqui_gtk_init(int *argc, char **argv[])
 
 	loqui_stock_init();
 
-	path = g_build_filename(g_get_home_dir(), PREFS_DIR, "gtkrc-2.0", NULL);
+	path = g_build_filename(loqui_get_user_dir(), "gtkrc-2.0", NULL);
 	gtk_rc_parse(path);
 	g_free(path);
 }
@@ -59,7 +60,7 @@ loqui_gtk_start_main_loop(LoquiProtocolManager *pmanag)
 	loqui_app_info_load_from_prefs_general(app->appinfo);
 	loqui_app_info_update_string_idle(app->appinfo);
 
-	path = g_build_filename(g_get_home_dir(), PREFS_DIR, ACCEL_MAP_FILE, NULL);
+	path = g_build_filename(loqui_get_user_dir(), ACCEL_MAP_FILE, NULL);
 
 	gtk_accel_map_add_filter(SHORTCUT_CHANNEL_ENTRY_ACCEL_MAP_PREFIX "*");
 	gtk_accel_map_load(path);
@@ -72,4 +73,5 @@ loqui_gtk_start_main_loop(LoquiProtocolManager *pmanag)
 	gtk_main();
 
 	gtk_accel_map_save(path);
+	g_free(path);
 }

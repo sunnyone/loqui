@@ -23,6 +23,9 @@
 
 #include <glib-object.h>
 
+#define LOQUI_USER_DIR_DEFAULT_BASENAME ".loqui"
+#define LOQUI_USER_DIR_ENV_KEY "LOQUI_USER_DIR"
+
 void loqui_set_debug_mode(gboolean debug_mode);
 gboolean loqui_get_debug_mode(void);
 
@@ -32,6 +35,7 @@ gboolean loqui_get_show_msg_mode(void);
 void loqui_set_send_status_commands_mode(gboolean send_status_commands_mode);
 gboolean loqui_get_send_status_commands_mode(void);
 
-#define PREFS_DIR ".loqui"
+void loqui_set_user_dir(const gchar *path);
+G_CONST_RETURN gchar *loqui_get_user_dir(void);
 
 #endif /* __LOQUI_H__ */

@@ -306,7 +306,7 @@ void prefs_general_load(void)
 	prefs_general_initialize();
 	prefs_general_set_default();
 	
-	path = g_build_filename(g_get_home_dir(), PREFS_DIR, RC_FILENAME, NULL);
+	path = g_build_filename(loqui_get_user_dir(), RC_FILENAME, NULL);
 
 	if(!g_file_get_contents(path, &contents, &len, &error)) {
 		if(error->code != G_FILE_ERROR_NOENT)
@@ -340,7 +340,7 @@ void prefs_general_save(void)
 
 	debug_puts("Saving prefs_general...");
 
-	path = g_build_filename(g_get_home_dir(), PREFS_DIR, RC_FILENAME, NULL);
+	path = g_build_filename(loqui_get_user_dir(), RC_FILENAME, NULL);
 	if((fp = fopen(path, "w")) == NULL) {
 		g_warning(_("Can't open %s: %s"), RC_FILENAME, strerror(errno));
 		return;
