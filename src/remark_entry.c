@@ -32,6 +32,8 @@ enum {
         LAST_SIGNAL
 };
 
+#define NICK_PULLDOWN_BUTTON_WIDTH 17
+
 struct _RemarkEntryPrivate
 {
 	GList *string_list;
@@ -41,6 +43,8 @@ struct _RemarkEntryPrivate
 
 	GtkWidget *label_nick;
 	GtkWidget *button_nick;
+
+	GtkWidget *button_nick_pulldown;
 	GtkWidget *vbox;
 	GtkWidget *entry;
 	GtkWidget *hbox_text;
@@ -50,6 +54,7 @@ struct _RemarkEntryPrivate
 	GtkWidget *toggle_multiline;
 	guint toggled_id;
 
+	GtkWidget *menu_nick;
 	GtkWidget *toggle_palette;
 };
 
@@ -69,6 +74,8 @@ static void remark_entry_activated_cb(GtkWidget *widget, gpointer data);
 static gint remark_entry_entry_key_pressed_cb(GtkEntry *widget, GdkEventKey *event,
 					      gpointer data);
 static void remark_entry_nick_clicked_cb(GtkWidget *widget, gpointer data);
+static void remark_entry_nick_pulldown_clicked_cb(GtkWidget *widget, gpointer data);
+
 static void remark_entry_history_add(RemarkEntry *entry, const gchar *str);
 
 GType
@@ -173,6 +180,7 @@ remark_entry_new(void)
 	GtkWidget *hbox;
 	GtkWidget *label;
 	GtkWidget *image;
+	GtkWidget *down_arrow;
 
 	GtkWidget *scwin;
 
@@ -191,8 +199,18 @@ remark_entry_new(void)
 	priv->label_nick = gtk_label_new("");
 	gtk_container_add(GTK_CONTAINER(priv->button_nick), priv->label_nick);
 
+	priv->button_nick_pulldown = gtk_button_new();
+	gtk_widget_set_usize(priv->button_nick_pulldown, NICK_PULLDOWN_BUTTON_WIDTH, -1);
+	gtk_button_set_relief(GTK_BUTTON(priv->button_nick_pulldown), GTK_RELIEF_NONE);
+	g_signal_connect(G_OBJECT(priv->button_nick_pulldown), "clicked",
+			 G_CALLBACK(remark_entry_nick_pulldown_clicked_cb), remark_entry);
+	gtk_box_pack_start(GTK_BOX(hbox), priv->button_nick_pulldown, FALSE, FALSE, 0);
+
+	down_arrow = gtk_arrow_new(GTK_ARROW_DOWN, GTK_SHADOW_OUT);
+	gtk_container_add(GTK_CONTAINER(priv->button_nick_pulldown), down_arrow);
+
 	label = gtk_label_new(">");
-	gtk_box_pack_start(GTK_BOX(hbox), label, FALSE, FALSE, 1);
+	gtk_box_pack_start(GTK_BOX(hbox), label, FALSE, FALSE, 0);
 
 	priv->vbox = gtk_vbox_new(FALSE, 0);
 	gtk_box_pack_start(GTK_BOX(hbox), priv->vbox, TRUE, TRUE, 0);
@@ -240,6 +258,8 @@ remark_entry_new(void)
 	gtk_box_pack_start(GTK_BOX(hbox), priv->toggle_palette, FALSE, FALSE, 0);
 	gtk_widget_set_sensitive(priv->toggle_palette, FALSE);
 
+	priv->menu_nick = gtk_menu_new();
+	
 	priv->string_list = g_list_prepend(priv->string_list, NULL);
 
 	return GTK_WIDGET(remark_entry);
@@ -364,6 +384,28 @@ remark_entry_grab_focus(RemarkEntry *entry)
 		gtk_editable_select_region(GTK_EDITABLE(priv->entry), -1, -1);
 	}
 }
+void
+remark_entry_set_nick_list(RemarkEntry *entry, GList *nick_list)
+{
+	RemarkEntryPrivate *priv;
+	GtkWidget *menuitem;
+	GList *cur;
+
+        g_return_if_fail(entry != NULL);
+        g_return_if_fail(IS_REMARK_ENTRY(entry));
+
+	priv = entry->priv;
+
+	gtk_container_foreach(GTK_CONTAINER(priv->menu_nick), 
+			      (GtkCallback) gtk_container_remove, NULL);
+	for(cur = nick_list; cur != NULL; cur = cur->next) {
+		if(!cur->data)
+			continue;
+		menuitem = gtk_menu_item_new_with_label(cur->data);
+		gtk_menu_shell_append(GTK_MENU_SHELL(priv->menu_nick), menuitem);
+	}
+}
+
 static void
 remark_entry_history_add(RemarkEntry *entry, const gchar *str)
 {
@@ -466,7 +508,6 @@ remark_entry_nick_clicked_cb(GtkWidget *widget, gpointer data)
 {
         RemarkEntry *remark_entry;
 	RemarkEntryPrivate *priv;
-	gchar *str;
 
         g_return_if_fail(data != NULL);
         g_return_if_fail(IS_REMARK_ENTRY(data));
@@ -475,6 +516,21 @@ remark_entry_nick_clicked_cb(GtkWidget *widget, gpointer data)
 	priv = remark_entry->priv;
 
 	g_signal_emit(remark_entry, remark_entry_signals[NICK_CHANGE], 0);
+}
+static void
+remark_entry_nick_pulldown_clicked_cb(GtkWidget *widget, gpointer data)
+{
+        RemarkEntry *remark_entry;
+	RemarkEntryPrivate *priv;
+
+        g_return_if_fail(data != NULL);
+        g_return_if_fail(IS_REMARK_ENTRY(data));
+
+	remark_entry = REMARK_ENTRY(data);
+	priv = remark_entry->priv;
+
+	gtk_menu_popup(GTK_MENU(priv->menu_nick), NULL, NULL, NULL,
+		       0, 0, gtk_get_current_event_time());
 }
 
 static void
