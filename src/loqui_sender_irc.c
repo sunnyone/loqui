@@ -343,6 +343,11 @@ loqui_sender_irc_part(LoquiSender *sender, LoquiChannel *channel, const gchar *p
 		loqui_account_warning(sender->account, _("This is a private talk"));
 		return;
 	}
+	if (!loqui_channel_get_is_joined(channel)) {
+		loqui_account_remove_channel(sender->account, channel);
+		return;
+	}
+
 	WARN_AND_RETURN_UNLESS_CONNECTED(sender);
 
 	msg = irc_message_create(IRCCommandPart,
