@@ -346,7 +346,7 @@ utils_strftime(const gchar *format, struct tm *time)
 		if (buf[0] == '\0')
 			return buf;
 		
-		if (len > 0 || buf[0] == '\0') {
+		if (len > 0) {
 			buf2 = g_locale_to_utf8(buf, -1, NULL, NULL, NULL);
 			g_free(buf);
 			return buf2;
