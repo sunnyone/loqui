@@ -21,12 +21,20 @@
 
 #include "loqui_channel_text_view.h"
 #include "gtkutils.h"
+#include "intl.h"
+
+#include "prefs_general.h"
+
+#define EPS 0.00000001
 
 enum {
+	SIGNAL_SCROLLED_TO_END,
         LAST_SIGNAL
 };
 
 enum {
+	PROP_0,
+	PROP_IS_SCROLL,
         LAST_PROP
 };
 
@@ -37,7 +45,7 @@ struct _LoquiChannelTextViewPrivate
 
 static GtkTextViewClass *parent_class = NULL;
 
-/* static guint channel_text_view_signals[LAST_SIGNAL] = { 0 }; */
+static guint channel_text_view_signals[LAST_SIGNAL] = { 0 };
 
 static void loqui_channel_text_view_class_init(LoquiChannelTextViewClass *klass);
 static void loqui_channel_text_view_init(LoquiChannelTextView *view);
@@ -49,6 +57,7 @@ static void loqui_channel_text_view_set_property(GObject *object, guint param_id
 
 static void loqui_channel_text_view_destroy(GtkObject *object);
 
+static void loqui_channel_text_view_vadj_value_changed_cb(GtkAdjustment *adj, gpointer data);
 static gboolean loqui_channel_text_view_key_press_event(GtkWidget *widget,
 							GdkEventKey *event);
 
@@ -114,6 +123,9 @@ loqui_channel_text_view_get_property(GObject *object, guint param_id, GValue *va
         view = LOQUI_CHANNEL_TEXT_VIEW(object);
 
         switch (param_id) {
+	case PROP_IS_SCROLL:
+		g_value_set_boolean(value, view->is_scroll);
+		break;
         default:
                 G_OBJECT_WARN_INVALID_PROPERTY_ID(object, param_id, pspec);
                 break;
@@ -127,6 +139,9 @@ loqui_channel_text_view_set_property(GObject *object, guint param_id, const GVal
         view = LOQUI_CHANNEL_TEXT_VIEW(object);
 
         switch (param_id) {
+	case PROP_IS_SCROLL:
+		loqui_channel_text_view_set_is_scroll(view, g_value_get_boolean(value));
+		break;
         default:
                 G_OBJECT_WARN_INVALID_PROPERTY_ID(object, param_id, pspec);
                 break;
@@ -148,6 +163,22 @@ loqui_channel_text_view_class_init(LoquiChannelTextViewClass *klass)
         GTK_OBJECT_CLASS(klass)->destroy = loqui_channel_text_view_destroy;
 
 	widget_class->key_press_event = loqui_channel_text_view_key_press_event;
+
+	g_object_class_install_property(object_class,
+					PROP_IS_SCROLL,
+					g_param_spec_boolean("is_scroll",
+							     _("IsScroll"),
+							     _("Scrolling or not"),
+							     TRUE,
+							     G_PARAM_READWRITE));
+	
+        channel_text_view_signals[SIGNAL_SCROLLED_TO_END] = g_signal_new("scrolled_to_end",
+									 G_OBJECT_CLASS_TYPE(object_class),
+									 G_SIGNAL_RUN_FIRST,
+									 G_STRUCT_OFFSET(LoquiChannelTextViewClass, scrolled_to_end),
+									 NULL, NULL,
+									 g_cclosure_marshal_VOID__VOID,
+									 G_TYPE_NONE, 0);
 }
 static void 
 loqui_channel_text_view_init(LoquiChannelTextView *view)
@@ -185,25 +216,49 @@ loqui_channel_text_view_key_press_event(GtkWidget *widget,
 
 	return FALSE;
 }
+static void
+loqui_channel_text_view_vadj_value_changed_cb(GtkAdjustment *adj, gpointer data)
+{
+	LoquiChannelTextView *chview;
+	gboolean reached_to_end;
+
+        g_return_if_fail(data != NULL);
+        g_return_if_fail(LOQUI_IS_CHANNEL_TEXT_VIEW(data));
+
+	chview = LOQUI_CHANNEL_TEXT_VIEW(data);
+
+	/* upper - page_size is max virtually. */
+	reached_to_end = (ABS(adj->upper - adj->page_size - adj->value) < EPS);
+
+	if (reached_to_end)
+		g_signal_emit(G_OBJECT(chview), channel_text_view_signals[SIGNAL_SCROLLED_TO_END], 0);
+	
+	if (prefs_general.auto_switch_scrolling) {
+		loqui_channel_text_view_set_is_scroll(chview, reached_to_end);
+	}
+}
 GtkWidget *
 loqui_channel_text_view_new(LoquiApp *app)
 {
-        LoquiChannelTextView *view;
+        LoquiChannelTextView *chview;
 	LoquiChannelTextViewPrivate *priv;
 
-	view = g_object_new(loqui_channel_text_view_get_type(),
+	chview = g_object_new(loqui_channel_text_view_get_type(),
 			    "editable", FALSE,
 			    "wrap_mode", GTK_WRAP_CHAR,
 			    NULL);
 	
-        priv = view->priv;
+        priv = chview->priv;
 	priv->app = app;
 
-	view->scrolled_window = gtk_scrolled_window_new(NULL, NULL);
-        gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(view->scrolled_window), GTK_POLICY_NEVER, GTK_POLICY_ALWAYS);
-	gtk_container_add(GTK_CONTAINER(view->scrolled_window), GTK_WIDGET(view));
+	chview->scrolled_window = gtk_scrolled_window_new(NULL, NULL);
+        gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(chview->scrolled_window), GTK_POLICY_NEVER, GTK_POLICY_ALWAYS);
+	gtk_container_add(GTK_CONTAINER(chview->scrolled_window), GTK_WIDGET(chview));
 
-        return GTK_WIDGET(view);
+	g_signal_connect(G_OBJECT(GTK_TEXT_VIEW(chview)->vadjustment), "value-changed",
+			 G_CALLBACK(loqui_channel_text_view_vadj_value_changed_cb), chview);
+
+        return GTK_WIDGET(chview);
 }
 void
 loqui_channel_text_view_scroll_to_end(LoquiChannelTextView *chview)
@@ -217,6 +272,8 @@ loqui_channel_text_view_scroll_to_end(LoquiChannelTextView *chview)
 	if(buffer && IS_CHANNEL_BUFFER(buffer))
 		gtk_text_view_scroll_mark_onscreen(GTK_TEXT_VIEW(chview),
 						   gtk_text_buffer_get_mark(buffer, "end"));
+
+	g_signal_emit(G_OBJECT(chview), channel_text_view_signals[SIGNAL_SCROLLED_TO_END], 0);
 }
 void
 loqui_channel_text_view_scroll_to_end_if_enabled(LoquiChannelTextView *chview)
@@ -233,8 +290,13 @@ loqui_channel_text_view_set_is_scroll(LoquiChannelTextView *chview, gboolean is_
         g_return_if_fail(chview != NULL);
         g_return_if_fail(LOQUI_IS_CHANNEL_TEXT_VIEW(chview));
 
+	if (chview->is_scroll == is_scroll)
+		return;
+
 	chview->is_scroll = is_scroll;
 	loqui_channel_text_view_scroll_to_end_if_enabled(chview);
+
+	g_object_notify(G_OBJECT(chview), "is_scroll");
 }
 gboolean
 loqui_channel_text_view_get_is_scroll(LoquiChannelTextView *chview)
