@@ -72,7 +72,6 @@ void account_manager_set_current_account(AccountManager *manager, Account *accou
 Account *account_manager_get_current_account(AccountManager *manager);
 
 void account_manager_set_updated(AccountManager *manager, Account *account, Channel *channel);
-void account_manager_update_channel_user_number(AccountManager *manager, Channel *channel);
 
 gboolean account_manager_is_current_account(AccountManager *manager, Account *account);
 gboolean account_manager_is_current_channel(AccountManager *manager, Channel *channel);
@@ -82,8 +81,6 @@ void account_manager_common_buffer_append(AccountManager *manager, TextType type
 void account_manager_common_buffer_append_remark(AccountManager *manager, TextType type,
 						 gboolean is_self, gboolean is_priv,
 						 const gchar *channel_name, const gchar *nick, const gchar *remark);
-void account_manager_update_current_info(AccountManager *manager);
-
 void account_manager_remove_channels_of_account(AccountManager *manager, Account *account);
 
 void account_manager_disconnect_all(AccountManager *manager);

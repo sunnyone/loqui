@@ -64,10 +64,10 @@ GType        loqui_app_get_type             (void) G_GNUC_CONST;
 
 GtkWidget*      loqui_app_new                 (void);
 
+void loqui_app_update_info(LoquiApp *app, 
+			   gboolean is_account_changed, Account *account,
+			   gboolean is_channel_changed, Channel *channel);
 
-void loqui_app_set_current_info(LoquiApp *app, const gchar *account_name, 
-				const gchar *channel_name, const gchar *channel_mode,
-				const gchar *topic, gint user_number, gint op_number);
 void loqui_app_set_focus(LoquiApp *app);
 
 void loqui_app_set_channel_buffer(LoquiApp *app, GtkTextBuffer *textbuf);

@@ -27,7 +27,10 @@
 #include <string.h>
 
 enum {
+	UPDATED,
 	TOPIC_CHANGED,
+	USER_NUMBER_CHANGED,
+	MODE_CHANGED,
 	LAST_SIGNAL
 };
 
@@ -68,9 +71,6 @@ static void channel_class_init(ChannelClass *klass);
 static void channel_init(Channel *channel);
 static void channel_finalize(GObject *object);
 
-static void channel_update_user_number(Channel *channel);
-static gboolean channel_update_user_number_actually(Channel *channel);
-
 static void channel_mode_change_free(ModeChange *mode_change);
 static void channel_mode_free(ChannelMode *mode);
 
@@ -109,6 +109,14 @@ channel_class_init (ChannelClass *klass)
         
         object_class->finalize = channel_finalize;
 
+	channel_signals[UPDATED] = g_signal_new("updated",
+						G_OBJECT_CLASS_TYPE(object_class),
+						G_SIGNAL_RUN_FIRST,
+						0,
+						NULL, NULL,
+						g_cclosure_marshal_VOID__VOID,
+						G_TYPE_NONE, 0);
+
 	channel_signals[TOPIC_CHANGED] = g_signal_new("topic-changed",
 						      G_OBJECT_CLASS_TYPE(object_class),
 						      G_SIGNAL_RUN_FIRST,
@@ -116,7 +124,24 @@ channel_class_init (ChannelClass *klass)
 						      NULL, NULL,
 						      g_cclosure_marshal_VOID__VOID,
 						      G_TYPE_NONE, 0);
+
+	channel_signals[USER_NUMBER_CHANGED] = g_signal_new("user-number-changed",
+							    G_OBJECT_CLASS_TYPE(object_class),
+							    G_SIGNAL_RUN_FIRST,
+							    0,
+							    NULL, NULL,
+							    g_cclosure_marshal_VOID__VOID,
+							    G_TYPE_NONE, 0);
+
+	channel_signals[MODE_CHANGED] = g_signal_new("mode-changed",
+						     G_OBJECT_CLASS_TYPE(object_class),
+						     G_SIGNAL_RUN_FIRST,
+						     0,
+						     NULL, NULL,
+						     g_cclosure_marshal_VOID__VOID,
+						     G_TYPE_NONE, 0);
 }
+
 static void 
 channel_init (Channel *channel)
 {
@@ -235,6 +260,8 @@ void channel_set_updated(Channel *channel, gboolean updated)
 	priv->updated = updated;
 
 	account_manager_set_updated(account_manager_get(), NULL, channel);
+
+	g_signal_emit(channel, channel_signals[UPDATED], 0);
 }
 gboolean channel_get_updated(Channel *channel)
 {
@@ -310,7 +337,8 @@ void channel_append_user(Channel *channel, const gchar *nick, UserPower power, U
 	priv->user_number++;
 	if(tmp_power == USER_POWER_OP)
 		priv->op_number++;
-	channel_update_user_number(channel);
+
+	g_signal_emit(channel, channel_signals[USER_NUMBER_CHANGED], 0);
 }
 gboolean channel_find_user(Channel *channel, const gchar *nick, GtkTreeIter *iter_ptr)
 {
@@ -371,7 +399,7 @@ void channel_remove_user(Channel *channel, const gchar *nick)
 		priv->op_number--;
 	priv->user_number--;
 
-	channel_update_user_number(channel);
+	g_signal_emit(channel, channel_signals[USER_NUMBER_CHANGED], 0);
 }
 void channel_change_user_power(Channel *channel, const gchar *nick, UserPower power)
 {
@@ -401,7 +429,7 @@ void channel_change_user_power(Channel *channel, const gchar *nick, UserPower po
 	if(old_power != USER_POWER_OP && power == USER_POWER_OP)
 		priv->op_number++;
 
-	channel_update_user_number(channel);
+	g_signal_emit(channel, channel_signals[USER_NUMBER_CHANGED], 0);
 }
 void channel_change_user_nick(Channel *channel, const gchar *nick_orig, const gchar *nick_new)
 {
@@ -424,37 +452,7 @@ void channel_clear_user(Channel *channel)
 
 	gtk_list_store_clear(channel->user_list);
 
-	channel_update_user_number(channel);
-}
-static void
-channel_update_user_number(Channel *channel)
-{
-	ChannelPrivate *priv;
-
-	g_return_if_fail(channel != NULL);
-	g_return_if_fail(IS_CHANNEL(channel));
-
-	priv = channel->priv;
-
-	if(!priv->user_number_update_function_added) {
-		g_idle_add((GSourceFunc) channel_update_user_number_actually, channel);
-		priv->user_number_update_function_added = TRUE;
-	}
-}
-static gboolean 
-channel_update_user_number_actually(Channel *channel)
-{
-	ChannelPrivate *priv;
-
-	g_return_val_if_fail(channel != NULL, FALSE);
-	g_return_val_if_fail(IS_CHANNEL(channel), FALSE);
-	
-	priv = channel->priv;
-
-	account_manager_update_channel_user_number(account_manager_get(), channel);
-	priv->user_number_update_function_added = FALSE;
-
-	return FALSE;
+	g_signal_emit(channel, channel_signals[USER_NUMBER_CHANGED], 0);
 }
 void
 channel_get_user_number(Channel *channel, guint *user_number, guint *op_number)
@@ -580,9 +578,7 @@ channel_change_mode(Channel *channel, gboolean is_add, IRCModeFlag flag, gchar *
 
 	debug_puts("Channel mode changed: %s %c%c %s", priv->name, is_add ? '+' : '-', flag, argument ? argument : "");
 
-	if(account_manager_is_current_channel(account_manager_get(), channel)) {
-		account_manager_update_current_info(account_manager_get());
-	}
+	g_signal_emit(channel, channel_signals[MODE_CHANGED], 0);
 }
 void channel_clear_mode(Channel *channel)
 {
@@ -601,9 +597,7 @@ void channel_clear_mode(Channel *channel)
 
 	priv->mode_list = NULL;
 
-	if(account_manager_is_current_channel(account_manager_get(), channel)) {
-		account_manager_update_current_info(account_manager_get());
-	}
+	g_signal_emit(channel, channel_signals[MODE_CHANGED], 0);
 }
 gchar *
 channel_get_mode(Channel *channel)

@@ -52,6 +52,9 @@ static void account_manager_init(AccountManager *account_manager);
 static void account_manager_finalize(GObject *object);
 /* static Account* account_manager_search_account(AccountManager *manager, Channel *channel); */
 
+static void account_manager_account_changed_cb(GObject *object, gpointer data);
+static void account_manager_channel_changed_cb(GObject *object, gpointer data);
+
 static AccountManager *main_account_manager = NULL;
 
 GType
@@ -240,21 +243,57 @@ account_manager_set_updated(AccountManager *manager, Account *account, Channel *
 	channel_tree_set_updated(priv->app->channel_tree, account, channel);
 }
 
+static void account_manager_account_changed_cb(GObject *object, gpointer data)
+{
+	AccountManager *manager;
+	AccountManagerPrivate *priv;
+
+        g_return_if_fail(data != NULL);
+        g_return_if_fail(IS_ACCOUNT_MANAGER(data));
+	
+	manager = ACCOUNT_MANAGER(data);
+
+	priv = manager->priv;
+
+	loqui_app_update_info(priv->app, 
+			      TRUE, account_manager_get_current_account(manager),
+			      FALSE, account_manager_get_current_channel(manager));
+}
+static void account_manager_channel_changed_cb(GObject *object, gpointer data)
+{
+
+	AccountManager *manager;
+	AccountManagerPrivate *priv;
+
+        g_return_if_fail(data != NULL);
+        g_return_if_fail(IS_ACCOUNT_MANAGER(data));
+	
+	manager = ACCOUNT_MANAGER(data);
+
+	priv = manager->priv;
+	
+	loqui_app_update_info(priv->app, 
+			      FALSE, account_manager_get_current_account(manager),
+			      TRUE, account_manager_get_current_channel(manager));
+}
 void account_manager_set_current_channel(AccountManager *manager, Channel *channel)
 {
 	AccountManagerPrivate *priv;
-	guint id;
+	gboolean is_account_changed, is_channel_changed;
 
         g_return_if_fail(manager != NULL);
         g_return_if_fail(IS_ACCOUNT_MANAGER(manager));
 	g_return_if_fail(IS_CHANNEL(channel));
 	
 	priv = manager->priv;
-	
+
 	if(priv->current_channel) {
-		while((id = g_signal_handler_find(priv->current_channel, G_SIGNAL_MATCH_DATA, 0, 0, NULL, NULL, manager)))
-			g_signal_handler_disconnect(G_OBJECT(priv->current_channel), id);
+		g_signal_handlers_disconnect_by_func(priv->current_channel, account_manager_channel_changed_cb, manager);
+		g_signal_handlers_disconnect_by_func(priv->current_channel, channel_tree_update_user_number, manager->priv->app->channel_tree);
 	}
+
+	is_account_changed = (account_manager_get_current_account(manager) != channel->account) ? TRUE : FALSE;
+	is_channel_changed = (account_manager_get_current_channel(manager) != channel) ? TRUE : FALSE;
 
 	priv->current_account = NULL; /* FIXME: this should be not NULL but channel->account */
 	priv->current_channel = channel;
@@ -262,13 +301,24 @@ void account_manager_set_current_channel(AccountManager *manager, Channel *chann
 	channel_tree_select_channel(manager->priv->app->channel_tree, channel);
 	loqui_app_set_channel_buffer(priv->app, GTK_TEXT_BUFFER(channel->buffer));
 	nick_list_set_store(priv->app->nick_list, channel->user_list);
-	account_manager_update_current_info(manager);
+	loqui_app_update_info(priv->app, 
+			      is_account_changed, channel->account,
+			      is_channel_changed, channel);
+
 	channel_set_updated(channel, FALSE);
 	account_manager_update_away_status(manager, account_get_away_status(channel->account));
 
-	g_signal_connect_swapped(G_OBJECT(channel), "topic-changed",
-				 G_CALLBACK(account_manager_update_current_info),
-				 manager);
+	g_signal_connect(G_OBJECT(channel), "topic-changed",
+			 G_CALLBACK(account_manager_channel_changed_cb),
+			 manager);
+	g_signal_connect(G_OBJECT(channel), "user-number-changed",
+			 G_CALLBACK(account_manager_channel_changed_cb),
+			 manager);
+	g_signal_connect_swapped(G_OBJECT(channel), "user-number-changed",
+				 G_CALLBACK(channel_tree_update_user_number), priv->app->channel_tree);
+	g_signal_connect(G_OBJECT(channel), "mode-changed",
+			 G_CALLBACK(account_manager_channel_changed_cb),
+			 manager);
 
 	if(prefs_general.auto_switch_scrolling)
 		account_manager_set_whether_scrolling(manager, TRUE);
@@ -279,19 +329,31 @@ void account_manager_set_current_channel(AccountManager *manager, Channel *chann
 void account_manager_set_current_account(AccountManager *manager, Account *account)
 {
 	AccountManagerPrivate *priv;
+	gboolean is_account_changed, is_channel_changed;
 
         g_return_if_fail(manager != NULL);
         g_return_if_fail(IS_ACCOUNT_MANAGER(manager));
         g_return_if_fail(IS_ACCOUNT(account));
 
 	priv = manager->priv;
+
+	if(priv->current_channel) {
+		g_signal_handlers_disconnect_by_func(priv->current_channel, account_manager_channel_changed_cb, manager);
+		g_signal_handlers_disconnect_by_func(priv->current_channel, channel_tree_update_user_number, manager->priv->app->channel_tree);
+	}
+
+	is_account_changed = (account_manager_get_current_account(manager) != account) ? TRUE : FALSE;
+	is_channel_changed = (account_manager_get_current_channel(manager) != NULL) ? TRUE : FALSE;
+
 	priv->current_channel = NULL; /* FIXME */
 	priv->current_account = account;
 
 	channel_tree_select_account(manager->priv->app->channel_tree, account);
 	loqui_app_set_channel_buffer(priv->app, GTK_TEXT_BUFFER(account->console_buffer));
 	nick_list_set_store(priv->app->nick_list, NULL);
-	account_manager_update_current_info(manager);
+	loqui_app_update_info(priv->app, 
+			      is_account_changed, account,
+			      is_channel_changed, NULL);
 	account_manager_update_away_status(manager, account_get_away_status(account));
 
 	if(prefs_general.auto_switch_scrolling)
@@ -414,55 +476,6 @@ void account_manager_common_buffer_append_remark(AccountManager *manager, TextTy
 
 	channel_buffer_append_remark(manager->priv->common_buffer, type, FALSE,
 				     is_self, is_priv, channel_name, nick, remark);
-}
-void account_manager_update_current_info(AccountManager *manager)
-{
-	gchar *account_name = NULL;
-	gchar *channel_name = NULL, *channel_mode = NULL;
-	gchar *topic = NULL;
-	gint user_number = -1, op_number = -1;
-	Account *account = NULL;
-	Channel *channel = NULL;
-	AccountManagerPrivate *priv;
-
-        g_return_if_fail(manager != NULL);
-        g_return_if_fail(IS_ACCOUNT_MANAGER(manager));
-
-	priv = manager->priv;
-
-	if(priv->current_channel) {
-		account = priv->current_channel->account;
-		channel = priv->current_channel;
-	} else
-		account = priv->current_account;
-
-	if(!account) {
-		loqui_app_set_current_info(manager->priv->app, NULL, NULL, NULL, NULL, -1, -1);
-		return;
-	}
-
-	account_name = account_get_name(account);
-	if(channel) {
-		channel_name = channel_get_name(channel);
-		topic = channel_get_topic(channel);
-		channel_get_user_number(channel, (guint *) &user_number, (guint *) & op_number);
-		channel_mode = channel_get_mode(channel);
-	}
-
-	loqui_app_set_current_info(manager->priv->app, account_name, 
-				   channel_name, channel_mode,
-				   topic, user_number, op_number);
-
-	g_free(topic);
-	g_free(channel_mode);
-}
-void account_manager_update_channel_user_number(AccountManager *manager, Channel *channel)
-{
-	g_return_if_fail(manager != NULL);
-        g_return_if_fail(IS_ACCOUNT_MANAGER(manager));
-
-	account_manager_update_current_info(manager);
-	channel_tree_update_user_number(manager->priv->app->channel_tree, channel);
 }
 void account_manager_disconnect_all(AccountManager *manager)
 {

@@ -286,54 +286,88 @@ static void loqui_app_textview_scroll_value_changed_cb(GtkAdjustment *adj, gpoin
 	}
 }
 
-
 void
-loqui_app_set_current_info(LoquiApp *app, const gchar *account_name, 
-			   const gchar *channel_name, const gchar *channel_mode,
-			   const gchar *topic, gint user_number, gint op_number)
+loqui_app_update_info(LoquiApp *app, 
+		      gboolean is_account_changed, Account *account,
+		      gboolean is_channel_changed, Channel *channel)
+
 {
 	LoquiAppPrivate *priv;
-	gchar *buf, *title;
+	gchar *buf;
 	guint context_id;
 	
+	const gchar *account_name = NULL, *channel_name = NULL;
+	guint user_number, op_number;
+	gchar *channel_mode = NULL, *user_number_str = NULL, *op_number_str = NULL, *topic = NULL;
+
+        g_return_if_fail(app != NULL);
+        g_return_if_fail(LOQUI_IS_APP(app));
+
 	priv = app->priv;
 
-	title = utils_format("%c?c{ @ }%a?a{ - }Loqui version %v",
-			     'c', channel_name,
-			     'a', account_name,
-			     'v', VERSION, -1);
-	gtk_window_set_title(GTK_WINDOW(app), title);
-	g_free(title);
+	if(account) {
+		account_name = account_get_name(account);
+	}
+	if(channel) {
+		channel_name = channel_get_name(channel);
+		topic = channel_get_topic(channel);
+		channel_mode = channel_get_mode(channel);
+		channel_get_user_number(channel, &user_number, &op_number);
 
-	gtk_label_set(GTK_LABEL(priv->label_channel), "");
-	if(channel_name) {
-		gtk_label_set(GTK_LABEL(priv->label_channel), channel_name);
+		if(user_number > 0) {
+			user_number_str = g_strdup_printf("%d", user_number);
+			op_number_str = g_strdup_printf("%d", op_number);
+		}
+	}
+	
+	if(is_account_changed) {
+		gtk_label_set(GTK_LABEL(priv->label_account), "");
+
+		if(account) {
+			gtk_label_set(GTK_LABEL(priv->label_account), account_name);
+		}
 	}
 
-	gtk_label_set(GTK_LABEL(priv->label_account), "");
-	if(account_name) {
-		gtk_label_set(GTK_LABEL(priv->label_account), account_name);
+	if(is_channel_changed) {
+		gtk_label_set(GTK_LABEL(priv->label_channel), "");
+		gtk_label_set(GTK_LABEL(priv->label_channel_mode), "");
+		gtk_label_set(GTK_LABEL(priv->label_user_number), "");
+		
+		if(channel) {
+			gtk_label_set(GTK_LABEL(priv->label_channel), channel_name);
+			
+			buf = g_strdup_printf("[%s]", channel_mode);
+			gtk_label_set(GTK_LABEL(priv->label_channel_mode), buf);
+			g_free(buf);
+			
+			if(user_number > 0) {
+				buf = g_strdup_printf("(%d/%d)", op_number, user_number);
+				gtk_label_set(GTK_LABEL(priv->label_user_number), buf);
+				g_free(buf);
+			}
+		}
 	}
+	
+#define FORMAT_INFO(format) \
+ utils_format(format, 'c', channel_name, 'a', account_name, \
+	              't', topic, 'm', channel_mode, \
+                      'u', user_number_str, 'o', op_number_str, 'v', VERSION, -1);
 
-	gtk_label_set(GTK_LABEL(priv->label_channel_mode), "");
-	if(channel_mode) {
-		buf = g_strdup_printf("[%s]", channel_mode);
-		gtk_label_set(GTK_LABEL(priv->label_channel_mode), buf);
-		g_free(buf);
-	}
-	gtk_label_set(GTK_LABEL(priv->label_user_number), "");
-	if(user_number > 0 && op_number >= 0) {
-		buf = g_strdup_printf("(%d/%d)", op_number, user_number);
-		gtk_label_set(GTK_LABEL(priv->label_user_number), buf);
-		g_free(buf);
-	}
+	buf = FORMAT_INFO("%c?c{ @ }%a?a{ - }Loqui version %v");
 
-	context_id = gtk_statusbar_get_context_id(GTK_STATUSBAR(priv->statusbar), "Topic");
+	gtk_window_set_title(GTK_WINDOW(app), buf);
+	g_free(buf);
+
+	context_id = gtk_statusbar_get_context_id(GTK_STATUSBAR(priv->statusbar), "Default");
 	gtk_statusbar_pop(GTK_STATUSBAR(priv->statusbar), context_id);
+	buf = FORMAT_INFO("%t");
+	gtk_statusbar_push(GTK_STATUSBAR(priv->statusbar), context_id, buf);
+	g_free(buf);
 
-	if(topic)
-		gtk_statusbar_push(GTK_STATUSBAR(priv->statusbar), context_id, topic);
-
+	G_FREE_UNLESS_NULL(channel_mode);
+	G_FREE_UNLESS_NULL(topic);
+	G_FREE_UNLESS_NULL(user_number_str);
+	G_FREE_UNLESS_NULL(op_number_str);
 }
 GtkWidget*
 loqui_app_new(void)
@@ -445,7 +479,7 @@ loqui_app_new(void)
 	app->channel_tree = CHANNEL_TREE(channel_tree);
 	app->nick_list = NICK_LIST(nick_list);
 
-	loqui_app_set_current_info(app, NULL, NULL, NULL, NULL, -1, -1);
+	loqui_app_update_info(app, TRUE, NULL, TRUE, NULL);
 	loqui_app_restore_size(app);
 
 #undef SET_SCROLLED_WINDOW
