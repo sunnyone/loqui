@@ -235,7 +235,7 @@ irc_handle_command_privmsg_notice(IRCHandle *handle, IRCMessage *msg)
 	LoquiChannel *channel = NULL;
 	TextType type;
 	CTCPMessage *ctcp_msg;
-	gboolean is_self;
+	gboolean is_self, is_priv;
 	LoquiUser *user;
 	LoquiMember *member;
 
@@ -291,7 +291,9 @@ irc_handle_command_privmsg_notice(IRCHandle *handle, IRCMessage *msg)
 	if (channel_name) {
 		channel = account_get_channel_by_name(priv->account, channel_name);
 		if(channel == NULL) {
-			channel = loqui_channel_new(priv->account, channel_name, FALSE, !LOQUI_UTILS_IRC_STRING_IS_CHANNEL(channel_name));
+			is_priv = !LOQUI_UTILS_IRC_STRING_IS_CHANNEL(channel_name);
+			channel = loqui_channel_new(priv->account, channel_name, FALSE, is_priv);
+
 			account_add_channel(priv->account, channel);
 			g_object_unref(channel);
 		}
@@ -672,7 +674,7 @@ irc_handle_command_join(IRCHandle *handle, IRCMessage *msg)
 			g_warning(_("Why do you know that the user join the channel?"));
 			return;
 		}
-		loqui_channel_add_member_by_nick(channel, msg->nick, FALSE, FALSE);
+		loqui_channel_add_member_by_nick(channel, msg->nick, FALSE, FALSE, FALSE);
 		irc_handle_channel_append(handle, msg, FALSE, 1, TEXT_TYPE_INFO, _("*** %n (%u@%h) joined channel %t"));
 	}
 }
@@ -711,7 +713,7 @@ irc_handle_reply_names(IRCHandle *handle, IRCMessage *msg)
 
 	nick_array = g_strsplit(irc_message_get_trailing(msg), " ", 0);
 	for(i = 0; nick_array[i] != NULL; i++) {
-		loqui_channel_add_member_by_nick(channel, nick_array[i], FALSE, FALSE);
+		loqui_channel_add_member_by_nick(channel, nick_array[i], TRUE, FALSE, FALSE);
 	}
 	g_strfreev(nick_array);
 
@@ -865,7 +867,7 @@ irc_handle_reply_who(IRCHandle *handle, IRCMessage *msg)
 	if (channel && user) {
 		member = loqui_channel_entry_get_member_by_user(LOQUI_CHANNEL_ENTRY(channel), user);
 		if (!member)
-			member = loqui_channel_add_member_by_nick(channel, nick, FALSE, FALSE);
+			member = loqui_channel_add_member_by_nick(channel, nick, FALSE, FALSE, FALSE);
 	}
 	if (user) {
 		loqui_user_set_username(user, username);

@@ -478,7 +478,7 @@ loqui_channel_get_mode(LoquiChannel *channel)
 	return str;
 }
 LoquiMember *
-loqui_channel_add_member_by_nick(LoquiChannel *channel, const gchar *nick, gboolean is_channel_operator, gboolean speakable)
+loqui_channel_add_member_by_nick(LoquiChannel *channel, const gchar *nick, gboolean parse_power, gboolean is_channel_operator, gboolean speakable)
 {
 	gchar *tmp_nick;
 	LoquiMember *member;
@@ -490,11 +490,13 @@ loqui_channel_add_member_by_nick(LoquiChannel *channel, const gchar *nick, gbool
         g_return_val_if_fail(nick != NULL, NULL);
         g_return_val_if_fail(*nick != '\0', NULL);
 	
-	loqui_utils_irc_parse_nick(nick, &is_o, &is_v, &tmp_nick);
-	nick = tmp_nick;
-	is_channel_operator = is_o;
-	speakable = is_v;
-	
+	if (parse_power) {
+		loqui_utils_irc_parse_nick(nick, &is_o, &is_v, &tmp_nick);
+		nick = tmp_nick;
+		is_channel_operator = is_o;
+		speakable = is_v;
+	}
+
 	user = account_fetch_user(channel->account, nick);
 	member = loqui_member_new(user);
 	g_object_unref(user); /* member has reference count */
