@@ -52,7 +52,7 @@ struct _AccountDialogClass
 
 GtkType account_dialog_get_type (void) G_GNUC_CONST;
 
-GtkWidget* account_dialog_new();
+GtkWidget* account_dialog_new(LoquiProfileAccount *profile);
 
 void account_dialog_open_add_dialog(GtkWindow *parent);
 void account_dialog_open_configure_dialog(GtkWindow *parent, Account *account);

@@ -74,7 +74,6 @@ static void loqui_statusbar_destroy(GtkObject *object);
 static void loqui_statusbar_set_preset_menu(LoquiStatusbar *statusbar, GList *nick_list);
 
 static void loqui_statusbar_set_away_state(LoquiStatusbar *statusbar, AwayState away_state);
-static void loqui_statusbar_away_button_press_event_cb(GtkWidget *widget, GdkEventButton *event, LoquiStatusbar *statusbar);
 static void loqui_statusbar_away_menuitem_activated_cb(GtkWidget *widget, LoquiStatusbar *statusbar);
 static void loqui_statusbar_set_away_menu(LoquiStatusbar *statusbar);
 

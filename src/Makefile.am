@@ -3,7 +3,7 @@ SUBDIRS = icons embedtxt
 bin_PROGRAMS = loqui
 
 INCLUDES = $(GTK_CFLAGS) $(EXTRA_WARNING_CFLAGS) -g -I$(includedir) -I../gtk24backports \
-	-DDATADIR=\""$(datadir)"\" $(GNET_CFLAGS) -Wall
+	-DDATADIR=\""$(datadir)"\" $(GNET_CFLAGS) -Wall -Wredundant-decls -Wmissing-declarations -Wmissing-prototypes
 
 loqui_SOURCES = \
 	intl.h \
