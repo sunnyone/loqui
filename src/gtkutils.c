@@ -79,6 +79,27 @@ gtkutils_add_label_entry(GtkWidget *box, const gchar *label_text,
 	gtk_box_pack_start(GTK_BOX(hbox), *entry, TRUE, TRUE, 0);
 }
 void
+gtkutils_add_label_spin_button(GtkWidget *box, const gchar *label_text,
+			       GtkWidget **spin, gdouble min, gdouble max, gdouble step)
+{
+	GtkWidget *hbox;
+	GtkWidget *label;
+
+	g_return_if_fail(spin != NULL);
+	g_return_if_fail(label_text != NULL);
+
+	hbox = gtk_hbox_new(FALSE, 0);
+	gtk_box_pack_start(GTK_BOX(box), hbox, FALSE, TRUE, 0);
+
+	label = gtk_label_new(label_text);
+	gtk_box_pack_start(GTK_BOX(hbox), label, FALSE, FALSE, 0);
+	gtk_label_set_justify(GTK_LABEL(label), GTK_JUSTIFY_RIGHT);
+
+	*spin = gtk_spin_button_new_with_range(min, max, step);
+	gtk_box_pack_start(GTK_BOX(hbox), *spin, FALSE, FALSE, 0);
+}
+
+void
 gtkutils_toggle_button_with_signal_handler_blocked(GtkToggleButton *button, guint signal_handler_id, gboolean bool)
 {
 	g_signal_handler_block(button, signal_handler_id);
