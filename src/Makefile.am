@@ -1,4 +1,4 @@
-SUBDIRS = icons libegg
+SUBDIRS = icons embedtxt libegg
 
 bin_PROGRAMS = loqui
 

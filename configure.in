@@ -58,6 +58,7 @@ AC_OUTPUT(
 Makefile
 src/Makefile
 src/icons/Makefile
+src/embedtxt/Makefile
 src/libegg/Makefile
 po/Makefile.in
 intl/Makefile
