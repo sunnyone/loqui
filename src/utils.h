@@ -85,6 +85,7 @@ gboolean utils_strcase_equal(gconstpointer a, gconstpointer b);
 guint utils_strcase_hash(gconstpointer v);
 
 void utils_g_ptr_array_insert_sort(GPtrArray *array, gint sort_start_pos, GCompareFunc sort_func);
+gboolean utils_return_true_if_value_equals_data(gpointer key, gpointer value, gpointer data);
 
 /* copied from Sylpheed. (c) 2002, Hiroyuki Yamamoto. */
 gint make_dir(const gchar *dir);

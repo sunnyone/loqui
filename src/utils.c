@@ -401,6 +401,12 @@ utils_g_ptr_array_insert_sort(GPtrArray *array, gint sort_start_pos, GCompareFun
 		}
 	}
 }
+gboolean
+utils_return_true_if_value_equals_data(gpointer key, gpointer value, gpointer data)
+{
+	return (value == data);
+}
+
 /* copied from Sylpheed. (c) 2002, Hiroyuki Yamamoto. */
 gint make_dir(const gchar *dir)
 {

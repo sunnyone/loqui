@@ -78,6 +78,7 @@ static void loqui_account_set_user_self(LoquiAccount *account, LoquiUser *user_s
 static void loqui_account_user_notify_identifier_cb(LoquiUser *user, GParamSpec *pspec, LoquiAccount *account);
 static void loqui_account_user_self_notify_cb(LoquiUser *user_self, GParamSpec *pspec, LoquiAccount *account);
 static void loqui_account_profile_notify_name_cb(LoquiProfileAccount *profile, GParamSpec *pspec, LoquiAccount *account);
+static void loqui_account_channel_notify_identifier_cb(LoquiChannel *channel, GParamSpec *pspec, LoquiAccount *account);
 
 static void loqui_account_remove_channel_real(LoquiAccount *account, LoquiChannel *channel);
 
@@ -432,6 +433,21 @@ loqui_account_is_connected(LoquiAccount *account)
 
 	return FALSE;
 }
+static void
+loqui_account_channel_notify_identifier_cb(LoquiChannel *channel, GParamSpec *pspec, LoquiAccount *account)
+{
+	GList *l;
+
+        g_return_if_fail(account != NULL);
+        g_return_if_fail(LOQUI_IS_ACCOUNT(account));
+	
+	g_hash_table_foreach_remove(account->identifier_channel_table,
+				    utils_return_true_if_value_equals_data,
+				    channel);
+
+	l = g_list_find(account->channel_list, channel);
+	g_hash_table_insert(account->identifier_channel_table, g_strdup(loqui_channel_get_identifier(channel)), l);
+}
 void
 loqui_account_add_channel(LoquiAccount *account, LoquiChannel *channel)
 {
@@ -447,6 +463,8 @@ loqui_account_add_channel(LoquiAccount *account, LoquiChannel *channel)
 
 	account->channel_list = g_list_concat(account->channel_list, l);
 	g_hash_table_insert(account->identifier_channel_table, g_strdup(loqui_channel_get_identifier(channel)), l);
+	g_signal_connect_object(G_OBJECT(channel), "notify::identifier",
+				G_CALLBACK(loqui_account_channel_notify_identifier_cb), account, 0);
 
 	g_signal_emit(account, account_signals[SIGNAL_ADD_CHANNEL], 0, channel);
 }
