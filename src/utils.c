@@ -322,7 +322,35 @@ utils_search_uri(const gchar *buf, gchar **got_uri,
 
 	return TRUE;
 }
+#define TIME_DEFAULT_BUFSIZE 128
+gchar *
+utils_strftime(const gchar *format, struct tm *time)
+{
+	gchar *buf;
+	gint len, format_len;
+	gint size;
+	
+	format_len = strlen(format);
+	
+	if (format_len == 0)
+		return NULL;
 
+	size = TIME_DEFAULT_BUFSIZE;
+	
+	do {
+		buf = g_malloc(size + 1);
+		buf[0] = '.';
+		len = strftime(buf, size, format, time);
+		if (len > 0 || buf[0] == '\0')
+			return buf;
+		
+		g_free(buf);
+		size *= 2;
+	/* tricky way ... it assumes len is not 1024 times bigger than format_len */	
+	} while (size < 1024 * format_len);
+	
+	return NULL;
+}
 /* copied from Sylpheed. (c) 2002, Hiroyuki Yamamoto. */
 gint make_dir(const gchar *dir)
 {
