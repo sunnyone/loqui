@@ -86,3 +86,7 @@
 * Fixed the bug that some messages are shown when a user that joined some channals quit/parted.
 * Fixed the bug the coming messages are not shown at all.
 
+2003-04-17     0.1.14
+* Separated channel/private talk in the menus.
+* double-clicking nicklist make start private talk.
+* Transparent ignore.

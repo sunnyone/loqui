@@ -1,3 +1,67 @@
+2003-04-17 21:22  y-imai
+
+	* src/: channel_buffer.c, prefs_dialog.c, prefs_general.c,
+	prefs_general.h: implemented transparent ignore
+
+2003-04-17 20:31  y-imai
+
+	* src/account_manager.c: fixed a bug
+
+2003-04-17 20:29  y-imai
+
+	* src/account_manager.c: update information about account/channel
+	at idle time
+
+2003-04-17 20:03  y-imai
+
+	* src/account.c: removed a unused variable
+
+2003-04-17 20:02  y-imai
+
+	* src/utils.c: changed strftime string
+
+2003-04-17 19:59  y-imai
+
+	* src/nick_list.c: Changed nicklist menu. Added menuitem to start
+	private talk
+
+2003-04-17 19:49  y-imai
+
+	* src/nick_list.c: Start private talk when the nicklist was
+	double-clicked
+
+2003-04-17 19:49  y-imai
+
+	* src/: account.c, account.h, command_dialog.c, command_dialog.h,
+	loqui_menu.c: separated joining and private talk
+
+2003-04-17 19:23  y-imai
+
+	* src/: account.c, channel_buffer.c, loqui_app.c, message_text.h:
+	Add 'transparent' tag. Clean up functions that scroll/set channel
+	buffer
+
+2003-03-28 10:51  y-imai
+
+	* src/: account.c, account.h, channel_input_dialog.c, irc_handle.c,
+	utils.c, utils.h: manage channels with a hash table
+
+2003-03-28 10:51  y-imai
+
+	* src/channel.c: added weak_pointer
+
+2003-03-26 12:49  y-imai
+
+	* po/: Makefile.in.in, ja.po, loqui.pot: added Makefile.in.in
+
+2003-03-26 12:42  y-imai
+
+	* debian/changelog: updated debian changelog
+
+2003-03-26 12:40  y-imai
+
+	* ChangeLog, NEWS, NEWS.ja, configure.in: 0.1.13
+
 2003-03-26 12:35  y-imai
 
 	* src/channel.c: fixed a memory leak
