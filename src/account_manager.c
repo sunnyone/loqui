@@ -198,7 +198,6 @@ void
 account_manager_update_account(AccountManager *manager, Account *account)
 {
 	AccountManagerPrivate *priv;
-	GSList *cur;
 
         g_return_if_fail(manager != NULL);
         g_return_if_fail(IS_ACCOUNT_MANAGER(manager));

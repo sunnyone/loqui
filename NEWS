@@ -96,3 +96,8 @@
 * Parse ~/.loqui/gtkrc-2.0.
 * Fixed the problem loqui distinguishes #case and #CASE.
 
+2003-06-07     0.1.16
+* Fixed the bug around the KICK message.
+* Added "Buffers" menu.
+* Added loqui.spec.
+

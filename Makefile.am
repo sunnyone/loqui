@@ -9,6 +9,8 @@ EXTRA_DIST= autogen.sh \
 	ChangeLog \
 	COPYING \
 	ABOUT-NLS \
-	INSTALL
+	INSTALL \
+	loqui.spec \
+	loqui.spec.in
 
 ACLOCAL_AMFLAGS = -I m4
