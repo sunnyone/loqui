@@ -70,6 +70,9 @@ struct _LoquiAppPrivate
 	gboolean is_pending_update_account_info;
 	gboolean is_pending_update_channel_info;
 	
+	gboolean is_pending_set_current_channel;
+	LoquiChannel *wait_current_channel;
+
 	guint updated_channel_number;
 	guint updated_private_talk_number;
 };
@@ -118,6 +121,9 @@ static void loqui_app_channel_entry_notify_number_cb(LoquiChannelEntry *chent, G
 
 static void loqui_app_channel_buffer_append_cb(ChannelBuffer *buffer, MessageText *msgtext, LoquiApp *app);
 static void loqui_app_append_log(LoquiApp *app, MessageText *msgtext);
+
+static gboolean loqui_app_set_current_channel_for_idle(LoquiApp *app);
+static void loqui_app_set_current_channel_lazy(LoquiApp *app, LoquiChannel *channel);
 
 /* utilities */
 static void scroll_channel_buffer(GtkWidget *textview);
@@ -782,6 +788,32 @@ loqui_app_channel_entry_notify_number_cb(LoquiChannelEntry *chent, GParamSpec *p
 		channel_tree_update_user_number(app->channel_tree, LOQUI_CHANNEL(chent));
 	}
 }
+static gboolean
+loqui_app_set_current_channel_for_idle(LoquiApp *app)
+{
+	LoquiAppPrivate *priv;
+
+	priv = app->priv;
+
+	loqui_app_set_current_channel(app, priv->wait_current_channel);
+	priv->wait_current_channel = NULL;
+	priv->is_pending_set_current_channel = FALSE;
+	return FALSE;
+}
+static void
+loqui_app_set_current_channel_lazy(LoquiApp *app, LoquiChannel *channel)
+{
+	LoquiAppPrivate *priv;
+
+	priv = app->priv;
+
+	priv->wait_current_channel = channel;
+
+	if (!priv->is_pending_set_current_channel) {
+		priv->is_pending_set_current_channel = TRUE;
+		g_idle_add((GSourceFunc) loqui_app_set_current_channel_for_idle, app);
+	}
+}
 void
 loqui_app_set_current_channel(LoquiApp *app, LoquiChannel *channel)
 {
@@ -1023,7 +1055,7 @@ loqui_app_add_channel_cb(Account *account, LoquiChannel *channel, LoquiApp *app)
 
 	channel_tree_add_channel(app->channel_tree, account, channel);
 
-	loqui_app_set_current_channel(app, channel);
+	loqui_app_set_current_channel_lazy(app, channel);
 }
 static void
 loqui_app_remove_channel_cb(Account *account, LoquiChannel *channel, LoquiApp *app)
