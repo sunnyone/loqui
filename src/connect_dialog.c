@@ -195,7 +195,8 @@ connect_dialog_response_cb(GtkWidget *widget, gint response, gpointer data)
 	if(response != GTK_RESPONSE_OK)
 		return;
 
-	gtk_tree_model_get_iter_first(GTK_TREE_MODEL(priv->tree_store), &parent);
+	if(!gtk_tree_model_get_iter_first(GTK_TREE_MODEL(priv->tree_store), &parent))
+		return;
 
 	do {
 		gtk_tree_model_get(GTK_TREE_MODEL(priv->tree_store), &parent, COLUMN_USE, &is_use, -1);
