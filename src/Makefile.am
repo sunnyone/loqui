@@ -7,13 +7,15 @@ INCLUDES = $(GTK_CFLAGS) $(EXTRA_WARNING_CFLAGS) -g -I$(includedir) -I../gtk24ba
 
 loqui_SOURCES = \
 	intl.h \
-	loqui_gtk.c loqui_gtk.h \
-	main.c main.h \
+	utils.c utils.h \
 	gobject_utils.c gobject_utils.h \
-	prefs_general.c prefs_general.h \
-	loqui_profile_handle.c loqui_profile_handle.h \
+	loqui_user.c loqui_user.h \
 	loqui_profile_account.c loqui_profile_account.h \
 	loqui_profile_account_irc.c loqui_profile_account_irc.h \
+	loqui_profile_handle.c loqui_profile_handle.h \
+	prefs_general.c prefs_general.h \
+	main.c main.h \
+	loqui_gtk.c loqui_gtk.h \
 	loqui_app_actions.c loqui_app_actions.h \
 	account_manager.c account_manager.h \
 	loqui_stock.c loqui_stock.h \
@@ -23,7 +25,6 @@ loqui_SOURCES = \
 	loqui_dropdown_box.c loqui_dropdown_box.h \
 	channel_tree.c channel_tree.h \
 	gtkutils.c gtkutils.h \
-	utils.c utils.h \
 	channel_buffer.c channel_buffer.h \
 	channel.c channel.h \
 	nick_list.c nick_list.h \

@@ -1,3 +1,294 @@
+2004-03-17 20:49  y-imai
+
+	* src/remark_entry.h: Clean up RemarkEntry's focus behaviour.
+
+2004-03-17 20:34  y-imai
+
+	* gtk24backports/: gtk24backports.c, gtk24backports.h: Fixed
+	  focus_on_click behavior.
+
+2004-03-17 19:24  y-imai
+
+	* src/: loqui_app.c, loqui_app.h, loqui_app_actions.c,
+	  remark_entry.c: Actions related editing are moved from loqui_app
+	  to loqui_app_actions.
+
+2004-03-17 19:05  y-imai
+
+	* src/: Makefile.am, loqui_actions.c, loqui_actions.h, loqui_app.c,
+	  loqui_app_actions.c, loqui_app_actions.h: loqui_actions ->
+	  loqui_app_actions
+
+2004-03-17 13:07  y-imai
+
+	* src/embedtxt/loqui_app_ui.txt: separator to placeholder
+
+2004-03-17 02:47  y-imai
+
+	* src/loqui_actions.c: Changed shortcut keys of (updated)
+	  previous/next channel (Ctrl+Shift+Space, Ctrl+Space, Ctrl+Up,
+	  Ctrl+Down).
+
+2004-03-17 00:49  y-imai
+
+	* src/: loqui_actions.c, loqui_app.c, remark_entry.c,
+	  remark_entry.h: Use GtkAction for toggle_command_mode.
+
+2004-03-16 23:40  y-imai
+
+	* gtk24backports/: gtk24ext.h, gtk24toolbar.c, gtkaction.c,
+	  gtkseparatortoolitem.c, gtktoggletoolbutton.c, gtktoolbutton.c,
+	  gtkuimanager.c: Remove warnings.
+
+2004-03-16 23:32  y-imai
+
+	* acconfig.h: Removed.
+
+2004-03-16 23:30  y-imai
+
+	* .cvsignore, install-sh, missing, mkinstalldirs: Removed
+	  autotools' files. Updated .cvsignore
+
+2004-03-16 23:21  y-imai
+
+	* src/embedtxt/.cvsignore: Updated .cvsignore
+
+2004-03-16 23:19  y-imai
+
+	* COPYING.LIB: Added
+
+2004-03-16 23:19  y-imai
+
+	* configure.in, intltool-extract, intltool-extract.in,
+	  intltool-merge, intltool-merge.in, intltool-update,
+	  intltool-update.in, missing, gtk24backports/.cvsignore: Require
+	  autoconf 2.53. Removed intltool. Update missing
+
+2004-03-16 23:17  y-imai
+
+	* gtk24backports/gtk24marshalers.list: added
+
+2004-03-16 22:55  y-imai
+
+	* src/: Makefile.am, loqui_actions.c, loqui_actions.h, loqui_app.c,
+	  loqui_app.h, main.c: Use Gtk24's action
+
+2004-03-16 22:54  y-imai
+
+	* src/embedtxt/loqui_app_ui.txt: Changed for GtkUIManager
+
+2004-03-16 21:23  y-imai
+
+	* gtk24backports/AUTHORS: added
+
+2004-03-16 21:23  y-imai
+
+	* gtk24backports/: .cvsignore, Makefile.am, README,
+	  gtk24backports.c, gtk24backports.h, gtk24ext.c, gtk24ext.h,
+	  gtk24toolbar.c, gtk24toolbar.h, gtkaction.c, gtkaction.h,
+	  gtkactiongroup.c, gtkactiongroup.h, gtkintl.h, gtkradioaction.c,
+	  gtkradioaction.h, gtkradiotoolbutton.c, gtkradiotoolbutton.h,
+	  gtktoggleaction.c, gtktoggleaction.h, gtktoggleactionprivate.h,
+	  gtktoggletoolbutton.c, gtktoggletoolbutton.h, gtktoolbutton.c,
+	  gtktoolitem.c, gtktoolitem.h, gtkuimanager.c, gtkuimanager.h:
+	  fixed.
+
+2004-03-16 16:22  y-imai
+
+	* Makefile.am, acconfig.h, configure.in,
+	  gtk24backports/Makefile.am, gtk24backports/README,
+	  gtk24backports/gtk24backports.h,
+	  gtk24backports/gtk24marshalers.c,
+	  gtk24backports/gtk24marshalers.h, gtk24backports/gtk24toolbar.c,
+	  gtk24backports/gtk24toolbar.h, gtk24backports/gtkaction.c,
+	  gtk24backports/gtkaction.h, gtk24backports/gtkactiongroup.c,
+	  gtk24backports/gtkactiongroup.h, gtk24backports/gtkintl.h,
+	  gtk24backports/gtkradioaction.c, gtk24backports/gtkradioaction.h,
+	  gtk24backports/gtkradiotoolbutton.c,
+	  gtk24backports/gtkradiotoolbutton.h,
+	  gtk24backports/gtkseparatortoolitem.c,
+	  gtk24backports/gtkseparatortoolitem.h,
+	  gtk24backports/gtktoggleaction.c,
+	  gtk24backports/gtktoggleaction.h,
+	  gtk24backports/gtktoggleactionprivate.h,
+	  gtk24backports/gtktoggletoolbutton.c,
+	  gtk24backports/gtktoggletoolbutton.h,
+	  gtk24backports/gtktoolbutton.c, gtk24backports/gtktoolbutton.h,
+	  gtk24backports/gtktoolitem.c, gtk24backports/gtktoolitem.h,
+	  gtk24backports/gtkuimanager.c, gtk24backports/gtkuimanager.h:
+	  Backported GtkAction widgets from gtk-2.4
+
+2004-03-16 03:33  y-imai
+
+	* src/: Makefile.am, account_manager.c, loqui_actions.c,
+	  loqui_actions.h, loqui_app.c, loqui_app.h, loqui_menu.c,
+	  loqui_menu.h: Mainmenu uses EggAction*
+
+2004-03-16 03:29  y-imai
+
+	* src/embedtxt/Makefile.am: Added \n
+
+2004-03-16 03:29  y-imai
+
+	* src/embedtxt/loqui_app_ui.txt: fixed.
+
+2004-03-15 23:41  y-imai
+
+	* src/embedtxt/loqui_app_ui.txt: Fixed typo.
+
+2004-03-15 16:17  y-imai
+
+	* configure.in, src/Makefile.am, src/embedtxt/.cvsignore,
+	  src/embedtxt/Makefile.am, src/embedtxt/loqui_app_ui.txt: Added
+	  embedtxt
+
+2004-03-15 12:46  y-imai
+
+	* src/message_text.c: Make account_name free.
+
+2004-03-14 16:30  y-imai
+
+	* src/nick_list.c: Select the node where the user clicked before
+	  popup nicklist's context-menu.
+
+2004-03-14 15:54  y-imai
+
+	* src/channel_tree.c: Changed the algorism to select next/previous
+	  channel.
+
+2004-03-14 15:53  y-imai
+
+	* src/gtkutils.h: GTKUTILS_TREE_ITER_COMPARE(): Added.
+
+2004-03-14 14:06  y-imai
+
+	* src/: loqui_stock.c, loqui_stock.h, nick_list.c:
+	  LOQUI_STOCK_NARUTO -> LOQUI_STOCK_OPERATOR LOQUI_STOCK_SPEAKER ->
+	  LOQUI_STOCK_SPEAK_ABILITY
+
+2004-03-14 14:01  y-imai
+
+	* src/: loqui_statusbar.c, loqui_stock.c, loqui_stock.h,
+	  nick_list.c: Created new icon size: LOQUI_ICON_SIZE_FONT.
+
+2004-03-14 13:10  y-imai
+
+	* src/: Makefile.am, buffer_menu.c, loqui_statusbar.c,
+	  loqui_stock.c, loqui_stock.h, main.c, main.h, remark_entry.c:
+	  loqui_stock.[ch]: Added.
+
+2004-03-14 12:58  y-imai
+
+	* src/: gtkutils.c, gtkutils.h, nick_list.c:
+	  gtkutils_get_current_font_pixel_size(): added.
+
+2004-03-14 00:54  y-imai
+
+	* test/test_utils.c: test for search_uri
+
+2004-03-14 00:54  y-imai
+
+	* src/utils.c: utils_search_uri(): Fixed.
+
+2004-03-14 00:27  y-imai
+
+	* configure.in, src/Makefile.am: merged action part of libegg
+
+2004-03-14 00:25  y-imai
+
+	* test/test_profile_handle.c: added use test
+
+2004-03-13 23:30  y-imai
+
+	* src/account_list_dialog.c: Use TYPE_ACCOUNT instead of
+	  G_TYPE_POINTER in AccountListDialog.
+
+2004-03-13 22:19  y-imai
+
+	* src/account_list_dialog.c: AccountListDialog: implemented
+	  "connect" button.
+
+2004-03-13 21:25  y-imai
+
+	* src/account_dialog.c: fix: save checkbox of "Connect default".
+
+2004-03-13 21:23  y-imai
+
+	* src/: utils.c, utils.h: g_list_foreach_swapped(): Implemented.
+
+2004-03-10 03:56  y-imai
+
+	* configure.in: check localtime_r
+
+2004-03-10 03:55  y-imai
+
+	* src/: account_list_dialog.c, account.c, account.h,
+	  account_dialog.c, account_dialog.h, account_list_dialog.h,
+	  account_manager.c: Use LoquiProfile framework.
+
+2004-03-10 03:53  y-imai
+
+	* src/loqui_profile_account.c: Set default name "Untitled.".
+
+2004-03-10 03:45  y-imai
+
+	* src/loqui_profile_account_irc.c: Set default username.
+
+2004-03-10 03:44  y-imai
+
+	* src/loqui_profile_handle.c: Don't check list's null.
+
+2004-03-10 03:21  y-imai
+
+	* src/Makefile.am: Removed ConnectDialog and PrefsAccount.
+
+2004-03-10 02:07  y-imai
+
+	* src/loqui_profile_account.c: Set default name "Untitled".
+
+2004-03-10 00:56  y-imai
+
+	* src/: connect_dialog.c, connect_dialog.h, prefs_account.c,
+	  prefs_account.h: removed old account framework
+
+2004-03-10 00:53  y-imai
+
+	* src/command_dialog.c: use current_nick
+
+2004-03-10 00:52  y-imai
+
+	* src/: loqui_statusbar.c, loqui_app.c, ctcp_handle.c,
+	  channel_tree.c, channel_input_dialog.c, buffer_menu.c: Use
+	  LoquiProfile framework
+
+2004-03-09 14:31  y-imai
+
+	* test/: Makefile, test_helper.h, test_profile_account.c,
+	  test_profile_handle.c, test_template.c, update.sh: added new test
+
+2004-03-09 14:10  y-imai
+
+	* src/: loqui_profile_handle.c, loqui_profile_handle.h: Added
+	  ProfileHandle.
+
+2004-03-09 14:00  y-imai
+
+	* src/: loqui_profile_account.c, loqui_profile_account.h,
+	  loqui_profile_account_irc.c, loqui_profile_account_irc.h: Added
+	  ProfileAccount.
+
+2004-03-09 00:47  y-imai
+
+	* src/loqui_statusbar.c: Fixed definition of variable
+
+2004-03-07 03:52  y-imai
+
+	* debian/changelog: updated debian changelog
+
+2004-03-07 03:45  y-imai
+
+	* ChangeLog, NEWS, NEWS.ja, po/ja.po, po/loqui.pot: 0.2.5
+
 2004-03-07 03:44  y-imai
 
 	* src/: remark_entry.c, remark_entry.h: Fixed signals of
