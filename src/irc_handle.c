@@ -41,6 +41,7 @@ struct _IRCHandlePrivate
 	gboolean fallback;
 
 	gboolean end_motd;
+	gboolean passed_welcome;
 };
 
 static GObjectClass *parent_class = NULL;
@@ -925,7 +926,7 @@ irc_handle_error_nick_unusable(IRCHandle *handle, IRCMessage *msg)
 
 	irc_handle_account_console_append(handle, msg, TEXT_TYPE_ERROR, "%t");
 
-	if(!priv->end_motd)
+	if(!priv->passed_welcome)
 		account_disconnect(handle->priv->account);
 }
 static void /* utility function */
@@ -1023,6 +1024,16 @@ irc_handle_reply(IRCHandle *handle, IRCMessage *msg)
 	priv = handle->priv;
 
 	switch(msg->response) {
+	case IRC_RPL_WELCOME:
+		priv->passed_welcome = TRUE;
+		irc_handle_account_console_append(handle, msg, TEXT_TYPE_INFO, "*** %*2");
+		return TRUE;
+	case IRC_RPL_YOURHOST:
+	case IRC_RPL_CREATED:
+	case IRC_RPL_MYINFO:
+	case IRC_RPL_BOUCE:
+		irc_handle_account_console_append(handle, msg, TEXT_TYPE_INFO, "*** %*2");
+		return TRUE;
 	case IRC_RPL_AWAY:
 		irc_handle_account_console_append(handle, msg, TEXT_TYPE_INFO, _("*** %2 is marked as begin AWAY, but left the message: %3"));
 		return TRUE;
@@ -1255,9 +1266,6 @@ irc_handle_response(IRCHandle *handle, IRCMessage *msg)
 		proceeded = irc_handle_reply(handle, msg);
 	} else if(IRC_MESSAGE_IS_ERROR(msg)) {
 		proceeded = irc_handle_error(handle, msg);
-	} else if(msg->response < 10) { /* FIXME: what's this? */
-		irc_handle_account_console_append(handle, msg, TEXT_TYPE_INFO, "*** %*2");
-		proceeded = TRUE;
 	}
 
 	if(!proceeded)
