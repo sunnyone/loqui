@@ -43,6 +43,8 @@ static void loqui_menu_quit_cb(GtkWidget *widget, guint callback_action, gpointe
 static void loqui_menu_connect_cb(GtkWidget *widget, gpointer data);
 static void loqui_menu_account_settings_cb(GtkWidget *widget, guint callback_action, gpointer data);
 
+static gchar *loqui_menu_translate(const gchar *path, gpointer data);
+
 #define MENU_NUMBER_CONNECT 1
 
 static GtkItemFactoryEntry menu_items[] = {
@@ -136,6 +138,11 @@ loqui_menu_finalize (GObject *object)
 
 	g_free(menu->priv);
 }
+static gchar *
+loqui_menu_translate(const gchar *path, gpointer data)
+{
+	return gettext(path);
+}
 
 LoquiMenu*
 loqui_menu_new(GtkWindow *window)
@@ -153,6 +160,8 @@ loqui_menu_new(GtkWindow *window)
 	g_object_unref(priv->accel_group);
       
 	priv->item_factory = gtk_item_factory_new(GTK_TYPE_MENU_BAR, "<main>", priv->accel_group);
+	gtk_item_factory_set_translate_func(priv->item_factory, loqui_menu_translate,
+                                            NULL, NULL);
 
 	gtk_item_factory_create_items(priv->item_factory, G_N_ELEMENTS(menu_items),
 				      menu_items, window);
