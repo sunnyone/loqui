@@ -43,7 +43,8 @@ typedef struct _LoquiAppPrivate     LoquiAppPrivate;
 
 struct _LoquiApp
 {
-        GnomeApp parent;
+        GtkWindow parent;
+
         LoquiAppPrivate *priv;
 
 	GAsyncQueue *error_connections;
@@ -57,7 +58,7 @@ struct _LoquiApp
 
 struct _LoquiAppClass
 {
-        GnomeAppClass parent_class;
+        GtkWindowClass parent_class;
 };
 
 GType        loqui_app_get_type             (void) G_GNUC_CONST;

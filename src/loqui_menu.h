@@ -1,7 +1,7 @@
 /* -*- Mode: C; tab-width: 8; indent-tabs-mode: t; c-basic-offset: 8 -*- */
 /*
- * Loqui -- IRC client for GNOME2
- * Copyright (C) 2002 Yoichi Imai <yoichi@silver-forest.com>
+ * Loqui -- IRC client for Gtk2 <http://loqui.good-day.net/>
+ * Copyright (C) 2002-2003 Yoichi Imai <yoichi@silver-forest.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,7 +20,7 @@
 #ifndef __LOQUI_MENU_H__
 #define __LOQUI_MENU_H__
 
-#include <gnome.h>
+#include <gtk/gtk.h>
 
 G_BEGIN_DECLS
 
@@ -50,10 +50,10 @@ struct _LoquiMenuClass
 
 
 GType loqui_menu_get_type(void) G_GNUC_CONST;
-LoquiMenu* loqui_menu_new(void);
+LoquiMenu* loqui_menu_new(GtkWindow *window);
 
-void loqui_menu_attach(LoquiMenu *menu, GnomeApp *app);
 void loqui_menu_create_connect_submenu(LoquiMenu *menu, GSList *account_list);
+GtkWidget* loqui_menu_get_widget(LoquiMenu *menu);
 
 G_END_DECLS
 

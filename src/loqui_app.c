@@ -35,8 +35,8 @@ struct _LoquiAppPrivate
 	GtkWidget *entry;
 };
 
-static GnomeAppClass *parent_class = NULL;
-#define PARENT_TYPE GNOME_TYPE_APP
+static GtkWindowClass *parent_class = NULL;
+#define PARENT_TYPE GTK_TYPE_WINDOW
 
 static void loqui_app_class_init(LoquiAppClass *klass);
 static void loqui_app_init(LoquiApp *app);
@@ -201,13 +201,15 @@ loqui_app_new (void)
 	g_signal_connect(G_OBJECT(app), "delete_event",
 			 G_CALLBACK(loqui_app_delete_event_cb), NULL);
 
-	gnome_app_construct(GNOME_APP(app),
-			    "Loqui",
-			    _("Loqui"));
+	gtk_window_set_title(GTK_WINDOW(app), "Loqui");
 	gtk_window_set_policy (GTK_WINDOW (app), TRUE, TRUE, TRUE);
 
 	vbox = gtk_vbox_new(FALSE, 0);
-	gnome_app_set_contents(GNOME_APP(app), vbox);
+	gtk_container_add(GTK_CONTAINER(app), vbox);
+
+	app->menu = loqui_menu_new(GTK_WINDOW(app));
+	gtk_box_pack_start(GTK_BOX(vbox), loqui_menu_get_widget(app->menu),
+			   FALSE, FALSE, 0);
 
 	/* topic line */
 	hbox = gtk_hbox_new(FALSE, 0);
@@ -268,14 +270,6 @@ loqui_app_new (void)
 	app->channel_book = CHANNEL_BOOK(channel_book);
 	app->nick_list = NICK_LIST(nick_list);
 	app->common_text = CHANNEL_TEXT(common_text);
-
-	/* status bar */
-	appbar = gnome_appbar_new(FALSE, TRUE, GNOME_PREFERENCES_NEVER);
-        gnome_app_set_statusbar(GNOME_APP(app), appbar);
-        gnome_appbar_set_default(GNOME_APPBAR(appbar),  "Loqui version " VERSION);
-
-	app->menu = loqui_menu_new();
-	loqui_menu_attach(app->menu, GNOME_APP(app));
 
 	loqui_app_restore_size(app);
 
