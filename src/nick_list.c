@@ -39,7 +39,6 @@ struct _NickListPrivate
 	GdkPixbuf *online_icon;
 	GdkPixbuf *offline_icon;
 	
-	GtkItemFactory *item_factory;
 	GtkWidget *popup_menu;
 };
 
@@ -66,44 +65,6 @@ static void nick_list_cell_data_func_away(GtkTreeViewColumn *tree_column,
 static gint nick_list_button_press_event_cb(GtkWidget *widget, GdkEventButton *event, gpointer data);
 static void nick_list_row_activated_cb(NickList *list, GtkTreePath *path, GtkTreeViewColumn *col, gpointer data);
 static GSList *nick_list_menu_get_selected_nicks(NickList *nick_list);
-
-static void nick_list_menu_start_private_talk_cb(gpointer data, guint action, GtkWidget *widget);
-static void nick_list_menu_whois_cb(gpointer data, guint action, GtkWidget *widget);
-static void nick_list_menu_mode_give_cb(gpointer data, guint action, GtkWidget *widget);
-static void nick_list_menu_mode_deprive_cb(gpointer data, guint action, GtkWidget *widget);
-static void nick_list_menu_ctcp_cb(gpointer data, guint action, GtkWidget *widget);
-
-enum {
-	CTCP_VERSION,
-	CTCP_CLIENTINFO,
-	CTCP_USERINFO,
-	CTCP_PING,
-	CTCP_TIME,
-	CTCP_FINGER
-};
-
-static GtkItemFactoryEntry popup_menu_items[] = {
-	{ N_("/Start private talk"), NULL, nick_list_menu_start_private_talk_cb, 0 },
-	{ N_("/Show information [Whois]"), NULL, nick_list_menu_whois_cb, 0 },
-	{ N_("/Change user mode [Mode]"), NULL, 0, 0, "<Branch>"},
-	{ N_("/Change user mode [Mode]/Give channel operator privilege (+o)"), NULL, 
-	     nick_list_menu_mode_give_cb, IRC_CHANNEL_MODE_OPERATOR },
-	{ N_("/Change user mode [Mode]/Give voice privilege (+v)"), NULL,
-             nick_list_menu_mode_give_cb, IRC_CHANNEL_MODE_VOICE },
-	{    "/Change user mode [Mode]/sep1", NULL, 0, 0, "<Separator>" },
-	{ N_("/Change user mode [Mode]/Deprive channel operator privilege (-o)"), NULL, 
-	  nick_list_menu_mode_deprive_cb, IRC_CHANNEL_MODE_OPERATOR },
-	{ N_("/Change user mode [Mode]/Deprive voice privilege (-v)"), NULL,
-	  nick_list_menu_mode_deprive_cb, IRC_CHANNEL_MODE_VOICE },
-
-	{ N_("/CTCP"), NULL, 0, 0, "<Branch>" },
-	{ N_("/CTCP/Version"), NULL, nick_list_menu_ctcp_cb, CTCP_VERSION },
-	{ N_("/CTCP/Clientinfo"), NULL, nick_list_menu_ctcp_cb, CTCP_CLIENTINFO },
-	{ N_("/CTCP/Userinfo"), NULL, nick_list_menu_ctcp_cb, CTCP_USERINFO },
-	{ N_("/CTCP/Ping"), NULL, nick_list_menu_ctcp_cb, CTCP_PING },
-	{ N_("/CTCP/Time"), NULL, nick_list_menu_ctcp_cb, CTCP_TIME },
-	{ N_("/CTCP/Finger"), NULL, nick_list_menu_ctcp_cb, CTCP_FINGER }
-};
 
 GType
 nick_list_get_type(void)
@@ -183,7 +144,6 @@ nick_list_destroy(GtkObject *object)
 	G_OBJECT_UNREF_UNLESS_NULL(priv->busy_icon);
 	G_OBJECT_UNREF_UNLESS_NULL(priv->online_icon);
 	G_OBJECT_UNREF_UNLESS_NULL(priv->offline_icon);
-	G_OBJECT_UNREF_UNLESS_NULL(priv->item_factory);
 
         if (GTK_OBJECT_CLASS(parent_class)->destroy)
                 (* GTK_OBJECT_CLASS(parent_class)->destroy) (object);
@@ -301,15 +261,12 @@ nick_list_menu_get_selected_nicks(NickList *nick_list)
 
 	return str_list;
 }
-static void
-nick_list_menu_start_private_talk_cb(gpointer data, guint action, GtkWidget *widget)
+void
+nick_list_start_private_talk_selected(NickList *nick_list)
 {
-	NickList *nick_list;
 	NickListPrivate *priv;
 	GSList *str_list, *cur;
 	Account *account;
-
-	nick_list = NICK_LIST(data);
 
 	priv = nick_list->priv;
 
@@ -324,15 +281,13 @@ nick_list_menu_start_private_talk_cb(gpointer data, guint action, GtkWidget *wid
 	}
 	g_slist_free(str_list);
 }
-static void
-nick_list_menu_whois_cb(gpointer data, guint action, GtkWidget *widget)
+void
+nick_list_whois_selected(NickList *nick_list)
 {
-	NickList *nick_list;
 	NickListPrivate *priv;
 	GSList *str_list, *cur;
 	Account *account;
 
-	nick_list = NICK_LIST(data);
 	priv = nick_list->priv;
 
 	account = loqui_app_get_current_account(priv->app);
@@ -346,15 +301,13 @@ nick_list_menu_whois_cb(gpointer data, guint action, GtkWidget *widget)
 	}
 	g_slist_free(str_list);
 }
-static void
-nick_list_menu_mode_give_cb(gpointer data, guint action, GtkWidget *widget)
+void
+nick_list_change_mode_selected(NickList *nick_list, gboolean is_give, IRCModeFlag flag)
 {
-	NickList *nick_list;
 	NickListPrivate *priv;
-	GSList *str_list, *cur;
 	Channel *channel;
-
-	nick_list = NICK_LIST(data);
+	GSList *str_list, *cur;
+	
 	priv = nick_list->priv;
 
 	channel = loqui_app_get_current_channel(priv->app);
@@ -363,46 +316,20 @@ nick_list_menu_mode_give_cb(gpointer data, guint action, GtkWidget *widget)
 
 	str_list = nick_list_menu_get_selected_nicks(nick_list);
 	for(cur = str_list; cur != NULL; cur = cur->next) {
-		channel_push_user_mode_queue(channel, TRUE, (IRCModeFlag) action, (gchar *) cur->data);
+		channel_push_user_mode_queue(channel, is_give, (IRCModeFlag) flag, (gchar *) cur->data);
 		g_free(cur->data);
 	}
 	g_slist_free(str_list);
 	channel_flush_user_mode_queue(channel);
-
+	
 }
-static void
-nick_list_menu_mode_deprive_cb(gpointer data, guint action, GtkWidget *widget)
+void
+nick_list_ctcp_selected(NickList *nick_list, const gchar *command)
 {
-	NickList *nick_list;
 	NickListPrivate *priv;
 	GSList *str_list, *cur;
-	Channel *channel;
-
-	nick_list = NICK_LIST(data);
-	priv = nick_list->priv;
-
-	channel = loqui_app_get_current_channel(priv->app);
-	if(!channel)
-		return;
-
-	str_list = nick_list_menu_get_selected_nicks(nick_list);
-	for(cur = str_list; cur != NULL; cur = cur->next) {
-		channel_push_user_mode_queue(channel, FALSE, (IRCModeFlag) action, (gchar *) cur->data);
-		g_free(cur->data);
-	}
-	g_slist_free(str_list);
-	channel_flush_user_mode_queue(channel);
-}
-static void
-nick_list_menu_ctcp_cb(gpointer data, guint action, GtkWidget *widget)
-{
-	NickList *nick_list;
-	NickListPrivate *priv;
-	GSList *str_list, *cur;
-	gchar *command = NULL;
 	Account *account;
 
-	nick_list = NICK_LIST(data);
 	priv = nick_list->priv;
 
 	account = loqui_app_get_current_account(priv->app);
@@ -411,29 +338,6 @@ nick_list_menu_ctcp_cb(gpointer data, guint action, GtkWidget *widget)
 
 	str_list = nick_list_menu_get_selected_nicks(nick_list);
 	for(cur = str_list; cur != NULL; cur = cur->next) {
-		switch(action) {
-		case CTCP_VERSION:
-			command = IRCCTCPVersion;
-			break;
-		case CTCP_CLIENTINFO:
-			command = IRCCTCPClientInfo;
-			break;
-		case CTCP_USERINFO:
-			command = IRCCTCPUserInfo;
-			break;
-		case CTCP_PING:
-			command = IRCCTCPPing;
-			break;
-		case CTCP_FINGER:
-			command = IRCCTCPFinger;
-			break;
-		case CTCP_TIME:
-			command = IRCCTCPTime;
-			break;
-		default:
-			g_assert_not_reached();
-			break;
-		}
 		account_send_ctcp_request(account, (gchar *) cur->data, command);
 		g_free(cur->data);
 	}
@@ -506,7 +410,7 @@ static void nick_list_row_activated_cb(NickList *list, GtkTreePath *path, GtkTre
 	account_start_private_talk(account, nick);
 }
 GtkWidget*
-nick_list_new(LoquiApp *app)
+nick_list_new(LoquiApp *app, GtkWidget *menu)
 {
         NickList *list;
 	NickListPrivate *priv;
@@ -560,12 +464,7 @@ nick_list_new(LoquiApp *app)
 	gtk_tree_view_set_search_column(GTK_TREE_VIEW(list), USERLIST_COLUMN_NICK);
 	gtk_tree_view_set_enable_search(GTK_TREE_VIEW(list), TRUE);
 
-	priv->item_factory = gtk_item_factory_new(GTK_TYPE_MENU, "<main>", NULL);
-        gtk_item_factory_set_translate_func(priv->item_factory, gtkutils_menu_translate,
-                                            NULL, NULL);
-        gtk_item_factory_create_items(priv->item_factory, G_N_ELEMENTS(popup_menu_items),
-                                      popup_menu_items, list);
-	priv->popup_menu = gtk_item_factory_get_widget(priv->item_factory, "<main>");
+	priv->popup_menu = menu;
 
 	g_signal_connect(G_OBJECT(list), "row_activated",
 			 G_CALLBACK(nick_list_row_activated_cb), NULL);

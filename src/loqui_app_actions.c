@@ -64,6 +64,19 @@ static void loqui_app_actions_toggle_statusbar_cb(GtkAction *action, LoquiApp *a
 static void loqui_app_actions_toggle_command_mode_cb(GtkAction *action, LoquiApp *app);
 static void loqui_app_actions_toggle_scroll_cb(GtkAction *action, LoquiApp *app);
 
+static void loqui_app_actions_give_op_selected_cb(GtkAction *action, LoquiApp *app);
+static void loqui_app_actions_give_voice_selected_cb(GtkAction *action, LoquiApp *app);
+static void loqui_app_actions_deprive_op_selected_cb(GtkAction *action, LoquiApp *app);
+static void loqui_app_actions_deprive_voice_selected_cb(GtkAction *action, LoquiApp *app);
+static void loqui_app_actions_start_private_talk_selected_cb(GtkAction *action, LoquiApp *app);
+static void loqui_app_actions_whois_selected_cb(GtkAction *action, LoquiApp *app);
+static void loqui_app_actions_ctcp_version_selected_cb(GtkAction *action, LoquiApp *app);
+static void loqui_app_actions_ctcp_clientinfo_selected_cb(GtkAction *action, LoquiApp *app);
+static void loqui_app_actions_ctcp_userinfo_selected_cb(GtkAction *action, LoquiApp *app);
+static void loqui_app_actions_ctcp_ping_selected_cb(GtkAction *action, LoquiApp *app);
+static void loqui_app_actions_ctcp_finger_selected_cb(GtkAction *action, LoquiApp *app);
+static void loqui_app_actions_ctcp_time_selected_cb(GtkAction *action, LoquiApp *app);
+
 static GtkActionEntry loqui_action_entries[] =
 {
 	/* name, stock_id, label, accelerator, tooltip, callback */
@@ -113,19 +126,19 @@ static GtkActionEntry loqui_action_entries[] =
 
         {"About",                  NULL, N_("_About"), NULL, NULL, G_CALLBACK(loqui_app_actions_about_cb)},
 
-        {"StartPrivateTalkSelected", NULL, N_("Start private talk"), NULL, NULL, NULL},
-        {"WhoisSelected",            NULL, N_("Show information [Whois]"), NULL, NULL, NULL},
-        {"GiveOpSelected",           LOQUI_STOCK_OPERATOR, N_("Give Channel Operator Privilege (+o)"), NULL, NULL, NULL},
-        {"GiveVoiceSelected",        LOQUI_STOCK_SPEAK_ABILITY, N_("Give Voice Privilege (+v)"), NULL, NULL, NULL},
-        {"DepriveOpSelected",        NULL, N_("Deprive Channel Operator Privilege (-o)"), NULL, NULL, NULL},
-        {"DepriveVoiceSelected",     NULL, N_("Deprive Voice Privilege (-v)"), NULL, NULL, NULL},
+        {"StartPrivateTalkSelected", NULL, N_("Start private talk"), NULL, NULL, G_CALLBACK(loqui_app_actions_start_private_talk_selected_cb)},
+        {"WhoisSelected",            NULL, N_("Show information [Whois]"), NULL, NULL, G_CALLBACK(loqui_app_actions_whois_selected_cb)},
+        {"GiveOpSelected",           LOQUI_STOCK_OPERATOR, N_("Give Channel Operator Privilege (+o)"), NULL, NULL, G_CALLBACK(loqui_app_actions_give_op_selected_cb)},
+        {"GiveVoiceSelected",        LOQUI_STOCK_SPEAK_ABILITY, N_("Give Voice Privilege (+v)"), NULL, NULL, G_CALLBACK(loqui_app_actions_give_voice_selected_cb)},
+        {"DepriveOpSelected",        NULL, N_("Deprive Channel Operator Privilege (-o)"), NULL, NULL, G_CALLBACK(loqui_app_actions_deprive_op_selected_cb)},
+        {"DepriveVoiceSelected",     NULL, N_("Deprive Voice Privilege (-v)"), NULL, NULL, G_CALLBACK(loqui_app_actions_deprive_voice_selected_cb)},
 
-        {"CTCPVersionSelected",      NULL, N_("_Version"), NULL, NULL, NULL},
-        {"CTCPClientinfoSelected",   NULL, N_("_Clientinfo"), NULL, NULL, NULL},
-        {"CTCPUserinfoSelected",     NULL, N_("User_info"), NULL, NULL, NULL},
-        {"CTCPPingSelected",         NULL, N_("_Ping"), NULL, NULL, NULL},
-        {"CTCPTimeSelected",         NULL, N_("_Time"), NULL, NULL, NULL},
-        {"CTCPFingerSelected",       NULL, N_("_Finger"), NULL, NULL, NULL},
+        {"CTCPVersionSelected",      NULL, N_("_Version"), NULL, NULL, G_CALLBACK(loqui_app_actions_ctcp_version_selected_cb)},
+        {"CTCPClientinfoSelected",   NULL, N_("_Clientinfo"), NULL, NULL, G_CALLBACK(loqui_app_actions_ctcp_clientinfo_selected_cb)},
+        {"CTCPUserinfoSelected",     NULL, N_("User_info"), NULL, NULL, G_CALLBACK(loqui_app_actions_ctcp_userinfo_selected_cb)},
+        {"CTCPPingSelected",         NULL, N_("_Ping"), NULL, NULL, G_CALLBACK(loqui_app_actions_ctcp_ping_selected_cb)},
+        {"CTCPTimeSelected",         NULL, N_("_Time"), NULL, NULL, G_CALLBACK(loqui_app_actions_ctcp_time_selected_cb)},
+        {"CTCPFingerSelected",       NULL, N_("_Finger"), NULL, NULL, G_CALLBACK(loqui_app_actions_ctcp_finger_selected_cb)},
 };
 static GtkToggleActionEntry loqui_toggle_action_entries[] = {
         {"ToggleCommandMode", LOQUI_STOCK_COMMAND, N_("_Toggle Command Mode"),CTRL"slash", N_("Interpret and send the message as command if toggled"), G_CALLBACK(loqui_app_actions_toggle_command_mode_cb), FALSE},
@@ -373,4 +386,64 @@ loqui_app_actions_start_private_talk_cb(GtkAction *action, LoquiApp *app)
 {
 	command_dialog_private_talk(app,
 				    loqui_app_get_current_account(app));
+}
+static void
+loqui_app_actions_give_op_selected_cb(GtkAction *action, LoquiApp *app)
+{
+	nick_list_change_mode_selected(app->nick_list, TRUE, IRC_CHANNEL_MODE_OPERATOR);
+}
+static void
+loqui_app_actions_give_voice_selected_cb(GtkAction *action, LoquiApp *app)
+{
+	nick_list_change_mode_selected(app->nick_list, TRUE, IRC_CHANNEL_MODE_VOICE);
+}
+static void
+loqui_app_actions_deprive_op_selected_cb(GtkAction *action, LoquiApp *app)
+{
+	nick_list_change_mode_selected(app->nick_list, FALSE, IRC_CHANNEL_MODE_OPERATOR);
+}
+static void
+loqui_app_actions_deprive_voice_selected_cb(GtkAction *action, LoquiApp *app)
+{
+	nick_list_change_mode_selected(app->nick_list, FALSE, IRC_CHANNEL_MODE_VOICE);
+}
+static void
+loqui_app_actions_start_private_talk_selected_cb(GtkAction *action, LoquiApp *app)
+{
+	nick_list_start_private_talk_selected(app->nick_list);
+}
+static void
+loqui_app_actions_whois_selected_cb(GtkAction *action, LoquiApp *app)
+{
+	nick_list_whois_selected(app->nick_list);
+}
+static void
+loqui_app_actions_ctcp_version_selected_cb(GtkAction *action, LoquiApp *app)
+{
+	nick_list_ctcp_selected(app->nick_list, IRCCTCPVersion);
+}
+static void
+loqui_app_actions_ctcp_clientinfo_selected_cb(GtkAction *action, LoquiApp *app)
+{
+	nick_list_ctcp_selected(app->nick_list, IRCCTCPClientInfo);
+}
+static void
+loqui_app_actions_ctcp_userinfo_selected_cb(GtkAction *action, LoquiApp *app)
+{
+	nick_list_ctcp_selected(app->nick_list, IRCCTCPUserInfo);
+}
+static void
+loqui_app_actions_ctcp_ping_selected_cb(GtkAction *action, LoquiApp *app)
+{
+	nick_list_ctcp_selected(app->nick_list, IRCCTCPPing);
+}
+static void
+loqui_app_actions_ctcp_finger_selected_cb(GtkAction *action, LoquiApp *app)
+{
+	nick_list_ctcp_selected(app->nick_list, IRCCTCPFinger);
+}
+static void
+loqui_app_actions_ctcp_time_selected_cb(GtkAction *action, LoquiApp *app)
+{
+	nick_list_ctcp_selected(app->nick_list, IRCCTCPTime);
 }

@@ -85,8 +85,6 @@ static void loqui_app_restore_size(LoquiApp *app);
 static void loqui_app_save_size(LoquiApp *app);
 static void loqui_app_entry_activate_cb(GtkWidget *widget, gpointer data);
 
-static void loqui_app_ui_manager_add_widget_cb(GtkUIManager *ui_manager, GtkWidget *widget, GtkBox *box);
-
 static void loqui_app_channel_textview_inserted_cb(GtkTextBuffer *textbuf,
 						   GtkTextIter *pos,
 						   const gchar *text,
@@ -419,12 +417,6 @@ loqui_app_update_info(LoquiApp *app,
 	G_FREE_UNLESS_NULL(user_number_str);
 	G_FREE_UNLESS_NULL(op_number_str);
 }
-static void
-loqui_app_ui_manager_add_widget_cb(GtkUIManager *ui_manager, GtkWidget *widget, GtkBox *box)
-{
-//        gtk_box_pack_start(box, widget, FALSE, FALSE, 0);
-//        gtk_widget_show(widget);
-}
 GtkWidget*
 loqui_app_new(AccountManager *account_manager)
 {
@@ -440,8 +432,8 @@ loqui_app_new(AccountManager *account_manager)
 	GtkWidget *vpaned;
 	GtkWidget *scrolled_win;
 	
-	GtkWidget *menu_box;
 	GtkWidget *menu_channelbar;
+	GtkWidget *menu_nick_list;
 
 	GtkAction *toggle_command_action;
 
@@ -461,9 +453,6 @@ loqui_app_new(AccountManager *account_manager)
 	vbox = gtk_vbox_new(FALSE, 0);
 	gtk_container_add(GTK_CONTAINER(app), vbox);
 
-	menu_box = gtk_vbox_new(FALSE, 0);
-	gtk_box_pack_start(GTK_BOX(vbox), menu_box, FALSE, FALSE, 0);
-
 	app->action_group = loqui_app_actions_create_group(app);
 	toggle_command_action = gtk_action_group_get_action(app->action_group, "ToggleCommandMode");
 
@@ -475,19 +464,16 @@ loqui_app_new(AccountManager *account_manager)
 	gtk_ui_manager_insert_action_group(app->ui_manager, app->action_group, 0);
 	gtk_ui_manager_insert_action_group(app->ui_manager, app->channel_entry_group, 1);
 
-	g_signal_connect(app->ui_manager, "add_widget",
-			 G_CALLBACK(loqui_app_ui_manager_add_widget_cb), menu_box);
 	if(!gtk_ui_manager_add_ui_from_string(app->ui_manager, embedtxt_loqui_app_ui, -1, &error))
 		g_error("Failed to load UI XML: %s", error->message);
 
 	gtk_ui_manager_ensure_update(app->ui_manager);
-	gtk_box_pack_start(GTK_BOX(menu_box), gtk_ui_manager_get_widget(app->ui_manager, "/menubar"), FALSE, FALSE, 0);
+	gtk_box_pack_start(GTK_BOX(vbox), gtk_ui_manager_get_widget(app->ui_manager, "/menubar"), FALSE, FALSE, 0);
 	
-	menu_channelbar = gtk_ui_manager_get_widget(app->ui_manager, "/ChannelListPopup");
-
 	priv->handlebox_channelbar = gtk_handle_box_new();
 	gtk_box_pack_start(GTK_BOX(vbox), priv->handlebox_channelbar, FALSE, FALSE, 0);
 
+	menu_channelbar = gtk_ui_manager_get_widget(app->ui_manager, "/ChannelListPopup");
 	app->channelbar = loqui_channelbar_new(app, menu_channelbar);
 	gtk_container_add(GTK_CONTAINER(priv->handlebox_channelbar), app->channelbar);
 
@@ -537,7 +523,8 @@ loqui_app_new(AccountManager *account_manager)
 	vpaned = gtk_vpaned_new();
 	gtk_paned_pack2(GTK_PANED(hpaned), vpaned, FALSE, TRUE);
 	
-	nick_list = nick_list_new(app);
+	menu_nick_list = gtk_ui_manager_get_widget(app->ui_manager, "/NickListPopup");
+	nick_list = nick_list_new(app, menu_nick_list);
 	SET_SCROLLED_WINDOW(scrolled_win, nick_list, GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
 	gtk_paned_pack1(GTK_PANED(vpaned), scrolled_win, TRUE, TRUE);	
 
