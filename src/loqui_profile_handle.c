@@ -34,8 +34,8 @@ enum {
 
 typedef enum {
 	ELEMENT_NONE,
-	ELEMENT_ACCOUNTS,
-	ELEMENT_ACCOUNT,
+	ELEMENT_PROFILES,
+	ELEMENT_PROFILE,
 	ELEMENT_PARAM,
 	ELEMENT_LIST,
 	ELEMENT_ITEM,
@@ -263,28 +263,28 @@ start_element_handler(GMarkupParseContext *context,
 	
 	elem = GET_CURRENT_ELEMENT(handle);
 	if (elem == ELEMENT_NONE) {
-		if(strcmp(element_name, "accounts") == 0) {
-			g_queue_push_tail(priv->element_queue, GINT_TO_POINTER(ELEMENT_ACCOUNTS));
+		if(strcmp(element_name, "profiles") == 0) {
+			g_queue_push_tail(priv->element_queue, GINT_TO_POINTER(ELEMENT_PROFILES));
 		} else {
       			g_set_error(error,
                    		    G_MARKUP_ERROR,
                    		    G_MARKUP_ERROR_UNKNOWN_ELEMENT,
-                   		    _("Invalid element '%s': should be 'accounts'"), element_name);
+                   		    _("Invalid element '%s': should be 'profiles'"), element_name);
 		}
 		return;
 	}
 	
-	if (elem == ELEMENT_ACCOUNTS) {
+	if (elem == ELEMENT_PROFILES) {
 		const gchar *type_id;
 		GType type;
 		
-		if (strcmp(element_name, "account") == 0) {
+		if (strcmp(element_name, "profile") == 0) {
 			type_id = loqui_profile_handle_parse_attribute("type", attribute_names, attribute_values);
 			if (!type_id) {
       				g_set_error(error,
                    			    G_MARKUP_ERROR,
                    			    G_MARKUP_ERROR_INVALID_CONTENT,
-                   			    _("Invalid content: account has no type'"));
+                   			    _("Invalid content: profile has no type'"));
                    		return;
 			}
 			type = (GType) g_hash_table_lookup(priv->type_table, type_id);
@@ -295,13 +295,13 @@ start_element_handler(GMarkupParseContext *context,
                    			    _("Invalid content: type '%s' not found'"), type_id);
                    		return;
 			}
-			g_queue_push_tail(priv->element_queue, GINT_TO_POINTER(ELEMENT_ACCOUNT));
+			g_queue_push_tail(priv->element_queue, GINT_TO_POINTER(ELEMENT_PROFILE));
 			g_queue_push_tail(priv->object_queue, g_object_new(type, NULL));
 		} else {
       			g_set_error(error,
                    		    G_MARKUP_ERROR,
                    		    G_MARKUP_ERROR_UNKNOWN_ELEMENT,
-                   		    _("Invalid element '%s': should be 'account'"), element_name);
+                   		    _("Invalid element '%s': should be 'profile'"), element_name);
                    	return;
 		}
 		return;
@@ -311,11 +311,11 @@ start_element_handler(GMarkupParseContext *context,
       		g_set_error(error,
                 	    G_MARKUP_ERROR,
                    	    G_MARKUP_ERROR_UNKNOWN_ELEMENT,
-                   	    _("Invalid element: why is not in account?"));
+                   	    _("Invalid element: why is not in profile?"));
                 return;
 	}
 	
-	if (elem == ELEMENT_ACCOUNT && strcmp(element_name, "param") == 0) {
+	if (elem == ELEMENT_PROFILE && strcmp(element_name, "param") == 0) {
 		const gchar *key;
 		key = loqui_profile_handle_parse_attribute("key", attribute_names, attribute_values);
 		if (!key) {
@@ -427,7 +427,7 @@ end_element_handler    (GMarkupParseContext *context,
 			g_value_unset(&value);
 		}
 		break;
-	case ELEMENT_ACCOUNT:
+	case ELEMENT_PROFILE:
 		obj = g_queue_pop_tail(priv->object_queue);
 		if (!obj) {
 	      		g_set_error(error,
@@ -909,7 +909,7 @@ gboolean
 loqui_profile_handle_write_to_buffer(LoquiProfileHandle *handle, GList *profile_list, gchar **buf)
 {
 	LoquiProfileHandlePrivate *priv;
-	LoquiProfileAccount *profile;
+	GObject *profile;
 	GList *cur;
 	GString *string;
 	gchar *tmp;
@@ -921,25 +921,25 @@ loqui_profile_handle_write_to_buffer(LoquiProfileHandle *handle, GList *profile_
 
 	string = g_string_new(NULL);
 	g_string_printf(string, "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n");
-	g_string_append_printf(string, "<accounts>\n");
+	g_string_append_printf(string, "<profiles>\n");
 
 	for (cur = profile_list; cur != NULL; cur = cur->next) {
-		profile = LOQUI_PROFILE_ACCOUNT(cur->data);
+		profile = G_OBJECT(cur->data);
 
 		tmp = g_hash_table_lookup(priv->type_table_reverse, GINT_TO_POINTER((int) G_OBJECT_TYPE(profile)));
 		if (!tmp) {
 			g_warning("ProfileHandle: type not registered: %s", G_OBJECT_TYPE_NAME(profile));
 			continue;
 		}
-		g_string_append_printf(string, "<account type=\"%s\">\n", tmp);
+		g_string_append_printf(string, "<profile type=\"%s\">\n", tmp);
 
 		tmp = loqui_profile_handle_object_to_xml(handle, FALSE, G_OBJECT(profile));
 		g_string_append(string, tmp);
 		g_free(tmp);
 
-		g_string_append_printf(string, "</account>\n");
+		g_string_append_printf(string, "</profile>\n");
 	}
-	g_string_append_printf(string, "</accounts>\n");
+	g_string_append_printf(string, "</profiles>\n");
 
 	*buf = g_string_free(string, FALSE);
 	return TRUE;
