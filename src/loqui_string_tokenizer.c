@@ -48,6 +48,13 @@ loqui_string_tokenizer_new(const gchar *str, const gchar *delimiters)
 	st->orig_ptr = g_strdup(str);
 	st->delimiters = g_strdup(delimiters);
 	st->cur = st->orig_ptr;
+	
+	st->delimiter = '\0';
+	st->delimiter_peek = '\0';
+	st->next_token_peek = NULL;
+	st->next_token = NULL;
+
+	st->skip_whitespaces_after_delimiter = FALSE;
 
 	return st;
 }
@@ -73,6 +80,15 @@ loqui_string_tokenizer_set_delimiters(LoquiStringTokenizer *st, const gchar *del
 	if (st->delimiters)
 		g_free(st->delimiters);
 	st->delimiters = g_strdup(delimiters);
+
+	g_free(st->next_token_peek);
+	st->next_token_peek = NULL;
+	
+	g_free(st->next_token);
+	st->next_token = NULL;
+
+	st->delimiter_peek = '\0';
+	st->delimiter = '\0';
 }
 void
 loqui_string_tokenizer_set_skip_whitespaces_after_delimiter(LoquiStringTokenizer *st, gboolean skip_whitespaces)
@@ -82,19 +98,9 @@ loqui_string_tokenizer_set_skip_whitespaces_after_delimiter(LoquiStringTokenizer
 G_CONST_RETURN gchar *
 loqui_string_tokenizer_next_token(LoquiStringTokenizer *st, gchar *delimiter_ptr)
 {
-	return loqui_string_tokenizer_next_token_full(st, delimiter_ptr, st->delimiters);
-}
-G_CONST_RETURN gchar *
-loqui_string_tokenizer_peek_next_token(LoquiStringTokenizer *st, gchar *delimiter_ptr)
-{
-	return loqui_string_tokenizer_peek_next_token_full(st, delimiter_ptr, st->delimiters);
-}
-G_CONST_RETURN gchar *
-loqui_string_tokenizer_next_token_full(LoquiStringTokenizer *st, gchar *delimiter_ptr, const gchar *delimiters)
-{
 	g_return_val_if_fail(st != NULL, NULL);
 
-	if (loqui_string_tokenizer_peek_next_token_full(st, NULL, delimiters) == NULL)
+	if (loqui_string_tokenizer_peek_next_token(st, NULL) == NULL)
 		return NULL;
 
 	if (st->next_token)
@@ -117,24 +123,32 @@ loqui_string_tokenizer_next_token_full(LoquiStringTokenizer *st, gchar *delimite
 	return st->next_token;
 }
 G_CONST_RETURN gchar *
-loqui_string_tokenizer_peek_next_token_full(LoquiStringTokenizer *st, gchar *delimiter_ptr, const gchar *delimiters)
+loqui_string_tokenizer_peek_next_token(LoquiStringTokenizer *st, gchar *delimiter_ptr)
 {
 	gchar *tmp;
 
 	g_return_val_if_fail(st != NULL, NULL);
-	
+
 	if (st->next_token_peek) {
-		*delimiter_ptr = st->delimiter_peek;
+		if (delimiter_ptr)
+			*delimiter_ptr = st->delimiter_peek;
 		return st->next_token_peek;
 	}
-	if ((tmp = strpbrk(st->cur, delimiters)) != NULL) {
+
+	if (*st->cur == '\0') {
+		if (delimiter_ptr)
+			*delimiter_ptr = '\0';
+		return NULL;
+	}
+
+	if ((tmp = strpbrk(st->cur, st->delimiters)) != NULL) {
 		st->next_token_peek = g_strndup(st->cur, tmp - st->cur);
 		st->delimiter_peek = *tmp;
 		st->cur_peeked = tmp + 1;
 	} else {
 		st->next_token_peek = g_strdup(st->cur);
 		st->delimiter_peek = '\0';
-		st->cur_peeked = st->cur_peeked + strlen(st->cur);
+		st->cur_peeked = st->cur + strlen(st->cur);
 	}
 
 	if (delimiter_ptr)
@@ -162,9 +176,7 @@ loqui_string_tokenizer_skip_char(LoquiStringTokenizer *st)
 gchar
 loqui_string_tokenizer_peek_cur_char(LoquiStringTokenizer *st)
 {
-	if (*st->cur == '\0')
-		return '\0';
-	return *(st->cur + 1);
+	return *st->cur;
 }
 G_CONST_RETURN gchar *
 loqui_string_tokenizer_get_original_string(LoquiStringTokenizer *st)
@@ -186,20 +198,18 @@ loqui_string_tokenizer_has_more_tokens(LoquiStringTokenizer *st)
 gint
 loqui_string_tokenizer_count_tokens(LoquiStringTokenizer *st)
 {
-	return loqui_string_tokenizer_count_tokens_full(st, st->delimiters);
-}
-gint
-loqui_string_tokenizer_count_tokens_full(LoquiStringTokenizer *st, gchar *delimiters)
-{
-	gint count = 0;
+	gint count;
 	const gchar *tmp;
 
 	if (*st->cur == '\0')
-		return count;
+		return 0;
 
-	do {
+	tmp = st->cur;
+	count = 1;
+	while (tmp != '\0' && (tmp = strpbrk(tmp, st->delimiters)) != NULL) {
 		count++;
-	} while ((tmp = strpbrk(st->cur, delimiters)) != NULL);
+		tmp++;
+	} 
 
 	return count;
 }
