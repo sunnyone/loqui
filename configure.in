@@ -51,6 +51,7 @@ AC_SUBST(GNET_LIBS)
 AC_DEFINE_UNQUOTED(G_LOG_DOMAIN, "$PACKAGE")
 
 AC_CHECK_FUNCS(bind_textdomain_codeset)
+AC_CHECK_FUNCS(localtime_r)
 
 AC_OUTPUT(
 Makefile
