@@ -56,7 +56,7 @@ PrefElement prefs_general_defs[] = {
 
 	{"parse_plum_recent", "false", PREF_TYPE_BOOLEAN, &prefs_general.parse_plum_recent },
 	
-	{"highlight_allow_list", "", PREF_TYPE_STRING_LIST, &prefs_general.highlight_allow_list },
+	{"highlight_list", "", PREF_TYPE_STRING_LIST, &prefs_general.highlight_list },
 
 	{NULL, NULL, 0, NULL}
 };

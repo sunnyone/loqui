@@ -69,7 +69,7 @@ typedef struct _PrefsGeneral {
 	gboolean auto_switch_scrolling;
 	gboolean parse_plum_recent;
 
-	GList *highlight_allow_list;
+	GList *highlight_list;
 } PrefsGeneral;
 
 void prefs_general_load(void);
