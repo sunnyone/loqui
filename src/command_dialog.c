@@ -23,8 +23,6 @@
 #include "intl.h"
 #include <string.h>
 
-#include "loqui_account_irc.h" /* FIXME: needless originally */
-
 static gboolean check_account_connected(LoquiAccount *account);
 static gboolean check_channel_joined(LoquiChannel *channel);
 
