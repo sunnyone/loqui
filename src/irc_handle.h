@@ -44,6 +44,8 @@ struct _IRCHandle
 	gboolean fallback;
 	guint server_num;
 
+	guint prevent_print_who_reply_count;
+	
         IRCHandlePrivate *priv;
 };
 

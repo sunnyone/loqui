@@ -57,6 +57,7 @@ static void loqui_menu_start_private_talk_cb(gpointer data, guint callback_actio
 static void loqui_menu_part_channel_cb(gpointer data, guint callback_action, GtkWidget *widget);
 static void loqui_menu_topic_cb(gpointer data, guint callback_action, GtkWidget *widget);
 static void loqui_menu_nick_cb(gpointer data, guint callback_action, GtkWidget *widget);
+static void loqui_menu_away_info_cb(gpointer data, guint callback_action, GtkWidget *widget);
 
 static void loqui_menu_view_channelbar_cb(gpointer data, guint callback_action, GtkWidget *widget);
 static void loqui_menu_view_statusbar_cb(gpointer data, guint callback_action, GtkWidget *widget);
@@ -98,6 +99,7 @@ static GtkItemFactoryEntry menu_items[] = {
 	{ "/Command/sep",        NULL,         0,       0, "<Separator>" },
 	{ N_("/Command/_Set channel topic"), "<Alt>T", loqui_menu_topic_cb, 0, },
 	{ N_("/Command/_Change nickname"), "<Alt><Control>N", loqui_menu_nick_cb, 0, },
+	{ N_("/Command/_Refresh users' away information of current channel"), "<Control><Alt>A", loqui_menu_away_info_cb, 0, },
 	{ N_("/_View"), NULL, 0, 0, "<Branch>" },
 	{ N_("/View/Channelbar"), NULL, loqui_menu_view_channelbar_cb, 0, "<ToggleItem>" },
 	{ N_("/View/Status bar"), NULL, loqui_menu_view_statusbar_cb, 0, "<ToggleItem>" },
@@ -527,6 +529,28 @@ loqui_menu_nick_cb(gpointer data, guint callback_action, GtkWidget *widget)
 	manager = account_manager_get();
 	command_dialog_nick(GTK_WINDOW(priv->app),
 			    account_manager_get_current_account(manager));
+}
+static void
+loqui_menu_away_info_cb(gpointer data, guint callback_action, GtkWidget *widget)
+{
+	LoquiMenu *menu;
+	LoquiMenuPrivate *priv;
+	AccountManager *manager;
+	Channel *channel;
+	
+	menu = LOQUI_MENU(data);
+
+	g_return_if_fail(menu != NULL);
+        g_return_if_fail(LOQUI_IS_MENU(menu));
+
+	priv = menu->priv;
+
+	manager = account_manager_get();
+	channel = account_manager_get_current_channel(manager);
+	if (channel)
+		account_fetch_away_information(channel->account, channel);
+	else
+		gtkutils_msgbox_info(GTK_MESSAGE_ERROR, _("Not selected a channel!"));
 }
 
 void

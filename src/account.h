@@ -152,7 +152,9 @@ void account_send_ctcp_request(Account *account, const gchar *target, const gcha
 
 void account_change_channel_user_mode(Account *account, Channel *channel, 
 				      gboolean is_give, IRCModeFlag flag, GList *str_list);
-				      
+
+void account_fetch_away_information(Account *account, Channel *channel);
+
 G_END_DECLS
 
 #endif /* __ACCOUNT_H__ */

@@ -1265,3 +1265,27 @@ account_notice(Account *account, const gchar *target, const gchar *str)
 	irc_connection_push_message(priv->connection, msg);
 	g_object_unref(msg);
 }
+void
+account_fetch_away_information(Account *account, Channel *channel)
+{
+	IRCMessage *msg;
+	AccountPrivate *priv;
+
+        g_return_if_fail(account != NULL);
+        g_return_if_fail(IS_ACCOUNT(account));
+        g_return_if_fail(channel != NULL);
+        g_return_if_fail(IS_CHANNEL(channel));        
+
+	priv = account->priv;
+
+	if(!account_is_connected(account)) {
+		g_warning(_("Account is not connected."));
+		return;
+	}
+
+	priv->handle->prevent_print_who_reply_count++;
+	
+	msg = irc_message_create(IRCCommandWho, channel_get_name(channel), NULL);
+	irc_connection_push_message(priv->connection, msg);
+	g_object_unref(msg);
+}

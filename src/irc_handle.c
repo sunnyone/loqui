@@ -857,6 +857,14 @@ irc_handle_reply_who(IRCHandle *handle, IRCMessage *msg)
 	} else {
 		realname = buf;
 	}
+
+	if (handle->prevent_print_who_reply_count == 0) {
+		buf2 = g_strdup_printf(_("%c%s(%s) is %s@%s (%s) on %s(%s hops) [%s]"),
+					op_char, nick, channel_name, username, hostname,
+					realname, server_name, hops_str ? hops_str : "?", away_str);
+		account_console_buffer_append(handle->priv->account, TEXT_TYPE_INFO, buf2);
+		g_free(buf2);
+	}
 	
 	channel_name = irc_message_get_param(msg, 2);
 	if (strcmp(channel_name, "*") == 0) {
@@ -865,12 +873,6 @@ irc_handle_reply_who(IRCHandle *handle, IRCMessage *msg)
 		channel = account_get_channel(priv->account, channel_name);
 	}
 
-	buf2 = g_strdup_printf(_("%c%s(%s) is %s@%s (%s) on %s(%s hops) [%s]"),
-				op_char, nick, channel_name, username, hostname,
-				realname, server_name, hops_str ? hops_str : "?", away_str);
-	account_console_buffer_append(handle->priv->account, TEXT_TYPE_INFO, buf2);
-	g_free(buf2);
-	
 	if (channel != NULL) {
 		channel_change_user_away_state(channel, nick, away_state);
 	}
@@ -1103,8 +1105,13 @@ irc_handle_reply(IRCHandle *handle, IRCMessage *msg)
 	case IRC_RPL_CHANNELMODEIS:
 		irc_handle_reply_channelmodeis(handle, msg);
 		return TRUE;
-	case IRC_RPL_ENDOFWHOIS:
 	case IRC_RPL_ENDOFWHO:
+		if (handle->prevent_print_who_reply_count > 0)
+			handle->prevent_print_who_reply_count--;
+		else
+			irc_handle_account_console_append(handle, msg, TEXT_TYPE_INFO, _("%3"));	
+		return TRUE;
+	case IRC_RPL_ENDOFWHOIS:
 	case IRC_RPL_ENDOFBANLIST:
 	case IRC_RPL_ENDOFINFO:
 	case IRC_RPL_ENDOFUSERS:
