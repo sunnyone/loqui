@@ -436,6 +436,7 @@ nick_list_new(LoquiApp *app, GtkWidget *menu)
 	priv->app = app;
 
 	nick_list_create_icons(list);
+	gtk_tree_view_set_headers_visible(GTK_TREE_VIEW(list), FALSE);
 /*	gtk_tree_view_set_headers_clickable(GTK_TREE_VIEW(list), TRUE); */
 
 	sel = gtk_tree_view_get_selection(GTK_TREE_VIEW(list));
