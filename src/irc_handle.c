@@ -218,7 +218,8 @@ static void
 irc_handle_command_quit(IRCHandle *handle, IRCMessage *msg)
 {
 	GSList *slist, *cur;
-	
+	Channel *channel;
+
 	if(msg->nick == NULL) {
 		g_warning(_("The message does not contain nick"));
 		return;
@@ -226,8 +227,13 @@ irc_handle_command_quit(IRCHandle *handle, IRCMessage *msg)
 
 	slist = account_search_joined_channel(handle->priv->account, msg->nick);
 	for(cur = slist; cur != NULL; cur = cur->next) {
+		channel = (Channel *) cur->data;
+		if(!channel) {
+			g_warning("NULL channel");
+			continue;
+		}
 		gdk_threads_enter();
-		channel_remove_user((Channel *) cur->data, msg->nick);
+		channel_remove_user(channel, msg->nick);
 		gdk_threads_leave();
 	}
 
