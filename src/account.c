@@ -712,6 +712,7 @@ account_speak(Account *account, Channel *channel, const gchar *str)
 			g_free(buf);
 		}
 		irc_handle_push_message(priv->handle, msg);
+		g_object_unref(msg);
 	} else {
 		if(channel == NULL) {
 			gtkutils_msgbox_info(GTK_MESSAGE_WARNING,
@@ -728,6 +729,7 @@ account_speak(Account *account, Channel *channel, const gchar *str)
 
 			msg = irc_message_create(IRCCommandPrivmsg, channel_get_name(channel), array[i], NULL);
 			irc_handle_push_message(priv->handle, msg);
+			g_object_unref(msg);
 			channel_append_remark(channel, TEXT_TYPE_NORMAL, TRUE, account_get_current_nick(account), array[i]);
 		}
 		g_strfreev(array);
@@ -819,6 +821,7 @@ account_set_away_message(Account *account, const gchar *away_message)
 		msg = irc_message_create(IRCCommandAway, away_message, NULL);
 	
 	irc_handle_push_message(priv->handle, msg);
+	g_object_unref(msg);
 }
 
 GSList *
@@ -860,6 +863,7 @@ void account_change_nick(Account *account, const gchar *nick)
 
 	msg = irc_message_create(IRCCommandNick, nick, NULL);
 	irc_handle_push_message(priv->handle, msg);
+	g_object_unref(msg);
 }
 
 void account_whois(Account *account, const gchar *target)
@@ -879,6 +883,7 @@ void account_whois(Account *account, const gchar *target)
 
 	msg = irc_message_create(IRCCommandWhois, target, NULL);
 	irc_handle_push_message(priv->handle, msg);
+	g_object_unref(msg);
 }
 void account_join(Account *account, const gchar *target)
 {
@@ -899,6 +904,7 @@ void account_join(Account *account, const gchar *target)
 	if(STRING_IS_CHANNEL(target)) {
 		msg = irc_message_create(IRCCommandJoin, target, NULL);
 		irc_handle_push_message(priv->handle, msg);
+		g_object_unref(msg);
 	} else {
 		channel = channel_new(account, target);
 		account_add_channel(account, channel);
@@ -944,6 +950,7 @@ void account_set_topic(Account *account, const gchar *target, const gchar *topic
 	if(STRING_IS_CHANNEL(target)) {
 		msg = irc_message_create(IRCCommandTopic, target, topic, NULL);
 		irc_handle_push_message(priv->handle, msg);
+		g_object_unref(msg);
 	}
 }
 void account_change_channel_user_mode(Account *account, Channel *channel, 
@@ -995,4 +1002,5 @@ void account_change_channel_user_mode(Account *account, Channel *channel,
 	if(show_msg_mode)
 		irc_message_print(msg);
 	irc_handle_push_message(priv->handle, msg);
+	g_object_unref(msg);
 }

@@ -344,6 +344,7 @@ irc_handle_command_ping(IRCHandle *handle, IRCMessage *msg)
 
 	msg = irc_message_create(IRCCommandPong, server, NULL);
 	irc_handle_push_message(handle, msg);
+	g_object_unref(msg);
 
 	debug_puts("put PONG to %s", server);
 }
@@ -682,6 +683,7 @@ irc_handle_my_command_join(IRCHandle *handle, IRCMessage *msg)
 
 	mode_msg = irc_message_create(IRCCommandMode, channel_get_name(channel), NULL);
 	irc_handle_push_message(handle, mode_msg);
+	g_object_unref(mode_msg);
 }
 
 static void
@@ -1339,6 +1341,7 @@ irc_handle_connect_cb(GTcpSocket *socket,
 			irc_message_print(msg);
 		}
 		irc_handle_push_message(handle, msg);
+		g_object_unref(msg);
 	}
 
 	msg = irc_message_create(IRCCommandNick, priv->account->nick, NULL);
@@ -1347,6 +1350,7 @@ irc_handle_connect_cb(GTcpSocket *socket,
 		irc_message_print(msg);
 	}
 	irc_handle_push_message(handle, msg);
+	g_object_unref(msg);
 
 	account_set_current_nick(priv->account, account_get_nick(priv->account));
 
@@ -1358,7 +1362,8 @@ irc_handle_connect_cb(GTcpSocket *socket,
 		irc_message_print(msg);
 	}
 	irc_handle_push_message(handle, msg);
-		
+	g_object_unref(msg);
+
 	tmp = account_get_autojoin(priv->account);
 	if(tmp && strlen(tmp) > 0) {
 		msg = irc_message_create(IRCCommandJoin, tmp, NULL);
@@ -1367,6 +1372,7 @@ irc_handle_connect_cb(GTcpSocket *socket,
 			irc_message_print(msg);
 		}
 		irc_handle_push_message(handle, msg);
+		g_object_unref(msg);
 
 		account_console_buffer_append(priv->account, TEXT_TYPE_INFO, _("Sent join command for autojoin."));
 	}
@@ -1492,6 +1498,7 @@ irc_handle_push_message(IRCHandle *handle, IRCMessage *msg)
 		g_warning(_("Not connected."));
 		return;
 	}
+	g_object_ref(msg);
 	g_queue_push_tail(priv->msg_queue, msg);
 
 	if(priv->out_watch == 0) {
