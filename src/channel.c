@@ -259,8 +259,6 @@ void channel_set_updated(Channel *channel, gboolean updated)
 
 	priv->updated = updated;
 
-	account_manager_set_updated(account_manager_get(), NULL, channel);
-
 	g_signal_emit(channel, channel_signals[UPDATED], 0);
 }
 gboolean channel_get_updated(Channel *channel)

@@ -71,8 +71,6 @@ Channel *account_manager_get_current_channel(AccountManager *manager);
 void account_manager_set_current_account(AccountManager *manager, Account *account);
 Account *account_manager_get_current_account(AccountManager *manager);
 
-void account_manager_set_updated(AccountManager *manager, Account *account, Channel *channel);
-
 gboolean account_manager_is_current_account(AccountManager *manager, Account *account);
 gboolean account_manager_is_current_channel(AccountManager *manager, Channel *channel);
 gboolean account_manager_is_current_channel_buffer(AccountManager *manager, ChannelBuffer *buffer);

@@ -53,6 +53,7 @@ static void account_manager_finalize(GObject *object);
 
 static void account_manager_account_changed_cb(GObject *object, gpointer data);
 static void account_manager_channel_changed_cb(GObject *object, gpointer data);
+static void account_manager_channel_updated_cb(Channel *channel, gpointer data);
 
 static AccountManager *main_account_manager = NULL;
 
@@ -219,6 +220,8 @@ account_manager_add_channel(AccountManager *manager, Account *account, Channel *
         g_return_if_fail(manager != NULL);
         g_return_if_fail(IS_ACCOUNT_MANAGER(manager));
 
+	g_signal_connect(G_OBJECT(channel), "updated",
+			 G_CALLBACK(account_manager_channel_updated_cb), manager);
 	channel_tree_add_channel(manager->priv->app->channel_tree, account, channel);
 }
 void
@@ -227,21 +230,9 @@ account_manager_remove_channel(AccountManager *manager, Account *account, Channe
         g_return_if_fail(manager != NULL);
         g_return_if_fail(IS_ACCOUNT_MANAGER(manager));
 
+	g_signal_handlers_disconnect_by_func(channel, account_manager_channel_updated_cb, manager);
 	channel_tree_remove_channel(manager->priv->app->channel_tree, channel);
 }
-void
-account_manager_set_updated(AccountManager *manager, Account *account, Channel *channel)
-{
-	AccountManagerPrivate *priv;
-
-        g_return_if_fail(manager != NULL);
-        g_return_if_fail(IS_ACCOUNT_MANAGER(manager));
-
-	priv = manager->priv;
-
-	channel_tree_set_updated(priv->app->channel_tree, account, channel);
-}
-
 static void account_manager_account_changed_cb(GObject *object, gpointer data)
 {
 	AccountManager *manager;
@@ -274,6 +265,22 @@ static void account_manager_channel_changed_cb(GObject *object, gpointer data)
 	loqui_app_update_info(priv->app, 
 			      FALSE, account_manager_get_current_account(manager),
 			      TRUE, account_manager_get_current_channel(manager));
+}
+static void account_manager_channel_updated_cb(Channel *channel, gpointer data)
+{
+	AccountManager *manager;
+	AccountManagerPrivate *priv;
+
+	g_return_if_fail(channel != NULL);
+	g_return_if_fail(IS_CHANNEL(channel));
+        g_return_if_fail(data != NULL);
+        g_return_if_fail(IS_ACCOUNT_MANAGER(data));
+	
+	manager = ACCOUNT_MANAGER(data);
+
+	priv = manager->priv;
+	
+	channel_tree_set_updated(priv->app->channel_tree, NULL, channel);
 }
 void account_manager_set_current_channel(AccountManager *manager, Channel *channel)
 {
