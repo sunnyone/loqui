@@ -415,7 +415,7 @@ irc_message_format(IRCMessage *msg, const gchar *format)
 	string = g_string_new_len(NULL, strlen(format));
 	cur = format;
 	while((tmp = strchr(cur, '%')) != NULL) {
-		if(tmp != cur) {
+		if(tmp > cur) {
 			string = g_string_append_len(string, cur, tmp - cur);
 			cur = tmp;
 		}
