@@ -44,9 +44,7 @@ gint compare_user_nick_with_nick(gconstpointer data1, gconstpointer data2)
 
 	user = (User *)data1;
 
-	if(g_ascii_strcasecmp(user->nick, (const gchar *) data2) == 0)
-		return 1;
-	return 0;
+	return g_ascii_strcasecmp(user->nick, (const gchar *) data2);
 }
 
 GType
@@ -234,7 +232,7 @@ void channel_append_user(Channel *channel, const gchar *nick, UserPower power, U
 }
 gboolean channel_find_user(Channel *channel, const gchar *nick, User **user)
 {
-	GSList *slist;
+	GSList *slist = NULL;
 
 	g_return_val_if_fail(channel != NULL, FALSE);
 	g_return_val_if_fail(IS_CHANNEL(channel), FALSE);

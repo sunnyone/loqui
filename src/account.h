@@ -94,6 +94,9 @@ void account_remove_channel(Account *account, Channel *channel);
 gboolean account_has_channel(Account *account, Channel *channel);
 
 Channel* account_search_channel_by_name(Account *account, gchar *name);
+
+GSList *account_search_joined_channel(Account *account, gchar *nick);
+
 void account_console_text_append(Account *account, gboolean with_common_text, TextType type, gchar *str);
 void account_speak(Account *account, Channel *channel, const gchar *str);
 

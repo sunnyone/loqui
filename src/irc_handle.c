@@ -70,6 +70,7 @@ static void irc_handle_command_quit(IRCHandle *handle, IRCMessage *msg);
 static void irc_handle_account_console_append(IRCHandle *handle, IRCMessage *msg, TextType type, gchar *format);
 static void irc_handle_channel_append(IRCHandle *handle, IRCMessage *msg, gboolean make_channel,
 				      gint receiver_num, TextType type, gchar *format);
+static void irc_handle_joined_channel_append(IRCHandle *handle, IRCMessage *msg, TextType type, gchar *format);
 
 static void irc_handle_reply_names(IRCHandle *handle, IRCMessage *msg);
 static void irc_handle_reply_topic(IRCHandle *handle, IRCMessage *msg);
@@ -196,8 +197,8 @@ irc_handle_command_ping(IRCHandle *handle, IRCMessage *msg)
 static void
 irc_handle_command_quit(IRCHandle *handle, IRCMessage *msg)
 {
-	/* FIXME: this should be broadcast all channels he joined */
-	irc_handle_account_console_append(handle, msg, TEXT_TYPE_INFO, _("*** %n has quit IRC(%t)"));
+	/* FIXME: remove nicks he joined */
+	irc_handle_joined_channel_append(handle, msg, TEXT_TYPE_INFO, _("*** %n has quit IRC(%t)"));
 }
 
 static void
@@ -298,7 +299,7 @@ static void
 irc_handle_reply_names(IRCHandle *handle, IRCMessage *msg)
 {
 	Channel *channel;
-	gchar *name, *nick;
+	gchar *name;
 	gchar **nick_array;
 	gint i;
 
@@ -336,7 +337,31 @@ irc_handle_reply_topic(IRCHandle *handle, IRCMessage *msg)
 
 	irc_handle_channel_append(handle, msg, FALSE, 2, TEXT_TYPE_INFO, _("Topic for %2: %t"));
 }
-static void /* utility function for threading*/
+static void /* utility function for threading */
+irc_handle_joined_channel_append(IRCHandle *handle, IRCMessage *msg, TextType type, gchar *format)
+{
+	gchar *str;
+	GSList *list = NULL, *cur;
+	Channel *channel;
+
+	str = irc_message_format(msg, format);
+
+	if(msg->nick) {
+		list = account_search_joined_channel(handle->priv->account, msg->nick);
+	}
+
+	gdk_threads_enter();
+	for(cur = list; cur != NULL; cur = cur->next) {
+		channel = (Channel *) cur->data;
+		channel_append_text(channel, FALSE, type, str);
+	}
+	account_manager_common_text_append(account_manager_get(), type, str);
+	gdk_threads_leave();
+
+	g_free(str);
+	g_slist_free(list);
+}
+static void /* utility function for threading */
 irc_handle_account_console_append(IRCHandle *handle, IRCMessage *msg, TextType type, gchar *format)
 {
 	gchar *str;

@@ -455,3 +455,25 @@ account_speak(Account *account, Channel *channel, const gchar *str)
 		g_free(buf);
 	}
 }
+
+GSList *
+account_search_joined_channel(Account *account, gchar *nick)
+{
+	GSList *list = NULL, *cur;
+	Channel *channel = NULL;
+
+        g_return_val_if_fail(account != NULL, NULL);
+        g_return_val_if_fail(IS_ACCOUNT(account), NULL);
+	g_return_val_if_fail(nick != NULL, NULL);
+
+	for(cur = account->channel_list; cur != NULL; cur = cur->next) {
+		channel = (Channel *) cur->data;
+		if(!channel) continue;
+		
+		if(channel_find_user(channel, nick, NULL)) {
+			list = g_slist_append(list, channel);
+		}
+	}
+
+	return list;
+}
