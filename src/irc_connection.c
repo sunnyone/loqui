@@ -242,32 +242,18 @@ irc_connection_disconnect_internal(IRCConnection *connection)
 }
 
 static gboolean
-irc_connection_watch_out_cb(GIOChannel *ioch, GIOCondition condition, gpointer data)
+irc_connection_send_message(IRCConnection *connection, GIOChannel *ioch, IRCMessage *msg)
 {
-	IRCConnection *connection;
 	IRCConnectionPrivate *priv;
-	IRCMessage *msg;
 	GIOStatus status;
 	GError *error;
 	gchar *buf, *tmp, *serv_str;
 
-        g_return_val_if_fail(data != NULL, FALSE);
-        g_return_val_if_fail(IS_IRC_CONNECTION(data), FALSE);
-
-	connection = IRC_CONNECTION(data);
-
 	priv = connection->priv;
 
-	if(g_queue_is_empty(priv->msg_queue)) {
-		priv->out_watch = 0;
-		return FALSE;
-	}
-
-	msg = IRC_MESSAGE(g_queue_pop_head(priv->msg_queue));
 	buf = irc_message_to_string(msg);
-	g_object_unref(msg);
 
-	if(priv->codeconv) {
+	if (priv->codeconv) {
 		serv_str = codeconv_to_server(priv->codeconv, buf);
 	} else {
 		g_warning("Code converter is not set.");
@@ -292,6 +278,32 @@ irc_connection_watch_out_cb(GIOChannel *ioch, GIOCondition condition, gpointer d
 	}
 
 	return TRUE;
+}
+static gboolean
+irc_connection_watch_out_cb(GIOChannel *ioch, GIOCondition condition, gpointer data)
+{
+	IRCConnection *connection;
+	IRCConnectionPrivate *priv;
+	IRCMessage *msg;
+	gboolean result;
+
+        g_return_val_if_fail(data != NULL, FALSE);
+        g_return_val_if_fail(IS_IRC_CONNECTION(data), FALSE);
+
+	connection = IRC_CONNECTION(data);
+
+	priv = connection->priv;
+
+	if(g_queue_is_empty(priv->msg_queue)) {
+		priv->out_watch = 0;
+		return FALSE;
+	}
+
+	msg = IRC_MESSAGE(g_queue_pop_head(priv->msg_queue));
+	result = irc_connection_send_message(connection, ioch, msg);
+	g_object_unref(msg);
+
+	return result;
 }
 
 static gboolean
@@ -459,6 +471,21 @@ irc_connection_disconnect(IRCConnection *connection)
 {
 	irc_connection_disconnect_internal(connection);
 	g_signal_emit(connection, signals[DISCONNECTED], 0);
+}
+void
+irc_connection_disconnect_after_send(IRCConnection *connection, IRCMessage *msg)
+{
+	IRCConnectionPrivate *priv;
+	GIOChannel *ioch;
+
+        g_return_if_fail(connection != NULL);
+        g_return_if_fail(IS_IRC_CONNECTION(connection));
+
+	priv = connection->priv;
+
+	ioch = gnet_tcp_socket_get_io_channel(priv->socket);
+	irc_connection_send_message(connection, ioch, msg);
+	irc_connection_disconnect(connection);
 }
 void
 irc_connection_push_message(IRCConnection *connection, IRCMessage *msg)

@@ -505,14 +505,18 @@ void
 account_disconnect(Account *account)
 {
 	AccountPrivate *priv;
+	IRCMessage *msg;
 
         g_return_if_fail(account != NULL);
         g_return_if_fail(IS_ACCOUNT(account));
 	
 	priv = account->priv;
 
-	if(priv->connection)
-		irc_connection_disconnect(priv->connection);
+	if(priv->connection) {
+		msg = irc_message_create(IRCCommandQuit, "Loqui", NULL);
+		irc_connection_disconnect_after_send(priv->connection, msg);
+		g_object_unref(msg);
+	}
 }
 gboolean
 account_is_connected(Account *account)

@@ -71,6 +71,7 @@ void irc_connection_push_message(IRCConnection *connection, IRCMessage *msg);
 
 void irc_connection_connect(IRCConnection *connection);
 void irc_connection_disconnect(IRCConnection *connection);
+void irc_connection_disconnect_after_send(IRCConnection *connection, IRCMessage *msg);
 
 G_END_DECLS
 
