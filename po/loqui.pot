@@ -7,7 +7,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2003-02-25 00:09+0900\n"
+"POT-Creation-Date: 2003-03-16 14:39+0900\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -15,24 +15,25 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: src/account.c:341
+#: src/account.c:365
 #, c-format
 msgid "Account '%s' has already connected."
 msgstr ""
 
-#: src/account.c:461
+#: src/account.c:487
 msgid "Not connected with this account"
 msgstr ""
 
-#: src/account.c:478
+#: src/account.c:504
 msgid "No channel is selected"
 msgstr ""
 
-#: src/account.c:580 src/account.c:599 src/account.c:623 src/account.c:645
+#: src/account.c:638 src/account.c:657 src/account.c:676 src/account.c:700
+#: src/account.c:722 src/command_dialog.c:42
 msgid "Account is not connected."
 msgstr ""
 
-#: src/account.c:673
+#: src/account.c:750
 msgid "Too many users in change mode request!"
 msgstr ""
 
@@ -82,6 +83,20 @@ msgstr ""
 msgid "Name"
 msgstr ""
 
+#: src/account_manager.c:414
+msgid ""
+"main_account_manager should be created. account_manager_get() may be called "
+"recursively."
+msgstr ""
+
+#: src/channel_input_dialog.c:200
+msgid "Account: "
+msgstr ""
+
+#: src/channel_input_dialog.c:226
+msgid "Channel: "
+msgstr ""
+
 #: src/channel_tree.c:298
 msgid "Failed to add channel"
 msgstr ""
@@ -116,6 +131,50 @@ msgstr ""
 msgid "Unknown error occured in code convertion."
 msgstr ""
 
+#: src/command_dialog.c:38
+msgid "Account is not selected."
+msgstr ""
+
+#: src/command_dialog.c:50
+msgid "Input some characters."
+msgstr ""
+
+#: src/command_dialog.c:55
+msgid "Error: space contains"
+msgstr ""
+
+#: src/command_dialog.c:98
+msgid "Join channel/private message"
+msgstr ""
+
+#: src/command_dialog.c:99
+msgid "Type channel name to join or nick to send private message."
+msgstr ""
+
+#: src/command_dialog.c:107
+msgid "Part channel"
+msgstr ""
+
+#: src/command_dialog.c:108
+msgid "Type channel name to part and the part message."
+msgstr ""
+
+#: src/command_dialog.c:116
+msgid "Set the topic of the channel"
+msgstr ""
+
+#: src/command_dialog.c:117
+msgid "Type channel name and its topic."
+msgstr ""
+
+#: src/command_dialog.c:127
+msgid "Change nickname"
+msgstr ""
+
+#: src/command_dialog.c:128
+msgid "Type nickname."
+msgstr ""
+
 #: src/connect_dialog.c:245
 msgid "Select accounts/server to connect"
 msgstr ""
@@ -133,210 +192,240 @@ msgstr ""
 msgid "Error occured when executing command: %s"
 msgstr ""
 
-#: src/irc_handle.c:176
+#: src/irc_handle.c:259
 msgid "This PRIVMSG/NOTICE message doesn't contain a remark."
 msgstr ""
 
-#: src/irc_handle.c:232 src/irc_handle.c:259 src/irc_handle.c:285
-#: src/irc_handle.c:311
+#: src/irc_handle.c:322 src/irc_handle.c:349 src/irc_handle.c:375
+#: src/irc_handle.c:401
 msgid "The message does not contain nick"
 msgstr ""
 
-#: src/irc_handle.c:248
+#: src/irc_handle.c:338
 msgid "*** %n has quit IRC(%t)"
 msgstr ""
 
-#: src/irc_handle.c:265 src/irc_handle.c:291
+#: src/irc_handle.c:355 src/irc_handle.c:381
 msgid "The message does not contain the channal name"
 msgstr ""
 
-#: src/irc_handle.c:276
+#: src/irc_handle.c:366
 msgid "*** %n has just part %1(%t)"
 msgstr ""
 
-#: src/irc_handle.c:302
+#: src/irc_handle.c:392
 msgid "*** %2 was kicked from %1 by %n(%3)"
 msgstr ""
 
-#: src/irc_handle.c:317
+#: src/irc_handle.c:407
 msgid "The NICK message does not contain new nick"
 msgstr ""
 
-#: src/irc_handle.c:328
+#: src/irc_handle.c:418
 msgid "*** %n is known as %1"
 msgstr ""
 
-#: src/irc_handle.c:348
+#: src/irc_handle.c:438
 msgid "Flags are not found in MODE command"
 msgstr ""
 
-#: src/irc_handle.c:362
+#: src/irc_handle.c:452
 msgid "Can't find a nick to change mode"
 msgstr ""
 
-#: src/irc_handle.c:367
+#: src/irc_handle.c:457
 msgid "Flags don't have + or -"
 msgstr ""
 
-#: src/irc_handle.c:418
+#: src/irc_handle.c:508
 msgid "Unknown mode flag"
 msgstr ""
 
-#: src/irc_handle.c:434
+#: src/irc_handle.c:524
 msgid "User mode is not implemented."
 msgstr ""
 
-#: src/irc_handle.c:450 src/irc_handle.c:497
+#: src/irc_handle.c:540 src/irc_handle.c:587
 msgid "The target is not found in MODE command"
 msgstr ""
 
-#: src/irc_handle.c:460
+#: src/irc_handle.c:550
 #, c-format
 msgid "RPL_CHANNELMODEIS didn't return a channel name: %s"
 msgstr ""
 
-#: src/irc_handle.c:469
+#: src/irc_handle.c:559
 msgid "*** Mode for %2: %*3"
 msgstr ""
 
-#: src/irc_handle.c:484
+#: src/irc_handle.c:574
 msgid "Who can change mode?"
 msgstr ""
 
-#: src/irc_handle.c:489
+#: src/irc_handle.c:579
 #, c-format
 msgid "Nick must not contain '%%'"
 msgstr ""
 
-#: src/irc_handle.c:505
+#: src/irc_handle.c:595
 msgid "Why can you know the change of his mode?"
 msgstr ""
 
-#: src/irc_handle.c:514
+#: src/irc_handle.c:604
 #, c-format
 msgid "*** New mode for %%1 by %s: %%*2"
 msgstr ""
 
-#: src/irc_handle.c:532
+#: src/irc_handle.c:622
 msgid "The message does not contain nick."
 msgstr ""
 
-#: src/irc_handle.c:537
+#: src/irc_handle.c:627
 msgid "Invalid JOIN command"
 msgstr ""
 
-#: src/irc_handle.c:543
+#: src/irc_handle.c:633
 msgid "Why do you know that the user join the channel?"
 msgstr ""
 
-#: src/irc_handle.c:551
+#: src/irc_handle.c:641
 msgid "*** %n (%u@%h) joined channel %t"
 msgstr ""
 
-#: src/irc_handle.c:569 src/irc_handle.c:595 src/irc_handle.c:621
+#: src/irc_handle.c:659 src/irc_handle.c:690 src/irc_handle.c:716
 msgid "Can't get channel name"
 msgstr ""
 
-#: src/irc_handle.c:744
+#: src/irc_handle.c:752
+msgid "Nick is null"
+msgstr ""
+
+#: src/irc_handle.c:833
+msgid "Invalid CREATIONTIME reply."
+msgstr ""
+
+#: src/irc_handle.c:838 src/irc_handle.c:871
+msgid "Invalid time string"
+msgstr ""
+
+#: src/irc_handle.c:844 src/irc_handle.c:877
+msgid "Invalid time"
+msgstr ""
+
+#: src/irc_handle.c:848
+#, c-format
+msgid "%%2 was created at %s"
+msgstr ""
+
+#: src/irc_handle.c:865
+msgid "Invalid TOPICWHOTIME reply."
+msgstr ""
+
+#: src/irc_handle.c:881
+#, c-format
+msgid "Topic for %%2 was set by %%3 at %s"
+msgstr ""
+
+#: src/irc_handle.c:905
 msgid "Topic for %2: %t"
 msgstr ""
 
-#: src/irc_handle.c:764
+#: src/irc_handle.c:925
 msgid "*** New topic on %1 by %n: %t"
 msgstr ""
 
-#: src/irc_handle.c:826
+#: src/irc_handle.c:987
 msgid "Can't find the channel from the message"
 msgstr ""
 
-#: src/irc_handle.c:864
+#: src/irc_handle.c:1025
 msgid "*** %2 is marked as begin AWAY, but left the message: %3"
 msgstr ""
 
-#: src/irc_handle.c:871 src/irc_handle.c:875 src/irc_handle.c:879
+#: src/irc_handle.c:1032 src/irc_handle.c:1036 src/irc_handle.c:1040
 msgid "*** %t"
 msgstr ""
 
-#: src/irc_handle.c:882
+#: src/irc_handle.c:1043
 msgid "*** You are inviting %2 to %3"
 msgstr ""
 
-#: src/irc_handle.c:885
+#: src/irc_handle.c:1046
 msgid "*** %3 is running IRC version %2 (%4)"
 msgstr ""
 
-#: src/irc_handle.c:909
+#: src/irc_handle.c:1077
 msgid "%2 is %3@%4: %t"
 msgstr ""
 
-#: src/irc_handle.c:912
+#: src/irc_handle.c:1080
 msgid "%2 was %3@%4: %t"
 msgstr ""
 
-#: src/irc_handle.c:915
+#: src/irc_handle.c:1083
 msgid "%2: %t"
 msgstr ""
 
-#: src/irc_handle.c:918
+#: src/irc_handle.c:1086
 msgid "on via server %3(%t)"
 msgstr ""
 
-#: src/irc_handle.c:921
+#: src/irc_handle.c:1089
 msgid "%3 %t"
 msgstr ""
 
-#: src/irc_handle.c:924
+#: src/irc_handle.c:1092
 msgid "Banned on %2 : %3"
 msgstr ""
 
-#: src/irc_handle.c:927
+#: src/irc_handle.c:1095
 msgid "Time: %3(%2)"
 msgstr ""
 
-#: src/irc_handle.c:1064
+#: src/irc_handle.c:1232
 #, c-format
 msgid "Connecting to %s:%d"
 msgstr ""
 
-#: src/irc_handle.c:1072
+#: src/irc_handle.c:1240
 msgid "Failed to connect."
 msgstr ""
 
-#: src/irc_handle.c:1081
+#: src/irc_handle.c:1249
 msgid "Connected. Sending Initial command..."
 msgstr ""
 
-#: src/irc_handle.c:1118
+#: src/irc_handle.c:1286
 msgid "Done."
 msgstr ""
 
-#: src/irc_handle.c:1131
+#: src/irc_handle.c:1299
 msgid "Sent join command for autojoin."
 msgstr ""
 
-#: src/irc_handle.c:1140
+#: src/irc_handle.c:1308
 #, c-format
 msgid "connection_get_irc_message error: %s"
 msgstr ""
 
-#: src/irc_handle.c:1158
+#: src/irc_handle.c:1326
 msgid "Connection terminated."
 msgstr ""
 
-#: src/irc_handle.c:1201
+#: src/irc_handle.c:1369
 #, c-format
 msgid "Failed to send irc message: %s"
 msgstr ""
 
-#: src/irc_handle.c:1256
+#: src/irc_handle.c:1424
 msgid "Connection thread is not created."
 msgstr ""
 
-#: src/irc_handle.c:1260
+#: src/irc_handle.c:1428
 msgid "Thread sending message is not created."
 msgstr ""
 
-#: src/irc_handle.c:1264
+#: src/irc_handle.c:1432
 msgid "Message queue is not created."
 msgstr ""
 
@@ -344,176 +433,196 @@ msgstr ""
 msgid "Invalid parameter number"
 msgstr ""
 
-#: src/loqui_app.c:232
+#: src/loqui_app.c:233
 msgid "No accounts are selected!"
 msgstr ""
 
-#: src/loqui_menu.c:74
+#: src/loqui_menu.c:75
 msgid "/_File"
 msgstr ""
 
-#: src/loqui_menu.c:75
+#: src/loqui_menu.c:76
 msgid "/File/_Connect"
 msgstr ""
 
-#: src/loqui_menu.c:76
+#: src/loqui_menu.c:77
 msgid "/File/_Quit"
 msgstr ""
 
-#: src/loqui_menu.c:77
+#: src/loqui_menu.c:78
 msgid "/_Edit"
 msgstr ""
 
-#: src/loqui_menu.c:78
+#: src/loqui_menu.c:79
 msgid "/Edit/Cut"
 msgstr ""
 
-#: src/loqui_menu.c:79
+#: src/loqui_menu.c:80
 msgid "/Edit/_Copy"
 msgstr ""
 
-#: src/loqui_menu.c:80
+#: src/loqui_menu.c:81
 msgid "/Edit/_Paste"
 msgstr ""
 
-#: src/loqui_menu.c:81
+#: src/loqui_menu.c:82
 msgid "/Edit/Paste with linefeeds cut"
 msgstr ""
 
-#: src/loqui_menu.c:83
+#: src/loqui_menu.c:84
 msgid "/Edit/Clear"
 msgstr ""
 
-#: src/loqui_menu.c:85
+#: src/loqui_menu.c:86
 msgid "/Edit/_Find"
 msgstr ""
 
-#: src/loqui_menu.c:86
+#: src/loqui_menu.c:87
 msgid "/Edit/_Find again"
 msgstr ""
 
-#: src/loqui_menu.c:87
+#: src/loqui_menu.c:88
 msgid "/_Command"
 msgstr ""
 
-#: src/loqui_menu.c:88
+#: src/loqui_menu.c:89
 msgid "/Command/_Join channel"
 msgstr ""
 
-#: src/loqui_menu.c:89
+#: src/loqui_menu.c:90
 msgid "/Command/_Part channel"
 msgstr ""
 
-#: src/loqui_menu.c:91
+#: src/loqui_menu.c:92
 msgid "/Command/_Set channel topic"
 msgstr ""
 
-#: src/loqui_menu.c:92
-msgid "/_View"
-msgstr ""
-
 #: src/loqui_menu.c:93
-msgid "/View/Toolbar"
+msgid "/Command/_Change nickname"
 msgstr ""
 
 #: src/loqui_menu.c:94
-msgid "/View/Toolbar/Icon"
+msgid "/_View"
 msgstr ""
 
 #: src/loqui_menu.c:95
-msgid "/View/Toolbar/Text"
+msgid "/View/Toolbar"
 msgstr ""
 
 #: src/loqui_menu.c:96
-msgid "/View/Toolbar/Both icons and text"
+msgid "/View/Toolbar/Icon"
 msgstr ""
 
 #: src/loqui_menu.c:97
-msgid "/View/Toolbar/Both icons and text horizontally"
+msgid "/View/Toolbar/Text"
 msgstr ""
 
 #: src/loqui_menu.c:98
-msgid "/View/Toolbar/Hide"
+msgid "/View/Toolbar/Both icons and text"
 msgstr ""
 
 #: src/loqui_menu.c:99
-msgid "/View/Status bar"
+msgid "/View/Toolbar/Both icons and text horizontally"
+msgstr ""
+
+#: src/loqui_menu.c:100
+msgid "/View/Toolbar/Hide"
 msgstr ""
 
 #: src/loqui_menu.c:101
-msgid "/View/Previous fresh channel"
+msgid "/View/Status bar"
 msgstr ""
 
-#: src/loqui_menu.c:102
-msgid "/View/Next fresh channel"
+#: src/loqui_menu.c:103
+msgid "/View/Previous updated channel"
 msgstr ""
 
 #: src/loqui_menu.c:104
-msgid "/View/Previous channel"
-msgstr ""
-
-#: src/loqui_menu.c:105
-msgid "/View/Next channel"
+msgid "/View/Next updated channel"
 msgstr ""
 
 #: src/loqui_menu.c:106
-msgid "/_Settings"
+msgid "/View/Previous channel"
 msgstr ""
 
 #: src/loqui_menu.c:107
-msgid "/Settings/Common preferences..."
+msgid "/View/Next channel"
 msgstr ""
 
 #: src/loqui_menu.c:108
-msgid "/Settings/Account settings..."
+msgid "/_Settings"
 msgstr ""
 
 #: src/loqui_menu.c:109
-msgid "/_Help"
+msgid "/Settings/Common preferences..."
 msgstr ""
 
 #: src/loqui_menu.c:110
+msgid "/Settings/Account settings..."
+msgstr ""
+
+#: src/loqui_menu.c:111
+msgid "/_Help"
+msgstr ""
+
+#: src/loqui_menu.c:112
 msgid "/Help/_About"
 msgstr ""
 
-#: src/loqui_toolbar.c:195
+#: src/loqui_toolbar.c:228
 msgid "Connect"
 msgstr ""
 
-#: src/loqui_toolbar.c:196
+#: src/loqui_toolbar.c:228
 msgid "Connect to IRC server"
 msgstr ""
 
-#: src/loqui_toolbar.c:205
+#: src/loqui_toolbar.c:236
+msgid "Prev"
+msgstr ""
+
+#: src/loqui_toolbar.c:237
+msgid "Select previous updated channel"
+msgstr ""
+
+#: src/loqui_toolbar.c:245
+msgid "Next"
+msgstr ""
+
+#: src/loqui_toolbar.c:246
+msgid "Select next updated channel"
+msgstr ""
+
+#: src/loqui_toolbar.c:253
 msgid "Away"
 msgstr ""
 
-#: src/loqui_toolbar.c:206
+#: src/loqui_toolbar.c:254
 msgid "Toggle home/away"
 msgstr ""
 
-#: src/loqui_toolbar.c:217
+#: src/loqui_toolbar.c:265
 msgid "Scroll"
 msgstr ""
 
-#: src/loqui_toolbar.c:218
+#: src/loqui_toolbar.c:266
 msgid "Toggle whether scrolling the channel buffer"
 msgstr ""
 
-#: src/main.c:51
+#: src/main.c:50
 #, c-format
 msgid "Invalid \"%s\""
 msgstr ""
 
-#: src/main.c:89
+#: src/main.c:88
 msgid "  --debug      debug mode\n"
 msgstr ""
 
-#: src/main.c:90
+#: src/main.c:89
 msgid "  --show-msg   show message mode\n"
 msgstr ""
 
-#: src/main.c:91
+#: src/main.c:90
 msgid "  --help       show this help\n"
 msgstr ""
 
@@ -564,7 +673,7 @@ msgstr ""
 msgid "Invalid hostname: %s"
 msgstr ""
 
-#: src/prefs_account.c:194 src/prefs_general.c:121
+#: src/prefs_account.c:194 src/prefs_general.c:134
 #, c-format
 msgid "Invalid element: %s"
 msgstr ""
@@ -574,74 +683,83 @@ msgstr ""
 msgid "Accountrc parse error: %s"
 msgstr ""
 
-#: src/prefs_account.c:277 src/prefs_general.c:269
+#: src/prefs_account.c:277 src/prefs_general.c:300
 #, c-format
 msgid "Loquirc parse error: %s"
 msgstr ""
 
-#: src/prefs_account.c:305 src/prefs_general.c:290
+#: src/prefs_account.c:305 src/prefs_general.c:322
 #, c-format
 msgid "Can't open %s: %s"
 msgstr ""
 
-#: src/prefs_dialog.c:261
+#: src/prefs_dialog.c:263
 msgid "Common Preferences"
 msgstr ""
 
-#: src/prefs_dialog.c:278
+#: src/prefs_dialog.c:280
 msgid "General"
 msgstr ""
 
-#: src/prefs_dialog.c:280
+#: src/prefs_dialog.c:282
 msgid "Save window/widget sizes"
 msgstr ""
 
-#: src/prefs_dialog.c:282
+#: src/prefs_dialog.c:284
 msgid "Switch whether scrolling or not automatically"
 msgstr ""
 
-#: src/prefs_dialog.c:285
+#: src/prefs_dialog.c:286
+msgid "Parse plum (an irc proxy) recent feature (Experimental)"
+msgstr ""
+
+#: src/prefs_dialog.c:289
 msgid "Code convertion"
 msgstr ""
 
-#: src/prefs_dialog.c:304
+#: src/prefs_dialog.c:308
 msgid "Away message: "
 msgstr ""
 
-#: src/prefs_dialog.c:307
+#: src/prefs_dialog.c:311
 msgid "Highlight"
 msgstr ""
 
-#: src/prefs_dialog.c:309
+#: src/prefs_dialog.c:313
 msgid "Use notification"
 msgstr ""
 
-#: src/prefs_dialog.c:312
+#: src/prefs_dialog.c:316
 msgid "Highlighting keywords(Separate each words with linefeeds)"
 msgstr ""
 
-#: src/prefs_dialog.c:322
+#: src/prefs_dialog.c:326
 msgid "Command"
 msgstr ""
 
-#: src/prefs_dialog.c:324
+#: src/prefs_dialog.c:328
 msgid "Browser: "
 msgstr ""
 
-#: src/prefs_dialog.c:325
+#: src/prefs_dialog.c:329
 msgid "Notification: "
 msgstr ""
 
-#: src/prefs_general.c:130
+#: src/prefs_general.c:143
 #, c-format
 msgid "prefs_general: Invalid attribute for entry: %s"
 msgstr ""
 
-#: src/prefs_general.c:136
+#: src/prefs_general.c:149
 #, c-format
 msgid "Unknown key: %s\n"
 msgstr ""
 
-#: src/prefs_general.c:186 src/prefs_general.c:209
+#: src/prefs_general.c:214 src/prefs_general.c:240
 msgid "Unsupported pref type!"
+msgstr ""
+
+#: src/utils.c:170
+#, c-format
+msgid "?x flag doesn't have { in '%s'"
 msgstr ""
