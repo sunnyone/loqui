@@ -21,5 +21,6 @@
 #define __MAIN_H__
 
 extern int debug_mode;
+extern int show_msg_mode;
 
 #endif /* __MAIN_H__ */

@@ -27,10 +27,12 @@
 
 #include <gnome.h>
 int debug_mode;
+int show_msg_mode;
 
 static const struct poptOption options[] =
 {
 	{"debug", '\0', POPT_ARG_NONE, &debug_mode, 0, N_("Enable debugging"), NULL},
+	{"show-msg", '\0', POPT_ARG_NONE, &show_msg_mode, 0, N_("Print messages to console"), NULL},
         {NULL, '\0', 0, NULL, 0}
 };
 
@@ -64,7 +66,9 @@ main(int argc, char *argv[])
 
 	if(debug_mode)
 		g_print("Start debug mode.\n");
-	
+	if(show_msg_mode)
+		g_print("Start show msg mode\n");
+
 	account_manager = account_manager_get();
 	account_manager_load_accounts(account_manager);
 

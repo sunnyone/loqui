@@ -25,6 +25,7 @@
 #include "account.h"
 #include "account_manager.h"
 #include "irc_constants.h"
+#include "main.h"
 
 struct _IRCHandlePrivate
 {
@@ -966,8 +967,10 @@ static gpointer irc_handle_thread_func(IRCHandle *handle)
 	gdk_threads_leave();
 
         while((msg = connection_get_irc_message(priv->connection, NULL)) != NULL) {
+		if(show_msg_mode)
+			irc_message_print(msg);
+
 		irc_handle_response(handle, msg);
-		/* irc_handle_inspect_message(handle, msg); */
 		g_object_unref(msg);
 	}
 
