@@ -1,0 +1,116 @@
+requires 2.0.0
+
+%alltop{
+/*
+ * libloqui -- Chat/IM client library for GLib <http://loqui.good-day.net/>
+ * Copyright (C) 2004 Yoichi Imai <yoichi@silver-forest.com>
+ *
+ * This Library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Library General Public License as
+ * published by the Free Software Foundation; either version 2 of the
+ * License, or (at your option) any later version.
+ *
+ * This Library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Library General Public License for more details.
+ *
+ * You should have received a copy of the GNU Library General Public
+ * License along with the Gnome Library; see the file COPYING.LIB.  If not,
+ * write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+ * Boston, MA 02111-1307, USA.
+ */
+%}
+
+%{
+#include <libloqui-intl.h>
+#include "utils.h"
+%}
+
+%h{
+#include <libloqui/loqui-sequenced-pref.h>
+%h}
+
+class Loqui:Pref:Sequence from G:Object
+{
+	public Loqui:Pref:Sequence *
+	new() {
+		Self *self = GET_NEW;
+		return self;
+	}
+
+	public LoquiPref *pref
+	  unref {
+		self_set_pref(self, NULL);
+	  };
+	public gchar *prefix;
+
+
+	property OBJECT pref (nick = _("Pref"), blurb = _("Pref Object"), default_value = NULL)
+		get { g_value_set_object(VAL, self_get_pref(self)); }
+	        set { self_set_pref(self, g_value_get_object(VAL)); };
+
+	public void
+	set_pref(self, LoquiPref *pref) {
+		G_OBJECT_UNREF_UNLESS_NULL(self->pref);
+
+		if (pref) {
+			self->pref = g_object_ref(pref);
+		}
+	}
+
+	public LoquiPref *
+	get_pref(self) {
+		return self->pref;
+	}
+
+	public void
+	set_prefix(self, const gchar *prefix) {
+		G_FREE_UNLESS_NULL(self->prefix);
+
+		self->prefix = g_strdup(prefix);
+	}
+
+	public /*G_CONST_RETURN*/
+	get_prefix(self) {
+		return self->prefix;
+	}
+	
+	public gchar *
+	create_group_name(self, gint id) {
+		g_return_val_if_fail(self->prefix != NULL);
+
+		return g_strdup_printf("%s%d", self->prefix, id);
+	}
+
+	public gboolean
+	has_id(self, gint id) {
+		gchar *group_name;
+
+		g_return_val_if_fail(self->prefix != NULL);
+		g_return_val_if_fail(self->pref != NULL);
+
+		if (loqui_pref_has_group(self->pref, group_name))
+	}
+
+	public gint
+	get_new_id(self) {
+		gint id;
+		gint i;
+
+		g_return_val_if_fail(self->prefix != NULL);
+		g_return_val_if_fail(self->pref != NULL);
+
+		id = loqui_pref_get_integer(self->pref, "Sequence", self->prefix, NULL);
+		if (id <= 0)
+			id = 0;
+		for (i = 0; i < INT_MAX; i++) {
+			if (i == INT_MAX)
+				i = 1;
+			else
+				i++;
+			
+		}
+	}
+	
+}
