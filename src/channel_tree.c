@@ -214,6 +214,8 @@ channel_tree_new(void)
 					       (GtkTreeSelectionFunc) channel_tree_row_selected_cb, 
 					       NULL, NULL);
 
+	gtk_tree_view_set_rules_hint(GTK_TREE_VIEW(tree), TRUE);
+
 	return GTK_WIDGET(tree);
 }
 void
