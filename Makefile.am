@@ -1,4 +1,4 @@
-SUBDIRS =  m4 src po intl
+SUBDIRS =  m4 src po intl # test
 
 EXTRA_DIST= autogen.sh \
         intltool-merge.in \

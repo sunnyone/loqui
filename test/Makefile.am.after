@@ -1,0 +1,15 @@
+
+
+bin_PROGRAMS = test_loqui
+
+INCLUDES = $(GTK_CFLAGS) $(EXTRA_WARNING_CFLAGS) -g -I$(includedir) \
+        -DDATADIR=\""$(datadir)"\" $(GNET_CFLAGS) -Wall -I../src
+
+test_loqui_SOURCES = $(ORIG_SRC) test_main.c \
+		      test_utils.c
+
+test_loqui_LDADD = \
+        $(GTK_LIBS) $(GNET_LIBS)
+
+EXTRA_DIST = Makefile.am.after update-makefile.sh
+
