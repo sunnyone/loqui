@@ -86,46 +86,6 @@ gchar *utils_remove_return_code(gchar *str)
 }
 
 /* copied from Sylpheed. (c) 2002, Hiroyuki Yamamoto. */
-gchar *strncpy2(gchar *dest, const gchar *src, size_t n)
-{
-        register gchar c;
-        gchar *s = dest;
-
-        do {
-                if (--n == 0) {
-                        *dest = '\0';
-                        return s;
-                }
-                c = *src++;
-                *dest++ = c;
-        } while (c != '\0');
-
-        /* don't do zero fill */
-        return s;
-}
-
-/* Similar to `strstr' but this function ignores the case of both strings.  */
-gchar *strcasestr(const gchar *haystack, const gchar *needle)
-{
-        register size_t haystack_len, needle_len;
-
-        haystack_len = strlen(haystack);
-        needle_len   = strlen(needle);
-
-        if (haystack_len < needle_len || needle_len == 0)
-                return NULL;
-
-        while (haystack_len >= needle_len) {
-                if (!strncasecmp(haystack, needle, needle_len))
-                        return (gchar *)haystack;
-                else {
-                        haystack++;
-                        haystack_len--;
-                }
-        }
-
-        return NULL;
-}
 gint make_dir(const gchar *dir)
 {
         if (mkdir(dir, S_IRWXU) < 0) {

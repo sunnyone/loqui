@@ -36,25 +36,6 @@ gchar *utils_gconf_get_basename(const gchar *path);
 gchar *utils_remove_return_code(gchar *str);
 
 /* copied from Sylpheed. (c) 2002, Hiroyuki Yamamoto. */
-#define Xstrndup_a(ptr, str, len, iffail) \
-{ \
-        gchar *__tmp; \
- \
-        if ((__tmp = alloca(len + 1)) == NULL) { \
-                g_warning("can't allocate memory\n"); \
-                iffail; \
-        } else { \
-                strncpy(__tmp, str, len); \
-                __tmp[len] = '\0'; \
-        } \
- \
-        ptr = __tmp; \
-}
-gchar *strncpy2         (gchar          *dest,
-                         const gchar    *src,
-                         size_t          n);
-gchar *strcasestr       (const gchar    *haystack,
-                         const gchar    *needle);
 gint make_dir(const gchar *dir);
 
 #define FILE_OP_ERROR(file, func) \
