@@ -60,6 +60,7 @@ static void nick_list_cell_data_func_away(GtkTreeViewColumn *tree_column,
 					  GtkTreeIter *iter,
 					  gpointer data);
 static gint nick_list_button_press_event_cb(GtkWidget *widget, GdkEventButton *event, gpointer data);
+static void nick_list_row_activated_cb(NickList *list, GtkTreePath *path, GtkTreeViewColumn *col, gpointer data);
 static GSList *nick_list_menu_get_selected_nicks(NickList *nick_list);
 
 static void nick_list_menu_whois_cb(gpointer data, guint action, GtkWidget *widget);
@@ -448,6 +449,25 @@ nick_list_button_press_event_cb(GtkWidget *widget, GdkEventButton *event, gpoint
 
 	return FALSE;
 }
+static void nick_list_row_activated_cb(NickList *list, GtkTreePath *path, GtkTreeViewColumn *col, gpointer data)
+{
+	GtkTreeIter iter;
+	GtkTreeModel *model;
+	const gchar *nick;
+	Account *account;
+
+	model = gtk_tree_view_get_model(GTK_TREE_VIEW(list));
+	if(!gtk_tree_model_get_iter(model, &iter, path)) {
+		return;
+	}
+	gtk_tree_model_get(model, &iter, USERLIST_COLUMN_NICK, &nick, -1);
+
+	account = account_manager_get_current_account(account_manager_get());
+	if(!account)
+		return;
+
+	account_start_private_talk(account, nick);
+}
 GtkWidget*
 nick_list_new(void)
 {
@@ -506,6 +526,8 @@ nick_list_new(void)
                                       popup_menu_items, list);
 	priv->popup_menu = gtk_item_factory_get_widget(priv->item_factory, "<main>");
 
+	g_signal_connect(G_OBJECT(list), "row_activated",
+			 G_CALLBACK(nick_list_row_activated_cb), NULL);
 	g_signal_connect(G_OBJECT(list), "button_press_event",
 			 G_CALLBACK(nick_list_button_press_event_cb), NULL);
 	
