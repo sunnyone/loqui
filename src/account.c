@@ -24,7 +24,6 @@
 #include "irc_handle.h"
 #include "gtkutils.h"
 #include "utils.h"
-#include "account_manager.h"
 #include "main.h"
 #include "gtkutils.h"
 #include "intl.h"
@@ -539,10 +538,10 @@ account_handle_terminated_cb(GObject *object, Account *account)
 		g_object_unref(priv->handle);
 	priv->handle = NULL;
 
-	account_console_buffer_append(account, TRUE, TEXT_TYPE_INFO, _("Connection terminated."));
+	account_console_buffer_append(account, TEXT_TYPE_INFO, _("Connection terminated."));
 
 	if(prefs_general.auto_reconnect) {
-		account_console_buffer_append(account, TRUE, TEXT_TYPE_INFO, _("Trying to reconnect..."));
+		account_console_buffer_append(account, TEXT_TYPE_INFO, _("Trying to reconnect..."));
 		priv->handle = irc_handle_new(account);
 		irc_handle_connect(priv->handle, (priv->server_on_connecting == NULL) ? TRUE : FALSE,
 				   priv->server_on_connecting);
@@ -562,7 +561,7 @@ account_handle_disconnected_cb(GObject *object, Account *account)
 		g_object_unref(priv->handle);
 	priv->handle = NULL;
 
-	account_console_buffer_append(account, TRUE, TEXT_TYPE_INFO, _("Disconnected."));
+	account_console_buffer_append(account, TEXT_TYPE_INFO, _("Disconnected."));
 	account_remove_all_channel(account);
 
 	g_signal_emit(account, account_signals[DISCONNECTED], 0);
@@ -665,20 +664,22 @@ account_has_channel(Account *account, Channel *channel)
 }
 
 void
-account_console_buffer_append(Account *account, gboolean with_common_buffer, TextType type, gchar *str)
+account_console_buffer_append(Account *account, TextType type, gchar *str)
 {
-	gchar *buf;
+	MessageText *msgtext;
 
 	g_return_if_fail(account != NULL);
 	g_return_if_fail(str != NULL);
 
-	channel_buffer_append_line(account->console_buffer, type, str);
-	if(with_common_buffer &&
-	   !account_manager_is_current_channel_buffer(account_manager_get(), account->console_buffer)) {
-		buf = g_strdup_printf("[%s] %s", account->name, str);
-		account_manager_common_buffer_append(account_manager_get(), type, buf);
-		g_free(buf);
-	}
+	msgtext = message_text_new();
+	g_object_set(G_OBJECT(msgtext),
+		     "is_remark", FALSE,
+		     "account_name", account->name,
+		     "text_type", type,
+		     "text", str,
+		     NULL);
+	channel_buffer_append_message_text(account->console_buffer, msgtext, FALSE, FALSE);
+	g_object_unref(msgtext);
 }
 void
 account_speak(Account *account, Channel *channel, const gchar *str)

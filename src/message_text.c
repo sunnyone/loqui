@@ -30,7 +30,6 @@ enum {
 	PROP_NICK,
 	PROP_SELF,
 	PROP_PRIV,
-	PROP_EXEC_NOTIFICATION,
 	PROP_REMARK,
 	PROP_TEXT_TYPE,
 	LAST_PROP
@@ -88,6 +87,10 @@ message_text_class_init(MessageTextClass *klass)
 
         parent_class = g_type_class_peek_parent(klass);
         
+	object_class->set_property = message_text_set_property;
+	object_class->get_property = message_text_get_property;	
+        object_class->finalize = message_text_finalize;
+
 	g_object_class_install_property(object_class,
 					PROP_TEXT,
 					g_param_spec_string("text",
@@ -131,22 +134,12 @@ message_text_class_init(MessageTextClass *klass)
 							    _("Remark?"),
 							    FALSE, G_PARAM_READWRITE));
 	g_object_class_install_property(object_class,
-					PROP_EXEC_NOTIFICATION,
-					g_param_spec_boolean("exec_notification",
-							    _("Exec notification"),
-							    _("Whether or not executing notification"),
-							    FALSE, G_PARAM_READWRITE));
-	g_object_class_install_property(object_class,
 					PROP_TEXT_TYPE,
 					g_param_spec_uint("text_type", /* should use g_param_spec_enum */
 							  _("Text type"),
 							  _("Text type"),
 							  0, INT_MAX,
 							  0, G_PARAM_READWRITE));
-
-	object_class->set_property = message_text_set_property;
-	object_class->get_property = message_text_get_property;	
-        object_class->finalize = message_text_finalize;
 }
 static void 
 message_text_init(MessageText *message_text)
@@ -196,6 +189,9 @@ message_text_set_property(GObject *object,
 	case PROP_CHANNEL_NAME:
 		message_text_set_channel_name(msgtext, g_value_get_string(value));
 		break;
+	case PROP_ACCOUNT_NAME:
+		message_text_set_account_name(msgtext, g_value_get_string(value));
+		break;
 	case PROP_SELF:
 		msgtext->is_self = g_value_get_boolean(value);
 		break;
@@ -204,11 +200,10 @@ message_text_set_property(GObject *object,
 		break;
 	case PROP_REMARK:
 		msgtext->is_remark = g_value_get_boolean(value);
-	case PROP_EXEC_NOTIFICATION:
-		msgtext->exec_notification = g_value_get_boolean(value);
 		break;
 	case PROP_TEXT_TYPE:
 		msgtext->text_type = g_value_get_uint(value);
+		break;
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, param_id, pspec);
 		break;
@@ -235,6 +230,9 @@ message_text_get_property(GObject  *object,
 	case PROP_CHANNEL_NAME:
 		g_value_set_string(value, message_text_get_channel_name(msgtext));
 		break;
+	case PROP_ACCOUNT_NAME:
+		g_value_set_string(value, message_text_get_account_name(msgtext));
+		break;
 	case PROP_SELF:
 		g_value_set_boolean(value, msgtext->is_self);
 		break;
@@ -243,9 +241,6 @@ message_text_get_property(GObject  *object,
 		break;
 	case PROP_REMARK:
 		g_value_set_boolean(value, msgtext->is_remark);
-		break;
-	case PROP_EXEC_NOTIFICATION:
-		g_value_set_boolean(value, msgtext->exec_notification);
 		break;
 	case PROP_TEXT_TYPE:
 		g_value_set_uint(value, msgtext->text_type);
@@ -271,7 +266,7 @@ ATTR_ACCESSOR_STRING(MessageText, message_text, account_name);
 ATTR_ACCESSOR_STRING(MessageText, message_text, channel_name);
 ATTR_ACCESSOR_BOOLEAN(MessageText, message_text, is_priv);
 ATTR_ACCESSOR_BOOLEAN(MessageText, message_text, is_self);
-ATTR_ACCESSOR_BOOLEAN(MessageText, message_text, exec_notification);
+ATTR_ACCESSOR_BOOLEAN(MessageText, message_text, is_remark);
 
 void
 message_text_set_text_type(MessageText *msgtext, TextType type)

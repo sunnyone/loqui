@@ -253,7 +253,7 @@ irc_handle_parse_plum_recent(IRCHandle *handle, const gchar *line)
 	g_free(buf);
 
 	buf = g_strdup_printf("[LOG] %s", line);
-	channel_append_text(channel, TRUE, TEXT_TYPE_NOTICE, buf);
+	channel_append_text(channel, TEXT_TYPE_NOTICE, buf);
 	channel_set_updated(channel, TRUE);
 	g_free(buf);
 
@@ -315,7 +315,7 @@ irc_handle_command_privmsg_notice(IRCHandle *handle, IRCMessage *msg)
 	if(channel != NULL) {
 		channel_append_remark(channel, type, FALSE, msg->nick, remark);
 	} else {
-		account_console_buffer_append(priv->account, TRUE, type, remark);
+		account_console_buffer_append(priv->account, type, remark);
 	}
 }
 static void
@@ -756,7 +756,7 @@ irc_handle_inspect_message(IRCHandle *handle, IRCMessage *msg)
 
 	str = irc_message_inspect(msg);
 	
-	account_console_buffer_append(handle->priv->account, TRUE, TEXT_TYPE_NORMAL, str);
+	account_console_buffer_append(handle->priv->account, TEXT_TYPE_NORMAL, str);
 	
 	g_free(str);
 }
@@ -920,12 +920,11 @@ irc_handle_joined_channel_append(IRCHandle *handle, IRCMessage *msg, GSList *cha
 	if(slist != NULL) {
 		for(cur = slist; cur != NULL; cur = cur->next) {
 			channel = (Channel *) cur->data;
-			channel_append_text(channel, FALSE, type, str);
+			channel_append_text(channel, type, str);
 		}
 	} else {
-		account_console_buffer_append(handle->priv->account, FALSE, type, str);
+		account_console_buffer_append(handle->priv->account, type, str);
 	}
-	account_manager_common_buffer_append(account_manager_get(), type, str);
 
 	g_free(str);
 	if(channel_slist == NULL && slist != NULL)
@@ -938,7 +937,7 @@ irc_handle_account_console_append(IRCHandle *handle, IRCMessage *msg, TextType t
 
 	str = irc_message_format(msg, format);
 
-	account_console_buffer_append(handle->priv->account, TRUE, type, str);
+	account_console_buffer_append(handle->priv->account, type, str);
 
 	g_free(str);
 }
@@ -969,9 +968,9 @@ irc_handle_channel_append(IRCHandle *handle, IRCMessage *msg, gboolean make_chan
 	str = irc_message_format(msg, format);
 
 	if(channel == NULL) {
-		account_console_buffer_append(priv->account, TRUE, type, str);
+		account_console_buffer_append(priv->account, type, str);
 	} else {
-		channel_append_text(channel, TRUE, type, str);
+		channel_append_text(channel, type, str);
 
 	}
 
@@ -1208,7 +1207,7 @@ irc_handle_watch_out_cb(GIOChannel *ioch, GIOCondition condition, gpointer data)
 	
 	if(status == G_IO_STATUS_ERROR) {
 		tmp = g_strdup_printf(_("IOChannel write error: %s"), error->message);
-		account_console_buffer_append(priv->account, TRUE, TEXT_TYPE_INFO, tmp);
+		account_console_buffer_append(priv->account, TEXT_TYPE_INFO, tmp);
 		g_free(tmp);
 		g_error_free(error);
 		priv->out_watch = 0;
@@ -1262,8 +1261,7 @@ irc_handle_watch_in_cb(GIOChannel *ioch, GIOCondition condition, gpointer data)
 	local = codeconv_to_local(buf);
 	g_free(buf);
 	if(len > 0 && local == NULL) {
-		account_console_buffer_append(priv->account, TRUE, TEXT_TYPE_ERROR,
-					      _("*** Failed to convert codeset."));
+		account_console_buffer_append(priv->account, TEXT_TYPE_ERROR, _("*** Failed to convert codeset."));
 		return TRUE;
 	}
 
@@ -1298,14 +1296,14 @@ irc_handle_connect_cb(GTcpSocket *socket,
 	priv->connect_id = 0;
 
 	if(status != GTCP_SOCKET_CONNECT_ASYNC_STATUS_OK || socket == NULL) {
-		account_console_buffer_append(priv->account, TRUE, TEXT_TYPE_INFO, _("Failed to connect"));
+		account_console_buffer_append(priv->account, TEXT_TYPE_INFO, _("Failed to connect"));
 		if(priv->fallback)
 			irc_handle_connect(handle, priv->fallback, priv->server);
 		return;
 	}
 
 	priv->socket = socket;
-	account_console_buffer_append(priv->account, TRUE, TEXT_TYPE_INFO, _("Connected. Sending Initial command..."));
+	account_console_buffer_append(priv->account, TEXT_TYPE_INFO, _("Connected. Sending Initial command..."));
 
 	ioch = gnet_tcp_socket_get_iochannel(socket);
 	/* for old gnet (new gnet do this internally) */
@@ -1353,10 +1351,10 @@ irc_handle_connect_cb(GTcpSocket *socket,
 		}
 		irc_handle_push_message(handle, msg);
 
-		account_console_buffer_append(priv->account, TRUE, TEXT_TYPE_INFO, _("Sent join command for autojoin."));
+		account_console_buffer_append(priv->account, TEXT_TYPE_INFO, _("Sent join command for autojoin."));
 	}
 
-	account_console_buffer_append(priv->account, TRUE, TEXT_TYPE_INFO, _("Done."));
+	account_console_buffer_append(priv->account, TEXT_TYPE_INFO, _("Done."));
 }
 void
 irc_handle_connect(IRCHandle *handle, gboolean fallback, Server *server)
@@ -1384,8 +1382,7 @@ irc_handle_connect(IRCHandle *handle, gboolean fallback, Server *server)
 		}
 
 		if(cur == NULL) {
-			account_console_buffer_append(priv->account, TRUE, TEXT_TYPE_INFO,
-						      _("No valid servers left."));
+			account_console_buffer_append(priv->account, TEXT_TYPE_INFO, _("No valid servers left."));
 			return;
 		}
 
@@ -1395,15 +1392,14 @@ irc_handle_connect(IRCHandle *handle, gboolean fallback, Server *server)
 				break;
 		}
 		if(priv->server == NULL) {
-			account_console_buffer_append(priv->account, TRUE, TEXT_TYPE_INFO,
-						      _("No valid servers left."));
+			account_console_buffer_append(priv->account, TEXT_TYPE_INFO, _("No valid servers left."));
 			return;
 		}
 	}
 	g_return_if_fail(priv->server != NULL);
 
 	str = g_strdup_printf(_("Connecting to %s:%d"), priv->server->hostname, priv->server->port);
-	account_console_buffer_append(priv->account, TRUE, TEXT_TYPE_INFO, str);
+	account_console_buffer_append(priv->account, TEXT_TYPE_INFO, str);
 	g_free(str);
 
 	priv->connect_id = gnet_tcp_socket_connect_async(priv->server->hostname, priv->server->port,

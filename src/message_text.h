@@ -63,8 +63,6 @@ struct _MessageText
 	gboolean is_priv;
 	gboolean is_remark;
 
-	gboolean exec_notification;
-
         MessageTextPrivate *priv;
 };
 
@@ -82,7 +80,6 @@ ATTR_ACCESSOR_STRING_PROTOTYPE(MessageText, message_text, channel_name);
 ATTR_ACCESSOR_BOOLEAN_PROTOTYPE(MessageText, message_text, is_self);
 ATTR_ACCESSOR_BOOLEAN_PROTOTYPE(MessageText, message_text, is_priv);
 ATTR_ACCESSOR_BOOLEAN_PROTOTYPE(MessageText, message_text, is_remark);
-ATTR_ACCESSOR_BOOLEAN_PROTOTYPE(MessageText, message_text, exec_notification);
 
 void message_text_set_text_type(MessageText *msgtext, TextType type);
 TextType message_text_get_text_type(MessageText *msgtext);

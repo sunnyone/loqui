@@ -20,7 +20,6 @@
 #include "config.h"
 
 #include "channel.h"
-#include "account_manager.h"
 #include "utils.h"
 #include "main.h"
 
@@ -206,6 +205,7 @@ channel_append_remark(Channel *channel, TextType type, gboolean is_self, const g
 {
 	ChannelBuffer *buffer;
 	ChannelPrivate *priv;
+	MessageText *msgtext;
 
 	gboolean is_priv = FALSE;
 	gboolean exec_notification = TRUE;
@@ -221,31 +221,41 @@ channel_append_remark(Channel *channel, TextType type, gboolean is_self, const g
 	if(is_self)
 		exec_notification = FALSE;
 
-	channel_buffer_append_remark(buffer, type, exec_notification, is_self, is_priv, NULL, nick, remark);
-
-	if(!account_manager_is_current_channel_buffer(account_manager_get(), buffer) ||
-	   !account_manager_get_whether_scrolling(account_manager_get())) {
-		account_manager_common_buffer_append_remark(account_manager_get(), type, 
-							    is_self, is_priv, priv->name, nick, remark);
-		channel_set_updated(channel, TRUE);
-	}
+	msgtext = message_text_new();
+	g_object_set(G_OBJECT(msgtext),
+		     "is_remark", TRUE,
+		     "text_type", type,
+		     "is_priv", is_priv,
+		     "is_self", is_self,
+		     "text", remark,
+		     "nick", nick,
+		     "channel_name", priv->name, NULL);
+	channel_set_updated(channel, TRUE);
+  
+	channel_buffer_append_message_text(buffer, msgtext, FALSE, exec_notification);
+	g_object_unref(msgtext);
 }
 
 void
-channel_append_text(Channel *channel, gboolean with_common_buffer, TextType type, gchar *str)
+channel_append_text(Channel *channel, TextType type, gchar *str)
 {
 	ChannelBuffer *buffer;
+	MessageText *msgtext;
 
 	g_return_if_fail(channel != NULL);
 	g_return_if_fail(IS_CHANNEL(channel));
 
 	buffer = channel->buffer;
 
-	channel_buffer_append_line(buffer, type, str);
-	if(with_common_buffer &&
-	   !account_manager_is_current_channel_buffer(account_manager_get(), buffer)) {
-		account_manager_common_buffer_append(account_manager_get(), type, str);
-	}
+	msgtext = message_text_new();
+	g_object_set(G_OBJECT(msgtext),
+		     "is_remark", FALSE,
+		     "text_type", type,
+		     "text", str,
+		     NULL);
+
+	channel_buffer_append_message_text(buffer, msgtext, FALSE, FALSE);
+	g_object_unref(msgtext);
 }
 
 void channel_set_updated(Channel *channel, gboolean updated)

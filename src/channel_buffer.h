@@ -47,17 +47,18 @@ struct _ChannelBuffer
 struct _ChannelBufferClass
 {
         GtkTextBufferClass parent_class;
+
+	void (* append) (ChannelBuffer *buffer,
+			 MessageText *msgtext);
 };
 
 
 GtkType channel_buffer_get_type (void) G_GNUC_CONST;
 
 ChannelBuffer* channel_buffer_new (void);
-void channel_buffer_append_line(ChannelBuffer *channel_buffer, TextType type, gchar *str);
 
-void channel_buffer_append_remark(ChannelBuffer *buffer, TextType type, gboolean exec_notification,
-				  gboolean is_self, gboolean is_priv, 
-				  const gchar *channel_name, const gchar *nick, const gchar *remark);
+void channel_buffer_append_message_text(ChannelBuffer *buffer, MessageText *msgtext, 
+					gboolean verbose, gboolean exec_notification);
 
 G_END_DECLS
 

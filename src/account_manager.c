@@ -38,6 +38,7 @@ struct _AccountManagerPrivate
 	Account *current_account;
 	Channel *current_channel;
 
+	MessageText *last_msgtext;
 	ChannelBuffer *common_buffer;
 	LoquiApp *app;
 
@@ -57,6 +58,7 @@ static void account_manager_channel_updated_cb(Channel *channel, gpointer data);
 
 static void account_manager_add_channel_cb(Account *account, Channel *channel, AccountManager *manager);
 static void account_manager_remove_channel_cb(Account *account, Channel *channel, AccountManager *manager);
+static void account_manager_channel_buffer_append_cb(ChannelBuffer *buffer, MessageText *msgtext, AccountManager *manager);
 
 static AccountManager *main_account_manager = NULL;
 
@@ -138,7 +140,7 @@ account_manager_new (void)
 	priv = account_manager->priv;
 	priv->app = LOQUI_APP(loqui_app_new());
 	priv->common_buffer = channel_buffer_new();
-	loqui_app_set_common_buffer(priv->app, GTK_TEXT_BUFFER(priv->common_buffer));
+	loqui_app_set_common_buffer(priv->app, priv->common_buffer);
 
 	return account_manager;
 }
@@ -162,6 +164,8 @@ account_manager_add_account(AccountManager *manager, Account *account)
 			 G_CALLBACK(account_manager_add_channel_cb), manager);
 	g_signal_connect(G_OBJECT(account), "remove-channel",
 			 G_CALLBACK(account_manager_remove_channel_cb), manager);
+	g_signal_connect(G_OBJECT(account->console_buffer), "append",
+			 G_CALLBACK(account_manager_channel_buffer_append_cb), manager);
 
 	channel_tree_add_account(priv->app->channel_tree, account);
 }
@@ -239,6 +243,8 @@ account_manager_add_channel_cb(Account *account, Channel *channel, AccountManage
 			 G_CALLBACK(account_manager_channel_updated_cb), manager);
 	g_signal_connect_swapped(G_OBJECT(channel), "user-number-changed",
 				 G_CALLBACK(channel_tree_update_user_number), manager->priv->app->channel_tree);
+	g_signal_connect(G_OBJECT(channel->buffer), "append",
+			 G_CALLBACK(account_manager_channel_buffer_append_cb), manager);
 
 	channel_tree_add_channel(manager->priv->app->channel_tree, account, channel);
 	account_manager_set_current_channel(manager, channel);
@@ -256,6 +262,7 @@ account_manager_remove_channel_cb(Account *account, Channel *channel, AccountMan
 	account_manager_set_current_account(manager, account);
 	g_signal_handlers_disconnect_by_func(channel, account_manager_channel_updated_cb, manager);
 	g_signal_handlers_disconnect_by_func(channel, channel_tree_update_user_number, manager->priv->app->channel_tree);
+	g_signal_handlers_disconnect_by_func(channel->buffer, account_manager_channel_buffer_append_cb, manager);
 
 	channel_tree_remove_channel(manager->priv->app->channel_tree, channel);
 }
@@ -292,7 +299,8 @@ static void account_manager_channel_changed_cb(GObject *object, gpointer data)
 			      FALSE, account_manager_get_current_account(manager),
 			      TRUE, account_manager_get_current_channel(manager));
 }
-static void account_manager_channel_updated_cb(Channel *channel, gpointer data)
+static void
+account_manager_channel_updated_cb(Channel *channel, gpointer data)
 {
 	AccountManager *manager;
 	AccountManagerPrivate *priv;
@@ -306,11 +314,39 @@ static void account_manager_channel_updated_cb(Channel *channel, gpointer data)
 
 	priv = manager->priv;
 	
+	if(channel_get_updated(channel) == TRUE &&
+	   account_manager_is_current_channel(manager, channel) &&
+	   account_manager_get_whether_scrolling(account_manager_get()))
+		channel_set_updated(channel, FALSE);
+
 	channel_tree_set_updated(priv->app->channel_tree, NULL, channel);
+}
+static void
+account_manager_channel_buffer_append_cb(ChannelBuffer *buffer, MessageText *msgtext, AccountManager *manager)
+{
+	AccountManagerPrivate *priv;
+
+        g_return_if_fail(manager != NULL);
+        g_return_if_fail(IS_ACCOUNT_MANAGER(manager));
+
+	priv = manager->priv;
+
+	if(priv->last_msgtext == msgtext) {
+		g_print("Duplicated!\n");
+		return;
+	}
+	
+	channel_buffer_append_message_text(priv->common_buffer, msgtext, TRUE, FALSE);
+
+	if(priv->last_msgtext)
+		g_object_unref(priv->last_msgtext);
+	g_object_ref(msgtext);
+	priv->last_msgtext = msgtext;
 }
 void account_manager_set_current_channel(AccountManager *manager, Channel *channel)
 {
 	AccountManagerPrivate *priv;
+	ChannelBuffer *old_buf;
 	gboolean is_account_changed, is_channel_changed;
 
         g_return_if_fail(manager != NULL);
@@ -325,6 +361,8 @@ void account_manager_set_current_channel(AccountManager *manager, Channel *chann
 	if(priv->current_account) {
 		g_signal_handlers_disconnect_by_func(priv->current_account, account_manager_account_changed_cb, manager);
 	}
+	old_buf = loqui_app_get_channel_buffer(manager->priv->app);
+
 
 	is_account_changed = (account_manager_get_current_account(manager) != channel->account) ? TRUE : FALSE;
 	is_channel_changed = (account_manager_get_current_channel(manager) != channel) ? TRUE : FALSE;
@@ -333,7 +371,13 @@ void account_manager_set_current_channel(AccountManager *manager, Channel *chann
 	priv->current_channel = channel;
 
 	channel_tree_select_channel(manager->priv->app->channel_tree, channel);
-	loqui_app_set_channel_buffer(priv->app, GTK_TEXT_BUFFER(channel->buffer));
+	loqui_app_set_channel_buffer(priv->app, channel->buffer);
+	if(old_buf != channel->buffer) {
+		if(old_buf)
+			g_signal_handlers_unblock_by_func(old_buf, account_manager_channel_buffer_append_cb, manager);
+		g_signal_handlers_block_by_func(channel->buffer, account_manager_channel_buffer_append_cb, manager);
+	}
+
 	nick_list_set_store(priv->app->nick_list, channel->user_list);
 	loqui_app_update_info(priv->app, 
 			      is_account_changed, channel->account,
@@ -362,6 +406,7 @@ void account_manager_set_current_account(AccountManager *manager, Account *accou
 {
 	AccountManagerPrivate *priv;
 	gboolean is_account_changed, is_channel_changed;
+	ChannelBuffer *old_buf;
 
         g_return_if_fail(manager != NULL);
         g_return_if_fail(IS_ACCOUNT_MANAGER(manager));
@@ -375,6 +420,7 @@ void account_manager_set_current_account(AccountManager *manager, Account *accou
 	if(priv->current_account) {
 		g_signal_handlers_disconnect_by_func(priv->current_account, account_manager_account_changed_cb, manager);
 	}
+	old_buf = loqui_app_get_channel_buffer(manager->priv->app);
 
 	is_account_changed = (account_manager_get_current_account(manager) != account) ? TRUE : FALSE;
 	is_channel_changed = (account_manager_get_current_channel(manager) != NULL) ? TRUE : FALSE;
@@ -383,7 +429,13 @@ void account_manager_set_current_account(AccountManager *manager, Account *accou
 	priv->current_account = account;
 
 	channel_tree_select_account(manager->priv->app->channel_tree, account);
-	loqui_app_set_channel_buffer(priv->app, GTK_TEXT_BUFFER(account->console_buffer));
+	loqui_app_set_channel_buffer(priv->app, account->console_buffer);
+	if(old_buf != account->console_buffer) {
+		if(old_buf)
+			g_signal_handlers_unblock_by_func(old_buf, account_manager_channel_buffer_append_cb, manager);
+		g_signal_handlers_block_by_func(account->console_buffer, account_manager_channel_buffer_append_cb, manager);
+	}
+
 	nick_list_set_store(priv->app->nick_list, NULL);
 	loqui_app_update_info(priv->app, 
 			      is_account_changed, account,
@@ -466,37 +518,12 @@ account_manager_is_current_channel(AccountManager *manager, Channel *channel)
 gboolean
 account_manager_is_current_channel_buffer(AccountManager *manager, ChannelBuffer *buffer)
 {
-	GtkTextBuffer *buffer2;
         g_return_val_if_fail(manager != NULL, FALSE);
         g_return_val_if_fail(IS_ACCOUNT_MANAGER(manager), FALSE);
-	g_return_val_if_fail(IS_CHANNEL_BUFFER(buffer), FALSE);
 
-	buffer2 = gtk_text_view_get_buffer(GTK_TEXT_VIEW(manager->priv->app->channel_textview));
-	if(buffer2 == NULL || !IS_CHANNEL_BUFFER(buffer2))
-		return FALSE;
-
-	return (buffer == CHANNEL_BUFFER(buffer2));
+	return (buffer == loqui_app_get_channel_buffer(manager->priv->app));
 }
 
-void
-account_manager_common_buffer_append(AccountManager *manager, TextType type, gchar *str)
-{
-        g_return_if_fail(manager != NULL);
-        g_return_if_fail(IS_ACCOUNT_MANAGER(manager));
-
-	channel_buffer_append_line(manager->priv->common_buffer, type, str);
-}
-
-void account_manager_common_buffer_append_remark(AccountManager *manager, TextType type,
-						 gboolean is_self, gboolean is_priv,
-						 const gchar *channel_name, const gchar *nick, const gchar *remark)
-{
-        g_return_if_fail(manager != NULL);
-        g_return_if_fail(IS_ACCOUNT_MANAGER(manager));
-
-	channel_buffer_append_remark(manager->priv->common_buffer, type, FALSE,
-				     is_self, is_priv, channel_name, nick, remark);
-}
 void account_manager_disconnect_all(AccountManager *manager)
 {
 	g_return_if_fail(manager != NULL);

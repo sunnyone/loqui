@@ -28,6 +28,11 @@
 #include "utils.h"
 #include "gtkutils.h"
 
+enum {
+	APPEND,
+	LAST_SIGNAL
+};
+
 struct _ChannelBufferPrivate
 {
 	GtkTextTag *highlight_area_tag;
@@ -36,6 +41,8 @@ struct _ChannelBufferPrivate
 
 static GtkTextBufferClass *parent_class = NULL;
 #define PARENT_TYPE GTK_TYPE_TEXT_BUFFER
+
+static guint channel_buffer_signals[LAST_SIGNAL] = { 0 };
 
 static void channel_buffer_class_init(ChannelBufferClass *klass);
 static void channel_buffer_init(ChannelBuffer *channel_buffer);
@@ -103,6 +110,15 @@ channel_buffer_class_init (ChannelBufferClass *klass)
         parent_class = g_type_class_peek_parent(klass);
         
         object_class->finalize = channel_buffer_finalize;
+
+	channel_buffer_signals[APPEND] = g_signal_new("append",
+						      G_OBJECT_CLASS_TYPE(object_class),
+						      G_SIGNAL_RUN_FIRST,
+						      G_STRUCT_OFFSET(ChannelBufferClass, append),
+						      NULL, NULL,
+						      g_cclosure_marshal_VOID__OBJECT,
+						      G_TYPE_NONE, 1,
+						      TYPE_MESSAGE_TEXT);
 }
 static void 
 channel_buffer_init (ChannelBuffer *channel_buffer)
@@ -382,57 +398,38 @@ channel_buffer_append(ChannelBuffer *buffer, TextType type, gchar *str,
 						 style, highlight, NULL);
 }
 void
-channel_buffer_append_line(ChannelBuffer *buffer, TextType type, gchar *str)
+channel_buffer_append_message_text(ChannelBuffer *buffer, MessageText *msgtext, 
+				   gboolean verbose, gboolean exec_notification)
 {
 	gchar *buf;
+	TextType type;
 
         g_return_if_fail(buffer != NULL);
         g_return_if_fail(IS_CHANNEL_BUFFER(buffer));
-
-	channel_buffer_append_current_time(buffer);
-
-	buf = g_strconcat(str, "\n", NULL);
-	channel_buffer_append(buffer, type, buf, FALSE, FALSE);
-	g_free(buf);
-}
-
-void
-channel_buffer_append_remark(ChannelBuffer *buffer, TextType type, gboolean exec_notification,
-			     gboolean is_self, gboolean is_priv, 
-			     const gchar *channel_name, const gchar *nick, const gchar *remark)
-{
-	gchar *nick_str;
-	gchar *buf;
-	
-        g_return_if_fail(buffer != NULL);
-        g_return_if_fail(IS_CHANNEL_BUFFER(buffer));
-	g_return_if_fail(nick != NULL);
-	g_return_if_fail(remark != NULL);
+        g_return_if_fail(msgtext != NULL);
+        g_return_if_fail(IS_MESSAGE_TEXT(msgtext));
 
 	channel_buffer_append_current_time(buffer);
 	
-	if(is_priv) {
-		if(is_self)
-			nick_str = g_strdup_printf(">%s< ", nick);
-		else
-			nick_str = g_strdup_printf("=%s= ", nick);
-	} else if (channel_name) {
-		if(is_self)
-			nick_str = g_strdup_printf(">%s:%s< ", channel_name, nick);
-		else
-			nick_str = g_strdup_printf("<%s:%s> ", channel_name, nick);
-	} else {
-		if(is_self)
-			nick_str = g_strdup_printf(">%s< ", nick);
-		else
-			nick_str = g_strdup_printf("<%s> ", nick);
+	type = message_text_get_text_type(msgtext);
+
+	if(message_text_get_is_remark(msgtext)) {
+		buf = message_text_get_nick_string(msgtext, verbose);
+		channel_buffer_append(buffer, type, buf, FALSE, FALSE);
+		g_free(buf);
 	}
-	
-	channel_buffer_append(buffer, type, nick_str, FALSE, FALSE);
-	
-	buf = g_strconcat(remark, "\n", NULL);
-	channel_buffer_append(buffer, type, buf, TRUE, exec_notification);
 
+	if(verbose && message_text_get_account_name(msgtext))
+		buf = g_strdup_printf("[%s] %s\n",
+				      message_text_get_account_name(msgtext),
+				      message_text_get_text(msgtext));
+	else
+		buf = g_strconcat(message_text_get_text(msgtext), "\n", NULL);
+
+	channel_buffer_append(buffer, type, buf,
+			      message_text_get_is_remark(msgtext), 
+			      exec_notification);
 	g_free(buf);
-	g_free(nick_str);
+
+	g_signal_emit(buffer, channel_buffer_signals[APPEND], 0, msgtext);
 }

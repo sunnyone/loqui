@@ -72,10 +72,6 @@ gboolean account_manager_is_current_account(AccountManager *manager, Account *ac
 gboolean account_manager_is_current_channel(AccountManager *manager, Channel *channel);
 gboolean account_manager_is_current_channel_buffer(AccountManager *manager, ChannelBuffer *buffer);
 
-void account_manager_common_buffer_append(AccountManager *manager, TextType type, gchar *str);
-void account_manager_common_buffer_append_remark(AccountManager *manager, TextType type,
-						 gboolean is_self, gboolean is_priv,
-						 const gchar *channel_name, const gchar *nick, const gchar *remark);
 void account_manager_remove_channels_of_account(AccountManager *manager, Account *account);
 
 void account_manager_disconnect_all(AccountManager *manager);

@@ -70,8 +70,10 @@ void loqui_app_update_info(LoquiApp *app,
 
 void loqui_app_set_focus(LoquiApp *app);
 
-void loqui_app_set_channel_buffer(LoquiApp *app, GtkTextBuffer *textbuf);
-void loqui_app_set_common_buffer(LoquiApp *app, GtkTextBuffer *textbuf);
+void loqui_app_set_channel_buffer(LoquiApp *app, ChannelBuffer *buffer);
+ChannelBuffer *loqui_app_get_channel_buffer(LoquiApp *app);
+
+void loqui_app_set_common_buffer(LoquiApp *app, ChannelBuffer *buffer);
 
 void loqui_app_set_toolbar_style(LoquiApp *app, guint style);
 void loqui_app_set_show_statusbar(LoquiApp *app, gboolean show);
