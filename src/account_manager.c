@@ -54,9 +54,17 @@ struct _AccountManagerPrivate
 	guint updated_private_talk_number;
 };
 
+enum {
+	SIGNAL_ADD_ACCOUNT,
+	SIGNAL_REMOVE_ACCOUNT,
+	LAST_SIGNAL
+};
+
 static GObjectClass *parent_class = NULL;
 #define PARENT_TYPE G_TYPE_OBJECT
 #define ACCOUNT_CONFIG_FILENAME "account.xml"
+
+static guint account_manager_signals[LAST_SIGNAL] = { 0 };
 
 static void account_manager_class_init(AccountManagerClass *klass);
 static void account_manager_init(AccountManager *account_manager);
@@ -70,6 +78,9 @@ static void account_manager_add_channel_cb(Account *account, Channel *channel, A
 static void account_manager_remove_channel_cb(Account *account, Channel *channel, AccountManager *manager);
 static void account_manager_channel_buffer_append_cb(ChannelBuffer *buffer, MessageText *msgtext, AccountManager *manager);
 static void account_manager_append_log(AccountManager *manager, MessageText *msgtext);
+
+static void account_manager_real_add_account(AccountManager *manager, Account *account);
+static void account_manager_real_remove_account(AccountManager *manager, Account *account);
 
 static gboolean account_manager_update_account_info(AccountManager *manager);
 static gboolean account_manager_update_channel_info(AccountManager *manager);
@@ -110,6 +121,26 @@ account_manager_class_init (AccountManagerClass *klass)
         parent_class = g_type_class_peek_parent(klass);
         
         object_class->finalize = account_manager_finalize;
+
+	klass->add_account = account_manager_real_add_account;
+	klass->remove_account = account_manager_real_remove_account;
+
+	account_manager_signals[SIGNAL_ADD_ACCOUNT] = g_signal_new("add-account",
+								   G_OBJECT_CLASS_TYPE(object_class),
+								   G_SIGNAL_RUN_LAST,
+								   G_STRUCT_OFFSET(AccountManagerClass, add_account),
+								   NULL, NULL,
+								   g_cclosure_marshal_VOID__OBJECT,
+								   G_TYPE_NONE, 1,
+								   TYPE_ACCOUNT);
+	account_manager_signals[SIGNAL_REMOVE_ACCOUNT] = g_signal_new("remove-account",
+								      G_OBJECT_CLASS_TYPE(object_class),
+								      G_SIGNAL_RUN_LAST,
+								      G_STRUCT_OFFSET(AccountManagerClass, remove_account),
+								      NULL, NULL,
+								      g_cclosure_marshal_VOID__OBJECT,
+								      G_TYPE_NONE, 1,
+								      TYPE_ACCOUNT);
 }
 static void 
 account_manager_init (AccountManager *account_manager)
@@ -163,6 +194,26 @@ account_manager_new (void)
 void
 account_manager_add_account(AccountManager *manager, Account *account)
 {
+        g_return_if_fail(manager != NULL);
+        g_return_if_fail(IS_ACCOUNT_MANAGER(manager));
+	g_return_if_fail(account != NULL);
+	g_return_if_fail(IS_ACCOUNT(account));
+
+	g_signal_emit(G_OBJECT(manager), account_manager_signals[SIGNAL_ADD_ACCOUNT], 0, account);
+}
+void
+account_manager_remove_account(AccountManager *manager, Account *account)
+{
+        g_return_if_fail(manager != NULL);
+        g_return_if_fail(IS_ACCOUNT_MANAGER(manager));
+	g_return_if_fail(account != NULL);
+	g_return_if_fail(IS_ACCOUNT(account));
+
+	g_signal_emit(G_OBJECT(manager), account_manager_signals[SIGNAL_REMOVE_ACCOUNT], 0, account);
+}
+static void
+account_manager_real_add_account(AccountManager *manager, Account *account)
+{
 	AccountManagerPrivate *priv;
 
         g_return_if_fail(manager != NULL);
@@ -187,8 +238,8 @@ account_manager_add_account(AccountManager *manager, Account *account)
 	loqui_app_menu_buffers_add_account(priv->app, account);
 	loqui_channelbar_add_account(LOQUI_CHANNELBAR(priv->app->channelbar), account);
 }
-void
-account_manager_remove_account(AccountManager *manager, Account *account)
+static void
+account_manager_real_remove_account(AccountManager *manager, Account *account)
 {
 	AccountManagerPrivate *priv;
 

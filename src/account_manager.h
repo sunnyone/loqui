@@ -47,6 +47,9 @@ struct _AccountManager
 struct _AccountManagerClass
 {
         GObjectClass parent_class;
+
+	void (* add_account) (AccountManager *manager, Account *account);
+	void (* remove_account) (AccountManager *manager, Account *account);
 };
 
 
