@@ -28,18 +28,23 @@ requires 2.0.0
 #include "loqui.h"
 #include "gnet.h"
 %}
+%h{
+#include "loqui-pref.h"
+%}
 
 class Loqui:Core from G:Object
 {
 	public gboolean debug_mode = FALSE;
 	public gboolean show_msg_mode = FALSE;
 	public gboolean send_status_commands_mode = FALSE;
-	public gchar *user_dir = NULL;
+	public gchar *user_dir = NULL
+	   unrefwith g_free;
+	public LoquiPref *general_pref = { loqui_pref_new(); }
+	   unrefwith g_object_unref;
 
 	init(self) {
 		self_set_user_dir(self, NULL);
 	}
-
 
 	/**
 	   run from loqui_init().
@@ -96,5 +101,9 @@ class Loqui:Core from G:Object
 
 	public /*G_CONST_RETURN*/ gchar *get_user_dir(self) {
 		return self->user_dir;
+	}
+
+	public LoquiPref *get_general_pref(self) {
+		return self->general_pref;
 	}
 }
