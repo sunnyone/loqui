@@ -236,7 +236,7 @@ loqui_profile_account_class_init(LoquiProfileAccountClass *klass)
 					g_param_spec_string("name",
 							    _("Name"),
 							    _("Account name"),
-							    NULL, G_PARAM_READWRITE));
+							    "Untitled", G_PARAM_READWRITE));
 	g_object_class_install_property(object_class,
 					PROP_NICK,
 					g_param_spec_string("nick",
