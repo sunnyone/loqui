@@ -184,24 +184,11 @@ void prefs_general_load(void)
 
 void prefs_general_save(void)
 {
-	gchar *dirname;
 	gchar *path;
 	gchar *escaped;
 	FILE *fp;
 
 	debug_puts("Saving prefs_general...");
-
-	dirname = g_build_filename(g_get_home_dir(), PREFS_DIR, NULL);
-	if(!g_file_test(dirname, G_FILE_TEST_EXISTS)) {
-		make_dir(dirname);
-	}
-
-	if(!g_file_test(dirname, G_FILE_TEST_IS_DIR)) {
-		g_warning(_("Invalid \"%s\""), dirname);
-		return;
-	}
-
-	g_free(dirname);
 
 	path = g_build_filename(g_get_home_dir(), PREFS_DIR, RC_FILENAME, NULL);
 	if((fp = fopen(path, "w")) == NULL) {
