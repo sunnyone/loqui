@@ -61,7 +61,8 @@ void debug_puts(const gchar *format, ...)
 	g_free(str);
 }
 
-gchar *utils_remove_return_code(gchar *str)
+G_CONST_RETURN gchar *
+utils_remove_return_code(gchar *str)
 {
         register gchar *s;
 

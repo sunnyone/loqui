@@ -59,7 +59,8 @@
 void debug_puts(const gchar *format, ...) G_GNUC_PRINTF(1, 2);
 void debug_print(const gchar *format, ...) G_GNUC_PRINTF(1, 2);
 
-gchar *utils_remove_return_code(gchar *str);
+/* modify itself */
+G_CONST_RETURN gchar *utils_remove_return_code(gchar *str);
 
 GList *utils_line_separated_text_to_list(gchar *str);
 gchar *utils_line_separated_text_from_list(GList *list);
