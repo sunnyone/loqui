@@ -476,7 +476,7 @@ static gpointer irc_handle_thread_func(IRCHandle *handle)
 	irc_handle_push_message(handle, msg);
 	priv->current_nick = g_strdup("hogehoge");
 
-	msg = irc_message_create(IRCCommandUser, "test", "*", "*", "*", NULL);
+	msg = irc_message_create(IRCCommandUser, "Loqui", "*", "*", "*", NULL);
 	irc_handle_push_message(handle, msg);
 
 	gdk_threads_enter();
@@ -572,4 +572,13 @@ void irc_handle_push_message(IRCHandle *handle, IRCMessage *msg)
 	}
 
 	g_async_queue_push(priv->msg_queue, msg);
+}
+
+gchar *
+irc_handle_get_current_nick(IRCHandle *handle)
+{
+        g_return_if_fail(handle != NULL);
+        g_return_if_fail(IS_IRC_HANDLE(handle));
+
+	return handle->priv->current_nick;
 }

@@ -171,6 +171,7 @@ loqui_app_entry_activate_cb(GtkWidget *widget, gpointer data)
 	if(str == NULL || strlen(str) == 0)
 		return;
 	account_manager_speak(account_manager_get(), str);
+	gtk_entry_set_text(GTK_ENTRY(widget), "");
 }
 GtkWidget*
 loqui_app_new (void)

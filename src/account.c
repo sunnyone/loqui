@@ -27,6 +27,7 @@
 #include "utils.h"
 #include "account_manager.h"
 #include <string.h>
+#include "main.h"
 
 struct _AccountPrivate
 {
@@ -408,6 +409,7 @@ account_speak(Account *account, Channel *channel, const gchar *str)
 {
 	AccountPrivate *priv;
 	const gchar *cur;
+	gchar *buf;
 	IRCMessage *msg;
 
         g_return_if_fail(account != NULL);
@@ -422,18 +424,23 @@ account_speak(Account *account, Channel *channel, const gchar *str)
 
 	cur = str;
 	if(*cur == '/') {
-		g_warning("Not supported");
+		cur++;
+		msg = irc_message_parse_line(cur);
+		if(debug_mode) {
+			buf = irc_message_to_string(msg);
+			g_print("msg: %s\n", buf);
+			g_free(buf);
+		}
+		irc_handle_push_message(priv->handle, msg);
 	} else {
 		if(channel == NULL) {
 			g_warning(_("No channel is selected"));
 			return;
 		}
-
-		if(account == NULL) {
-			g_warning(_("Can't find account"));
-			return;
-		}
 		msg = irc_message_create(IRCCommandPrivmsg, channel->name, str, NULL);
 		irc_handle_push_message(priv->handle, msg);
+		buf = g_strdup_printf(">%s< %s", irc_handle_get_current_nick(priv->handle), str);
+		channel_append_text(channel, TRUE, TEXT_TYPE_NORMAL, buf);
+		g_free(buf);
 	}
 }

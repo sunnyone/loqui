@@ -120,10 +120,9 @@ channel_tree_destroy(GtkObject *object)
         if (GTK_OBJECT_CLASS(parent_class)->destroy)
                 (* GTK_OBJECT_CLASS(parent_class)->destroy) (object);
 }
-static void
+static void /* double click */
 channel_tree_row_activated_cb(ChannelTree *tree, GtkTreePath *path, GtkTreeViewColumn *col, gpointer data)
 {
-	debug_puts("Double clicked channel or account!");
 }
 static void
 channel_tree_row_selected_cb(GtkTreeSelection *selection, GtkTreeModel *model)
@@ -140,8 +139,6 @@ channel_tree_row_selected_cb(GtkTreeSelection *selection, GtkTreeModel *model)
 			   COLUMN_CHANNEL, &channel,
 			   -1);
 	account_manager_set_current(account_manager_get(), account, channel);
-	
-	debug_puts("Selected channel or account!");
 }
 GtkWidget*
 channel_tree_new(void)

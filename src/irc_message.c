@@ -182,12 +182,12 @@ irc_message_new(const gchar *prefix, const gchar *command, gchar **parameter)
 	} else
 		msg->prefix = NULL;
 
-	msg->command = g_strdup(command);
+	msg->command = g_utf8_strup(command, -1);
 	msg->parameter = g_strdupv(parameter);
 
 	msg->response = (int) g_ascii_strtoull(command, NULL, 10);
 	if(msg->response == 0) {
-		msg->response = command_table_make_command_numeric(command);
+		msg->response = command_table_make_command_numeric(msg->command);
 	}
 		
 	return msg;
@@ -232,48 +232,70 @@ irc_message_print(IRCMessage *msg)
 	str = irc_message_inspect(msg);
 	g_print("%s", str);
 	g_free(str);
-
 }
 IRCMessage*
 irc_message_parse_line(const gchar *line)
 {
 	IRCMessage *msg;
-	gchar **array;
-	gchar *prefix, *command, *parameter[16], *last_param;
-	int i, j;
+	gchar *array[20];
+	gchar *prefix = NULL, *command, *parameter[16];
+	int i = 0, num, start;
+	gchar *buf;
+	gchar *cur, *tmp;
 
 	g_return_val_if_fail(line != NULL, NULL);
+	
+	buf = g_strstrip(g_strdup(line));
 
-	/* prefix(1-) + command(1) + parameter(15-) = 17- */
-	array = g_strsplit(line, " ", 17);
+	cur = buf;
 
-	prefix = NULL;
+	while((tmp = strchr(cur, ' ')) != NULL) {
+		while(*tmp == ' ') {
+			*tmp = '\0';
+			tmp++;
+		}
 
-	i = 0;
-	if(*array[i] == ':') {
-		prefix = array[i]+1;
-		i++;
-	}
-	command = array[i];
-	i++;
-
-	for(j = i; j < 14+i; j++) {
-		if(array[j] == NULL || *array[j] == ':')
+		if(*tmp == '\0')
 			break;
-		parameter[j-i] = array[j];
+
+		array[i++] = cur;
+		cur = tmp;
+
+		if(i > 16)
+			break;
+
+		if(*cur == ':') {
+			cur++;
+			break;
+		}
 	}
-	last_param = g_strjoinv(" ", array+j);
-	parameter[j-i] = last_param;
-	if(*parameter[j-i] == ':')
-		parameter[j-i]++;
-	utils_remove_return_code(parameter[j-i]);
-	parameter[j-i+1] = NULL;
+	if(*cur != '\0')
+		array[i++] = cur;
+	num = i;
+
+	if(num < 2) {
+		g_free(buf);
+		return NULL;
+	}
+
+	if(*array[0] == ':') {
+		prefix = array[0]+1;
+		command = array[1];
+	        start = 2;
+	} else {
+		command = array[0];
+		start = 1;
+	}
+
+	for(i = start; i < num; i++) {
+		parameter[i-start] = array[i];
+	}
+	parameter[i-start] = NULL;
 
 	msg = irc_message_new(prefix, command, parameter);
 	
-	g_free(last_param);
-	g_strfreev(array);
-	
+	g_free(buf);
+
 	return msg;
 }
 
@@ -379,7 +401,6 @@ irc_message_format(IRCMessage *msg, const gchar *format)
 	GString *string;
 	const gchar *cur;
 	gchar *tmp, *buf;
-	gsize read;
 	guint64 i, end;
 
         g_return_val_if_fail(msg != NULL, NULL);
