@@ -372,7 +372,8 @@ account_list_dialog_open_for_connect(GtkWindow *parent, AccountManager *manager)
 	LoquiAccount *account;
 	
 	dialog = account_list_dialog_new(manager, TRUE);
-	gtk_window_set_transient_for(GTK_WINDOW(dialog), parent);
+	// gtk_window_set_transient_for(GTK_WINDOW(dialog), parent);
+	gtk_window_present(GTK_WINDOW(dialog));
 
 	selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(ACCOUNT_LIST_DIALOG(dialog)->priv->treeview));
 	model = GTK_TREE_MODEL(ACCOUNT_LIST_DIALOG(dialog)->priv->list_store);
