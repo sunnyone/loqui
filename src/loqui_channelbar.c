@@ -376,9 +376,7 @@ loqui_channelbar_set_current_channel(LoquiChannelbar *channelbar, Channel *chann
 	gtk_label_set(GTK_LABEL(priv->label_channel_mode), "");
 	gtk_label_set(GTK_LABEL(priv->label_user_number), "");
 			
-	if(!channel || channel_is_private_talk(channel)) {
-		gtk_widget_set_sensitive(priv->entry_topic, FALSE);
-	} else {
+	if(channel && !channel_is_private_talk(channel)) {
 		topic = channel_get_topic(channel);
 		if(topic)
 			gtk_entry_set_text(GTK_ENTRY(priv->entry_topic), topic);
@@ -394,6 +392,8 @@ loqui_channelbar_set_current_channel(LoquiChannelbar *channelbar, Channel *chann
 		buf = g_strdup_printf("(%d/%d)", user_num_op, user_num_all);
 		gtk_label_set(GTK_LABEL(priv->label_user_number), buf);
 		g_free(buf);
+	} else {
+		gtk_widget_set_sensitive(priv->entry_topic, FALSE);
 	}
 	
 	priv->entry_changed = FALSE;
