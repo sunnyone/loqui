@@ -9,11 +9,12 @@ INCLUDES = \
 CPPFLAGS= \
 	-DGTK_DISABLE_DEPRECATED=1 \
 	-DGDK_DISABLE_DEPRECATED=1 \
-	-DG_DISABLE_DEPRECATED=1
+	-DG_DISABLE_DEPRECATED=1 -Wall -g
 
 libgtk24backports_la_SOURCES = \
 	gtkaction.c gtkaction.h \
 	gtkactiongroup.c gtkactiongroup.h \
+	gtk24ext.c gtk24ext.h \
 	gtkuimanager.c gtkuimanager.h \
 	gtkradioaction.c gtkradioaction.h \
         gtk24marshalers.c gtk24marshalers.h \
@@ -23,7 +24,8 @@ libgtk24backports_la_SOURCES = \
 	gtktoggleaction.c gtktoggleaction.h \
 	gtk24toolbar.c gtk24toolbar.h \
 	gtktoolbutton.c gtktoolbutton.h \
-	gtktoolitem.c gtktoolitem.h
+	gtktoolitem.c gtktoolitem.h \
+	gtk24backports.c gtk24backports.h
 
 BUILT_SOURCES = \
 	gtk24marshalers.c gtk24marshalers.h

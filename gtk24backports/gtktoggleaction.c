@@ -28,6 +28,11 @@
  * GTK+ at ftp://ftp.gtk.org/pub/gtk/. 
  */
 
+/* 2004-03-16
+   Modified for Gtk24 backports by Yoichi Imai <yoichi@silver-forest.com>
+   Available from Loqui <http://loqui.good-day.net/>
+*/
+
 #include <config.h>
 
 #ifdef USE_GTK_2_2
@@ -144,7 +149,7 @@ gtk_toggle_action_class_init (GtkToggleActionClass *klass)
                   g_cclosure_marshal_VOID__VOID,
                   G_TYPE_NONE, 0);
 
-  g_type_class_add_private (gobject_class, sizeof (GtkToggleActionPrivate));
+  /*  g_type_class_add_private (gobject_class, sizeof (GtkToggleActionPrivate)); */
 }
 
 static void

@@ -19,6 +19,11 @@
  * Boston, MA 02111-1307, USA.
  */
 
+/* 2004-03-16
+   Modified for Gtk24 backports by Yoichi Imai <yoichi@silver-forest.com>
+   Available from Loqui <http://loqui.good-day.net/>
+*/
+
 #include <config.h>
 
 #ifdef USE_GTK_2_2

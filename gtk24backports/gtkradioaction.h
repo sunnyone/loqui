@@ -27,6 +27,11 @@
  * files for a list of changes.  These files are distributed with
  * GTK+ at ftp://ftp.gtk.org/pub/gtk/. 
  */
+/* 2004-03-16
+   Modified for Gtk24 backports by Yoichi Imai <yoichi@silver-forest.com>
+   Available from Loqui <http://loqui.good-day.net/>
+*/
+
 #ifndef __GTK_RADIO_ACTION_H__
 #define __GTK_RADIO_ACTION_H__
 

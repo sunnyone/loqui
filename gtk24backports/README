@@ -9,6 +9,8 @@ if test "x${gtk_config_major_version}" = "x2" -a "x${gtk_config_minor_version}" 
 fi
 
 Then, include gtk24backports.h and link libgtk24backports.la.
+And add gtk24backports_init() after gtk_init().
+
 Use some widgets with Gtk24* prefix since GtkToolbar conflicts.
 
 * Last merged

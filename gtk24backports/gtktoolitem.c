@@ -20,6 +20,11 @@
  * Boston, MA 02111-1307, USA.
  */
 
+/* 2004-03-16
+   Modified for Gtk24 backports by Yoichi Imai <yoichi@silver-forest.com>
+   Available from Loqui <http://loqui.good-day.net/>
+*/
+
 #include <config.h>
 
 #ifdef USE_GTK_2_2
@@ -258,7 +263,7 @@ gtk_tool_item_class_init (GtkToolItemClass *klass)
 		  G_TYPE_STRING,
 		  G_TYPE_STRING);		  
 
-  g_type_class_add_private (object_class, sizeof (GtkToolItemPrivate));
+  /* g_type_class_add_private (object_class, sizeof (GtkToolItemPrivate)); */
 }
 
 static void

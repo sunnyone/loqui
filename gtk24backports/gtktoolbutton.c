@@ -229,7 +229,7 @@ gtk_tool_button_class_init (GtkToolButtonClass *klass)
 		  g_cclosure_marshal_VOID__VOID,
 		  G_TYPE_NONE, 0);
   
-  g_type_class_add_private (object_class, sizeof (GtkToolButtonPrivate));
+  /* g_type_class_add_private (object_class, sizeof (GtkToolButtonPrivate)); */
 }
 
 static void
