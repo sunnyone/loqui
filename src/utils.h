@@ -34,7 +34,7 @@
 }
 #define DEBUG_TIMER_STOP(timer, name) { \
    g_timer_stop(timer); \
-   g_print("elapsed(%s): %.5f\n", name, g_timer_elapsed(timer, NULL)); \
+   g_print("elapsed(%s): %.7f\n", name, g_timer_elapsed(timer, NULL)); \
    g_timer_destroy(timer); \
 }
 
