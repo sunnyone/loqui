@@ -202,16 +202,15 @@ loqui_channel_text_view_key_press_event(GtkWidget *widget,
 	case GDK_Super_R:
 	case GDK_Hyper_L:
 	case GDK_Hyper_R: /* FIXME: modifiers, enough? */
-		break;
 	case GDK_ISO_Left_Tab: /* FIXME: if this doesn't exist, shift + tab does not work... */
+	case GDK_Tab:
+		found = TRUE;
 		break;
 	default:
 		found = gtkutils_bindings_has_matched_entry("GtkTextView", event->state, event->keyval);
-		if (!found)
-			found = gtkutils_bindings_has_matched_entry("GtkWindow", event->state, event->keyval);
-		if (!found)
-			g_signal_emit(widget, channel_text_view_signals[SIGNAL_NEEDLESS_KEY_PRESS], 0);
 	}
+	if (!found)
+		g_signal_emit(widget, channel_text_view_signals[SIGNAL_NEEDLESS_KEY_PRESS], 0);
 
 	if (* GTK_WIDGET_CLASS(parent_class)->key_press_event)
 		return (* GTK_WIDGET_CLASS(parent_class)->key_press_event)(widget, event);
