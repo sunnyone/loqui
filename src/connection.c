@@ -164,7 +164,7 @@ gchar *connection_gets(Connection *connection, GIOError *error)
 	}
 
 	local = codeconv_to_local(str);
-	if(local == NULL)
+	if(str != NULL && local == NULL)
 		local = g_strdup(FAILED_CODECONV_COMMAND);
 	g_free(str);
 	
@@ -227,7 +227,7 @@ void connection_disconnect(Connection *connection)
         g_return_if_fail(IS_CONNECTION(connection));
 
 	debug_puts("Disconnecting...");
-	g_io_channel_set_flags(connection->priv->io, G_IO_FLAG_NONBLOCK, NULL);
+	g_io_channel_shutdown(connection->priv->io, TRUE, NULL);
 	g_io_channel_unref(connection->priv->io);
 	connection->priv->io = NULL;
 	gnet_tcp_socket_delete(connection->priv->sock);
