@@ -1,4 +1,4 @@
-IMAGES_ID = console
+IMAGES_ID = console person
 IMAGES = $(IMAGES_ID:%=%.png)
 
 noinst_DATA = pixbufs.h
