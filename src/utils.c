@@ -283,23 +283,23 @@ utils_search_uri(const gchar *buf, gchar **got_uri,
 		 const gchar **start_uri, const gchar **end_uri)
 {
 	int i;
-	const gchar *tmp = NULL, *cur, *prefix = NULL;
+	const gchar *tmp = NULL, *tmp_start_uri = NULL, *cur, *prefix = NULL, *used_prefix = NULL;
 	const gchar *start_uri_ptr;
 
 	cur = buf;
 	for(i = 0; prefix = uri_prefix_list[i], prefix != NULL; i++) {
 		tmp = strstr(cur, prefix);
-		if(tmp != NULL) {
-			cur = tmp;
-			break;
+		if(tmp != NULL && (tmp_start_uri == NULL || tmp_start_uri > tmp)) {
+			used_prefix = prefix;
+			tmp_start_uri = tmp;
 		}
 	}
-	if(tmp == NULL || prefix == NULL)
+	if(tmp_start_uri == NULL || used_prefix == NULL)
 		return FALSE;
 
-	start_uri_ptr = cur;
-
-	cur += strlen(prefix);
+	cur = start_uri_ptr = tmp_start_uri;
+	
+	cur += strlen(used_prefix);
 	if(*cur == '\0')
 		return FALSE;
 	
