@@ -59,6 +59,8 @@
 
 #include <gdk/gdkkeysyms.h>
 
+#include <loqui.h>
+
 #define CHANNEL_ENTRY_STORE_KEY "channel-entry-store"
 #define CHANNEL_TEXT_VIEW_KEY "channel-text-view"
 
