@@ -20,7 +20,7 @@
 #include "config.h"
 
 #include "loqui_account_manager_store.h"
-#include "loqui_gtk.h"
+#include "loqui-core-gtk.h"
 #include "loqui_stock.h"
 
 enum {

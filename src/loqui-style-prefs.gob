@@ -1,0 +1,100 @@
+requires 2.0.0
+%alltop{
+/*
+ * Loqui -- Chat/IM client for Gtk2 <http://loqui.good-day.net/>
+ * Copyright (C) 2002-2003 Yoichi Imai <yoichi@silver-forest.com>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+ */
+%}
+
+%h{
+#include <gtk/gtk.h>
+#include <libloqui/lqgkeyfile.h>
+%}
+
+%{
+#include "intl.h"
+#include "utils.h"
+#include <libloqui/loqui.h>
+
+#define RC_FILENAME "stylerc"
+#define STYLERC_VERSION 1
+
+typedef struct {
+	gchar *property_name;
+	gchar *group;
+	gchar *key;
+} StyleItem;
+
+StyleItem style_item_list_string[] = {
+	{"buffer_text_color_time", "Buffer", "TextColorTime"},
+	{NULL, NULL, NULL}
+};
+
+%}
+
+class Loqui:Style:Prefs from G:Object
+{
+	public LqGKeyFile *keyfile
+	    unrefwith lqg_key_file_free;
+	
+	init(self) {
+		self->keyfile = lqg_key_file_new();
+		lqg_key_file_set_integer(self->keyfile, "Version", "Version", STYLERC_VERSION);
+	}
+
+	public LoquiStylePrefs *new(void) {
+		LoquiStylePrefs *ret = GET_NEW;
+		return ret;
+	}
+
+	public gchar *buffer_text_color_time;
+	property STRING buffer_text_color_time(
+		nick = _("Buffer Text Color Time"),
+		blurb = _("Text Color of Time in Buffer"),
+		default_value = "blue",
+		link, export);
+
+	public void load(self) {
+		gchar *path;
+		StyleItem *st;
+
+		path = g_build_filename(loqui_core_get_user_dir(loqui_get_core()),
+					RC_FILENAME, NULL);
+		if (!lqg_key_file_load_from_file(self->keyfile, path, LQG_KEY_FILE_NONE, NULL)) {
+			g_warning(_("Failed to load %s"), RC_FILENAME);
+			g_free(path);
+			return;
+		}
+		g_free(path);
+
+		for (st = style_item_list_string; st->property_name != NULL; st++) {
+			g_object_set(G_OBJECT(self), st->property_name,
+				     lqg_key_file_get_string(self->keyfile, st->group, st->key, NULL),
+				     NULL);
+		}
+	}
+
+	public void save(self) {
+		StyleItem *st;
+		gchar *str;
+
+		for (st = style_item_list_string; st->property_name != NULL; st++) {
+			g_object_get(G_OBJECT(self), st->property_name, &str, NULL);
+			lqg_key_file_set_string(self->keyfile, st->group, st->key, str);
+		}
+	}
+}

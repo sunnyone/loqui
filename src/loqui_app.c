@@ -42,7 +42,7 @@
 #include "loqui_channel_entry_store.h"
 #include "loqui_channel_entry_ui.h"
 #include "loqui_channel_text_view.h"
-#include "loqui_gtk.h"
+#include "loqui-core-gtk.h"
 #include "loqui_account_manager_store.h"
 #include "loqui_member_sort_funcs.h"
 #include "loqui_account_manager_iter.h"

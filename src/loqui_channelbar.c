@@ -21,7 +21,7 @@
 
 #include "loqui_channelbar.h"
 #include <loqui_account_manager.h>
-#include "loqui_gtk.h"
+#include "loqui-core-gtk.h"
 #include "gtkutils.h"
 #include "loqui_dropdown_box.h"
 #include "command_dialog.h"

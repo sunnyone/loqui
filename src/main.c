@@ -19,55 +19,24 @@
  */
 #include "config.h"
 #include "main.h"
-#include <loqui_account_manager.h>
-#include <prefs_general.h>
 #include <utils.h>
-#include <loqui_protocol_manager.h>
-#include <loqui_protocol_irc.h>
-#include <loqui_protocol_ipmsg.h>
-#include <loqui_protocol_msn.h>
 
 #include "loqui_stock.h"
 
-#include "loqui_gtk.h"
-
-
-#include <string.h>
-#include <stdlib.h>
-
-#include <gnet.h>
-#include <loqui.h>
+#include "loqui-core-gtk.h"
 
 #include "intl.h"
+#include "loqui-core-gtk.h"
 
-static void make_program_dir(void);
-
-static void make_program_dir(void)
-{
-	const gchar *dirname;
-	gchar *log_dirname;
-	
-	dirname = loqui_core_get_user_dir(loqui_get_core());
-	if(!g_file_test(dirname, G_FILE_TEST_EXISTS)) {
-		loqui_utils_mkdir_and_chmod(dirname);
-	}
-	
-	if(!g_file_test(dirname, G_FILE_TEST_IS_DIR)) {
-		g_error(_("Invalid \"%s\""), dirname);
-	}
-
-	log_dirname = g_build_filename(dirname, LOG_DIR, NULL);
-	if(!g_file_test(log_dirname, G_FILE_TEST_EXISTS))
-		loqui_utils_mkdir_and_chmod(log_dirname);
-	
-	g_free(log_dirname);
-}
+#include <string.h>
+#include <loqui.h>
+#include <stdlib.h>
 
 int
 main(int argc, char *argv[])
 {
 	int i;
-	LoquiProtocolManager *pmanag;
+	LoquiCoreGtk *core;
 
         bindtextdomain(GETTEXT_PACKAGE, PACKAGE_LOCALE_DIR);
 #ifdef HAVE_BIND_TEXTDOMAIN_CODESET
@@ -77,14 +46,9 @@ main(int argc, char *argv[])
 
 	g_type_init();
 
-	loqui_init(NULL);
-
-	make_program_dir();
-
-	if(!g_threads_got_initialized)
-		g_thread_init (NULL);
-
-	loqui_gtk_init(&argc, &argv);
+	core = loqui_core_gtk_new();
+	loqui_init(LOQUI_CORE(core));
+	loqui_core_gtk_initialize_with_args(core, &argc, &argv);
 
 	for(i = 0; i < argc; i++) {
 		if(strcmp(argv[i], "--debug") == 0) {
@@ -111,18 +75,7 @@ main(int argc, char *argv[])
 			exit(0);
 		}
 	}
-
-	pmanag = loqui_protocol_manager_new();
-
-	loqui_protocol_manager_register(pmanag, loqui_protocol_irc_get());
-	loqui_protocol_manager_register(pmanag, loqui_protocol_ipmsg_get());
-	loqui_protocol_manager_register(pmanag, loqui_protocol_msn_get());
-
-	prefs_general_load();
-	loqui_gtk_start_main_loop(pmanag);
-	prefs_general_save();
-
-	g_object_unref(pmanag);
+	loqui_core_gtk_run(core);
 
 	return 0;
 }

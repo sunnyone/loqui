@@ -25,7 +25,7 @@
 
 #include <loqui_account.h>
 #include "loqui_stock.h"
-#include "loqui_gtk.h"
+#include "loqui-core-gtk.h"
 #include "gtkutils.h"
 
 enum {

@@ -12,7 +12,6 @@ loqui_SOURCES = \
 	eggtrayicon.c eggtrayicon.h \
 	gtkutils.c gtkutils.h \
 	main.c main.h \
-	loqui_gtk.c loqui_gtk.h \
 	loqui_app_actions.c loqui_app_actions.h \
 	loqui_stock.c loqui_stock.h \
 	loqui_tray_icon.c loqui_tray_icon.h \
@@ -37,9 +36,14 @@ loqui_SOURCES = \
 	remark_entry.c remark_entry.h \
 	loqui_channelbar.c loqui_channelbar.h \
 	loqui_select_dialog.c loqui_select_dialog.h \
-	loqui-style-entry.gob loqui-style-entry.c loqui-style-entry.h loqui-style-entry-private.h
+	loqui-core-gtk.gob loqui-core-gtk.c loqui-core-gtk.h loqui-core-gtk-private.h \
+	loqui-style-entry.gob loqui-style-entry.c loqui-style-entry.h loqui-style-entry-private.h \
+	loqui-style-prefs.gob loqui-style-prefs.c loqui-style-prefs.h loqui-style-prefs-private.h
 
-BUILT_SOURCES := loqui-style-entry.c loqui-style-entry.h loqui-style-entry-private.h
+BUILT_SOURCES := \
+	loqui-core-gtk.c loqui-core-gtk.h loqui-core-gtk-private.h \
+	loqui-style-entry.c loqui-style-entry.h loqui-style-entry-private.h \
+	loqui-style-prefs.c loqui-style-prefs.h loqui-style-prefs-private.h
 
 loqui_LDADD = \
         $(GTK_LIBS) $(GNET_LIBS) ../libloqui/libloqui.la

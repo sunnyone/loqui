@@ -1,0 +1,169 @@
+requires 2.0.0
+%alltop{
+/*
+ * Loqui -- Chat/IM client for Gtk2 <http://loqui.good-day.net/>
+ * Copyright (C) 2002-2003 Yoichi Imai <yoichi@silver-forest.com>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+ */
+%}
+
+%h{
+#include <gtk/gtk.h>
+#include <libloqui/loqui-core.h>
+#include <loqui_account_manager.h>
+#include <loqui_protocol_manager.h>
+
+#include "loqui_app.h"
+#include "loqui-style-prefs.h"
+
+#define FRESH_COLOR "red"
+#define FRESH_WEAK_COLOR "blue"
+#define NONFRESH_COLOR "black"
+#define HIGHLIGHT_COLOR "purple"
+#define UNJOINED_COLOR "grey"
+
+#define SHORTCUT_CHANNEL_ENTRY_ACCEL_MAP_PREFIX "<ChannelEntries>/ChannelEntry "
+
+%}
+
+%{
+#include <loqui_protocol_irc.h>
+#include <loqui_protocol_ipmsg.h>
+#include <loqui_protocol_msn.h>
+
+#include "intl.h"
+#include "utils.h"
+#include "main.h"
+#include <prefs_general.h>
+
+#include <string.h>
+#include <stdlib.h>
+
+#include <gnet.h>
+#include <loqui.h>
+
+#define ACCEL_MAP_FILE "accelmaprc"
+
+#include "loqui_stock.h"
+
+%}
+
+class Loqui:Core:Gtk from Loqui:Core
+{
+	public LoquiStylePrefs *style_prefs = { loqui_style_prefs_new() }
+	    unrefwith g_object_unref;
+	public LoquiProtocolManager *protocol_manager
+	    unrefwith g_object_unref;
+	public LoquiAccountManager *account_manager
+	    unrefwith g_object_unref;
+
+	public LoquiApp *app;
+
+	public LoquiCoreGtk *new(void) {
+		LoquiCoreGtk *ret = GET_NEW;
+		return ret;
+	}
+
+	init(self) {
+		self->protocol_manager = loqui_protocol_manager_new();
+		
+		loqui_protocol_manager_register(self->protocol_manager, loqui_protocol_irc_get());
+		loqui_protocol_manager_register(self->protocol_manager, loqui_protocol_ipmsg_get());
+		loqui_protocol_manager_register(self->protocol_manager, loqui_protocol_msn_get());
+
+		self->account_manager = loqui_account_manager_new(self->protocol_manager);
+	}
+/*
+	override (Loqui:Core) void initialize(Loqui:Core *self (check null type)) {
+		PARENT_HANDLER(self);
+	}
+*/
+
+	private void make_program_dir(self) {
+		const gchar *dirname;
+		gchar *log_dirname;
+	
+		dirname = loqui_core_get_user_dir(LOQUI_CORE(self));
+		if(!g_file_test(dirname, G_FILE_TEST_EXISTS)) {
+			loqui_utils_mkdir_and_chmod(dirname);
+		}
+		
+		if(!g_file_test(dirname, G_FILE_TEST_IS_DIR)) {
+			g_error(_("Invalid \"%s\""), dirname);
+		}
+		
+		log_dirname = g_build_filename(dirname, LOG_DIR, NULL);
+		if(!g_file_test(log_dirname, G_FILE_TEST_EXISTS))
+			loqui_utils_mkdir_and_chmod(log_dirname);
+	
+		g_free(log_dirname);
+	}
+
+	public void initialize_with_args(self, int *argc, char **argv[]) {
+		gchar *path;
+		
+		loqui_core_initialize(LOQUI_CORE(self));
+		self_make_program_dir(self);
+		
+		gdk_threads_init();
+
+		gtk_init(argc, argv);
+
+		loqui_stock_init();
+		
+		path = g_build_filename(loqui_core_get_user_dir(loqui_get_core()), "gtkrc-2.0", NULL);
+		gtk_rc_parse(path);
+		g_free(path);
+	}
+
+	private void load_accelmap(self) {
+		gchar *path;
+
+		path = g_build_filename(loqui_core_get_user_dir(loqui_get_core()), ACCEL_MAP_FILE, NULL);
+
+		gtk_accel_map_add_filter(SHORTCUT_CHANNEL_ENTRY_ACCEL_MAP_PREFIX "*");
+		gtk_accel_map_load(path);
+
+		g_free(path);
+	}
+	
+	private void save_accelmap(self) {
+		gchar *path;
+
+		path = g_build_filename(loqui_core_get_user_dir(loqui_get_core()), ACCEL_MAP_FILE, NULL);
+		gtk_accel_map_save(path);
+		g_free(path);
+	}
+
+	public void run(self) {
+		prefs_general_load();
+
+		self->app = LOQUI_APP(loqui_app_new(self->account_manager));
+		loqui_app_info_load_from_prefs_general(self->app->appinfo);
+		loqui_app_info_update_string_idle(self->app->appinfo);
+
+		self_load_accelmap(self);
+
+		loqui_account_manager_load_accounts(self->account_manager);
+		if(prefs_general.connect_startup)
+			loqui_account_manager_connect_all_default(self->account_manager);
+	
+		gtk_main();
+		self_save_accelmap(self);
+
+		prefs_general_save();
+	}
+}

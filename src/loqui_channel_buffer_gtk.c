@@ -26,7 +26,7 @@
 #include <time.h>
 #include <string.h>
 #include "gtkutils.h"
-#include "loqui_gtk.h"
+#include "loqui-core-gtk.h"
 
 /*
 enum {
