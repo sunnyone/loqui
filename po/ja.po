@@ -5,7 +5,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: loqui 0.0.6\n"
-"POT-Creation-Date: 2003-02-16 14:25+0900\n"
+"POT-Creation-Date: 2003-02-19 22:29+0900\n"
 "PO-Revision-Date: 2002-11-10 13:17+0900\n"
 "Last-Translator: Yoichi Imai <yoichi@silver-forest.com>\n"
 "Language-Team: Japanese <ja@li.org>\n"
@@ -70,34 +70,33 @@ msgstr ""
 msgid "Account List"
 msgstr "アカウントリスト"
 
-#: src/account_list_dialog.c:257 src/channel_tree.c:184
+#: src/account_list_dialog.c:257 src/channel_tree.c:185
 msgid "Name"
 msgstr "名前"
 
-#: src/channel_tree.c:299
+#: src/channel_tree.c:298
 msgid "Failed to add channel"
 msgstr "チャンネルを追加するのに失敗しました"
 
 #: src/codeconv.c:37 src/codeconv.c:57
 msgid "Auto Detection"
-msgstr ""
+msgstr "自動判定"
 
 #: src/codeconv.c:38
 msgid "No conv"
-msgstr ""
+msgstr "無変換"
 
 #: src/codeconv.c:39
 msgid "Custom"
-msgstr ""
+msgstr "カスタム"
 
 #: src/codeconv.c:40
 msgid "Japanese"
-msgstr ""
+msgstr "日本語"
 
 #: src/codeconv.c:57
-#, fuzzy, c-format
 msgid "the setting of codeconv was invalid; now '%s' is selected."
-msgstr "codeconvの設定が不正です。自動選択が選択されます。"
+msgstr "codeconvの設定が不正です。'%s'が選択されます。"
 
 #: src/codeconv.c:96
 #, c-format
@@ -105,298 +104,309 @@ msgid "Code convartion error: %s"
 msgstr "コード変換エラー: %s"
 
 #: src/codeconv.c:158
-#, fuzzy
 msgid "Unknown error occured in code convertion."
-msgstr "コード変換で不明なエラーが発生する"
+msgstr "コード変換で不明なエラーが発生しました"
 
-#: src/connection.c:254
+#: src/connection.c:137
 msgid "Connection error"
 msgstr "接続エラー"
 
 #: src/gtkutils.c:137
 msgid "Illegal command"
-msgstr ""
+msgstr "無効なコマンドです"
 
 #: src/gtkutils.c:155
 #, c-format
 msgid "Error occured when executing command: %s"
-msgstr ""
+msgstr "コマンド実行時にエラーが発生しました: %s"
 
 #: src/irc_handle.c:176
 msgid "This PRIVMSG/NOTICE message doesn't contain a remark."
 msgstr "このPRIVMSG/NOTICEメッセージには発言が含まれていません。"
 
-#: src/irc_handle.c:233 src/irc_handle.c:260 src/irc_handle.c:286
-#: src/irc_handle.c:312
+#: src/irc_handle.c:232 src/irc_handle.c:259 src/irc_handle.c:285
+#: src/irc_handle.c:311
 msgid "The message does not contain nick"
 msgstr "メッセージにnickが含まれていません"
 
-#: src/irc_handle.c:249
+#: src/irc_handle.c:248
 msgid "*** %n has quit IRC(%t)"
 msgstr ""
 
-#: src/irc_handle.c:266 src/irc_handle.c:292
+#: src/irc_handle.c:265 src/irc_handle.c:291
 msgid "The message does not contain the channal name"
 msgstr "メッセージにチャンネル名が含まれていません。"
 
-#: src/irc_handle.c:277
+#: src/irc_handle.c:276
 msgid "*** %n has just part %1(%t)"
 msgstr ""
 
-#: src/irc_handle.c:303
+#: src/irc_handle.c:302
 msgid "*** %2 was kicked from %1 by %n(%3)"
 msgstr ""
 
-#: src/irc_handle.c:318
+#: src/irc_handle.c:317
 msgid "The NICK message does not contain new nick"
 msgstr "NICKメッセージに新しいnickが含まれていません"
 
-#: src/irc_handle.c:329
+#: src/irc_handle.c:328
 msgid "*** %n is known as %1"
 msgstr ""
 
-#: src/irc_handle.c:350
-msgid "Who can change mode?"
-msgstr "誰がモードを変えられるのです？"
-
-#: src/irc_handle.c:354
-#, c-format
-msgid "Nick should not contain '%%'"
-msgstr "Nickは'%%'を含むべきではありません"
-
-#: src/irc_handle.c:360
-msgid "The target is not found in MODE command"
-msgstr "MODEコマンドに対象が発見できません"
-
-#: src/irc_handle.c:366
+#: src/irc_handle.c:348
 msgid "Flags are not found in MODE command"
 msgstr "MODEコマンドにフラグが見つかりません"
 
-#: src/irc_handle.c:380
+#: src/irc_handle.c:361
 msgid "Flags don't have + or -"
 msgstr "フラグに+か-にありません"
 
-#: src/irc_handle.c:390
+#: src/irc_handle.c:375
+msgid "Can't find a nick to change mode"
+msgstr "モードを変えるnickが見つかりません"
+
+#: src/irc_handle.c:417
+msgid "Unknown mode flag"
+msgstr "不明なモードフラグです"
+
+#: src/irc_handle.c:433
+msgid "User mode is not implemented."
+msgstr "ユーザーモードは実装されていません"
+
+#: src/irc_handle.c:449 src/irc_handle.c:496
+msgid "The target is not found in MODE command"
+msgstr "MODEコマンドに対象が発見できません"
+
+#: src/irc_handle.c:459
+#, c-format
+msgid "RPL_CHANNELMODEIS didn't return a channel name: %s"
+msgstr ""
+
+#: src/irc_handle.c:468
+msgid "*** Mode for %2: %*3"
+msgstr ""
+
+#: src/irc_handle.c:483
+msgid "Who can change mode?"
+msgstr "誰がモードを変えられるのです？"
+
+#: src/irc_handle.c:488
+msgid "Nick must not contain '%%'"
+msgstr "Nickは'%%'を含むべきではありません"
+
+#: src/irc_handle.c:504
 msgid "Why can you know the change of his mode?"
 msgstr ""
 
-#: src/irc_handle.c:396
-msgid "Invalid MODE command"
-msgstr ""
-
-#: src/irc_handle.c:401
-msgid "Can't find a nick to change mode"
-msgstr ""
-
-#: src/irc_handle.c:436
-msgid "Unknown mode flag"
-msgstr ""
-
-#: src/irc_handle.c:447
+#: src/irc_handle.c:513
 #, c-format
 msgid "*** New mode for %%1 by %s: %%*2"
 msgstr ""
 
-#: src/irc_handle.c:463
+#: src/irc_handle.c:531
 msgid "The message does not contain nick."
-msgstr ""
+msgstr "このメッセージにはnickが含まれていません"
 
-#: src/irc_handle.c:468
+#: src/irc_handle.c:536
 msgid "Invalid JOIN command"
 msgstr ""
 
-#: src/irc_handle.c:474
+#: src/irc_handle.c:542
 msgid "Why do you know that the user join the channel?"
 msgstr ""
 
-#: src/irc_handle.c:482
+#: src/irc_handle.c:550
 msgid "*** %n (%u@%h) joined channel %t"
 msgstr ""
 
-#: src/irc_handle.c:499 src/irc_handle.c:522 src/irc_handle.c:548
+#: src/irc_handle.c:568 src/irc_handle.c:594 src/irc_handle.c:620
 msgid "Can't get channel name"
 msgstr ""
 
-#: src/irc_handle.c:671
+#: src/irc_handle.c:743
 msgid "Topic for %2: %t"
 msgstr ""
 
-#: src/irc_handle.c:690
+#: src/irc_handle.c:763
 msgid "*** New topic on %1 by %n: %t"
 msgstr ""
 
-#: src/irc_handle.c:752
+#: src/irc_handle.c:825
 msgid "Can't find the channel from the message"
 msgstr ""
 
-#: src/irc_handle.c:790
+#: src/irc_handle.c:863
 msgid "*** %2 is marked as begin AWAY, but left the message: %3"
 msgstr ""
 
-#: src/irc_handle.c:797 src/irc_handle.c:801 src/irc_handle.c:805
+#: src/irc_handle.c:870 src/irc_handle.c:874 src/irc_handle.c:878
 msgid "*** %t"
 msgstr ""
 
-#: src/irc_handle.c:808
+#: src/irc_handle.c:881
 msgid "*** You are inviting %2 to %3"
 msgstr ""
 
-#: src/irc_handle.c:811
+#: src/irc_handle.c:884
 msgid "*** %3 is running IRC version %2 (%4)"
 msgstr ""
 
-#: src/irc_handle.c:836
+#: src/irc_handle.c:908
 msgid "%2 is %3@%4: %t"
 msgstr ""
 
-#: src/irc_handle.c:839
+#: src/irc_handle.c:911
 msgid "%2 was %3@%4: %t"
 msgstr ""
 
-#: src/irc_handle.c:842
+#: src/irc_handle.c:914
 msgid "%2: %t"
 msgstr ""
 
-#: src/irc_handle.c:845
+#: src/irc_handle.c:917
 msgid "on via server %3(%t)"
 msgstr ""
 
-#: src/irc_handle.c:848
+#: src/irc_handle.c:920
 msgid "%3 %t"
 msgstr ""
 
-#: src/irc_handle.c:851
+#: src/irc_handle.c:923
 msgid "Banned on %2 : %3"
 msgstr ""
 
-#: src/irc_handle.c:854
+#: src/irc_handle.c:926
 msgid "Time: %3(%2)"
 msgstr ""
 
-#: src/irc_handle.c:976
+#: src/irc_handle.c:1052
 #, c-format
 msgid "Connecting to %s:%d"
 msgstr "%s:%dに接続しています"
 
-#: src/irc_handle.c:984
+#: src/irc_handle.c:1060
 msgid "Connected. Sending Initial command..."
 msgstr "接続しました。初期コマンドを送信しています..."
 
-#: src/irc_handle.c:1021
+#: src/irc_handle.c:1097
 msgid "Done."
 msgstr "完了。"
 
-#: src/irc_handle.c:1034
+#: src/irc_handle.c:1110
 msgid "Sent join command for autojoin."
 msgstr ""
 
-#: src/irc_handle.c:1055
+#: src/irc_handle.c:1119
+#, c-format
+msgid "connection_get_irc_message error: %s"
+msgstr "connection_get_irc_messageエラー: %s"
+
+#: src/irc_handle.c:1137
 msgid "Connection terminated."
 msgstr "接続は切断されました。"
 
-#: src/irc_handle.c:1154
+#: src/irc_handle.c:1180
+#, c-format
+msgid "Failed to send irc message: %s"
+msgstr ""
+
+#: src/irc_handle.c:1241
 msgid "Connection thread is not created."
 msgstr "接続スレッドが作られていません"
 
-#: src/irc_handle.c:1158
+#: src/irc_handle.c:1245
 msgid "Thread sending message is not created."
 msgstr "メッセージを送るスレッドが作られていません"
 
-#: src/irc_handle.c:1162
+#: src/irc_handle.c:1249
 msgid "Message queue is not created."
 msgstr "メッセージキューが作られていません"
 
 #: src/irc_message.c:404
 msgid "Invalid parameter number"
-msgstr ""
+msgstr "無効なパラメータ番号"
 
-#: src/loqui_app.c:224
-#, fuzzy
+#: src/loqui_app.c:231
 msgid "No accounts are selected!"
-msgstr "チャンネルが選択されていません"
+msgstr "アカウントが選択されていません"
 
-#: src/loqui_menu.c:49
+#: src/loqui_menu.c:64
 msgid "/_File"
 msgstr "/ファイル(_F)"
 
-#: src/loqui_menu.c:50
+#: src/loqui_menu.c:65
 msgid "/File/_Connect"
 msgstr "/File/接続(_C)"
 
-#: src/loqui_menu.c:51
+#: src/loqui_menu.c:66
 msgid "/File/_Quit"
 msgstr "/File/終了(_Q)"
 
-#: src/loqui_menu.c:52
+#: src/loqui_menu.c:67
 msgid "/_Edit"
 msgstr "/編集(_E)"
 
-#: src/loqui_menu.c:53
+#: src/loqui_menu.c:68
 msgid "/Edit/Cut"
 msgstr "/Edit/切り取り"
 
-#: src/loqui_menu.c:54
+#: src/loqui_menu.c:69
 msgid "/Edit/_Copy"
 msgstr "/Edit/コピー(_C)"
 
-#: src/loqui_menu.c:55
+#: src/loqui_menu.c:70
 msgid "/Edit/_Paste"
 msgstr "/Edit/ペースト(_P)"
 
-#: src/loqui_menu.c:56
+#: src/loqui_menu.c:71
 msgid "/Edit/Paste with linefeeds cut"
 msgstr "/Edit/改行を削除してペースト"
 
-#: src/loqui_menu.c:57
+#: src/loqui_menu.c:73
+msgid "/Edit/Clear"
+msgstr "/Edit/クリア"
+
+#: src/loqui_menu.c:75
 msgid "/Edit/_Find"
-msgstr ""
+msgstr "/Edit/検索(_F)"
 
-#: src/loqui_menu.c:58
+#: src/loqui_menu.c:76
 msgid "/Edit/_Find again"
-msgstr ""
+msgstr "/Edit/次を検索"
 
-#: src/loqui_menu.c:60
-msgid "/Edit/Clear _buffer"
-msgstr ""
-
-#: src/loqui_menu.c:61
-msgid "/Edit/Clear co_mmon buffer"
-msgstr ""
-
-#: src/loqui_menu.c:62
+#: src/loqui_menu.c:77
 msgid "/_Server"
 msgstr "/サーバ(_S)"
 
-#: src/loqui_menu.c:63
+#: src/loqui_menu.c:78
 msgid "/_Channel"
 msgstr "/チャンネル(_C)"
 
-#: src/loqui_menu.c:64
+#: src/loqui_menu.c:79
 msgid "/_User"
 msgstr "/ユーザ(_U)"
 
-#: src/loqui_menu.c:65
+#: src/loqui_menu.c:80
 msgid "/_View"
 msgstr "/表示(_V)"
 
-#: src/loqui_menu.c:66
+#: src/loqui_menu.c:81
 msgid "/_Settings"
 msgstr "/設定(_S)"
 
-#: src/loqui_menu.c:67
-#, fuzzy
+#: src/loqui_menu.c:82
 msgid "/Settings/Common Prefsrences..."
-msgstr "/Settings/アカウント設定..."
+msgstr "/Settings/全般の設定..."
 
-#: src/loqui_menu.c:68
+#: src/loqui_menu.c:83
 msgid "/Settings/Account Settings..."
 msgstr "/Settings/アカウント設定..."
 
-#: src/loqui_menu.c:69
+#: src/loqui_menu.c:84
 msgid "/_Help"
 msgstr "/ヘルプ(_H)"
 
-#: src/loqui_menu.c:70
+#: src/loqui_menu.c:85
 msgid "/Help/_About"
 msgstr "/Help/このプログラムについて(_A)"
 
@@ -421,8 +431,8 @@ msgid "Scroll"
 msgstr "スクロール"
 
 #: src/loqui_toolbar.c:183
-msgid "Toggle whether scrolling"
-msgstr "スクロールするかどうかを切り替え"
+msgid "Toggle whether scrolling the channel buffer"
+msgstr "チャンネルバッファをスクロールするかどうかを切り替え"
 
 #: src/main.c:51
 #, c-format
@@ -451,7 +461,7 @@ msgstr ""
 
 #: src/nick_list.c:72
 msgid "/Mode/Give channel operator privilege (+o)"
-msgstr ""
+msgstr "/Mode/チャンネルオペレータ権限を与える (+o)"
 
 #: src/nick_list.c:74
 msgid "/Mode/Give speak ability (+v)"
@@ -488,37 +498,35 @@ msgstr ""
 msgid "Invalid hostname: %s"
 msgstr ""
 
-#: src/prefs_account.c:192 src/prefs_general.c:117
+#: src/prefs_account.c:192 src/prefs_general.c:118
 #, c-format
 msgid "Invalid element: %s"
 msgstr ""
 
 #: src/prefs_account.c:244
-#, fuzzy, c-format
 msgid "Accountrc parse error: %s"
 msgstr "Accountrcパースエラー: %s"
 
-#: src/prefs_account.c:264 src/prefs_account.c:302 src/prefs_general.c:254
-#: src/prefs_general.c:285
-#, c-format
-msgid "Can't open %s: %s"
-msgstr "%sが開けませんでした: %s"
-
-#: src/prefs_account.c:274 src/prefs_general.c:264
+#: src/prefs_account.c:275 src/prefs_general.c:266
 #, c-format
 msgid "Loquirc parse error: %s"
 msgstr ""
 
-#: src/prefs_general.c:126
+#: src/prefs_account.c:303 src/prefs_general.c:287
+#, c-format
+msgid "Can't open %s: %s"
+msgstr "%sが開けませんでした: %s"
+
+#: src/prefs_general.c:127
 #, c-format
 msgid "prefs_general: Invalid attribute for entry: %s"
 msgstr ""
 
-#: src/prefs_general.c:132
+#: src/prefs_general.c:133
 #, c-format
 msgid "Unknown key: %s\n"
 msgstr ""
 
-#: src/prefs_general.c:182 src/prefs_general.c:205
+#: src/prefs_general.c:183 src/prefs_general.c:206
 msgid "Unsupported pref type!"
 msgstr ""
