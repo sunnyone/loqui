@@ -356,6 +356,7 @@ msgid "Unable to determine color: %s"
 msgstr ""
 
 #: src/irc_connection.c:285
+#, c-format
 msgid "IOChannel write error: %s"
 msgstr ""
 

@@ -1,3 +1,11 @@
+2004-01-18 19:31  y-imai
+
+	* ChangeLog, NEWS, NEWS.ja, configure.in: 0.2.0
+
+2004-01-18 19:27  y-imai
+
+	* po/: POTFILES.in, ja.po, loqui.pot: updated po
+
 2004-01-18 17:32  y-imai
 
 	* src/: Makefile.am, account_manager.c, loqui_app.c, loqui_app.h,
