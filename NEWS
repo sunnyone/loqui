@@ -120,3 +120,11 @@
 * Made it easy to change nick if you register nick at account configuration.
 * Always show idle time with WHOIS command with NickList.
 * Made idle time human readable.
+
+2003-12-21     0.1.20
+* Abolished fallbacking servers (closed Bug #13)
+* Handle used nick when connecting (fixed Bug #14)
+* Show the sender of CTCP.
+* Handle in case that the speaker is myself.
+* Fixed the problem of auto detection of the locale.
+
