@@ -100,7 +100,8 @@ static gboolean loqui_app_focus_in_event(GtkWidget *widget, GdkEventFocus *event
 static gboolean loqui_app_focus_out_event(GtkWidget *widget, GdkEventFocus *event);
 static gboolean loqui_app_visibility_notify_event(GtkWidget *widget, GdkEventVisibility *event);
 
-static void loqui_app_tray_icon_destroy_after_cb(GtkWidget *widget, LoquiApp *app);
+static gboolean loqui_app_tray_icon_recreate_for_idle_cb(LoquiApp *app);
+static void loqui_app_tray_icon_destroy_cb(GtkWidget *widget, LoquiApp *app);
 
 static void loqui_app_restore_size(LoquiApp *app);
 static void loqui_app_save_size(LoquiApp *app);
@@ -202,7 +203,7 @@ loqui_app_destroy(GtkObject *object)
 
 	app = LOQUI_APP(object);
 
-	g_signal_handlers_disconnect_by_func(app->tray_icon, loqui_app_tray_icon_destroy_after_cb, app);
+	g_signal_handlers_disconnect_by_func(app->tray_icon, loqui_app_tray_icon_destroy_cb, app);
 
 	if (GTK_OBJECT_CLASS(parent_class)->destroy)
                 (* GTK_OBJECT_CLASS(parent_class)->destroy) (object);
@@ -321,8 +322,15 @@ loqui_app_visibility_notify_event(GtkWidget *widget, GdkEventVisibility *event)
 
 	return FALSE;
 }
+static gboolean
+loqui_app_tray_icon_recreate_for_idle_cb(LoquiApp *app)
+{
+	loqui_app_create_tray_icon(app);
+
+	return FALSE;
+}
 static void
-loqui_app_tray_icon_destroy_after_cb(GtkWidget *widget, LoquiApp *app)
+loqui_app_tray_icon_destroy_cb(GtkWidget *widget, LoquiApp *app)
 {
 	LoquiAppPrivate *priv;
 
@@ -330,8 +338,8 @@ loqui_app_tray_icon_destroy_after_cb(GtkWidget *widget, LoquiApp *app)
         g_return_if_fail(LOQUI_IS_APP(app));
 
 	priv = app->priv;
-	
-	loqui_app_create_tray_icon(app);
+
+	g_idle_add((GSourceFunc) loqui_app_tray_icon_recreate_for_idle_cb, app);
 }
 gboolean
 loqui_app_has_toplevel_focus(LoquiApp *app)
@@ -524,8 +532,8 @@ loqui_app_create_tray_icon(LoquiApp *app)
 
 	menu_tray_icon = gtk_ui_manager_get_widget(app->ui_manager, "/TrayIconPopup");
 	app->tray_icon = LOQUI_TRAY_ICON(loqui_tray_icon_new(LOQUI_APP(app), GTK_MENU(menu_tray_icon)));
-	g_signal_connect_after(G_OBJECT(app->tray_icon), "destroy",
-			       G_CALLBACK(loqui_app_tray_icon_destroy_after_cb), app);
+	g_signal_connect(G_OBJECT(app->tray_icon), "destroy",
+			 G_CALLBACK(loqui_app_tray_icon_destroy_cb), app);
 }
 GtkWidget*
 loqui_app_new(AccountManager *account_manager)
