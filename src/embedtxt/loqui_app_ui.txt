@@ -83,6 +83,17 @@
       <menuitem name="CTCPTimeSelected" action="CTCPTimeSelected"/>
       <menuitem name="CTCPFingerSelected" action="CTCPFingerSelected"/>
     </menu>
+      <menu name="NickListSortTypeMenu" action="StockNickListSortTypeMenu">
+        <menuitem name="RadioNickListSortNone" action="RadioNickListSortNone" />
+	<menuitem name="RadioNickListSortNick" action="RadioNickListSortNick" />
+	<menuitem name="RadioNickListSortPowerNick" action="RadioNickListSortPowerNick" />
+	<menuitem name="RadioNickListSortAwayNick" action="RadioNickListSortAwayNick" />
+	<menuitem name="RadioNickListSortPowerAwayNick" action="RadioNickListSortPowerAwayNick" />
+	<menuitem name="RadioNickListSortAwayPowerNick" action="RadioNickListSortAwayPowerNick" />
+	<menuitem name="RadioNickListSortTimeNick" action="RadioNickListSortTimeNick" />
+	<menuitem name="RadioNickListSortTimeAwayPowerNick" action="RadioNickListSortTimeAwayPowerNick" />
+	<menuitem name="RadioNickListSortTimePowerAwayNick" action="RadioNickListSortTimePowerAwayNick" />
+      </menu>
   </popup>
 
   <popup name="ChannelListPopup" action="StockChannelEntry">
