@@ -54,13 +54,10 @@ GtkType remark_entry_get_type (void) G_GNUC_CONST;
 GtkWidget* remark_entry_new (void);
 G_CONST_RETURN gchar *remark_entry_get_text(RemarkEntry *entry);
 void remark_entry_clear_text(RemarkEntry *entry);
-void remark_entry_set_nick(RemarkEntry *entry, const gchar *nick);
 void remark_entry_grab_focus(RemarkEntry *entry);
 
 void remark_entry_set_multiline(RemarkEntry *entry, gboolean is_multiline);
 gboolean remark_entry_get_multiline(RemarkEntry *entry);
-
-void remark_entry_set_nick_list(RemarkEntry *entry, GList *nick_list);
 
 G_END_DECLS
 

@@ -29,12 +29,8 @@
 
 enum {
 	ACTIVATE,
-	NICK_CHANGE,
-	NICK_SELECTED,
         LAST_SIGNAL
 };
-
-#define NICK_PULLDOWN_BUTTON_WIDTH 17
 
 struct _RemarkEntryPrivate
 {
@@ -43,10 +39,6 @@ struct _RemarkEntryPrivate
 
 	gboolean is_multiline;
 
-	GtkWidget *label_nick;
-	GtkWidget *button_nick;
-
-	GtkWidget *toggle_nick_pulldown;
 	GtkWidget *vbox;
 	GtkWidget *entry;
 	GtkWidget *hbox_text;
@@ -56,7 +48,6 @@ struct _RemarkEntryPrivate
 	GtkWidget *toggle_multiline;
 	guint toggled_id;
 
-	GtkWidget *menu_nick;
 	GtkWidget *toggle_palette;
 };
 
@@ -75,11 +66,6 @@ static void remark_entry_entry_multiline_toggled_cb(GtkWidget *widget, gpointer 
 static void remark_entry_activated_cb(GtkWidget *widget, gpointer data);
 static gint remark_entry_entry_key_pressed_cb(GtkEntry *widget, GdkEventKey *event,
 					      gpointer data);
-static void remark_entry_nick_clicked_cb(GtkWidget *widget, gpointer data);
-static void remark_entry_nick_pulldown_button_press_event_cb(GtkWidget *widget, GdkEventButton *event, gpointer data);
-
-static void remark_entry_nick_menu_deactivated_cb(GtkWidget *widget, gpointer data);
-static void remark_entry_nick_menuitem_activated_cb(GtkWidget *widget, gpointer data);
 
 static void remark_entry_history_add(RemarkEntry *entry, const gchar *str);
 
@@ -127,21 +113,6 @@ remark_entry_class_init(RemarkEntryClass *klass)
 						      NULL, NULL,
 						      g_cclosure_marshal_VOID__VOID,
 						      G_TYPE_NONE, 0);
-        remark_entry_signals[NICK_CHANGE] = g_signal_new("nick-change",
-							 G_OBJECT_CLASS_TYPE(object_class),
-							 G_SIGNAL_RUN_FIRST,
-							 0,
-							 NULL, NULL,
-							 g_cclosure_marshal_VOID__VOID,
-							 G_TYPE_NONE, 0);
-        remark_entry_signals[NICK_SELECTED] = g_signal_new("nick-selected",
-							   G_OBJECT_CLASS_TYPE(object_class),
-							   G_SIGNAL_RUN_FIRST,
-							   0,
-							   NULL, NULL,
-							   g_cclosure_marshal_VOID__STRING,
-							   G_TYPE_NONE, 1,
-							   G_TYPE_STRING);
 }
 static void 
 remark_entry_init(RemarkEntry *remark_entry)
@@ -190,9 +161,7 @@ remark_entry_new(void)
         RemarkEntry *remark_entry;
 	RemarkEntryPrivate *priv;
 	GtkWidget *hbox;
-	GtkWidget *label;
 	GtkWidget *image;
-	GtkWidget *down_arrow;
 
 	GtkWidget *scwin;
 
@@ -201,28 +170,6 @@ remark_entry_new(void)
 	priv = remark_entry->priv;
 
 	hbox = GTK_WIDGET(remark_entry);
-
-	priv->button_nick = gtk_button_new();
-	gtk_button_set_relief(GTK_BUTTON(priv->button_nick), GTK_RELIEF_NONE);
-	g_signal_connect(G_OBJECT(priv->button_nick), "clicked",
-			 G_CALLBACK(remark_entry_nick_clicked_cb), remark_entry);
-	gtk_box_pack_start(GTK_BOX(hbox), priv->button_nick, FALSE, FALSE, 0);
-
-	priv->label_nick = gtk_label_new("");
-	gtk_container_add(GTK_CONTAINER(priv->button_nick), priv->label_nick);
-
-	priv->toggle_nick_pulldown = gtk_toggle_button_new();
-	gtk_widget_set_usize(priv->toggle_nick_pulldown, NICK_PULLDOWN_BUTTON_WIDTH, -1);
-	gtk_button_set_relief(GTK_BUTTON(priv->toggle_nick_pulldown), GTK_RELIEF_NONE);
-	g_signal_connect(G_OBJECT(priv->toggle_nick_pulldown), "button_press_event",
-			 G_CALLBACK(remark_entry_nick_pulldown_button_press_event_cb), remark_entry);
-	gtk_box_pack_start(GTK_BOX(hbox), priv->toggle_nick_pulldown, FALSE, FALSE, 0);
-
-	down_arrow = gtk_arrow_new(GTK_ARROW_DOWN, GTK_SHADOW_OUT);
-	gtk_container_add(GTK_CONTAINER(priv->toggle_nick_pulldown), down_arrow);
-
-	label = gtk_label_new(">");
-	gtk_box_pack_start(GTK_BOX(hbox), label, FALSE, FALSE, 0);
 
 	priv->vbox = gtk_vbox_new(FALSE, 0);
 	gtk_box_pack_start(GTK_BOX(hbox), priv->vbox, TRUE, TRUE, 0);
@@ -272,10 +219,6 @@ remark_entry_new(void)
 	gtk_widget_set_sensitive(priv->toggle_palette, FALSE);
 	*/
 	
-	priv->menu_nick = gtk_menu_new();
-	g_signal_connect(priv->menu_nick, "deactivate",
-			 G_CALLBACK(remark_entry_nick_menu_deactivated_cb), remark_entry);
-
 	priv->string_list = g_list_prepend(priv->string_list, NULL);
 
 	return GTK_WIDGET(remark_entry);
@@ -369,18 +312,6 @@ remark_entry_get_multiline(RemarkEntry *entry)
 
 	return priv->is_multiline;
 }
-void
-remark_entry_set_nick(RemarkEntry *entry, const gchar *nick)
-{
-	RemarkEntryPrivate *priv;
-
-        g_return_if_fail(entry != NULL);
-        g_return_if_fail(IS_REMARK_ENTRY(entry));
-
-	priv = entry->priv;
-	
-	gtk_label_set_text(GTK_LABEL(priv->label_nick), nick);
-}
 
 /* FIXME: this should be done with gtk_widget_grab_focus */
 void
@@ -400,35 +331,7 @@ remark_entry_grab_focus(RemarkEntry *entry)
 		gtk_editable_select_region(GTK_EDITABLE(priv->entry), -1, -1);
 	}
 }
-void
-remark_entry_set_nick_list(RemarkEntry *entry, GList *nick_list)
-{
-	RemarkEntryPrivate *priv;
-	GtkWidget *menuitem;
-	GList *cur, *tmp_list = NULL;
 
-        g_return_if_fail(entry != NULL);
-        g_return_if_fail(IS_REMARK_ENTRY(entry));
-
-	priv = entry->priv;
-
-	for(cur = GTK_MENU_SHELL(priv->menu_nick)->children; cur != NULL; cur = cur->next) {
-		tmp_list = g_list_append(tmp_list, cur->data);
-	}
-	for(cur = tmp_list; cur != NULL; cur = cur->next) {
-		gtk_container_remove(GTK_CONTAINER(priv->menu_nick), cur->data);
-	}
-	for(cur = nick_list; cur != NULL; cur = cur->next) {
-		if(!cur->data)
-			continue;
-		menuitem = gtk_menu_item_new_with_label(cur->data);
-		g_object_set_data_full(G_OBJECT(menuitem), "nick", g_strdup(cur->data), (GDestroyNotify) g_free);
-		g_signal_connect(G_OBJECT(menuitem), "activate",
-				 G_CALLBACK(remark_entry_nick_menuitem_activated_cb), entry);
-		gtk_widget_show(menuitem);
-		gtk_menu_shell_append(GTK_MENU_SHELL(priv->menu_nick), menuitem);
-	}
-}
 static void
 remark_entry_history_add(RemarkEntry *entry, const gchar *str)
 {
@@ -526,69 +429,6 @@ remark_entry_activated_cb(GtkWidget *widget, gpointer data)
 	G_FREE_UNLESS_NULL(priv->string_list->data);
 }
 
-static void
-remark_entry_nick_clicked_cb(GtkWidget *widget, gpointer data)
-{
-        RemarkEntry *remark_entry;
-	RemarkEntryPrivate *priv;
-
-        g_return_if_fail(data != NULL);
-        g_return_if_fail(IS_REMARK_ENTRY(data));
-
-	remark_entry = REMARK_ENTRY(data);
-	priv = remark_entry->priv;
-
-	g_signal_emit(remark_entry, remark_entry_signals[NICK_CHANGE], 0);
-}
-static void
-remark_entry_nick_pulldown_button_press_event_cb(GtkWidget *widget, GdkEventButton *event, gpointer data)
-{
-        RemarkEntry *remark_entry;
-	RemarkEntryPrivate *priv;
-
-        g_return_if_fail(data != NULL);
-        g_return_if_fail(IS_REMARK_ENTRY(data));
-
-	remark_entry = REMARK_ENTRY(data);
-	priv = remark_entry->priv;
-
-	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(priv->toggle_nick_pulldown), TRUE);
-	gtk_menu_popup(GTK_MENU(priv->menu_nick), NULL, NULL,
-		       gtkutils_menu_position_under_widget, priv->toggle_nick_pulldown,
-		       event ? event->button : 0,
-		       event ? event->time : gtk_get_current_event_time());
-}
-static void
-remark_entry_nick_menu_deactivated_cb(GtkWidget *widget, gpointer data)
-{
-        RemarkEntry *remark_entry;
-	RemarkEntryPrivate *priv;
-
-        g_return_if_fail(data != NULL);
-        g_return_if_fail(IS_REMARK_ENTRY(data));
-
-	remark_entry = REMARK_ENTRY(data);
-	priv = remark_entry->priv;
-	
-	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(priv->toggle_nick_pulldown), FALSE);
-}
-static void
-remark_entry_nick_menuitem_activated_cb(GtkWidget *widget, gpointer data)
-{
-        RemarkEntry *remark_entry;
-	RemarkEntryPrivate *priv;
-	const gchar *str;
-
-	g_return_if_fail(GTK_IS_MENU_ITEM(widget));
-        g_return_if_fail(data != NULL);
-        g_return_if_fail(IS_REMARK_ENTRY(data));
-	
-	remark_entry = REMARK_ENTRY(data);
-	priv = remark_entry->priv;
-
-	str = g_object_get_data(G_OBJECT(widget), "nick");
-	g_signal_emit(remark_entry, remark_entry_signals[NICK_SELECTED], 0, str);
-}
 static void
 remark_entry_entry_multiline_toggled_cb(GtkWidget *widget, gpointer data)
 {
