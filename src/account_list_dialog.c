@@ -372,12 +372,13 @@ account_list_dialog_open_for_connect(GtkWindow *parent, AccountManager *manager)
 	selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(ACCOUNT_LIST_DIALOG(dialog)->priv->treeview));
 	model = GTK_TREE_MODEL(ACCOUNT_LIST_DIALOG(dialog)->priv->list_store);
 
-	gtk_tree_model_get_iter_first(model, &iter);
-	do {
-		gtk_tree_model_get(model, &iter, COLUMN_ACCOUNT, &account, -1);
-		if (loqui_profile_account_get_use(account_get_profile(account)))
-			gtk_tree_selection_select_iter(selection, &iter);
-	} while (gtk_tree_model_iter_next(model, &iter));
+	if(gtk_tree_model_get_iter_first(model, &iter)) {
+		do {
+			gtk_tree_model_get(model, &iter, COLUMN_ACCOUNT, &account, -1);
+			if (loqui_profile_account_get_use(account_get_profile(account)))
+				gtk_tree_selection_select_iter(selection, &iter);
+		} while (gtk_tree_model_iter_next(model, &iter));
+	}
 
 	if (gtk_dialog_run(GTK_DIALOG(dialog)) == 1) {
 		ac_list = account_list_dialog_get_selected_account_list(ACCOUNT_LIST_DIALOG(dialog));
