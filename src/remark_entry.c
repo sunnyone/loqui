@@ -28,6 +28,7 @@
 
 enum {
 	ACTIVATE,
+	NICK_CHANGE,
         LAST_SIGNAL
 };
 
@@ -39,6 +40,7 @@ struct _RemarkEntryPrivate
 	gboolean is_multiline;
 
 	GtkWidget *label_nick;
+	GtkWidget *button_nick;
 	GtkWidget *vbox;
 	GtkWidget *entry;
 	GtkWidget *hbox_text;
@@ -66,7 +68,7 @@ static void remark_entry_entry_multiline_toggled_cb(GtkWidget *widget, gpointer 
 static void remark_entry_activated_cb(GtkWidget *widget, gpointer data);
 static gint remark_entry_entry_key_pressed_cb(GtkEntry *widget, GdkEventKey *event,
 					      gpointer data);
-
+static void remark_entry_nick_clicked_cb(GtkWidget *widget, gpointer data);
 static void remark_entry_history_add(RemarkEntry *entry, const gchar *str);
 
 GType
@@ -114,6 +116,13 @@ remark_entry_class_init(RemarkEntryClass *klass)
 						      g_cclosure_marshal_VOID__VOID,
 						      G_TYPE_NONE, 0);
 
+        remark_entry_signals[NICK_CHANGE] = g_signal_new("nick-change",
+							 G_OBJECT_CLASS_TYPE(object_class),
+							 G_SIGNAL_RUN_FIRST,
+							 0,
+							 NULL, NULL,
+							 g_cclosure_marshal_VOID__VOID,
+							 G_TYPE_NONE, 0);
 }
 static void 
 remark_entry_init(RemarkEntry *remark_entry)
@@ -173,11 +182,17 @@ remark_entry_new(void)
 
 	hbox = GTK_WIDGET(remark_entry);
 
+	priv->button_nick = gtk_button_new();
+	gtk_button_set_relief(GTK_BUTTON(priv->button_nick), GTK_RELIEF_NONE);
+	g_signal_connect(G_OBJECT(priv->button_nick), "clicked",
+			 G_CALLBACK(remark_entry_nick_clicked_cb), remark_entry);
+	gtk_box_pack_start(GTK_BOX(hbox), priv->button_nick, FALSE, FALSE, 0);
+
 	priv->label_nick = gtk_label_new("");
-	gtk_box_pack_start(GTK_BOX(hbox), priv->label_nick, FALSE, FALSE, 0);
+	gtk_container_add(GTK_CONTAINER(priv->button_nick), priv->label_nick);
 
 	label = gtk_label_new(">");
-	gtk_box_pack_start(GTK_BOX(hbox), label, FALSE, FALSE, 2);
+	gtk_box_pack_start(GTK_BOX(hbox), label, FALSE, FALSE, 1);
 
 	priv->vbox = gtk_vbox_new(FALSE, 0);
 	gtk_box_pack_start(GTK_BOX(hbox), priv->vbox, TRUE, TRUE, 0);
@@ -375,7 +390,8 @@ remark_entry_history_add(RemarkEntry *entry, const gchar *str)
 	}
 
 }
-static gint remark_entry_entry_key_pressed_cb(GtkEntry *widget, GdkEventKey *event,
+static gint
+remark_entry_entry_key_pressed_cb(GtkEntry *widget, GdkEventKey *event,
 					      gpointer data)
 {
         RemarkEntry *remark_entry;
@@ -444,6 +460,23 @@ remark_entry_activated_cb(GtkWidget *widget, gpointer data)
 	priv->current_index = 0;
 	G_FREE_UNLESS_NULL(priv->string_list->data);
 }
+
+static void
+remark_entry_nick_clicked_cb(GtkWidget *widget, gpointer data)
+{
+        RemarkEntry *remark_entry;
+	RemarkEntryPrivate *priv;
+	gchar *str;
+
+        g_return_if_fail(data != NULL);
+        g_return_if_fail(IS_REMARK_ENTRY(data));
+
+	remark_entry = REMARK_ENTRY(data);
+	priv = remark_entry->priv;
+
+	g_signal_emit(remark_entry, remark_entry_signals[NICK_CHANGE], 0);
+}
+
 static void
 remark_entry_entry_multiline_toggled_cb(GtkWidget *widget, gpointer data)
 {

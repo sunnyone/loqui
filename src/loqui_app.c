@@ -29,6 +29,7 @@
 #include "loqui_channelbar.h"
 #include "gtkutils.h"
 #include "remark_entry.h"
+#include "command_dialog.h"
 
 #include "intl.h"
 #include "utils.h"
@@ -77,6 +78,7 @@ static void loqui_app_common_textview_inserted_cb(GtkTextBuffer *textbuf,
 						  gpointer data);
 
 static void loqui_app_textview_scroll_value_changed_cb(GtkAdjustment *adj, gpointer data);
+static void loqui_app_entry_nick_clicked_cb(GtkWidget *widget, gpointer data);
 
 /* utilities */
 static void scroll_channel_buffer(GtkWidget *textview);
@@ -240,6 +242,23 @@ loqui_app_entry_activate_cb(GtkWidget *widget, gpointer data)
 
 	remark_entry_clear_text(REMARK_ENTRY(widget));
 }
+static void
+loqui_app_entry_nick_clicked_cb(GtkWidget *widget, gpointer data)
+{
+	Account *account;
+	LoquiApp *app;
+
+	g_return_if_fail(data != NULL);
+	g_return_if_fail(LOQUI_IS_APP(data));
+
+	app = LOQUI_APP(data);
+	account = account_manager_get_current_account(account_manager_get());
+	if(account)
+		command_dialog_nick(GTK_WINDOW(app), account);
+	else
+		gtkutils_msgbox_info(GTK_MESSAGE_ERROR, _("No accounts are selected!"));
+}
+       
 static void loqui_app_channel_textview_inserted_cb(GtkTextBuffer *textbuf,
 						   GtkTextIter *pos,
 						   const gchar *text,
@@ -471,6 +490,8 @@ loqui_app_new(void)
 	gtk_box_pack_end(GTK_BOX(vbox), priv->entry, FALSE, FALSE, 0);
 	g_signal_connect(G_OBJECT(priv->entry), "activate",
 			 G_CALLBACK(loqui_app_entry_activate_cb), NULL);
+	g_signal_connect(G_OBJECT(priv->entry), "nick-change",
+			 G_CALLBACK(loqui_app_entry_nick_clicked_cb), app);
 
 	priv->common_textview = gtk_text_view_new();
 	gtk_text_view_set_editable(GTK_TEXT_VIEW(priv->common_textview), FALSE);
