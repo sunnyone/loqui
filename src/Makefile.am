@@ -17,8 +17,7 @@ loqui_SOURCES = \
 	channel_tree.c channel_tree.h \
 	gtkutils.c gtkutils.h \
 	utils.c utils.h \
-	channel_book.c channel_book.h \
-	channel_text.c channel_text.h \
+	channel_buffer.c channel_buffer.h \
 	channel.c channel.h \
 	nick_list.c nick_list.h \
 	irc_message.c irc_message.h \

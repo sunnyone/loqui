@@ -146,7 +146,7 @@ account_new (void)
 
 	account = g_object_new(account_get_type(), NULL);
 	
-	account->console_text = channel_text_new();
+	account->console_buffer = channel_buffer_new();
 	
 	return account;
 }
@@ -469,21 +469,21 @@ account_has_channel(Account *account, Channel *channel)
 }
 
 void
-account_console_text_append(Account *account, gboolean with_common_text, TextType type, gchar *str)
+account_console_buffer_append(Account *account, gboolean with_common_buffer, TextType type, gchar *str)
 {
 	gchar *buf;
 
 	g_return_if_fail(account != NULL);
 	g_return_if_fail(str != NULL);
 
-	channel_text_append(account->console_text, type, str);
+	channel_buffer_append(account->console_buffer, type, str);
 	if(account_manager_is_current_account(account_manager_get(), account)) {
 		account_manager_scroll_channel_textview(account_manager_get());
 	}
-	if(with_common_text &&
+	if(with_common_buffer &&
 	   !account_manager_is_current_account(account_manager_get(), account)) {
 		buf = g_strdup_printf("[%s] %s", account->name, str);
-		account_manager_common_text_append(account_manager_get(), type, buf);
+		account_manager_common_buffer_append(account_manager_get(), type, buf);
 		g_free(buf);
 	}
 }

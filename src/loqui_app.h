@@ -23,7 +23,6 @@
 #include "loqui_menu.h"
 #include "channel_tree.h"
 #include "nick_list.h"
-#include "channel_text.h"
 
 G_BEGIN_DECLS
 

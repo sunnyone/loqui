@@ -67,7 +67,7 @@ void account_manager_speak(AccountManager *manager, const gchar *str);
 gboolean account_manager_is_current_account(AccountManager *manager, Account *account);
 gboolean account_manager_is_current_channel(AccountManager *manager, Channel *channel);
 
-void account_manager_common_text_append(AccountManager *manager, TextType type, gchar *str);
+void account_manager_common_buffer_append(AccountManager *manager, TextType type, gchar *str);
 void account_manager_scroll_channel_textview(AccountManager *manager);
 
 void account_manager_nick_list_append(AccountManager *manager, User *user);

@@ -19,13 +19,13 @@
  */
 #include "config.h"
 
-#include "channel_text.h"
+#include "channel_buffer.h"
 #include "account_manager.h"
 #include <time.h>
 #include <string.h>
 #include <ctype.h>
 
-struct _ChannelTextPrivate
+struct _ChannelBufferPrivate
 {
 };
 
@@ -38,35 +38,35 @@ typedef struct _URIChunk {
 static GtkTextBufferClass *parent_class = NULL;
 #define PARENT_TYPE GTK_TYPE_TEXT_BUFFER
 
-static void channel_text_class_init(ChannelTextClass *klass);
-static void channel_text_init(ChannelText *channel_text);
-static void channel_text_finalize(GObject *object);
+static void channel_buffer_class_init(ChannelBufferClass *klass);
+static void channel_buffer_init(ChannelBuffer *channel_buffer);
+static void channel_buffer_finalize(GObject *object);
 
-static void channel_text_insert_current_time(ChannelText *channel_text, GtkTextIter *iter);
-static GSList* channel_text_get_uri_chunk(const gchar *buf);
+static void channel_buffer_insert_current_time(ChannelBuffer *channel_buffer, GtkTextIter *iter);
+static GSList* channel_buffer_get_uri_chunk(const gchar *buf);
 
 #define TIME_LEN 11
 
 GType
-channel_text_get_type(void)
+channel_buffer_get_type(void)
 {
 	static GType type = 0;
 	if (type == 0) {
 		static const GTypeInfo our_info =
 			{
-				sizeof(ChannelTextClass),
+				sizeof(ChannelBufferClass),
 				NULL,           /* base_init */
 				NULL,           /* base_finalize */
-				(GClassInitFunc) channel_text_class_init,
+				(GClassInitFunc) channel_buffer_class_init,
 				NULL,           /* class_finalize */
 				NULL,           /* class_data */
-				sizeof(ChannelText),
+				sizeof(ChannelBuffer),
 				0,              /* n_preallocs */
-				(GInstanceInitFunc) channel_text_init
+				(GInstanceInitFunc) channel_buffer_init
 			};
 		
 		type = g_type_register_static(PARENT_TYPE,
-					      "ChannelText",
+					      "ChannelBuffer",
 					      &our_info,
 					      0);
 	}
@@ -74,51 +74,51 @@ channel_text_get_type(void)
 	return type;
 }
 static void
-channel_text_class_init (ChannelTextClass *klass)
+channel_buffer_class_init (ChannelBufferClass *klass)
 {
         GObjectClass *object_class = G_OBJECT_CLASS(klass);
 
         parent_class = g_type_class_peek_parent(klass);
         
-        object_class->finalize = channel_text_finalize;
+        object_class->finalize = channel_buffer_finalize;
 }
 static void 
-channel_text_init (ChannelText *channel_text)
+channel_buffer_init (ChannelBuffer *channel_buffer)
 {
-	ChannelTextPrivate *priv;
+	ChannelBufferPrivate *priv;
 
-	priv = g_new0(ChannelTextPrivate, 1);
+	priv = g_new0(ChannelBufferPrivate, 1);
 
-	channel_text->priv = priv;
+	channel_buffer->priv = priv;
 }
 static void 
-channel_text_finalize (GObject *object)
+channel_buffer_finalize (GObject *object)
 {
-	ChannelText *channel_text;
+	ChannelBuffer *channel_buffer;
 
         g_return_if_fail(object != NULL);
-        g_return_if_fail(IS_CHANNEL_TEXT(object));
+        g_return_if_fail(IS_CHANNEL_BUFFER(object));
 
-        channel_text = CHANNEL_TEXT(object);
+        channel_buffer = CHANNEL_BUFFER(object);
 
         if (G_OBJECT_CLASS(parent_class)->finalize)
                 (* G_OBJECT_CLASS(parent_class)->finalize) (object);
 
-	g_free(channel_text->priv);
+	g_free(channel_buffer->priv);
 }
 
-ChannelText*
-channel_text_new(void)
+ChannelBuffer*
+channel_buffer_new(void)
 {
-        ChannelText *channel_text;
-	ChannelTextPrivate *priv;
+        ChannelBuffer *channel_buffer;
+	ChannelBufferPrivate *priv;
 	GtkTextBuffer *textbuf;
 	GtkTextIter iter;
 	
-	channel_text = g_object_new(channel_text_get_type(), NULL);
-	priv = channel_text->priv;
+	channel_buffer = g_object_new(channel_buffer_get_type(), NULL);
+	priv = channel_buffer->priv;
 
-	textbuf = GTK_TEXT_BUFFER(channel_text);
+	textbuf = GTK_TEXT_BUFFER(channel_buffer);
 
 	gtk_text_buffer_get_start_iter(textbuf, &iter);
 	gtk_text_buffer_create_mark(textbuf, "end", &iter, FALSE);
@@ -139,27 +139,27 @@ channel_text_new(void)
 				   "foreground", "grey", 
 				   NULL);
 
-	return channel_text;
+	return channel_buffer;
 }
 static void
-channel_text_insert_current_time(ChannelText *channel_text, GtkTextIter *iter)
+channel_buffer_insert_current_time(ChannelBuffer *channel_buffer, GtkTextIter *iter)
 {
 	gchar buf[TIME_LEN];
 	time_t t;
 	struct tm tm;
 
-        g_return_if_fail(channel_text != NULL);
-        g_return_if_fail(IS_CHANNEL_TEXT(channel_text));
+        g_return_if_fail(channel_buffer != NULL);
+        g_return_if_fail(IS_CHANNEL_BUFFER(channel_buffer));
 
 	t = time(NULL);
 	localtime_r(&t, &tm);
 	strftime(buf, TIME_LEN, "%H:%M ", &tm);
 
-	gtk_text_buffer_insert_with_tags_by_name(GTK_TEXT_BUFFER(channel_text), iter, buf, -1, "time", NULL);
+	gtk_text_buffer_insert_with_tags_by_name(GTK_TEXT_BUFFER(channel_buffer), iter, buf, -1, "time", NULL);
 }
 
 static GSList *
-channel_text_get_uri_chunk(const gchar *buf)
+channel_buffer_get_uri_chunk(const gchar *buf)
 {
 	GSList *chunk_list = NULL;
 	gchar *tmp, *str;
@@ -232,21 +232,21 @@ channel_text_get_uri_chunk(const gchar *buf)
 	return chunk_list;
 }
 void
-channel_text_append(ChannelText *channel_text, TextType type, gchar *str)
+channel_buffer_append(ChannelBuffer *channel_buffer, TextType type, gchar *str)
 {
 	GtkTextIter iter;
 	GtkTextBuffer *textbuf;
 	gchar *style;
 	gchar *buf;
 
-        g_return_if_fail(channel_text != NULL);
-        g_return_if_fail(IS_CHANNEL_TEXT(channel_text));
+        g_return_if_fail(channel_buffer != NULL);
+        g_return_if_fail(IS_CHANNEL_BUFFER(channel_buffer));
 
-	textbuf = GTK_TEXT_BUFFER(channel_text);
+	textbuf = GTK_TEXT_BUFFER(channel_buffer);
 	gtk_text_buffer_get_end_iter(textbuf, &iter);
 
-	channel_text_insert_current_time(channel_text, &iter);
-/*	channel_text_get_uri_chunk(str); */
+	channel_buffer_insert_current_time(channel_buffer, &iter);
+/*	channel_buffer_get_uri_chunk(str); */
 
 	switch(type) {
 	case TEXT_TYPE_NOTICE:

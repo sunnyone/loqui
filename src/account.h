@@ -54,7 +54,7 @@ struct _Account
 	gchar *userinfo;
 	gchar *autojoin;
 
-	ChannelText *console_text;
+	ChannelBuffer *console_buffer;
 
         AccountPrivate *priv;
 };
@@ -117,7 +117,7 @@ Channel* account_search_channel_by_name(Account *account, gchar *name);
 
 GSList *account_search_joined_channel(Account *account, gchar *nick);
 
-void account_console_text_append(Account *account, gboolean with_common_text, TextType type, gchar *str);
+void account_console_buffer_append(Account *account, gboolean with_common_buffer, TextType type, gchar *str);
 void account_speak(Account *account, Channel *channel, const gchar *str);
 
 G_END_DECLS

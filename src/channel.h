@@ -20,7 +20,7 @@
 #ifndef __CHANNEL_H__
 #define __CHANNEL_H__
 
-#include "channel_text.h"
+#include "channel_buffer.h"
 
 G_BEGIN_DECLS
 
@@ -62,7 +62,7 @@ struct _Channel
 	
 	gchar *name;
 	GSList *user_list;
-	ChannelText *text;
+	ChannelBuffer *buffer;
 
 	gboolean end_names;
 
@@ -81,7 +81,7 @@ struct _ChannelClass
 GType channel_get_type(void) G_GNUC_CONST;
 
 Channel* channel_new(gchar *name);
-void channel_append_text(Channel *channel, gboolean with_common_text, TextType type, gchar *str);
+void channel_append_text(Channel *channel, gboolean with_common_buffer, TextType type, gchar *str);
 void channel_append_remark(Channel *channel, TextType type, gchar *nick, gchar *remark);
 void channel_set_topic(Channel *channel, const gchar *topic);
 gchar *channel_get_topic(Channel *channel);

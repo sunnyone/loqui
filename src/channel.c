@@ -97,10 +97,6 @@ channel_finalize (GObject *object)
 		g_free(channel->name);
 		channel->name = NULL;
 	}
-/*	if(channel->text) {
-		gtk_widget_destroy(GTK_WIDGET(channel->text));
-		channel->text = NULL;
-		} */
 	if(priv->topic) {
 		g_free(priv->topic);
 		priv->topic = NULL;
@@ -120,7 +116,7 @@ channel_new (gchar *name)
 	channel = g_object_new(channel_get_type(), NULL);
 
 	channel->name = g_strdup(name);
-	channel->text = CHANNEL_TEXT(channel_text_new());
+	channel->buffer = channel_buffer_new();
 	channel->user_list = NULL;
 	channel->end_names = TRUE;
 	
@@ -140,7 +136,7 @@ channel_append_remark(Channel *channel, TextType type, gchar *nick, gchar *remar
 		line_with_nick = g_strdup_printf("<%s> %s", nick, remark);
 	else
 		line_with_nick = g_strdup_printf("=%s= %s", nick, remark);
-	channel_text_append(CHANNEL_TEXT(channel->text), type, line_with_nick);
+	channel_buffer_append(CHANNEL_BUFFER(channel->buffer), type, line_with_nick);
 	g_free(line_with_nick);
 
 	if(account_manager_is_current_channel(account_manager_get(), channel)) {
@@ -150,21 +146,21 @@ channel_append_remark(Channel *channel, TextType type, gchar *nick, gchar *remar
 			line_with_channel = g_strdup_printf("<%s:%s> %s", channel->name, nick, remark);
 		else
 			line_with_channel = g_strdup_printf("=%s= %s", nick, remark);
-		account_manager_common_text_append(account_manager_get(), TEXT_TYPE_NORMAL, line_with_channel);
+		account_manager_common_buffer_append(account_manager_get(), TEXT_TYPE_NORMAL, line_with_channel);
 		g_free(line_with_channel);
 	}
 }
 
 void
-channel_append_text(Channel *channel, gboolean with_common_text, TextType type, gchar *str)
+channel_append_text(Channel *channel, gboolean with_common_buffer, TextType type, gchar *str)
 {
 	g_return_if_fail(channel != NULL);
 	g_return_if_fail(IS_CHANNEL(channel));
 
-	channel_text_append(CHANNEL_TEXT(channel->text), type, str);
-	if(with_common_text &&
+	channel_buffer_append(CHANNEL_BUFFER(channel->buffer), type, str);
+	if(with_common_buffer &&
 	   !account_manager_is_current_channel(account_manager_get(), channel)) {
-		account_manager_common_text_append(account_manager_get(), type, str);
+		account_manager_common_buffer_append(account_manager_get(), type, str);
 	}
 	if(account_manager_is_current_channel(account_manager_get(), channel)) {
 		account_manager_scroll_channel_textview(account_manager_get());

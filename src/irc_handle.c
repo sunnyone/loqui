@@ -195,7 +195,7 @@ irc_handle_command_privmsg_notice(IRCHandle *handle, IRCMessage *msg)
 	if(channel != NULL) {
 		channel_append_remark(channel, type, msg->nick, remark);
 	} else {
-		account_console_text_append(handle->priv->account, TRUE, type, remark);
+		account_console_buffer_append(handle->priv->account, TRUE, type, remark);
 	}
 	gdk_threads_leave();
 
@@ -590,7 +590,7 @@ irc_handle_inspect_message(IRCHandle *handle, IRCMessage *msg)
 	str = irc_message_inspect(msg);
 	
 	gdk_threads_enter();
-	account_console_text_append(handle->priv->account, TRUE, TEXT_TYPE_NORMAL, str);
+	account_console_buffer_append(handle->priv->account, TRUE, TEXT_TYPE_NORMAL, str);
 	gdk_threads_leave();
 	
 	g_free(str);
@@ -703,9 +703,9 @@ irc_handle_joined_channel_append(IRCHandle *handle, IRCMessage *msg, GSList *cha
 			channel_append_text(channel, FALSE, type, str);
 		}
 	} else {
-		account_console_text_append(handle->priv->account, FALSE, type, str);
+		account_console_buffer_append(handle->priv->account, FALSE, type, str);
 	}
-	account_manager_common_text_append(account_manager_get(), type, str);
+	account_manager_common_buffer_append(account_manager_get(), type, str);
 	gdk_threads_leave();
 
 	g_free(str);
@@ -720,7 +720,7 @@ irc_handle_account_console_append(IRCHandle *handle, IRCMessage *msg, TextType t
 	str = irc_message_format(msg, format);
 
 	gdk_threads_enter();
-	account_console_text_append(handle->priv->account, TRUE, type, str);
+	account_console_buffer_append(handle->priv->account, TRUE, type, str);
 	gdk_threads_leave();
 
 	g_free(str);
@@ -752,7 +752,7 @@ irc_handle_channel_append(IRCHandle *handle, IRCMessage *msg, gboolean make_chan
 
 	gdk_threads_enter();
 	if(channel == NULL) {
-		account_console_text_append(handle->priv->account, TRUE, type, str);
+		account_console_buffer_append(handle->priv->account, TRUE, type, str);
 	} else {
 		channel_append_text(channel, TRUE, type, str);
 
@@ -947,7 +947,7 @@ static gpointer irc_handle_thread_func(IRCHandle *handle)
 
 	gdk_threads_enter();
 	str = g_strdup_printf(_("Connecting to %s:%d"), priv->server->hostname, priv->server->port);
-	account_console_text_append(account, TRUE, TEXT_TYPE_INFO, str);
+	account_console_buffer_append(account, TRUE, TEXT_TYPE_INFO, str);
 	g_free(str);
 	gdk_threads_leave();
 
@@ -955,7 +955,7 @@ static gpointer irc_handle_thread_func(IRCHandle *handle)
 
 	gdk_threads_enter();
 	str = g_strdup(_("Connected. Sending Initial command..."));
-	account_console_text_append(account, TRUE, TEXT_TYPE_INFO, str);
+	account_console_buffer_append(account, TRUE, TEXT_TYPE_INFO, str);
 	g_free(str);
 	gdk_threads_leave();
 
@@ -991,7 +991,7 @@ static gpointer irc_handle_thread_func(IRCHandle *handle)
 	irc_handle_push_message(handle, msg);
 
 	gdk_threads_enter();
-	account_console_text_append(account, TRUE, TEXT_TYPE_INFO, _("Done."));
+	account_console_buffer_append(account, TRUE, TEXT_TYPE_INFO, _("Done."));
 	gdk_threads_leave();
 
         while(priv->connection) {
@@ -1010,7 +1010,7 @@ static gpointer irc_handle_thread_func(IRCHandle *handle)
 	 When this thread is joined, locking gdk_threads_mutex make this program stopped. 
 	 When this thread is not joined, not locking gdk_threads_mutex is dangerous. */
 	g_mutex_trylock(gdk_threads_mutex);
-	account_console_text_append(account, TRUE, TEXT_TYPE_INFO, _("Connection terminated."));
+	account_console_buffer_append(account, TRUE, TEXT_TYPE_INFO, _("Connection terminated."));
 	g_mutex_unlock(gdk_threads_mutex);
 
 	debug_puts("Putting IRCMessageEnd message...");

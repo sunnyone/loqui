@@ -31,7 +31,7 @@ struct _AccountManagerPrivate
 	Account *current_account;
 	Channel *current_channel;
 
-	ChannelText *common_buffer;
+	ChannelBuffer *common_buffer;
 	LoquiApp *app;
 };
 
@@ -123,7 +123,7 @@ account_manager_new (void)
 
 	priv = account_manager->priv;
 	priv->app = LOQUI_APP(loqui_app_new());
-	priv->common_buffer = channel_text_new();
+	priv->common_buffer = channel_buffer_new();
 	loqui_app_set_common_buffer(priv->app, GTK_TEXT_BUFFER(priv->common_buffer));
 	gtk_widget_show_all(GTK_WIDGET(priv->app));
 
@@ -190,7 +190,7 @@ account_manager_set_current(AccountManager *manager, Account *account, Channel *
 	account_manager_nick_list_clear(manager);
 
 	if(channel) {
-		loqui_app_set_channel_buffer(priv->app, GTK_TEXT_BUFFER(channel->text));
+		loqui_app_set_channel_buffer(priv->app, GTK_TEXT_BUFFER(channel->buffer));
 		/* FIXME */
 		for(cur = channel->user_list; cur != NULL; cur = cur->next) {
 			user = (User *) cur->data;
@@ -202,7 +202,7 @@ account_manager_set_current(AccountManager *manager, Account *account, Channel *
 		}
 		account_manager_set_topic(manager, channel_get_topic(channel));
 	} else if(account) {
-		loqui_app_set_channel_buffer(priv->app, GTK_TEXT_BUFFER(account->console_text));
+		loqui_app_set_channel_buffer(priv->app, GTK_TEXT_BUFFER(account->console_buffer));
 		account_manager_set_topic(manager, "");
 	}
 	loqui_app_set_focus(priv->app);
@@ -309,12 +309,12 @@ account_manager_scroll_channel_textview(AccountManager *manager)
 	}
 }
 void
-account_manager_common_text_append(AccountManager *manager, TextType type, gchar *str)
+account_manager_common_buffer_append(AccountManager *manager, TextType type, gchar *str)
 {
         g_return_if_fail(manager != NULL);
         g_return_if_fail(IS_ACCOUNT_MANAGER(manager));
 
-	channel_text_append(manager->priv->common_buffer, type, str);
+	channel_buffer_append(manager->priv->common_buffer, type, str);
 	if(account_manager_whether_scroll(manager)) {
 		loqui_app_scroll_common_textview(manager->priv->app);
 	}
