@@ -28,6 +28,7 @@
 #include "prefs_general.h"
 #include "loqui_toolbar.h"
 #include "gtkutils.h"
+#include "remark_entry.h"
 
 #include "intl.h"
 #include "utils.h"
@@ -221,7 +222,7 @@ loqui_app_entry_activate_cb(GtkWidget *widget, gpointer data)
 	Account *account;
 	const gchar *str;
 
-	str = gtk_entry_get_text(GTK_ENTRY(widget));
+	str = remark_entry_get_text(REMARK_ENTRY(widget));
 	if(str == NULL || strlen(str) == 0)
 		return;
 	
@@ -231,7 +232,7 @@ loqui_app_entry_activate_cb(GtkWidget *widget, gpointer data)
 	else
 		gtkutils_msgbox_info(GTK_MESSAGE_ERROR, _("No accounts are selected!"));
 
-	gtk_entry_set_text(GTK_ENTRY(widget), "");
+	remark_entry_clear_text(REMARK_ENTRY(widget));
 }
 static void loqui_app_channel_textview_inserted_cb(GtkTextBuffer *textbuf,
 						   GtkTextIter *pos,
@@ -417,11 +418,10 @@ loqui_app_new(void)
 	g_signal_connect(G_OBJECT(GTK_TEXT_VIEW(app->channel_textview)->vadjustment), "value-changed",
 			 G_CALLBACK(loqui_app_textview_scroll_value_changed_cb), app);
 
-	/* TODO: this should be replaced with a widget considered multiline editing */
-	priv->entry = gtk_entry_new();
+	priv->entry = remark_entry_new();
 	gtk_box_pack_end(GTK_BOX(vbox), priv->entry, FALSE, FALSE, 0);
 	g_signal_connect(G_OBJECT(priv->entry), "activate",
-                         G_CALLBACK(loqui_app_entry_activate_cb), NULL);
+			 G_CALLBACK(loqui_app_entry_activate_cb), NULL);
 
 	priv->common_textview = gtk_text_view_new();
 	gtk_text_view_set_editable(GTK_TEXT_VIEW(priv->common_textview), FALSE);
