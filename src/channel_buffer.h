@@ -48,6 +48,8 @@ struct _ChannelBufferClass
 {
         GtkTextBufferClass parent_class;
 
+	GtkTextTagTable *tag_table;
+	
 	void (* append) (ChannelBuffer *buffer,
 			 MessageText *msgtext);
 };

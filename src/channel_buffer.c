@@ -34,14 +34,16 @@ enum {
 
 struct _ChannelBufferPrivate
 {
-	GtkTextTag *highlight_area_tag;
-	GtkTextTag *notification_area_tag;
-	
 	gboolean is_common_buffer;
 };
 
 static GtkTextBufferClass *parent_class = NULL;
 #define PARENT_TYPE GTK_TYPE_TEXT_BUFFER
+
+static GtkTextTagTable *default_tag_table;
+
+static GtkTextTag *highlight_area_tag;
+static GtkTextTag *notification_area_tag;
 
 static guint channel_buffer_signals[LAST_SIGNAL] = { 0 };
 
@@ -105,6 +107,56 @@ channel_buffer_get_type(void)
 	return type;
 }
 static void
+channel_buffer_init_tags(void)
+{
+	GtkTextTag *tag;
+	
+	if(default_tag_table)
+		return;
+		
+	default_tag_table = gtk_text_tag_table_new();
+	
+	tag = gtk_text_tag_new("time");
+	g_object_set(tag, "foreground", "blue", NULL);
+	gtk_text_tag_table_add(default_tag_table, tag);
+
+	tag = gtk_text_tag_new("info");
+	g_object_set(tag, "foreground", "green3", NULL);
+	gtk_text_tag_table_add(default_tag_table, tag);
+	
+	tag = gtk_text_tag_new("normal");
+	g_object_set(tag, "foreground", "black", NULL);
+	gtk_text_tag_table_add(default_tag_table, tag);
+	
+	tag = gtk_text_tag_new("error");
+	g_object_set(tag, "foreground", "red", NULL);
+	gtk_text_tag_table_add(default_tag_table, tag);	
+
+	tag = gtk_text_tag_new("notice");
+	g_object_set(tag, "foreground", "#555555", NULL);
+	gtk_text_tag_table_add(default_tag_table, tag);
+
+	tag = gtk_text_tag_new("link");
+	g_object_set(tag, "foreground", "blue", "underline", PANGO_UNDERLINE_SINGLE, NULL);
+	g_signal_connect(G_OBJECT(tag), "event",
+			 G_CALLBACK(channel_buffer_link_tag_event_cb), NULL);
+	gtk_text_tag_table_add(default_tag_table, tag);
+	
+	tag = gtk_text_tag_new("transparent");
+	gtk_text_tag_table_add(default_tag_table, tag);
+
+	tag = gtk_text_tag_new("highlight");
+	g_object_set(tag, "weight", PANGO_WEIGHT_BOLD, "foreground", "purple", NULL);
+	gtk_text_tag_table_add(default_tag_table, tag);
+
+	highlight_area_tag = gtk_text_tag_new("highlight-area");
+	gtk_text_tag_table_add(default_tag_table, highlight_area_tag);
+	
+	notification_area_tag = gtk_text_tag_new("notification-area");
+	gtk_text_tag_table_add(default_tag_table, notification_area_tag);	
+}
+
+static void
 channel_buffer_class_init (ChannelBufferClass *klass)
 {
         GObjectClass *object_class = G_OBJECT_CLASS(klass);
@@ -112,6 +164,10 @@ channel_buffer_class_init (ChannelBufferClass *klass)
         parent_class = g_type_class_peek_parent(klass);
         
         object_class->finalize = channel_buffer_finalize;
+
+	if(default_tag_table == NULL)
+		channel_buffer_init_tags();	
+	klass->tag_table = default_tag_table;
 
 	channel_buffer_signals[APPEND] = g_signal_new("append",
 						      G_OBJECT_CLASS_TYPE(object_class),
@@ -165,7 +221,7 @@ static void channel_buffer_apply_tag_cb(GtkTextBuffer *buffer,
 	channel_buffer = CHANNEL_BUFFER(buffer);
 	priv = channel_buffer->priv;
 
-	if(!(tag == priv->highlight_area_tag || tag == priv->notification_area_tag))
+	if(!(tag == highlight_area_tag || tag == notification_area_tag))
 		return;
 
 	tmp_end = *end;
@@ -188,7 +244,7 @@ static void channel_buffer_apply_tag_cb(GtkTextBuffer *buffer,
 		}
 	}
 
-	if(tag == priv->notification_area_tag && 
+	if(tag == notification_area_tag && 
 	   matched &&
 	   prefs_general.use_notification &&
 	   prefs_general.notification_command &&
@@ -332,9 +388,10 @@ channel_buffer_new(void)
 	ChannelBufferPrivate *priv;
 	GtkTextBuffer *textbuf;
 	GtkTextIter iter;
-	GtkTextTag *tag;
-
-	channel_buffer = g_object_new(channel_buffer_get_type(), NULL);
+	
+	if(default_tag_table == NULL)
+		channel_buffer_init_tags();	
+	channel_buffer = g_object_new(channel_buffer_get_type(), "tag_table", default_tag_table, NULL);
 	priv = channel_buffer->priv;
 
 	textbuf = GTK_TEXT_BUFFER(channel_buffer);
@@ -342,37 +399,6 @@ channel_buffer_new(void)
 	gtk_text_buffer_get_start_iter(textbuf, &iter);
 	gtk_text_buffer_create_mark(textbuf, "end", &iter, FALSE);
 
-        gtk_text_buffer_create_tag(textbuf, "time", 
-				   "foreground", "blue", 
-				   NULL);
-        gtk_text_buffer_create_tag(textbuf, "info", 
-				   "foreground", "green3", 
-				   NULL);
-        gtk_text_buffer_create_tag(textbuf, "normal", 
-				   "foreground", "black", 
-				   NULL);
-        gtk_text_buffer_create_tag(textbuf, "error", 
-				   "foreground", "red", 
-				   NULL);
-        gtk_text_buffer_create_tag(textbuf, "notice", 
-				   "foreground", "#555555", 
-				   NULL);
-	tag = gtk_text_buffer_create_tag(textbuf, "link",
-					 "foreground", "blue",
-					 "underline", PANGO_UNDERLINE_SINGLE,
-					 NULL);
-	gtk_text_buffer_create_tag(textbuf, "transparent", NULL);
-	gtk_text_buffer_create_tag(textbuf, "highlight",
-				   "weight", PANGO_WEIGHT_BOLD,
-				   "foreground", "purple",
-				   NULL);
-	priv->highlight_area_tag = gtk_text_buffer_create_tag(textbuf, "highlight-area",
-							      NULL);
-	priv->notification_area_tag = gtk_text_buffer_create_tag(textbuf, "notification-area",
-								 NULL);
-
-	g_signal_connect(G_OBJECT(tag), "event",
-			 G_CALLBACK(channel_buffer_link_tag_event_cb), NULL);
 	g_signal_connect_after(G_OBJECT(textbuf), "insert-text",
 			       G_CALLBACK(channel_buffer_text_inserted_cb), NULL);
 	g_signal_connect_after(G_OBJECT(textbuf), "apply-tag",
