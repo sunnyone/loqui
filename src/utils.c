@@ -20,10 +20,12 @@
 #include "config.h"
 #include "utils.h"
 
+#include <stdio.h>
 #include <string.h>
 #include <stdarg.h>
 #include "main.h"
-
+#include <sys/types.h>
+#include <sys/stat.h>
 
 void debug_print(const gchar *format, ...)
 {
@@ -123,4 +125,15 @@ gchar *strcasestr(const gchar *haystack, const gchar *needle)
         }
 
         return NULL;
+}
+gint make_dir(const gchar *dir)
+{
+        if (mkdir(dir, S_IRWXU) < 0) {
+                FILE_OP_ERROR(dir, "mkdir");
+                return -1;
+        }
+        if (chmod(dir, S_IRWXU) < 0)
+                FILE_OP_ERROR(dir, "chmod");
+
+        return 0;
 }

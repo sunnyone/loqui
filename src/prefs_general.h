@@ -1,7 +1,7 @@
 /* -*- Mode: C; tab-width: 8; indent-tabs-mode: t; c-basic-offset: 8 -*- */
 /*
- * 
- * Copyright (C) 2002 Yoichi Imai <yoichi@silver-forest.com>
+ * Loqui -- IRC client for GNOME2 <http://loqui.good-day.net/>
+ * Copyright (C) 2003 Yoichi Imai <yoichi@silver-forest.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,12 +17,30 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
-#ifndef __MAIN_H__
-#define __MAIN_H__
+#ifndef __PREFS_GENERAL_H__
+#define __PREFS_GENERAL_H__
 
-extern int debug_mode;
-extern int show_msg_mode;
+#include <glib.h>
 
-#define PREFS_DIR ".loqui"
+typedef struct _PrefsGeneral {
+	gint codeconv;
+	gchar *codeset;
+	
+	gint save_size;
 
-#endif /* __MAIN_H__ */
+	gint window_height;
+	gint window_width;
+
+	gint channel_book_height;
+	gint channel_book_width;
+
+	gint channel_tree_height;
+} PrefsGeneral;
+
+void prefs_general_load(void);
+void prefs_general_save(void);
+void prefs_general_set_default(void);
+
+extern PrefsGeneral *prefs_general;
+
+#endif /* __PREFS_GENERAL_H__ */

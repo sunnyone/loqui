@@ -21,6 +21,13 @@
 #define __UTILS_H__
 #include <glib.h>
 
+#define STR_FREE_UNLESS_NULL(str) { \
+ if(str != NULL) { \
+    g_free(str); \
+    str = NULL; \
+ } \
+}
+
 void debug_puts(const gchar *format, ...) G_GNUC_PRINTF(1, 2);
 void debug_print(const gchar *format, ...) G_GNUC_PRINTF(1, 2);
 
@@ -48,5 +55,12 @@ gchar *strncpy2         (gchar          *dest,
                          size_t          n);
 gchar *strcasestr       (const gchar    *haystack,
                          const gchar    *needle);
+gint make_dir(const gchar *dir);
+
+#define FILE_OP_ERROR(file, func) \
+{ \
+        fprintf(stderr, "%s: ", file); \
+        perror(func); \
+}
 
 #endif /* __UTILS_H__ */
