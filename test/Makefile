@@ -1,12 +1,12 @@
 ORIG_OBJS := $(wildcard orig_src/*.o)
-LDFLAGS = `pkg-config --libs gtk+-2.0 gnet-2.0`
-CFLAGS = -I../ -I../src/ `pkg-config --cflags gtk+-2.0 gnet-2.0` -g -Wall
+LDFLAGS = `pkg-config --libs gtk+-2.0 gnet-2.0` ../gtk24backports/libgtk24backports.la
+CFLAGS = -I../ -I../src/ -I../gtk24backports `pkg-config --cflags gtk+-2.0 gnet-2.0` -g -Wall -DUSE_GTK_2_2
 FLAGS = $(LDFLAGS) $(CFLAGS) $(ORIG_OBJS)
 
-TARGET := test_utils test_profile_account test_profile_handle
+TARGET := test_utils test_profile_account test_profile_handle test_user
 
 %: %.c
-	gcc -o $@ $(FLAGS) $(OBJS) $@.c
+	libtool --mode=link gcc -o $@ $(FLAGS) $(OBJS) $@.c
 
 all: $(TARGET)
 

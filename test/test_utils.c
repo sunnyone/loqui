@@ -1,3 +1,5 @@
+#include <config.h>
+
 #include "test_helper.h"
 #include "utils.h"
 
