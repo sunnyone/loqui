@@ -32,6 +32,11 @@
 enum {
 	ACTIVATE,
 	TOGGLE_COMMAND_MODE,
+
+	CALL_HISTORY,
+	SCROLL_CHANNEL_TEXTVIEW,
+	SCROLL_COMMON_TEXTVIEW,
+
         LAST_SIGNAL
 };
 
@@ -56,6 +61,8 @@ struct _RemarkEntryPrivate
 	guint toggle_multiline_toggled_id;
 
 	GtkWidget *toggle_palette;
+
+	LoquiApp *app;
 };
 
 static GtkHBoxClass *parent_class = NULL;
@@ -73,11 +80,13 @@ static void remark_entry_toggle_command_toggled_cb(GtkWidget *widget, gpointer d
 static void remark_entry_toggle_command_toggled_cb_for_signal(GtkWidget *widget, gpointer data);
 static void remark_entry_entry_multiline_toggled_cb(GtkWidget *widget, gpointer data);
 static void remark_entry_activated_cb(GtkWidget *widget, gpointer data);
-static gint remark_entry_entry_key_pressed_cb(GtkEntry *widget, GdkEventKey *event,
-					      gpointer data);
 static void remark_entry_entry_changed_cb(GtkEntry *widget, RemarkEntry *remark_entry);
 
 static void remark_entry_history_add(RemarkEntry *entry, const gchar *str);
+
+static void remark_entry_call_history(RemarkEntry *entry, gint count);
+static void remark_entry_scroll_channel_textview(RemarkEntry *entry, gint pages);
+static void remark_entry_scroll_common_textview(RemarkEntry *entry, gint pages);
 
 GType
 remark_entry_get_type(void)
@@ -110,11 +119,16 @@ remark_entry_class_init(RemarkEntryClass *klass)
 {
         GObjectClass *object_class = G_OBJECT_CLASS(klass);
         GtkObjectClass *gtk_object_class = GTK_OBJECT_CLASS(klass);
+	GtkBindingSet *binding_set;
 
         parent_class = g_type_class_peek_parent(klass);
         
         object_class->finalize = remark_entry_finalize;
         gtk_object_class->destroy = remark_entry_destroy;
+
+	klass->call_history = remark_entry_call_history;
+	klass->scroll_channel_textview = remark_entry_scroll_channel_textview;
+	klass->scroll_common_textview = remark_entry_scroll_common_textview;
 
         remark_entry_signals[ACTIVATE] = g_signal_new("activate",
 						      G_OBJECT_CLASS_TYPE(object_class),
@@ -130,7 +144,52 @@ remark_entry_class_init(RemarkEntryClass *klass)
 						                 0,
 						                 NULL, NULL,
 						                 g_cclosure_marshal_VOID__VOID,
-						                 G_TYPE_NONE, 0);						      
+						                 G_TYPE_NONE, 0);
+
+        remark_entry_signals[CALL_HISTORY] = g_signal_new("call_history",
+							  G_OBJECT_CLASS_TYPE(object_class),
+							  G_SIGNAL_RUN_LAST | G_SIGNAL_ACTION,
+							  G_STRUCT_OFFSET(RemarkEntryClass, call_history),
+							  NULL, NULL,
+							  g_cclosure_marshal_VOID__INT,
+							  G_TYPE_NONE, 1, G_TYPE_INT);
+
+        remark_entry_signals[SCROLL_CHANNEL_TEXTVIEW] = g_signal_new("scroll_channel_textview",
+								     G_OBJECT_CLASS_TYPE(object_class),
+								     G_SIGNAL_RUN_LAST | G_SIGNAL_ACTION,
+								     G_STRUCT_OFFSET(RemarkEntryClass, scroll_channel_textview),
+								     NULL, NULL,
+								     g_cclosure_marshal_VOID__INT,
+								     G_TYPE_NONE, 1, G_TYPE_INT);
+
+        remark_entry_signals[SCROLL_COMMON_TEXTVIEW] = g_signal_new("scroll_common_textview",
+								    G_OBJECT_CLASS_TYPE(object_class),
+								    G_SIGNAL_RUN_LAST | G_SIGNAL_ACTION,
+								    G_STRUCT_OFFSET(RemarkEntryClass, scroll_common_textview),
+								    NULL, NULL,
+								    g_cclosure_marshal_VOID__INT,
+								    G_TYPE_NONE, 1, G_TYPE_INT);
+
+	binding_set = gtk_binding_set_by_class(klass);
+
+	gtk_binding_entry_add_signal(binding_set, GDK_Up, 0,
+				     "call_history", 1,
+				     G_TYPE_INT, -1);
+	gtk_binding_entry_add_signal(binding_set, GDK_Down, 0,
+				     "call_history", 1,
+				     G_TYPE_INT, 1);
+	gtk_binding_entry_add_signal(binding_set, GDK_Page_Up, 0,
+				     "scroll_channel_textview", 1,
+				     G_TYPE_INT, -1);
+	gtk_binding_entry_add_signal(binding_set, GDK_Page_Down, 0,
+				     "scroll_channel_textview", 1,
+				     G_TYPE_INT, 1);
+	gtk_binding_entry_add_signal(binding_set, GDK_Page_Up, GDK_MOD1_MASK,
+				     "scroll_common_textview", 1,
+				     G_TYPE_INT, -1);
+	gtk_binding_entry_add_signal(binding_set, GDK_Page_Down, GDK_MOD1_MASK,
+				     "scroll_common_textview", 1,
+				     G_TYPE_INT, 1);
 }
 static void 
 remark_entry_init(RemarkEntry *remark_entry)
@@ -174,7 +233,7 @@ remark_entry_destroy(GtkObject *object)
 }
 
 GtkWidget*
-remark_entry_new(void)
+remark_entry_new(LoquiApp *app)
 {
         RemarkEntry *remark_entry;
 	RemarkEntryPrivate *priv;
@@ -186,6 +245,7 @@ remark_entry_new(void)
 	remark_entry = g_object_new(remark_entry_get_type(), NULL);
 	
 	priv = remark_entry->priv;
+	priv->app = app;
 
 	hbox = GTK_WIDGET(remark_entry);
 
@@ -210,8 +270,6 @@ remark_entry_new(void)
 			 G_CALLBACK(remark_entry_activated_cb), remark_entry);
 	g_signal_connect(G_OBJECT(priv->entry), "show",
 			 G_CALLBACK(remark_entry_entry_text_shown_cb), remark_entry);
-	g_signal_connect(G_OBJECT(priv->entry), "key_press_event",
-			 G_CALLBACK(remark_entry_entry_key_pressed_cb), remark_entry);
 	g_signal_connect(G_OBJECT(priv->entry), "changed",
 			 G_CALLBACK(remark_entry_entry_changed_cb), remark_entry);
 			 
@@ -416,52 +474,60 @@ remark_entry_history_add(RemarkEntry *entry, const gchar *str)
 	}
 
 }
-static gint
-remark_entry_entry_key_pressed_cb(GtkEntry *widget, GdkEventKey *event,
-					      gpointer data)
+static void
+remark_entry_call_history(RemarkEntry *entry, gint count)
 {
-        RemarkEntry *remark_entry;
 	RemarkEntryPrivate *priv;
-	gint length;
+	gint length, dest;
 	GList *cur;
 	gchar *new_str;
-	gboolean is_up, is_down;
 
-        g_return_val_if_fail(data != NULL, FALSE);
-        g_return_val_if_fail(IS_REMARK_ENTRY(data), FALSE);
+        g_return_if_fail(entry != NULL);
+        g_return_if_fail(IS_REMARK_ENTRY(entry));
+
+	priv = entry->priv;
 	
-	remark_entry = REMARK_ENTRY(data);
-	priv = remark_entry->priv;
-
-	is_up = (event->keyval == GDK_Up || event->keyval == GDK_KP_Up);
-	is_down = (event->keyval == GDK_Down || event->keyval == GDK_KP_Down);
-
-	if(!(is_up || is_down))
-		return FALSE;
 	length = g_list_length(priv->string_list);
-
-	if(priv->current_index >= length)
-		return TRUE;
-	if(is_down && priv->current_index == 0)
-		return TRUE;
-	if(is_up && priv->current_index == length-1)
-		return TRUE;
+	
+	if (priv->current_index >= length)
+		return;
+	
+	dest = priv->current_index - count;
+	if (dest < 0 || length <= dest)
+		return;
 
 	cur = g_list_nth(priv->string_list, priv->current_index);
 	if(cur->data)
 		g_free(cur->data);
 	cur->data = g_strdup(gtk_entry_get_text(GTK_ENTRY(priv->entry)));
 	
-	if(is_up) {
-		priv->current_index++;
-		new_str = cur->next->data;
-	} else {
-		priv->current_index--;
-		new_str = cur->prev->data;
-	}
+	priv->current_index = dest;
+	new_str = g_list_nth_data(priv->string_list, dest);
 	gtk_entry_set_text(GTK_ENTRY(priv->entry), new_str == NULL ? "" : new_str);
+}
+static void
+remark_entry_scroll_channel_textview(RemarkEntry *entry, gint pages)
+{
+	RemarkEntryPrivate *priv;
 
-	return TRUE;
+        g_return_if_fail(entry != NULL);
+        g_return_if_fail(IS_REMARK_ENTRY(entry));
+
+	priv = entry->priv;
+	
+	loqui_app_scroll_page_channel_buffer(priv->app, pages);
+}
+static void
+remark_entry_scroll_common_textview(RemarkEntry *entry, gint pages)
+{
+	RemarkEntryPrivate *priv;
+
+        g_return_if_fail(entry != NULL);
+        g_return_if_fail(IS_REMARK_ENTRY(entry));
+
+	priv = entry->priv;
+	
+	loqui_app_scroll_page_common_buffer(priv->app, pages);
 }
 static void
 remark_entry_activated_cb(GtkWidget *widget, gpointer data)

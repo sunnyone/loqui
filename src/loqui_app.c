@@ -493,7 +493,7 @@ loqui_app_new(void)
 	g_signal_connect(G_OBJECT(GTK_TEXT_VIEW(app->channel_textview)->vadjustment), "value-changed",
 			 G_CALLBACK(loqui_app_textview_scroll_value_changed_cb), app);
 
-	app->remark_entry = remark_entry_new();
+	app->remark_entry = remark_entry_new(app);
 	gtk_box_pack_end(GTK_BOX(vbox), app->remark_entry, FALSE, FALSE, 0);
 	g_signal_connect(G_OBJECT(app->remark_entry), "activate",
 			 G_CALLBACK(loqui_app_entry_activate_cb), NULL);
@@ -577,6 +577,23 @@ void loqui_app_scroll_common_buffer(LoquiApp *app)
 
 	scroll_channel_buffer(app->priv->common_textview);
 }
+void
+loqui_app_scroll_page_channel_buffer(LoquiApp *app, gint pages)
+{
+        g_return_if_fail(app != NULL);
+        g_return_if_fail(LOQUI_IS_APP(app));
+
+	g_signal_emit_by_name(app->channel_textview, "move_cursor", GTK_MOVEMENT_PAGES, pages, FALSE);
+}
+void
+loqui_app_scroll_page_common_buffer(LoquiApp *app, gint pages)
+{
+        g_return_if_fail(app != NULL);
+        g_return_if_fail(LOQUI_IS_APP(app));
+
+	g_signal_emit_by_name(app->priv->common_textview, "move_cursor", GTK_MOVEMENT_PAGES, pages, FALSE);
+}
+
 static void
 set_channel_buffer(LoquiApp *app, GtkWidget *textview, ChannelBuffer *buffer, guint *signal_id_ptr,
 		   GCallback func)

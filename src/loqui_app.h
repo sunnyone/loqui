@@ -84,6 +84,9 @@ void loqui_app_set_show_channelbar(LoquiApp *app, gboolean show);
 void loqui_app_scroll_channel_buffer(LoquiApp *app);
 void loqui_app_scroll_common_buffer(LoquiApp *app);
 
+void loqui_app_scroll_page_channel_buffer(LoquiApp *app, gint pages);
+void loqui_app_scroll_page_common_buffer(LoquiApp *app, gint pages);
+
 void loqui_app_get_current_widget_editing_status(LoquiApp *app, gboolean *cutable, gboolean *copiable, gboolean *pastable,
 						 gboolean *clearable, gboolean *findable);
 
