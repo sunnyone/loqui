@@ -191,6 +191,7 @@ channel_new(Account *account, const gchar *name)
 						G_TYPE_STRING);
 	channel->end_names = TRUE;
 	channel->account = account;
+	g_object_add_weak_pointer(G_OBJECT(account), (gpointer *) &channel->account);
 
 	return channel;
 }
