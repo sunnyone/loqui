@@ -1109,6 +1109,8 @@ irc_handle_reply(IRCHandle *handle, IRCMessage *msg)
 		return TRUE;
 	case IRC_RPL_LUSERCLIENT:
 	case IRC_RPL_LUSERME:
+	case IRC_RPL_LOCALUSERS:
+	case IRC_RPL_GLOBALUSERS:
 		irc_handle_account_console_append(handle, msg, TEXT_TYPE_INFO, _("*** %t"));
 		return TRUE;
 	case IRC_RPL_UNAWAY:

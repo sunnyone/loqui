@@ -171,7 +171,9 @@ typedef enum {
 	/* undocumented */
 	IRC_RPL_CREATIONTIME         = 329,
 	IRC_RPL_TOPICWHOTIME = 333,
- 
+	IRC_RPL_LOCALUSERS = 265,
+	IRC_RPL_GLOBALUSERS = 266,
+
 	/* unused? */
 	IRC_RPL_TRACECLASS          = 209,
 	IRC_RPL_SERVICEINFO          = 231,
