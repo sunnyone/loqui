@@ -318,7 +318,7 @@ remark_entry_new(LoquiApp *app, GtkToggleAction *toggle_command_action)
 	gtk_container_add(GTK_CONTAINER(priv->button_notice), image);
 	g_signal_connect(G_OBJECT(priv->button_notice), "clicked",
 			 G_CALLBACK(remark_entry_notice_clicked_cb), remark_entry);
-	gtk_tooltips_set_tip(app->tooltips, priv->button_notice, _("Send message with NOTICE (Ctrl+Enter)"), NULL);
+	gtk_tooltips_set_tip(app->tooltips, priv->button_notice, _("Send message with NOTICE command (Ctrl+Enter)"), NULL);
 	gtk_button_set_focus_on_click(GTK_BUTTON(priv->button_notice), FALSE);
 	gtk_box_pack_start(GTK_BOX(hbox), priv->button_notice, FALSE, FALSE, 0);
 
