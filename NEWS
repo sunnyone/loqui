@@ -38,3 +38,9 @@
 * Change implementation of prefs_general(data saved in loquirc.xml will be lost.)
 * Popup menu of NickList is implemented.
 
+2003-02-16     0.1.4 Release
+* Autojoin feature.
+* Notification feature.
+* Clickable URL.
+* Common Preferences dialog.
+ 

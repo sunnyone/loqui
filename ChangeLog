@@ -1,3 +1,93 @@
+2003-02-16 14:21  y-imai
+
+	* src/: account_manager.c, account_manager.h, loqui_menu.c:
+	implemented prefs dialog
+
+2003-02-16 14:19  y-imai
+
+	* src/: prefs_emphasis_words.c, prefs_emphasis_words.h:
+	prefs_emphasis_words_init(): added
+
+2003-02-16 14:19  y-imai
+
+	* src/: codeconv.c, codeconv.h: changed charset to codeset
+
+2003-02-16 14:18  y-imai
+
+	* src/: Makefile.am, prefs_dialog.c, prefs_dialog.h: added
+	prefs_dialog
+
+2003-02-16 12:41  y-imai
+
+	* src/: channel.c, channel_buffer.c, channel_buffer.h: changed
+	adviser into notification
+
+2003-02-16 12:23  y-imai
+
+	* src/: codeconv.c, codeconv.h: modified codeconv engine.
+
+2003-02-16 11:34  y-imai
+
+	* src/: codeconv.c, codeconv.h: extern conv_table
+
+2003-02-14 21:00  y-imai
+
+	* src/utils.c: removed needless debug message
+
+2003-02-14 20:51  y-imai
+
+	* src/: Makefile.am, channel_buffer.c, main.c,
+	prefs_emphasis_words.c, prefs_emphasis_words.h, utils.c, utils.h:
+	implemented PrefsEmphasisWords
+
+2003-02-14 14:24  y-imai
+
+	* src/irc_handle.c: fixed the autojoin message
+
+2003-02-14 14:08  y-imai
+
+	* src/: channel_buffer.c, gtkutils.c, gtkutils.h: enable browser
+
+2003-02-14 13:43  y-imai
+
+	* src/: channel_buffer.c, gtkutils.c, gtkutils.h: execute
+	notification
+
+2003-02-13 23:23  y-imai
+
+	* src/: prefs_general.c, prefs_general.h: add prefs:
+	use_notification
+
+2003-02-13 23:05  y-imai
+
+	* src/: account_dialog.c, irc_handle.c: implemented autojoin
+
+2003-02-13 21:28  y-imai
+
+	* src/: prefs_general.c, prefs_general.h: added prefs:
+	{notification,browser}_command
+
+2003-02-13 02:06  y-imai
+
+	* src/: channel.c, channel_buffer.c, channel_buffer.h: implemented
+	emphasis temporarily
+
+2003-02-13 01:01  y-imai
+
+	* src/channel_buffer.c: fixed link function
+
+2003-02-13 00:16  y-imai
+
+	* src/channel_buffer.c: uri parsing function
+
+2003-02-12 21:14  y-imai
+
+	* src/loqui_app.c: change declaration of inserted callback
+
+2003-02-12 02:41  y-imai
+
+	* ChangeLog: 0.1.3 Release
+
 2003-02-12 02:39  y-imai
 
 	* src/gtkutils.c: include intl.h
