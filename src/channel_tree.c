@@ -49,7 +49,6 @@ enum {
 	COLUMN_COLOR,
 	COLUMN_USERS,
 	COLUMN_OP_USERS,
-	COLUMN_NONOP_USERS,
 	COLUMN_NUMBER
 };
 
@@ -175,7 +174,6 @@ channel_tree_new(void)
 				   G_TYPE_POINTER,
 				   G_TYPE_STRING,
 				   G_TYPE_UINT,
-				   G_TYPE_UINT,
 				   G_TYPE_UINT);
 	gtk_tree_view_set_model(GTK_TREE_VIEW(tree), GTK_TREE_MODEL(model));
 
@@ -203,15 +201,6 @@ channel_tree_new(void)
 	column = gtk_tree_view_column_new_with_attributes ("Op",
 							   renderer,
 							   "text", COLUMN_OP_USERS,
-							   NULL);
-	gtk_tree_view_column_set_resizable(column, TRUE);
-        gtk_tree_view_append_column(GTK_TREE_VIEW(tree), column);
-
-        renderer = gtk_cell_renderer_text_new();
-	g_object_set(renderer, "ypad", 0, NULL);
-	column = gtk_tree_view_column_new_with_attributes ("Nonop",
-							   renderer,
-							   "text", COLUMN_NONOP_USERS,
 							   NULL);
 	gtk_tree_view_column_set_resizable(column, TRUE);
         gtk_tree_view_append_column(GTK_TREE_VIEW(tree), column);
@@ -395,7 +384,6 @@ channel_tree_update_user_number(ChannelTree *tree, Channel *channel)
 	gtk_tree_store_set(GTK_TREE_STORE(model), &iter,
 			   COLUMN_USERS, users,
 			   COLUMN_OP_USERS, op_users,
-			   COLUMN_NONOP_USERS, users - op_users,
 			   -1);
 }
 void
