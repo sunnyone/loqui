@@ -249,13 +249,21 @@ void
 loqui_title_format_register_function(LoquiTitleFormat *ltf, const gchar *name, LoquiTitleFormatFunction *func)
 {
 	g_return_if_fail(ltf != NULL);
-	g_hash_table_insert(ltf->function_table, g_strdup(name), func);
+
+	if (func)
+		g_hash_table_insert(ltf->function_table, g_strdup(name), func);
+	else
+		g_hash_table_remove(ltf->function_table, name);
 }
 void
 loqui_title_format_register_variable(LoquiTitleFormat *ltf, const gchar *name, const gchar *value)
 {
 	g_return_if_fail(ltf != NULL);
-	g_hash_table_insert(ltf->variable_table, g_strdup(name), g_strdup(value));
+
+	if (value)
+		g_hash_table_insert(ltf->variable_table, g_strdup(name), g_strdup(value));
+	else
+		g_hash_table_remove(ltf->variable_table, name);
 }
 gchar *
 loqui_title_format_parse(LoquiTitleFormat *ltf, const gchar *str, GError **error)
