@@ -22,6 +22,10 @@
 #include "loqui_select_dialog.h"
 #include "intl.h"
 
+#include <loqui_channel_entry.h>
+#include <loqui_account_manager_iter.h>
+#include <loqui_channel_entry_utils.h>
+
 enum {
         LAST_SIGNAL
 };
@@ -30,14 +34,28 @@ enum {
         LAST_PROP
 };
 
+enum {
+	COLUMN_NAME,
+	COLUMN_CHANNEL_NUMBER,
+	COLUMN_ACCOUNT_NAME,
+	COLUMN_CHANNEL_NAME,
+
+	COLUMN_CHANNEL_ENTRY,
+	N_COLUMNS
+};
+
 struct _LoquiSelectDialogPrivate
 {
+	LoquiApp *app;
+
 	GtkWidget *entry_keyword;
 	GtkWidget *check_case;
 	GtkWidget *check_migemo;
 	GtkWidget *treeview;
 	GtkWidget *label_account;
 	GtkWidget *label_channel;
+
+	GtkListStore *store;
 };
 
 static GtkDialogClass *parent_class = NULL;
@@ -183,7 +201,7 @@ loqui_select_dialog_destroy(GtkObject *object)
                 (* GTK_OBJECT_CLASS(parent_class)->destroy)(object);
 }
 GtkWidget *
-loqui_select_dialog_new(void)
+loqui_select_dialog_new(LoquiApp *app)
 {
         LoquiSelectDialog *sdialog;
 	LoquiSelectDialogPrivate *priv;
@@ -201,10 +219,13 @@ loqui_select_dialog_new(void)
 	GtkWidget *vseparator1;
 	GtkWidget *hbox5;
 	GtkWidget *label8;
+	GtkTreeViewColumn *column;
+	GtkCellRenderer *renderer;
 
 	sdialog = g_object_new(loqui_select_dialog_get_type(), NULL);
 	
         priv = sdialog->priv;
+	priv->app = app;
 
 	gtk_window_set_title(GTK_WINDOW(sdialog), _("Selection Dialog"));
 	gtk_dialog_add_buttons(GTK_DIALOG(sdialog), 
@@ -238,9 +259,37 @@ loqui_select_dialog_new(void)
 	gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolledwindow1), GTK_POLICY_AUTOMATIC,
 				       GTK_POLICY_AUTOMATIC);
 
-	priv->treeview = gtk_tree_view_new();
+	priv->store = gtk_list_store_new(N_COLUMNS,
+					 G_TYPE_STRING,
+					 G_TYPE_INT,
+					 G_TYPE_STRING,
+					 G_TYPE_STRING,
+					 LOQUI_TYPE_CHANNEL_ENTRY);
+
+	priv->treeview = gtk_tree_view_new_with_model(GTK_TREE_MODEL(priv->store));
 	gtk_container_add(GTK_CONTAINER(scrolledwindow1), priv->treeview);
 
+        renderer = gtk_cell_renderer_text_new();
+        column = gtk_tree_view_column_new_with_attributes(_("#"),
+							  renderer,
+							  "text", COLUMN_CHANNEL_NUMBER,
+							  NULL);
+        gtk_tree_view_append_column(GTK_TREE_VIEW(priv->treeview), column);
+
+        renderer = gtk_cell_renderer_text_new();
+        column = gtk_tree_view_column_new_with_attributes(_("Account"),
+							  renderer,
+							  "text", COLUMN_ACCOUNT_NAME,
+							  NULL);
+        gtk_tree_view_append_column(GTK_TREE_VIEW(priv->treeview), column);
+
+        renderer = gtk_cell_renderer_text_new();
+        column = gtk_tree_view_column_new_with_attributes(_("Channel"),
+							  renderer,
+							  "text", COLUMN_CHANNEL_NAME,
+							  NULL);
+        gtk_tree_view_append_column(GTK_TREE_VIEW(priv->treeview), column);
+	
 	hseparator2 = gtk_hseparator_new();
 	gtk_box_pack_start(GTK_BOX(dialog_vbox), hseparator2, FALSE, FALSE, 5);
 
@@ -276,4 +325,36 @@ loqui_select_dialog_new(void)
 	gtk_label_set_selectable(GTK_LABEL(priv->label_channel), TRUE);
 
         return GTK_WIDGET(sdialog);
+}
+void
+loqui_select_dialog_construct_channel_entry_list(LoquiSelectDialog *sdialog)
+{
+	LoquiSelectDialogPrivate *priv;
+	LoquiChannelEntry *chent;
+	LoquiAccountManagerIter iter;
+	GtkTreeIter iter_tree;
+	LoquiAccount *account;
+	LoquiChannel *channel;
+	const gchar *account_name, *channel_name;
+	priv = sdialog->priv;
+	
+	loqui_account_manager_iter_init(loqui_app_get_account_manager(priv->app), &iter);
+	loqui_account_manager_iter_set_first_channel_entry(&iter);
+	while ((chent = loqui_account_manager_iter_channel_entry_next(&iter)) != NULL) {
+		loqui_channel_entry_utils_separate(chent, &account, &channel);
+
+		account_name = account ? loqui_channel_entry_get_name(LOQUI_CHANNEL_ENTRY(account)) : "";
+		channel_name = channel ? loqui_channel_entry_get_name(LOQUI_CHANNEL_ENTRY(channel)) : "";
+
+		gtk_list_store_append(priv->store,
+				      &iter_tree);
+
+		gtk_list_store_set(priv->store,
+				   &iter_tree,
+				   COLUMN_CHANNEL_NUMBER, loqui_channel_entry_get_position(chent),
+				   COLUMN_ACCOUNT_NAME, account_name,
+				   COLUMN_CHANNEL_NAME, channel_name,
+				   COLUMN_CHANNEL_ENTRY, chent,
+				   -1);
+	}
 }

@@ -635,9 +635,17 @@ loqui_app_actions_select_buffer_cb(GtkAction *action, LoquiApp *app)
 {
 	GtkWidget *sdialog;
 
-	sdialog = loqui_select_dialog_new();
+	sdialog = loqui_select_dialog_new(app);
+	loqui_select_dialog_construct_channel_entry_list(LOQUI_SELECT_DIALOG(sdialog));
 	gtk_widget_show_all(sdialog);
-	gtk_dialog_run(GTK_DIALOG(sdialog));
+	switch (gtk_dialog_run(GTK_DIALOG(sdialog))) {
+	case GTK_RESPONSE_OK:
+		break;
+	case GTK_RESPONSE_CANCEL:
+	default:
+		break;
+	}
+	gtk_widget_destroy(sdialog);
 }
 static void
 loqui_app_actions_clear_all_unread_flags_cb(GtkAction *action, LoquiApp *app)
@@ -648,7 +656,7 @@ loqui_app_actions_clear_all_unread_flags_cb(GtkAction *action, LoquiApp *app)
 	loqui_account_manager_iter_init(loqui_app_get_account_manager(app), &iter);
 	loqui_account_manager_iter_set_first_channel_entry(&iter);
 	while ((chent = loqui_account_manager_iter_channel_entry_next(&iter)) != NULL)
-		loqui_channel_entry_set_as_read(chent);
+		loqui_channel_entry_set_as_read(chent);	
 }
 static void
 loqui_app_actions_join_cb(GtkAction *action, LoquiApp *app)

@@ -21,6 +21,7 @@
 #define __LOQUI_SELECT_DIALOG_H__
 
 #include <gtk/gtk.h>
+#include "loqui_app.h"
 
 G_BEGIN_DECLS
 
@@ -51,7 +52,9 @@ struct _LoquiSelectDialogClass
 
 GType loqui_select_dialog_get_type(void) G_GNUC_CONST;
 
-GtkWidget* loqui_select_dialog_new(void);
+GtkWidget* loqui_select_dialog_new(LoquiApp *app);
+void loqui_select_dialog_construct_channel_entry_list(LoquiSelectDialog *sdialog);
+
 G_END_DECLS
 
 #endif /* __LOQUI_SELECT_DIALOG_H__ */
