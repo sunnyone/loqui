@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: loqui 0.1.20\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2004-05-04 14:09+0900\n"
+"POT-Creation-Date: 2004-05-04 14:44+0900\n"
 "PO-Revision-Date: 2002-11-10 13:17+0900\n"
 "Last-Translator: Yoichi Imai <yoichi@silver-forest.com>\n"
 "Language-Team: Japanese <ja@li.org>\n"
@@ -945,7 +945,7 @@ msgstr ""
 msgid "Do sort or don't sort"
 msgstr ""
 
-#: src/loqui_channel_entry_action.c:217 src/loqui_channel_entry_action.c:218
+#: src/loqui_channel_entry_action.c:225 src/loqui_channel_entry_action.c:226
 msgid "ChannelEntry"
 msgstr "チャンネルエントリ"
 

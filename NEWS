@@ -199,3 +199,7 @@
 * Bugfix: failed to remove account
 * Created menuitems to connect/reconnect/disconnect.
 
+2004-05-04   0.3.3
+* Feature: Jump to next/previous keyword.
+* Set different color when the channel has normal message / notice message / keyword.
+
