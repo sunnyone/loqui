@@ -481,7 +481,7 @@ loqui_channel_text_view_iter_activated(LoquiChannelTextView *chview, LoquiChanne
 			gtkutils_exec_command_argument_with_error_dialog(browser_command, uri_str);
 			g_free(browser_command);
 		} else {
-			g_warning(_("Failed to get browser command."));
+			g_warning(_("Failed to get the browser command."));
 		}
 		g_free(uri_str);
 	}
