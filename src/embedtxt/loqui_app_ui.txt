@@ -23,6 +23,7 @@
       <menuitem name="Connect" action="Connect"/>
       <placeholder>
         <menuitem name="ConnectCurrentAccount" action="ConnectCurrentAccount"/>
+	<menuitem name="CancelPendingReconnectingCurrentAccount" action="CancelPendingReconnectingCurrentAccount" />
         <menuitem name="ReconnectCurrentAccount" action="ReconnectCurrentAccount"/>
         <menuitem name="DisconnectCurrentAccount" action="DisconnectCurrentAccount"/>
 	<menuitem name="TerminateCurrentAccount" action="TerminateCurrentAccount"/>
@@ -112,6 +113,7 @@
   <popup name="AccountPopup" action="AccountPopup">
     <placeholder>
       <menuitem name="ConnectCurrentAccount" action="ConnectCurrentAccount"/>
+      <menuitem name="CancelPendingReconnectingCurrentAccount" action="CancelPendingReconnectingCurrentAccount" />
       <menuitem name="ReconnectCurrentAccount" action="ReconnectCurrentAccount"/>
       <menuitem name="DisconnectCurrentAccount" action="DisconnectCurrentAccount"/>
       <menuitem name="TerminateCurrentAccount" action="TerminateCurrentAccount"/>

@@ -320,9 +320,9 @@ loqui_account_irc_conn_error_cb(GConn *conn, LoquiAccountIRC *account)
 	priv = account->priv;
 
 	if (!priv->is_conn_connected) {
-		loqui_account_information(LOQUI_ACCOUNT(account), _("Failed to connect."));
+		loqui_account_warning(LOQUI_ACCOUNT(account), _("Failed to connect."));
 	} else {
-		loqui_account_information(LOQUI_ACCOUNT(account), _("An error occured on connection."));
+		loqui_account_warning(LOQUI_ACCOUNT(account), _("An error occured on connection."));
 	}
 
 	priv->is_conn_connected = FALSE;

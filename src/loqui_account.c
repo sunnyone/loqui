@@ -48,11 +48,14 @@ enum {
 	PROP_SENDER,
 	PROP_RECEIVER,
 	PROP_IS_CONNECTED,
+	PROP_IS_PENDING_RECONNECTING,
 	LAST_PROP
 };
 
 struct _LoquiAccountPrivate
 {
+	gint reconnect_timer;
+
 	LoquiProfileAccount *profile;
 };
 
@@ -166,6 +169,13 @@ loqui_account_class_init(LoquiAccountClass *klass)
 							     _("IsConnected"),
 							     _("Connected or not"),
 							     FALSE, G_PARAM_READWRITE));
+	g_object_class_install_property(object_class,
+					PROP_IS_PENDING_RECONNECTING,
+					g_param_spec_boolean("is_pending_reconnecting",
+							     _("IsPending_Reconnecting"),
+							     _("Pending_Reconnecting or not"),
+							     FALSE, G_PARAM_READWRITE));
+
 
 	account_signals[SIGNAL_CONNECT] = g_signal_new("connect",
 						       G_OBJECT_CLASS_TYPE(object_class),
@@ -246,6 +256,7 @@ loqui_account_init(LoquiAccount *account)
 	account->identifier_user_table = g_hash_table_new_full(utils_strcase_hash, utils_strcase_equal, g_free, NULL);
 
 	account->is_connected = FALSE;
+	account->is_pending_reconnecting = FALSE;
 	account->reconnect_try_count = 0;
 }
 static void 
@@ -314,6 +325,9 @@ loqui_account_set_property(GObject *object,
 	case PROP_IS_CONNECTED:
 		loqui_account_set_is_connected(account, g_value_get_boolean(value));
 		break;
+	case PROP_IS_PENDING_RECONNECTING:
+		loqui_account_set_is_pending_reconnecting(account, g_value_get_boolean(value));
+		break;
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, param_id, pspec);
 		break;
@@ -345,6 +359,9 @@ loqui_account_get_property(GObject  *object,
 		break;
 	case PROP_IS_CONNECTED:
 		g_value_set_boolean(value, account->is_connected);
+		break;
+	case PROP_IS_PENDING_RECONNECTING:
+		g_value_set_boolean(value, account->is_pending_reconnecting);
 		break;
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, param_id, pspec);
@@ -379,14 +396,29 @@ loqui_account_terminate_real(LoquiAccount *account)
 {
 	account->reconnect_try_count = 0;
 }
+static gboolean
+loqui_account_reconnect_timeout_cb(LoquiAccount *account)
+{
+	loqui_account_information(LOQUI_ACCOUNT(account), _("Trying to reconnect..."));
+	account->priv->reconnect_timer = 0;
+	loqui_account_set_is_pending_reconnecting(account, FALSE);
+	loqui_account_connect(account);
+
+	return FALSE;
+}
 static void
 loqui_account_closed_real(LoquiAccount *account)
 {
+	LoquiAccountPrivate *priv;
+
+	priv = account->priv;
+
 	if (prefs_general.auto_reconnect) {
 		if (account->reconnect_try_count <= LOQUI_ACCOUNT_RECONNECT_COUNT_MAX) {
-			loqui_account_information(LOQUI_ACCOUNT(account), _("Trying to reconnect..."));
+			loqui_account_information(LOQUI_ACCOUNT(account), _("Waiting to reconnect..."));
+			loqui_account_set_is_pending_reconnecting(account, TRUE);
+			priv->reconnect_timer = g_timeout_add(LOQUI_ACCOUNT_RECONNECT_INTERVAL, (GSourceFunc) loqui_account_reconnect_timeout_cb, account);
 			account->reconnect_try_count++;
-			loqui_account_connect(LOQUI_ACCOUNT(account));
 		} else {
 			loqui_account_information(LOQUI_ACCOUNT(account), _("Reconnect count over."));
 			account->reconnect_try_count = 0;
@@ -506,13 +538,20 @@ loqui_account_set_receiver(LoquiAccount *account, LoquiReceiver *receiver)
 void
 loqui_account_connect(LoquiAccount *account)
 {
+	LoquiAccountPrivate *priv;
+
         g_return_if_fail(account != NULL);
         g_return_if_fail(LOQUI_IS_ACCOUNT(account));
 	
+	priv = account->priv;
+
 	if (!LOQUI_ACCOUNT_GET_CLASS(account)->connect) {
 		g_warning("LoquiAccount#connect is not implemented.");
 		return;
 	}
+
+	if (loqui_account_get_is_pending_reconnecting(account))
+		loqui_account_cancel_pending_reconnecting(account);
 
 	g_signal_emit(G_OBJECT(account), account_signals[SIGNAL_CONNECT], 0);
 }
@@ -531,6 +570,23 @@ loqui_account_terminate(LoquiAccount *account)
         g_return_if_fail(LOQUI_IS_ACCOUNT(account));
 
 	g_signal_emit(G_OBJECT(account), account_signals[SIGNAL_TERMINATE], 0);
+}
+void
+loqui_account_cancel_pending_reconnecting(LoquiAccount *account)
+{
+	LoquiAccountPrivate *priv;
+
+        g_return_if_fail(account != NULL);
+        g_return_if_fail(LOQUI_IS_ACCOUNT(account));
+
+	priv = account->priv;
+
+	if (priv->reconnect_timer != 0) {
+		g_source_remove(priv->reconnect_timer);
+		priv->reconnect_timer = 0;
+		loqui_account_information(account, _("Canceled pended reconnecting."));
+	}
+	loqui_account_set_is_pending_reconnecting(account, FALSE);
 }
 void
 loqui_account_closed(LoquiAccount *account)
@@ -805,4 +861,25 @@ loqui_account_get_is_connected(LoquiAccount *account)
         g_return_val_if_fail(LOQUI_IS_ACCOUNT(account), 0);
 
 	return account->is_connected;
+}
+void
+loqui_account_set_is_pending_reconnecting(LoquiAccount *account, gboolean is_pending_reconnecting)
+{
+	g_return_if_fail(account != NULL);
+        g_return_if_fail(LOQUI_IS_ACCOUNT(account));
+
+	if (account->is_pending_reconnecting == is_pending_reconnecting)
+		return;
+
+	account->is_pending_reconnecting = is_pending_reconnecting;
+
+	g_object_notify(G_OBJECT(account), "is-pending-reconnecting");
+}
+gboolean
+loqui_account_get_is_pending_reconnecting(LoquiAccount *account)
+{
+        g_return_val_if_fail(account != NULL, 0);
+        g_return_val_if_fail(LOQUI_IS_ACCOUNT(account), 0);
+
+	return account->is_pending_reconnecting;
 }

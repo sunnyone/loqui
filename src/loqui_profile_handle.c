@@ -313,7 +313,7 @@ start_element_handler(GMarkupParseContext *context,
            			    G_MARKUP_ERROR,
            			    G_MARKUP_ERROR_INVALID_CONTENT,
            			    _("Invalid param key"));
-           		return;;
+           		return;
 		}
 		g_queue_push_tail(priv->pspec_queue, pspec);
 		g_queue_push_tail(priv->element_queue, GINT_TO_POINTER(ELEMENT_PARAM));

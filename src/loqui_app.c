@@ -620,6 +620,8 @@ loqui_app_new(LoquiAccountManager *account_manager)
 
 	loqui_app_create_tray_icon(app);
 
+	loqui_app_actions_update_sensitivity_related_channel(app);
+
 	return GTK_WIDGET(app);
 }
 void

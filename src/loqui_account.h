@@ -44,6 +44,7 @@ typedef struct _LoquiAccountPrivate     LoquiAccountPrivate;
 
 #define LOQUI_ACCOUNT_USER_SELF_ACCOUNT_KEY "parent-account"
 #define LOQUI_ACCOUNT_RECONNECT_COUNT_MAX 5
+#define LOQUI_ACCOUNT_RECONNECT_INTERVAL 30000
 
 struct _LoquiAccount
 {
@@ -63,6 +64,7 @@ struct _LoquiAccount
 	LoquiReceiver *receiver;
 
 	gboolean is_connected;
+	gboolean is_pending_reconnecting;
 
 	gint reconnect_try_count;
 
@@ -105,6 +107,8 @@ void loqui_account_connect(LoquiAccount *account);
 void loqui_account_disconnect(LoquiAccount *account);
 void loqui_account_terminate(LoquiAccount *account);
 
+void loqui_account_cancel_pending_reconnecting(LoquiAccount *account);
+
 /* send signal */
 void loqui_account_closed(LoquiAccount *account);
 
@@ -135,6 +139,9 @@ void loqui_account_information(LoquiAccount *account, const gchar *format, ...) 
 
 void loqui_account_set_is_connected(LoquiAccount *account, gboolean is_connected);
 gboolean loqui_account_get_is_connected(LoquiAccount *account);
+
+void loqui_account_set_is_pending_reconnecting(LoquiAccount *account, gboolean is_pending_reconnecting);
+gboolean loqui_account_get_is_pending_reconnecting(LoquiAccount *account);
 
 G_END_DECLS
 

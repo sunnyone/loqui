@@ -47,6 +47,7 @@ static void loqui_app_actions_account_settings_cb(GtkAction *action, LoquiApp *a
 static void loqui_app_actions_connect_cb(GtkAction *action, LoquiApp *app);
 
 static void loqui_app_actions_connect_current_account_cb(GtkAction *action, LoquiApp *app);
+static void loqui_app_actions_cancel_pending_reconnecting_current_account_cb(GtkAction *action, LoquiApp *app);
 static void loqui_app_actions_disconnect_current_account_cb(GtkAction *action, LoquiApp *app);
 static void loqui_app_actions_reconnect_current_account_cb(GtkAction *action, LoquiApp *app);
 static void loqui_app_actions_terminate_current_account_cb(GtkAction *action, LoquiApp *app);
@@ -124,6 +125,7 @@ static GtkActionEntry loqui_action_entries[] =
         {"Connect",              NULL, N_("_Connect"), NULL, NULL, G_CALLBACK(loqui_app_actions_connect_cb)},
 
 	{LOQUI_ACTION_CONNECT_CURRENT_ACCOUNT, NULL, N_("_Connect Current Account"), NULL, NULL, G_CALLBACK(loqui_app_actions_connect_current_account_cb)},
+	{LOQUI_ACTION_CANCEL_PENDING_RECONNECTING_CURRENT_ACCOUNT,  NULL, N_("_Cancel Pending Reconnecting Current Account"), NULL, NULL, G_CALLBACK(loqui_app_actions_cancel_pending_reconnecting_current_account_cb)},
 	{LOQUI_ACTION_RECONNECT_CURRENT_ACCOUNT, NULL, N_("_Reconnect Current Account"), NULL, NULL, G_CALLBACK(loqui_app_actions_reconnect_current_account_cb)},
 	{LOQUI_ACTION_DISCONNECT_CURRENT_ACCOUNT, NULL, N_("_Disconnect Current Account"), NULL, NULL, G_CALLBACK(loqui_app_actions_disconnect_current_account_cb)},
 	{LOQUI_ACTION_TERMINATE_CURRENT_ACCOUNT, NULL, N_("_Terminate Current Account"), NULL, NULL, G_CALLBACK(loqui_app_actions_terminate_current_account_cb)},
@@ -235,7 +237,7 @@ loqui_app_actions_update_sensitivity_related_channel(LoquiApp *app)
 	LoquiAccount *account;
 	LoquiChannel *channel;
 	gboolean is_connected, is_joined, is_private_talk;
-
+	
 	chent = loqui_app_get_current_channel_entry(app);
 
 	if (chent == NULL) {
@@ -247,6 +249,7 @@ loqui_app_actions_update_sensitivity_related_channel(LoquiApp *app)
 		ACTION_GROUP_ACTION_SET_SENSITIVE(app->action_group, LOQUI_ACTION_START_PRIVATE_TALK, FALSE);
 		
 		ACTION_GROUP_ACTION_SET_SENSITIVE(app->action_group, LOQUI_ACTION_CONNECT_CURRENT_ACCOUNT, FALSE);
+		ACTION_GROUP_ACTION_SET_SENSITIVE(app->action_group, LOQUI_ACTION_CANCEL_PENDING_RECONNECTING_CURRENT_ACCOUNT, FALSE);
 		ACTION_GROUP_ACTION_SET_SENSITIVE(app->action_group, LOQUI_ACTION_RECONNECT_CURRENT_ACCOUNT, FALSE);
 		ACTION_GROUP_ACTION_SET_SENSITIVE(app->action_group, LOQUI_ACTION_DISCONNECT_CURRENT_ACCOUNT, FALSE);
 		ACTION_GROUP_ACTION_SET_SENSITIVE(app->action_group, LOQUI_ACTION_TERMINATE_CURRENT_ACCOUNT, FALSE);
@@ -264,6 +267,9 @@ loqui_app_actions_update_sensitivity_related_channel(LoquiApp *app)
 	ACTION_GROUP_ACTION_SET_SENSITIVE(app->action_group, LOQUI_ACTION_RECONNECT_CURRENT_ACCOUNT, is_connected);
 	ACTION_GROUP_ACTION_SET_SENSITIVE(app->action_group, LOQUI_ACTION_DISCONNECT_CURRENT_ACCOUNT, is_connected);
 	ACTION_GROUP_ACTION_SET_SENSITIVE(app->action_group, LOQUI_ACTION_TERMINATE_CURRENT_ACCOUNT, is_connected);
+
+	ACTION_GROUP_ACTION_SET_SENSITIVE(app->action_group, LOQUI_ACTION_CANCEL_PENDING_RECONNECTING_CURRENT_ACCOUNT,
+					  loqui_account_get_is_pending_reconnecting(account));
 
 	channel = loqui_app_get_current_channel(app);
 	is_joined = (channel != NULL && !loqui_channel_get_is_private_talk(channel) && loqui_channel_get_is_joined(channel));
@@ -322,6 +328,16 @@ loqui_app_actions_connect_current_account_cb(GtkAction *action, LoquiApp *app)
 	account = loqui_app_get_current_account(app);
 	if (account)
 		loqui_account_connect(account);
+}
+static void
+loqui_app_actions_cancel_pending_reconnecting_current_account_cb(GtkAction *action, LoquiApp *app)
+{
+	LoquiAccount *account;
+
+	account = loqui_app_get_current_account(app);
+	if (account && loqui_account_get_is_pending_reconnecting(account)) {
+		loqui_account_cancel_pending_reconnecting(account);
+	}
 }
 static void
 loqui_app_actions_reconnect_current_account_cb(GtkAction *action, LoquiApp *app)

@@ -39,6 +39,7 @@ void loqui_app_actions_update_sensitivity_related_channel(LoquiApp *app);
 #define LOQUI_ACTION_TOGGLE_SCROLL_COMMON_BUFFER "ToggleScrollCommonBuffer"
 
 #define LOQUI_ACTION_CONNECT_CURRENT_ACCOUNT "ConnectCurrentAccount"
+#define LOQUI_ACTION_CANCEL_PENDING_RECONNECTING_CURRENT_ACCOUNT "CancelPendingReconnectingCurrentAccount"
 #define LOQUI_ACTION_RECONNECT_CURRENT_ACCOUNT "ReconnectCurrentAccount"
 #define LOQUI_ACTION_DISCONNECT_CURRENT_ACCOUNT "DisconnectCurrentAccount"
 #define LOQUI_ACTION_TERMINATE_CURRENT_ACCOUNT "TerminateCurrentAccount"
