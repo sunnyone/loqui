@@ -72,7 +72,6 @@ void account_manager_set_current_account(AccountManager *manager, Account *accou
 Account *account_manager_get_current_account(AccountManager *manager);
 
 void account_manager_set_fresh(AccountManager *manager, Account *account, Channel *channel);
-void account_manager_speak(AccountManager *manager, const gchar *str);
 void account_manager_update_channel_user_number(AccountManager *manager, Channel *channel);
 
 gboolean account_manager_is_current_account(AccountManager *manager, Account *account);

@@ -208,13 +208,17 @@ static void loqui_app_restore_size(LoquiApp *app)
 static void
 loqui_app_entry_activate_cb(GtkWidget *widget, gpointer data)
 {
+	Account *account;
 	const gchar *str;
 
 	str = gtk_entry_get_text(GTK_ENTRY(widget));
 	if(str == NULL || strlen(str) == 0)
 		return;
 	
-	account_manager_speak(account_manager_get(), str);
+	account = account_manager_get_current_account(account_manager_get());
+	if(account)
+		account_speak(account, account_manager_get_current_channel(account_manager_get()), str);
+
 	gtk_entry_set_text(GTK_ENTRY(widget), "");
 }
 static void

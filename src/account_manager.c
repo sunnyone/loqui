@@ -358,28 +358,6 @@ account_manager_search_account(AccountManager *manager, Channel *channel)
 }
 #endif
 
-void account_manager_speak(AccountManager *manager, const gchar *str)
-{
-	AccountManagerPrivate *priv;
-	Account *account;
-
-        g_return_if_fail(manager != NULL);
-        g_return_if_fail(IS_ACCOUNT_MANAGER(manager));
-	g_return_if_fail(str != NULL);
-
-	priv = manager->priv;
-	g_return_if_fail(priv->current_account != NULL || priv->current_channel != NULL);
-	
-	if(priv->current_channel)
-		account = priv->current_channel->account;
-	else
-		account = priv->current_account;
-
-	if(account == NULL)
-		return;
-
-	account_speak(account, priv->current_channel, str);
-}
 AccountManager *
 account_manager_get(void)
 {
