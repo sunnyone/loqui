@@ -192,7 +192,7 @@ account_manager_remove_channel(AccountManager *manager, Account *account, Channe
         g_return_if_fail(IS_ACCOUNT_MANAGER(manager));
 
 	account_manager_remove_channel_text(manager, channel->text);
-//	channel_tree_remove_channel(manager->priv->app->channel_tree, channel);
+	channel_tree_remove_channel(manager->priv->app->channel_tree, channel);
 }
 void
 account_manager_set_current(AccountManager *manager, Account *account, Channel *channel)

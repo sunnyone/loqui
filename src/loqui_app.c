@@ -243,7 +243,7 @@ loqui_app_new (void)
 	/* TODO: this should be replaced with a widget considered multiline editing */
 	entry = gtk_entry_new();
 	gtk_box_pack_end(GTK_BOX(vbox), entry, FALSE, FALSE, 0);
-	gtk_window_set_focus(GTK_WINDOW(app), entry);
+	gtk_widget_grab_focus(entry);
 	g_signal_connect(G_OBJECT(entry), "activate",
                          G_CALLBACK(loqui_app_entry_activate_cb), NULL);
 
