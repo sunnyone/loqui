@@ -50,6 +50,7 @@ struct _PrefsDialogPrivate
 	GtkWidget *check_save_log;
 	
 	GtkWidget *check_use_notification;
+	GtkWidget *check_exec_notification_by_notice;
 	GtkWidget *textview_highlight;
 
 	GtkWidget *check_use_transparent_ignore;
@@ -163,6 +164,7 @@ prefs_dialog_load_settings(PrefsDialog *dialog)
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(priv->check_parse_plum_recent), prefs_general.parse_plum_recent);
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(priv->check_save_size), prefs_general.save_size);
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(priv->check_use_notification), prefs_general.use_notification);
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(priv->check_exec_notification_by_notice), prefs_general.exec_notification_by_notice);
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(priv->check_use_transparent_ignore), prefs_general.use_transparent_ignore);
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(priv->check_auto_reconnect), prefs_general.auto_reconnect);
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(priv->check_connect_startup), prefs_general.connect_startup);
@@ -199,6 +201,7 @@ prefs_dialog_save_settings(PrefsDialog *dialog)
 	prefs_general.parse_plum_recent = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(priv->check_parse_plum_recent));
 	prefs_general.use_transparent_ignore = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(priv->check_use_transparent_ignore));
 	prefs_general.use_notification = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(priv->check_use_notification));
+	prefs_general.exec_notification_by_notice = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(priv->check_exec_notification_by_notice));
 	prefs_general.auto_reconnect = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(priv->check_auto_reconnect));
 	prefs_general.connect_startup = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(priv->check_connect_startup));
 	prefs_general.select_channel_joined = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(priv->check_select_channel_joined));
@@ -317,6 +320,9 @@ prefs_dialog_new(LoquiApp *app)
 
 	priv->check_use_notification = gtk_check_button_new_with_label(_("Use notification"));
 	gtk_box_pack_start(GTK_BOX(vbox), priv->check_use_notification, FALSE, FALSE, 0);
+
+	priv->check_exec_notification_by_notice = gtk_check_button_new_with_label(_("Execute notification by NOTICE"));
+	gtk_box_pack_start(GTK_BOX(vbox), priv->check_exec_notification_by_notice, FALSE, FALSE, 0);
 
 	frame = gtkutils_create_framed_textview(&priv->textview_highlight,
 						_("Highlighting keywords(Separate each words with linefeeds)"));

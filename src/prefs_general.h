@@ -73,6 +73,7 @@ typedef struct _PrefsGeneral {
 	gchar *browser_command;
 
 	gboolean use_notification;
+	gboolean exec_notification_by_notice;
 	gchar *notification_command;
 
 	gboolean auto_switch_scrolling;

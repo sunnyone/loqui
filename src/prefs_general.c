@@ -47,6 +47,7 @@ PrefElement prefs_general_defs[] = {
 	{"browser_command", "mozilla %s", PREF_TYPE_STRING, &prefs_general.browser_command},
 
 	{"use_notification", "true", PREF_TYPE_BOOLEAN, &prefs_general.use_notification },
+	{"exec_notification_by_notice", "false", PREF_TYPE_BOOLEAN, &prefs_general.exec_notification_by_notice },
 	{"notification_command", "esdplay /usr/share/sounds/email.wav", PREF_TYPE_STRING, &prefs_general.notification_command},
 
 	{"auto_switch_scrolling", "true", PREF_TYPE_BOOLEAN, &prefs_general.auto_switch_scrolling },

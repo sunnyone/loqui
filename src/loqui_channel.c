@@ -555,6 +555,9 @@ loqui_channel_append_remark(LoquiChannel *channel, TextType type, gboolean is_se
 		}
 	}
 
+	if (!prefs_general.exec_notification_by_notice && type == TEXT_TYPE_NOTICE)
+		exec_notification = FALSE;
+	
 	channel_buffer_append_message_text(buffer, msgtext, FALSE, exec_notification);
 	g_object_unref(msgtext);
 }
