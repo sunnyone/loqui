@@ -31,6 +31,9 @@ requires 2.0.0
 /* FIXME */
 typedef void (*LoquiPrefChangedFunction) (gpointer pref, const gchar *group_name, const gchar *key, gpointer data);
 %}
+%{
+#define IS_NOT_FOUND_ERROR(tmp_err) (tmp_err->domain == LQG_KEY_FILE_ERROR && (tmp_err->code == LQG_KEY_FILE_ERROR_NOT_FOUND || tmp_err->code == LQG_KEY_FILE_ERROR_GROUP_NOT_FOUND))
+%}
 
 class Loqui:Pref from G:Object
 {
@@ -123,38 +126,75 @@ class Loqui:Pref from G:Object
 		self_changed(self, group_name, key);
 	}
 
-	public void set_string_default(self, const gchar *group_name, const gchar *key, const gchar *default_value) {
-		if (lqg_key_file_has_key(selfp->keyfile, group_name, key, NULL))
+	public gboolean has_key(self, const gchar *group_name, const gchar *key, GError **error) {
+		return lqg_key_file_has_key(selfp->keyfile, group_name, key, error);
+	}
+
+	public void set_default_string(self, const gchar *group_name, const gchar *key, const gchar *default_value) {
+		if (self_has_key(self, group_name, key, NULL))
 			return;
 		self_set_string(self, group_name, key, default_value);
 	}
-	public void set_integer_default(self, const gchar *group_name, const gchar *key, gint default_value) {
-		if (lqg_key_file_has_key(selfp->keyfile, group_name, key, NULL))
+	public void set_default_integer(self, const gchar *group_name, const gchar *key, gint default_value) {
+		if (self_has_key(self, group_name, key, NULL))
 			return;
 		self_set_integer(self, group_name, key, default_value);
 	}
-	public void set_boolean_default(self, const gchar *group_name, const gchar *key, gboolean default_value) {
-		if (lqg_key_file_has_key(selfp->keyfile, group_name, key, NULL))
+	public void set_default_boolean(self, const gchar *group_name, const gchar *key, gboolean default_value) {
+		if (self_has_key(self, group_name, key, NULL))
 			return;
 		self_set_boolean(self, group_name, key, default_value);
 	}
-	public void set_string_list_default(self, const gchar *group_name, const gchar *key, gchar **default_value, gsize length) {
-		if (lqg_key_file_has_key(selfp->keyfile, group_name, key, NULL))
+	public void set_default_string_list(self, const gchar *group_name, const gchar *key, gchar **default_value, gsize length) {
+		if (self_has_key(self, group_name, key, NULL))
 			return;
 		self_set_string_list(self, group_name, key, default_value, length);
 	}
 
+	public gchar *get_with_default_string(self, const gchar *group_name (check null), const gchar *key (check null), const gchar *default_value, GError **error) onerror NULL {
+		GError *tmp_err = NULL;
+		gchar *tmp;
+		if ((tmp = self_get_string(self, group_name, key, &tmp_err)) == NULL) {
+			if (IS_NOT_FOUND_ERROR(tmp_err)) {
+				g_error_free(tmp_err);
+				return g_strdup(default_value);
+			} else {
+				g_propagate_error(error, tmp_err);
+				return NULL;
+			}
+		}
+		return tmp;
+	}
+	public gint get_with_default_integer(self, const gchar *group_name (check null), const gchar *key (check null), gint default_value, GError **error) {
+		GError *tmp_err = NULL;
+		gint tmp;
 
-	public gchar *set_default_and_get_string(self, const gchar *group_name, const gchar *key, const gchar *default_value, GError **error) {
-		self_set_string_default(self, group_name, key, default_value);
-		return self_get_string(self, group_name, key, error);
+		tmp = self_get_integer(self, group_name, key, &tmp_err);
+		if (tmp_err != NULL) {
+			if (IS_NOT_FOUND_ERROR(tmp_err)) {
+				g_error_free(tmp_err);
+				return default_value;
+			} else {
+				g_propagate_error(error, tmp_err);
+				return 0;
+			}
+		}
+		return tmp;
 	}
-	public gint set_default_and_get_integer(self, const gchar *group_name, const gchar *key, gint default_value, GError **error) {
-		self_set_integer_default(self, group_name, key, default_value);
-		return self_get_integer(self, group_name, key, error);
-	}
-	public gboolean set_default_and_get_boolean(self, const gchar *group_name, const gchar *key, gboolean default_value, GError **error) {
-		self_set_boolean_default(self, group_name, key, default_value);
-		return self_get_boolean(self, group_name, key, error);
+	public gboolean get_with_default_boolean(self, const gchar *group_name (check null), const gchar *key (check null), gboolean default_value, GError **error) {
+		GError *tmp_err = NULL;
+		gboolean tmp;
+
+		tmp = self_get_boolean(self, group_name, key, &tmp_err);
+		if (tmp_err != NULL) {
+			if (IS_NOT_FOUND_ERROR(tmp_err)) {
+				g_error_free(tmp_err);
+				return default_value;
+			} else {
+				g_propagate_error(error, tmp_err);
+				return 0;
+			}
+		}
+		return tmp;
 	}
 }
