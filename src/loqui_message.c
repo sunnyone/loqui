@@ -26,6 +26,9 @@
 #include <string.h>
 #include <gobject/gvaluecollector.h>
 
+#include "loqui_user.h"
+#include "loqui_channel.h"
+
 enum {
         LAST_SIGNAL
 };
@@ -162,6 +165,118 @@ loqui_message_class_init(LoquiMessageClass *klass)
 							    _("Command"),
 							    _("Command"),
 							    NULL, G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
+	loqui_message_class_install_command(klass,
+					    LOQUI_COMMAND_UNHANDLED,
+					    LOQUI_COMMAND_FLAG_RECEIVE,
+					    "text", G_TYPE_STRING,
+					    NULL);
+	loqui_message_class_install_command(klass,
+					    LOQUI_COMMAND_ERROR,
+					    LOQUI_COMMAND_FLAG_RECEIVE,
+					    "text", G_TYPE_STRING,
+					    NULL);
+	loqui_message_class_install_command(klass,
+					    LOQUI_COMMAND_GLOBAL_INFO,
+					    LOQUI_COMMAND_FLAG_RECEIVE,
+					    "text", G_TYPE_STRING,
+					    NULL);
+	loqui_message_class_install_command(klass,
+					    LOQUI_COMMAND_CHANNEL_INFO,
+					    LOQUI_COMMAND_FLAG_RECEIVE,
+					    "channel", LOQUI_TYPE_CHANNEL,
+					    "text", G_TYPE_STRING,
+					    NULL);
+	loqui_message_class_install_command(klass,
+					    LOQUI_COMMAND_USER_INFO,
+					    LOQUI_COMMAND_FLAG_RECEIVE,
+					    "user", LOQUI_TYPE_USER,
+					    "text", G_TYPE_STRING,
+					    NULL);
+	
+	
+	loqui_message_class_install_command(klass,
+					    LOQUI_COMMAND_MESSAGE,
+					    LOQUI_COMMAND_FLAG_RECEIVE | LOQUI_COMMAND_FLAG_SEND ,
+					    "channel", LOQUI_TYPE_CHANNEL,
+					    "user", LOQUI_TYPE_USER,
+					    "text", G_TYPE_STRING,
+					    "is-weak", G_TYPE_BOOLEAN,
+					    /* "keyword-region-list", LOQUI_TYPE_BOXED_LIST, */
+					    NULL);
+
+
+	loqui_message_class_install_command(klass,
+					    LOQUI_COMMAND_NICK,
+					    LOQUI_COMMAND_FLAG_RECEIVE | LOQUI_COMMAND_FLAG_SEND,
+					    "user", LOQUI_TYPE_USER,
+					    "nick-old", G_TYPE_STRING,
+					    "nick-new", G_TYPE_STRING,
+					    NULL);
+	loqui_message_class_install_command(klass,
+					    LOQUI_COMMAND_AWAY,
+					    LOQUI_COMMAND_FLAG_RECEIVE | LOQUI_COMMAND_FLAG_SEND,
+					    "user", LOQUI_TYPE_USER,
+					    "away", G_TYPE_INT, /* LoquiAwayType */
+					    "away-message", G_TYPE_BOOLEAN,
+					    NULL);
+/*	loqui_message_class_install_command(klass,
+					    LOQUI_COMMAND_WHO,
+					    LOQUI_COMMAND_FLAG_RECEIVE | LOQUI_COMMAND_FLAG_SEND,
+					    "user", LOQUI_TYPE_USER,
+					    "text", G_TYPE_STRING,
+					    NULL);
+	loqui_message_class_install_command(klass,
+					    LOQUI_COMMAND_WHOIS,
+					    LOQUI_COMMAND_FLAG_RECEIVE | LOQUI_COMMAND_FLAG_SEND,
+					    "user", LOQUI_TYPE_USER,
+					    "text", G_TYPE_STRING,
+					    NULL); */
+	loqui_message_class_install_command(klass,
+					    LOQUI_COMMAND_QUIT,
+					    LOQUI_COMMAND_FLAG_RECEIVE | LOQUI_COMMAND_FLAG_SEND,
+					    "user", LOQUI_TYPE_USER,
+					    "text", G_TYPE_STRING,
+					    NULL);
+
+	loqui_message_class_install_command(klass,
+					    LOQUI_COMMAND_TOPIC,
+					    LOQUI_COMMAND_FLAG_RECEIVE | LOQUI_COMMAND_FLAG_SEND,
+					    "channel", LOQUI_TYPE_CHANNEL,
+					    "user", LOQUI_TYPE_USER,
+					    "text", G_TYPE_STRING,
+					    NULL);
+	loqui_message_class_install_command(klass,
+					    LOQUI_COMMAND_JOIN,
+					    LOQUI_COMMAND_FLAG_RECEIVE | LOQUI_COMMAND_FLAG_SEND,
+					    "channel", LOQUI_TYPE_CHANNEL,
+					    "user", LOQUI_TYPE_USER,
+					    "text", G_TYPE_STRING,
+					    NULL);
+	loqui_message_class_install_command(klass,
+					    LOQUI_COMMAND_PART,
+					    LOQUI_COMMAND_FLAG_RECEIVE | LOQUI_COMMAND_FLAG_SEND,
+					    "channel", LOQUI_TYPE_CHANNEL,
+					    "user", LOQUI_TYPE_USER,
+					    "text", G_TYPE_STRING,
+					    NULL);
+
+	loqui_message_class_install_command(klass,
+					    LOQUI_COMMAND_INVITE,
+					    LOQUI_COMMAND_FLAG_RECEIVE | LOQUI_COMMAND_FLAG_SEND,
+					    "channel", LOQUI_TYPE_CHANNEL,
+					    "inviter", LOQUI_TYPE_USER,
+					    "invitee", LOQUI_TYPE_USER,
+					    "text", G_TYPE_STRING,
+					    NULL);
+	loqui_message_class_install_command(klass,
+					    LOQUI_COMMAND_INVITE,
+					    LOQUI_COMMAND_FLAG_RECEIVE | LOQUI_COMMAND_FLAG_SEND,
+					    "channel", LOQUI_TYPE_CHANNEL,
+					    "kicker", LOQUI_TYPE_USER,
+					    "kickee", LOQUI_TYPE_USER,
+					    "text", G_TYPE_STRING,
+					    NULL);
+	
 }
 static void 
 loqui_message_init(LoquiMessage *message)
@@ -295,6 +410,7 @@ loqui_message_get_attribute(LoquiMessage *message, const gchar *first_attribute_
 void
 loqui_message_class_install_command(LoquiMessageClass *message_class,
 				    const gchar *name,
+				    LoquiMessageCommandFlags flags,
 				    const gchar *first_attribute_name,
 				    ...)
 {
@@ -309,6 +425,7 @@ loqui_message_class_install_command(LoquiMessageClass *message_class,
 
 	info = g_new0(LoquiMessageCommandInfo, 1);
 	info->name = g_strdup(name);
+	info->flags = flags;
 	g_datalist_init(&info->attr_def_dlist);
 
 	va_start(args, first_attribute_name);
