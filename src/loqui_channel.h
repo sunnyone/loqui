@@ -90,7 +90,7 @@ LoquiMember *loqui_channel_add_member_by_nick(LoquiChannel *channel,
 					      gboolean is_channel_operator,
 					      gboolean speakable);
 
-void loqui_channel_append_remark(LoquiChannel *channel, TextType type, gboolean is_self, const gchar *nick, const gchar *remark);
+void loqui_channel_append_remark(LoquiChannel *channel, TextType type, gboolean is_self, const gchar *nick, const gchar *remark, gboolean is_from_server);
 void loqui_channel_append_text(LoquiChannel *channel, TextType type, gchar *str);
 
 G_END_DECLS

@@ -718,7 +718,7 @@ account_speak(Account *account, LoquiChannel *channel, const gchar *str, gboolea
 			irc_connection_push_message(priv->connection, msg);
 			g_object_unref(msg);
 			loqui_channel_append_remark(channel, is_notice ? TEXT_TYPE_NOTICE : TEXT_TYPE_NORMAL,
-						    TRUE, loqui_user_get_nick(account->user_self), array[i]);
+						    TRUE, loqui_user_get_nick(account->user_self), array[i], FALSE);
 		}
 		g_strfreev(array);
 

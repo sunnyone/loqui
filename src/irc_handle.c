@@ -238,6 +238,7 @@ irc_handle_command_privmsg_notice(IRCHandle *handle, IRCMessage *msg)
 	gboolean is_self, is_priv;
 	LoquiUser *user;
 	LoquiMember *member;
+	gboolean is_from_server;
 
         g_return_if_fail(handle != NULL);
         g_return_if_fail(IS_IRC_HANDLE(handle));
@@ -304,7 +305,8 @@ irc_handle_command_privmsg_notice(IRCHandle *handle, IRCMessage *msg)
 			g_object_unref(channel);
 		}
 		sender = msg->nick ? msg->nick : msg->prefix;
-		loqui_channel_append_remark(channel, type, is_self, sender, remark);
+		is_from_server = (msg->nick == NULL) ? TRUE : FALSE;
+		loqui_channel_append_remark(channel, type, is_self, sender, remark, is_from_server);
 
 		if (msg->nick &&
 		    (user = account_peek_user(priv->account, msg->nick)) != NULL &&

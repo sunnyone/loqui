@@ -511,7 +511,7 @@ loqui_channel_add_member_by_nick(LoquiChannel *channel, const gchar *nick, gbool
 	return member;
 }
 void
-loqui_channel_append_remark(LoquiChannel *channel, TextType type, gboolean is_self, const gchar *nick, const gchar *remark)
+loqui_channel_append_remark(LoquiChannel *channel, TextType type, gboolean is_self, const gchar *nick, const gchar *remark, gboolean is_from_server)
 {
 	ChannelBuffer *buffer;
 	LoquiChannelPrivate *priv;
@@ -520,7 +520,7 @@ loqui_channel_append_remark(LoquiChannel *channel, TextType type, gboolean is_se
 	gchar *word;
 
 	gboolean is_priv = FALSE;
-	gboolean exec_notification = TRUE;
+	gboolean exec_notification = TRUE && is_from_server && !is_self;
 
 	g_return_if_fail(channel != NULL);
 	g_return_if_fail(LOQUI_IS_CHANNEL(channel));
@@ -529,9 +529,6 @@ loqui_channel_append_remark(LoquiChannel *channel, TextType type, gboolean is_se
 	buffer = loqui_channel_entry_get_buffer(LOQUI_CHANNEL_ENTRY(channel));
 
 	is_priv = loqui_channel_get_is_private_talk(channel);
-
-	if(is_self)
-		exec_notification = FALSE;
 
 	msgtext = message_text_new();
 	g_object_set(G_OBJECT(msgtext),
