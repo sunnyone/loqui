@@ -49,6 +49,7 @@ static guint account_manager_signals[LAST_SIGNAL] = { 0 };
 static void account_manager_class_init(AccountManagerClass *klass);
 static void account_manager_init(AccountManager *account_manager);
 static void account_manager_finalize(GObject *object);
+static void account_manager_dispose(GObject *object);
 
 static void account_manager_add_account_real(AccountManager *manager, Account *account);
 static void account_manager_remove_account_real(AccountManager *manager, Account *account);
@@ -91,6 +92,7 @@ account_manager_class_init (AccountManagerClass *klass)
         parent_class = g_type_class_peek_parent(klass);
         
         object_class->finalize = account_manager_finalize;
+	object_class->dispose = account_manager_dispose;
 	klass->add_account = account_manager_add_account_real;
 	klass->remove_account = account_manager_remove_account_real;
 
@@ -123,7 +125,7 @@ account_manager_init (AccountManager *account_manager)
 	account_manager->max_channel_entry_id = -1;
 }
 static void 
-account_manager_finalize (GObject *object)
+account_manager_dispose(GObject *object)
 {
 	AccountManager *account_manager;
 	AccountManagerPrivate *priv;
@@ -135,6 +137,22 @@ account_manager_finalize (GObject *object)
 	priv = account_manager->priv;
 
 	account_manager_remove_all_account(account_manager);
+
+        if (G_OBJECT_CLASS(parent_class)->dispose)
+                (* G_OBJECT_CLASS(parent_class)->dispose) (object);
+}
+
+static void 
+account_manager_finalize (GObject *object)
+{
+	AccountManager *account_manager;
+	AccountManagerPrivate *priv;
+
+        g_return_if_fail(object != NULL);
+        g_return_if_fail(IS_ACCOUNT_MANAGER(object));
+
+        account_manager = ACCOUNT_MANAGER(object);
+	priv = account_manager->priv;
 
         if (G_OBJECT_CLASS(parent_class)->finalize)
                 (* G_OBJECT_CLASS(parent_class)->finalize) (object);

@@ -204,11 +204,12 @@ loqui_app_finalize(GObject *object)
 		g_object_unref(priv->common_buffer);
 		priv->common_buffer = NULL;
 	}
+
 	g_signal_handlers_disconnect_by_func(G_OBJECT(app->account_manager), loqui_app_add_account_after_cb, app);
 	g_signal_handlers_disconnect_by_func(G_OBJECT(app->account_manager), loqui_app_remove_account_cb, app);
 	g_signal_handlers_disconnect_by_func(G_OBJECT(app->account_manager), loqui_app_remove_account_after_cb, app);
-	
-	/* G_OBJECT_UNREF_UNLESS_NULL(app->account_manager); */
+
+	G_OBJECT_UNREF_UNLESS_NULL(app->account_manager);
 
 	if (G_OBJECT_CLASS(parent_class)->finalize)
                 (* G_OBJECT_CLASS(parent_class)->finalize) (object);
