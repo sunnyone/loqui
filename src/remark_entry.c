@@ -29,13 +29,12 @@
 #include "loqui_channel_text_view.h"
 
 #include "main.h"
+#include "intl.h"
 
 #include <string.h>
 
 
 enum {
-	ACTIVATE,
-
 	CALL_HISTORY,
 	SCROLL_CHANNEL_TEXTVIEW,
 	SCROLL_COMMON_TEXTVIEW,
@@ -133,14 +132,6 @@ remark_entry_class_init(RemarkEntryClass *klass)
 	klass->scroll_common_textview = remark_entry_scroll_common_textview;
 
 	GTK_WIDGET_CLASS(klass)->grab_focus = remark_entry_grab_focus;
-
-        remark_entry_signals[ACTIVATE] = g_signal_new("activate",
-						      G_OBJECT_CLASS_TYPE(object_class),
-						      G_SIGNAL_RUN_LAST,
-						      G_STRUCT_OFFSET(RemarkEntryClass, activate),
-						      NULL, NULL,
-						      g_cclosure_marshal_VOID__VOID,
-						      G_TYPE_NONE, 0);
 
         remark_entry_signals[CALL_HISTORY] = g_signal_new("call_history",
 							  G_OBJECT_CLASS_TYPE(object_class),
@@ -533,30 +524,43 @@ remark_entry_scroll_common_textview(RemarkEntry *entry, gint pages)
 	
 	loqui_channel_text_view_scroll(LOQUI_CHANNEL_TEXT_VIEW(priv->app->common_textview), GTK_MOVEMENT_PAGES, pages);
 }
-static void
-remark_entry_activated_cb(GtkWidget *widget, gpointer data)
+static void 
+remark_entry_send_text(RemarkEntry *remark_entry)
 {
-        RemarkEntry *remark_entry;
 	RemarkEntryPrivate *priv;
 	gchar *str;
+	Account *account;
 
-        g_return_if_fail(data != NULL);
-        g_return_if_fail(IS_REMARK_ENTRY(data));
+        g_return_if_fail(remark_entry != NULL);
+        g_return_if_fail(IS_REMARK_ENTRY(remark_entry));
 
-	remark_entry = REMARK_ENTRY(data);
 	priv = remark_entry->priv;
+
+	if (strlen(remark_entry_get_text(remark_entry)) == 0)
+		return;
 
 	str = g_strdup(remark_entry_get_text(remark_entry));
 
-	g_signal_emit(remark_entry, remark_entry_signals[ACTIVATE], 0);
+	account = loqui_app_get_current_account(priv->app);
+	if (account)
+		account_speak(account, loqui_app_get_current_channel(priv->app), str,
+			      remark_entry_get_command_mode(remark_entry));
+	else
+		gtkutils_msgbox_info(GTK_MESSAGE_ERROR, _("No accounts are selected!"));
 
-	if(strlen(str) > 0)
-		remark_entry_history_add(remark_entry, str);
+	remark_entry_clear_text(remark_entry);
+
+	remark_entry_history_add(remark_entry, str);
 	g_free(str);
 	priv->current_index = 0;
 	G_FREE_UNLESS_NULL(priv->string_list->data);
 	
 	remark_entry_set_command_mode(remark_entry, FALSE);
+}
+static void
+remark_entry_activated_cb(GtkWidget *widget, gpointer data)
+{
+	remark_entry_send_text(data);
 }
 static void
 remark_entry_entry_multiline_toggled_cb(GtkWidget *widget, gpointer data)

@@ -279,30 +279,6 @@ static void loqui_app_restore_size(LoquiApp *app)
 }
 
 static void
-loqui_app_entry_activate_cb(GtkWidget *widget, gpointer data)
-{
-	Account *account;
-	RemarkEntry *remark_entry;
-	const gchar *str;
-	LoquiApp *app;
-
-	app = LOQUI_APP(data);
-	remark_entry = REMARK_ENTRY(widget);
-	
-	str = remark_entry_get_text(remark_entry);
-	if (str == NULL || strlen(str) == 0)
-		return;
-	
-	account = loqui_app_get_current_account(app);
-	if (account)
-		account_speak(account, loqui_app_get_current_channel(app), str,
-			      remark_entry_get_command_mode(remark_entry));
-	else
-		gtkutils_msgbox_info(GTK_MESSAGE_ERROR, _("No accounts are selected!"));
-
-	remark_entry_clear_text(remark_entry);
-}
-static void
 loqui_app_channel_text_view_scrolled_to_end_cb(LoquiChannelTextView *chview, LoquiChannelEntry *chent)
 {
         g_return_if_fail(chview != NULL);
@@ -515,8 +491,6 @@ loqui_app_new(AccountManager *account_manager)
 
 	app->remark_entry = remark_entry_new(app, GTK_TOGGLE_ACTION(toggle_command_action));
 	gtk_box_pack_end(GTK_BOX(vbox), app->remark_entry, FALSE, FALSE, 0);
-	g_signal_connect(G_OBJECT(app->remark_entry), "activate",
-			 G_CALLBACK(loqui_app_entry_activate_cb), app);
 
 	app->common_textview = loqui_channel_text_view_new(app);
 	loqui_channel_text_view_set_auto_switch_scrolling(LOQUI_CHANNEL_TEXT_VIEW(app->common_textview),
