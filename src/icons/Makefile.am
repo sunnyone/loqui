@@ -1,4 +1,4 @@
-IMAGES_ID = console online offline away busy command naruto speaker loqui whether_scroll
+IMAGES_ID = console online offline away busy command naruto speaker loqui whether_scroll notice
 IMAGES = $(IMAGES_ID:%=%.png)
 IMAGES_H = $(IMAGES_ID:%=%.h)
 

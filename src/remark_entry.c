@@ -57,6 +57,7 @@ struct _RemarkEntryPrivate
 	GtkWidget *hbox_text;
 	GtkWidget *textview;
 	GtkWidget *button_ok;
+	GtkWidget *button_notice;
 
 	GtkWidget *toggle_multiline;
 	guint toggle_multiline_toggled_id;
@@ -80,6 +81,7 @@ static void remark_entry_grab_focus(GtkWidget *widget);
 static void remark_entry_entry_text_shown_cb(GtkWidget *widget, gpointer data);
 static void remark_entry_entry_multiline_toggled_cb(GtkWidget *widget, gpointer data);
 static void remark_entry_ok_clicked_cb(GtkWidget *widget, gpointer data);
+static void remark_entry_notice_clicked_cb(GtkWidget *widget, gpointer data);
 static void remark_entry_entry_changed_cb(GtkEntry *widget, RemarkEntry *remark_entry);
 static gboolean remark_entry_entry_key_press_event_cb(GtkWidget *widget, GdkEventKey *event, RemarkEntry *remark_entry);
 
@@ -307,13 +309,23 @@ remark_entry_new(LoquiApp *app, GtkToggleAction *toggle_command_action)
 				 G_CALLBACK(remark_entry_grab_focus), remark_entry);
 	gtk_box_pack_start(GTK_BOX(priv->hbox_text), priv->button_ok, FALSE, FALSE, 0);
 
+
+	image = gtk_image_new_from_stock(LOQUI_STOCK_NOTICE, GTK_ICON_SIZE_BUTTON);
+	priv->button_notice = gtk_button_new();
+	gtk_container_add(GTK_CONTAINER(priv->button_notice), image);
+	g_signal_connect(G_OBJECT(priv->button_notice), "clicked",
+			 G_CALLBACK(remark_entry_notice_clicked_cb), remark_entry);
+	gtk_tooltips_set_tip(app->tooltips, priv->button_notice, _("Send message with NOTICE (Ctrl+Enter)"), NULL);
+	gtk_button_set_focus_on_click(GTK_BUTTON(priv->button_notice), FALSE);
+	gtk_box_pack_start(GTK_BOX(hbox), priv->button_notice, FALSE, FALSE, 0);
+
 	image = gtk_image_new_from_stock(GTK_STOCK_JUSTIFY_LEFT, GTK_ICON_SIZE_BUTTON);
 	priv->toggle_multiline = gtk_toggle_button_new();
 	gtk_container_add(GTK_CONTAINER(priv->toggle_multiline), image);
 	priv->toggle_multiline_toggled_id = g_signal_connect(G_OBJECT(priv->toggle_multiline), "toggled",
 						  	     G_CALLBACK(remark_entry_entry_multiline_toggled_cb), remark_entry);
 	gtk_button_set_focus_on_click(GTK_BUTTON(priv->toggle_multiline), FALSE);
-
+	gtk_tooltips_set_tip(app->tooltips, priv->toggle_multiline, _("Toggle multiline mode"), NULL);
 	gtk_box_pack_start(GTK_BOX(hbox), priv->toggle_multiline, FALSE, FALSE, 0);
 
 	/* TODO: color palette
@@ -593,6 +605,11 @@ static void
 remark_entry_ok_clicked_cb(GtkWidget *widget, gpointer data)
 {
 	remark_entry_send_text(data, FALSE);
+}
+static void
+remark_entry_notice_clicked_cb(GtkWidget *widget, gpointer data)
+{
+	remark_entry_send_text(data, TRUE);
 }
 static void
 remark_entry_entry_multiline_toggled_cb(GtkWidget *widget, gpointer data)

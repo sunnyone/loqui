@@ -38,6 +38,7 @@ static struct icon_pair icon_list[] = { { LOQUI_STOCK_CONSOLE, console_pixbuf },
 					{ LOQUI_STOCK_OPERATOR,      naruto_pixbuf },
 					{ LOQUI_STOCK_SPEAK_ABILITY, speaker_pixbuf },
 					{ LOQUI_STOCK_WHETHER_SCROLL, whether_scroll_pixbuf },
+					{ LOQUI_STOCK_NOTICE,  notice_pixbuf },
 					{ NULL, NULL } };
 
 int LOQUI_ICON_SIZE_FONT = GTK_ICON_SIZE_INVALID;
