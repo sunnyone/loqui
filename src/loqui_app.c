@@ -32,6 +32,7 @@ struct _LoquiAppPrivate
 {
 	GtkWidget *label_topic;
 	GtkWidget *toggle_scroll;
+	GtkWidget *entry;
 };
 
 static GnomeAppClass *parent_class = NULL;
@@ -187,7 +188,6 @@ loqui_app_new (void)
 
 	GtkWidget *appbar;
 	GtkWidget *vbox;
-	GtkWidget *entry;
 	GtkWidget *hbox;
 	GtkWidget *hpaned;
 	GtkWidget *vpaned;
@@ -242,9 +242,9 @@ loqui_app_new (void)
 	gtk_box_pack_start_defaults(GTK_BOX(vbox), channel_book);
 
 	/* TODO: this should be replaced with a widget considered multiline editing */
-	entry = gtk_entry_new();
-	gtk_box_pack_end(GTK_BOX(vbox), entry, FALSE, FALSE, 0);
-	g_signal_connect(G_OBJECT(entry), "activate",
+	priv->entry = gtk_entry_new();
+	gtk_box_pack_end(GTK_BOX(vbox), priv->entry, FALSE, FALSE, 0);
+	g_signal_connect(G_OBJECT(priv->entry), "activate",
                          G_CALLBACK(loqui_app_entry_activate_cb), NULL);
 
 	common_text = channel_text_new();
@@ -304,5 +304,5 @@ loqui_app_is_scroll(LoquiApp *app)
 }
 void loqui_app_set_focus(LoquiApp *app)
 {
-	gtk_widget_grab_focus(app->entry);
+	gtk_widget_grab_focus(app->priv->entry);
 }
