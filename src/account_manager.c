@@ -391,9 +391,17 @@ account_manager_channel_buffer_append_cb(ChannelBuffer *buffer, MessageText *msg
 
 	priv = manager->priv;
 
+	if(!account_manager_get_whether_scrolling(manager)) {
+	} else if(priv->current_channel) {
+		if(buffer == priv->current_channel->buffer)
+			return;
+	} else if (priv->current_account) {
+		if(buffer == priv->current_account->console_buffer)
+			return;
+	}
+
 	if(priv->last_msgtext == msgtext)
 		return;
-	
 	
 	channel_buffer_append_message_text(priv->common_buffer, msgtext, TRUE, FALSE);
 
@@ -405,7 +413,6 @@ account_manager_channel_buffer_append_cb(ChannelBuffer *buffer, MessageText *msg
 void account_manager_set_current_channel(AccountManager *manager, Channel *channel)
 {
 	AccountManagerPrivate *priv;
-	ChannelBuffer *old_buf;
 	gboolean is_account_changed, is_channel_changed;
 
         g_return_if_fail(manager != NULL);
@@ -423,8 +430,6 @@ void account_manager_set_current_channel(AccountManager *manager, Channel *chann
 	if(priv->current_account) {
 		g_signal_handlers_disconnect_by_func(priv->current_account, account_manager_account_changed_cb, manager);
 	}
-	old_buf = loqui_app_get_channel_buffer(manager->priv->app);
-
 
 	is_account_changed = (account_manager_get_current_account(manager) != channel->account) ? TRUE : FALSE;
 	is_channel_changed = (account_manager_get_current_channel(manager) != channel) ? TRUE : FALSE;
@@ -434,11 +439,6 @@ void account_manager_set_current_channel(AccountManager *manager, Channel *chann
 
 	channel_tree_select_channel(manager->priv->app->channel_tree, channel);
 	loqui_app_set_channel_buffer(priv->app, channel->buffer);
-	if(old_buf != channel->buffer) {
-		if(old_buf)
-			g_signal_handlers_unblock_by_func(old_buf, account_manager_channel_buffer_append_cb, manager);
-		g_signal_handlers_block_by_func(channel->buffer, account_manager_channel_buffer_append_cb, manager);
-	}
 
 	nick_list_set_store(priv->app->nick_list, channel->user_list);
 	loqui_app_update_info(priv->app, 
@@ -471,7 +471,6 @@ void account_manager_set_current_account(AccountManager *manager, Account *accou
 {
 	AccountManagerPrivate *priv;
 	gboolean is_account_changed, is_channel_changed;
-	ChannelBuffer *old_buf;
 
         g_return_if_fail(manager != NULL);
         g_return_if_fail(IS_ACCOUNT_MANAGER(manager));
@@ -485,7 +484,6 @@ void account_manager_set_current_account(AccountManager *manager, Account *accou
 	if(priv->current_account) {
 		g_signal_handlers_disconnect_by_func(priv->current_account, account_manager_account_changed_cb, manager);
 	}
-	old_buf = loqui_app_get_channel_buffer(manager->priv->app);
 
 	is_account_changed = (account_manager_get_current_account(manager) != account) ? TRUE : FALSE;
 	is_channel_changed = (account_manager_get_current_channel(manager) != NULL) ? TRUE : FALSE;
@@ -495,11 +493,6 @@ void account_manager_set_current_account(AccountManager *manager, Account *accou
 
 	channel_tree_select_account(manager->priv->app->channel_tree, account);
 	loqui_app_set_channel_buffer(priv->app, account->console_buffer);
-	if(old_buf != account->console_buffer) {
-		if(old_buf)
-			g_signal_handlers_unblock_by_func(old_buf, account_manager_channel_buffer_append_cb, manager);
-		g_signal_handlers_block_by_func(account->console_buffer, account_manager_channel_buffer_append_cb, manager);
-	}
 
 	nick_list_set_store(priv->app->nick_list, NULL);
 	loqui_app_update_info(priv->app, 
