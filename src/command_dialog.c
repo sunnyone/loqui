@@ -26,21 +26,22 @@
 #include "loqui_account_irc.h" /* FIXME: needless originally */
 
 static gboolean check_account_connected(LoquiAccount *account);
-static gboolean check_target_valid(const gchar *str);
+static gboolean check_channel_joined(LoquiChannel *channel);
 
 static gboolean
 check_account_connected(LoquiAccount *account)
 {
-	if(account == NULL) {
-		gtkutils_msgbox_info(GTK_MESSAGE_ERROR, _("Account is not selected."));
-		return FALSE;
-	}
-	if(!loqui_account_is_connected(account)) {
-		gtkutils_msgbox_info(GTK_MESSAGE_ERROR, _("Account is not connected."));
-		return FALSE;
-	}
-	return TRUE;
+       if(account == NULL) {
+               gtkutils_msgbox_info(GTK_MESSAGE_ERROR, _("Account is not selected."));
+               return FALSE;
+       }
+       if(!loqui_account_is_connected(account)) {
+               gtkutils_msgbox_info(GTK_MESSAGE_ERROR, _("Account is not connected."));
+               return FALSE;
+       }
+       return TRUE;
 }
+
 static gboolean
 check_channel_joined(LoquiChannel *channel)
 {
@@ -51,21 +52,6 @@ check_channel_joined(LoquiChannel *channel)
 
 	if (!loqui_channel_get_is_joined(channel)) {
 		gtkutils_msgbox_info(GTK_MESSAGE_ERROR, _("You are not joined in this channel."));
-		return FALSE;
-	}
-	return TRUE;
-}
-
-static gboolean
-check_target_valid(const gchar *str)
-{
-	if(str == NULL || strlen(str) == 0) {
-		gtkutils_msgbox_info(GTK_MESSAGE_ERROR, _("Input some characters."));
-		return FALSE;
-	}
-
-	if(strchr(str, ' ') != NULL) {
-		gtkutils_msgbox_info(GTK_MESSAGE_ERROR, _("Error: space contains"));
 		return FALSE;
 	}
 	return TRUE;
@@ -110,11 +96,6 @@ command_dialog_join(LoquiApp *app, LoquiAccount *account)
 		text_name = gtk_entry_get_text(GTK_ENTRY(entry_name));
 		text_key = gtk_entry_get_text(GTK_ENTRY(entry_key));
 
-		if(!check_target_valid(text_name)) {
-			gtk_widget_destroy(dialog);
-			return;
-		}
-
 		loqui_sender_join_raw(loqui_account_get_sender(account), text_name, text_key);
 	}
 
@@ -154,11 +135,6 @@ command_dialog_private_talk(LoquiApp *app, LoquiAccount *account)
 	if (result == GTK_RESPONSE_OK) {
 		text_name = gtk_entry_get_text(GTK_ENTRY(entry_name));
 
-		if (!check_target_valid(text_name)) {
-			gtk_widget_destroy(dialog);
-			return;
-		}
-
 		loqui_sender_start_private_talk_raw(loqui_account_get_sender(account), text_name);
 	}
 	gtk_widget_destroy(dialog);
@@ -174,8 +150,6 @@ command_dialog_part(LoquiApp *app, LoquiAccount *account, LoquiChannel *channel)
 	gint result;
 
 	if (!check_account_connected(account))
-		return;
-	if (!check_channel_joined(channel))
 		return;
 
 	dialog = gtk_dialog_new_with_buttons(_("Part the channel"), GTK_WINDOW(app),
@@ -284,11 +258,6 @@ command_dialog_nick(LoquiApp *app, LoquiAccount *account)
 
 	if (result == GTK_RESPONSE_OK) {
 		text = gtk_entry_get_text(GTK_ENTRY(entry));
-
-		if(!check_target_valid(text)) {
-			gtk_widget_destroy(dialog);
-			return;
-		}
 
 		loqui_sender_nick(loqui_account_get_sender(account), text);
 	}

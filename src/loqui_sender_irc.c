@@ -72,6 +72,7 @@ static void loqui_sender_irc_start_private_talk_raw(LoquiSender *sender, const g
 /* helper */
 static void loqui_sender_irc_send_irc_message(LoquiSenderIRC *sender, IRCMessage *msg);
 static void loqui_sender_irc_speak(LoquiSenderIRC *sender, LoquiChannel *channel, const gchar *text, gboolean is_notice);
+static gboolean check_target_valid(LoquiAccount *account, const gchar *str);
 
 #define WARN_AND_RETURN_UNLESS_CONNECTED(sender) { \
 	LoquiAccount *ac; \
@@ -81,6 +82,21 @@ static void loqui_sender_irc_speak(LoquiSenderIRC *sender, LoquiChannel *channel
 		return; \
 	} \
 }
+static gboolean
+check_target_valid(LoquiAccount *account, const gchar *str)
+{
+	if(str == NULL || strlen(str) == 0) {
+		loqui_account_warning(account, _("No characters exist."));
+		return FALSE;
+	}
+
+	if(strchr(str, ' ') != NULL) {
+		loqui_account_warning(account, _("Error: space contains"));
+		return FALSE;
+	}
+	return TRUE;
+}
+
 
 GType
 loqui_sender_irc_get_type(void)
@@ -281,6 +297,8 @@ loqui_sender_irc_nick(LoquiSender *sender, const gchar *text)
         g_return_if_fail(LOQUI_IS_SENDER_IRC(sender));
 
 	WARN_AND_RETURN_UNLESS_CONNECTED(sender);
+	if (!check_target_valid(sender->account, text))
+		return;
 
 	msg = irc_message_create(IRCCommandNick, text, NULL);
 	loqui_sender_irc_send_irc_message(LOQUI_SENDER_IRC(sender), msg);
@@ -448,6 +466,9 @@ loqui_sender_irc_join_raw(LoquiSender *sender, const gchar *target, const gchar 
 
 	WARN_AND_RETURN_UNLESS_CONNECTED(sender);
 
+	if (!check_target_valid(sender->account, target))
+		return;
+
 	if (!LOQUI_UTILS_IRC_STRING_IS_CHANNEL(target)) {
 		loqui_account_warning(sender->account, _("This name seems not to be a channel."));
 		return;
@@ -469,6 +490,9 @@ loqui_sender_irc_start_private_talk_raw(LoquiSender *sender, const gchar *target
         g_return_if_fail(LOQUI_IS_SENDER_IRC(sender));
 
 	WARN_AND_RETURN_UNLESS_CONNECTED(sender);
+
+	if (!check_target_valid(sender->account, target))
+		return;
 
 	if (LOQUI_UTILS_IRC_STRING_IS_CHANNEL(target)) {
 		loqui_account_warning(sender->account, _("This name seems not to be a nick."));
@@ -573,6 +597,9 @@ loqui_sender_irc_ctcp_request_raw(LoquiSenderIRC *sender, const gchar *target, c
         g_return_if_fail(LOQUI_IS_SENDER_IRC(sender));
 
 	WARN_AND_RETURN_UNLESS_CONNECTED(sender);
+
+	if (!check_target_valid(LOQUI_SENDER(sender)->account, target))
+		return;
 
 	ctcp_msg = ctcp_message_new(command, NULL);
 	buf = ctcp_message_to_str(ctcp_msg);
