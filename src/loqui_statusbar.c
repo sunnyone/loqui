@@ -27,6 +27,12 @@
 #define STRING_DISCONNECTED _("(disconnected)")
 #define STRING_UNSELECTED _("(unselected)")
 
+typedef enum {
+	AWAY_STATE_NONE,
+	AWAY_STATE_ONLINE,
+	AWAY_STATE_OFFLINE
+} AwayState;
+
 struct _LoquiStatusbarPrivate
 {
 	GtkWidget *label_user_number;
@@ -52,6 +58,8 @@ static void loqui_statusbar_class_init(LoquiStatusbarClass *klass);
 static void loqui_statusbar_init(LoquiStatusbar *statusbar);
 static void loqui_statusbar_finalize(GObject *object);
 static void loqui_statusbar_destroy(GtkObject *object);
+
+static void loqui_statusbar_set_away_status(LoquiStatusbar *statusbar, AwayState away_state);
 
 GType
 loqui_statusbar_get_type(void)
@@ -127,7 +135,34 @@ loqui_statusbar_destroy (GtkObject *object)
         if (GTK_OBJECT_CLASS(parent_class)->destroy)
                 (* GTK_OBJECT_CLASS(parent_class)->destroy) (object);
 }
-
+static void
+loqui_statusbar_set_away_status(LoquiStatusbar *statusbar, AwayState away_state)
+{
+	LoquiStatusbarPrivate *priv;
+        g_return_if_fail(statusbar != NULL);
+        g_return_if_fail(LOQUI_IS_STATUSBAR(statusbar));
+        GtkWidget *old_image;
+        
+        priv = statusbar->priv;	
+	
+	old_image = gtk_bin_get_child(GTK_BIN(priv->button_away));
+	if(old_image) {
+		g_object_ref(old_image);
+		gtk_container_remove(GTK_CONTAINER(priv->button_away), old_image);
+	}
+	
+	switch(away_state) {
+	case AWAY_STATE_ONLINE:
+		gtk_container_add(GTK_CONTAINER(priv->button_away), priv->image_online);
+		break;
+	case AWAY_STATE_OFFLINE:
+		gtk_container_add(GTK_CONTAINER(priv->button_away), priv->image_offline);
+		break;
+	default:
+		break;
+	}
+	
+}
 GtkWidget*
 loqui_statusbar_new (void)
 {
@@ -146,8 +181,11 @@ loqui_statusbar_new (void)
 	pixbuf = gdk_pixbuf_new_from_inline(-1, offline_pixbuf, FALSE, NULL);
 	if(pixbuf == NULL)
 		g_error("Can't get pixbuf: offline");
-	pixbuf_scaled = gdk_pixbuf_scale_simple(pixbuf, STATUSBAR_ICON_SIZE, STATUSBAR_ICON_SIZE, GDK_INTERP_BILINEAR);	
+	pixbuf_scaled = gdk_pixbuf_scale_simple(pixbuf, STATUSBAR_ICON_SIZE, STATUSBAR_ICON_SIZE, GDK_INTERP_BILINEAR);
+	if(pixbuf_scaled == NULL)
+		g_error("Can't scale pixbuf: offline");
 	priv->image_offline = gtk_image_new_from_pixbuf(pixbuf_scaled);
+	gtk_widget_show(priv->image_offline);
 	g_object_unref(pixbuf);
 	g_object_unref(pixbuf_scaled);
 	
@@ -155,10 +193,13 @@ loqui_statusbar_new (void)
 	if(pixbuf == NULL)
 		g_error("Can't get pixbuf: online");
 	pixbuf_scaled = gdk_pixbuf_scale_simple(pixbuf, STATUSBAR_ICON_SIZE, STATUSBAR_ICON_SIZE, GDK_INTERP_BILINEAR);
+	if(pixbuf_scaled == NULL)
+		g_error("Can't scale pixbuf: online");
 	priv->image_online = gtk_image_new_from_pixbuf(pixbuf_scaled);
+	gtk_widget_show(priv->image_online);
 	g_object_unref(pixbuf);
 	g_object_unref(pixbuf_scaled);
-		
+			
 	priv->label_channel = gtk_label_new("");
 	gtk_box_pack_start(GTK_BOX(statusbar), priv->label_channel, FALSE, FALSE, 0);
 
@@ -246,10 +287,35 @@ loqui_statusbar_set_current_channel(LoquiStatusbar *statusbar, Channel *channel)
 void
 loqui_statusbar_set_current_account(LoquiStatusbar *statusbar, Account *account)
 {
+	LoquiStatusbarPrivate *priv;
+	AwayState away_state;
         g_return_if_fail(statusbar != NULL);
         g_return_if_fail(LOQUI_IS_STATUSBAR(statusbar));
         
-        gtk_label_set(GTK_LABEL(statusbar->priv->label_account), account ? account_get_name(account) : "");
+        priv = statusbar->priv;
+        
+        // set account label
+        gtk_label_set(GTK_LABEL(priv->label_account), account ? account_get_name(account) : STRING_UNSELECTED);
+
+	// set nick        
+        if(account == NULL) {
+        	gtk_label_set(GTK_LABEL(priv->label_nick), STRING_UNSELECTED);
+        } else if (!account_is_connected(account)) {
+        	gtk_label_set(GTK_LABEL(priv->label_nick), STRING_DISCONNECTED);
+        } else {
+        	gtk_label_set(GTK_LABEL(priv->label_nick), account_get_current_nick(account));
+        }
+        
+        // set icon
+        if(account == NULL) {
+        	away_state = AWAY_STATE_OFFLINE;
+        } else if (!account_is_connected(account)) {
+        	away_state = AWAY_STATE_OFFLINE;
+        } else {
+        	away_state = AWAY_STATE_ONLINE;
+        }
+        
+        loqui_statusbar_set_away_status(statusbar, away_state);
 }
 void loqui_statusbar_set_default(LoquiStatusbar *statusbar, const gchar *str)
 {
