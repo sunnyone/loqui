@@ -123,6 +123,9 @@ codeconv_ja_jis_to_utf8(const gchar *input)
 		switch (area_type) {
 		case ISO_2022_JP_TYPE_JISX_0208_1983:
 		case ISO_2022_JP_TYPE_JISX_0208_1978:
+			if (*(cur + 1) == ISO_2022_ESC)
+				break;
+
 			cur++;
 			c2 = *cur;
 			if (c2 == '\0')
