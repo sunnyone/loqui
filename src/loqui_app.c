@@ -61,10 +61,11 @@ static gint loqui_app_delete_event_cb(GtkWidget *widget, GdkEventAny *event);
 static void loqui_app_restore_size(LoquiApp *app);
 static void loqui_app_save_size(LoquiApp *app);
 static void loqui_app_entry_activate_cb(GtkWidget *widget, gpointer data);
+
 static void loqui_app_text_buffer_inserted_cb(GtkTextBuffer *textbuf,
-					      GtkTextIter *arg1,
-					      gchar *arg2,
-					      gint arg3,
+					      GtkTextIter *pos,
+					      const gchar *text,
+					      gint length,
 					      gpointer data);
 
 GType
@@ -224,12 +225,11 @@ loqui_app_entry_activate_cb(GtkWidget *widget, gpointer data)
 
 	gtk_entry_set_text(GTK_ENTRY(widget), "");
 }
-static void
-loqui_app_text_buffer_inserted_cb(GtkTextBuffer *textbuf,
-				  GtkTextIter *arg1,
-				  gchar *arg2,
-				  gint arg3,
-				  gpointer data)
+static void loqui_app_text_buffer_inserted_cb(GtkTextBuffer *textbuf,
+					      GtkTextIter *pos,
+					      const gchar *text,
+					      gint length,
+					      gpointer data)
 {
 	GtkTextView *textview;
 
