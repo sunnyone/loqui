@@ -24,6 +24,7 @@
 #include <time.h>
 #include <string.h>
 #include <ctype.h>
+#include "utils.h"
 
 struct _ChannelBufferPrivate
 {
@@ -44,7 +45,16 @@ static void channel_buffer_finalize(GObject *object);
 
 static void channel_buffer_append_current_time(ChannelBuffer *channel_buffer);
 static void channel_buffer_append(ChannelBuffer *buffer, TextType type, gchar *str);
-static GSList* channel_buffer_get_uri_chunk(const gchar *buf);
+
+static void channel_buffer_text_inserted_cb(GtkTextBuffer *buffer,
+					    GtkTextIter *pos,
+					    const gchar *text,
+					    gint length,
+					    gpointer data);
+
+static void channel_buffer_tag_uri(GtkTextBuffer *buffer,
+				   GtkTextIter *iter,
+				   const gchar *text);
 
 #define TIME_LEN 11
 
@@ -107,7 +117,66 @@ channel_buffer_finalize (GObject *object)
 
 	g_free(channel_buffer->priv);
 }
+static void channel_buffer_tag_uri(GtkTextBuffer *buffer,
+				   GtkTextIter *iter,
+				   const gchar *text)
+{
+	GtkTextIter end_iter;
+	gchar *buf, *cur, *tmp;
+	glong len;
 
+	cur = buf = g_strdup(text);
+	len = g_utf8_strlen(cur, -1);
+	if(!gtk_text_iter_backward_chars(iter, len)) {
+		debug_puts("Can't backward iter");
+		return;
+	}
+
+	while(*cur &&
+	      ((tmp = strstr(cur, "http://")) != NULL ||
+	      (tmp = strstr(cur, "https://")) != NULL ||
+	      (tmp = strstr(cur, "ftp://")) != NULL)) {
+		*tmp = '\0';
+		len = g_utf8_strlen(cur, -1);
+		if(!gtk_text_iter_forward_chars(iter, len)) {
+			debug_puts("Can't forward chars");
+			break;
+		}
+
+		cur = tmp+1;
+		len = 1;
+
+		while ((cur = g_utf8_next_char(cur)) != NULL) {
+			len++;
+			if(!isascii(*cur) ||
+			   !g_ascii_isgraph(*cur) ||
+			   strchr("()<>\"", *cur))
+				break;
+		}
+
+		end_iter = *iter;
+		if(!gtk_text_iter_forward_chars(&end_iter, len))
+			break;
+		
+		gtk_text_buffer_apply_tag_by_name(buffer, "link", iter, &end_iter);
+	}
+
+	g_free(buf);
+
+}
+				    
+static void channel_buffer_text_inserted_cb(GtkTextBuffer *buffer,
+					    GtkTextIter *pos,
+					    const gchar *text,
+					    gint length,
+					    gpointer data)
+{
+	GtkTextIter tmp_iter;
+	g_return_if_fail(g_utf8_validate(text, -1, NULL));
+
+	tmp_iter = *pos;
+	channel_buffer_tag_uri(buffer, &tmp_iter, text);
+}
 ChannelBuffer*
 channel_buffer_new(void)
 {
@@ -139,7 +208,13 @@ channel_buffer_new(void)
         gtk_text_buffer_create_tag(textbuf, "notice", 
 				   "foreground", "#555555", 
 				   NULL);
-
+	gtk_text_buffer_create_tag(textbuf, "link",
+				   "foreground", "blue",
+				   "underline", PANGO_UNDERLINE_SINGLE,
+				   NULL);
+	g_signal_connect_after(G_OBJECT(textbuf), "insert-text",
+			       G_CALLBACK(channel_buffer_text_inserted_cb), NULL);
+	
 	return channel_buffer;
 }
 static void
@@ -159,79 +234,6 @@ channel_buffer_append_current_time(ChannelBuffer *buffer)
 	channel_buffer_append(buffer, TEXT_TYPE_TIME, buf);
 }
 
-static GSList *
-channel_buffer_get_uri_chunk(const gchar *buf)
-{
-	GSList *chunk_list = NULL;
-	gchar *tmp, *str;
-	const gchar *cur;
-	URIChunk *chunk;
-	GSList *cl;
-	gsize len;
-
-	g_return_val_if_fail(buf != NULL, NULL);
-
-	cur = buf;
-	while(*cur) {
-		if((tmp = strstr(cur, "http://")) == NULL &&
-		   (tmp = strstr(cur, "https://")) == NULL &&
-		   (tmp = strstr(cur, "ftp://")) == NULL)
-			break;
-		if(cur < tmp) {
-			len = tmp - cur;
-			str = g_malloc0(len + 1);
-			memmove(str, cur, len);
-
-			chunk = g_new0(URIChunk, 1);
-			chunk->str = str;
-			chunk->is_uri = FALSE;
-
-			chunk_list = g_slist_append(chunk_list, chunk);
-		}
-		cur = tmp;
-		
-		while(*cur) {
-			if(!isascii(*cur) ||
-			   !g_ascii_isgraph(*cur) ||
-			   strchr("()<>\"", *cur))
-				break;
-			   
-			cur++;
-		}
-		if(cur > tmp) {
-			len = cur - tmp;
-			str = g_malloc0(len + 1);
-			memmove(str, tmp, len);
-
-			chunk = g_new0(URIChunk, 1);
-			chunk->str = str;
-			chunk->is_uri = TRUE;
-			
-			chunk_list = g_slist_append(chunk_list, chunk);
-		}
-	}
-	if(*cur != '\0') {
-		chunk = g_new0(URIChunk, 1);
-		chunk->str = g_strdup(cur);
-		chunk->is_uri = FALSE;
-
-		chunk_list = g_slist_append(chunk_list, chunk);
-	}
-
-#if 0
-	for(cl = chunk_list; cl != NULL; cl = cl->next) {
-		chunk = (URIChunk *) cl->data;
-		if(chunk->is_uri)
-			g_print("uri: ");
-		else
-			g_print("nonuri: ");
-		
-		g_print("%s\n", chunk->str);
-	}
-#endif
-
-	return chunk_list;
-}
 static void
 channel_buffer_append(ChannelBuffer *buffer, TextType type, gchar *str)
 {
@@ -259,7 +261,6 @@ channel_buffer_append(ChannelBuffer *buffer, TextType type, gchar *str)
 	default:
 		style = "normal";
 	}
-
 	gtk_text_buffer_insert_with_tags_by_name(GTK_TEXT_BUFFER(buffer), &iter, str, -1, style, NULL);
 }
 void
@@ -271,7 +272,6 @@ channel_buffer_append_line(ChannelBuffer *buffer, TextType type, gchar *str)
         g_return_if_fail(IS_CHANNEL_BUFFER(buffer));
 
 	channel_buffer_append_current_time(buffer);
-/*	channel_buffer_get_uri_chunk(str); */
 
 	buf = g_strconcat(str, "\n", NULL);
 	channel_buffer_append(buffer, type, buf);
