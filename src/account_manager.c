@@ -20,7 +20,6 @@
 #include "config.h"
 
 #include "account_manager.h"
-#include "loqui_gconf.h"
 #include "account.h"
 #include "utils.h"
 #include "loqui_app.h"

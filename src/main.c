@@ -19,7 +19,6 @@
  */
 #include "config.h"
 #include "main.h"
-#include "loqui_gconf.h"
 #include "loqui_app.h"
 #include "codeconv.h"
 #include "command_table.h"
@@ -84,7 +83,6 @@ main(int argc, char *argv[])
 
 	prefs_general_load();
 
-        eel_gconf_client_get_global();
 	codeconv_init();
 	command_table_init();
 

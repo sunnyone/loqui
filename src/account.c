@@ -20,7 +20,6 @@
 #include "config.h"
 
 #include "account.h"
-#include "loqui_gconf.h"
 #include "loqui_app.h"
 #include "irc_handle.h"
 #include "gtkutils.h"
@@ -374,94 +373,6 @@ account_parse_server_string(const gchar *input)
 	return server;
 }
 #endif
-
-/* FIXME: configuration handlling should be more sensitive. 
-   broken values may stop the program on the current implementation. */
-gboolean
-account_restore(Account *account, const gchar *name)
-{
-	AccountPrivate *priv;
-	gchar *key;
-	GSList *list;
-	GSList *cur;
-	gchar *hostname;
-	gint port;
-	gchar *password;
-	gboolean use;
-
-        g_return_val_if_fail(account != NULL, FALSE);
-        g_return_val_if_fail(IS_ACCOUNT(account), FALSE);
-
-	g_return_val_if_fail(name != NULL, FALSE);
-	g_return_val_if_fail(strchr(name, '/') == NULL, FALSE);
-
-	priv = account->priv;
-
-	account->name = g_strdup(name);
-
-#define ACCOUNT_GCONF_GET_STRING(str, subkey) \
-{ \
-	key = g_strdup_printf("%s/%s/%s", LOQUI_GCONF_ACCOUNT, name, subkey); \
-	str = eel_gconf_get_string(key); \
-	g_free(key); \
-}
-	ACCOUNT_GCONF_GET_STRING(account->nick, "nick");
-	if(account->nick == 0 || strlen(account->nick) == 0) {
-		gtkutils_msgbox_info(GTK_MESSAGE_ERROR,
-				     _("Account '%s': Nick is empty"), name);
-		return FALSE;
-	}
-	ACCOUNT_GCONF_GET_STRING(account->username, "username");
-	if(account->username == 0 || strlen(account->username) == 0) {
-		gtkutils_msgbox_info(GTK_MESSAGE_ERROR,
-				     _("Account '%s': Username is empty"), name);
-		return FALSE;
-	}
-	ACCOUNT_GCONF_GET_STRING(account->realname, "realname");
-	if(account->realname == 0 || strlen(account->realname) == 0) {
-		gtkutils_msgbox_info(GTK_MESSAGE_ERROR,
-				     _("Account '%s': Realname is empty"), name);
-		return FALSE;
-	}
-	ACCOUNT_GCONF_GET_STRING(account->userinfo, "userinfo");
-	ACCOUNT_GCONF_GET_STRING(account->autojoin, "autojoin");
-
-	
-	key = g_strdup_printf("%s/%s/%s", LOQUI_GCONF_ACCOUNT, name, "server");
-	list = eel_gconf_get_dirs(key);
-	g_free(key);
-
-#undef ACCOUNT_GCONF_GET_STRING
-
-	if(!list) {
-		gtkutils_msgbox_info(GTK_MESSAGE_ERROR,
-				     _("Account '%s': No servers found."), name);
-		return FALSE;
-	}
-
-	for(cur = list; cur != NULL; cur = cur->next) {
-		hostname = utils_gconf_get_basename((gchar *) cur->data);
-		if(!hostname) {
-			g_free(cur->data);
-			continue;
-		}
-#define CONF_SERVER_GET_VALUE(type, ret, subkey) { \
-     key = g_strdup_printf("%s/%s", (gchar *) cur->data, subkey); \
-     ret = eel_gconf_get_##type(key); \
-     g_free(key); \
-}
-		CONF_SERVER_GET_VALUE(integer, port, "port");
-		CONF_SERVER_GET_VALUE(string, password, "password");
-		CONF_SERVER_GET_VALUE(boolean, use, "use");
-
-		account_add_server(account, hostname, port, password, use);
-
-		g_free(cur->data);
-#undef CONF_SERVER_GET_VALUE
-	}
-	return TRUE;
-
-}
 
 void
 account_connect(Account *account, gint server_num, gboolean fallback)

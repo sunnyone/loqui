@@ -57,20 +57,6 @@ void debug_puts(const gchar *format, ...)
 	g_free(str);
 }
 
-gchar *
-utils_gconf_get_basename(const gchar *path)
-{
-	gchar *s;
-
-	g_return_val_if_fail(path != NULL, NULL);
-
-	s = strrchr(path, '/');
-	if(s == NULL)
-		return NULL;
-	s++;
-
-	return g_strdup(s);
-}
 gchar *utils_remove_return_code(gchar *str)
 {
         register gchar *s;

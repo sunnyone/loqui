@@ -11,8 +11,6 @@ loqui_SOURCES = \
 	account_manager.c account_manager.h \
 	loqui_app.c loqui_app.h \
 	connection.c connection.h \
-	eel-gconf-extensions.c eel-gconf-extensions.h \
-	loqui_gconf.h \
 	account.c account.h \
 	codeconv.c codeconv.h \
 	channel_tree.c channel_tree.h \

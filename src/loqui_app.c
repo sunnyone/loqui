@@ -20,13 +20,13 @@
 #include "config.h"
 
 #include "loqui_app.h"
-#include "loqui_gconf.h"
 #include "channel_tree.h"
 #include "connection.h"
 #include "utils.h"
 #include "channel_book.h"
 #include "nick_list.h"
 #include "account_manager.h"
+#include "prefs_general.h"
 
 struct _LoquiAppPrivate
 {
@@ -136,7 +136,7 @@ loqui_app_delete_event_cb(GtkWidget *widget, GdkEventAny *event)
 {
 	account_manager_disconnect_all(account_manager_get());
 
-        if (eel_gconf_get_boolean(LOQUI_GCONF_SIZE "/save_size")) {
+        if (prefs_general->save_size) {
 		loqui_app_save_size(LOQUI_APP(widget));
         }
 	gtk_widget_destroy(widget);
@@ -150,19 +150,16 @@ static void loqui_app_save_size(LoquiApp *app)
 	gint width;
 
 	gtk_window_get_size(GTK_WINDOW(app), &width, &height);
-	eel_gconf_set_integer(LOQUI_GCONF_SIZE "/window_width", width);
-	eel_gconf_set_integer(LOQUI_GCONF_SIZE "/window_height", height);
+	prefs_general->window_width = width;
+	prefs_general->window_height = height;
 	
 	/* TODO: save other size */
 }
 static void loqui_app_restore_size(LoquiApp *app)
 {
-	gint height;
-	gint width;
-
-	height = eel_gconf_get_integer(LOQUI_GCONF_SIZE "/window_width");
-        width = eel_gconf_get_integer(LOQUI_GCONF_SIZE "/window_height");
-        gtk_window_set_default_size(GTK_WINDOW(app), height, width);
+        gtk_window_set_default_size(GTK_WINDOW(app),
+				    prefs_general->window_height, 
+				    prefs_general->window_width);
 }
 
 static void
@@ -188,7 +185,6 @@ loqui_app_new (void)
 	GtkWidget *nick_list;
 	GtkWidget *common_text;
 
-	GtkWidget *appbar;
 	GtkWidget *vbox;
 	GtkWidget *hbox;
 	GtkWidget *hpaned;
