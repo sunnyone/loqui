@@ -128,7 +128,6 @@ Channel*
 channel_new (gchar *name)
 {
         Channel *channel;
-	ChannelPrivate *priv;
 
 	channel = g_object_new(channel_get_type(), NULL);
 
@@ -140,7 +139,7 @@ channel_new (gchar *name)
 }
 
 void
-channel_append_remark(Channel *channel, TextType type, gchar *name, gchar *remark)
+channel_append_remark(Channel *channel, TextType type, gchar *nick, gchar *remark)
 {
 	gchar *line_with_nick;
 	gchar *line_with_channel;
@@ -148,12 +147,18 @@ channel_append_remark(Channel *channel, TextType type, gchar *name, gchar *remar
 	g_return_if_fail(channel != NULL);
 	g_return_if_fail(IS_CHANNEL(channel));
 
-	line_with_nick = g_strdup_printf("<%s> %s", name, remark);
+	if(STRING_IS_CHANNEL(channel->name))
+		line_with_nick = g_strdup_printf("<%s> %s", nick, remark);
+	else
+		line_with_nick = g_strdup_printf("=%s= %s", nick, remark);
 	channel_text_append(CHANNEL_TEXT(channel->text), type, line_with_nick);
 	g_free(line_with_nick);
 
 	if(!account_manager_is_current_channel(account_manager_get(), channel)) {
-		line_with_channel = g_strdup_printf("<%s:%s> %s", channel->name, name, remark);
+		if(STRING_IS_CHANNEL(channel->name))
+			line_with_channel = g_strdup_printf("<%s:%s> %s", channel->name, nick, remark);
+		else
+			line_with_channel = g_strdup_printf("=%s= %s", nick, remark);
 		account_manager_common_text_append(account_manager_get(), TEXT_TYPE_NORMAL, line_with_channel);
 		g_free(line_with_channel);
 	}

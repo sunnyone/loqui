@@ -340,7 +340,6 @@ void nick_list_update(NickList *list, User *user)
 void nick_list_clear(NickList *list)
 {
 	GtkTreeModel *model;
-	GtkTreeIter iter;
 
         g_return_if_fail(list != NULL);
         g_return_if_fail(IS_NICK_LIST(list));

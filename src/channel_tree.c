@@ -151,7 +151,6 @@ GtkWidget*
 channel_tree_new(void)
 {
         ChannelTree *tree;
-	ChannelTreePrivate *priv;
 	GtkTreeStore *model;
 	GtkTreeViewColumn *column;
 	GtkCellRenderer *renderer;

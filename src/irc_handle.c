@@ -166,12 +166,15 @@ irc_handle_command_privmsg_notice(IRCHandle *handle, IRCMessage *msg)
 		channel = account_search_channel_by_name(handle->priv->account, receiver_name);
 		if(channel == NULL) {
 			gdk_threads_enter();
-			channel = channel_new(receiver_name);
+			if(STRING_IS_CHANNEL(receiver_name))
+				channel = channel_new(receiver_name);
+			else
+				channel = channel_new(msg->nick);
 			account_add_channel(handle->priv->account, channel);
 			gdk_threads_leave();
 		}
 	}
-
+	
 	gdk_threads_enter();
 	if(channel != NULL) {
 		channel_append_remark(channel, type, msg->nick, remark);

@@ -55,7 +55,6 @@ struct _IRCHandleClass
         GObjectClass parent_class;
 };
 
-
 GType irc_handle_get_type(void) G_GNUC_CONST;
 
 IRCHandle* irc_handle_new(Account *account, guint server_num, gboolean fallback);
