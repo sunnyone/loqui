@@ -29,6 +29,9 @@
 
 #include <string.h>
 
+#include <libloqui/loqui-core.h>
+#include <libloqui/loqui-static-core.h>
+
 struct _CTCPHandlePrivate
 {
 	LoquiAccount *account;
@@ -260,7 +263,7 @@ ctcp_handle_version(CTCPHandle *ctcp_handle, CTCPMessage *ctcp_msg, const gchar 
 
 	priv = ctcp_handle->priv;
 
-	buf = g_strdup_printf("Loqui version %s", VERSION);
+	buf = loqui_core_get_version_info(loqui_get_core());
 	ctcp_reply = ctcp_message_new(IRCCTCPVersion, buf);
 	g_free(buf);
 	ctcp_handle_send_ctcp_reply(ctcp_handle, ctcp_reply, sender);

@@ -21,6 +21,9 @@ requires 2.0.0
 %}
 
 %h{
+#undef G_LOG_DOMAIN
+#include "config.h"
+
 #include <gtk/gtk.h>
 #include <libloqui/loqui-core.h>
 #include <loqui_account_manager.h>
@@ -95,6 +98,18 @@ class Loqui:Core:Gtk from Loqui:Core
 		PARENT_HANDLER(self);
 	}
 */
+
+	override (Loqui:Core) gchar *get_version_info(Loqui:Core *self_core (check null type)) {
+		/* Self *self; */
+		gchar *str, *libinfo;
+
+		libinfo = PARENT_HANDLER(self_core);
+		str = g_strdup_printf("Loqui version %s (%s; GTK+ %d.%d.%d)",
+				      VERSION, libinfo, GTK_MAJOR_VERSION, GTK_MINOR_VERSION, GTK_MICRO_VERSION);
+		g_free(libinfo);
+
+		return str;
+	}
 
 	public void load_stylerc(self) {
 		gchar *path;
