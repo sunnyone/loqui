@@ -197,6 +197,27 @@ class Loqui:Socket:IPMsg from G:Object
 
 		self_send_packet_with_inetaddr(self, packet, selfp->inetaddr_broadcast);
 	}
+/*
+	public gchar *get_current_ip_addr(self) {
+		gchar *tmp, *tmp2;
+
+		if (!selfp->udpsock)
+			return NULL;
+
+		tmp = gnet_inetaddr_get_canonical_name(gnet_udp_socket_get_local_inetaddr(selfp->udpsock));
+		tmp2 = g_strdup(utils_remove_ipv6_prefix_ffff(tmp));
+		g_free(tmp);
+
+		return tmp2;
+	}
+*/
+
+	public gint get_current_port(self) {
+		if (!selfp->udpsock)
+			return 0;
+
+		return gnet_inetaddr_get_port(gnet_udp_socket_get_local_inetaddr(selfp->udpsock));
+	}
 
 	public LoquiSocketIPMsg *
 	new(LoquiAccount *account) {
