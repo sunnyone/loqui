@@ -1,14 +1,14 @@
 IMAGES_ID = console online offline away busy
 IMAGES = $(IMAGES_ID:%=%.png)
+IMAGES_H = $(IMAGES_ID:%=%.h)
 
-noinst_DATA = pixbufs.h
+noinst_DATA = pixbufs.h $(IMAGES_H)
 CLEANFILES = $(noinst_DATA)
 
-pixbufs.h: $(IMAGES)
-	rm -f $(srcdir)/pixbufs.h
-	touch $(srcdir)/pixbufs.h
-	for I in $(IMAGES_ID); do \
-	  gdk-pixbuf-csource --raw --build-list $${I}_pixbuf $(srcdir)/$$I.png >> $(srcdir)/pixbufs.h; \
-	done
+pixbufs.h: $(IMAGES_H)
+	cat $(IMAGES_H) > $(srcdir)/pixbufs.h
+
+%.h: %.png
+	gdk-pixbuf-csource --raw --build-list $(@:%.h=%)_pixbuf $< > $@
 
 EXTRA_DIST = $(IMAGES) pixbufs.h
