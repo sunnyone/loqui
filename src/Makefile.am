@@ -26,6 +26,7 @@ loqui_SOURCES = \
 	loqui_gtk.c loqui_gtk.h \
 	loqui_app_actions.c loqui_app_actions.h \
 	account_manager.c account_manager.h \
+	loqui_account_manager_iter.c loqui_account_manager_iter.h \
 	loqui_stock.c loqui_stock.h \
 	loqui_app.c loqui_app.h \
 	loqui_channel_entry_store.c loqui_channel_entry_store.h \

@@ -27,6 +27,7 @@
 #include "loqui_profile_handle.h"
 #include "loqui_profile_account_irc.h"
 #include "loqui_app_actions.h"
+#include "loqui_account_manager_iter.h"
 
 struct _AccountManagerPrivate
 {
@@ -422,14 +423,12 @@ account_manager_new_channel_entry_id(AccountManager *manager)
 {
 	return ++manager->max_channel_entry_id;
 }
-
 void
 account_manager_update_positions(AccountManager *manager)
 {
-	GList *cur_ac, *cur_ch;
 	AccountManagerPrivate *priv;
-	Account *account;
-	GList *channel_list;
+	LoquiAccountManagerIter *iter;
+	LoquiChannelEntry *chent;
 	gint i;
 
 	g_return_if_fail(manager != NULL);
@@ -438,16 +437,10 @@ account_manager_update_positions(AccountManager *manager)
 	priv = manager->priv;
 	
 	i = 0;
-	for (cur_ac = priv->account_list; cur_ac != NULL; cur_ac = cur_ac->next) {
-		loqui_channel_entry_set_position(LOQUI_CHANNEL_ENTRY(cur_ac->data), i);
-
-		account = ACCOUNT(cur_ac->data);
-		channel_list = account_get_channel_list(account);
+	iter = loqui_account_manager_iter_new(manager);
+	loqui_account_manager_iter_set_first_channel_entry(iter);
+	while ((chent = loqui_account_manager_iter_channel_entry_next(iter))) {
+		loqui_channel_entry_set_position(chent, i);
 		i++;
-
-		for (cur_ch = channel_list; cur_ch != NULL; cur_ch = cur_ch->next) {
-			loqui_channel_entry_set_position(LOQUI_CHANNEL_ENTRY(cur_ch->data), i);
-			i++;
-		}
 	}
 }

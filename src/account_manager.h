@@ -54,7 +54,6 @@ struct _AccountManagerClass
 	void (* remove_account) (AccountManager *manager, Account *account);
 };
 
-
 GType account_manager_get_type(void) G_GNUC_CONST;
 
 AccountManager* account_manager_new(void);
@@ -83,6 +82,7 @@ LoquiChannelEntry * account_manager_get_next_channel_entry(AccountManager *manag
 LoquiChannelEntry * account_manager_get_previous_channel_entry(AccountManager *manager,
 							       LoquiChannelEntry *chent,
 							       gboolean require_updated);
+
 G_END_DECLS
 
 #endif /* __ACCOUNT_MANAGER_H__ */
