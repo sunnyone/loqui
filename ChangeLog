@@ -1,3 +1,84 @@
+2004-02-26 01:03  y-imai
+
+	* src/nick_list.c: Use naruto and speaker icons.  Made icons
+	  smaller.
+
+2004-02-26 01:02  y-imai
+
+	* src/: main.c, main.h: Added naruto and speaker icons.
+
+2004-02-25 17:29  y-imai
+
+	* src/icons/naruto.png: Deepened icon
+
+2004-02-25 17:17  y-imai
+
+	* src/icons/speaker.png: Added -kb option to cvs
+
+2004-02-25 16:55  y-imai
+
+	* src/icons/: Makefile.am, naruto.png, speaker.png: Added icons,
+	  speaker and naruto.
+
+2004-02-25 14:15  y-imai
+
+	* src/command_dialog.c: Set current nick as nick change dialog.
+
+2004-02-24 02:58  y-imai
+
+	* src/utils.c: Added ttp:// to url_prefix_list.
+
+2004-02-24 02:52  y-imai
+
+	* src/remark_entry.c: Quit command mode when the remark entry is
+	  activated.
+
+2004-02-24 01:51  y-imai
+
+	* src/: buffer_menu.c, buffer_menu.h, loqui_menu.c, main.c, main.h:
+	  Shortcut keys to select a channel.
+
+2004-02-24 00:13  y-imai
+
+	* src/: channel_buffer.c, utils.c, utils.h: Check existence of
+	  localtime_r.
+
+2004-02-18 16:09  y-imai
+
+	* src/prefs_dialog.c: Document about quoting when executing
+	  commands.
+
+2004-02-18 15:58  y-imai
+
+	* src/irc_handle.c: Fixed ++.
+
+2004-02-18 15:53  y-imai
+
+	* src/: irc_handle.c, irc_message.c: irc_message_format(): Not to
+	  add last space when using %%*n (n is a number).
+
+2004-02-18 15:44  y-imai
+
+	* src/irc_handle.c: Clean up mode parser routine.
+
+2004-02-18 15:37  y-imai
+
+	* src/: channel.c, irc_handle.c: Fixed the bug failed to parse
+	  channel mode, 'l' and 'k'.
+
+2004-02-18 13:41  y-imai
+
+	* src/: channel_buffer.c, channel_buffer.h: Share tags with all
+	  channel buffers.
+
+2004-02-08 23:47  y-imai
+
+	* debian/changelog: updated debian changelog
+
+2004-02-08 23:45  y-imai
+
+	* ChangeLog, NEWS, NEWS.ja, configure.in: 0.2.3
+
 2004-02-08 23:42  y-imai
 
 	* src/account.c: Fixed the bug to fail reconnect after failed to

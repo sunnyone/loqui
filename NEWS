@@ -144,3 +144,10 @@
 * Fixed the bug to fail reconnect once loqui failed to connect.
 * Implemented command mode.
 
+2004-02-26     0.2.4
+* Fixed some bugs.
+* Use the current nick as the default value of the nick-change-dialog.
+* Implemented short-cut keys to select a channel.
+* Fixed the bug failed to parse channel mode.
+* Changed icons of +o and +v.
+
