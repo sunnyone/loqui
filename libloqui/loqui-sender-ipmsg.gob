@@ -62,7 +62,7 @@ class Loqui:Sender:IPMsg from Loqui:Sender
 	}
 
 	/* helper */
-	private void send_packet(self, IPMsg:Packet *packet) {
+	private void send_packet_to_default(self, :IPMsg:Packet *packet) {
 		LoquiAccount *account;
 		LoquiSocketIPMsg *socket;
 
@@ -74,14 +74,28 @@ class Loqui:Sender:IPMsg from Loqui:Sender
 		}
 
 		socket = loqui_account_ipmsg_get_socket(LOQUI_ACCOUNT_IPMSG(account));
-		loqui_socket_ipmsg_send_packet(socket, packet);
+		loqui_socket_ipmsg_send_packet_to_default(socket, packet);
+	}
+	private void send_packet(self, :IPMsg:Packet *packet, const gchar *ip_addr, gint port) {
+		LoquiAccount *account;
+		LoquiSocketIPMsg *socket;
+
+		account = SELF_GET_ACCOUNT(self);
+
+		if (!loqui_account_get_is_connected(account)) {
+			loqui_account_warning(account, _("The account is not connected."));
+			return;
+		}
+		
+		socket = loqui_account_ipmsg_get_socket(LOQUI_ACCOUNT_IPMSG(account));
+		loqui_socket_ipmsg_send_packet(socket, packet, ip_addr, port);
 	}
 
 	public void nooperation(self) {
 		IPMsgPacket *packet;
 
 		packet = loqui_account_ipmsg_create_packet(SELF_GET_ACCOUNT_IPMSG(self), IPMSG_NOOPERATION, NULL);
-		loqui_sender_ipmsg_send_packet(self, packet);
+		self_send_packet_to_default(self, packet);
 		g_object_unref(packet);
 	}
 
@@ -108,7 +122,7 @@ class Loqui:Sender:IPMsg from Loqui:Sender
 		packet = loqui_account_ipmsg_create_packet(SELF_GET_ACCOUNT_IPMSG(self),
 							   command_num,
 							   nick);
-		loqui_sender_ipmsg_send_packet(self, packet);
+		self_send_packet_to_default(self, packet);
 		g_object_unref(packet);
 	}
 

@@ -53,7 +53,7 @@ class Loqui:Socket:IPMsg from G:Object
 		self_unbind(self);
 	};
 
-	private GInetAddr *inetaddr unrefwith gnet_inetaddr_unref;
+	private GInetAddr *inetaddr_broadcast unrefwith gnet_inetaddr_unref;
 
 	private LoquiCodeConv *codeconv unrefwith g_object_unref;
 
@@ -144,7 +144,7 @@ class Loqui:Socket:IPMsg from G:Object
 		selfp->in_watch = g_io_add_watch(ioch, G_IO_IN | G_IO_ERR | G_IO_HUP | G_IO_NVAL,
 						(GIOFunc) self_watch_in_cb, self);
 
-		selfp->inetaddr = gnet_inetaddr_new_nonblock("255.255.255.255", IPMSG_DEFAULT_PORT);
+		selfp->inetaddr_broadcast = gnet_inetaddr_new_nonblock("255.255.255.255", IPMSG_DEFAULT_PORT);
 
 		return TRUE;
 	}
@@ -161,12 +161,9 @@ class Loqui:Socket:IPMsg from G:Object
 		gnet_udp_socket_delete(selfp->udpsock);
 		selfp->udpsock = NULL;
 	}
-
-	public void send_packet(self, IPMsgPacket *packet) {
+	public void send_packet_with_inetaddr(self, IPMsgPacket *packet, GInetAddr *inetaddr) {
 		gchar *buf;
 		gint len;
-
-		g_return_if_fail(selfp->inetaddr);
 
 		if (!selfp->udpsock)
 			return;
@@ -176,7 +173,7 @@ class Loqui:Socket:IPMsg from G:Object
 			return;
 		}
 
-		gnet_udp_socket_send(selfp->udpsock, buf, len, selfp->inetaddr);
+		gnet_udp_socket_send(selfp->udpsock, buf, len, inetaddr);
 
 		if (loqui_core_get_show_msg_mode(loqui_get_core())) {
 			gchar *tmp = ipmsg_packet_inspect(packet);
@@ -185,6 +182,20 @@ class Loqui:Socket:IPMsg from G:Object
 		}
 
 		g_free(buf);
+	}
+
+	public void send_packet(self, IPMsgPacket *packet, const gchar *ip_addr, gint port) {
+		GInetAddr *inetaddr;
+
+		inetaddr = gnet_inetaddr_new_nonblock(ip_addr, port);
+		self_send_packet_with_inetaddr(self, packet, inetaddr);
+		gnet_inetaddr_unref(inetaddr);
+	}
+
+	public void send_packet_to_default(self, IPMsgPacket *packet) {
+		g_return_if_fail(selfp->inetaddr_broadcast);
+
+		self_send_packet_with_inetaddr(self, packet, selfp->inetaddr_broadcast);
 	}
 
 	public LoquiSocketIPMsg *
