@@ -707,7 +707,6 @@ void account_join(Account *account, const gchar *target)
 	} else {
 		channel = channel_new(account, target);
 		account_add_channel(account, channel);
-		account_manager_set_current_channel(account_manager_get(), channel);
 	}
 }
 void account_part(Account *account, const gchar *target, const gchar *part_message)

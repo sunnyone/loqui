@@ -235,6 +235,7 @@ account_manager_add_channel_cb(Account *account, Channel *channel, AccountManage
 				 G_CALLBACK(channel_tree_update_user_number), manager->priv->app->channel_tree);
 
 	channel_tree_add_channel(manager->priv->app->channel_tree, account, channel);
+	account_manager_set_current_channel(manager, channel);
 }
 static void
 account_manager_remove_channel_cb(Account *account, Channel *channel, AccountManager *manager)
