@@ -246,10 +246,35 @@ irc_handle_inspect_message(IRCHandle *handle, IRCMessage *msg)
 static gboolean 
 irc_handle_reply(IRCHandle *handle, IRCMessage *msg)
 {
+	gchar *str;
+	gboolean proceeded = FALSE;
+
 	g_return_val_if_fail(handle != NULL, FALSE);
         g_return_val_if_fail(IS_IRC_HANDLE(handle), FALSE);
 
-	return FALSE;
+#define ACCOUNT_CONSOLE_APPEND(format) \
+{ \
+   str = irc_message_format(msg, format); \
+   gdk_threads_enter(); \
+   account_console_text_append(handle->priv->account, TEXT_TYPE_INFO, str); \
+   gdk_threads_leave(); \
+   g_free(str); \
+   proceeded = TRUE; \
+}
+	switch(msg->response) {
+	case IRC_RPL_LUSERCLIENT:
+	case IRC_RPL_LUSERME:
+		ACCOUNT_CONSOLE_APPEND("%2\n");
+		break;
+	case IRC_RPL_LUSEROP:
+	case IRC_RPL_LUSERUNKNOWN:
+	case IRC_RPL_LUSERCHANNELS:
+		ACCOUNT_CONSOLE_APPEND("%2 %3\n");
+		break;
+	default:
+		break;
+	}
+	return proceeded;
 }
 
 static gboolean 
