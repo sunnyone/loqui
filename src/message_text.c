@@ -163,6 +163,7 @@ message_text_finalize(GObject *object)
 	G_FREE_UNLESS_NULL(msgtext->text);
 	G_FREE_UNLESS_NULL(msgtext->channel_name);
 	G_FREE_UNLESS_NULL(msgtext->nick);
+	G_FREE_UNLESS_NULL(msgtext->account_name);
 
         if (G_OBJECT_CLASS(parent_class)->finalize)
                 (* G_OBJECT_CLASS(parent_class)->finalize) (object);
