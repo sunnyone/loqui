@@ -24,6 +24,7 @@
 #include "intl.h"
 #include "main.h"
 #include "irc_constants.h"
+#include "account_manager.h"
 
 struct _NickListPrivate
 {
@@ -293,12 +294,17 @@ nick_list_menu_whois_cb(gpointer data, guint action, GtkWidget *widget)
 {
 	NickList *nick_list;
 	GSList *str_list, *cur;
+	Account *account;
 
 	nick_list = NICK_LIST(data);
 
+	account = account_manager_get_current_account(account_manager_get());
+	if(!account)
+		return;
+
 	str_list = nick_list_menu_get_selected_nicks(nick_list);
 	for(cur = str_list; cur != NULL; cur = cur->next) {
-		g_print("WHOIS %s\n", (gchar *) cur->data);
+		account_whois(account, (gchar *) cur->data);
 		g_free(cur->data);
 	}
 	g_slist_free(str_list);
@@ -308,30 +314,41 @@ nick_list_menu_mode_give_cb(gpointer data, guint action, GtkWidget *widget)
 {
 	NickList *nick_list;
 	GSList *str_list, *cur;
+	Channel *channel;
 
 	nick_list = NICK_LIST(data);
-	
+	channel = account_manager_get_current_channel(account_manager_get());
+	if(!channel)
+		return;
+
 	str_list = nick_list_menu_get_selected_nicks(nick_list);
 	for(cur = str_list; cur != NULL; cur = cur->next) {
-		g_print("MODE +%c %s\n", (gchar) action, (gchar *) cur->data);
+		channel_push_user_mode_queue(channel, TRUE, (IRCModeFlag) action, (gchar *) cur->data);
 		g_free(cur->data);
 	}
 	g_slist_free(str_list);
+	channel_flush_user_mode_queue(channel);
+
 }
 static void
 nick_list_menu_mode_deprive_cb(gpointer data, guint action, GtkWidget *widget)
 {
 	NickList *nick_list;
 	GSList *str_list, *cur;
+	Channel *channel;
 
 	nick_list = NICK_LIST(data);
+	channel = account_manager_get_current_channel(account_manager_get());
+	if(!channel)
+		return;
 
 	str_list = nick_list_menu_get_selected_nicks(nick_list);
 	for(cur = str_list; cur != NULL; cur = cur->next) {
-		g_print("MODE -%c %s\n", (gchar) action, (gchar *) cur->data);
+		channel_push_user_mode_queue(channel, FALSE, (IRCModeFlag) action, (gchar *) cur->data);
 		g_free(cur->data);
 	}
 	g_slist_free(str_list);
+	channel_flush_user_mode_queue(channel);
 }
 
 static gint
