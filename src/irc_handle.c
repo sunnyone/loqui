@@ -227,8 +227,8 @@ static void
 irc_handle_command_privmsg_notice(IRCHandle *handle, IRCMessage *msg)
 {
 	IRCHandlePrivate *priv;
-	gchar *receiver_name, *sender_nick;
-	gchar *channel_name;
+	gchar *receiver_name, *sender;
+	gchar *channel_name = NULL;
 	gchar *remark;
 	LoquiChannel *channel = NULL;
 	TextType type;
@@ -241,7 +241,6 @@ irc_handle_command_privmsg_notice(IRCHandle *handle, IRCMessage *msg)
 	priv = handle->priv;
 
 	receiver_name = irc_message_get_param(msg, 1);
-	sender_nick = msg->nick; /* null if message was sent by a server */
 	remark = irc_message_get_param(msg, 2);
 
 	if(remark == NULL) {
@@ -249,8 +248,8 @@ irc_handle_command_privmsg_notice(IRCHandle *handle, IRCMessage *msg)
 		return;
 	}
 
-	if(sender_nick)
-		is_self = account_is_current_nick(handle->priv->account, sender_nick);
+	if(msg->nick)
+		is_self = account_is_current_nick(handle->priv->account, msg->nick);
 	else
 		is_self = FALSE;
 
@@ -267,7 +266,7 @@ irc_handle_command_privmsg_notice(IRCHandle *handle, IRCMessage *msg)
 		type = TEXT_TYPE_NORMAL;
 	}
 
-	if(sender_nick) {
+	if (msg->nick) {
 		if(ctcp_message_parse_line(remark, &ctcp_msg)) {
 			g_object_set_data(G_OBJECT(ctcp_msg), "sender", msg->nick);
 			g_object_set_data(G_OBJECT(ctcp_msg), "receiver", receiver_name);
@@ -278,25 +277,21 @@ irc_handle_command_privmsg_notice(IRCHandle *handle, IRCMessage *msg)
                 }
 	}
 
-	if(receiver_name != NULL && sender_nick != NULL) {
-		if(LOQUI_UTILS_IRC_STRING_IS_CHANNEL(receiver_name)) {
+	if (receiver_name != NULL) {
+		if(LOQUI_UTILS_IRC_STRING_IS_CHANNEL(receiver_name))
 			channel_name = receiver_name;
-		} else {
-			if(is_self)
-				channel_name = receiver_name;
-			else
-				channel_name = sender_nick;
-		}
-
+		else
+			channel_name = is_self ? receiver_name : msg->nick;
+	}
+	
+	if (channel_name) {
 		channel = account_get_channel(priv->account, channel_name);
 		if(channel == NULL) {
 			channel = loqui_channel_new(priv->account, channel_name, FALSE, !LOQUI_UTILS_IRC_STRING_IS_CHANNEL(channel_name));
 			account_add_channel(priv->account, channel);
 		}
-	}
-	
-	if(channel != NULL) {
-		loqui_channel_append_remark(channel, type, is_self, sender_nick, remark);
+		sender = msg->nick ? msg->nick : msg->prefix;
+		loqui_channel_append_remark(channel, type, is_self, sender, remark);
 	} else {
 		account_console_buffer_append(priv->account, type, remark);
 	}
