@@ -355,7 +355,7 @@ irc_handle_command_part(IRCHandle *handle, IRCMessage *msg)
 	
 	if(account_is_current_nick(handle->priv->account, msg->nick)) {
 		if(channel) {
-			irc_handle_account_console_append(handle, msg, TEXT_TYPE_INFO, "*** You has left %1");
+			irc_handle_account_console_append(handle, msg, TEXT_TYPE_INFO, "*** You have left %1");
 			account_remove_channel(handle->priv->account, channel);
 		}
 	} else {
