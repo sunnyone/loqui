@@ -459,31 +459,33 @@ irc_handle_parse_mode_arguments(IRCHandle *handle, IRCMessage *msg, Channel *cha
   } \
   i++; \
 }
-#define BREAK_IF_ADD_FLAG_IS_UNINITIALIZED() if(is_add < 0) { g_warning(_("Flags don't have + or -")); break; }
-
 	if(channel) {
-		while (*flags) {
-			switch(*flags) {
-			case '+':
+		while (*flags++) {
+			if (*flags == '+') {
 				is_add = 1;
-				break;
-			case '-':
+				continue;
+			} else if (*flags == '-') {
 				is_add = 0;
+				continue;
+			}
+			
+			if (is_add < 0) {
+				g_warning(_("Flags don't have + or -"));
 				break;
+			}
+			
+			switch(*flags) {
 			case IRC_CHANNEL_MODE_OPERATOR:
-				BREAK_IF_ADD_FLAG_IS_UNINITIALIZED();
 				GET_TARGET_OR_RETURN(msg, cur, &target);
 				channel_change_user_power(channel, target,
 							  is_add ? USER_POWER_OP : USER_POWER_NOTHING); /* FIXME */
 				break;
 			case IRC_CHANNEL_MODE_VOICE:
-				BREAK_IF_ADD_FLAG_IS_UNINITIALIZED();
 				GET_TARGET_OR_RETURN(msg, cur, &target);
 				channel_change_user_power(channel, target,
 							  is_add ? USER_POWER_VOICE : USER_POWER_NOTHING); /* FIXME */
 				break;
 			case IRC_CHANNEL_MODE_CREATOR:
-				BREAK_IF_ADD_FLAG_IS_UNINITIALIZED();
 				break;
 			case IRC_CHANNEL_MODE_ANONYMOUS:
 			case IRC_CHANNEL_MODE_INVITE_ONLY:
@@ -493,25 +495,21 @@ irc_handle_parse_mode_arguments(IRCHandle *handle, IRCMessage *msg, Channel *cha
 			case IRC_CHANNEL_MODE_SECRET:
 			case IRC_CHANNEL_MODE_SERVER_REOP:
 			case IRC_CHANNEL_MODE_TOPIC_SETTABLE_BY_CHANNEL_OPERATOR_ONLY:
-				BREAK_IF_ADD_FLAG_IS_UNINITIALIZED();
 				channel_change_mode(channel, (gboolean) is_add, *flags, NULL);
 				break;
 			case IRC_CHANNEL_MODE_CHANNEL_KEY:
 			case IRC_CHANNEL_MODE_USER_LIMIT:
-				BREAK_IF_ADD_FLAG_IS_UNINITIALIZED();
 				GET_TARGET_OR_RETURN(msg, cur, &target);
 				channel_change_mode(channel, (gboolean) is_add, *flags, target);
 				break;
 			case IRC_CHANNEL_MODE_BAN_MASK:
 			case IRC_CHANNEL_MODE_EXCEPTION_TO_OVERIDE_BAN_MASK:
 			case IRC_CHANNEL_MODE_INVITATION_MASK:
-				BREAK_IF_ADD_FLAG_IS_UNINITIALIZED();
 				break;
 			default:
 				g_warning(_("Unknown mode flag"));
 				break;
 			}
-			flags++;
 		}
 	} else {
 		/* FIXME: handle user modes */
