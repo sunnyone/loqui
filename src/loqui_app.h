@@ -93,16 +93,10 @@ void loqui_app_update_info(LoquiApp *app,
 			   gboolean is_account_changed, Account *account,
 			   gboolean is_channel_changed, LoquiChannel *channel);
 
-void loqui_app_set_channel_buffer(LoquiApp *app, ChannelBuffer *buffer);
-ChannelBuffer *loqui_app_get_channel_buffer(LoquiApp *app);
-
 void loqui_app_set_common_buffer(LoquiApp *app, ChannelBuffer *buffer);
 
 void loqui_app_set_show_statusbar(LoquiApp *app, gboolean show);
 void loqui_app_set_show_channelbar(LoquiApp *app, gboolean show);
-
-void loqui_app_scroll_channel_buffer(LoquiApp *app);
-void loqui_app_scroll_common_buffer(LoquiApp *app);
 
 void loqui_app_scroll_page_channel_buffer(LoquiApp *app, gint pages);
 void loqui_app_scroll_page_common_buffer(LoquiApp *app, gint pages);
@@ -117,12 +111,9 @@ void loqui_app_set_current_channel_entry(LoquiApp *app, LoquiChannelEntry *chent
 
 LoquiChannel *loqui_app_get_current_channel(LoquiApp *app);
 Account *loqui_app_get_current_account(LoquiApp *app);
-void loqui_app_set_current_channel(LoquiApp *app, LoquiChannel *channel);
-void loqui_app_set_current_account(LoquiApp *app, Account *account);
 
 gboolean loqui_app_is_current_account(LoquiApp *app, Account *account);
 gboolean loqui_app_is_current_channel(LoquiApp *app, LoquiChannel *channel);
-gboolean loqui_app_is_current_channel_buffer(LoquiApp *app, ChannelBuffer *buffer);
 
 void loqui_app_set_nick_list_sort_type(LoquiApp *app, PrefSortType sort_type);
 
