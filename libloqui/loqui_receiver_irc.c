@@ -1497,9 +1497,6 @@ loqui_receiver_irc_response(LoquiReceiverIRC *receiver, IRCMessage *msg)
         g_return_if_fail(receiver != NULL);
         g_return_if_fail(LOQUI_IS_RECEIVER_IRC(receiver));
 
-	if(loqui_core_get_show_msg_mode(loqui_get_core()))
-		irc_message_print(msg);
-
 	if(IRC_MESSAGE_IS_COMMAND(msg)) {
 		proceeded = loqui_receiver_irc_command(receiver, msg);
 	} else if(IRC_MESSAGE_IS_REPLY(msg)) {

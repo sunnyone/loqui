@@ -469,8 +469,14 @@ loqui_account_irc_conn_readline_cb(GConn *conn, const gchar *buffer, LoquiAccoun
 		loqui_account_warning(LOQUI_ACCOUNT(account), "Failed to parse a line");
 		return;
 	}
-	if (loqui_core_get_show_msg_mode(loqui_get_core()))
-		irc_message_print(msg);
+
+	if(loqui_core_get_show_msg_mode(loqui_get_core())) {
+		gchar *tmp;
+
+		tmp = irc_message_inspect(msg);
+		g_print("[%s] << %s\n", loqui_channel_entry_get_name(LOQUI_CHANNEL_ENTRY(account)), tmp);
+		g_free(tmp);
+	}
 
 	loqui_receiver_irc_response(LOQUI_RECEIVER_IRC(LOQUI_ACCOUNT(account)->receiver), msg);
 	g_object_unref(msg);
@@ -517,8 +523,15 @@ loqui_account_irc_conn_writable_cb(GConn *conn, LoquiAccountIRC *account)
 		return;
 	}
 
-	/* TODO: signal */
+	if (loqui_core_get_show_msg_mode(loqui_get_core())) {
+		gchar *tmp;
 
+		tmp = irc_message_inspect(msg);
+		g_print("[%s] >> %s\n", loqui_channel_entry_get_name(LOQUI_CHANNEL_ENTRY(account)), tmp);
+		g_free(tmp);
+	}
+
+	loqui_sender_irc_message_sent(LOQUI_SENDER_IRC(loqui_account_get_sender(LOQUI_ACCOUNT(account))), msg);
 	g_object_unref(msg);
 }
 static void

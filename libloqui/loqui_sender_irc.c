@@ -73,6 +73,9 @@ static void loqui_sender_irc_quit(LoquiSender *sender, const gchar *quit_message
 static void loqui_sender_irc_join_raw(LoquiSender *sender, const gchar *target, const gchar *key);
 static void loqui_sender_irc_start_private_talk_raw(LoquiSender *sender, const gchar *target);
 
+static void loqui_sender_sent_quit(LoquiSenderIRC *sender, IRCMessage *msg);
+static void loqui_sender_sent_privmsg_notice(LoquiSenderIRC *sender, IRCMessage *msg);
+
 /* helper */
 static void loqui_sender_irc_send_irc_message(LoquiSenderIRC *sender, IRCMessage *msg);
 static void loqui_sender_irc_speak(LoquiSenderIRC *sender, LoquiChannel *channel, const gchar *text, gboolean is_notice);
@@ -481,8 +484,6 @@ loqui_sender_irc_quit(LoquiSender *sender, const gchar *quit_message)
 	msg = irc_message_create(IRCCommandQuit, quit_message, NULL);
 	loqui_sender_irc_send_irc_message(LOQUI_SENDER_IRC(sender), msg);
 	g_object_unref(msg);
-
-	LOQUI_SENDER_IRC(sender)->sent_quit = TRUE;
 }
 static void
 loqui_sender_irc_join_raw(LoquiSender *sender, const gchar *target, const gchar *key)
@@ -583,7 +584,6 @@ void
 loqui_sender_irc_send_raw(LoquiSenderIRC *sender, const gchar *str)
 {
 	IRCMessage *msg;
-	gchar *buf;
 
         g_return_if_fail(sender != NULL);
         g_return_if_fail(LOQUI_IS_SENDER_IRC(sender));
@@ -591,11 +591,6 @@ loqui_sender_irc_send_raw(LoquiSenderIRC *sender, const gchar *str)
 	WARN_AND_RETURN_UNLESS_CONNECTED(sender);
 
 	msg = irc_message_parse_line(str);
-	if (loqui_core_get_debug_mode(loqui_get_core())) {
-		buf = irc_message_to_string(msg);
-		debug_puts("send_raw: %s", buf);
-		g_free(buf);
-	}
 	loqui_sender_irc_send_irc_message(LOQUI_SENDER_IRC(sender), msg);
 	g_object_unref(msg);
 }
@@ -688,8 +683,6 @@ loqui_sender_irc_change_member_mode(LoquiSenderIRC *sender, LoquiChannel *channe
 
 	msg = irc_message_createv(IRCCommandMode, param_array);
 	debug_puts("Sending MODE command.\n");
-	if (loqui_core_get_show_msg_mode(loqui_get_core()))
-		irc_message_print(msg);
 	loqui_sender_irc_send_irc_message(LOQUI_SENDER_IRC(sender), msg);
 	g_object_unref(msg);
 }
@@ -750,4 +743,52 @@ loqui_sender_irc_pass(LoquiSenderIRC *sender, const gchar *password)
 				 password, NULL);
 	loqui_sender_irc_send_irc_message(LOQUI_SENDER_IRC(sender), msg);
 	g_object_unref(msg);
+}
+
+/* the function receives the message sent by AccountIRC */
+void
+loqui_sender_irc_message_sent(LoquiSenderIRC *sender, IRCMessage *msg)
+{
+        g_return_if_fail(sender != NULL);
+        g_return_if_fail(LOQUI_IS_SENDER_IRC(sender));
+
+	WARN_AND_RETURN_UNLESS_CONNECTED(sender);
+
+	switch (msg->response) {
+	case IRC_COMMAND_QUIT:
+		loqui_sender_sent_quit(sender, msg);
+		break;
+	case IRC_COMMAND_PRIVMSG:
+	case IRC_COMMAND_NOTICE:
+		loqui_sender_sent_privmsg_notice(sender, msg);
+		break;
+	default:
+		break;
+	}
+}
+
+static void
+loqui_sender_sent_quit(LoquiSenderIRC *sender, IRCMessage *msg)
+{
+	LoquiAccount *account;
+
+        g_return_if_fail(sender != NULL);
+        g_return_if_fail(LOQUI_IS_SENDER_IRC(sender));
+
+	account = loqui_sender_get_account(LOQUI_SENDER(sender));
+
+	LOQUI_SENDER_IRC(sender)->sent_quit = TRUE;
+}
+
+static void
+loqui_sender_sent_privmsg_notice(LoquiSenderIRC *sender, IRCMessage *msg)
+{
+	LoquiAccount *account;
+
+        g_return_if_fail(sender != NULL);
+        g_return_if_fail(LOQUI_IS_SENDER_IRC(sender));
+
+	account = loqui_sender_get_account(LOQUI_SENDER(sender));
+
+	/* TODO: append to buffer */
 }

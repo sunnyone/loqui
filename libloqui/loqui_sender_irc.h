@@ -23,6 +23,7 @@
 
 #include <glib-object.h>
 #include "loqui_sender.h"
+#include <libloqui/irc_message.h>
 
 G_BEGIN_DECLS
 
@@ -71,6 +72,9 @@ void loqui_sender_irc_change_member_mode(LoquiSenderIRC *sender, LoquiChannel *c
 					 gboolean is_give, IRCModeFlag flag, GList *str_list);
 void loqui_sender_irc_user_raw(LoquiSenderIRC *sender, const gchar *username, const gchar *realname);
 void loqui_sender_irc_pass(LoquiSenderIRC *sender, const gchar *password);
+
+
+void loqui_sender_irc_message_sent(LoquiSenderIRC *sender, IRCMessage *msg);
 
 G_END_DECLS
 
