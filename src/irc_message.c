@@ -226,7 +226,7 @@ irc_message_parse_line(const gchar *line)
 {
 	IRCMessage *msg;
 	gchar *array[20];
-	gchar *prefix = NULL, *command, *parameter[16];
+	gchar *prefix = NULL, *command = NULL, *parameter[16];
 	int i = 0, num, start;
 	gchar *buf;
 	gchar *cur, *tmp;
@@ -236,8 +236,12 @@ irc_message_parse_line(const gchar *line)
 	buf = g_strdup(line);
 	g_strstrip(buf);
 
-	cur = buf;
+	if(buf == NULL || *buf == '\0') {
+		debug_puts("Empty line was sent by server.");
+		return NULL;
+	}
 
+	cur = buf;
 	while((tmp = strchr(cur, ' ')) != NULL) {
 		while(*tmp == ' ') {
 			*tmp = '\0';
@@ -250,7 +254,7 @@ irc_message_parse_line(const gchar *line)
 		array[i++] = cur;
 		cur = tmp;
 
-		if(i > 16)
+		if(i >= IRC_MESSAGE_PARAMETER_MAX)
 			break;
 
 		if(*cur == ':') {
