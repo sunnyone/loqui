@@ -44,6 +44,8 @@ struct _LoquiChannelBufferGtk
 	gboolean show_account_name;
 	gboolean show_channel_name;
 
+	gboolean hover_tag_applied;
+
         LoquiChannelBufferGtkPrivate *priv;
 };
 

@@ -80,7 +80,10 @@ static gboolean loqui_channel_text_view_get_buffer_and_iter_at_event_xy(LoquiCha
 									LoquiChannelBufferGtk **buffer_gtk, GtkTextIter *iter,
 									gint event_x, gint event_y);
 static gboolean loqui_channel_text_view_get_uri_at_iter(LoquiChannelTextView *chview,
-							LoquiChannelBufferGtk *buffer_gtk, GtkTextIter *iter, gchar **uri_ptr);
+							LoquiChannelBufferGtk *buffer_gtk,
+							GtkTextIter *iter,
+							GtkTextIter *uri_start_iter,
+							GtkTextIter *uri_end_iter);
 
 static void loqui_channel_text_view_iter_activated(LoquiChannelTextView *chview, LoquiChannelBufferGtk *buffer_gtk, GtkTextIter *iter);
 static void loqui_channel_text_view_update_cursor(LoquiChannelTextView *chview, gint event_x, gint event_y);
@@ -411,12 +414,15 @@ loqui_channel_text_view_get_buffer_and_iter_at_event_xy(LoquiChannelTextView *ch
 }
 
 static gboolean
-loqui_channel_text_view_get_uri_at_iter(LoquiChannelTextView *chview, LoquiChannelBufferGtk *buffer_gtk, GtkTextIter *iter, gchar **uri_ptr)
+loqui_channel_text_view_get_uri_at_iter(LoquiChannelTextView *chview,
+					LoquiChannelBufferGtk *buffer_gtk,
+					GtkTextIter *iter,
+					GtkTextIter *uri_start_iter,
+					GtkTextIter *uri_end_iter)
 {
 	GtkTextBuffer *buffer;
 	GtkTextTag *tag_link;
 	gboolean in_uri;
-	GtkTextIter start_iter, end_iter;
 
 	buffer = GTK_TEXT_BUFFER(buffer_gtk);
 
@@ -427,36 +433,38 @@ loqui_channel_text_view_get_uri_at_iter(LoquiChannelTextView *chview, LoquiChann
 
 	if (!in_uri)
 		return FALSE;
-	if (in_uri && uri_ptr == NULL)
-		return TRUE;
 	
-	start_iter = *iter;
-	end_iter = *iter;
-
-	if (!gtk_text_iter_backward_to_tag_toggle(&start_iter, tag_link)) {
-		debug_puts("Can't find start.");
-		return FALSE;
+	if (uri_start_iter) {
+		*uri_start_iter = *iter;
+		if (!gtk_text_iter_backward_to_tag_toggle(uri_start_iter, tag_link)) {
+			debug_puts("Can't find start.");
+			return FALSE;
+		}
 	}
 
-	if (!gtk_text_iter_forward_to_tag_toggle(&end_iter, tag_link)) {
-		debug_puts("Can't find end");
-		return FALSE;
+	if (uri_end_iter) {
+		*uri_end_iter = *iter;
+		if (!gtk_text_iter_forward_to_tag_toggle(uri_end_iter, tag_link)) {
+			debug_puts("Can't find end");
+			return FALSE;
+		}
 	}
-	
-	*uri_ptr = gtk_text_iter_get_text(&start_iter, &end_iter);
+
 	return TRUE;
 }
 static void
 loqui_channel_text_view_iter_activated(LoquiChannelTextView *chview, LoquiChannelBufferGtk *buffer_gtk, GtkTextIter *iter)
 {
 	gchar *uri_str;
+	GtkTextIter uri_start_iter, uri_end_iter;
 
         g_return_if_fail(chview != NULL);
         g_return_if_fail(LOQUI_IS_CHANNEL_TEXT_VIEW(chview));
         g_return_if_fail(buffer_gtk != NULL);
         g_return_if_fail(LOQUI_IS_CHANNEL_BUFFER_GTK(buffer_gtk));
 
-	if (loqui_channel_text_view_get_uri_at_iter(chview, buffer_gtk, iter, &uri_str)) {
+	if (loqui_channel_text_view_get_uri_at_iter(chview, buffer_gtk, iter, &uri_start_iter, &uri_end_iter)) {
+		uri_str = gtk_text_iter_get_text(&uri_start_iter, &uri_end_iter);
 		gtkutils_exec_command_argument_with_error_dialog(prefs_general.browser_command, uri_str);
 		g_free(uri_str);
 	}
@@ -465,9 +473,14 @@ static void
 loqui_channel_text_view_update_cursor(LoquiChannelTextView *chview, gint event_x, gint event_y)
 {
 	LoquiChannelTextViewPrivate *priv;
-	GtkTextIter iter;
+	GtkTextIter iter, old_hover_iter;
+	GtkTextIter uri_start_iter, uri_end_iter;
+	GtkTextIter old_uri_start_iter, old_uri_end_iter;
 	gboolean should_hand_cursor;
 	LoquiChannelBufferGtk *buffer_gtk;
+	GtkTextBuffer *buffer;
+	GtkTextTag *hover_tag;
+	GtkTextMark *hover_mark;
 
         g_return_if_fail(chview != NULL);
         g_return_if_fail(LOQUI_IS_CHANNEL_TEXT_VIEW(chview));
@@ -477,7 +490,9 @@ loqui_channel_text_view_update_cursor(LoquiChannelTextView *chview, gint event_x
 	if (!loqui_channel_text_view_get_buffer_and_iter_at_event_xy(chview, &buffer_gtk, &iter, event_x, event_y))
 		return;
 
-	should_hand_cursor = loqui_channel_text_view_get_uri_at_iter(chview, buffer_gtk, &iter, NULL);
+	buffer = GTK_TEXT_BUFFER(buffer_gtk);
+
+	should_hand_cursor = loqui_channel_text_view_get_uri_at_iter(chview, buffer_gtk, &iter, &uri_start_iter, &uri_end_iter);
 
 	if (should_hand_cursor && !priv->is_hand_cursor) {
 		gdk_window_set_cursor(gtk_text_view_get_window(GTK_TEXT_VIEW(chview), GTK_TEXT_WINDOW_TEXT),
@@ -490,6 +505,34 @@ loqui_channel_text_view_update_cursor(LoquiChannelTextView *chview, gint event_x
 	}
 
 	gdk_window_get_pointer(GTK_WIDGET(chview)->window, NULL, NULL, NULL);
+
+	if (!buffer_gtk->hover_tag_applied &&
+	    !should_hand_cursor)
+		return;
+
+	hover_tag = gtk_text_tag_table_lookup(gtk_text_buffer_get_tag_table(buffer), "hover");
+	g_return_if_fail(hover_tag != NULL);
+
+	hover_mark = gtk_text_buffer_get_mark(buffer, "hover");
+	g_return_if_fail(hover_mark != NULL);
+
+	if (buffer_gtk->hover_tag_applied) {
+		gtk_text_buffer_get_iter_at_mark(buffer, &old_hover_iter, hover_mark);
+		if (loqui_channel_text_view_get_uri_at_iter(chview, buffer_gtk, &old_hover_iter, &old_uri_start_iter, &old_uri_end_iter)) {
+			gtk_text_buffer_remove_tag(buffer, hover_tag, &old_uri_start_iter, &old_uri_end_iter);
+		}
+		buffer_gtk->hover_tag_applied = FALSE;
+	}
+
+	if (should_hand_cursor) {
+		/* forward 1 char to ensure the mark is in the tagged area */
+		iter = uri_start_iter;
+		if (!gtk_text_iter_forward_char(&iter)) /* if failed, don't mark and tag */
+			return;
+		gtk_text_buffer_move_mark(buffer, hover_mark, &iter);
+		gtk_text_buffer_apply_tag(buffer, hover_tag, &uri_start_iter, &uri_end_iter);
+		buffer_gtk->hover_tag_applied = TRUE;
+	}
 }
 GtkWidget *
 loqui_channel_text_view_new(LoquiApp *app)

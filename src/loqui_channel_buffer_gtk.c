@@ -147,9 +147,13 @@ loqui_channel_buffer_gtk_init_tags(void)
 	gtk_text_tag_table_add(default_tag_table, tag);
 
 	tag = gtk_text_tag_new("link");
-	g_object_set(tag, "foreground", "blue", "underline", PANGO_UNDERLINE_SINGLE, NULL);
+	g_object_set(tag, "foreground", "blue", NULL);
 	gtk_text_tag_table_add(default_tag_table, tag);
 	
+	tag = gtk_text_tag_new("hover");
+	g_object_set(tag, "underline", PANGO_UNDERLINE_SINGLE, NULL);
+	gtk_text_tag_table_add(default_tag_table, tag);
+
 	tag = gtk_text_tag_new("transparent");
 	gtk_text_tag_table_add(default_tag_table, tag);
 
@@ -361,6 +365,7 @@ loqui_channel_buffer_gtk_new(void)
 
 	gtk_text_buffer_get_start_iter(textbuf, &iter);
 	gtk_text_buffer_create_mark(textbuf, "end", &iter, FALSE);
+	gtk_text_buffer_create_mark(textbuf, "hover", &iter, FALSE);
 
 	g_signal_connect_after(G_OBJECT(textbuf), "insert-text",
 			       G_CALLBACK(loqui_channel_buffer_gtk_text_inserted_cb), NULL);
