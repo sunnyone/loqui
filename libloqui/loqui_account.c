@@ -573,6 +573,27 @@ loqui_account_terminate(LoquiAccount *account)
 
 	g_signal_emit(G_OBJECT(account), account_signals[SIGNAL_TERMINATE], 0);
 }
+static void
+loqui_account_force_reconnect_notify_is_connected_cb(LoquiAccount *account, GParamSpec *param, gpointer data)
+{
+	g_signal_handlers_disconnect_by_func(account, loqui_account_force_reconnect_notify_is_connected_cb, data);
+
+	loqui_account_connect(account);
+}
+void
+loqui_account_force_reconnect(LoquiAccount *account)
+{
+	LoquiAccountPrivate *priv;
+
+        g_return_if_fail(account != NULL);
+        g_return_if_fail(LOQUI_IS_ACCOUNT(account));
+
+	priv = account->priv;
+	g_signal_connect(G_OBJECT(account), "notify::is-connected",
+			 G_CALLBACK(loqui_account_force_reconnect_notify_is_connected_cb), account);
+
+	loqui_account_disconnect(account);
+}
 void
 loqui_account_cancel_pending_reconnecting(LoquiAccount *account)
 {

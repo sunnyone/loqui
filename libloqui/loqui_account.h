@@ -107,6 +107,7 @@ LoquiUser* loqui_account_get_user_self(LoquiAccount *account);
 void loqui_account_connect(LoquiAccount *account);
 void loqui_account_disconnect(LoquiAccount *account);
 void loqui_account_terminate(LoquiAccount *account);
+void loqui_account_force_reconnect(LoquiAccount *account);
 
 void loqui_account_cancel_pending_reconnecting(LoquiAccount *account);
 

@@ -384,8 +384,7 @@ loqui_app_actions_reconnect_current_account_cb(GtkAction *action, LoquiApp *app)
 
 	account = loqui_app_get_current_account(app);
 	if (account) {
-		loqui_account_disconnect(account);
-		loqui_account_connect(account);
+		loqui_account_force_reconnect(account);
 	}
 }
 static void
