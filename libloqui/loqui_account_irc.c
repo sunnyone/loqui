@@ -495,8 +495,8 @@ loqui_account_irc_terminate(LoquiAccount *account)
 		priv->conn = NULL;
 		
 		loqui_account_information(LOQUI_ACCOUNT(account), _("Terminated."));
-		loqui_account_remove_all_channel(LOQUI_ACCOUNT(account));
-		
+		loqui_account_set_all_channel_unjoined(LOQUI_ACCOUNT(account));
+
 		loqui_user_set_away(loqui_account_get_user_self(LOQUI_ACCOUNT(account)), LOQUI_AWAY_TYPE_OFFLINE);
 
 		loqui_account_set_is_connected(LOQUI_ACCOUNT(account), FALSE);

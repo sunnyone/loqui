@@ -657,7 +657,6 @@ loqui_account_remove_all_channel(LoquiAccount *account)
 	}
 	g_list_free(list);
 }
-
 GList *
 loqui_account_get_channel_list(LoquiAccount *account)
 {
@@ -904,4 +903,16 @@ loqui_account_get_is_pending_reconnecting(LoquiAccount *account)
         g_return_val_if_fail(LOQUI_IS_ACCOUNT(account), 0);
 
 	return account->is_pending_reconnecting;
+}
+void
+loqui_account_set_all_channel_unjoined(LoquiAccount *account)
+{
+	GList *cur;
+
+        g_return_if_fail(account != NULL);
+        g_return_if_fail(LOQUI_IS_ACCOUNT(account));
+
+	for (cur = account->channel_list; cur != NULL; cur = cur->next) {
+		loqui_channel_set_is_joined(LOQUI_CHANNEL(cur->data), FALSE);
+	}
 }

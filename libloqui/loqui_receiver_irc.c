@@ -463,7 +463,7 @@ loqui_receiver_irc_command_error(LoquiReceiverIRC *receiver, IRCMessage *msg)
 	account = loqui_receiver_get_account(LOQUI_RECEIVER(receiver));
 	
 	loqui_receiver_irc_account_console_append(receiver, msg, LOQUI_TEXT_TYPE_ERROR, "*** %t");
-	loqui_account_remove_all_channel(LOQUI_ACCOUNT(account));
+	loqui_account_set_all_channel_unjoined(LOQUI_ACCOUNT(account));
 }
 static void
 loqui_receiver_irc_command_nick(LoquiReceiverIRC *receiver, IRCMessage *msg)

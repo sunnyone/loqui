@@ -153,6 +153,8 @@ gboolean loqui_account_get_is_connected(LoquiAccount *account);
 void loqui_account_set_is_pending_reconnecting(LoquiAccount *account, gboolean is_pending_reconnecting);
 gboolean loqui_account_get_is_pending_reconnecting(LoquiAccount *account);
 
+void loqui_account_set_all_channel_unjoined(LoquiAccount *account);
+
 G_END_DECLS
 
 #endif /* __LOQUI_ACCOUNT_H__ */
