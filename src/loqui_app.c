@@ -755,6 +755,8 @@ loqui_app_set_current_channel_entry(LoquiApp *app, LoquiChannelEntry *chent)
 
 	channel_tree_select_channel_entry(app->channel_tree, chent);
 
+	gtk_widget_grab_focus(app->remark_entry);
+
 	if (prefs_general.auto_switch_scrolling)
 		loqui_app_actions_toggle_action_set_active(app, LOQUI_ACTION_TOGGLE_SCROLL, TRUE);
 }
