@@ -23,6 +23,7 @@
 #include "command_table.h"
 #include "utils.h"
 #include "irc_constants.h"
+#include "intl.h"
 
 #include <stdarg.h>
 #include <string.h>
@@ -384,9 +385,11 @@ irc_message_count_parameters(IRCMessage *msg)
 gchar *
 irc_message_get_trailing(IRCMessage *msg)
 {
-	int num;
+	guint num;
 
 	num = irc_message_count_parameters(msg);
+	if(num < 1)
+		return "";
 	return msg->parameter[num-1];
 }
 gchar *
@@ -397,7 +400,10 @@ irc_message_get_param(IRCMessage *msg, guint i)
 
 	i--;
 	num = irc_message_count_parameters(msg);
-	g_return_val_if_fail(num >= i, NULL);
+	if(num < i) {
+		g_warning(_("Invalid parameter number"));
+		return NULL;
+	}
 	
 	return msg->parameter[i];
 }
@@ -407,17 +413,15 @@ irc_message_format(IRCMessage *msg, const gchar *format)
 {
 	GString *string;
 	const gchar *cur;
-	gchar *tmp, *buf, *format_buf;
+	gchar *tmp, *buf;
 	guint64 i, end;
 
         g_return_val_if_fail(msg != NULL, NULL);
         g_return_val_if_fail(IS_IRC_MESSAGE(msg), NULL);
 	g_return_val_if_fail(format != NULL, NULL);
 
-	format_buf = g_strdup(format);
-	string = g_string_new(NULL);
-	cur = format_buf;
-
+	string = g_string_new_len(NULL, strlen(format));
+	cur = format;
 	while((tmp = strchr(cur, '%')) != NULL) {
 		if(tmp > cur) {
 			string = g_string_append_len(string, cur, tmp - cur);
@@ -478,8 +482,6 @@ irc_message_format(IRCMessage *msg, const gchar *format)
 
 	tmp = string->str;
 	g_string_free(string, FALSE);
-
-	g_free(format_buf);
 
 	return tmp;
 }
