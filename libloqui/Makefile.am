@@ -67,6 +67,7 @@ SRC_PROTOCOL_MSN = \
 	msn_constants.h
 
 SRC_LIBRARY_CORE = \
+	libloqui-intl.h \
 	loqui_protocol_manager.c loqui_protocol_manager.h \
 	loqui_member_sort_funcs.c loqui_member_sort_funcs.h \
 	loqui_profile_handle.c loqui_profile_handle.h \
@@ -75,12 +76,14 @@ SRC_LIBRARY_CORE = \
 	loqui_account_manager_iter.c loqui_account_manager_iter.h \
 	loqui-core.gob loqui-core.c loqui-core.h loqui-core-private.h \
 	loqui-pref.gob loqui-pref.c loqui-pref.h loqui-pref-private.h \
+	loqui-pref-partial.gob loqui-pref-partial.c loqui-pref-partial.h loqui-pref-partial-private.h \
 	loqui-static-core.c loqui-static-core.h \
 	loqui.h
 
 BUILT_SOURCES := loqui_marshalers.c loqui_marshalers.h \
 	loqui-core.c loqui-core.h loqui-core-private.h \
-	loqui-pref.c loqui-pref.h loqui-pref-private.h
+	loqui-pref.c loqui-pref.h loqui-pref-private.h \
+	loqui-pref-partial.c loqui-pref-partial.h loqui-pref-partial-private.h
 
 lib_LTLIBRARIES = libloqui.la
 

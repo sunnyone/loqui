@@ -1,0 +1,141 @@
+requires 2.0.0
+
+%alltop{
+/*
+ * libloqui -- Chat/IM client library for GLib <http://loqui.good-day.net/>
+ * Copyright (C) 2004 Yoichi Imai <yoichi@silver-forest.com>
+ *
+ * This Library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Library General Public License as
+ * published by the Free Software Foundation; either version 2 of the
+ * License, or (at your option) any later version.
+ *
+ * This Library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Library General Public License for more details.
+ *
+ * You should have received a copy of the GNU Library General Public
+ * License along with the Gnome Library; see the file COPYING.LIB.  If not,
+ * write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+ * Boston, MA 02111-1307, USA.
+ */
+%}
+
+%{
+#include <libloqui-intl.h>
+#include "utils.h"
+%}
+
+%h{
+#include <loqui-pref.h>
+%}
+class Loqui:Pref:Partial from G:Object
+{
+	public LoquiPrefPartial * new(void) {
+		LoquiPrefPartial *ret = GET_NEW;
+		return ret;
+	}
+
+	public LoquiPref *pref
+	  unref {
+		self_set_pref(self, NULL);
+	};
+
+	property OBJECT pref (nick = _("Pref"), blurb = _("Pref Object"), default_value = NULL)
+		get { g_value_set_object(VAL, self_get_pref(self)); }
+	        set { self_set_pref(self, g_value_get_object(VAL)); };
+
+	private int watcher_signal_id = 0;
+	public void set_pref(self, LoquiPref *pref) {
+		if (selfp->watcher_signal_id) {
+			g_signal_handler_disconnect(self, selfp->watcher_signal_id);
+			selfp->watcher_signal_id = 0;
+		}
+		G_OBJECT_UNREF_UNLESS_NULL(self->pref);
+
+		if (pref) {
+			self->pref = g_object_ref(pref);
+			selfp->watcher_signal_id = g_signal_connect(pref, "changed", G_CALLBACK(self_pref_changed_cb), self);
+		}
+	}
+
+	public LoquiPref *get_pref(self) {
+		return self->pref;
+	}
+
+	signal last NONE (STRING)
+	void changed_partial(self, const gchar *key);
+
+	public gchar *group_name unrefwith g_free;
+	property STRING group_name
+	(nick = _("Group name"),
+	 blurb = _("Group name"),
+	 default_value = NULL, link);
+
+	public /*G_CONST_RETURN*/ gchar *get_group_name(self) {
+		return self->group_name;
+	}
+	public void set_group_name(self, const gchar *group_name) {
+		g_object_set(self, "group_name", group_name, NULL);
+	}
+
+	public gchar *get_string(self, const gchar *key, GError **error) {
+		g_return_val_if_fail(self->group_name, NULL);
+
+		return loqui_pref_get_string(LOQUI_PREF(self->pref), self->group_name, key, error);
+	}
+	public gint get_integer(self, const gchar *key, GError **error) {
+		g_return_val_if_fail(self->group_name, 0);
+
+		return loqui_pref_get_integer(LOQUI_PREF(self->pref), self->group_name, key, error);
+	}
+	public gboolean get_boolean(self, const gchar *key, GError **error) {
+		g_return_val_if_fail(self->group_name, FALSE);
+
+		return loqui_pref_get_boolean(LOQUI_PREF(self->pref), self->group_name, key, error);
+	}
+	public gchar **get_string_list(self, const gchar *key, gsize *length, GError **error) {
+		g_return_val_if_fail(self->group_name, NULL);
+		
+		return loqui_pref_get_string_list(LOQUI_PREF(self->pref), self->group_name, key, length, error);
+	}
+
+	public void set_string(self, const gchar *key, const gchar *value) {
+		g_return_if_fail(self->group_name);
+
+		loqui_pref_set_string(LOQUI_PREF(self->pref), self->group_name, key, value);
+	}
+	public void set_integer(self, const gchar *key, gint value) {
+		g_return_if_fail(self->group_name);
+
+		loqui_pref_set_integer(LOQUI_PREF(self->pref), self->group_name, key, value);
+	}
+	public void set_boolean(self, const gchar *key, gboolean value) {
+		g_return_if_fail(self->group_name);
+
+		loqui_pref_set_boolean(LOQUI_PREF(self->pref), self->group_name, key, value);
+	}
+	public void set_string_list(self, const gchar *key, gchar **value, gsize length) {
+		g_return_if_fail(self->group_name);
+
+		loqui_pref_set_string_list(LOQUI_PREF(self->pref), self->group_name, key, value, length);
+	}
+
+	public gboolean has_key(self, const gchar *key, GError **error) {
+		g_return_val_if_fail(self->group_name, FALSE);
+
+		return loqui_pref_has_key(LOQUI_PREF(self->pref), self->group_name, key, error);
+	}
+
+
+	private void pref_changed_cb(LoquiPref *pref, gchar *group, gchar *key, Self *self) {
+		if (!self->group_name)
+			return;
+
+		if (strcmp(group, self->group_name) != 0)
+			return;
+
+		self_changed_partial(self, key);
+	}
+}
