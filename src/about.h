@@ -20,9 +20,6 @@
 #ifndef __ABOUT_H__
 #define __ABOUT_H__
 
-#include <gnome.h>
-
-void
-about_open(gpointer data);
+void about_open(void);
 
 #endif /* __ABOUT_H__ */

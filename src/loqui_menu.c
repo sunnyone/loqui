@@ -213,7 +213,7 @@ void loqui_menu_create_connect_submenu(LoquiMenu *menu, GSList *account_list)
 
 static void loqui_menu_about_cb(GtkWidget *widget, gpointer data)
 {
-	about_open(data);
+	about_open();
 }
 
 static void loqui_menu_quit_cb(GtkWidget *widget, gpointer data)

@@ -19,28 +19,14 @@
  */
 #include "config.h"
 #include "about.h"
+#include "gtkutils.h"
 
 void
-about_open(gpointer data)
+about_open(void)
 {
-	GtkWidget *about;
-
-	const gchar *authors[] = { "Yoichi Imai", NULL };
-	const gchar *docs[] = { NULL };
-
-	about = gnome_about_new(_("Loqui"), VERSION,
-				_("(C) 2002 Yoichi Imai"),
-				_("IRC client for GNOME2\n"
-				  "http://loqui.good-day.net/"),
-				authors, docs,
-				NULL, /* translators ... why it's not "char **"? */
-				NULL);
-
-	gtk_window_set_transient_for(GTK_WINDOW(about), GTK_WINDOW(data));
-        gtk_window_set_destroy_with_parent(GTK_WINDOW(about), TRUE);
-        g_signal_connect (G_OBJECT (about), "destroy",
-			  G_CALLBACK (gtk_widget_destroyed), &about);
-	
-	gtk_widget_show (about);
-
+	gtkutils_msgbox_info(GTK_MESSAGE_INFO,
+			     "Loqui version %s\n"
+			     "IRC client for GNOME2\n"
+			     "Copyright (C) 2002, Yoichi Imai <yoichi@silver-forest.com>\n"
+			     "http://loqui.good-day.net/", VERSION);
 }
