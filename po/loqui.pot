@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2003-07-01 21:14+0900\n"
+"POT-Creation-Date: 2003-12-21 02:38+0900\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,131 +16,189 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: src/account.c:129 src/account_list_dialog.c:255 src/channel_tree.c:184
+#: src/account.c:137 src/account_list_dialog.c:255 src/channel_tree.c:184
 msgid "Name"
 msgstr ""
 
-#: src/account.c:130 src/message_text.c:109 src/message_text.c:110
+#: src/account.c:138 src/message_text.c:109 src/message_text.c:110
 msgid "Account name"
 msgstr ""
 
-#: src/account.c:135 src/message_text.c:115 src/nick_list.c:536
+#: src/account.c:143 src/account_dialog.c:575 src/message_text.c:115
+#: src/nick_list.c:536
 msgid "Nick"
 msgstr ""
 
-#: src/account.c:136
+#: src/account.c:144
 msgid "Nickname at first"
 msgstr ""
 
-#: src/account.c:141
+#: src/account.c:149
 msgid "Use account"
 msgstr ""
 
-#: src/account.c:142
+#: src/account.c:150
 msgid "Whether or not to connect this account by default"
 msgstr ""
 
-#: src/account.c:147 src/account.c:148
+#: src/account.c:155 src/account.c:156
 msgid "Username"
 msgstr ""
 
-#: src/account.c:153 src/account.c:154
+#: src/account.c:161 src/account.c:162
 msgid "Realname"
 msgstr ""
 
-#: src/account.c:159
+#: src/account.c:167
 msgid "User information"
 msgstr ""
 
-#: src/account.c:160
+#: src/account.c:168
 msgid "User information used with CTCP USERINFO"
 msgstr ""
 
-#: src/account.c:165
+#: src/account.c:173
 msgid "Autojoin channels"
 msgstr ""
 
-#: src/account.c:166
+#: src/account.c:174
 msgid "Channels which are joined automatically"
 msgstr ""
 
-#: src/account.c:507
+#: src/account.c:179
+msgid "Code Converter"
+msgstr ""
+
+#: src/account.c:180
+msgid "Character code converter for IRC server"
+msgstr ""
+
+#: src/account.c:549
 #, c-format
 msgid "Account '%s' has already connected."
 msgstr ""
 
-#: src/account.c:538
+#: src/account.c:564
+msgid "No usable servers found."
+msgstr ""
+
+#: src/account.c:590
+#, c-format
+msgid "Connecting to %s:%d"
+msgstr ""
+
+#: src/account.c:625
+msgid "Failed to connect."
+msgstr ""
+
+#: src/account.c:631
+msgid "Connected. Sending Initial command..."
+msgstr ""
+
+#: src/account.c:673
+msgid "Sent join command for autojoin."
+msgstr ""
+
+#: src/account.c:676
+msgid "Done."
+msgstr ""
+
+#: src/account.c:691
 msgid "Connection terminated."
 msgstr ""
 
-#: src/account.c:541
+#: src/account.c:695
+msgid "Can't find the server connecting."
+msgstr ""
+
+#: src/account.c:698
 msgid "Trying to reconnect..."
 msgstr ""
 
-#: src/account.c:561
+#: src/account.c:714
 msgid "Disconnected."
 msgstr ""
 
-#: src/account.c:665
+#: src/account.c:834
 msgid "Not connected with this account"
 msgstr ""
 
-#: src/account.c:683
+#: src/account.c:852
 msgid "No channel is selected"
 msgstr ""
 
-#: src/account.c:842 src/account.c:863 src/account.c:890 src/account.c:910
-#: src/account.c:929 src/account.c:950 src/account.c:972
-#: src/command_dialog.c:44
+#: src/account.c:1011 src/account.c:1032 src/account.c:1059 src/account.c:1079
+#: src/account.c:1098 src/account.c:1119 src/account.c:1141 src/account.c:1214
+#: src/account.c:1237 src/account.c:1260 src/command_dialog.c:44
 msgid "Account is not connected."
 msgstr ""
 
-#: src/account.c:877
+#: src/account.c:1046
 #, c-format
 msgid "Sent CTCP request to %s: %s"
 msgstr ""
 
-#: src/account.c:935
+#: src/account.c:1104
 msgid "This nick seems to be channel."
 msgstr ""
 
-#: src/account.c:1001
+#: src/account.c:1170
 msgid "Too many users in change mode request!"
 msgstr ""
 
-#: src/account_dialog.c:360
+#: src/account_dialog.c:420
 msgid "Account:"
 msgstr ""
 
-#: src/account_dialog.c:362
+#: src/account_dialog.c:422
 msgid "Connect by default"
 msgstr ""
 
-#: src/account_dialog.c:366
+#: src/account_dialog.c:430
+msgid "Profile"
+msgstr ""
+
+#: src/account_dialog.c:432
 msgid "Nickname:"
 msgstr ""
 
-#: src/account_dialog.c:367
+#: src/account_dialog.c:433
 msgid "Username:"
 msgstr ""
 
-#: src/account_dialog.c:368
+#: src/account_dialog.c:434
 msgid "Realname:"
 msgstr ""
 
-#: src/account_dialog.c:369
+#: src/account_dialog.c:435
 msgid "User information:"
 msgstr ""
 
-#: src/account_dialog.c:370
+#: src/account_dialog.c:436
 msgid "Auto join channels:"
 msgstr ""
 
-#: src/account_dialog.c:372
+#: src/account_dialog.c:439
+msgid "Code"
+msgstr ""
+
+#: src/account_dialog.c:441
+msgid "Code convertion"
+msgstr ""
+
+#: src/account_dialog.c:471
+msgid "Server"
+msgstr ""
+
+#: src/account_dialog.c:473
 msgid "Servers (Cells are editable.)"
 msgstr ""
 
-#: src/account_dialog.c:524
+#: src/account_dialog.c:578
+msgid "List of often used nick(Separate each words with linefeeds)"
+msgstr ""
+
+#: src/account_dialog.c:634
 msgid ""
 "This account's configuration and connection will be removed.\n"
 "Do you really want to remove this account?"
@@ -150,7 +208,7 @@ msgstr ""
 msgid "Account List"
 msgstr ""
 
-#: src/account_manager.c:548
+#: src/account_manager.c:551
 msgid ""
 "main_account_manager should be created. account_manager_get() may be called "
 "recursively."
@@ -168,7 +226,7 @@ msgstr ""
 msgid "Failed to add channel"
 msgstr ""
 
-#: src/codeconv.c:37 src/codeconv.c:57
+#: src/codeconv.c:37
 msgid "Auto Detection"
 msgstr ""
 
@@ -184,17 +242,16 @@ msgstr ""
 msgid "Japanese"
 msgstr ""
 
-#: src/codeconv.c:57
-#, c-format
-msgid "the setting of codeconv was invalid; now '%s' is selected."
+#: src/codeconv.c:217
+msgid "Invalid codeset string (length zero)"
 msgstr ""
 
-#: src/codeconv.c:96
+#: src/codeconv.c:255
 #, c-format
 msgid "Code convartion error: %s"
 msgstr ""
 
-#: src/codeconv.c:158
+#: src/codeconv.c:317
 msgid "Unknown error occured in code convertion."
 msgstr ""
 
@@ -250,271 +307,249 @@ msgstr ""
 msgid "Type nickname."
 msgstr ""
 
-#: src/connect_dialog.c:245
+#: src/connect_dialog.c:246
 msgid "Select accounts/server to connect"
 msgstr ""
 
-#: src/ctcp_handle.c:167
-#, c-format
-msgid "Received CTCP %s from %s: %s%s%s"
+#: src/connect_dialog.c:304
+msgid "Default"
 msgstr ""
 
-#: src/ctcp_handle.c:179
+#: src/ctcp_handle.c:165
+msgid "Sender is not set in a CTCP message"
+msgstr ""
+
+#: src/ctcp_handle.c:171
+msgid "Receiver is not set in a CTCP message"
+msgstr ""
+
+#: src/ctcp_handle.c:175
+#, c-format
+msgid "Received CTCP %s from %s to %s: %s%s%s"
+msgstr ""
+
+#: src/ctcp_handle.c:189
 msgid "The CTCP request was ignored."
 msgstr ""
 
-#: src/ctcp_handle.c:218
+#: src/ctcp_handle.c:224
 #, c-format
 msgid "Sent CTCP reply to %s: %s"
 msgstr ""
 
-#: src/gtkutils.c:137
+#: src/gtkutils.c:140
 msgid "Illegal command"
 msgstr ""
 
-#: src/gtkutils.c:155
+#: src/gtkutils.c:158
 #, c-format
 msgid "Error occured when executing command: %s"
 msgstr ""
 
-#: src/gtkutils.c:168
+#: src/gtkutils.c:171
 #, c-format
 msgid "Unable to determine color: %s"
 msgstr ""
 
-#: src/irc_handle.c:287
+#: src/irc_handle.c:244
 msgid "This PRIVMSG/NOTICE message doesn't contain a remark."
 msgstr ""
 
-#: src/irc_handle.c:356 src/irc_handle.c:381 src/irc_handle.c:413
-#: src/irc_handle.c:450
+#: src/irc_handle.c:315 src/irc_handle.c:340 src/irc_handle.c:372
+#: src/irc_handle.c:409
 msgid "The message does not contain nick"
 msgstr ""
 
-#: src/irc_handle.c:370
+#: src/irc_handle.c:329
 msgid "*** %n has quit IRC(%t)"
 msgstr ""
 
-#: src/irc_handle.c:387 src/irc_handle.c:419
+#: src/irc_handle.c:346 src/irc_handle.c:378
 msgid "The message does not contain the channal name"
 msgstr ""
 
-#: src/irc_handle.c:401
+#: src/irc_handle.c:360
 msgid "*** %n has just part %1(%t)"
 msgstr ""
 
-#: src/irc_handle.c:425
+#: src/irc_handle.c:384
 msgid "The KICK message doesn't contain the user to be kicked."
 msgstr ""
 
-#: src/irc_handle.c:437
+#: src/irc_handle.c:396
 msgid "*** %2 was kicked from %1 by %n(%3)"
 msgstr ""
 
-#: src/irc_handle.c:456
+#: src/irc_handle.c:415
 msgid "The NICK message does not contain new nick"
 msgstr ""
 
-#: src/irc_handle.c:465
+#: src/irc_handle.c:424
 msgid "*** %n is known as %1"
 msgstr ""
 
-#: src/irc_handle.c:488
+#: src/irc_handle.c:447
 msgid "Flags are not found in MODE command"
 msgstr ""
 
-#: src/irc_handle.c:496
+#: src/irc_handle.c:455
 msgid "Can't find a nick to change mode"
 msgstr ""
 
-#: src/irc_handle.c:501
+#: src/irc_handle.c:460
 msgid "Flags don't have + or -"
 msgstr ""
 
-#: src/irc_handle.c:550
+#: src/irc_handle.c:509
 msgid "Unknown mode flag"
 msgstr ""
 
-#: src/irc_handle.c:566
+#: src/irc_handle.c:525
 msgid "User mode is not implemented."
 msgstr ""
 
-#: src/irc_handle.c:582 src/irc_handle.c:626
+#: src/irc_handle.c:541 src/irc_handle.c:585
 msgid "The target is not found in MODE command"
 msgstr ""
 
-#: src/irc_handle.c:592
+#: src/irc_handle.c:551
 #, c-format
 msgid "RPL_CHANNELMODEIS didn't return a channel name: %s"
 msgstr ""
 
-#: src/irc_handle.c:598
+#: src/irc_handle.c:557
 msgid "*** Mode for %2: %*3"
 msgstr ""
 
-#: src/irc_handle.c:613
+#: src/irc_handle.c:572
 msgid "Who can change mode?"
 msgstr ""
 
-#: src/irc_handle.c:618
+#: src/irc_handle.c:577
 #, c-format
 msgid "Nick must not contain '%%'"
 msgstr ""
 
-#: src/irc_handle.c:634
+#: src/irc_handle.c:593
 msgid "Why can you know the change of his mode?"
 msgstr ""
 
-#: src/irc_handle.c:643
+#: src/irc_handle.c:602
 #, c-format
 msgid "*** New mode for %%1 by %s: %%*2"
 msgstr ""
 
-#: src/irc_handle.c:668
+#: src/irc_handle.c:626
 msgid "The message does not contain nick."
 msgstr ""
 
-#: src/irc_handle.c:673
+#: src/irc_handle.c:631
 msgid "Invalid JOIN command"
 msgstr ""
 
-#: src/irc_handle.c:689
+#: src/irc_handle.c:644
 msgid "Why do you know that the user join the channel?"
 msgstr ""
 
-#: src/irc_handle.c:693
+#: src/irc_handle.c:648
 msgid "*** %n (%u@%h) joined channel %t"
 msgstr ""
 
-#: src/irc_handle.c:761
+#: src/irc_handle.c:716
 msgid "Invalid CREATIONTIME reply."
 msgstr ""
 
-#: src/irc_handle.c:766 src/irc_handle.c:799
+#: src/irc_handle.c:721 src/irc_handle.c:754
 msgid "Invalid time string"
 msgstr ""
 
-#: src/irc_handle.c:772 src/irc_handle.c:805
+#: src/irc_handle.c:727 src/irc_handle.c:760
 msgid "Invalid time"
 msgstr ""
 
-#: src/irc_handle.c:776
+#: src/irc_handle.c:731
 #, c-format
 msgid "%%2 was created at %s"
 msgstr ""
 
-#: src/irc_handle.c:793
+#: src/irc_handle.c:748
 msgid "Invalid TOPICWHOTIME reply."
 msgstr ""
 
-#: src/irc_handle.c:809
+#: src/irc_handle.c:764
 #, c-format
 msgid "Topic for %%2 was set by %%3 at %s"
 msgstr ""
 
-#: src/irc_handle.c:831
+#: src/irc_handle.c:779 src/irc_handle.c:785
+msgid "Invalid WHOISIDLE reply."
+msgstr ""
+
+#: src/irc_handle.c:814
 msgid "Topic for %2: %t"
 msgstr ""
 
-#: src/irc_handle.c:849
+#: src/irc_handle.c:832
 msgid "*** New topic on %1 by %n: %t"
 msgstr ""
 
-#: src/irc_handle.c:913
+#: src/irc_handle.c:909
 msgid "Can't find the channel from the message"
 msgstr ""
 
-#: src/irc_handle.c:947
+#: src/irc_handle.c:943
 msgid "*** %2 is marked as begin AWAY, but left the message: %3"
 msgstr ""
 
-#: src/irc_handle.c:954 src/irc_handle.c:958 src/irc_handle.c:962
+#: src/irc_handle.c:950 src/irc_handle.c:954 src/irc_handle.c:958
 msgid "*** %t"
 msgstr ""
 
-#: src/irc_handle.c:965
+#: src/irc_handle.c:961
 msgid "*** You are inviting %2 to %3"
 msgstr ""
 
-#: src/irc_handle.c:968
+#: src/irc_handle.c:964
 msgid "*** %3 is running IRC version %2 (%4)"
 msgstr ""
 
-#: src/irc_handle.c:999
+#: src/irc_handle.c:995
 msgid "%2 is %3@%4: %t"
 msgstr ""
 
-#: src/irc_handle.c:1002
+#: src/irc_handle.c:998
 msgid "%2 was %3@%4: %t"
 msgstr ""
 
-#: src/irc_handle.c:1005
+#: src/irc_handle.c:1001
 msgid "%2: %t"
 msgstr ""
 
-#: src/irc_handle.c:1008
+#: src/irc_handle.c:1004
 msgid "on via server %3(%t)"
 msgstr ""
 
-#: src/irc_handle.c:1011
-msgid "%3 %t"
-msgstr ""
-
-#: src/irc_handle.c:1014
+#: src/irc_handle.c:1010
 msgid "Banned on %2 : %3"
 msgstr ""
 
-#: src/irc_handle.c:1017
+#: src/irc_handle.c:1013
 msgid "Time: %3(%2)"
 msgstr ""
 
-#: src/irc_handle.c:1148
-#, c-format
-msgid "IOChannel write error: %s"
+#: src/irc_handle.c:1076
+msgid "%t: %2"
 msgstr ""
 
-#: src/irc_handle.c:1203
-msgid "*** Failed to convert codeset."
-msgstr ""
-
-#: src/irc_handle.c:1242
-msgid "Failed to connect"
-msgstr ""
-
-#: src/irc_handle.c:1249
-msgid "Connected. Sending Initial command..."
-msgstr ""
-
-#: src/irc_handle.c:1295
-msgid "Sent join command for autojoin."
-msgstr ""
-
-#: src/irc_handle.c:1298
-msgid "Done."
-msgstr ""
-
-#: src/irc_handle.c:1326 src/irc_handle.c:1336
-msgid "No valid servers left."
-msgstr ""
-
-#: src/irc_handle.c:1342
-#, c-format
-msgid "Connecting to %s:%d"
-msgstr ""
-
-#: src/irc_handle.c:1412
-msgid "Message queue is not created."
-msgstr ""
-
-#: src/irc_handle.c:1416
-msgid "Not connected."
+#: src/irc_handle.c:1099
+msgid "%t"
 msgstr ""
 
 #: src/irc_message.c:391
 msgid "Invalid parameter number"
 msgstr ""
 
-#: src/loqui_app.c:239
+#: src/loqui_app.c:242 src/loqui_app.c:260 src/loqui_app.c:276
 msgid "No accounts are selected!"
 msgstr ""
 
@@ -819,132 +854,137 @@ msgstr ""
 msgid "/CTCP/Finger"
 msgstr ""
 
-#: src/prefs_account.c:107 src/prefs_account.c:151
+#: src/prefs_account.c:111 src/prefs_account.c:153 src/prefs_account.c:191
 #, c-format
 msgid "prefs_account: Invalid attribute for account: %s"
 msgstr ""
 
-#: src/prefs_account.c:112
+#: src/prefs_account.c:116
 #, c-format
 msgid "%s is null"
 msgstr ""
 
-#: src/prefs_account.c:142
+#: src/prefs_account.c:146 src/prefs_account.c:182
 msgid "Current account is not set."
 msgstr ""
 
-#: src/prefs_account.c:154
+#: src/prefs_account.c:156
+#, c-format
+msgid "Invalid codeset type: %d"
+msgstr ""
+
+#: src/prefs_account.c:164
+msgid "Invalid codeset string"
+msgstr ""
+
+#: src/prefs_account.c:194
 #, c-format
 msgid "Invalid hostname: %s"
 msgstr ""
 
-#: src/prefs_account.c:198 src/prefs_general.c:142
+#: src/prefs_account.c:243 src/prefs_general.c:139
 #, c-format
 msgid "Invalid element: %s"
 msgstr ""
 
-#: src/prefs_account.c:250
+#: src/prefs_account.c:304
 #, c-format
 msgid "Accountrc parse error: %s"
 msgstr ""
 
-#: src/prefs_account.c:281 src/prefs_general.c:308
+#: src/prefs_account.c:335 src/prefs_general.c:305
 #, c-format
 msgid "Loquirc parse error: %s"
 msgstr ""
 
-#: src/prefs_account.c:309 src/prefs_general.c:330
+#: src/prefs_account.c:366 src/prefs_general.c:327
 #, c-format
 msgid "Can't open %s: %s"
 msgstr ""
 
-#: src/prefs_dialog.c:290
+#: src/prefs_dialog.c:219
 msgid "Common Preferences"
 msgstr ""
 
-#: src/prefs_dialog.c:307
+#: src/prefs_dialog.c:236
 msgid "General"
 msgstr ""
 
-#: src/prefs_dialog.c:309
+#: src/prefs_dialog.c:238
 msgid "Save window/widget sizes"
 msgstr ""
 
-#: src/prefs_dialog.c:311
+#: src/prefs_dialog.c:240
 msgid "Switch whether scrolling or not automatically"
 msgstr ""
 
-#: src/prefs_dialog.c:313
+#: src/prefs_dialog.c:242
 msgid "Parse plum (an irc proxy) recent feature (Experimental)"
 msgstr ""
 
-#: src/prefs_dialog.c:315
+#: src/prefs_dialog.c:244
 msgid "Reconnect automatically when connections are terminated."
 msgstr ""
 
-#: src/prefs_dialog.c:318
+#: src/prefs_dialog.c:247
 msgid "Connect default accounts when the program started"
 msgstr ""
 
-#: src/prefs_dialog.c:321
-msgid "Code convertion"
-msgstr ""
-
-#: src/prefs_dialog.c:340
+#: src/prefs_dialog.c:250
 msgid "Away message: "
 msgstr ""
 
-#: src/prefs_dialog.c:343
+#: src/prefs_dialog.c:253
 msgid "Highlight"
 msgstr ""
 
-#: src/prefs_dialog.c:345
+#: src/prefs_dialog.c:255
 msgid "Use notification"
 msgstr ""
 
-#: src/prefs_dialog.c:348
+#: src/prefs_dialog.c:259
 msgid "Highlighting keywords(Separate each words with linefeeds)"
 msgstr ""
 
-#: src/prefs_dialog.c:359
+#: src/prefs_dialog.c:263
 msgid "Ignore"
 msgstr ""
 
-#: src/prefs_dialog.c:361
+#: src/prefs_dialog.c:265
 msgid "Use ignore (transparent) feature"
 msgstr ""
 
-#: src/prefs_dialog.c:364
+#: src/prefs_dialog.c:269
 msgid "Nickname list to ignore (transparent) ('*' and '?' can be used)"
 msgstr ""
 
-#: src/prefs_dialog.c:375
+#: src/prefs_dialog.c:273
 msgid "Command"
 msgstr ""
 
-#: src/prefs_dialog.c:377
+#: src/prefs_dialog.c:275
 msgid "Browser: "
 msgstr ""
 
-#: src/prefs_dialog.c:378
+#: src/prefs_dialog.c:276
 msgid "Notification: "
 msgstr ""
 
-#: src/prefs_general.c:151
+#: src/prefs_general.c:148
 #, c-format
 msgid "prefs_general: Invalid attribute for entry: %s"
 msgstr ""
 
-#: src/prefs_general.c:157
+#: src/prefs_general.c:154
 #, c-format
 msgid "Unknown key: %s\n"
 msgstr ""
 
-#: src/prefs_general.c:222 src/prefs_general.c:248
+#: src/prefs_general.c:219 src/prefs_general.c:245
 msgid "Unsupported pref type!"
 msgstr ""
 
-#: src/utils.c:170
+#: src/utils.c:172
 #, c-format
 msgid "?x flag doesn't have { in '%s'"
 msgstr ""
