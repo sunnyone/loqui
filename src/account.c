@@ -28,6 +28,7 @@
 #include "gtkutils.h"
 #include "intl.h"
 #include "prefs_general.h"
+#include "ctcp_message.h"
 
 #include <string.h>
 
@@ -865,7 +866,35 @@ void account_change_nick(Account *account, const gchar *nick)
 	irc_handle_push_message(priv->handle, msg);
 	g_object_unref(msg);
 }
+void account_send_ctcp_request(Account *account, const gchar *target, const gchar *command)
+{
+	IRCMessage *msg;
+	CTCPMessage *ctcp_msg;
+	gchar *buf;
+	AccountPrivate *priv;
 
+        g_return_if_fail(account != NULL);
+        g_return_if_fail(IS_ACCOUNT(account));
+	
+	if(!account_is_connected(account)) {
+		g_warning(_("Account is not connected."));
+		return;
+	}
+
+	priv = account->priv;
+
+	ctcp_msg = ctcp_message_new(command, NULL);
+	buf = ctcp_message_to_str(ctcp_msg);
+	g_object_unref(ctcp_msg);
+	msg = irc_message_create(IRCCommandPrivmsg, target, buf, NULL);
+	g_free(buf);
+	irc_handle_push_message(priv->handle, msg);
+	g_object_unref(msg);
+
+	buf = g_strdup_printf(_("Sent CTCP request to %s: %s"), target, command);
+	account_console_buffer_append(account, TEXT_TYPE_INFO, buf);
+	g_free(buf);
+}
 void account_whois(Account *account, const gchar *target)
 {
 	IRCMessage *msg;

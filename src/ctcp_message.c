@@ -169,7 +169,8 @@ gchar *ctcp_message_to_str(CTCPMessage *ctcp_msg)
 
 	str = g_strdup_printf("%c%s %s%c", 
 			      IRCCommandChar,
-			      ctcp_msg->command, ctcp_msg->argument,
+			      ctcp_msg->command, 
+			      ctcp_msg->argument ? ctcp_msg->argument : "",
 			      IRCCommandChar);
 	
 	return str;

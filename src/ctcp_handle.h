@@ -55,7 +55,7 @@ struct _CTCPHandleClass
 GType ctcp_handle_get_type (void) G_GNUC_CONST;
 
 CTCPHandle* ctcp_handle_new(IRCHandle *handle, Account *account);
-void ctcp_handle_message(CTCPHandle *ctcp_handle, CTCPMessage *ctcp_msg);
+void ctcp_handle_message(CTCPHandle *ctcp_handle, CTCPMessage *ctcp_msg, gboolean is_request);
 
 G_END_DECLS
 

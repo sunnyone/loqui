@@ -65,6 +65,16 @@ static GSList *nick_list_menu_get_selected_nicks(NickList *nick_list);
 static void nick_list_menu_whois_cb(gpointer data, guint action, GtkWidget *widget);
 static void nick_list_menu_mode_give_cb(gpointer data, guint action, GtkWidget *widget);
 static void nick_list_menu_mode_deprive_cb(gpointer data, guint action, GtkWidget *widget);
+static void nick_list_menu_ctcp_cb(gpointer data, guint action, GtkWidget *widget);
+
+enum {
+	CTCP_VERSION,
+	CTCP_CLIENTINFO,
+	CTCP_USERINFO,
+	CTCP_PING,
+	CTCP_TIME,
+	CTCP_FINGER
+};
 
 static GtkItemFactoryEntry popup_menu_items[] = {
 	{ N_("/Whois"), NULL, nick_list_menu_whois_cb, 0 },
@@ -74,11 +84,18 @@ static GtkItemFactoryEntry popup_menu_items[] = {
 	{ N_("/Mode/Give speak ability (+v)"), NULL,
              nick_list_menu_mode_give_cb, IRC_CHANNEL_MODE_VOICE },
 	{    "/Mode/sep1", NULL, 0, 0, "<Separator>" },
-
 	{ N_("/Mode/Deprive channel operator privilege (-o)"), NULL, 
 	  nick_list_menu_mode_deprive_cb, IRC_CHANNEL_MODE_OPERATOR },
 	{ N_("/Mode/Deprive speak ability (-v)"), NULL,
-	     nick_list_menu_mode_deprive_cb, IRC_CHANNEL_MODE_VOICE }
+	  nick_list_menu_mode_deprive_cb, IRC_CHANNEL_MODE_VOICE },
+
+	{ N_("/CTCP"), NULL, 0, 0, "<Branch>" },
+	{ N_("/CTCP/Version"), NULL, nick_list_menu_ctcp_cb, CTCP_VERSION },
+	{ N_("/CTCP/Clientinfo"), NULL, nick_list_menu_ctcp_cb, CTCP_CLIENTINFO },
+	{ N_("/CTCP/Userinfo"), NULL, nick_list_menu_ctcp_cb, CTCP_USERINFO },
+	{ N_("/CTCP/Ping"), NULL, nick_list_menu_ctcp_cb, CTCP_PING },
+	{ N_("/CTCP/Time"), NULL, nick_list_menu_ctcp_cb, CTCP_TIME },
+	{ N_("/CTCP/Finger"), NULL, nick_list_menu_ctcp_cb, CTCP_FINGER }
 };
 
 GType
@@ -350,7 +367,50 @@ nick_list_menu_mode_deprive_cb(gpointer data, guint action, GtkWidget *widget)
 	g_slist_free(str_list);
 	channel_flush_user_mode_queue(channel);
 }
+static void
+nick_list_menu_ctcp_cb(gpointer data, guint action, GtkWidget *widget)
+{
+	NickList *nick_list;
+	GSList *str_list, *cur;
+	gchar *command = NULL;
+	Account *account;
 
+	nick_list = NICK_LIST(data);
+
+	account = account_manager_get_current_account(account_manager_get());
+	if(!account)
+		return;
+
+	str_list = nick_list_menu_get_selected_nicks(nick_list);
+	for(cur = str_list; cur != NULL; cur = cur->next) {
+		switch(action) {
+		case CTCP_VERSION:
+			command = IRCCTCPVersion;
+			break;
+		case CTCP_CLIENTINFO:
+			command = IRCCTCPClientInfo;
+			break;
+		case CTCP_USERINFO:
+			command = IRCCTCPUserInfo;
+			break;
+		case CTCP_PING:
+			command = IRCCTCPPing;
+			break;
+		case CTCP_FINGER:
+			command = IRCCTCPFinger;
+			break;
+		case CTCP_TIME:
+			command = IRCCTCPTime;
+			break;
+		default:
+			g_assert_not_reached();
+			break;
+		}
+		account_send_ctcp_request(account, (gchar *) cur->data, command);
+		g_free(cur->data);
+	}
+	g_slist_free(str_list);
+}
 static gint
 nick_list_button_press_event_cb(GtkWidget *widget, GdkEventButton *event, gpointer data)
 {

@@ -304,10 +304,11 @@ irc_handle_command_privmsg_notice(IRCHandle *handle, IRCMessage *msg)
 		type = TEXT_TYPE_NORMAL;
 	}
 
-	if(msg->response == IRC_COMMAND_PRIVMSG && msg->nick != NULL) {
+	if(msg->nick != NULL) {
 		if(ctcp_message_parse_line(remark, &ctcp_msg)) {
 			g_object_set_data(G_OBJECT(ctcp_msg), "sender", msg->nick);
-			ctcp_handle_message(priv->ctcp_handle, ctcp_msg);
+			ctcp_handle_message(priv->ctcp_handle, ctcp_msg,
+					    (msg->response == IRC_COMMAND_PRIVMSG) ? TRUE : FALSE);
 			g_object_unref(ctcp_msg);
 		}
 		return;

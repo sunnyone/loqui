@@ -50,11 +50,14 @@ static void ctcp_handle_finalize(GObject *object);
 static void ctcp_handle_version(CTCPHandle *ctcp_handle, CTCPMessage *ctcp_msg, const gchar *sender);
 static void ctcp_handle_ping(CTCPHandle *ctcp_handle, CTCPMessage *ctcp_msg, const gchar *sender);
 static void ctcp_handle_userinfo(CTCPHandle *ctcp_handle, CTCPMessage *ctcp_msg, const gchar *sender);
+static void ctcp_handle_clientinfo(CTCPHandle *ctcp_handle, CTCPMessage *ctcp_msg, const gchar *sender);
+
+#define SUPPORTED_CTCP_REQUEST "CLIENTINFO VERSION PING USERINFO"
 
 static CTCPHandlerElement handler_table[] = {
 	{IRCCTCPVersion, ctcp_handle_version},
 	{IRCCTCPPing, ctcp_handle_ping},
-	{IRCCTCPClientInfo, NULL},
+	{IRCCTCPClientInfo, ctcp_handle_clientinfo},
 	{IRCCTCPUserInfo, ctcp_handle_userinfo},
 	{IRCCTCPTime, NULL},
 	{IRCCTCPFinger, NULL},
@@ -141,7 +144,7 @@ ctcp_handle_new(IRCHandle *handle, Account *account)
 	return ctcp_handle;
 }
 
-void ctcp_handle_message(CTCPHandle *ctcp_handle, CTCPMessage *ctcp_msg)
+void ctcp_handle_message(CTCPHandle *ctcp_handle, CTCPMessage *ctcp_msg, gboolean is_request)
 {
 	gint i;
 	CTCPHandlePrivate *priv;
@@ -161,13 +164,15 @@ void ctcp_handle_message(CTCPHandle *ctcp_handle, CTCPMessage *ctcp_msg)
 	if(sender == NULL)
 		return;
 
-	if(ctcp_msg->argument)
-		buf = g_strdup_printf(_("Received CTCP request from %s: %s %s"),
-				      sender,
-				      ctcp_msg->command, ctcp_msg->argument);
-	else
-		buf = g_strdup_printf(_("Received CTCP request from %s: %s"), sender, ctcp_msg->command);
+	buf = g_strdup_printf(_("Received CTCP %s from %s: %s%s%s"), 
+			      is_request ? "request" : "reply",
+			      sender, ctcp_msg->command,
+			      ctcp_msg->argument ? " " : "",
+			      ctcp_msg->argument ? ctcp_msg->argument : "");
 	account_console_buffer_append(priv->account, TEXT_TYPE_INFO, buf);
+
+	if(!is_request)
+		return;
 
 	g_timer_stop(priv->interval_timer);
 	if(g_timer_elapsed(priv->interval_timer, NULL) < CTCP_INTERVAL) {
@@ -261,6 +266,21 @@ ctcp_handle_userinfo(CTCPHandle *ctcp_handle, CTCPMessage *ctcp_msg, const gchar
 
 	/* FIXME: should quote string with ctcp */
 	ctcp_reply = ctcp_message_new(IRCCTCPUserInfo, account_get_userinfo(priv->account));
+	ctcp_handle_send_ctcp_reply(ctcp_handle, ctcp_reply, sender);
+	g_object_unref(ctcp_reply);
+}
+static void
+ctcp_handle_clientinfo(CTCPHandle *ctcp_handle, CTCPMessage *ctcp_msg, const gchar *sender)
+{
+	CTCPHandlePrivate *priv;
+	CTCPMessage *ctcp_reply;
+
+        g_return_if_fail(ctcp_handle != NULL);
+        g_return_if_fail(IS_CTCP_HANDLE(ctcp_handle));
+
+	priv = ctcp_handle->priv;
+
+	ctcp_reply = ctcp_message_new(IRCCTCPClientInfo, SUPPORTED_CTCP_REQUEST);
 	ctcp_handle_send_ctcp_reply(ctcp_handle, ctcp_reply, sender);
 	g_object_unref(ctcp_reply);
 }
