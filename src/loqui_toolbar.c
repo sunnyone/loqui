@@ -230,7 +230,7 @@ loqui_toolbar_new(LoquiApp *app)
 				   image, 
 				   G_CALLBACK(loqui_toolbar_connect_cb), toolbar);
 
-	image = gtk_image_new_from_stock(GTK_STOCK_GO_UP, TOOLBAR_ICON_SIZE);
+	image = gtk_image_new_from_stock(GTK_STOCK_GOTO_TOP, TOOLBAR_ICON_SIZE);
 	gtk_toolbar_append_element(GTK_TOOLBAR(toolbar),
 					    GTK_TOOLBAR_CHILD_BUTTON,
 					    NULL, _("Prev"),
@@ -239,7 +239,7 @@ loqui_toolbar_new(LoquiApp *app)
 					    G_CALLBACK(loqui_toolbar_prev_updated_cb), toolbar);
 
 
-	image = gtk_image_new_from_stock(GTK_STOCK_GO_DOWN, TOOLBAR_ICON_SIZE);
+	image = gtk_image_new_from_stock(GTK_STOCK_GOTO_BOTTOM, TOOLBAR_ICON_SIZE);
 	gtk_toolbar_append_element(GTK_TOOLBAR(toolbar),
 				   GTK_TOOLBAR_CHILD_BUTTON,
 				   NULL, _("Next"),
