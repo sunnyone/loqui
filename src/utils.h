@@ -28,6 +28,16 @@
  } \
 }
 
+#define DEBUG_TIMER_START(timer) { \
+   timer = g_timer_new(); \
+   g_timer_start(timer); \
+}
+#define DEBUG_TIMER_STOP(timer, name) { \
+   timer = g_timer_stop(timer); \
+   g_print("elapsed(%s): %.5f\n", name, g_timer_elapsed(timer, NULL)); \
+   g_timer_destroy(timer); \
+}
+
 void debug_puts(const gchar *format, ...) G_GNUC_PRINTF(1, 2);
 void debug_print(const gchar *format, ...) G_GNUC_PRINTF(1, 2);
 
