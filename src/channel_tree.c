@@ -324,34 +324,6 @@ channel_tree_remove_channel(ChannelTree *tree, Channel *channel)
 
 }
 void
-channel_tree_remove_channels_of_account(ChannelTree *tree, Account *account)
-{
-	GtkTreeIter iter, parent;
-	GtkTreeModel *model;
-	Channel *channel = NULL;
-
-        g_return_if_fail(tree != NULL);
-        g_return_if_fail(IS_CHANNEL_TREE(tree));
-	g_return_if_fail(account != NULL);
-	g_return_if_fail(IS_ACCOUNT(account));
-
-	model = gtk_tree_view_get_model(GTK_TREE_VIEW(tree));
-
-	if(!gtk_tree_model_find_by_column_data(model, &parent, NULL, COLUMN_ACCOUNT, account))
-		return;
-
-	if(!gtk_tree_model_iter_children(model, &iter, &parent))
-		return;
-
-	do {
-		gtk_tree_model_get(model, &iter, COLUMN_CHANNEL, &channel, -1);
-		if(channel != NULL) {
-			/* TODO: channel_remove */
-			g_object_unref(channel);
-		}
-	} while(gtk_tree_store_remove(GTK_TREE_STORE(model), &iter));
-}
-void
 channel_tree_select_channel(ChannelTree *tree, Channel *channel)
 {
 	GtkTreeModel *model;
