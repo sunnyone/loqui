@@ -126,13 +126,13 @@ loqui_channel_entry_dispose(GObject *object)
 	G_FREE_UNLESS_NULL(chent->topic);
 	G_OBJECT_UNREF_UNLESS_NULL(chent->buffer);
 
-	for (i = 0; i < chent->member_array->len; i++) {
-		member = g_array_index(chent->member_array, LoquiMember *, i);
+	for (i = 0; i < chent->member_ptr_array->len; i++) {
+		member = g_ptr_array_index(chent->member_ptr_array, i);
 		g_object_unref(member);
 	}
-	if (chent->member_array) {
-		g_array_free(chent->member_array, TRUE);
-		chent->member_array = NULL;
+	if (chent->member_ptr_array) {
+		g_ptr_array_free(chent->member_ptr_array, TRUE);
+		chent->member_ptr_array = NULL;
 	}
 	if (chent->user_hash) {
 		g_hash_table_destroy(chent->user_hash);
@@ -324,8 +324,7 @@ loqui_channel_entry_init(LoquiChannelEntry *chent)
 
 	chent->priv = priv;
 
-	chent->member_array = g_array_sized_new(FALSE, FALSE, sizeof(gpointer),
-						LOQUI_CHANNEL_ENTRY_DEFAULT_MEMBER_NUMBER);
+	chent->member_ptr_array = g_ptr_array_sized_new(LOQUI_CHANNEL_ENTRY_DEFAULT_MEMBER_NUMBER);
 	chent->user_hash = g_hash_table_new(g_direct_hash, g_direct_equal);
 	
 	chent->op_number = 0;
@@ -346,11 +345,20 @@ loqui_channel_entry_new(void)
         return chent;
 }
 static void
+loqui_channel_entry_update_user_hash(LoquiChannelEntry *chent)
+{
+	LoquiMember *mcur;
+	gint i;
+
+	for (i = 0; i < chent->member_ptr_array->len; i++) {
+		mcur = g_ptr_array_index(chent->member_ptr_array, i);
+		g_hash_table_replace(chent->user_hash, mcur->user, GINT_TO_POINTER(i + 1));
+	}
+}
+static void
 loqui_channel_entry_add_real(LoquiChannelEntry *chent, LoquiMember *member)
 {
 	LoquiChannelEntryPrivate *priv;
-	LoquiMember *mcur;
-	gint i, pos;
 
         g_return_if_fail(chent != NULL);
         g_return_if_fail(LOQUI_IS_CHANNEL_ENTRY(chent));
@@ -360,20 +368,13 @@ loqui_channel_entry_add_real(LoquiChannelEntry *chent, LoquiMember *member)
         priv = chent->priv;
 
 	g_object_ref(member);
+	g_ptr_array_add(chent->member_ptr_array, member);
 	if (chent->sort_func && chent->do_sort) {
-		for (i = 0; i < chent->member_array->len; i++) {
-			mcur = g_array_index(chent->member_array, LoquiMember *, i);
-			if (chent->sort_func(&mcur, &member) >= 0)
-				break;
-		}
-		pos = i;
-		g_assert(pos <= chent->member_array->len);
-		g_array_insert_val(chent->member_array, pos, member);
-		} else {
-		g_array_append_val(chent->member_array, member);
-		pos = chent->member_array->len - 1;
+		utils_g_ptr_array_insert_sort(chent->member_ptr_array, chent->member_ptr_array->len - 1, chent->sort_func);
+		loqui_channel_entry_update_user_hash(chent);
+	} else {
+		g_hash_table_insert(chent->user_hash, member->user, GINT_TO_POINTER(chent->member_ptr_array->len - 1 + 1));
 	}
-	g_hash_table_insert(chent->user_hash, member->user, GINT_TO_POINTER(pos + 1));
 
 	if (loqui_member_get_is_channel_operator(member)) {
 		chent->op_number++;
@@ -386,32 +387,27 @@ loqui_channel_entry_add_real(LoquiChannelEntry *chent, LoquiMember *member)
 	g_signal_connect(G_OBJECT(member), "notify",
 			 G_CALLBACK(loqui_channel_entry_member_notify_cb), chent);
 
-	/* loqui_channel_entry_sort(chent); */
 	g_object_notify(G_OBJECT(chent), "member-number");
 }
 static void
 loqui_channel_entry_remove_real(LoquiChannelEntry *chent, LoquiMember *member)
 {
-	gint i;
 	gint old_pos;
 	LoquiMember *mcur;
 
         g_return_if_fail(chent != NULL);
         g_return_if_fail(LOQUI_IS_CHANNEL_ENTRY(chent));
 
-	/* remove the last user from table */
-	mcur = g_array_index(chent->member_array, LoquiMember *, chent->member_array->len - 1);
-	g_hash_table_remove(chent->user_hash, GINT_TO_POINTER(mcur));
+	/* remove the last user from the table */
+	mcur = g_ptr_array_index(chent->member_ptr_array, chent->member_ptr_array->len - 1);
+	g_hash_table_remove(chent->user_hash, mcur->user);
 
 	old_pos = GPOINTER_TO_INT(g_hash_table_lookup(chent->user_hash, member->user)) - 1;
 	g_return_if_fail(old_pos >= 0);
-	g_array_remove_index(chent->member_array, old_pos);
+	g_ptr_array_remove_index(chent->member_ptr_array, old_pos);
 
-	/* update len - 2 users */
-	for (i = 0; i < chent->member_array->len; i++) {
-		mcur = loqui_channel_entry_get_nth_member(chent, i);
-		g_hash_table_replace(chent->user_hash, mcur->user, GINT_TO_POINTER(i + 1));
-	}
+	loqui_channel_entry_update_user_hash(chent);
+
 	g_signal_handlers_disconnect_by_func(G_OBJECT(member),
 					     loqui_channel_entry_member_notify_is_channel_operator_cb, chent);
 	g_signal_handlers_disconnect_by_func(G_OBJECT(member->user),
@@ -435,13 +431,28 @@ loqui_channel_entry_member_notify_is_channel_operator_cb(LoquiMember *member, GP
 static void
 loqui_channel_entry_member_notify_cb(LoquiMember *member, GParamSpec *pspec, LoquiChannelEntry *chent)
 {
-	if (chent->sort_func && chent->do_sort)
-		loqui_channel_entry_sort(chent);
-}static void
+	if (chent->sort_func && chent->do_sort) {
+		g_ptr_array_remove_index(chent->member_ptr_array, loqui_channel_entry_get_member_pos(chent, member));
+		g_ptr_array_add(chent->member_ptr_array, member);
+		utils_g_ptr_array_insert_sort(chent->member_ptr_array, chent->member_ptr_array->len - 1, chent->sort_func);
+		loqui_channel_entry_update_user_hash(chent);
+	}
+}
+static void
 loqui_channel_entry_user_notify_cb(LoquiUser *user, GParamSpec *pspec, LoquiChannelEntry *chent)
 {
-	if (chent->sort_func && chent->do_sort)
-		loqui_channel_entry_sort(chent);
+	gint pos;
+	LoquiMember *member;
+
+	if (chent->sort_func && chent->do_sort) {
+		pos = GPOINTER_TO_INT(g_hash_table_lookup(chent->user_hash, user)) - 1;
+		g_assert(pos >= 0);
+		member = g_ptr_array_index(chent->member_ptr_array, pos);
+		g_ptr_array_remove_index(chent->member_ptr_array, pos);
+		g_ptr_array_add(chent->member_ptr_array, member);
+		utils_g_ptr_array_insert_sort(chent->member_ptr_array, chent->member_ptr_array->len - 1, chent->sort_func);
+		loqui_channel_entry_update_user_hash(chent);
+	}
 }
 void
 loqui_channel_entry_add_member(LoquiChannelEntry *chent, LoquiMember *member)
@@ -496,16 +507,14 @@ loqui_channel_entry_get_member_by_user(LoquiChannelEntry *chent, LoquiUser *user
         g_return_val_if_fail(LOQUI_IS_CHANNEL_ENTRY(chent), NULL);
 	
 	pos = GPOINTER_TO_INT(g_hash_table_lookup(chent->user_hash, user)) - 1;
-	if (pos < 0 || chent->member_array->len <= pos)
+	if (pos < 0 || chent->member_ptr_array->len <= pos)
 		return NULL;
-	return g_array_index(chent->member_array, LoquiMember *, pos);
+	return g_ptr_array_index(chent->member_ptr_array, pos);
 }
 void
 loqui_channel_entry_sort(LoquiChannelEntry *chent)
 {
 	LoquiChannelEntryPrivate *priv;
-	gint i;
-	LoquiMember *mcur;
 
         g_return_if_fail(chent != NULL);
         g_return_if_fail(LOQUI_IS_CHANNEL_ENTRY(chent));
@@ -513,13 +522,9 @@ loqui_channel_entry_sort(LoquiChannelEntry *chent)
         priv = chent->priv;
 
 	if (chent->sort_func)
-		g_array_sort(chent->member_array, chent->sort_func);
+		g_ptr_array_sort(chent->member_ptr_array, chent->sort_func);
 
-	/* update */
-	for (i = 0; i < chent->member_array->len; i++) {
-		mcur = loqui_channel_entry_get_nth_member(chent, i);
-		g_hash_table_replace(chent->user_hash, mcur->user, GINT_TO_POINTER(i + 1));
-	}
+	loqui_channel_entry_update_user_hash(chent);
 
 	g_signal_emit(chent, loqui_channel_entry_signals[SIGNAL_REORDERED], 0);
 }
@@ -545,11 +550,11 @@ loqui_channel_entry_get_nth_member(LoquiChannelEntry *chent, gint n)
         g_return_val_if_fail(chent != NULL, NULL);
         g_return_val_if_fail(LOQUI_IS_CHANNEL_ENTRY(chent), NULL);
 	
-	if (n < 0 || chent->member_array->len <= n) {
+	if (n < 0 || chent->member_ptr_array->len <= n) {
 		return NULL;
 	}
 
-	return g_array_index(chent->member_array, LoquiMember *, n);
+	return g_ptr_array_index(chent->member_ptr_array, n);
 }
 gint
 loqui_channel_entry_get_member_number(LoquiChannelEntry *chent)
@@ -557,7 +562,7 @@ loqui_channel_entry_get_member_number(LoquiChannelEntry *chent)
         g_return_val_if_fail(chent != NULL, 0);
         g_return_val_if_fail(LOQUI_IS_CHANNEL_ENTRY(chent), 0);
 	
-	return chent->member_array->len;
+	return chent->member_ptr_array->len;
 }
 gint
 loqui_channel_entry_get_op_number(LoquiChannelEntry *chent)

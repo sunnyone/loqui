@@ -41,6 +41,7 @@
 #include "loqui_channel_text_view.h"
 #include "loqui_gtk.h"
 #include "loqui_account_manager_store.h"
+#include "loqui_member_sort_funcs.h"
 
 #include "embedtxt/loqui_app_ui.h"
 

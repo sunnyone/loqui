@@ -45,7 +45,7 @@ struct _LoquiChannelEntry
 {
         GObject parent;
         
-	GArray *member_array;
+	GPtrArray *member_ptr_array;
 	GHashTable *user_hash; /* key: user, value: position + 1 */
 
 	gboolean is_updated;
