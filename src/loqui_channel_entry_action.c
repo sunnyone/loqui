@@ -142,7 +142,24 @@ loqui_channel_entry_action_set_property(GObject *object, guint param_id, const G
                 break;
         }
 }
+static void
+loqui_channel_entry_action_connect_proxy(GtkAction *action, GtkWidget *proxy)
+{
+	LoquiChannelEntryAction *ce_action;
+	gchar *label;
 
+	g_return_if_fail(action != NULL);
+	g_return_if_fail(LOQUI_IS_CHANNEL_ENTRY_ACTION(action));
+
+	ce_action = LOQUI_CHANNEL_ENTRY_ACTION(action);
+
+	if (GTK_IS_LABEL(proxy)) {
+		g_object_get(G_OBJECT(ce_action), "label", &label, NULL);
+		gtk_label_set(GTK_LABEL(proxy), label);
+	}
+
+	(* parent_class->connect_proxy) (action, proxy);
+}
 static void
 loqui_channel_entry_action_class_init(LoquiChannelEntryActionClass *klass)
 {
@@ -154,6 +171,8 @@ loqui_channel_entry_action_class_init(LoquiChannelEntryActionClass *klass)
         object_class->dispose = loqui_channel_entry_action_dispose;
         object_class->get_property = loqui_channel_entry_action_get_property;
         object_class->set_property = loqui_channel_entry_action_set_property;
+
+	GTK_ACTION_CLASS(klass)->connect_proxy = loqui_channel_entry_action_connect_proxy;
 
 	g_object_class_install_property(object_class,
 					PROP_CHANNEL_ENTRY,

@@ -31,7 +31,7 @@ struct _LoquiChannelbarPrivate
 
 	GtkWidget *dbox_buffers;
 	GtkWidget *button_channel;
-	GtkWidget *label_channel;
+	GtkWidget *label_channel_name;
 
 	GtkWidget *label_channel_mode;
 	GtkWidget *label_user_number;
@@ -176,6 +176,12 @@ loqui_channelbar_new(LoquiApp *app, GtkWidget *menu_dropdown)
 	loqui_dropdown_box_set_menu(LOQUI_DROPDOWN_BOX(priv->dbox_buffers), menu_dropdown);
 	gtk_box_pack_start(GTK_BOX(channelbar), priv->dbox_buffers, FALSE, FALSE, 0);
 
+	priv->button_channel = gtk_button_new();
+	gtk_box_pack_start(GTK_BOX(priv->dbox_buffers), priv->button_channel, FALSE, FALSE, 0);
+
+	priv->label_channel_name = gtk_label_new("");
+	gtk_container_add(GTK_CONTAINER(priv->button_channel), priv->label_channel_name);
+
 	priv->label_channel_mode = gtk_label_new("");
 	gtk_box_pack_start(GTK_BOX(channelbar), priv->label_channel_mode, 0, 0, FALSE);
 	
@@ -209,17 +215,21 @@ loqui_channelbar_set_current_channel(LoquiChannelbar *channelbar, Channel *chann
 	const gchar *topic;
 	gchar *buf, *channel_mode;
 	guint user_num_all, user_num_op;
-	
+	GtkAction *action;
+
 	g_return_if_fail(channelbar != NULL);
         g_return_if_fail(LOQUI_IS_CHANNELBAR(channelbar));
 
 	priv = channelbar->priv;
 
+	action = g_object_get_data(G_OBJECT(channel), "channel-entry-action");
+	gtk_action_connect_proxy(action, priv->label_channel_name);
+
 	gtk_entry_set_text(GTK_ENTRY(priv->entry_topic), "");
 	
 	gtk_label_set(GTK_LABEL(priv->label_channel_mode), "");
 	gtk_label_set(GTK_LABEL(priv->label_user_number), "");
-			
+	
 	if(channel && !channel_is_private_talk(channel)) {
 		topic = channel_get_topic(channel);
 		if(topic)
@@ -248,12 +258,18 @@ void
 loqui_channelbar_set_current_account(LoquiChannelbar *channelbar, Account *account)
 {
 	LoquiChannelbarPrivate *priv;
+	GtkAction *action;
 
 	g_return_if_fail(channelbar != NULL);
         g_return_if_fail(LOQUI_IS_CHANNELBAR(channelbar));
 
 	priv = channelbar->priv;
-
+	
+	if (account) {
+		action = g_object_get_data(G_OBJECT(account), "channel-entry-action");
+		gtk_action_connect_proxy(action, priv->label_channel_name);
+	}
+		
 	gtk_entry_set_text(GTK_ENTRY(priv->entry_topic), "");
 	gtk_widget_set_sensitive(priv->entry_topic, FALSE);
 	gtk_widget_set_sensitive(priv->button_ok, FALSE);
