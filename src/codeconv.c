@@ -26,15 +26,18 @@
 #include <locale.h>
 #include <errno.h>
 
+#include "intl.h"
+
 static gchar *server_codeset = NULL;
 #define GTK_CODESET "UTF-8"
 #define BUFFER_LEN 2048
 
 /* tell me other languages if you know */
 CodeConvDef conv_table[] = {
-	{"Auto Detection", NULL,       NULL}, /* for the setting */
-	{"No conv",        NULL,       ""},   /* for the setting */
-	{"Japanese",       "ja_JP",    "ISO-2022-JP"},
+	{N_("Auto Detection"), NULL,       NULL}, /* for the setting */
+	{N_("No conv"),        NULL,       NULL}, /* for the setting */
+	{N_("Custom"),         NULL,       NULL}, /* for the setting */
+	{N_("Japanese"),       "ja_JP",    "ISO-2022-JP"},
 	{NULL, NULL, NULL},
 };
 
@@ -47,20 +50,21 @@ codeconv_init(void)
 	length = 0;
 	while(conv_table[length].title != NULL) length++;
 	
+	server_codeset = NULL;
+
 	num = prefs_general.codeconv;
 	if(num > length) {
-		g_warning(_("the setting of codeconv was invalid; now 'Auto Detection' is selected."));
+		g_warning(_("the setting of codeconv was invalid; now '%s' is selected."), _("Auto Detection"));
 		num = 0;
 	}
 	
-	if(num == -1) {
+	if(num == CODECONV_CUSTOM) {
 		server_codeset = prefs_general.codeset;
-	} else if(num == 0) {
-		i = 2;
+	} else if(num == CODECONV_AUTO_DETECTION) {
+		i = CODECONV_LOCALE_START;
 		ctype = setlocale(LC_CTYPE, NULL);
 		if(ctype) {
 			while(conv_table[i].title != NULL) {
-				if(conv_table[i].locale == NULL) continue;
 				if(strstr(ctype, conv_table[i].locale) != NULL) {
 					server_codeset = conv_table[i].charset;
 					break;
@@ -71,9 +75,6 @@ codeconv_init(void)
 	} else {
 		server_codeset = conv_table[num].charset;
 	}
-
-	if(server_codeset == NULL)
-		server_codeset = "";
 }
 
 gchar *
@@ -86,7 +87,7 @@ codeconv_to_server(const gchar *input)
 		return NULL;
 	}
 
-	if(strlen(server_codeset) == 0)
+	if(server_codeset == NULL || strlen(server_codeset) == 0)
 		return g_strdup(input);
 
 	output = g_convert(input, strlen(input)+1, server_codeset, GTK_CODESET,

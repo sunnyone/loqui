@@ -32,6 +32,13 @@ void codeconv_init(void);
 gchar *codeconv_to_server(const gchar *input);
 gchar *codeconv_to_local(const gchar *input);
 
+enum {
+	CODECONV_AUTO_DETECTION,
+	CODECONV_NO_CONV,
+	CODECONV_CUSTOM,
+	CODECONV_LOCALE_START,
+};
+
 extern CodeConvDef conv_table[];
 
 #endif /* __CODECONV_H__ */
