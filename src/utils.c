@@ -330,8 +330,10 @@ utils_strftime(const gchar *format, struct tm *time)
 	gint len, format_len;
 	gint size;
 	
+	if(format == NULL)
+		return NULL;
+		
 	format_len = strlen(format);
-	
 	if (format_len == 0)
 		return NULL;
 
