@@ -216,9 +216,10 @@ account_manager_set_current(AccountManager *manager, Account *account, Channel *
 		for(cur = channel->user_list; cur != NULL; cur = cur->next) {
 			account_manager_nick_list_append(manager, (User *) cur->data);
 		}
-		
+		account_manager_set_topic(manager, channel_get_topic(channel));
 	} else if(account) {
 		channel_book_change_current(priv->app->channel_book, account->console_text);
+		account_manager_set_topic(manager, "");
 	}
 }
 static Account*
@@ -323,4 +324,11 @@ void account_manager_nick_list_clear(AccountManager *manager)
         g_return_if_fail(IS_ACCOUNT_MANAGER(manager));
 
 	nick_list_clear(manager->priv->app->nick_list);
+}
+void account_manager_set_topic(AccountManager *manager, const gchar *topic)
+{
+	g_return_if_fail(manager != NULL);
+        g_return_if_fail(IS_ACCOUNT_MANAGER(manager));
+
+	loqui_app_set_topic(manager->priv->app, topic);
 }

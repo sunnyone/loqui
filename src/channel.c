@@ -173,7 +173,6 @@ channel_append_text(Channel *channel, gboolean with_common_text, TextType type, 
 		account_manager_common_text_append(account_manager_get(), type, str);
 	}
 }
-/* TODO: reflect the main window */
 void channel_set_topic(Channel *channel, const gchar *topic)
 {
 	ChannelPrivate *priv;
@@ -187,6 +186,10 @@ void channel_set_topic(Channel *channel, const gchar *topic)
 		g_free(priv->topic);
 
 	priv->topic = g_strdup(topic);
+
+	if(account_manager_is_current_channel(account_manager_get(), channel)) {
+		account_manager_set_topic(account_manager_get(), topic);
+	}
 }
 gchar *channel_get_topic(Channel *channel)
 {

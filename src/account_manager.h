@@ -75,6 +75,8 @@ void account_manager_nick_list_remove(AccountManager *manager, User *user);
 void account_manager_nick_list_update(AccountManager *manager, User *user);
 void account_manager_nick_list_clear(AccountManager *manager);
 
+void account_manager_set_topic(AccountManager *manager, const gchar *topic);
+
 G_END_DECLS
 
 #endif /* __ACCOUNT_MANAGER_H__ */

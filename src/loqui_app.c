@@ -285,7 +285,10 @@ loqui_app_new (void)
 void
 loqui_app_set_topic(LoquiApp *app, const gchar *str)
 {
-	gtk_label_set_text(GTK_LABEL(app->priv->label_topic), str);
+	if(str)
+		gtk_label_set_text(GTK_LABEL(app->priv->label_topic), str);
+	else
+		gtk_label_set_text(GTK_LABEL(app->priv->label_topic), _("No topic"));
 }
 
 gboolean
