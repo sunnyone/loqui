@@ -1,3 +1,59 @@
+2003-07-01 20:58  y-imai
+
+	* src/remark_entry.c: managing remark history by myself. abolished
+	to use GtkCombo for remark entry.
+
+2003-07-01 19:35  y-imai
+
+	* src/loqui_channelbar.c: changing topic isn't allowed if that
+	entry isn't changed.
+
+2003-07-01 18:55  y-imai
+
+	* src/loqui_toolbar.c: new buttons to select the prev/next channel
+
+2003-07-01 18:52  y-imai
+
+	* src/: loqui_menu.c, loqui_toolbar.c: changed icons of next/prev
+	updated channel
+
+2003-07-01 18:41  y-imai
+
+	* src/account_manager.c: changed the way to detect whether or not
+	to append messages to the common buffer
+
+2003-07-01 17:42  y-imai
+
+	* src/buffer_menu.c: now it checks whether menuitem in the buffer
+	menu is for channel or for account(BTS: #5)
+
+2003-07-01 17:26  y-imai
+
+	* src/: account_manager.c, account_manager.h, main.c,
+	prefs_dialog.c, prefs_general.c, prefs_general.h: added option that
+	all default accounts will be connected when the program started
+
+2003-06-30 22:14  y-imai
+
+	* src/irc_handle.c: fixed plum recent parser
+
+2003-06-29 18:30  y-imai
+
+	* src/channel_buffer.c: changed info color to green3
+
+2003-06-29 13:37  y-imai
+
+	* src/icons/: Makefile.am, person.png: added person.png
+
+2003-06-16 03:32  y-imai
+
+	* debian/changelog: updated debian changelog
+
+2003-06-16 03:32  y-imai
+
+	* ChangeLog, NEWS, NEWS.ja, configure.in, po/ja.po, po/loqui.pot:
+	0.1.17
+
 2003-06-16 03:22  y-imai
 
 	* src/irc_message.c: fixed the bug loqui can't parse a message like

@@ -105,3 +105,12 @@
 * Created channelbar.
 * Fixed the case sensitibity of RemarkEntry.
 * Remove needless padding of ChannelTree/NickList.
+
+2003-07-01     0.1.18
+* Now it preserves the current message to the history.
+* Changing topic is only allowed if the entry is changed.
+* Added Next/Prev channel button to the toolbar.
+* Fixed the bug that the program quits if you tried to configure accounts when they are connected.
+* Added the feature that all default accounts will be connected when the program started automatically.
+* Fixed the parser of plum-recent.
+
