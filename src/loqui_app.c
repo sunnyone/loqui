@@ -1034,10 +1034,10 @@ loqui_app_add_account_after_cb(AccountManager *manager, LoquiAccount *account, L
 	loqui_channel_text_view_set_auto_switch_scrolling(LOQUI_CHANNEL_TEXT_VIEW(chview),
 							  prefs_general.auto_switch_scrolling);
 
+	gtk_widget_show_all(LOQUI_CHANNEL_TEXT_VIEW(chview)->scrolled_window);
 	gtk_notebook_append_page(GTK_NOTEBOOK(app->channel_notebook),
 				 LOQUI_CHANNEL_TEXT_VIEW(chview)->scrolled_window,
 				 NULL);
-	gtk_widget_show_all(LOQUI_CHANNEL_TEXT_VIEW(chview)->scrolled_window);
 
 	loqui_channel_entry_set_sort_func(LOQUI_CHANNEL_ENTRY(account), priv->sort_func);
 	loqui_app_update_channel_entry_accel_key(app);
