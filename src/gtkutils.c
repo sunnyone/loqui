@@ -114,3 +114,9 @@ gtk_tree_model_find_by_column_data (GtkTreeModel * model, GtkTreeIter * iter,
 	
 	return FALSE;
 }
+
+gchar *
+gtkutils_menu_translate(const gchar *path, gpointer data)
+{
+	return gettext(path);
+}

@@ -35,5 +35,6 @@ void gtkutils_toggle_button_without_emission(GtkToggleButton *button, guint sign
 gboolean gtk_tree_model_find_by_column_data(GtkTreeModel * model, GtkTreeIter * iter,
 					    GtkTreeIter * start, gint col,
 					    gpointer data);
+gchar *gtkutils_menu_translate(const gchar *path, gpointer data);
 
 #endif /* __GTKUTILS_H__ */
