@@ -73,7 +73,7 @@ static void loqui_channel_buffer_gtk_apply_tag_cb(GtkTextBuffer *buffer,
 					GtkTextIter *start,
 					GtkTextIter *end,
 					gpointer user_data);
-static gboolean loqui_channel_buffer_gtk_delete_old_lines(LoquiChannelBufferGtk *buffer);
+static void loqui_channel_buffer_gtk_delete_old_lines(LoquiChannelBufferGtk *buffer);
 
 static void loqui_channel_buffer_gtk_load_styles(LoquiChannelBufferGtk *buffer);
 
@@ -288,7 +288,7 @@ loqui_channel_buffer_gtk_tag_uri(GtkTextBuffer *buffer,
 	}
 }
 
-static gboolean
+static void
 loqui_channel_buffer_gtk_delete_old_lines(LoquiChannelBufferGtk *buffer)
 {
 	LoquiChannelBufferGtkPrivate *priv;
@@ -296,8 +296,8 @@ loqui_channel_buffer_gtk_delete_old_lines(LoquiChannelBufferGtk *buffer)
 	gint line_num;
 	gint max_line_number;
 		
-	g_return_val_if_fail(buffer != NULL, FALSE);
-	g_return_val_if_fail(LOQUI_IS_CHANNEL_BUFFER_GTK(buffer), FALSE);
+	g_return_if_fail(buffer != NULL);
+	g_return_if_fail(LOQUI_IS_CHANNEL_BUFFER_GTK(buffer));
 
 	priv = buffer->priv;
 	
@@ -316,8 +316,6 @@ loqui_channel_buffer_gtk_delete_old_lines(LoquiChannelBufferGtk *buffer)
 			g_warning("Can't delete buffer.");
 		}
 	}
-	
-	return FALSE;
 }
 
 static void
@@ -340,10 +338,6 @@ loqui_channel_buffer_gtk_text_inserted_cb(GtkTextBuffer *buffer,
 	
 	tmp_iter = *pos;
 	loqui_channel_buffer_gtk_tag_uri(buffer, &tmp_iter, text);
-	
-	/* FIXME: In reality, this should not be done in this function,
-	 *        but I can't find any reasonable ways... */
-	g_idle_add_full(G_PRIORITY_LOW, (GSourceFunc) loqui_channel_buffer_gtk_delete_old_lines, buffer, NULL);
 }
 LoquiChannelBufferGtk*
 loqui_channel_buffer_gtk_new(void)
@@ -529,6 +523,8 @@ loqui_channel_buffer_gtk_append_message_text(LoquiChannelBuffer *buffer_p, Loqui
 	loqui_channel_buffer_gtk_append(buffer, type, buf,
 					loqui_message_text_get_is_remark(msgtext));
 	g_free(buf);
+
+	loqui_channel_buffer_gtk_delete_old_lines(buffer);
 }
 /* FIXME: this should do with max_line_number */
 void
