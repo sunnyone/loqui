@@ -65,5 +65,10 @@ void gtkutils_menu_position_under_widget(GtkMenu   *menu,
 					 gint      *y,
 					 gboolean  *push_in,
 					 gpointer   user_data);
+void gtkutils_menu_position_under_or_below_widget(GtkMenu   *menu,
+						  gint      *x,
+						  gint      *y,
+						  gboolean  *push_in,
+						  gpointer   user_data);
 
 #endif /* __GTKUTILS_H__ */

@@ -198,7 +198,7 @@ loqui_tray_icon_button_press_event_cb(GtkWidget *widget, GdkEventButton *event, 
 			break;
 		case 3:
 			gtk_menu_popup(GTK_MENU(priv->menu), NULL, NULL,
-				       gtkutils_menu_position_under_widget, GTK_WIDGET(tray_icon),
+				       gtkutils_menu_position_under_or_below_widget, GTK_WIDGET(tray_icon),
 				       event ? event->button : 0,
 				       event ? event->time : gtk_get_current_event_time());
 			break;

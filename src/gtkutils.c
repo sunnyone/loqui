@@ -354,3 +354,35 @@ gtkutils_menu_position_under_widget(GtkMenu   *menu,
         *x = CLAMP(*x, 0, MAX(0, screen_width - requisition.width));
         *y = CLAMP(*y, 0, MAX(0, screen_height - requisition.height));
 }
+
+/* for notification area */
+void
+gtkutils_menu_position_under_or_below_widget(GtkMenu   *menu,
+					     gint      *x,
+					     gint      *y,
+					     gboolean  *push_in,
+					     gpointer   user_data)
+{
+        GtkWidget *w = GTK_WIDGET(user_data);
+        const GtkAllocation *allocation = &w->allocation;
+        gint screen_width, screen_height;
+        GtkRequisition requisition;
+
+        gdk_window_get_origin(w->window, x, y);
+        *x += allocation->x;
+        *y += allocation->y + allocation->height;
+
+        gtk_widget_size_request(GTK_WIDGET (menu), &requisition);
+      
+        screen_width = gdk_screen_width();
+        screen_height = gdk_screen_height();
+       
+	/* lower area */
+	if (*y > screen_height / 2) {
+		*x = CLAMP(*x, 0, MAX(0, screen_width - requisition.width));
+		*y = CLAMP(MAX(*y - allocation->height, 0), 0, MAX(0, screen_height - requisition.height - allocation->height));
+	} else { /* upper area */
+		*x = CLAMP(*x, 0, MAX(0, screen_width - requisition.width));
+		*y = CLAMP(*y, 0, MAX(0, screen_height - requisition.height));
+	}
+}
