@@ -215,7 +215,7 @@ irc_handle_parse_plum_recent(IRCHandle *handle, const gchar *line)
 	}
 
 	if (*name == '%' && strchr(name, ':') == NULL) {
-		converted_name = g_strconcat(name+1, PLUM_ALIAS_OF_PERCENT_PREFIX, NULL);
+		converted_name = g_strconcat("#", name+1, PLUM_ALIAS_OF_PERCENT_PREFIX, NULL);
 	} else {
 		converted_name = g_strdup(name);
 	}
