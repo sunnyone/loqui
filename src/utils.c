@@ -265,7 +265,7 @@ utils_get_value_list_from_hash(GHashTable *hash_table)
                               v *start_uri
   utils_search_uri("hoge hoge http://hogefuga  aaaa", &got_uri, &start_uri, &end_uri);
                                             ^*end_uri
-  got_ptr = "http://hoge fuga" (malloc'ed)
+  got_uri = "http://hoge fuga" (malloc'ed)
 */
 gboolean
 utils_search_uri(const gchar *buf, gchar **got_uri,
@@ -289,14 +289,12 @@ utils_search_uri(const gchar *buf, gchar **got_uri,
 	cur = start_uri_ptr = tmp_start_uri;
 	
 	cur += strlen(used_prefix);
-	if(*cur == '\0')
-		return FALSE;
-	
-	while(*(++cur)) {
+	while (*cur) {
 		if(!isascii(*cur) ||
 		   !g_ascii_isgraph(*cur) ||
 		   strchr("()<>\"", *cur))
 			break;
+		cur++;
 	}
 	cur--;
 
