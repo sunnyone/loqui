@@ -42,6 +42,7 @@
       <menuitem name="ToggleStatusbar" action="ToggleStatusbar"/>
       <separator/>
       <menuitem name="ToggleScroll" action="ToggleScroll"/>
+      <menuitem name="ToggleScrollCommonBuffer" action="ToggleScrollCommonBuffer"/>
       <separator/>
       <menu name="NickListSortTypeMenu" action="StockNickListSortTypeMenu">
         <menuitem name="RadioNickListSortNone" action="RadioNickListSortNone" />
