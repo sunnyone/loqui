@@ -40,7 +40,7 @@ static GtkDialogClass *parent_class = NULL;
 
 enum {
 	COLUMN_NAME,
-	COLUMN_POINTER,
+	COLUMN_ACCOUNT,
 	COLUMN_NUMBER
 };
 static void account_list_dialog_class_init(AccountListDialogClass *klass);
@@ -150,7 +150,7 @@ account_list_dialog_construct_list(AccountListDialog *dialog)
 	} else {
 		priv->list_store = gtk_list_store_new(COLUMN_NUMBER,
 						      G_TYPE_STRING,
-						      G_TYPE_POINTER);
+						      TYPE_ACCOUNT);
 	}
 
 	account_list = account_manager_get_account_list(account_manager_get());
@@ -160,7 +160,7 @@ account_list_dialog_construct_list(AccountListDialog *dialog)
 		gtk_list_store_append(priv->list_store, &iter);
 		gtk_list_store_set(priv->list_store, &iter,
 				   COLUMN_NAME, loqui_profile_account_get_name(account_get_profile(account)),
-				   COLUMN_POINTER, account,
+				   COLUMN_ACCOUNT, account,
 				   -1);
 	}
 
@@ -206,7 +206,7 @@ account_list_dialog_get_selected_account_list(AccountListDialog *dialog)
 		path = cur->data;
 		gtk_tree_model_get_iter(model, &iter, path);
 		gtk_tree_model_get(GTK_TREE_MODEL(dialog->priv->list_store), &iter,
-				   COLUMN_POINTER, &account, -1);
+				   COLUMN_ACCOUNT, &account, -1);
 		ac_list = g_list_append(ac_list, account);
 	}
 	g_list_foreach(list, (GFunc) gtk_tree_path_free, NULL);
@@ -371,7 +371,7 @@ account_list_dialog_open_for_connect(GtkWindow *parent)
 
 	gtk_tree_model_get_iter_first(model, &iter);
 	do {
-		gtk_tree_model_get(model, &iter, COLUMN_POINTER, &account, -1);
+		gtk_tree_model_get(model, &iter, COLUMN_ACCOUNT, &account, -1);
 		if (loqui_profile_account_get_use(account_get_profile(account)))
 			gtk_tree_selection_select_iter(selection, &iter);
 	} while (gtk_tree_model_iter_next(model, &iter));
