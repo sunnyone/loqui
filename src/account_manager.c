@@ -30,6 +30,7 @@
 #include "intl.h"
 #include "loqui_toolbar.h"
 #include "loqui_channelbar.h"
+#include "loqui_statusbar.h"
 #include "prefs_dialog.h"
 #include "connect_dialog.h"
 
@@ -613,7 +614,9 @@ account_manager_set_whether_scrolling(AccountManager *manager, gboolean is_scrol
 
 	priv->is_scroll = is_scroll;
 	loqui_toolbar_toggle_scrolling_with_signal_handler_blocked(LOQUI_TOOLBAR(priv->app->toolbar),
-								   is_scroll);
+								     is_scroll);
+	loqui_statusbar_toggle_scrolling_with_signal_handler_blocked(LOQUI_STATUSBAR(priv->app->statusbar),
+								     is_scroll);							     
 	debug_puts("Set scroll: %d", is_scroll);
 }
 gboolean

@@ -23,6 +23,7 @@
 #include "intl.h"
 #include "icons/pixbufs.h"
 #include "gtkutils.h"
+#include "account_manager.h"
 
 #include <string.h>
 
@@ -39,6 +40,8 @@ enum {
 
 struct _LoquiStatusbarPrivate
 {
+	LoquiApp *app;
+	
 	GtkWidget *label_account;
 	
 	GtkWidget *image_online;
@@ -55,6 +58,8 @@ struct _LoquiStatusbarPrivate
 	
 	GtkWidget *menu_away;
 	GtkWidget *menu_preset;
+	
+	guint toggle_scroll_handler_id;	
 };
 
 static GtkStatusbarClass *parent_class = NULL;
@@ -79,6 +84,7 @@ static void loqui_statusbar_away_menuitem_activated_cb(GtkWidget *widget, LoquiS
 static void loqui_statusbar_set_away_menu(LoquiStatusbar *statusbar);
 
 static void loqui_statusbar_nick_button_clicked_cb(GtkWidget *widget, LoquiStatusbar *statusbar);
+static void loqui_statusbar_toggle_scrolling_cb(GtkWidget *widget, LoquiStatusbar *statusbar);
 
 GType
 loqui_statusbar_get_type(void)
@@ -393,6 +399,24 @@ loqui_statusbar_nick_button_clicked_cb(GtkWidget *widget, LoquiStatusbar *status
 	
 	g_signal_emit(statusbar, loqui_statusbar_signals[NICK_CHANGE], 0);
 }
+static void
+loqui_statusbar_toggle_scrolling_cb(GtkWidget *widget, LoquiStatusbar *statusbar)
+{
+	gboolean is_active;
+	LoquiStatusbarPrivate *priv;
+
+        g_return_if_fail(statusbar != NULL);
+        g_return_if_fail(LOQUI_IS_STATUSBAR(statusbar));
+
+	priv = statusbar->priv;
+
+	is_active = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget));
+	account_manager_set_whether_scrolling(account_manager_get(), 
+					      is_active);
+
+	if(is_active)
+		loqui_app_scroll_channel_buffer(priv->app);
+}
 static GtkWidget*
 loqui_statusbar_create_icon_image(const guint8 *data)
 {
@@ -414,7 +438,7 @@ loqui_statusbar_create_icon_image(const guint8 *data)
 }
 
 GtkWidget*
-loqui_statusbar_new (void)
+loqui_statusbar_new(LoquiApp *app)
 {
         LoquiStatusbar *statusbar;
 	LoquiStatusbarPrivate *priv;
@@ -423,6 +447,8 @@ loqui_statusbar_new (void)
 	
 	statusbar = g_object_new(loqui_statusbar_get_type(), NULL);
 	priv = statusbar->priv;
+	
+	priv->app = app;
 	
 	gtk_statusbar_set_has_resize_grip(GTK_STATUSBAR(statusbar), FALSE);
 	gtk_label_set_selectable(GTK_LABEL(GTK_STATUSBAR(statusbar)->label), TRUE);
@@ -484,6 +510,11 @@ loqui_statusbar_new (void)
 			 G_CALLBACK(loqui_statusbar_away_menu_deactivated_cb), statusbar);
 	
 	loqui_statusbar_set_away_menu(statusbar);
+	
+	priv->toggle_scroll_handler_id = g_signal_connect(G_OBJECT(priv->toggle_scroll),
+							 "toggled",
+							 G_CALLBACK(loqui_statusbar_toggle_scrolling_cb),
+							 statusbar);
 	
 	return GTK_WIDGET(statusbar);
 }
@@ -556,4 +587,18 @@ loqui_statusbar_set_default(LoquiStatusbar *statusbar, const gchar *str)
 	context_id = gtk_statusbar_get_context_id(GTK_STATUSBAR(statusbar), "Default");
 	gtk_statusbar_pop(GTK_STATUSBAR(statusbar), context_id);
 	gtk_statusbar_push(GTK_STATUSBAR(statusbar), context_id, str);
+}
+void
+loqui_statusbar_toggle_scrolling_with_signal_handler_blocked(LoquiStatusbar *statusbar, gboolean is_scroll)
+{
+	LoquiStatusbarPrivate *priv;
+	
+        g_return_if_fail(statusbar != NULL);
+        g_return_if_fail(LOQUI_IS_STATUSBAR(statusbar));
+    
+    	priv = statusbar->priv;
+    	
+	gtkutils_toggle_button_with_signal_handler_blocked(GTK_TOGGLE_BUTTON(priv->toggle_scroll),
+							   priv->toggle_scroll_handler_id,
+							   is_scroll);
 }

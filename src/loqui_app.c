@@ -41,7 +41,6 @@ struct _LoquiAppPrivate
 {
 	GtkWidget *common_textview;
 	GtkWidget *entry;
-	GtkWidget *statusbar;
 	GtkWidget *handlebox_toolbar;
 	GtkWidget *handlebox_channelbar;
 
@@ -393,11 +392,11 @@ loqui_app_update_info(LoquiApp *app,
 			loqui_toolbar_toggle_away_with_signal_handler_blocked(LOQUI_TOOLBAR(app->toolbar),
 									      account_get_away_status(account));
 		}
-		loqui_statusbar_set_current_account(LOQUI_STATUSBAR(priv->statusbar), account);
+		loqui_statusbar_set_current_account(LOQUI_STATUSBAR(app->statusbar), account);
 	}
 
 	if(is_channel_changed) {
-		loqui_statusbar_set_current_channel(LOQUI_STATUSBAR(priv->statusbar), channel);
+		loqui_statusbar_set_current_channel(LOQUI_STATUSBAR(app->statusbar), channel);
 	}
 	
 	if(!channel) {
@@ -417,7 +416,7 @@ loqui_app_update_info(LoquiApp *app,
 	g_free(buf);
 
 	buf = FORMAT_INFO("%t");
-	loqui_statusbar_set_default(LOQUI_STATUSBAR(priv->statusbar), buf);
+	loqui_statusbar_set_default(LOQUI_STATUSBAR(app->statusbar), buf);
 	g_free(buf);
 	
 	G_FREE_UNLESS_NULL(channel_mode);
@@ -475,8 +474,8 @@ loqui_app_new(void)
 	hpaned = gtk_hpaned_new();
 	gtk_box_pack_start_defaults(GTK_BOX(vbox), hpaned);
 
-	priv->statusbar = loqui_statusbar_new();
-	gtk_box_pack_start(GTK_BOX(vbox), priv->statusbar, FALSE, FALSE, 1);	
+	app->statusbar = loqui_statusbar_new(app);
+	gtk_box_pack_start(GTK_BOX(vbox), app->statusbar, FALSE, FALSE, 1);	
 	
 	/* left side */
 	vpaned = gtk_vpaned_new();
@@ -498,11 +497,11 @@ loqui_app_new(void)
 	gtk_box_pack_end(GTK_BOX(vbox), priv->entry, FALSE, FALSE, 0);
 	g_signal_connect(G_OBJECT(priv->entry), "activate",
 			 G_CALLBACK(loqui_app_entry_activate_cb), NULL);
-	g_signal_connect(G_OBJECT(priv->statusbar), "nick-change",
+	g_signal_connect(G_OBJECT(app->statusbar), "nick-change",
 			 G_CALLBACK(loqui_app_statusbar_nick_clicked_cb), app);
-	g_signal_connect(G_OBJECT(priv->statusbar), "nick-selected",
+	g_signal_connect(G_OBJECT(app->statusbar), "nick-selected",
 			 G_CALLBACK(loqui_app_statusbar_nick_selected_cb), app);
-	g_signal_connect(G_OBJECT(priv->statusbar), "away-selected",
+	g_signal_connect(G_OBJECT(app->statusbar), "away-selected",
 			 G_CALLBACK(loqui_app_statusbar_away_selected_cb), app);
 
 	priv->common_textview = gtk_text_view_new();
@@ -660,9 +659,9 @@ loqui_app_set_show_statusbar(LoquiApp *app, gboolean show)
 	priv = app->priv;
 
 	if(show)
-		gtk_widget_show(priv->statusbar);
+		gtk_widget_show(app->statusbar);
 	else
-		gtk_widget_hide(priv->statusbar);
+		gtk_widget_hide(app->statusbar);
 
 	prefs_general.show_statusbar = show;
 }

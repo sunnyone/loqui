@@ -24,6 +24,7 @@
 
 #include "channel.h"
 #include "account.h"
+#include "loqui_app.h"
 
 G_BEGIN_DECLS
 
@@ -54,11 +55,12 @@ struct _LoquiStatusbarClass
 
 GtkType loqui_statusbar_get_type (void) G_GNUC_CONST;
 
-GtkWidget* loqui_statusbar_new (void);
+GtkWidget* loqui_statusbar_new(LoquiApp *app);
 
 void loqui_statusbar_set_current_channel(LoquiStatusbar *statusbar, Channel *channel);
 void loqui_statusbar_set_current_account(LoquiStatusbar *statusbar, Account *account);
 void loqui_statusbar_set_default(LoquiStatusbar *statusbar, const gchar *str);
+void loqui_statusbar_toggle_scrolling_with_signal_handler_blocked(LoquiStatusbar *statusbar, gboolean is_scroll);
 
 G_END_DECLS
 
