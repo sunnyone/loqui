@@ -22,6 +22,7 @@
 
 #include <gtk/gtk.h>
 #include "loqui_account.h"
+#include "msn_message.h"
 
 G_BEGIN_DECLS
 
@@ -57,6 +58,7 @@ GType msn_login_get_type(void) G_GNUC_CONST;
 MSNLogin* msn_login_new(LoquiAccount *account);
 
 void msn_login_connect(MSNLogin *login);
+void msn_login_send_message(MSNLogin *login, MSNMessage *msg);
 
 G_END_DECLS
 

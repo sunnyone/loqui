@@ -27,6 +27,7 @@
 #include "loqui_profile_account.h"
 
 #include <gnet.h>
+#include <string.h>
 
 enum {
         LAST_SIGNAL
@@ -38,11 +39,8 @@ enum {
 
 struct _MSNLoginPrivate
 {
-	GTcpSocket *socket;
-	GTcpSocketConnectAsyncID connect_id;
-	guint in_watch;
-	guint out_watch;
-
+	GConn *conn;
+	gboolean is_conn_connected;
 };
 
 static GObjectClass *parent_class = NULL;
@@ -186,28 +184,40 @@ msn_login_new(LoquiAccount *account)
         return login;
 }
 static void
-msn_login_connect_cb(GTcpSocket *socket,
-		     GTcpSocketConnectAsyncStatus status,
-		     gpointer data)
+msn_login_conn_error_cb(GConn *conn, MSNLogin *login)
 {
-	MSNLogin *login;
 	MSNLoginPrivate *priv;
-	GIOChannel *ioch;
+	LoquiAccount *account;
+
+	priv = login->priv;
+	account = login->account;
+
+	if (!priv->is_conn_connected) {
+		loqui_account_warning(LOQUI_ACCOUNT(account), _("Failed to connect."));
+	} else {
+		loqui_account_warning(LOQUI_ACCOUNT(account), _("An error occured on connection."));
+	}
+
+	priv->is_conn_connected = FALSE;
+	loqui_account_set_is_connected(LOQUI_ACCOUNT(account), FALSE);
+
+	if (priv->conn) {
+		gnet_conn_unref(priv->conn);
+		priv->conn = NULL;
+	}
+
+	loqui_account_closed(LOQUI_ACCOUNT(account));
+}
+static void
+msn_login_conn_connected_cb(GConn *conn, MSNLogin *login)
+{
+	MSNLoginPrivate *priv;
 	MSNMessage *msg;
 
-	login = data;
 	priv = login->priv;
 
-	if(status != GTCP_SOCKET_CONNECT_ASYNC_STATUS_OK || socket == NULL) {
-		loqui_account_warning(login->account, _("Failed to connect notification server."));
-		return;
-	}
-	
-	priv->socket = socket;
-
-	ioch = gnet_tcp_socket_get_io_channel(socket);
-/*	priv->in_watch = g_io_add_watch(ioch, G_IO_IN | G_IO_ERR | G_IO_PRI | G_IO_HUP | G_IO_NVAL,
-	(GIOFunc) msn_login_watch_in_cb, login); */
+	priv->is_conn_connected = TRUE;
+	loqui_account_information(LOQUI_ACCOUNT(login->account), _("Connected."));
 
 	msg = msn_message_create(NULL, NULL,
 				 MSN_COMMAND_VER,
@@ -217,7 +227,64 @@ msn_login_connect_cb(GTcpSocket *socket,
 				 NULL);
 	
 	loqui_account_information(login->account, _("Sending version information..."));
+	msn_login_send_message(login, msg);
+	g_object_unref(msg);
+}
+static void
+msn_login_conn_closed_cb(GConn *conn, MSNLogin *login)
+{
+	MSNLoginPrivate *priv;
+	GList *cur;
+	LoquiAccount *account;
+
+	priv = login->priv;
+	account = login->account;
+
+	if (priv->conn) {
+		gnet_conn_unref(priv->conn);
+		priv->conn = NULL;
+	}
 	
+	priv->is_conn_connected = FALSE;
+	loqui_account_set_is_connected(LOQUI_ACCOUNT(account), FALSE);
+
+	loqui_account_information(LOQUI_ACCOUNT(account), _("Connection closed."));
+	loqui_user_set_away(LOQUI_ACCOUNT(account)->user_self, LOQUI_AWAY_TYPE_OFFLINE);
+
+/*	for (cur = LOQUI_ACCOUNT(account)->channel_list; cur != NULL; cur = cur->next)
+	loqui_channel_set_is_joined(LOQUI_CHANNEL(cur->data), FALSE); */
+	
+	loqui_account_closed(LOQUI_ACCOUNT(account));
+}
+static void
+msn_login_conn_readline_cb(GConn *conn, const gchar *buffer, MSNLogin *login)
+{
+	MSNLoginPrivate *priv;
+
+	priv = login->priv;
+
+	g_print("buffer: %s\n", buffer);
+
+	gnet_conn_readline(priv->conn);
+}
+static void
+msn_login_conn_cb(GConn *conn, GConnEvent *event, MSNLogin *login)
+{
+	switch (event->type) {
+	case GNET_CONN_ERROR:
+		msn_login_conn_error_cb(conn, login);
+		break;
+	case GNET_CONN_CONNECT:
+		msn_login_conn_connected_cb(conn, login);
+		break;
+	case GNET_CONN_CLOSE:
+		msn_login_conn_closed_cb(conn, login);
+		break;
+	case GNET_CONN_READ:
+		msn_login_conn_readline_cb(conn, event->buffer, login);
+	default:
+		break;
+	} 
 }
 void
 msn_login_connect(MSNLogin *login)
@@ -234,6 +301,28 @@ msn_login_connect(MSNLogin *login)
 	servername = loqui_profile_account_get_servername(loqui_account_get_profile(login->account));
 	port = loqui_profile_account_get_port(loqui_account_get_profile(login->account));
 
-	priv->connect_id = gnet_tcp_socket_connect_async(servername, port,
-							 msn_login_connect_cb, login);
+	priv->conn = gnet_conn_new(servername, port, (GConnFunc) msn_login_conn_cb, login);
+
+	loqui_account_information(login->account, _("Connecting to login server (%s:%d)"), servername, port);
+	
+	gnet_conn_connect(priv->conn);
+
+	priv->is_conn_connected = FALSE;
+}
+void
+msn_login_send_message(MSNLogin *login, MSNMessage *msg)
+{
+	MSNLoginPrivate *priv;
+	gchar *buf, *tmp;
+
+	priv = login->priv;
+	
+	/* TODO: buf = msn_message_to_string(msg); */
+	buf = g_strdup("hoge");
+	tmp = g_strconcat(buf, "\r\n", NULL);
+	g_free(buf);
+
+	gnet_conn_write(priv->conn, tmp, strlen(tmp));
+
+	g_free(tmp);
 }
