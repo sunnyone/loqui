@@ -59,6 +59,8 @@ loqui_gtk_start_main_loop(void)
 	app = LOQUI_APP(loqui_app_new(account_manager));
 	
 	path = g_build_filename(g_get_home_dir(), PREFS_DIR, ACCEL_MAP_FILE, NULL);
+
+	gtk_accel_map_add_filter(SHORTCUT_CHANNEL_ENTRY_ACCEL_MAP_PREFIX "*");
 	gtk_accel_map_load(path);
 
 	account_manager_load_accounts(account_manager);
@@ -67,5 +69,6 @@ loqui_gtk_start_main_loop(void)
 	g_object_unref(account_manager); /* app has reference */
 
 	gtk_main();
+
 	gtk_accel_map_save(path);
 }
