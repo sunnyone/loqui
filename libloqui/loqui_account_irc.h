@@ -20,7 +20,7 @@
 #ifndef __LOQUI_ACCOUNT_IRC_H__
 #define __LOQUI_ACCOUNT_IRC_H__
 
-#include <gtk/gtk.h>
+#include <glib-object.h>
 
 #include "loqui_account.h"
 #include "loqui_user_irc.h"

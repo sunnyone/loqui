@@ -1,4 +1,4 @@
-INCLUDES = $(GTK_CFLAGS) $(GNET_CFLAGS) $(EXTRA_WARNING_CFLAGS) -I$(includedir)
+INCLUDES = $(GLIB_CFLAGS) $(GNET_CFLAGS) $(EXTRA_WARNING_CFLAGS) -I$(includedir)
 CPPFLAGS = -g -Wall -Wredundant-decls -Wmissing-declarations -Wmissing-prototypes
 
 SRC_BASE_UTILITIES = \
@@ -82,7 +82,7 @@ libloqui_la_SOURCES =  \
 	$(SRC_PROTOCOL_MSN) \
 	$(SRC_LIBRARY_CORE)
 
-libloqui_la_LIBADD = $(GTK_LIBS) $(GNET_LIBS)
+libloqui_la_LIBADD = $(GLIB_LIBS) $(GNET_LIBS)
 
 BUILT_SOURCES = \
 	loqui_marshalers.c loqui_marshalers.h

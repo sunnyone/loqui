@@ -20,7 +20,7 @@
 #ifndef __MSN_LOGIN_H__
 #define __MSN_LOGIN_H__
 
-#include <gtk/gtk.h>
+#include <glib-object.h>
 #include "loqui_account.h"
 #include "msn_message.h"
 

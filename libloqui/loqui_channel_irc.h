@@ -20,7 +20,7 @@
 #ifndef __LOQUI_CHANNEL_IRC_H__
 #define __LOQUI_CHANNEL_IRC_H__
 
-#include <gtk/gtk.h>
+#include <glib-object.h>
 
 #include "loqui_channel.h"
 #include "loqui_member.h"
