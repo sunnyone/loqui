@@ -30,60 +30,60 @@ msgstr ""
 #: src/account.c:295
 #, c-format
 msgid "Account '%s': Nick is empty"
-msgstr "¥¢¥«¥¦¥ó¥È '%s': Nick¤¬¶õ¤Ç¤¹"
+msgstr "$B%"%+%&%s%H(B '%s': Nick$B$,6u$G$9(B"
 
 #: src/account.c:301
 #, c-format
 msgid "Account '%s': Username is empty"
-msgstr "¥¢¥«¥¦¥ó¥È '%s': Username¤¬¶õ¤Ç¤¹"
+msgstr "$B%"%+%&%s%H(B '%s': Username$B$,6u$G$9(B"
 
 #: src/account.c:307
 #, c-format
 msgid "Account '%s': Realname is empty"
-msgstr "¥¢¥«¥¦¥ó¥È '%s': Realname¤¬¶õ¤Ç¤¹"
+msgstr "$B%"%+%&%s%H(B '%s': Realname$B$,6u$G$9(B"
 
 #: src/account.c:322
 #, fuzzy, c-format
 msgid "Account '%s': No servers found."
-msgstr "¥¢¥«¥¦¥ó¥È '%s': ¥µ¡¼¥Ð¤¬¸«¤Ä¤«¤ê¤Þ¤»¤ó"
+msgstr "$B%"%+%&%s%H(B '%s': $B%5!<%P$,8+$D$+$j$^$;$s(B"
 
 #: src/account.c:364
 #, c-format
 msgid "Account '%s' has already connected."
-msgstr "¥¢¥«¥¦¥ó¥È '%s'¤Ï¤¹¤Ç¤ËÀÜÂ³¤µ¤ì¤Æ¤¤¤Þ¤¹"
+msgstr "$B%"%+%&%s%H(B '%s'$B$O$9$G$K@\B3$5$l$F$$$^$9(B"
 
 #: src/account.c:456
 msgid "Not connected with this account"
-msgstr "¤³¤Î¥¢¥«¥¦¥ó¥È¤Ç¤ÏÀÜÂ³¤µ¤ì¤Æ¤¤¤Þ¤»¤ó"
+msgstr "$B$3$N%"%+%&%s%H$G$O@\B3$5$l$F$$$^$;$s(B"
 
 #: src/account.c:473
 msgid "No channel is selected"
-msgstr "¥Á¥ã¥ó¥Í¥ë¤¬ÁªÂò¤µ¤ì¤Æ¤¤¤Þ¤»¤ó"
+msgstr "$B%A%c%s%M%k$,A*Br$5$l$F$$$^$;$s(B"
 
 #: src/channel_tree.c:241
 msgid "Failed to add channel"
-msgstr "¥Á¥ã¥ó¥Í¥ë¤òÄÉ²Ã¤¹¤ë¤Î¤Ë¼ºÇÔ¤·¤Þ¤·¤¿"
+msgstr "$B%A%c%s%M%k$rDI2C$9$k$N$K<:GT$7$^$7$?(B"
 
 #: src/codeconv.c:47
 msgid "the setting of codeconv was invalid; now 'Auto Detection' is selected."
-msgstr "codeconv¤ÎÀßÄê¤¬ÉÔÀµ¤Ç¤¹¡£¼«Æ°ÁªÂò¤¬ÁªÂò¤µ¤ì¤Þ¤¹¡£"
+msgstr "codeconv$B$N@_Dj$,IT@5$G$9!#<+F0A*Br$,A*Br$5$l$^$9!#(B"
 
 #: src/codeconv.c:90
 #, c-format
 msgid "Code convartion error: %s"
-msgstr "¥³¡¼¥ÉÊÑ´¹¥¨¥é¡¼: %s"
+msgstr "$B%3!<%IJQ49%(%i!<(B: %s"
 
 #: src/connection.c:129
 msgid "Connection error"
-msgstr "ÀÜÂ³¥¨¥é¡¼"
+msgstr "$B@\B3%(%i!<(B"
 
 #: src/eel-gconf-extensions.c:79
 msgid ""
 "Cannot find a schema for loqui preferences. \n"
 "Check your gconf setup"
 msgstr ""
-"loquiÀßÄê¤Îschema¤ò¸«¤Ä¤±¤é¤ì¤Þ¤»¤ó¤Ç¤·¤¿¡£GConf¤Î¥»¥Ã¥È¥¢¥Ã¥×¤ò³ÎÇ§¤·¤Æ¤¯¤À"
-"¤µ¤¤¡£"
+"loqui$B@_Dj$N(Bschema$B$r8+$D$1$i$l$^$;$s$G$7$?!#(BGConf$B$N%;%C%H%"%C%W$r3NG'$7$F$/$@(B"
+"$B$5$$!#(B"
 
 #: src/eel-gconf-extensions.c:105
 #, c-format
@@ -94,12 +94,12 @@ msgstr ""
 
 #: src/irc_handle.c:167
 msgid "This PRIVMSG/NOTICE message doesn't contain a remark."
-msgstr "¤³¤ÎPRIVMSG/NOTICE¥á¥Ã¥»¡¼¥¸¤Ë¤ÏÈ¯¸À¤¬´Þ¤Þ¤ì¤Æ¤¤¤Þ¤»¤ó¡£"
+msgstr "$B$3$N(BPRIVMSG/NOTICE$B%a%C%;!<%8$K$OH/8@$,4^$^$l$F$$$^$;$s!#(B"
 
 #: src/irc_handle.c:223 src/irc_handle.c:245 src/irc_handle.c:271
 #: src/irc_handle.c:297
 msgid "The message does not contain nick"
-msgstr "¥á¥Ã¥»¡¼¥¸¤Ënick¤¬´Þ¤Þ¤ì¤Æ¤¤¤Þ¤»¤ó"
+msgstr "$B%a%C%;!<%8$K(Bnick$B$,4^$^$l$F$$$^$;$s(B"
 
 #: src/irc_handle.c:234
 msgid "*** %n has quit IRC(%t)"
@@ -107,7 +107,7 @@ msgstr ""
 
 #: src/irc_handle.c:251 src/irc_handle.c:277
 msgid "The message does not contain the channal name"
-msgstr "¥á¥Ã¥»¡¼¥¸¤Ë¥Á¥ã¥ó¥Í¥ëÌ¾¤¬´Þ¤Þ¤ì¤Æ¤¤¤Þ¤»¤ó¡£"
+msgstr "$B%a%C%;!<%8$K%A%c%s%M%kL>$,4^$^$l$F$$$^$;$s!#(B"
 
 #: src/irc_handle.c:262
 msgid "*** %n has just part %1(%t)"
@@ -119,7 +119,7 @@ msgstr ""
 
 #: src/irc_handle.c:303
 msgid "The NICK message does not contain new nick"
-msgstr "NICK¥á¥Ã¥»¡¼¥¸¤Ë¿·¤·¤¤nick¤¬´Þ¤Þ¤ì¤Æ¤¤¤Þ¤»¤ó"
+msgstr "NICK$B%a%C%;!<%8$K?7$7$$(Bnick$B$,4^$^$l$F$$$^$;$s(B"
 
 #: src/irc_handle.c:314
 msgid "*** %n is known as %1"
@@ -127,24 +127,24 @@ msgstr ""
 
 #: src/irc_handle.c:335
 msgid "Who can change mode?"
-msgstr "Ã¯¤¬¥â¡¼¥É¤òÊÑ¤¨¤é¤ì¤ë¤Î¤Ç¤¹¡©"
+msgstr "$BC/$,%b!<%I$rJQ$($i$l$k$N$G$9!)(B"
 
 #: src/irc_handle.c:339
 #, c-format
 msgid "Nick should not contain '%%'"
-msgstr "Nick¤Ï'%%'¤ò´Þ¤à¤Ù¤­¤Ç¤Ï¤¢¤ê¤Þ¤»¤ó"
+msgstr "Nick$B$O(B'%%'$B$r4^$`$Y$-$G$O$"$j$^$;$s(B"
 
 #: src/irc_handle.c:345
 msgid "The target is not found in MODE command"
-msgstr "MODE¥³¥Þ¥ó¥É¤ËÂÐ¾Ý¤¬È¯¸«¤Ç¤­¤Þ¤»¤ó"
+msgstr "MODE$B%3%^%s%I$KBP>]$,H/8+$G$-$^$;$s(B"
 
 #: src/irc_handle.c:351
 msgid "Flags are not found in MODE command"
-msgstr "MODE¥³¥Þ¥ó¥É¤Ë¥Õ¥é¥°¤¬¸«¤Ä¤«¤ê¤Þ¤»¤ó"
+msgstr "MODE$B%3%^%s%I$K%U%i%0$,8+$D$+$j$^$;$s(B"
 
 #: src/irc_handle.c:365
 msgid "Flags don't have + or -"
-msgstr "¥Õ¥é¥°¤Ë+¤«-¤Ë¤¢¤ê¤Þ¤»¤ó"
+msgstr "$B%U%i%0$K(B+$B$+(B-$B$K$"$j$^$;$s(B"
 
 #: src/irc_handle.c:375
 msgid "Why can you know the change of his mode?"
@@ -330,7 +330,7 @@ msgstr ""
 
 #: src/main.c:59
 msgid "Loqui IRC client"
-msgstr "Loqui IRC ¥¯¥é¥¤¥¢¥ó¥È"
+msgstr "Loqui IRC $B%/%i%$%"%s%H(B"
 
 #: src/nick_list.c:217
 msgid "Nick"
