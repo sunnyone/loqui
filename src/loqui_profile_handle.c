@@ -45,7 +45,9 @@ typedef enum {
 struct _LoquiProfileHandlePrivate
 {
 	GMarkupParseContext *context;
-	
+
+	int skip_profile_count;
+
 	GQueue *element_queue;
 	GQueue *object_queue;
 	GQueue *pspec_queue;
@@ -238,6 +240,9 @@ start_element_handler(GMarkupParseContext *context,
 	    	debug_puts("%s", element_name);
 	}
 	
+	if (priv->skip_profile_count > 0)
+		return;
+
 	elem = GET_CURRENT_ELEMENT(handle);
 	if (elem == ELEMENT_NONE) {
 		if(strcmp(element_name, "profiles") == 0) {
@@ -265,10 +270,12 @@ start_element_handler(GMarkupParseContext *context,
 			}
 			protocol = loqui_protocol_manager_get_protocol(handle->protocol_manager, type_id);
 			if (!protocol) {
-      				g_set_error(error,
+      				/* g_set_error(error,
                    			    G_MARKUP_ERROR,
                    			    G_MARKUP_ERROR_INVALID_CONTENT,
-                   			    _("Invalid content: type '%s' not found'"), type_id);
+                   			    _("Invalid content: type '%s' not found'"), type_id); */
+				g_warning("ProfileHandle: type '%s' is not supported.", type_id);
+				priv->skip_profile_count++;
                    		return;
 			}
 			g_queue_push_tail(priv->element_queue, GINT_TO_POINTER(ELEMENT_PROFILE));
@@ -361,7 +368,12 @@ end_element_handler    (GMarkupParseContext *context,
         handle = LOQUI_PROFILE_HANDLE(user_data);
 
 	priv = handle->priv;
-	
+
+	if (priv->skip_profile_count > 0) {
+		if (strcmp("profile", element_name) == 0)
+			priv->skip_profile_count--;
+	}
+
 	elem = GET_CURRENT_ELEMENT(handle);
 	g_queue_pop_tail(priv->element_queue);
 	switch (elem) {
@@ -645,6 +657,7 @@ loqui_profile_handle_clear(LoquiProfileHandle *handle)
 		g_list_free(priv->profile_list);
 		priv->profile_list = NULL;
 	}
+	priv->skip_profile_count = 0;
 }
 
 LoquiProfileHandle*
