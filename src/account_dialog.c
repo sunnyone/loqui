@@ -366,6 +366,10 @@ account_dialog_new(Account *account)
 	gtkutils_add_label_entry(vbox, _("User information:"), &priv->entry_userinfo, account_get_userinfo(account));
 	gtkutils_add_label_entry(vbox, _("Auto join channels:"), &priv->entry_autojoin, account_get_autojoin(account));
 
+	/* TODO: these will be enabled when implement. */
+	gtk_widget_set_sensitive(priv->entry_userinfo, FALSE);
+	gtk_widget_set_sensitive(priv->entry_autojoin, FALSE);
+
 	frame = gtk_frame_new(_("Servers (Cells are editable.)"));
 	gtk_box_pack_start(GTK_BOX(vbox), frame, TRUE, TRUE, 0);
 
