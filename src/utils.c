@@ -83,8 +83,6 @@ GSList *utils_line_separated_text_to_slist(gchar *str)
 		if(strlen(str_array[i]) == 0)
 			continue;
 
-		g_print("Read: %s\n", str_array[i]);
-
 		slist = g_slist_append(slist, g_strdup(str_array[i]));
 	}
 
