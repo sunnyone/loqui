@@ -469,7 +469,7 @@ loqui_channel_buffer_gtk_append(LoquiChannelBufferGtk *buffer, LoquiTextType typ
 static void
 loqui_channel_buffer_gtk_append_message_text(LoquiChannelBuffer *buffer_p, LoquiMessageText *msgtext)
 {
-	gchar *buf;
+	GString *string;
 	LoquiTextType type;
 	LoquiChannelBufferGtk *buffer;
 
@@ -484,23 +484,25 @@ loqui_channel_buffer_gtk_append_message_text(LoquiChannelBuffer *buffer_p, Loqui
 	
 	type = loqui_message_text_get_text_type(msgtext);
 
+	string = g_string_new(NULL);
+
+	if (loqui_channel_buffer_gtk_get_show_account_name(buffer) &&
+	    loqui_message_text_get_account_name(msgtext))
+		g_string_append_printf(string,
+				       "[%s] ",
+				       loqui_message_text_get_account_name(msgtext));
+	
 	if(loqui_message_text_get_is_remark(msgtext)) {
-		buf = loqui_message_text_get_nick_string(msgtext, loqui_channel_buffer_gtk_get_show_channel_name(buffer));
-		loqui_channel_buffer_gtk_append(buffer, type, buf, FALSE);
-		g_free(buf);
+		g_string_append(string,
+				loqui_message_text_get_nick_string(msgtext,
+								   loqui_channel_buffer_gtk_get_show_channel_name(buffer)));
 	}
+	g_string_append(string, loqui_message_text_get_text(msgtext));
+	g_string_append_c(string, '\n');
 
-	if(loqui_channel_buffer_gtk_get_show_account_name(buffer) &&
-	   loqui_message_text_get_account_name(msgtext))
-		buf = g_strdup_printf("[%s] %s\n",
-				      loqui_message_text_get_account_name(msgtext),
-				      loqui_message_text_get_text(msgtext));
-	else
-		buf = g_strconcat(loqui_message_text_get_text(msgtext), "\n", NULL);
-
-	loqui_channel_buffer_gtk_append(buffer, type, buf,
+	loqui_channel_buffer_gtk_append(buffer, type, string->str,
 					loqui_message_text_get_is_remark(msgtext));
-	g_free(buf);
+	g_string_free(string, TRUE);
 }
 /* FIXME: this should do with max_line_number */
 void
