@@ -197,7 +197,7 @@ ipmsg_packet_parse(const gchar *str, gint len)
 	else if (len == 0)
 		real_len = 0;
 	else
-		real_len = len - 1; /* len - (len('\0')) */
+		real_len = len;
 	
 	for (i = 0; i < IPMSG_COMMAND_NUMBER; i++)
 		array[i] = NULL;
@@ -206,13 +206,11 @@ ipmsg_packet_parse(const gchar *str, gint len)
 	pos = 0;
 	array[0] = buf;
 	cur = buf;
-	while (cur < buf + real_len) {
-		if (pos >= IPMSG_COMMAND_NUMBER - 1)
-			break;
-
+	while (cur < buf + real_len && pos < IPMSG_COMMAND_NUMBER) {
 		if (*cur == ':') {
 			*cur = '\0';
 			array[++pos] = ++cur;
+			continue;
 		}
 
 		cur++;
