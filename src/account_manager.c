@@ -133,7 +133,6 @@ account_manager_new (void)
 	priv->app = LOQUI_APP(loqui_app_new());
 	priv->common_buffer = channel_buffer_new();
 	loqui_app_set_common_buffer(priv->app, GTK_TEXT_BUFFER(priv->common_buffer));
-	gtk_widget_show_all(GTK_WIDGET(priv->app));
 
 	return account_manager;
 }

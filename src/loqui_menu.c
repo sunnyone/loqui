@@ -49,6 +49,8 @@ static void loqui_menu_quit_cb(gpointer data, guint callback_action, GtkWidget *
 static void loqui_menu_connect_cb(gpointer data, guint callback_action, GtkWidget *widget);
 static void loqui_menu_account_settings_cb(gpointer data, guint callback_action, GtkWidget *widget);
 static void loqui_menu_common_settings_cb(gpointer data, guint callback_action, GtkWidget *widget);
+static void loqui_menu_view_toolbar_cb(gpointer data, guint callback_action, GtkWidget *widget);
+static void loqui_menu_view_statusbar_cb(gpointer data, guint callback_action, GtkWidget *widget);
 
 enum {
 	LOQUI_MENU_CUT,
@@ -76,6 +78,13 @@ static GtkItemFactoryEntry menu_items[] = {
 	{ N_("/_Channel"), NULL, 0, 0, "<Branch>" },
 	{ N_("/_User"), NULL, 0, 0, "<Branch>" },
 	{ N_("/_View"), NULL, 0, 0, "<Branch>" },
+	{ N_("/View/Toolbar"), NULL, 0, 0, "<Branch>" },
+	{ N_("/View/Toolbar/Icon"), NULL, loqui_menu_view_toolbar_cb, GTK_TOOLBAR_ICONS, "<RadioItem>" },
+	{ N_("/View/Toolbar/Text"), NULL, loqui_menu_view_toolbar_cb, GTK_TOOLBAR_TEXT, "/View/Toolbar/Icon" },
+	{ N_("/View/Toolbar/Both icons and text"), NULL, loqui_menu_view_toolbar_cb, GTK_TOOLBAR_BOTH, "/View/Toolbar/Icon" },
+	{ N_("/View/Toolbar/Both icons and text horizontally"), NULL, loqui_menu_view_toolbar_cb, GTK_TOOLBAR_BOTH_HORIZ, "/View/Toolbar/Icon"},
+	{ N_("/View/Toolbar/Hide"), NULL, loqui_menu_view_toolbar_cb, 100, "/View/Toolbar/Icon" },
+	{ N_("/View/Status bar"), NULL, loqui_menu_view_statusbar_cb, 0, "<ToggleItem>" },
 	{ N_("/_Settings"), NULL, 0, 0, "<Branch>" },
 	{ N_("/Settings/Common Prefsrences..."), NULL, loqui_menu_common_settings_cb, 0 },
 	{ N_("/Settings/Account Settings..."), NULL, loqui_menu_account_settings_cb, 0 },
@@ -210,7 +219,6 @@ loqui_menu_new(LoquiApp *app)
 	gtk_widget_set_sensitive(gtk_item_factory_get_item(priv->item_factory, "/User"), FALSE);
 	gtk_widget_set_sensitive(gtk_item_factory_get_item(priv->item_factory, "/Channel"), FALSE);
 	gtk_widget_set_sensitive(gtk_item_factory_get_item(priv->item_factory, "/Server"), FALSE);
-	gtk_widget_set_sensitive(gtk_item_factory_get_item(priv->item_factory, "/View"), FALSE);
 
 	g_signal_connect(G_OBJECT(gtk_item_factory_get_item(priv->item_factory, "/Edit")), "activate",
 			 G_CALLBACK(loqui_menu_edit_activate_cb), menu);
@@ -303,3 +311,77 @@ static void loqui_menu_connect_cb(gpointer data, guint callback_action, GtkWidge
 	account_manager_open_connect_dialog(account_manager_get());
 }
 
+static void loqui_menu_view_toolbar_cb(gpointer data, guint callback_action, GtkWidget *widget)
+{
+	LoquiMenu *menu;
+	LoquiMenuPrivate *priv;
+
+	menu = LOQUI_MENU(data);
+
+	g_return_if_fail(menu != NULL);
+        g_return_if_fail(LOQUI_IS_MENU(menu));
+
+	priv = menu->priv;
+
+	loqui_app_set_toolbar_style(priv->app, callback_action);
+}
+
+static void loqui_menu_view_statusbar_cb(gpointer data, guint callback_action, GtkWidget *widget)
+{
+	LoquiMenu *menu;
+	LoquiMenuPrivate *priv;
+
+	menu = LOQUI_MENU(data);
+
+	g_return_if_fail(menu != NULL);
+        g_return_if_fail(LOQUI_IS_MENU(menu));
+	g_return_if_fail(GTK_IS_CHECK_MENU_ITEM(widget));
+
+	priv = menu->priv;
+
+	loqui_app_set_show_statusbar(priv->app, gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(widget)));
+}
+
+void loqui_menu_set_view_toolbar(LoquiMenu *menu, guint style)
+{
+	LoquiMenuPrivate *priv;
+	GtkWidget *item;
+
+	g_return_if_fail(menu != NULL);
+        g_return_if_fail(LOQUI_IS_MENU(menu));
+
+	priv = menu->priv;
+
+	switch(style) {
+	case GTK_TOOLBAR_ICONS:
+		item = gtk_item_factory_get_item(priv->item_factory, "/View/Toolbar/Icon");
+		break;
+	case GTK_TOOLBAR_TEXT:
+		item = gtk_item_factory_get_item(priv->item_factory, "/View/Toolbar/Text");
+		break;
+	case GTK_TOOLBAR_BOTH:
+		item = gtk_item_factory_get_item(priv->item_factory, "/View/Toolbar/Both icons and text");
+		break;
+	case GTK_TOOLBAR_BOTH_HORIZ:
+		item = gtk_item_factory_get_item(priv->item_factory, "/View/Toolbar/Both icons and text horizontally");
+		break;
+	default:
+		item = gtk_item_factory_get_item(priv->item_factory, "/View/Toolbar/Hide");
+		break;
+	}
+	gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(item), TRUE);
+}
+void loqui_menu_set_view_statusbar(LoquiMenu *menu, gboolean show)
+{
+	LoquiMenuPrivate *priv;
+	GtkWidget *item;
+
+	g_return_if_fail(menu != NULL);
+        g_return_if_fail(LOQUI_IS_MENU(menu));
+
+	priv = menu->priv;
+
+	item = gtk_item_factory_get_item(priv->item_factory, "/View/Status bar");
+
+	gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(item), show);
+}

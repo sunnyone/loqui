@@ -453,6 +453,13 @@ loqui_app_new(void)
 
 #undef SET_SCROLLED_WINDOW
 
+	gtk_widget_show_all(GTK_WIDGET(app));
+
+	loqui_app_set_toolbar_style(app, prefs_general.toolbar_style);
+	loqui_app_set_show_statusbar(app, prefs_general.show_statusbar);
+
+	loqui_menu_set_view_toolbar(app->menu, prefs_general.toolbar_style);
+	loqui_menu_set_view_statusbar(app->menu, prefs_general.show_statusbar);
 	loqui_app_set_focus(app);
 
 	return GTK_WIDGET(app);
@@ -533,6 +540,42 @@ void loqui_app_set_common_buffer(LoquiApp *app, GtkTextBuffer *textbuf)
 								  G_CALLBACK(loqui_app_common_textview_inserted_cb),
 								  app);
 	loqui_app_scroll_common_buffer(app);
+}
+void
+loqui_app_set_toolbar_style(LoquiApp *app, guint style)
+{
+	LoquiAppPrivate *priv;
+
+        g_return_if_fail(app != NULL);
+        g_return_if_fail(LOQUI_IS_APP(app));
+
+	priv = app->priv;
+
+	if(style > 10) {
+		gtk_widget_hide(priv->handlebox);
+	} else {
+		gtk_toolbar_set_style(GTK_TOOLBAR(app->toolbar), style);
+		gtk_widget_show(priv->handlebox);
+	}
+	
+	prefs_general.toolbar_style = style;
+}
+void
+loqui_app_set_show_statusbar(LoquiApp *app, gboolean show)
+{
+	LoquiAppPrivate *priv;
+
+        g_return_if_fail(app != NULL);
+        g_return_if_fail(LOQUI_IS_APP(app));
+
+	priv = app->priv;
+
+	if(show)
+		gtk_widget_show(priv->statusbar);
+	else
+		gtk_widget_hide(priv->statusbar);
+
+	prefs_general.show_statusbar = show;
 }
 
 void

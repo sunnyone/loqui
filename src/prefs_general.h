@@ -46,6 +46,9 @@ typedef struct _PrefsGeneral {
 	gint channel_tree_width;
 	gint channel_tree_height;
 
+	guint toolbar_style;
+	gboolean show_statusbar;
+
 	gchar *away_message;
 
 	gchar *browser_command;
@@ -54,6 +57,7 @@ typedef struct _PrefsGeneral {
 	gchar *notification_command;
 
 	gboolean auto_switch_scrolling;
+
 } PrefsGeneral;
 
 void prefs_general_load(void);

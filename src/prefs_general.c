@@ -42,6 +42,9 @@ PrefElement prefs_general_defs[] = {
 	{"channel_tree_width",  "100", G_TYPE_UINT, &prefs_general.channel_tree_width},
 	{"common_buffer_height", "150", G_TYPE_UINT, &prefs_general.common_buffer_height},
 
+	{"toolbar_style", "2", G_TYPE_UINT, &prefs_general.toolbar_style},
+	{"show_statusbar", "true", G_TYPE_BOOLEAN, &prefs_general.show_statusbar},
+
 	{"away_message", "Gone.", G_TYPE_STRING, &prefs_general.away_message},
 
 	{"browser_command", "mozilla %s", G_TYPE_STRING, &prefs_general.browser_command},
