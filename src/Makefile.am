@@ -14,10 +14,12 @@ loqui_SOURCES = \
 	loqui_title_format.c loqui_title_format.h \
 	loqui_user.c loqui_user.h \
 	loqui_user_irc.c loqui_user_irc.h \
+	loqui_user_ipmsg.c loqui_user_ipmsg.h \
 	loqui_message.c loqui_message.h \
 	loqui_member.c loqui_member.h \
 	loqui_profile_account.c loqui_profile_account.h \
 	loqui_profile_account_irc.c loqui_profile_account_irc.h \
+	loqui_profile_account_ipmsg.c loqui_profile_account_ipmsg.h \
 	loqui_channel_entry.c loqui_channel_entry.h \
 	loqui_channel.c loqui_channel.h \
 	loqui_channel_irc.c loqui_channel_irc.h \
@@ -40,6 +42,7 @@ loqui_SOURCES = \
 	loqui_channel_entry_ui.c loqui_channel_entry_ui.h \
 	loqui_account.c loqui_account.h \
 	loqui_account_irc.c loqui_account_irc.h \
+	loqui_account_ipmsg.c loqui_account_ipmsg.h \
 	codeconv_ja.c codeconv_ja.h \
 	codeconv.c codeconv.h \
 	loqui_dropdown_box.c loqui_dropdown_box.h \
@@ -53,7 +56,7 @@ loqui_SOURCES = \
 	irc_connection.c irc_connection.h \
 	irc_handle.c irc_handle.h \
 	ctcp_handle.c ctcp_handle.h \
-	irc_constants.h \
+	irc_constants.h ipmsg.h \
 	command_table.c command_table.h \
 	about.c about.h \
 	account_list_dialog.c account_list_dialog.h \

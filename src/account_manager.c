@@ -25,11 +25,15 @@
 #include "intl.h"
 #include "main.h"
 #include "loqui_profile_handle.h"
-#include "loqui_profile_account_irc.h"
+
 #include "loqui_app_actions.h"
 #include "loqui_account_manager_iter.h"
 
+#include "loqui_profile_account_irc.h"
 #include "loqui_account_irc.h"
+
+#include "loqui_profile_account_ipmsg.h"
+#include "loqui_account_ipmsg.h"
 
 struct _AccountManagerPrivate
 {
@@ -293,6 +297,7 @@ account_manager_load_accounts(AccountManager *account_manager)
 	gchar *path;
 	LoquiProfileHandle *handle;
 	LoquiAccount *account;
+	LoquiProfileAccount *profile;
 
         g_return_if_fail(account_manager != NULL);
         g_return_if_fail(IS_ACCOUNT_MANAGER(account_manager));
@@ -302,10 +307,17 @@ account_manager_load_accounts(AccountManager *account_manager)
 	path = g_build_filename(g_get_home_dir(), PREFS_DIR, ACCOUNT_CONFIG_FILENAME, NULL);
 	handle = loqui_profile_handle_new();
 	loqui_profile_handle_register_type(handle, "IRC", LOQUI_TYPE_PROFILE_ACCOUNT_IRC);
+	loqui_profile_handle_register_type(handle, "IPMsg", LOQUI_TYPE_PROFILE_ACCOUNT_IPMSG);
 	loqui_profile_handle_read_from_file(handle, &list, path);
 
 	for(cur = list; cur != NULL; cur = cur->next) {
-		account = LOQUI_ACCOUNT(loqui_account_irc_new(cur->data));
+		profile = LOQUI_PROFILE_ACCOUNT(cur->data);
+
+		if (LOQUI_IS_PROFILE_ACCOUNT_IPMSG(profile))
+			account = LOQUI_ACCOUNT(loqui_account_ipmsg_new(profile));
+		else
+			account = LOQUI_ACCOUNT(loqui_account_irc_new(profile));
+
 		account_manager_add_account(account_manager, account);
 		g_object_unref(account);
 	}
