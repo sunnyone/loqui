@@ -189,5 +189,5 @@ AccountManager *account_manager_get(void)
 }
 gboolean account_manager_whether_scroll(AccountManager *account_manager)
 {
-	return !loqui_app_is_scroll_locked(account_manager->priv->app);
+	return loqui_app_is_scroll(account_manager->priv->app);
 }

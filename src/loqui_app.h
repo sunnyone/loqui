@@ -65,7 +65,7 @@ GType        loqui_app_get_type             (void) G_GNUC_CONST;
 GtkWidget*      loqui_app_new                 (void);
 
 void loqui_app_set_topic(LoquiApp *app, const gchar *str);
-gboolean loqui_app_is_scroll_locked(LoquiApp *app);
+gboolean loqui_app_is_scroll(LoquiApp *app);
 
 G_END_DECLS
 

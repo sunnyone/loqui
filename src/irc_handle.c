@@ -263,7 +263,6 @@ irc_handle_error(IRCHandle *handle, IRCMessage *msg)
 static gboolean 
 irc_handle_command(IRCHandle *handle, IRCMessage *msg)
 {
-	gchar *str;
 	g_return_val_if_fail(handle != NULL, FALSE);
         g_return_val_if_fail(IS_IRC_HANDLE(handle), FALSE);
 

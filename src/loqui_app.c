@@ -30,7 +30,7 @@
 struct _LoquiAppPrivate
 {
 	GtkWidget *label_topic;
-	GtkWidget *toggle_lock;
+	GtkWidget *toggle_scroll;
 };
 
 static GnomeAppClass *parent_class = NULL;
@@ -197,8 +197,9 @@ loqui_app_new (void)
 	hbox = gtk_hbox_new(FALSE, 0);
 	gtk_box_pack_start(GTK_BOX(vbox), hbox, FALSE, FALSE, 0);
 
-	priv->toggle_lock = gtk_toggle_button_new_with_mnemonic("_Scroll Lock");
-	gtk_box_pack_start(GTK_BOX(hbox), priv->toggle_lock, FALSE, FALSE, 0);
+	priv->toggle_scroll = gtk_toggle_button_new_with_mnemonic("Sc_roll");
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(priv->toggle_scroll), TRUE);
+	gtk_box_pack_start(GTK_BOX(hbox), priv->toggle_scroll, FALSE, FALSE, 0);
 
 	priv->label_topic = gtk_label_new("Topic");
 	gtk_label_set_selectable(GTK_LABEL(priv->label_topic), TRUE);
@@ -229,6 +230,7 @@ loqui_app_new (void)
 	/* TODO: this should be replaced with a widget considered multiline editing */
 	entry = gtk_entry_new();
 	gtk_box_pack_end(GTK_BOX(vbox), entry, FALSE, FALSE, 0);
+	gtk_window_set_focus(GTK_WINDOW(app), entry);
 
 	common_text = channel_text_new();
 	gtk_paned_pack2(GTK_PANED(vpaned), common_text, FALSE, TRUE);
@@ -272,11 +274,11 @@ loqui_app_set_topic(LoquiApp *app, const gchar *str)
 }
 
 gboolean
-loqui_app_is_scroll_locked(LoquiApp *app)
+loqui_app_is_scroll(LoquiApp *app)
 {
 	LoquiAppPrivate *priv;
 
 	priv = app->priv;
 
-	return gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(priv->toggle_lock));
+	return gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(priv->toggle_scroll));
 }
