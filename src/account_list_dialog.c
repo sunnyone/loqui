@@ -28,6 +28,10 @@
 struct _AccountListDialogPrivate
 {
 	GtkWidget *treeview;
+	GtkWidget *add_button;
+	GtkWidget *property_button;
+	GtkWidget *remove_button;
+
 	GtkListStore *list_store;
 };
 
@@ -46,10 +50,13 @@ static void account_list_dialog_destroy(GtkObject *object);
 
 static void account_list_dialog_construct_list(AccountListDialog *dialog);
 static Account* account_list_dialog_get_selected_account(AccountListDialog *dialog);
+static GList * account_list_dialog_get_selected_account_list(AccountListDialog *dialog);
 
 static void account_list_dialog_add_cb(GtkWidget *widget, AccountListDialog *dialog);
 static void account_list_dialog_remove_cb(GtkWidget *widget, AccountListDialog *dialog);
 static void account_list_dialog_properties_cb(GtkWidget *widget, AccountListDialog *dialog);
+
+static void account_list_update_button_status(AccountListDialog *dialog, GtkTreeSelection *selection);
 
 GType
 account_list_dialog_get_type(void)
@@ -162,21 +169,50 @@ account_list_dialog_construct_list(AccountListDialog *dialog)
 static Account*
 account_list_dialog_get_selected_account(AccountListDialog *dialog)
 {
+	GList *ac_list;
+	Account *account;
+	
+        g_return_val_if_fail(dialog != NULL, NULL);
+        g_return_val_if_fail(IS_ACCOUNT_LIST_DIALOG(dialog), NULL);
+	
+	ac_list = account_list_dialog_get_selected_account_list(dialog);
+	if (g_list_length(ac_list) < 1)
+		return NULL;
+
+	account = g_list_nth_data(ac_list, 0);
+	g_list_free(ac_list);
+
+	return account;
+}
+
+static GList *
+account_list_dialog_get_selected_account_list(AccountListDialog *dialog)
+{
 	GtkTreeSelection *selection;
+	GtkTreeModel *model;
+	GtkTreePath *path;
 	GtkTreeIter iter;
 	Account *account = NULL;
+	GList *list, *ac_list = NULL, *cur;
 
         g_return_val_if_fail(dialog != NULL, NULL);
         g_return_val_if_fail(IS_ACCOUNT_LIST_DIALOG(dialog), NULL);
 
 	selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(dialog->priv->treeview));
-	if(!gtk_tree_selection_get_selected(selection, NULL, &iter))
+	if ((list = gtk_tree_selection_get_selected_rows(selection, &model)) == NULL)
 		return NULL;
 	
-	gtk_tree_model_get(GTK_TREE_MODEL(dialog->priv->list_store), &iter,
-			   COLUMN_POINTER, &account, -1);
-
-	return account;
+	for (cur = list; cur != NULL; cur = cur->next) {
+		path = cur->data;
+		gtk_tree_model_get_iter(model, &iter, path);
+		gtk_tree_model_get(GTK_TREE_MODEL(dialog->priv->list_store), &iter,
+				   COLUMN_POINTER, &account, -1);
+		ac_list = g_list_append(ac_list, account);
+	}
+	g_list_foreach(list, (GFunc) gtk_tree_path_free, NULL);
+	g_list_free(list);
+	
+	return ac_list;
 }
 static void
 account_list_dialog_add_cb(GtkWidget *widget, AccountListDialog *dialog)
@@ -217,18 +253,33 @@ account_list_dialog_properties_cb(GtkWidget *widget, AccountListDialog *dialog)
 	account_dialog_open_configure_dialog(GTK_WINDOW(dialog), account);
 	account_list_dialog_construct_list(dialog);
 }
+static void
+account_list_update_button_status(AccountListDialog *dialog, GtkTreeSelection *selection)
+{
+	gboolean account_editable;
+	AccountListDialogPrivate *priv;
 
+        g_return_if_fail(dialog != NULL);
+        g_return_if_fail(IS_ACCOUNT_LIST_DIALOG(dialog));
+
+	priv = dialog->priv;
+
+	account_editable = (gtk_tree_selection_count_selected_rows(selection) == 1);
+
+	gtk_widget_set_sensitive(priv->property_button, account_editable);
+	gtk_widget_set_sensitive(priv->remove_button, account_editable);
+}
 GtkWidget*
-account_list_dialog_new (void)
+account_list_dialog_new(void)
 {
         AccountListDialog *dialog;
 	AccountListDialogPrivate *priv;
 	GtkWidget *scrolled_win;
 	GtkWidget *hbox;
 	GtkWidget *vbox;
-	GtkWidget *button;
 	GtkTreeViewColumn *column;
 	GtkCellRenderer *renderer;
+	GtkTreeSelection *selection;
 
 	dialog = g_object_new(account_list_dialog_get_type(), NULL);
 	
@@ -250,6 +301,10 @@ account_list_dialog_new (void)
 
 	priv->treeview = gtk_tree_view_new();
 	account_list_dialog_construct_list(dialog);
+	selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(priv->treeview));
+	gtk_tree_selection_set_mode(selection, GTK_SELECTION_MULTIPLE);
+	g_signal_connect_swapped(G_OBJECT(selection), "changed",
+				 G_CALLBACK(account_list_update_button_status), dialog);
 
         renderer = gtk_cell_renderer_text_new();
         column = gtk_tree_view_column_new_with_attributes(_("Name"),
@@ -264,23 +319,24 @@ account_list_dialog_new (void)
 	vbox = gtk_vbox_new(TRUE, 0);
 	gtk_box_pack_start(GTK_BOX(hbox), vbox, FALSE, FALSE, 0);
 
-	button = gtk_button_new_from_stock(GTK_STOCK_ADD);
-	g_signal_connect(G_OBJECT(button), "clicked", 
+	priv->add_button = gtk_button_new_from_stock(GTK_STOCK_ADD);
+	g_signal_connect(G_OBJECT(priv->add_button), "clicked", 
 			 G_CALLBACK(account_list_dialog_add_cb), dialog);
-	gtk_box_pack_start(GTK_BOX(vbox), button, FALSE, FALSE, 5);
+	gtk_box_pack_start(GTK_BOX(vbox), priv->add_button, FALSE, FALSE, 5);
 
-	button = gtk_button_new_from_stock(GTK_STOCK_REMOVE);
-	g_signal_connect(G_OBJECT(button), "clicked", 
+	priv->remove_button = gtk_button_new_from_stock(GTK_STOCK_REMOVE);
+	g_signal_connect(G_OBJECT(priv->remove_button), "clicked", 
 			 G_CALLBACK(account_list_dialog_remove_cb), dialog);
-	gtk_box_pack_start(GTK_BOX(vbox), button, FALSE, FALSE, 5);
+	gtk_box_pack_start(GTK_BOX(vbox), priv->remove_button, FALSE, FALSE, 5);
 
-	button = gtk_button_new_from_stock(GTK_STOCK_PROPERTIES);
-	g_signal_connect(G_OBJECT(button), "clicked", 
+	priv->property_button = gtk_button_new_from_stock(GTK_STOCK_PROPERTIES);
+	g_signal_connect(G_OBJECT(priv->property_button), "clicked", 
 			 G_CALLBACK(account_list_dialog_properties_cb), dialog);
-	gtk_box_pack_start(GTK_BOX(vbox), button, FALSE, FALSE, 5);
+	gtk_box_pack_start(GTK_BOX(vbox), priv->property_button, FALSE, FALSE, 5);
 
 	gtk_widget_show_all(GTK_WIDGET(GTK_DIALOG(dialog)->vbox));
 
+	account_list_update_button_status(dialog, selection);
 	return GTK_WIDGET(dialog);
 }
 
@@ -297,5 +353,33 @@ account_list_dialog_open(GtkWindow *parent)
 void
 account_list_dialog_open_for_connect(GtkWindow *parent)
 {
-	// TODO: 
+	GtkWidget *dialog;
+	GList *ac_list;
+	GtkTreeSelection *selection;
+	GtkTreeIter iter;
+	GtkTreeModel *model;
+	Account *account;
+	
+	dialog = account_list_dialog_new();
+	gtk_window_set_transient_for(GTK_WINDOW(dialog), parent);
+
+	gtk_dialog_add_button(GTK_DIALOG(dialog), 
+			       _("Connect"), 1);
+
+	selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(ACCOUNT_LIST_DIALOG(dialog)->priv->treeview));
+	model = GTK_TREE_MODEL(ACCOUNT_LIST_DIALOG(dialog)->priv->list_store);
+
+	gtk_tree_model_get_iter_first(model, &iter);
+	do {
+		gtk_tree_model_get(model, &iter, COLUMN_POINTER, &account, -1);
+		if (loqui_profile_account_get_use(account_get_profile(account)))
+			gtk_tree_selection_select_iter(selection, &iter);
+	} while (gtk_tree_model_iter_next(model, &iter));
+
+	if (gtk_dialog_run(GTK_DIALOG(dialog)) == 1) {
+		ac_list = account_list_dialog_get_selected_account_list(ACCOUNT_LIST_DIALOG(dialog));
+		g_list_foreach(ac_list, (GFunc) account_connect, NULL);
+	}
+
+	gtk_widget_destroy(dialog);
 }
