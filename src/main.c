@@ -71,7 +71,6 @@ main(int argc, char *argv[])
 {
 	int i;
 	LoquiProtocolManager *pmanag;
-	LoquiProtocol *protocol;
 
         bindtextdomain(GETTEXT_PACKAGE, PACKAGE_LOCALE_DIR);
 #ifdef HAVE_BIND_TEXTDOMAIN_CODESET

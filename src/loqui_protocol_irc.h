@@ -38,8 +38,6 @@ typedef struct _LoquiProtocolIRCClass       LoquiProtocolIRCClass;
 struct _LoquiProtocolIRC
 {
         LoquiProtocol parent;
-        
-        LoquiProtocolIRCPrivate *priv;
 };
 
 struct _LoquiProtocolIRCClass
