@@ -464,7 +464,9 @@ loqui_app_grab_focus_if_key_unused(LoquiApp *app, const gchar *class_name, GdkEv
 	}
 	if (!found) {
 		gtk_widget_grab_focus(app->remark_entry);
-		gtk_widget_event(REMARK_ENTRY(app->remark_entry)->entry, (GdkEvent *) event);
+		if (event->keyval != GDK_space) { /* FIXME: entry is activated when space is pressed  ... */
+			gtk_widget_event(REMARK_ENTRY(app->remark_entry)->entry, (GdkEvent *) event);
+		}
 	}
 }
 void
