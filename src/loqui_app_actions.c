@@ -229,6 +229,7 @@ loqui_app_actions_create_group(LoquiApp *app)
 	ACTION_GROUP_ACTION_SET_SENSITIVE(action_group, "Find", FALSE);
 	ACTION_GROUP_ACTION_SET_SENSITIVE(action_group, "FindAgain", FALSE);
 	ACTION_GROUP_ACTION_SET_SENSITIVE(action_group, "ShowTransferWindow", FALSE);
+	ACTION_GROUP_ACTION_SET_SENSITIVE(action_group, "SelectBuffer", FALSE);
 
 	return action_group;
 }
