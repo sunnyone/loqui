@@ -305,6 +305,8 @@ account_set_profile(Account *account, LoquiProfileAccount *profile)
 	g_object_ref(profile);
 	account->priv->profile = profile;
 
+	loqui_channel_entry_set_name(LOQUI_CHANNEL_ENTRY(account), loqui_profile_account_get_name(profile));
+
 	g_object_notify(G_OBJECT(account), "profile");
 }
 LoquiUser *

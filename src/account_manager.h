@@ -70,6 +70,8 @@ void account_manager_disconnect_all(AccountManager *manager);
 
 GList *account_manager_get_account_list(AccountManager *manager);
 
+void account_manager_update_positions(AccountManager *manager);
+
 LoquiChannelEntry * account_manager_get_next_channel_entry(AccountManager *manager,
 							   LoquiChannelEntry *chent,
 							   gboolean require_updated);

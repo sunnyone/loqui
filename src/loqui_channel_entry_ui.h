@@ -20,9 +20,10 @@
 #ifndef __LOQUI_CHANNEL_ENTRY_UI_H__
 #define __LOQUI_CHANNEL_ENTRY_UI_H__
 #include "loqui_app.h"
+#include "loqui_channel_entry.h"
 #include "loqui_channel_entry_action.h"
 
-void loqui_channel_entry_ui_attach_channel_entry_action(LoquiApp *app, GObject *channel_entry);
+void loqui_channel_entry_ui_attach_channel_entry_action(LoquiApp *app, LoquiChannelEntry *channel_entry);
 void loqui_channel_entry_ui_add_account(LoquiApp *app, Account *account, const gchar *path, const gchar *data_prefix);
 void loqui_channel_entry_ui_remove_account(LoquiApp *app, Account *account, const gchar *path, const gchar *data_prefix);
 

@@ -1005,7 +1005,7 @@ loqui_app_add_account_cb(AccountManager *manager, Account *account, LoquiApp *ap
 	store = loqui_channel_entry_store_new(LOQUI_CHANNEL_ENTRY(account));
 	g_object_set_data(G_OBJECT(account), CHANNEL_ENTRY_STORE_KEY, store);
 
-	loqui_channel_entry_ui_attach_channel_entry_action(app, G_OBJECT(account)); /* FIXME */
+	loqui_channel_entry_ui_attach_channel_entry_action(app, LOQUI_CHANNEL_ENTRY(account));
 	loqui_channel_entry_ui_add_account(app, account, "/menubar/Buffers", "menubar");
 	loqui_channel_entry_ui_add_account(app, account, "/ChannelListPopup", "channelbar");
 
@@ -1074,7 +1074,7 @@ loqui_app_add_channel_cb(Account *account, LoquiChannel *channel, LoquiApp *app)
 	store = loqui_channel_entry_store_new(LOQUI_CHANNEL_ENTRY(channel));
 	g_object_set_data(G_OBJECT(channel), CHANNEL_ENTRY_STORE_KEY, store);
 
-	loqui_channel_entry_ui_attach_channel_entry_action(app, G_OBJECT(channel)); /* FIXME: ChannelEntry */
+	loqui_channel_entry_ui_attach_channel_entry_action(app, LOQUI_CHANNEL_ENTRY(channel));
 	loqui_channel_entry_ui_add_channel(app, channel, "/menubar/Buffers", "menubar");
 	loqui_channel_entry_ui_add_channel(app, channel, "/ChannelListPopup", "channelbar");
 
@@ -1090,6 +1090,8 @@ loqui_app_add_channel_cb(Account *account, LoquiChannel *channel, LoquiApp *app)
 			 G_CALLBACK(loqui_app_channel_buffer_append_cb), app);
 
 	channel_tree_add_channel(app->channel_tree, account, channel);
+
+	account_manager_update_positions(loqui_app_get_account_manager(app));
 
 	loqui_app_set_current_channel_lazy(app, channel);
 }
@@ -1124,6 +1126,8 @@ loqui_app_remove_channel_cb(Account *account, LoquiChannel *channel, LoquiApp *a
 
 	store = g_object_get_data(G_OBJECT(channel), CHANNEL_ENTRY_STORE_KEY);
 	g_object_unref(store);
+
+	account_manager_update_positions(loqui_app_get_account_manager(app));
 }
 static gboolean
 loqui_app_update_account_info(LoquiApp *app)

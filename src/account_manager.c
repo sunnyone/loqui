@@ -161,6 +161,8 @@ account_manager_add_account_real(AccountManager *manager, Account *account)
 
 	g_object_ref(account);
 	priv->account_list = g_list_append(priv->account_list, account);
+
+	account_manager_update_positions(manager);
 }
 static void
 account_manager_remove_account_real(AccountManager *manager, Account *account)
@@ -176,6 +178,8 @@ account_manager_remove_account_real(AccountManager *manager, Account *account)
 
 	priv->account_list = g_list_remove(priv->account_list, account);
 	g_object_unref(account);
+
+	account_manager_update_positions(manager);
 }
 void
 account_manager_add_account(AccountManager *manager, Account *account)
@@ -409,4 +413,33 @@ account_manager_get_previous_channel_entry(AccountManager *manager, LoquiChannel
 	} while (matched_count == 1); /* matched but failed to get previous */
 
 	return NULL;
+}
+
+void
+account_manager_update_positions(AccountManager *manager)
+{
+	GList *cur_ac, *cur_ch;
+	AccountManagerPrivate *priv;
+	Account *account;
+	GList *channel_list;
+	gint i;
+
+	g_return_if_fail(manager != NULL);
+        g_return_if_fail(IS_ACCOUNT_MANAGER(manager));
+
+	priv = manager->priv;
+	
+	i = 0;
+	for (cur_ac = priv->account_list; cur_ac != NULL; cur_ac = cur_ac->next) {
+		loqui_channel_entry_set_position(LOQUI_CHANNEL_ENTRY(cur_ac->data), i);
+
+		account = ACCOUNT(cur_ac->data);
+		channel_list = account_get_channel_list(account);
+		i++;
+
+		for (cur_ch = channel_list; cur_ch != NULL; cur_ch = cur_ch->next) {
+			loqui_channel_entry_set_position(LOQUI_CHANNEL_ENTRY(cur_ch->data), i);
+			i++;
+		}
+	}
 }

@@ -31,24 +31,20 @@ loqui_app_new_channel_entry_id(LoquiApp *app)
 static void
 loqui_channel_entry_action_activate_cb(LoquiChannelEntryAction *action, LoquiApp *app)
 {
-	GObject *channel_entry; /* FIXME */
+	LoquiChannelEntry *chent;
 	
-	channel_entry = loqui_channel_entry_action_get_channel_entry(action);
-	if (LOQUI_IS_CHANNEL(channel_entry)) {
-		loqui_app_set_current_channel(app, LOQUI_CHANNEL(channel_entry));
-	} else if (IS_ACCOUNT(channel_entry)) {
-		loqui_app_set_current_account(app, ACCOUNT(channel_entry));
-	}
+	chent = loqui_channel_entry_action_get_channel_entry(action);
+	loqui_app_set_current_channel_entry(app, chent);
 }
 void
-loqui_channel_entry_ui_attach_channel_entry_action(LoquiApp *app, GObject *channel_entry) /* FIXME */
+loqui_channel_entry_ui_attach_channel_entry_action(LoquiApp *app, LoquiChannelEntry *channel_entry)
 {
 	LoquiChannelEntryAction *ce_action;
 	gchar *ce_name;
 
 	ce_name = g_strdup_printf("ChannelEntry-%d", loqui_app_new_channel_entry_id(app));
 	ce_action = loqui_channel_entry_action_new(ce_name);
-	loqui_channel_entry_action_set_channel_entry(ce_action, G_OBJECT(channel_entry));
+	loqui_channel_entry_action_set_channel_entry(ce_action, channel_entry);
 	g_signal_connect(G_OBJECT(ce_action), "activate", G_CALLBACK(loqui_channel_entry_action_activate_cb), app);
 	g_object_set_data_full(G_OBJECT(channel_entry), "channel-entry-action", ce_action, (GDestroyNotify) g_object_unref);
 	gtk_action_group_add_action(app->channel_entry_group, GTK_ACTION(ce_action));

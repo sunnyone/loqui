@@ -58,6 +58,8 @@ struct _LoquiChannelEntry
 
 	gint op_number; /* cache */
 
+	gint position;
+
         LoquiChannelEntryPrivate *priv;
 };
 
@@ -105,9 +107,11 @@ gboolean loqui_channel_entry_get_is_updated(LoquiChannelEntry *chent);
 #define LOQUI_CHANNEL_ENTRY_ACCESSOR_GENERIC_PROTOTYPE(type, attr_name) \
   ATTR_ACCESSOR_GENERIC_PROTOTYPE(type, LoquiChannelEntry, loqui_channel_entry, attr_name)
 
+ATTR_READER_GENERIC_PROTOTYPE(gint, LoquiChannelEntry, loqui_channel_entry, op_number);
+
 LOQUI_CHANNEL_ENTRY_ACCESSOR_STRING_PROTOTYPE(name);
 LOQUI_CHANNEL_ENTRY_ACCESSOR_STRING_PROTOTYPE(topic);
-LOQUI_CHANNEL_ENTRY_ACCESSOR_GENERIC_PROTOTYPE(gint, op_number);
+LOQUI_CHANNEL_ENTRY_ACCESSOR_GENERIC_PROTOTYPE(gint, position);
 
 G_END_DECLS
 

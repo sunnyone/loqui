@@ -22,6 +22,7 @@
 
 #include <gtk/gtk.h>
 #include <gtk24backports.h>
+#include "loqui_channel_entry.h"
 
 G_BEGIN_DECLS
 
@@ -41,7 +42,7 @@ struct _LoquiChannelEntryAction
 {
         GtkAction parent;
         
-	GObject *channel_entry; /* FIXME */
+	LoquiChannelEntry *channel_entry;
 
         LoquiChannelEntryActionPrivate *priv;
 };
@@ -56,8 +57,8 @@ GType loqui_channel_entry_action_get_type(void) G_GNUC_CONST;
 
 LoquiChannelEntryAction* loqui_channel_entry_action_new(const gchar *name);
 
-void loqui_channel_entry_action_set_channel_entry(LoquiChannelEntryAction *action, GObject *channel_entry);
-GObject *loqui_channel_entry_action_get_channel_entry(LoquiChannelEntryAction *action);  /* FIXME */ 
+void loqui_channel_entry_action_set_channel_entry(LoquiChannelEntryAction *action, LoquiChannelEntry *channel_entry);
+LoquiChannelEntry *loqui_channel_entry_action_get_channel_entry(LoquiChannelEntryAction *action);
 
 G_END_DECLS
 
