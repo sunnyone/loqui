@@ -235,4 +235,9 @@
 * Fixed the parser of plum recent.
 * Fixed the timing of automatically-join.
 * Customizing title and statusbar with title formatting.
+
+2004-09-22 0.3.9
+* Send QUIT when the program exit.
+* Fixed the reconnecting flow.
+* Fixed the problem the other channel's topic appeared on the current channel.
  
