@@ -234,7 +234,7 @@ irc_message_new(const gchar *prefix, const gchar *command, gchar **parameter)
 	msg->response = (int) g_ascii_strtoull(command, NULL, 10);
 	if(msg->response == 0) {
 		klass = IRC_MESSAGE_GET_CLASS(msg);
-		msg->response = GPOINTER_TO_INT(g_hash_table_lookup(klass->command_hash, command));
+		msg->response = GPOINTER_TO_INT(g_hash_table_lookup(klass->command_hash, msg->command));
 	}
 		
 	return msg;
