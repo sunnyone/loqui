@@ -73,7 +73,7 @@ struct _LoquiApp
 	
 	GtkWidget *remark_entry;
 	
-	GtkWidget *channel_textview;
+	GtkWidget *channel_notebook;
 	NickList *nick_list;
 	ChannelTree *channel_tree;
 	GtkWidget *common_textview;

@@ -57,6 +57,7 @@
 #include <gdk/gdkkeysyms.h>
 
 #define CHANNEL_ENTRY_STORE_KEY "channel-entry-store"
+#define CHANNEL_TEXT_VIEW_KEY "channel-text-view"
 
 struct _LoquiAppPrivate
 {
@@ -495,8 +496,9 @@ loqui_app_new(AccountManager *account_manager)
 	vbox = gtk_vbox_new(FALSE, 0);
 	gtk_paned_pack1(GTK_PANED(vpaned), vbox, TRUE, TRUE);
 
-	app->channel_textview = loqui_channel_text_view_new(app);
-	gtk_box_pack_start_defaults(GTK_BOX(vbox), LOQUI_CHANNEL_TEXT_VIEW(app->channel_textview)->scrolled_window);
+	app->channel_notebook = gtk_notebook_new();
+	gtk_notebook_set_show_tabs(GTK_NOTEBOOK(app->channel_notebook), FALSE);
+	gtk_box_pack_start_defaults(GTK_BOX(vbox), app->channel_notebook);
 
 	app->remark_entry = remark_entry_new(app, GTK_TOGGLE_ACTION(toggle_command_action));
 	gtk_box_pack_end(GTK_BOX(vbox), app->remark_entry, FALSE, FALSE, 0);
@@ -653,7 +655,12 @@ loqui_app_get_account_manager(LoquiApp *app)
 GtkWidget *
 loqui_app_get_current_channel_text_view(LoquiApp *app)
 {
-	return app->channel_textview;
+	GtkWidget *chview = NULL;
+
+	if (app->priv->current_chent)
+		chview = g_object_get_data(G_OBJECT(app->priv->current_chent), CHANNEL_TEXT_VIEW_KEY);
+
+	return chview;
 }
 LoquiChannelEntry *
 loqui_app_get_current_channel_entry(LoquiApp *app)
@@ -668,6 +675,7 @@ loqui_app_set_current_channel_entry(LoquiApp *app, LoquiChannelEntry *chent)
 	GtkTreeModel *model;
 	Account *account;
 	LoquiChannel *channel;
+	LoquiChannelTextView *chview;
 
         g_return_if_fail(app != NULL);
         g_return_if_fail(LOQUI_IS_APP(app));
@@ -678,10 +686,12 @@ loqui_app_set_current_channel_entry(LoquiApp *app, LoquiChannelEntry *chent)
 
 	if (priv->current_chent) {
 		g_signal_handlers_disconnect_by_func(priv->current_chent, loqui_app_channel_entry_notify_cb, app);
-		g_signal_handlers_disconnect_by_func(app->channel_textview,
+
+		chview = g_object_get_data(G_OBJECT(priv->current_chent), CHANNEL_TEXT_VIEW_KEY);
+		g_signal_handlers_disconnect_by_func(chview,
 						     loqui_app_channel_text_view_scrolled_to_end_cb,
 						     priv->current_chent);
-		g_signal_handlers_disconnect_by_func(app->channel_textview,
+		g_signal_handlers_disconnect_by_func(chview,
 						     loqui_app_channel_text_view_notify_is_scroll_cb,
 						     app);
 	}
@@ -707,12 +717,19 @@ loqui_app_set_current_channel_entry(LoquiApp *app, LoquiChannelEntry *chent)
 	priv->current_channel = channel;
 	priv->current_chent = chent;
 
-	loqui_channel_text_view_set_channel_buffer(LOQUI_CHANNEL_TEXT_VIEW(app->channel_textview),
-						   loqui_channel_entry_get_buffer(LOQUI_CHANNEL_ENTRY(chent)));
-	g_signal_connect(G_OBJECT(app->channel_textview), "scrolled_to_end",
+	chview = g_object_get_data(G_OBJECT(chent), CHANNEL_TEXT_VIEW_KEY);
+	
+	g_signal_connect(G_OBJECT(chview), "scrolled_to_end",
 			 G_CALLBACK(loqui_app_channel_text_view_scrolled_to_end_cb), chent);
-	g_signal_connect(G_OBJECT(app->channel_textview), "notify::is-scroll",
+	g_signal_connect(G_OBJECT(chview), "notify::is-scroll",
 			 G_CALLBACK(loqui_app_channel_text_view_notify_is_scroll_cb), app);
+
+	gtk_notebook_set_current_page(GTK_NOTEBOOK(app->channel_notebook),
+				      gtk_notebook_page_num(GTK_NOTEBOOK(app->channel_notebook), LOQUI_CHANNEL_TEXT_VIEW(chview)->scrolled_window));
+
+	loqui_channel_text_view_scroll_to_end_if_enabled(LOQUI_CHANNEL_TEXT_VIEW(chview));
+	loqui_app_actions_toggle_action_set_active(app, LOQUI_ACTION_TOGGLE_SCROLL,
+						   loqui_channel_text_view_get_is_scroll(LOQUI_CHANNEL_TEXT_VIEW(chview)));
 
 	model = g_object_get_data(G_OBJECT(chent), CHANNEL_ENTRY_STORE_KEY);
 	gtk_tree_view_set_model(GTK_TREE_VIEW(app->nick_list), GTK_TREE_MODEL(model));
@@ -812,6 +829,7 @@ loqui_app_add_account_after_cb(AccountManager *manager, Account *account, LoquiA
 	LoquiAppPrivate *priv;
 	LoquiChannelEntryStore *store;
 	ChannelBuffer *buffer;
+	GtkWidget *chview;
 
         g_return_if_fail(manager != NULL);
         g_return_if_fail(IS_ACCOUNT_MANAGER(manager));
@@ -842,6 +860,14 @@ loqui_app_add_account_after_cb(AccountManager *manager, Account *account, LoquiA
 	g_signal_connect(G_OBJECT(buffer), "append",
 			 G_CALLBACK(loqui_app_channel_buffer_append_cb), app);
 
+	chview = loqui_channel_text_view_new(app);
+	g_object_set_data(G_OBJECT(account), CHANNEL_TEXT_VIEW_KEY, chview);
+	loqui_channel_text_view_set_channel_buffer(LOQUI_CHANNEL_TEXT_VIEW(chview), buffer);
+	gtk_notebook_append_page(GTK_NOTEBOOK(app->channel_notebook),
+				 LOQUI_CHANNEL_TEXT_VIEW(chview)->scrolled_window,
+				 NULL);
+	gtk_widget_show_all(LOQUI_CHANNEL_TEXT_VIEW(chview)->scrolled_window);
+
 	loqui_channel_entry_set_sort_func(LOQUI_CHANNEL_ENTRY(account), priv->sort_func);
 	loqui_app_update_channel_entry_accel_key(app);
 }
@@ -851,6 +877,7 @@ loqui_app_remove_account_cb(AccountManager *manager, Account *account, LoquiApp 
 	LoquiAppPrivate *priv;
 	ChannelBuffer *buffer;
 	LoquiChannelEntryStore *store;
+	GtkWidget *chview;
 
         g_return_if_fail(manager != NULL);
         g_return_if_fail(IS_ACCOUNT_MANAGER(manager));
@@ -872,6 +899,10 @@ loqui_app_remove_account_cb(AccountManager *manager, Account *account, LoquiApp 
 	buffer = loqui_channel_entry_get_buffer(LOQUI_CHANNEL_ENTRY(account));
 	g_signal_handlers_disconnect_by_func(buffer, loqui_app_channel_buffer_append_cb, app);
 
+	chview = g_object_get_data(G_OBJECT(account), CHANNEL_TEXT_VIEW_KEY);
+	gtk_notebook_remove_page(GTK_NOTEBOOK(app->channel_notebook),
+				 gtk_notebook_page_num(GTK_NOTEBOOK(app->channel_notebook), LOQUI_CHANNEL_TEXT_VIEW(chview)->scrolled_window));
+
 	store = g_object_get_data(G_OBJECT(account), CHANNEL_ENTRY_STORE_KEY);
 	g_object_unref(store);
 }
@@ -891,6 +922,7 @@ loqui_app_add_channel_after_cb(Account *account, LoquiChannel *channel, LoquiApp
 	LoquiAppPrivate *priv;
 	LoquiChannelEntryStore *store;
 	ChannelBuffer *buffer;
+	GtkWidget *chview;
 
         g_return_if_fail(app != NULL);
         g_return_if_fail(LOQUI_IS_APP(app));
@@ -919,6 +951,14 @@ loqui_app_add_channel_after_cb(Account *account, LoquiChannel *channel, LoquiApp
 	g_signal_connect(G_OBJECT(buffer), "append",
 			 G_CALLBACK(loqui_app_channel_buffer_append_cb), app);
 
+	chview = loqui_channel_text_view_new(app);
+	g_object_set_data(G_OBJECT(channel), CHANNEL_TEXT_VIEW_KEY, chview);
+	loqui_channel_text_view_set_channel_buffer(LOQUI_CHANNEL_TEXT_VIEW(chview), buffer);
+	gtk_notebook_append_page(GTK_NOTEBOOK(app->channel_notebook),
+				 LOQUI_CHANNEL_TEXT_VIEW(chview)->scrolled_window,
+				 NULL);
+	gtk_widget_show_all(LOQUI_CHANNEL_TEXT_VIEW(chview)->scrolled_window);
+
 	loqui_channel_entry_set_sort_func(LOQUI_CHANNEL_ENTRY(channel), priv->sort_func);
 
 	loqui_app_update_channel_entry_accel_key(app);
@@ -930,6 +970,7 @@ loqui_app_remove_channel_cb(Account *account, LoquiChannel *channel, LoquiApp *a
 	LoquiAppPrivate *priv;
 	ChannelBuffer *buffer;
 	LoquiChannelEntryStore *store;
+	GtkWidget *chview;
 
         g_return_if_fail(app != NULL);
         g_return_if_fail(LOQUI_IS_APP(app));
@@ -949,6 +990,10 @@ loqui_app_remove_channel_cb(Account *account, LoquiChannel *channel, LoquiApp *a
 	
 	buffer = loqui_channel_entry_get_buffer(LOQUI_CHANNEL_ENTRY(channel));
 	g_signal_handlers_disconnect_by_func(buffer, loqui_app_channel_buffer_append_cb, app);
+
+	chview = g_object_get_data(G_OBJECT(channel), CHANNEL_TEXT_VIEW_KEY);
+	gtk_notebook_remove_page(GTK_NOTEBOOK(app->channel_notebook),
+				 gtk_notebook_page_num(GTK_NOTEBOOK(app->channel_notebook), LOQUI_CHANNEL_TEXT_VIEW(chview)->scrolled_window));
 
 	store = g_object_get_data(G_OBJECT(channel), CHANNEL_ENTRY_STORE_KEY);
 	g_object_unref(store);
@@ -1094,6 +1139,7 @@ static void
 loqui_app_channel_buffer_append_cb(ChannelBuffer *buffer, MessageText *msgtext, LoquiApp *app)
 {
 	LoquiAppPrivate *priv;
+	GtkWidget *chview;
 
         g_return_if_fail(app != NULL);
         g_return_if_fail(LOQUI_IS_APP(app));
@@ -1105,8 +1151,10 @@ loqui_app_channel_buffer_append_cb(ChannelBuffer *buffer, MessageText *msgtext, 
 		
 	if (prefs_general.save_log)
 		loqui_app_append_log(app, msgtext);
-	
-	if (loqui_channel_text_view_get_is_scroll(LOQUI_CHANNEL_TEXT_VIEW(app->channel_textview)) &&
+
+	chview = loqui_app_get_current_channel_text_view(app);
+	if (chview &&
+	    loqui_channel_text_view_get_is_scroll(LOQUI_CHANNEL_TEXT_VIEW(chview)) &&
 	    priv->current_chent != NULL &&
 	    buffer == loqui_channel_entry_get_buffer(priv->current_chent))
 		return;
