@@ -39,6 +39,7 @@ enum {
 struct _IPMsgSocketPrivate
 {
 	GUdpSocket *udpsock;
+	GInetAddr *inetaddr;
 
 	guint in_watch;
 	guint out_watch;
@@ -104,13 +105,19 @@ static void
 ipmsg_socket_dispose(GObject *object)
 {
 	IPMsgSocket *sock;
+	IPMsgSocketPrivate *priv;
 
         g_return_if_fail(object != NULL);
         g_return_if_fail(IS_IPMSG_SOCKET(object));
 
         sock = IPMSG_SOCKET(object);
+	priv = sock->priv;
 
 	ipmsg_socket_unbind(sock);
+	if (priv->inetaddr) {
+		gnet_inetaddr_unref(priv->inetaddr);
+		priv->inetaddr = NULL;
+	}
 
         if (G_OBJECT_CLASS(parent_class)->dispose)
                 (* G_OBJECT_CLASS(parent_class)->dispose)(object);
@@ -249,7 +256,7 @@ ipmsg_socket_bind(IPMsgSocket *sock)
 
 	priv = sock->priv;
 
-	priv->udpsock = gnet_udp_socket_new_with_port(2425);
+	priv->udpsock = gnet_udp_socket_new_with_port(IPMSG_DEFAULT_PORT);
 
 	if (!priv->udpsock)
 		return FALSE;
@@ -257,6 +264,8 @@ ipmsg_socket_bind(IPMsgSocket *sock)
 	ioch = gnet_udp_socket_get_io_channel(priv->udpsock);
 	priv->in_watch = g_io_add_watch(ioch, G_IO_IN | G_IO_ERR | G_IO_HUP | G_IO_NVAL,
 					(GIOFunc) ipmsg_socket_watch_in_cb, sock);
+
+	priv->inetaddr = gnet_inetaddr_new_nonblock("255.255.255.0", IPMSG_DEFAULT_PORT);
 
 	return TRUE;
 }
@@ -281,5 +290,27 @@ ipmsg_socket_unbind(IPMsgSocket *sock)
 void
 ipmsg_socket_send_packet(IPMsgSocket *sock, IPMsgPacket *packet)
 {
-	
+	IPMsgSocketPrivate *priv;
+	gchar *buf;
+	gint len;
+
+	priv = sock->priv;
+
+	g_return_if_fail(priv->inetaddr);
+	if (!priv->udpsock)
+		return;
+
+	if ((buf = ipmsg_packet_to_string(packet, &len)) == NULL) {
+		g_warning("Failed to send a packet.");
+		return;
+	}
+
+	gnet_udp_socket_send(priv->udpsock, buf, len, priv->inetaddr);
+
+	if (show_msg_mode) {
+		g_print("Sent:");
+		ipmsg_packet_print(packet);
+	}
+
+	g_free(buf);
 }

@@ -20,6 +20,11 @@
 #include "config.h"
 
 #include "loqui_sender_ipmsg.h"
+#include "ipmsg_socket.h"
+#include "ipmsg_packet.h"
+#include "intl.h"
+#include "loqui_account_ipmsg.h"
+#include "ipmsg.h"
 
 enum {
         LAST_SIGNAL
@@ -44,6 +49,8 @@ static void loqui_sender_ipmsg_dispose(GObject *object);
 
 static void loqui_sender_ipmsg_get_property(GObject *object, guint param_id, GValue *value, GParamSpec *pspec);
 static void loqui_sender_ipmsg_set_property(GObject *object, guint param_id, const GValue *value, GParamSpec *pspec);
+
+static void loqui_sender_ipmsg_send_packet(LoquiSenderIPMsg *sender, IPMsgPacket *packet);
 
 GType
 loqui_sender_ipmsg_get_type(void)
@@ -159,4 +166,54 @@ loqui_sender_ipmsg_new(LoquiAccount *account)
 	LOQUI_SENDER(sender)->account = account;
 
         return sender;
+}
+/* helper */
+static void
+loqui_sender_ipmsg_send_packet(LoquiSenderIPMsg *sender, IPMsgPacket *packet)
+{
+	LoquiSenderIPMsgPrivate *priv;
+	LoquiAccount *account;
+	IPMsgSocket *socket;
+
+        g_return_if_fail(sender != NULL);
+        g_return_if_fail(LOQUI_IS_SENDER_IPMSG(sender));
+	
+	priv = sender->priv;
+
+	account = loqui_sender_get_account(LOQUI_SENDER(sender));
+
+	if (!loqui_account_get_is_connected(account)) {
+		loqui_account_warning(account, _("The account is not connected."));
+		return;
+	}
+
+	socket = loqui_account_ipmsg_get_socket(LOQUI_ACCOUNT_IPMSG(account));
+	ipmsg_socket_send_packet(socket, packet);
+}
+void
+loqui_sender_ipmsg_nooperation(LoquiSenderIPMsg *sender)
+{
+	IPMsgPacket *packet;
+	LoquiAccountIPMsg *account;
+
+	account = LOQUI_ACCOUNT_IPMSG(loqui_sender_get_account(LOQUI_SENDER(sender)));
+
+	packet = loqui_account_ipmsg_create_packet(account, IPMSG_NOOPERATION, NULL);
+	loqui_sender_ipmsg_send_packet(sender, packet);
+	g_object_unref(packet);
+}
+void
+loqui_sender_ipmsg_br_entry(LoquiSenderIPMsg *sender)
+{
+	IPMsgPacket *packet;
+	LoquiAccountIPMsg *account;
+
+	account = LOQUI_ACCOUNT_IPMSG(loqui_sender_get_account(LOQUI_SENDER(sender)));
+
+	loqui_sender_ipmsg_nooperation(sender);
+
+	packet = loqui_account_ipmsg_create_packet(account, IPMSG_BR_ENTRY,
+						   loqui_user_get_nick(LOQUI_USER(loqui_account_get_user_self(LOQUI_ACCOUNT(account)))));
+	loqui_sender_ipmsg_send_packet(sender, packet);
+	g_object_unref(packet);
 }

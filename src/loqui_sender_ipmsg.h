@@ -54,6 +54,8 @@ struct _LoquiSenderIPMsgClass
 GType loqui_sender_ipmsg_get_type(void) G_GNUC_CONST;
 
 LoquiSenderIPMsg* loqui_sender_ipmsg_new(LoquiAccount *account);
+void loqui_sender_ipmsg_nooperation(LoquiSenderIPMsg *sender);
+void loqui_sender_ipmsg_br_entry(LoquiSenderIPMsg *sender);
 
 G_END_DECLS
 

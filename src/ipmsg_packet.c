@@ -249,14 +249,43 @@ ipmsg_packet_create(gint version, gint packet_num, const gchar *username, const 
 
 	packet->version = version;
 	packet->packet_num = packet_num;
-	packet->username = g_strdup(username);
-	packet->hostname = g_strdup(hostname);
+	if (username)
+		packet->username = g_strdup(username);
+	if (hostname)
+		packet->hostname = g_strdup(hostname);
 	packet->command_num = command_num;
-	packet->extra = g_strdup(extra);
+	if (extra)
+		packet->extra = g_strdup(extra);
 	if (group_name)
 		packet->group_name = g_strdup(group_name);
 
 	return packet;
+}
+gchar *
+ipmsg_packet_to_string(IPMsgPacket *packet, gint *len)
+{
+	GString *string;
+
+	string = g_string_new(NULL);
+
+#define LENZERO_IF_NULL(str) (str ? str : "")
+	g_string_printf(string, "%d:%d:%s:%s:%d:%s",
+			packet->version,
+			packet->packet_num,
+			LENZERO_IF_NULL(packet->username),
+			LENZERO_IF_NULL(packet->hostname),
+			packet->command_num,
+			LENZERO_IF_NULL(packet->extra));
+#undef LENZERO_IF_NULL
+
+	if (packet->group_name) {
+		g_string_append_c(string, '\0');
+		g_string_append(string, packet->group_name);
+	}
+
+	if (len != NULL)
+		*len = string->len;
+	return g_string_free(string, FALSE);
 }
 gchar *
 ipmsg_packet_inspect(IPMsgPacket *packet)
@@ -268,9 +297,11 @@ ipmsg_packet_inspect(IPMsgPacket *packet)
 	string = g_string_new(NULL);
 
 	addr = ipmsg_packet_get_inetaddr(packet);
-	addr_str = gnet_inetaddr_get_canonical_name(addr);
-	g_string_append_printf(string, "From: %s:%d\n", utils_remove_ipv6_prefix_ffff(addr_str), gnet_inetaddr_get_port(addr));
-	g_free(addr_str);
+	if (addr) {
+		addr_str = gnet_inetaddr_get_canonical_name(addr);
+		g_string_append_printf(string, "From: %s:%d\n", utils_remove_ipv6_prefix_ffff(addr_str), gnet_inetaddr_get_port(addr));
+		g_free(addr_str);
+	}
 
 	g_string_append_printf(string, "Version: %d, PacketNumber: %d\n", packet->version, packet->packet_num);
 	g_string_append_printf(string, "Username: %s, Hostname: %s, Group: %s\n",

@@ -233,6 +233,11 @@ loqui_account_ipmsg_connect(LoquiAccount *account)
 	g_free(str);
 
 	loqui_user_set_away(loqui_account_get_user_self(LOQUI_ACCOUNT(account)), LOQUI_AWAY_TYPE_ONLINE);
+	loqui_user_set_nick(loqui_account_get_user_self(LOQUI_ACCOUNT(account)),
+			    loqui_profile_account_get_nick(loqui_account_get_profile(LOQUI_ACCOUNT(account))));
+	/* TODO: set hostname */
+
+	loqui_sender_ipmsg_br_entry(LOQUI_SENDER_IPMSG(LOQUI_ACCOUNT(account)->sender));
 }
 static void
 loqui_account_ipmsg_disconnect(LoquiAccount *account)
@@ -281,11 +286,18 @@ loqui_account_ipmsg_new(LoquiProfileAccount *profile)
 
         return account;
 }
+IPMsgSocket *
+loqui_account_ipmsg_get_socket(LoquiAccountIPMsg *account)
+{
+	return account->priv->sock;
+}
+
 IPMsgPacket *
 loqui_account_ipmsg_create_packet(LoquiAccountIPMsg *account, gint command_num, const gchar *extra)
 {
 	LoquiAccountIPMsgPrivate *priv;
 	LoquiUser *user;
+	LoquiProfileAccount *profile;
 
         g_return_val_if_fail(account != NULL, NULL);
         g_return_val_if_fail(LOQUI_IS_ACCOUNT_IPMSG(account), NULL);
@@ -293,10 +305,11 @@ loqui_account_ipmsg_create_packet(LoquiAccountIPMsg *account, gint command_num, 
         priv = LOQUI_ACCOUNT_IPMSG(account)->priv;
 	
 	user = loqui_account_get_user_self(LOQUI_ACCOUNT(account));
+	profile = loqui_account_get_profile(LOQUI_ACCOUNT(account));
 
 	return ipmsg_packet_create(IPMSG_VERSION,
 				   priv->current_packet_num++,
-				   loqui_user_get_username(user),
+				   loqui_profile_account_get_username(profile),
 				   loqui_user_get_hostname(user),
 				   command_num,
 				   extra,
