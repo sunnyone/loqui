@@ -79,6 +79,8 @@ struct _LoquiUser
 	gchar *away_message;
 	
 	gint idle_time; /* time_t ? */
+	
+	gboolean is_ignored;
 
         LoquiUserPrivate *priv;
 };
@@ -112,6 +114,7 @@ LoquiAwayType loqui_user_class_install_away_type(LoquiUserClass *user_class,
 LoquiAwayInfo* loqui_user_class_away_type_get_info(LoquiUserClass *user_class, LoquiAwayType away_type);
 
 LOQUI_USER_ACCESSOR_GENERIC_PROTOTYPE(gint, idle_time);
+LOQUI_USER_ACCESSOR_GENERIC_PROTOTYPE(gboolean, is_ignored);
 LOQUI_USER_ACCESSOR_GENERIC_PROTOTYPE(LoquiAwayType, away);
 LOQUI_USER_ACCESSOR_STRING_PROTOTYPE(nick);
 LOQUI_USER_ACCESSOR_STRING_PROTOTYPE(username);
