@@ -98,6 +98,8 @@ void loqui_app_update_info(LoquiApp *app,
 void loqui_app_set_common_buffer(LoquiApp *app, ChannelBuffer *buffer);
 
 void loqui_app_set_auto_switch_scrolling_channel_buffers(LoquiApp *app, gboolean auto_switch_scrolling);
+void loqui_app_set_auto_switch_scrolling_common_buffer(LoquiApp *app, gboolean auto_switch_scrolling);
+
 void loqui_app_set_show_statusbar(LoquiApp *app, gboolean show);
 void loqui_app_set_show_channelbar(LoquiApp *app, gboolean show);
 

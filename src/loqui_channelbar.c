@@ -27,6 +27,7 @@
 #include "command_dialog.h"
 #include "intl.h"
 #include "gtkutils.h"
+#include "loqui_stock.h"
 
 struct _LoquiChannelbarPrivate
 {
@@ -41,6 +42,8 @@ struct _LoquiChannelbarPrivate
 	GtkWidget *entry_topic;
 	GtkWidget *button_ok;
 	gboolean entry_changed;
+
+	GtkWidget *toggle_scroll;
 };
 
 static GtkHBoxClass *parent_class = NULL;
@@ -182,11 +185,12 @@ loqui_channelbar_channel_button_clicked_cb(GtkWidget *widget, gpointer data)
                 gtkutils_msgbox_info(GTK_MESSAGE_ERROR, _("Not selected an account!"));
 }
 GtkWidget*
-loqui_channelbar_new(LoquiApp *app, GtkWidget *menu_dropdown)
+loqui_channelbar_new(LoquiApp *app, GtkWidget *menu_dropdown, GtkToggleAction *toggle_scroll_action)
 {
         LoquiChannelbar *channelbar;
 	LoquiChannelbarPrivate *priv;
 	GtkWidget *image;
+	gchar *text;
 
 	channelbar = g_object_new(loqui_channelbar_get_type(), NULL);
 	
@@ -230,6 +234,16 @@ loqui_channelbar_new(LoquiApp *app, GtkWidget *menu_dropdown)
 	gtk_tooltips_set_tip(app->tooltips, priv->button_ok, _("Update the topic"), NULL);
 
 	priv->entry_changed = FALSE;
+
+	priv->toggle_scroll = gtk_toggle_button_new();
+	gtk_action_connect_proxy(GTK_ACTION(toggle_scroll_action), priv->toggle_scroll);
+	gtk_container_remove(GTK_CONTAINER(priv->toggle_scroll), gtk_bin_get_child(GTK_BIN(priv->toggle_scroll)));
+	image = gtk_image_new_from_stock(LOQUI_STOCK_WHETHER_SCROLL, GTK_ICON_SIZE_SMALL_TOOLBAR);
+	gtk_container_add(GTK_CONTAINER(priv->toggle_scroll), image);
+	gtk_button_set_focus_on_click(GTK_BUTTON(priv->toggle_scroll), FALSE);
+	g_object_get(G_OBJECT(toggle_scroll_action), "tooltip", &text, NULL);
+	gtk_tooltips_set_tip(app->tooltips, priv->toggle_scroll, text, NULL);
+	gtk_box_pack_start(GTK_BOX(channelbar), priv->toggle_scroll, FALSE, FALSE, 0);
 
 	return GTK_WIDGET(channelbar);
 }

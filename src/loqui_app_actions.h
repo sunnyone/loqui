@@ -36,6 +36,7 @@ void loqui_app_actions_toggle_action_set_active(LoquiApp *app, const gchar *name
 void loqui_app_actions_update_sensitivity_related_channel(LoquiApp *app);
 
 #define LOQUI_ACTION_TOGGLE_SCROLL "ToggleScroll"
+#define LOQUI_ACTION_TOGGLE_SCROLL_COMMON_BUFFER "ToggleScrollCommonBuffer"
 #define LOQUI_ACTION_JOIN "Join"
 #define LOQUI_ACTION_PART "Part"
 #define LOQUI_ACTION_CHANGE_NICK "ChangeNick"

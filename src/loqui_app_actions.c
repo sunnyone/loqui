@@ -66,6 +66,7 @@ static void loqui_app_actions_toggle_channelbar_cb(GtkAction *action, LoquiApp *
 static void loqui_app_actions_toggle_statusbar_cb(GtkAction *action, LoquiApp *app);
 static void loqui_app_actions_toggle_command_mode_cb(GtkAction *action, LoquiApp *app);
 static void loqui_app_actions_toggle_scroll_cb(GtkAction *action, LoquiApp *app);
+static void loqui_app_actions_toggle_scroll_common_buffer_cb(GtkAction *action, LoquiApp *app);
 
 static void loqui_app_actions_give_op_selected_cb(GtkAction *action, LoquiApp *app);
 static void loqui_app_actions_give_voice_selected_cb(GtkAction *action, LoquiApp *app);
@@ -152,7 +153,8 @@ static GtkToggleActionEntry loqui_toggle_action_entries[] = {
         {"ToggleCommandMode", LOQUI_STOCK_COMMAND, N_("_Toggle Command Mode"),CTRL"slash", N_("Interpret and send the message as command if toggled"), G_CALLBACK(loqui_app_actions_toggle_command_mode_cb), FALSE},
         {"ToggleChannelbar",  NULL, N_("_Channelbar"), NULL, NULL, G_CALLBACK(loqui_app_actions_toggle_channelbar_cb), TRUE},
         {"ToggleStatusbar",   NULL, N_("_Statusbar"), NULL, NULL, G_CALLBACK(loqui_app_actions_toggle_statusbar_cb), TRUE},
-	{LOQUI_ACTION_TOGGLE_SCROLL, NULL, N_("_Scroll buffer"), NULL, N_("Whether scrolling the channel buffer to the end when new message arrived."),G_CALLBACK(loqui_app_actions_toggle_scroll_cb) , TRUE},
+	{LOQUI_ACTION_TOGGLE_SCROLL, NULL, N_("_Scroll channel buffer"), NULL, N_("Whether scrolling the channel buffer to the end when new message arrived."),G_CALLBACK(loqui_app_actions_toggle_scroll_cb) , TRUE},
+	{LOQUI_ACTION_TOGGLE_SCROLL_COMMON_BUFFER, NULL, N_("_Scroll common buffer"), NULL, N_("Whether scrolling the common buffer to the end when new message arrived."),G_CALLBACK(loqui_app_actions_toggle_scroll_common_buffer_cb) , TRUE},
 };
 static GtkRadioActionEntry loqui_nick_list_sort_radio_action_entries[] = {
 	{"RadioNickListSortNone", NULL, "None", NULL, NULL, PREF_SORT_NONE},
@@ -393,6 +395,18 @@ loqui_app_actions_toggle_scroll_cb(GtkAction *action, LoquiApp *app)
 		loqui_channel_text_view_set_is_scroll(LOQUI_CHANNEL_TEXT_VIEW(view), is_active);
 	}
 }
+static void
+loqui_app_actions_toggle_scroll_common_buffer_cb(GtkAction *action, LoquiApp *app)
+{
+	gboolean is_active;
+	GtkWidget *view;
+
+	view = app->common_textview;
+
+	is_active = gtk_toggle_action_get_active(GTK_TOGGLE_ACTION(action));
+	loqui_channel_text_view_set_is_scroll(LOQUI_CHANNEL_TEXT_VIEW(view), is_active);
+}
+
 static void
 loqui_app_actions_toggle_command_mode_cb(GtkAction *action, LoquiApp *app)
 {

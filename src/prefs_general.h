@@ -76,6 +76,7 @@ typedef struct _PrefsGeneral {
 	gchar *notification_command;
 
 	gboolean auto_switch_scrolling;
+	gboolean auto_switch_scrolling_common_buffer;
 	gboolean parse_plum_recent;
 
 	GList *highlight_list;

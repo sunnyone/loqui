@@ -33,6 +33,7 @@ struct _PrefsDialogPrivate
 {
 	GtkWidget *check_save_size;
 	GtkWidget *check_auto_switch_scrolling;
+	GtkWidget *check_auto_switch_scrolling_common_buffer;
 	GtkWidget *check_parse_plum_recent;
 	GtkWidget *check_auto_reconnect;
 	GtkWidget *check_connect_startup;
@@ -157,6 +158,7 @@ prefs_dialog_load_settings(PrefsDialog *dialog)
 	priv = dialog->priv;
 
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(priv->check_auto_switch_scrolling), prefs_general.auto_switch_scrolling);
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(priv->check_auto_switch_scrolling_common_buffer), prefs_general.auto_switch_scrolling_common_buffer);
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(priv->check_parse_plum_recent), prefs_general.parse_plum_recent);
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(priv->check_save_size), prefs_general.save_size);
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(priv->check_use_notification), prefs_general.use_notification);
@@ -201,6 +203,7 @@ prefs_dialog_save_settings(PrefsDialog *dialog)
 	prefs_general.save_log = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(priv->check_save_log));
 
 	loqui_app_set_auto_switch_scrolling_channel_buffers(priv->app, gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(priv->check_auto_switch_scrolling)));
+	loqui_app_set_auto_switch_scrolling_common_buffer(priv->app, gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(priv->check_auto_switch_scrolling_common_buffer)));
 
 	gtkutils_set_string_list_from_textview(&prefs_general.highlight_list, GTK_TEXT_VIEW(priv->textview_highlight));
 	gtkutils_set_string_list_from_textview(&prefs_general.transparent_ignore_list,
@@ -271,8 +274,11 @@ prefs_dialog_new(LoquiApp *app)
 
 	priv->check_save_size = gtk_check_button_new_with_label(_("Save window/widget sizes"));
 	gtk_box_pack_start(GTK_BOX(vbox), priv->check_save_size, FALSE, FALSE, 0);
-	priv->check_auto_switch_scrolling = gtk_check_button_new_with_label(_("Switch whether scrolling or not automatically"));
+	priv->check_auto_switch_scrolling = gtk_check_button_new_with_label(_("Switch whether scrolling channel buffer or not automatically"));
 	gtk_box_pack_start(GTK_BOX(vbox), priv->check_auto_switch_scrolling, FALSE, FALSE, 0);
+	priv->check_auto_switch_scrolling_common_buffer = gtk_check_button_new_with_label(_("Switch whether scrolling common buffer or not automatically"));
+	gtk_box_pack_start(GTK_BOX(vbox), priv->check_auto_switch_scrolling_common_buffer, FALSE, FALSE, 0);
+
 	priv->check_parse_plum_recent = gtk_check_button_new_with_label(_("Parse plum (an irc proxy) recent feature (Experimental)"));
 	gtk_box_pack_start(GTK_BOX(vbox), priv->check_parse_plum_recent, FALSE, FALSE, 0);
 	priv->check_auto_reconnect = gtk_check_button_new_with_label(_("Reconnect automatically when connections are terminated."));

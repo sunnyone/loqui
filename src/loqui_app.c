@@ -109,6 +109,7 @@ static gboolean loqui_app_update_channel_info(LoquiApp *app);
 
 static void loqui_app_channel_text_view_scrolled_to_end_cb(LoquiChannelTextView *chview, LoquiChannelEntry *chent);
 static void loqui_app_channel_text_view_notify_is_scroll_cb(LoquiChannelTextView *chview, GParamSpec *pspec, LoquiApp *app);
+static void loqui_app_channel_text_view_notify_is_scroll_common_buffer_cb(LoquiChannelTextView *chview, GParamSpec *pspec, LoquiApp *app);
 
 static void loqui_app_account_changed_cb(GObject *object, gpointer data);
 static void loqui_app_channel_changed_cb(GObject *object, gpointer data);
@@ -316,6 +317,12 @@ loqui_app_channel_text_view_notify_is_scroll_cb(LoquiChannelTextView *chview, GP
 	loqui_app_actions_toggle_action_set_active(app, LOQUI_ACTION_TOGGLE_SCROLL,
 						   loqui_channel_text_view_get_is_scroll(chview));
 }
+static void
+loqui_app_channel_text_view_notify_is_scroll_common_buffer_cb(LoquiChannelTextView *chview, GParamSpec *pspec, LoquiApp *app)
+{
+	loqui_app_actions_toggle_action_set_active(app, LOQUI_ACTION_TOGGLE_SCROLL_COMMON_BUFFER,
+						   loqui_channel_text_view_get_is_scroll(chview));
+}
 void
 loqui_app_grab_focus_if_key_unused(LoquiApp *app, const gchar *class_name, guint modifiers, guint keyval)
 {
@@ -475,7 +482,8 @@ loqui_app_new(AccountManager *account_manager)
 	gtk_box_pack_start(GTK_BOX(vbox), priv->handlebox_channelbar, FALSE, FALSE, 0);
 
 	menu_channelbar = gtk_ui_manager_get_widget(app->ui_manager, "/ChannelListPopup");
-	app->channelbar = loqui_channelbar_new(app, menu_channelbar);
+	app->channelbar = loqui_channelbar_new(app, menu_channelbar,
+					       GTK_TOGGLE_ACTION(gtk_action_group_get_action(app->action_group, LOQUI_ACTION_TOGGLE_SCROLL)));
 	gtk_container_add(GTK_CONTAINER(priv->handlebox_channelbar), app->channelbar);
 
 #define SET_SCROLLED_WINDOW(s, w, vpolicy, hpolicy) \
@@ -489,7 +497,7 @@ loqui_app_new(AccountManager *account_manager)
 	gtk_box_pack_start_defaults(GTK_BOX(vbox), hpaned);
 
 	app->statusbar = loqui_statusbar_new(app,
-					     GTK_TOGGLE_ACTION(gtk_action_group_get_action(app->action_group, LOQUI_ACTION_TOGGLE_SCROLL)));
+					     GTK_TOGGLE_ACTION(gtk_action_group_get_action(app->action_group, LOQUI_ACTION_TOGGLE_SCROLL_COMMON_BUFFER)));
 	gtk_box_pack_start(GTK_BOX(vbox), app->statusbar, FALSE, FALSE, 1);	
 	
 	/* left side */
@@ -510,7 +518,10 @@ loqui_app_new(AccountManager *account_manager)
 			 G_CALLBACK(loqui_app_entry_activate_cb), app);
 
 	app->common_textview = loqui_channel_text_view_new(app);
-	loqui_channel_text_view_set_auto_switch_scrolling(LOQUI_CHANNEL_TEXT_VIEW(app->common_textview), FALSE);
+	loqui_channel_text_view_set_auto_switch_scrolling(LOQUI_CHANNEL_TEXT_VIEW(app->common_textview),
+							  prefs_general.auto_switch_scrolling_common_buffer);
+	g_signal_connect(G_OBJECT(app->common_textview), "notify::is-scroll",
+			 G_CALLBACK(loqui_app_channel_text_view_notify_is_scroll_common_buffer_cb), app);
 	gtk_paned_pack2(GTK_PANED(vpaned), LOQUI_CHANNEL_TEXT_VIEW(app->common_textview)->scrolled_window, FALSE, TRUE);
 
 	/* right side */
@@ -583,6 +594,12 @@ loqui_app_set_auto_switch_scrolling_channel_buffers(LoquiApp *app, gboolean auto
 			loqui_channel_text_view_set_auto_switch_scrolling(chview, auto_switch_scrolling);
 	}
 	prefs_general.auto_switch_scrolling = auto_switch_scrolling;
+}
+void
+loqui_app_set_auto_switch_scrolling_common_buffer(LoquiApp *app, gboolean auto_switch_scrolling)
+{
+	loqui_channel_text_view_set_auto_switch_scrolling(LOQUI_CHANNEL_TEXT_VIEW(app->common_textview), auto_switch_scrolling);
+	prefs_general.auto_switch_scrolling_common_buffer = auto_switch_scrolling;
 }
 void
 loqui_app_set_show_statusbar(LoquiApp *app, gboolean show)
@@ -990,6 +1007,8 @@ loqui_app_add_channel_after_cb(Account *account, LoquiChannel *channel, LoquiApp
 	gtk_notebook_append_page(GTK_NOTEBOOK(app->channel_notebook),
 				 LOQUI_CHANNEL_TEXT_VIEW(chview)->scrolled_window,
 				 NULL);
+	loqui_channel_text_view_set_auto_switch_scrolling(LOQUI_CHANNEL_TEXT_VIEW(chview),
+							  prefs_general.auto_switch_scrolling);
 	gtk_widget_show_all(LOQUI_CHANNEL_TEXT_VIEW(chview)->scrolled_window);
 
 	loqui_channel_entry_set_sort_func(LOQUI_CHANNEL_ENTRY(channel), priv->sort_func);

@@ -54,7 +54,7 @@ struct _LoquiStatusbarPrivate
 	GtkWidget *dbox_preset;
 
 	GtkWidget *progress_lag;
-	GtkWidget *toggle_scroll;
+	GtkWidget *toggle_scroll_common_buffer;
 	
 	GtkWidget *menu_away;
 	GtkWidget *menu_preset;
@@ -342,7 +342,7 @@ loqui_statusbar_nick_button_clicked_cb(GtkWidget *widget, LoquiStatusbar *status
 		gtkutils_msgbox_info(GTK_MESSAGE_ERROR, _("Not selected an account!"));
 }
 GtkWidget*
-loqui_statusbar_new(LoquiApp *app, GtkToggleAction *toggle_scroll_action)
+loqui_statusbar_new(LoquiApp *app, GtkToggleAction *toggle_scroll_common_buffer_action)
 {
         LoquiStatusbar *statusbar;
 	LoquiStatusbarPrivate *priv;
@@ -408,17 +408,17 @@ loqui_statusbar_new(LoquiApp *app, GtkToggleAction *toggle_scroll_action)
 	gtk_box_pack_start(GTK_BOX(statusbar), priv->progress_lag, FALSE, FALSE, 0);
 	gtk_widget_set_size_request(priv->progress_lag, 70, -1);
 
-	priv->toggle_scroll = gtk_toggle_button_new();
-	gtk_action_connect_proxy(GTK_ACTION(toggle_scroll_action), priv->toggle_scroll);
-	gtk_container_remove(GTK_CONTAINER(priv->toggle_scroll), gtk_bin_get_child(GTK_BIN(priv->toggle_scroll)));
+	priv->toggle_scroll_common_buffer = gtk_toggle_button_new();
+	gtk_action_connect_proxy(GTK_ACTION(toggle_scroll_common_buffer_action), priv->toggle_scroll_common_buffer);
+	gtk_container_remove(GTK_CONTAINER(priv->toggle_scroll_common_buffer), gtk_bin_get_child(GTK_BIN(priv->toggle_scroll_common_buffer)));
 	image = gtk_image_new_from_stock(LOQUI_STOCK_WHETHER_SCROLL, LOQUI_ICON_SIZE_FONT);
-	gtk_container_add(GTK_CONTAINER(priv->toggle_scroll), image);
-	gtk_button_set_focus_on_click(GTK_BUTTON(priv->toggle_scroll), FALSE);
-	g_object_get(G_OBJECT(toggle_scroll_action), "tooltip", &text, NULL);
-	gtk_tooltips_set_tip(app->tooltips, priv->toggle_scroll, text, NULL);
+	gtk_container_add(GTK_CONTAINER(priv->toggle_scroll_common_buffer), image);
+	gtk_button_set_focus_on_click(GTK_BUTTON(priv->toggle_scroll_common_buffer), FALSE);
+	g_object_get(G_OBJECT(toggle_scroll_common_buffer_action), "tooltip", &text, NULL);
+	gtk_tooltips_set_tip(app->tooltips, priv->toggle_scroll_common_buffer, text, NULL);
 
-	WIDGET_MINIMIZE_HEIGHT(priv->toggle_scroll);
-	gtk_box_pack_start(GTK_BOX(statusbar), priv->toggle_scroll, FALSE, FALSE, 0);
+	WIDGET_MINIMIZE_HEIGHT(priv->toggle_scroll_common_buffer);
+	gtk_box_pack_start(GTK_BOX(statusbar), priv->toggle_scroll_common_buffer, FALSE, FALSE, 0);
 	
 	priv->menu_preset = gtk_menu_new();
 	loqui_dropdown_box_set_menu(LOQUI_DROPDOWN_BOX(priv->dbox_preset), priv->menu_preset);
