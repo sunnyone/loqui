@@ -445,9 +445,8 @@ loqui_account_irc_disconnect(LoquiAccount *account)
 	
 	priv = LOQUI_ACCOUNT_IRC(account)->priv;
 
-	if (LOQUI_ACCOUNT_GET_CLASS(account)->disconnect) {
-		LOQUI_ACCOUNT_GET_CLASS(account)->disconnect(account);
-	}
+	if (LOQUI_ACCOUNT_CLASS(parent_class)->disconnect)
+		(* LOQUI_ACCOUNT_CLASS(parent_class)->disconnect) (account);
 
 	if (priv->conn) {
 		gnet_conn_delete(priv->conn);
@@ -472,9 +471,8 @@ loqui_account_irc_terminate(LoquiAccount *account)
 	
 	priv = LOQUI_ACCOUNT_IRC(account)->priv;
 
-	if (LOQUI_ACCOUNT_GET_CLASS(account)->terminate) {
-		LOQUI_ACCOUNT_GET_CLASS(account)->terminate(account);
-	}
+	if (LOQUI_ACCOUNT_CLASS(parent_class)->terminate)
+		(* LOQUI_ACCOUNT_CLASS(parent_class)->terminate) (account);
 
 	if (priv->conn) {
 		gnet_conn_delete(priv->conn);
