@@ -164,7 +164,7 @@ typedef enum {
 	IRC_RPL_ADMINEMAIL          = 259,
 	/* undocumented */
 	IRC_RPL_CREATIONTIME         = 329,
-	IRC_RPL_TOPICINFORMATION  = 333,
+	IRC_RPL_TOPICWHOTIME = 333,
  
 	/* unused? */
 	IRC_RPL_TRACECLASS          = 209,

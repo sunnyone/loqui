@@ -88,6 +88,7 @@ static void irc_handle_reply_topic(IRCHandle *handle, IRCMessage *msg);
 static void irc_handle_reply_endofnames(IRCHandle *handle, IRCMessage *msg);
 static void irc_handle_reply_channelmodeis(IRCHandle *handle, IRCMessage *msg);
 static void irc_handle_reply_creationtime(IRCHandle *handle, IRCMessage *msg);
+static void irc_handle_reply_topicwhotime(IRCHandle *handle, IRCMessage *msg);
 
 static void irc_handle_parse_mode_arguments(IRCHandle *handle, IRCMessage *msg, Channel *channel, gint mode_start);
 static gboolean irc_handle_parse_plum_recent(IRCHandle *handle, const gchar *line);
@@ -826,6 +827,10 @@ irc_handle_reply_creationtime(IRCHandle *handle, IRCMessage *msg)
 	gchar *format;
 
 	time_str = irc_message_get_param(msg, 3);
+	if(time_str == NULL) {
+		g_warning(_("Invalid CREATIONTIME reply."));
+		return;
+	}
 	t = (time_t) g_ascii_strtoull(time_str, NULL, 10);
 	if(t == 0) {
 		g_warning(_("Invalid time string"));
@@ -839,9 +844,43 @@ irc_handle_reply_creationtime(IRCHandle *handle, IRCMessage *msg)
 	}
 
 	format = g_strdup_printf(_("%%2 was created at %s"), str);
+	g_free(str);
+
 	irc_handle_channel_append(handle, msg, TRUE, 2, TEXT_TYPE_INFO, format);
 	g_free(format);
+}
+
+static void
+irc_handle_reply_topicwhotime(IRCHandle *handle, IRCMessage *msg)
+{
+	gchar *time_str;
+	time_t t;
+	gchar *str;
+	gchar *format;
+
+	time_str = irc_message_get_param(msg, 4);
+	if(time_str == NULL) {
+		g_warning(_("Invalid TOPICWHOTIME reply."));
+		return;
+	}
+
+	t = (time_t) g_ascii_strtoull(time_str, NULL, 10);
+	if(t == 0) {
+		g_warning(_("Invalid time string"));
+		return;
+	}
+	
+	str = utils_get_iso8601_date_string(t);
+	if(str == NULL) {
+		g_warning(_("Invalid time"));
+		return;
+	}
+
+	format = g_strdup_printf(_("Topic for %%2 was set by %%3 at %s"), str);
 	g_free(str);
+
+	irc_handle_channel_append(handle, msg, TRUE, 2, TEXT_TYPE_INFO, format);
+	g_free(format);
 }
 
 static void
@@ -1025,6 +1064,9 @@ irc_handle_reply(IRCHandle *handle, IRCMessage *msg)
 		return TRUE;
 	case IRC_RPL_CREATIONTIME:
 		irc_handle_reply_creationtime(handle, msg);
+		return TRUE;
+	case IRC_RPL_TOPICWHOTIME:
+		irc_handle_reply_topicwhotime(handle, msg);
 		return TRUE;
 	case IRC_RPL_TOPIC:
 		irc_handle_reply_topic(handle, msg);
