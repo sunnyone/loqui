@@ -158,9 +158,10 @@ gtkutils_exec_command_argument_with_error_dialog(const gchar *command, const gch
 
 	if(!( (p = strchr(command, '%')) && *(p + 1) == 's' && 
 	      !strchr(p + 2, '%') ))
-                gtkutils_msgbox_info(GTK_MESSAGE_ERROR, _("Illegal command"));
+                gtkutils_msgbox_info(GTK_MESSAGE_ERROR, _("Illegal command (make sure one %%s exists)"));
 
 	quoted = g_shell_quote(argument);
+	debug_puts("Quoted: %s", quoted);
 	buf = g_strdup_printf(command, quoted);
 	g_free(quoted);
 
@@ -174,10 +175,11 @@ gtkutils_exec_command_with_error_dialog(const gchar *command)
 
 	g_return_if_fail(command != NULL);
 
+	debug_puts("Execute: %s", command);
 	g_spawn_command_line_async(command, &error);
 	if(error != NULL) {
-		gtkutils_msgbox_info(GTK_MESSAGE_ERROR, _("Error occured when executing command: %s"),
-				     error->message);
+		gtkutils_msgbox_info(GTK_MESSAGE_ERROR, _("Error occured when executing command, \"%s\":\n%s"),
+				     error->message, command);
 		g_error_free(error);
 	}
 }
