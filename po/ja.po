@@ -1161,11 +1161,6 @@ msgid "Away"
 msgstr "離席"
 
 #: src/loqui_statusbar.c:396
-#, fuzzy
-msgid "Change nick"
-msgstr "ニックネームの変更(_C)"
-
-#: src/loqui_statusbar.c:396
 msgid "Change nick"
 msgstr "ニックネームの変更"
 
