@@ -29,6 +29,13 @@ requires 2.0.0
 
 %h{
 #include <loqui-pref.h>
+
+#ifndef __TYPEDEF_LOQUI_PREF_PARTIAL__
+#define __TYPEDEF_LOQUI_PREF_PARTIAL__
+typedef struct _LoquiPrefPartial LoquiPrefPartial;
+#endif
+
+typedef void (*LoquiPrefPartialForeachFunc) (LoquiPrefPartial *ppref, const gchar *key, gpointer data);
 %}
 class Loqui:Pref:Partial from G:Object
 {
@@ -62,6 +69,23 @@ class Loqui:Pref:Partial from G:Object
 
 	public LoquiPref *get_pref(self) {
 		return self->pref;
+	}
+
+	public void foreach(self, LoquiPrefPartialForeachFunc func, gpointer data) {
+		gchar **keys;
+		int j;
+
+		g_return_if_fail(self->group_name);
+		g_return_if_fail(self->pref);
+
+		if (!(keys = loqui_pref_get_keys(self->pref, self->group_name, NULL, NULL)))
+			return;
+
+		for (j = 0; keys[j] != NULL; j++) {
+			func(self, keys[j], data);
+		}
+
+		g_strfreev(keys);
 	}
 
 	signal last NONE (STRING)

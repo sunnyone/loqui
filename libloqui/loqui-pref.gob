@@ -65,6 +65,10 @@ class Loqui:Pref from G:Object
 	signal last NONE (STRING, STRING)
 	void changed(self, const gchar *group_name, const gchar *key);
 
+	public gchar **get_keys(self, const gchar *group_name, gsize *length, GError **error) {
+		return lqg_key_file_get_keys(selfp->keyfile, group_name, length, error);
+	}
+
 	public void foreach(self, LoquiPrefForeachFunc func, gpointer data) {
 		gchar **groups;
 		gchar **keys;
