@@ -43,6 +43,7 @@ struct _LoquiToolbar
         LoquiToolbarPrivate *priv;
 
 	GtkWidget *toggle_scroll;
+	GtkWidget *toggle_away;
 };
 
 struct _LoquiToolbarClass

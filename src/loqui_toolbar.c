@@ -25,12 +25,14 @@
 
 struct _LoquiToolbarPrivate
 {
-	guint toggle_scroll_hander_id;
+	guint toggle_scroll_handler_id;
+	guint toggle_away_handler_id;
 };
 
 static GtkToolbarClass *parent_class = NULL;
 #define PARENT_TYPE GTK_TYPE_TOOLBAR
 
+#define TOOLBAR_ICON_SIZE GTK_ICON_SIZE_SMALL_TOOLBAR
 static void loqui_toolbar_class_init(LoquiToolbarClass *klass);
 static void loqui_toolbar_init(LoquiToolbar *toolbar);
 static void loqui_toolbar_finalize(GObject *object);
@@ -123,31 +125,49 @@ loqui_toolbar_new(gpointer data)
 {
         LoquiToolbar *toolbar;
 	LoquiToolbarPrivate *priv;
+	GtkWidget *image;
 
 	toolbar = g_object_new(loqui_toolbar_get_type(), NULL);
 
 	priv = toolbar->priv;
-	gtk_toolbar_set_icon_size(GTK_TOOLBAR(toolbar), GTK_ICON_SIZE_SMALL_TOOLBAR);
+	gtk_toolbar_set_icon_size(GTK_TOOLBAR(toolbar), TOOLBAR_ICON_SIZE);
+/*	gtk_toolbar_set_style(GTK_TOOLBAR(toolbar), GTK_TOOLBAR_BOTH_HORIZ); */
 
-	gtk_toolbar_insert_stock(GTK_TOOLBAR(toolbar),
-                                 GTK_STOCK_JUMP_TO,
-				 _("Connect"),
-				 NULL,
-				 NULL, // G_CALLBACK (toolbar_cb),
-				 data,
-				 -1);  /* -1 means "append" */
-	
+	image = gtk_image_new_from_stock(GTK_STOCK_JUMP_TO, TOOLBAR_ICON_SIZE);
+	gtk_toolbar_append_element(GTK_TOOLBAR(toolbar),
+				   GTK_TOOLBAR_CHILD_BUTTON,
+				   NULL,
+				   _("Connect"),
+				   _("Connect to IRC server"),
+				   NULL,
+				   image, NULL, NULL);
+
+	image = gtk_image_new_from_stock(GTK_STOCK_HOME, TOOLBAR_ICON_SIZE);
+	toolbar->toggle_away = gtk_toolbar_append_element(GTK_TOOLBAR(toolbar),
+							  GTK_TOOLBAR_CHILD_TOGGLEBUTTON,
+							  NULL, _("Away"),
+							  _("Toggle home/away"),
+							  NULL, image,
+							  NULL, NULL);
+/*	priv->toggle_away_handler_id = g_signal_connect(G_OBJECT(toolbar->toggle_away),
+							"toggled", NULL,
+							// G_CALLBACK(loqui_toolbar_toggle_scrolling_cb),
+							toolbar); */
+
+	image = gtk_image_new_from_stock(GTK_STOCK_JUSTIFY_LEFT, TOOLBAR_ICON_SIZE);
 	toolbar->toggle_scroll = gtk_toolbar_append_element(GTK_TOOLBAR(toolbar),
 							    GTK_TOOLBAR_CHILD_TOGGLEBUTTON,
 							    NULL, _("Scroll"),
 							    _("Toggle whether scrolling"),
-							    NULL, NULL,
+							    NULL, image,
 							    NULL, NULL);
 
-	priv->toggle_scroll_hander_id = g_signal_connect(G_OBJECT(toolbar->toggle_scroll),
+	priv->toggle_scroll_handler_id = g_signal_connect(G_OBJECT(toolbar->toggle_scroll),
 							 "toggled",
 							 G_CALLBACK(loqui_toolbar_toggle_scrolling_cb),
 							 toolbar);
+
+
 	return GTK_WIDGET(toolbar);
 }
 void
@@ -157,7 +177,7 @@ loqui_toolbar_set_toggle_scrolling_without_signal_emission(LoquiToolbar *toolbar
 
 	priv = toolbar->priv;
 
-	g_signal_handler_block(toolbar->toggle_scroll, priv->toggle_scroll_hander_id);
+	g_signal_handler_block(toolbar->toggle_scroll, priv->toggle_scroll_handler_id);
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(toolbar->toggle_scroll), is_scroll);
-	g_signal_handler_unblock(toolbar->toggle_scroll, priv->toggle_scroll_hander_id);
+	g_signal_handler_unblock(toolbar->toggle_scroll, priv->toggle_scroll_handler_id);
 }
