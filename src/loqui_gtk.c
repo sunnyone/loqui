@@ -85,6 +85,7 @@ loqui_gtk_start_main_loop(void)
 	account_manager_load_accounts(account_manager);
 	if(prefs_general.connect_startup)
 		account_manager_connect_all_default(account_manager);
+	g_object_unref(account_manager); /* app has reference */
 
 	gtk_main();
 }

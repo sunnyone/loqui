@@ -52,6 +52,7 @@ loqui_channel_entry_ui_attach_channel_entry_action(LoquiApp *app, GObject *chann
 	g_signal_connect(G_OBJECT(ce_action), "activate", G_CALLBACK(loqui_channel_entry_action_activate_cb), app);
 	g_object_set_data_full(G_OBJECT(channel_entry), "channel-entry-action", ce_action, (GDestroyNotify) g_object_unref);
 	gtk_action_group_add_action(app->channel_entry_group, GTK_ACTION(ce_action));
+	g_object_unref(ce_action);
 	g_free(ce_name);
 }
 void
@@ -78,6 +79,7 @@ loqui_channel_entry_ui_add_account(LoquiApp *app, Account *account, const gchar 
 	ph_action = gtk_action_new(ph_name, "", NULL, NULL);
 	gtk_action_group_add_action(app->channel_entry_group, ph_action);
 	gtk_ui_manager_add_ui(app->ui_manager, id, path, ph_name, ph_name, GTK_UI_MANAGER_PLACEHOLDER, FALSE);
+	g_object_unref(ph_action);
 
 	data_name = g_strdup_printf("%s-placeholder-name", data_prefix);
 	g_object_set_data_full(G_OBJECT(account), data_name, ph_name, (GDestroyNotify) g_free);

@@ -127,6 +127,8 @@ account_manager_finalize (GObject *object)
         account_manager = ACCOUNT_MANAGER(object);
 	priv = account_manager->priv;
 
+	account_manager_remove_all_account(account_manager);
+
         if (G_OBJECT_CLASS(parent_class)->finalize)
                 (* G_OBJECT_CLASS(parent_class)->finalize) (object);
 
@@ -207,7 +209,7 @@ void
 account_manager_remove_all_account(AccountManager *manager)
 {
 	AccountManagerPrivate *priv;
-	GList *list;
+	GList *list, *cur;
 
         g_return_if_fail(manager != NULL);
         g_return_if_fail(IS_ACCOUNT_MANAGER(manager));
@@ -215,7 +217,9 @@ account_manager_remove_all_account(AccountManager *manager)
 	priv = manager->priv;	
 
 	list = g_list_copy(priv->account_list);
-	utils_g_list_foreach_swapped(list, (GFunc) account_manager_remove_account, manager);
+	for (cur = list; cur != NULL; cur = cur->next) {
+		account_manager_remove_account(manager, cur->data);
+	}
 	g_list_free(list);
 }
 
@@ -241,6 +245,7 @@ account_manager_load_accounts(AccountManager *account_manager)
 	for(cur = list; cur != NULL; cur = cur->next) {
 		account = account_new(cur->data);
 		account_manager_add_account(account_manager, account);
+		g_object_unref(account);
 	}
 	g_list_free(list);
 }

@@ -357,6 +357,7 @@ account_dialog_open_add_dialog(GtkWindow *parent, AccountManager *manager)
 	if (response == GTK_RESPONSE_OK) {
 		account = account_new(profile);
 		account_manager_add_account(manager, account);
+		g_object_unref(account);
 		account_manager_save_accounts(manager);
 	} else {
 		g_object_unref(profile);

@@ -146,8 +146,6 @@ loqui_channel_entry_store_dispose(GObject *object)
 
         store = LOQUI_CHANNEL_ENTRY_STORE(object);
 
-	G_OBJECT_UNREF_UNLESS_NULL(store->chent);
-
         if (G_OBJECT_CLASS(parent_class)->dispose)
                 (* G_OBJECT_CLASS(parent_class)->dispose)(object);
 }
