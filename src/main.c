@@ -74,12 +74,15 @@ main(int argc, char *argv[])
         bind_textdomain_codeset(GETTEXT_PACKAGE, "UTF-8");
 #endif
         textdomain(GETTEXT_PACKAGE);
+
+	g_type_init();
+
+	loqui_init(NULL);
+
 	make_program_dir();
 
 	if(!g_threads_got_initialized)
 		g_thread_init (NULL);
-
-	gnet_init();
 
 	loqui_gtk_init(&argc, &argv);
 
