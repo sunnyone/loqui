@@ -100,8 +100,6 @@ main(int argc, char *argv[])
 	account_manager_load_accounts(account_manager);
 
 	gtk_main();
-
-	account_manager_save_accounts(account_manager);
 	prefs_general_save();
 
 	return 0;
