@@ -21,6 +21,7 @@
 #define __CHANNEL_H__
 
 #include "channel_buffer.h"
+#include <gtk/gtk.h>
 
 G_BEGIN_DECLS
 
@@ -50,18 +51,12 @@ typedef enum {
 	USER_EXISTENCE_AWAY
 } UserExistence;
 
-typedef struct _User {
-	gchar *nick;
-	UserPower power;
-	UserExistence exist;
-} User;
-
 struct _Channel
 {
         GObject parent;
 	
 	gchar *name;
-	GSList *user_list;
+	GtkListStore *user_list;
 	ChannelBuffer *buffer;
 
 	gboolean end_names;
@@ -93,7 +88,7 @@ void channel_change_user_power(Channel *channel,
 			       const gchar *nick, UserPower power);
 void channel_change_user_nick(Channel *channel, 
 			      const gchar *nick_orig, const gchar *nick_new);
-gboolean channel_find_user(Channel *channel, const gchar *nick, User **user_ptr);
+gboolean channel_find_user(Channel *channel, const gchar *nick, GtkTreeIter *iter);
 
 G_END_DECLS
 

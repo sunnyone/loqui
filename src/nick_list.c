@@ -239,14 +239,7 @@ nick_list_new (void)
 	priv = list->priv;
 
 	nick_list_create_icons(list);
-	model = gtk_list_store_new(USERLIST_COLUMN_NUMBER, 
-				   G_TYPE_INT,
-				   G_TYPE_INT,
-                                   G_TYPE_STRING, 
-                                   G_TYPE_POINTER);
-        gtk_tree_view_set_model(GTK_TREE_VIEW(list), GTK_TREE_MODEL(model));
-
-	gtk_tree_view_set_headers_clickable(GTK_TREE_VIEW(list), TRUE);
+/*	gtk_tree_view_set_headers_clickable(GTK_TREE_VIEW(list), TRUE); */
 
 	sel = gtk_tree_view_get_selection(GTK_TREE_VIEW(list));
         gtk_tree_selection_set_mode(sel, GTK_SELECTION_MULTIPLE);
@@ -276,79 +269,12 @@ nick_list_new (void)
 							  NULL);
         gtk_tree_view_append_column(GTK_TREE_VIEW(list), column);
 	
-        renderer = gtk_cell_renderer_text_new();
-        column = gtk_tree_view_column_new_with_attributes("ptr",
-							  renderer,
-							  "text", USERLIST_COLUMN_POINTER,
-							  NULL);
-        gtk_tree_view_column_set_visible (column, FALSE);
-        gtk_tree_view_append_column(GTK_TREE_VIEW(list), column);
-
 	return GTK_WIDGET(list);
 }
-void nick_list_append(NickList *list, User *user)
+void nick_list_set_store(NickList *list, GtkListStore *store)
 {
-	GtkTreeModel *model;
-	GtkTreeIter iter;
-
         g_return_if_fail(list != NULL);
         g_return_if_fail(IS_NICK_LIST(list));
-
-	model = gtk_tree_view_get_model(GTK_TREE_VIEW(list));
-
-	gtk_list_store_append(GTK_LIST_STORE(model), &iter);
-	gtk_list_store_set(GTK_LIST_STORE(model), &iter,
-			   USERLIST_COLUMN_HOMEAWAY, user->exist,
-			   USERLIST_COLUMN_OP, user->power,
-			   USERLIST_COLUMN_NICK, user->nick,
-			   USERLIST_COLUMN_POINTER, user,
-			   -1);
-}
-void nick_list_remove(NickList *list, User *user)
-{
-	GtkTreeModel *model;
-	GtkTreeIter iter;
-
-        g_return_if_fail(list != NULL);
-        g_return_if_fail(IS_NICK_LIST(list));
-
-	model = gtk_tree_view_get_model(GTK_TREE_VIEW(list));
-
-	if(!gtk_tree_model_find_by_column_data(model, &iter, NULL,
-					       USERLIST_COLUMN_POINTER, user))
-		return;
-
-	gtk_list_store_remove(GTK_LIST_STORE(model), &iter);
-}
-void nick_list_update(NickList *list, User *user)
-{
-	GtkTreeModel *model;
-	GtkTreeIter iter;
-
-        g_return_if_fail(list != NULL);
-        g_return_if_fail(IS_NICK_LIST(list));
-
-	model = gtk_tree_view_get_model(GTK_TREE_VIEW(list));
-
-	if(!gtk_tree_model_find_by_column_data(model, &iter, NULL,
-					       USERLIST_COLUMN_POINTER, user))
-		return;
-
-	gtk_list_store_set(GTK_LIST_STORE(model), &iter,
-			   USERLIST_COLUMN_HOMEAWAY, user->exist,
-			   USERLIST_COLUMN_OP, user->power,
-			   USERLIST_COLUMN_NICK, user->nick,
-			   USERLIST_COLUMN_POINTER, user,
-			   -1);
-}
-void nick_list_clear(NickList *list)
-{
-	GtkTreeModel *model;
-
-        g_return_if_fail(list != NULL);
-        g_return_if_fail(IS_NICK_LIST(list));
-
-	model = gtk_tree_view_get_model(GTK_TREE_VIEW(list));
 	
-	gtk_list_store_clear(GTK_LIST_STORE(model));
+        gtk_tree_view_set_model(GTK_TREE_VIEW(list), GTK_TREE_MODEL(store));
 }

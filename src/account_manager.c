@@ -176,8 +176,6 @@ void
 account_manager_set_current(AccountManager *manager, Account *account, Channel *channel)
 {
 	AccountManagerPrivate *priv;
-	GSList *cur;
-	User *user;
 
         g_return_if_fail(manager != NULL);
         g_return_if_fail(IS_ACCOUNT_MANAGER(manager));
@@ -187,22 +185,13 @@ account_manager_set_current(AccountManager *manager, Account *account, Channel *
 	priv->current_channel = channel;
 	priv->current_account = account;
 
-	account_manager_nick_list_clear(manager);
-
 	if(channel) {
 		loqui_app_set_channel_buffer(priv->app, GTK_TEXT_BUFFER(channel->buffer));
-		/* FIXME */
-		for(cur = channel->user_list; cur != NULL; cur = cur->next) {
-			user = (User *) cur->data;
-			if(!user) {
-				g_warning("NULL user!");
-				continue;
-			}
-			account_manager_nick_list_append(manager, user);
-		}
+		nick_list_set_store(priv->app->nick_list, channel->user_list);
 		account_manager_set_topic(manager, channel_get_topic(channel));
 	} else if(account) {
 		loqui_app_set_channel_buffer(priv->app, GTK_TEXT_BUFFER(account->console_buffer));
+		nick_list_set_store(priv->app->nick_list, NULL);
 		account_manager_set_topic(manager, "");
 	}
 	loqui_app_set_focus(priv->app);
@@ -318,35 +307,6 @@ account_manager_common_buffer_append(AccountManager *manager, TextType type, gch
 	if(account_manager_whether_scroll(manager)) {
 		loqui_app_scroll_common_textview(manager->priv->app);
 	}
-}
-void
-account_manager_nick_list_append(AccountManager *manager, User *user)
-{
-        g_return_if_fail(manager != NULL);
-        g_return_if_fail(IS_ACCOUNT_MANAGER(manager));
-
-	nick_list_append(manager->priv->app->nick_list, user);
-}
-void account_manager_nick_list_remove(AccountManager *manager, User *user)
-{
-        g_return_if_fail(manager != NULL);
-        g_return_if_fail(IS_ACCOUNT_MANAGER(manager));
-
-	nick_list_remove(manager->priv->app->nick_list, user);
-}
-void account_manager_nick_list_update(AccountManager *manager, User *user)
-{
-        g_return_if_fail(manager != NULL);
-        g_return_if_fail(IS_ACCOUNT_MANAGER(manager));
-
-	nick_list_update(manager->priv->app->nick_list, user);
-}
-void account_manager_nick_list_clear(AccountManager *manager)
-{
-        g_return_if_fail(manager != NULL);
-        g_return_if_fail(IS_ACCOUNT_MANAGER(manager));
-
-	nick_list_clear(manager->priv->app->nick_list);
 }
 void account_manager_set_topic(AccountManager *manager, const gchar *topic)
 {

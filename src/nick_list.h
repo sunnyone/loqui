@@ -52,10 +52,7 @@ struct _NickListClass
 GtkType nick_list_get_type(void) G_GNUC_CONST;
 
 GtkWidget* nick_list_new(void);
-void nick_list_append(NickList *list, User *user);
-void nick_list_remove(NickList *list, User *user);
-void nick_list_update(NickList *list, User *user);
-void nick_list_clear(NickList *list);
+void nick_list_set_store(NickList *list, GtkListStore *store);
 
 G_END_DECLS
 

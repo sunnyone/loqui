@@ -70,11 +70,6 @@ gboolean account_manager_is_current_channel(AccountManager *manager, Channel *ch
 void account_manager_common_buffer_append(AccountManager *manager, TextType type, gchar *str);
 void account_manager_scroll_channel_textview(AccountManager *manager);
 
-void account_manager_nick_list_append(AccountManager *manager, User *user);
-void account_manager_nick_list_remove(AccountManager *manager, User *user);
-void account_manager_nick_list_update(AccountManager *manager, User *user);
-void account_manager_nick_list_clear(AccountManager *manager);
-
 void account_manager_set_topic(AccountManager *manager, const gchar *topic);
 
 void account_manager_select_channel(AccountManager *manager, Channel *channel);
