@@ -29,6 +29,8 @@
 
 struct _LoquiMenuPrivate
 {
+	LoquiApp *app;
+
 	GtkAccelGroup *accel_group;      
 	GtkItemFactory *item_factory;
 
@@ -39,26 +41,39 @@ static void loqui_menu_class_init(LoquiMenuClass *klass);
 static void loqui_menu_init(LoquiMenu *loqui_menu);
 static void loqui_menu_finalize(GObject *object);
 
+static void loqui_menu_edit_activate_cb(GtkWidget *widget, gpointer data);
+
+static void loqui_menu_edit_cb(gpointer data, guint callback_action, GtkWidget *widget);
+static void loqui_menu_find_cb(gpointer data, guint callback_action, GtkWidget *widget);
+
 static void loqui_menu_about_cb(gpointer data, guint callback_action, GtkWidget *widget);
 static void loqui_menu_quit_cb(gpointer data, guint callback_action, GtkWidget *widget);
 static void loqui_menu_connect_cb(GtkWidget *widget, gpointer data);
 static void loqui_menu_account_settings_cb(gpointer data, guint callback_action, GtkWidget *widget);
 static void loqui_menu_common_settings_cb(gpointer data, guint callback_action, GtkWidget *widget);
 
+enum {
+	LOQUI_MENU_CUT,
+	LOQUI_MENU_COPY,
+	LOQUI_MENU_PASTE,
+	LOQUI_MENU_PASTE_WITH_LINEFEEDS_CUT,
+	LOQUI_MENU_CLEAR
+};
+
 static GtkItemFactoryEntry menu_items[] = {
 	{ N_("/_File"),     NULL, 0, 0, "<Branch>" },
 	{ N_("/File/_Connect"), NULL, 0, 0, "<Branch>" },
 	{ N_("/File/_Quit"), "<control>Q", loqui_menu_quit_cb, 0, "<StockItem>", GTK_STOCK_QUIT },
 	{ N_("/_Edit"),     NULL, 0, 0, "<Branch>" },
-	{ N_("/Edit/Cut"),      "<control>X", 0, 0, "<StockItem>", GTK_STOCK_CUT },
-	{ N_("/Edit/_Copy"),    "<control>C", 0, 0, "<StockItem>", GTK_STOCK_COPY },
-	{ N_("/Edit/_Paste"),   "<control>P", 0, 0, "<StockItem>", GTK_STOCK_PASTE },
-	{ N_("/Edit/Paste with linefeeds cut"), NULL, 0, 0, "<StockItem>", GTK_STOCK_PASTE },
-	{ N_("/Edit/_Find"),    "<control>F", 0, 0, "<StockItem>", GTK_STOCK_FIND },
-	{ N_("/Edit/_Find again"), "<control>N", 0, 0, "<StockItem>", GTK_STOCK_FIND },
-	{ "/Edit/sep2",        NULL,         0,       0, "<Separator>" },
-	{ N_("/Edit/Clear _buffer"), NULL,      0,   0, "<StockItem>", GTK_STOCK_CLEAR },
-	{ N_("/Edit/Clear co_mmon buffer"), NULL, 0, 0, "<StockItem>" , GTK_STOCK_CLEAR },
+	{ N_("/Edit/Cut"),      "<control>X", loqui_menu_edit_cb, LOQUI_MENU_CUT, "<StockItem>", GTK_STOCK_CUT },
+	{ N_("/Edit/_Copy"),    "<control>C", loqui_menu_edit_cb, LOQUI_MENU_COPY, "<StockItem>", GTK_STOCK_COPY },
+	{ N_("/Edit/_Paste"),   "<control>P", loqui_menu_edit_cb, LOQUI_MENU_PASTE, "<StockItem>", GTK_STOCK_PASTE },
+	{ N_("/Edit/Paste with linefeeds cut"), NULL, loqui_menu_edit_cb, LOQUI_MENU_PASTE_WITH_LINEFEEDS_CUT,
+	  "<StockItem>", GTK_STOCK_PASTE },
+	{ N_("/Edit/Clear"), NULL, loqui_menu_edit_cb,  LOQUI_MENU_CLEAR, "<StockItem>", GTK_STOCK_CLEAR },
+	{ "/Edit/sep",        NULL,         0,       0, "<Separator>" },
+	{ N_("/Edit/_Find"),    "<control>F", loqui_menu_find_cb, 0, "<StockItem>", GTK_STOCK_FIND },
+	{ N_("/Edit/_Find again"), "<control>N", loqui_menu_find_cb, 1, "<StockItem>", GTK_STOCK_FIND },
 	{ N_("/_Server"), NULL, 0, 0, "<Branch>" },
 	{ N_("/_Channel"), NULL, 0, 0, "<Branch>" },
 	{ N_("/_User"), NULL, 0, 0, "<Branch>" },
@@ -138,8 +153,41 @@ loqui_menu_finalize (GObject *object)
 	g_free(menu->priv);
 }
 
+static void
+loqui_menu_edit_activate_cb(GtkWidget *widget, gpointer data)
+{
+	LoquiMenu *menu;
+	LoquiMenuPrivate *priv;
+	gboolean cutable, copiable, pastable, clearable, findable;
+
+	menu = LOQUI_MENU(data);
+
+	g_return_if_fail(menu != NULL);
+        g_return_if_fail(LOQUI_IS_MENU(menu));
+
+	priv = menu->priv;
+
+	loqui_app_get_current_widget_editing_status(priv->app, &cutable, &copiable, &pastable, &clearable, &findable);
+
+#define SET_SENSITIVE_FACTORY_ITEM(bool, name) { \
+   if(bool) \
+        gtk_widget_set_sensitive(gtk_item_factory_get_item(priv->item_factory, name), TRUE); \
+   else \
+        gtk_widget_set_sensitive(gtk_item_factory_get_item(priv->item_factory, name), FALSE); \
+}
+	SET_SENSITIVE_FACTORY_ITEM(cutable, "/Edit/Cut");
+	SET_SENSITIVE_FACTORY_ITEM(pastable, "/Edit/Paste");
+	SET_SENSITIVE_FACTORY_ITEM(FALSE, "/Edit/Paste with linefeeds cut");
+	
+	SET_SENSITIVE_FACTORY_ITEM(copiable, "/Edit/Copy");
+	SET_SENSITIVE_FACTORY_ITEM(clearable, "/Edit/Clear");
+
+	SET_SENSITIVE_FACTORY_ITEM(FALSE, "/Edit/Find");
+	SET_SENSITIVE_FACTORY_ITEM(FALSE, "/Edit/Find again");
+}
+
 LoquiMenu*
-loqui_menu_new(GtkWindow *window)
+loqui_menu_new(LoquiApp *app)
 {
         LoquiMenu *menu;
 	LoquiMenuPrivate *priv;
@@ -149,8 +197,10 @@ loqui_menu_new(GtkWindow *window)
 	
 	priv = menu->priv;
 
+	priv->app = app;
+
 	priv->accel_group = gtk_accel_group_new();
-	gtk_window_add_accel_group(window, priv->accel_group);
+	gtk_window_add_accel_group(GTK_WINDOW(app), priv->accel_group);
 	g_object_unref(priv->accel_group);
       
 	priv->item_factory = gtk_item_factory_new(GTK_TYPE_MENU_BAR, "<main>", priv->accel_group);
@@ -158,12 +208,14 @@ loqui_menu_new(GtkWindow *window)
                                             NULL, NULL);
 
 	gtk_item_factory_create_items(priv->item_factory, G_N_ELEMENTS(menu_items),
-				      menu_items, window);
-	gtk_widget_set_sensitive(gtk_item_factory_get_item(priv->item_factory, "/Edit"), FALSE);
+				      menu_items, menu);
 	gtk_widget_set_sensitive(gtk_item_factory_get_item(priv->item_factory, "/User"), FALSE);
 	gtk_widget_set_sensitive(gtk_item_factory_get_item(priv->item_factory, "/Channel"), FALSE);
 	gtk_widget_set_sensitive(gtk_item_factory_get_item(priv->item_factory, "/Server"), FALSE);
 	gtk_widget_set_sensitive(gtk_item_factory_get_item(priv->item_factory, "/View"), FALSE);
+
+	g_signal_connect(G_OBJECT(gtk_item_factory_get_item(priv->item_factory, "/Edit")), "activate",
+			 G_CALLBACK(loqui_menu_edit_activate_cb), menu);
 
 	priv->connect_menu = gtk_item_factory_get_item(priv->item_factory, "/File/Connect");
 
@@ -207,6 +259,56 @@ void loqui_menu_update_connect_submenu(LoquiMenu *menu, GSList *account_list)
 	}
 
         gtk_widget_set_sensitive(priv->connect_menu, added);
+}
+
+static void
+loqui_menu_edit_cb(gpointer data, guint callback_action, GtkWidget *widget)
+{
+	LoquiMenu *menu;
+	LoquiMenuPrivate *priv;
+
+	menu = LOQUI_MENU(data);
+
+	g_return_if_fail(menu != NULL);
+        g_return_if_fail(LOQUI_IS_MENU(menu));
+
+	priv = menu->priv;
+
+	switch(callback_action) {
+	case LOQUI_MENU_CUT:
+		loqui_app_current_widget_cut(priv->app);
+		break;
+	case LOQUI_MENU_COPY:
+		loqui_app_current_widget_copy(priv->app);
+		break;
+	case LOQUI_MENU_PASTE:
+		loqui_app_current_widget_paste(priv->app);
+		break;
+	case LOQUI_MENU_CLEAR:
+		loqui_app_current_widget_clear(priv->app);
+		break;
+	default:
+		break;
+	}
+}
+static void
+loqui_menu_find_cb(gpointer data, guint callback_action, GtkWidget *widget)
+{
+	LoquiMenu *menu;
+	LoquiMenuPrivate *priv;
+
+	menu = LOQUI_MENU(data);
+
+	g_return_if_fail(menu != NULL);
+        g_return_if_fail(LOQUI_IS_MENU(menu));
+
+	priv = menu->priv;
+
+	if(callback_action == 0) {
+		loqui_app_current_widget_find(priv->app);
+	} else {
+		loqui_app_current_widget_find_next(priv->app);
+	}
 }
 
 static void

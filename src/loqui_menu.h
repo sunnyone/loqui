@@ -36,6 +36,8 @@ typedef struct _LoquiMenuClass       LoquiMenuClass;
 
 typedef struct _LoquiMenuPrivate     LoquiMenuPrivate;
 
+#include "loqui_app.h"
+
 struct _LoquiMenu
 {
         GObject parent;
@@ -50,7 +52,8 @@ struct _LoquiMenuClass
 
 
 GType loqui_menu_get_type(void) G_GNUC_CONST;
-LoquiMenu* loqui_menu_new(GtkWindow *window);
+
+LoquiMenu* loqui_menu_new(LoquiApp *app);
 
 void loqui_menu_update_connect_submenu(LoquiMenu *menu, GSList *account_list);
 GtkWidget* loqui_menu_get_widget(LoquiMenu *menu);

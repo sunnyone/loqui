@@ -292,7 +292,7 @@ loqui_app_set_current_info(LoquiApp *app, const gchar *account_name,
 
 }
 GtkWidget*
-loqui_app_new (void)
+loqui_app_new(void)
 {
 	LoquiApp *app;
 	LoquiAppPrivate *priv;
@@ -318,7 +318,7 @@ loqui_app_new (void)
 	vbox = gtk_vbox_new(FALSE, 0);
 	gtk_container_add(GTK_CONTAINER(app), vbox);
 
-	app->menu = loqui_menu_new(GTK_WINDOW(app));
+	app->menu = loqui_menu_new(app);
 	gtk_box_pack_start(GTK_BOX(vbox), loqui_menu_get_widget(app->menu),
 			   FALSE, FALSE, 0);
 
@@ -457,4 +457,147 @@ void loqui_app_set_common_buffer(LoquiApp *app, GtkTextBuffer *textbuf)
 								  priv->common_textview);
 	gtk_text_view_scroll_mark_onscreen(GTK_TEXT_VIEW(priv->common_textview),
 					   gtk_text_buffer_get_mark(textbuf, "end"));
+}
+
+void
+loqui_app_get_current_widget_editing_status(LoquiApp *app, gboolean *cutable, gboolean *copiable, gboolean *pastable,
+					    gboolean *clearable, gboolean *findable)
+{
+	LoquiAppPrivate *priv;
+	GtkWidget *widget;
+	GtkTextBuffer *buffer;
+	gboolean editable, selected;
+
+        g_return_if_fail(app != NULL);
+        g_return_if_fail(LOQUI_IS_APP(app));
+	g_return_if_fail(cutable != NULL);
+	g_return_if_fail(copiable != NULL);
+	g_return_if_fail(pastable != NULL);
+	g_return_if_fail(findable != NULL);
+	g_return_if_fail(clearable != NULL);
+
+	priv = app->priv;
+
+	widget = gtk_window_get_focus(GTK_WINDOW(app));
+
+	if(GTK_IS_ENTRY(widget)) {
+		editable = TRUE;		
+		selected = gtk_editable_get_selection_bounds(GTK_EDITABLE(widget), NULL, NULL);
+
+		*cutable = editable && selected;
+		*copiable = selected;
+		*pastable = editable;
+
+		*findable = FALSE;
+		*clearable = TRUE;
+	} else if(GTK_IS_TEXT_VIEW(widget)) {
+		editable = gtk_text_view_get_editable(GTK_TEXT_VIEW(widget));
+		buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(widget));
+		selected = gtk_text_buffer_get_selection_bounds(buffer, NULL, NULL);
+
+		*cutable = editable && selected;
+		*copiable = selected;
+		*pastable = editable;
+
+		*findable = TRUE;
+		*clearable = TRUE;
+	} else {
+		*cutable = FALSE;
+		*copiable = FALSE;
+		*pastable = FALSE;
+		*findable = FALSE;
+		*clearable = FALSE;
+	}
+}
+
+void
+loqui_app_current_widget_cut(LoquiApp *app)
+{
+	GtkWidget *widget;
+	GtkTextBuffer *buffer;
+
+        g_return_if_fail(app != NULL);
+        g_return_if_fail(LOQUI_IS_APP(app));
+
+	widget = gtk_window_get_focus(GTK_WINDOW(app));
+
+	if(GTK_IS_ENTRY(widget)) {
+		gtk_editable_cut_clipboard(GTK_EDITABLE(widget));
+	} else if(GTK_IS_TEXT_VIEW(widget)) {
+		buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(widget));
+		gtk_text_buffer_cut_clipboard(buffer,
+					      gtk_clipboard_get(GDK_NONE),
+					      FALSE);
+	}
+}
+
+void
+loqui_app_current_widget_copy(LoquiApp *app)
+{
+	GtkWidget *widget;
+	GtkTextBuffer *buffer;
+
+        g_return_if_fail(app != NULL);
+        g_return_if_fail(LOQUI_IS_APP(app));
+
+	widget = gtk_window_get_focus(GTK_WINDOW(app));
+
+	if(GTK_IS_ENTRY(widget)) {
+		gtk_editable_copy_clipboard(GTK_EDITABLE(widget));
+	} else if(GTK_IS_TEXT_VIEW(widget)) {
+		buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(widget));
+		gtk_text_buffer_copy_clipboard(buffer,
+					       gtk_clipboard_get(GDK_NONE));
+	}
+}
+
+void
+loqui_app_current_widget_paste(LoquiApp *app)
+{
+	GtkWidget *widget;
+	GtkTextBuffer *buffer;
+
+        g_return_if_fail(app != NULL);
+        g_return_if_fail(LOQUI_IS_APP(app));
+
+	widget = gtk_window_get_focus(GTK_WINDOW(app));
+
+	if(GTK_IS_ENTRY(widget)) {
+		gtk_editable_paste_clipboard(GTK_EDITABLE(widget));
+	} else if(GTK_IS_TEXT_VIEW(widget)) {
+		buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(widget));
+		gtk_text_buffer_paste_clipboard(buffer,
+						gtk_clipboard_get(GDK_NONE),
+						NULL, FALSE);
+	}
+}
+
+void
+loqui_app_current_widget_clear(LoquiApp *app)
+{
+	GtkWidget *widget;
+	GtkTextBuffer *buffer;
+	GtkTextIter start, end;
+
+        g_return_if_fail(app != NULL);
+        g_return_if_fail(LOQUI_IS_APP(app));
+
+	widget = gtk_window_get_focus(GTK_WINDOW(app));
+
+	if(GTK_IS_ENTRY(widget)) {
+		gtk_editable_delete_text(GTK_EDITABLE(widget), 0, -1);
+	} else if(GTK_IS_TEXT_VIEW(widget)) {
+		buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(widget));
+		gtk_text_buffer_get_start_iter(buffer, &start);
+		gtk_text_buffer_get_end_iter(buffer, &end);
+		gtk_text_buffer_delete(buffer, &start, &end);
+	}
+}
+void loqui_app_current_widget_find(LoquiApp *app)
+{
+
+}
+void loqui_app_current_widget_find_next(LoquiApp *app)
+{
+
 }

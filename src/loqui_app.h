@@ -20,7 +20,6 @@
 #ifndef __LOQUI_APP_H__
 #define __LOQUI_APP_H__
 
-#include "loqui_menu.h"
 #include "channel_tree.h"
 #include "nick_list.h"
 
@@ -37,6 +36,8 @@ typedef struct _LoquiApp            LoquiApp;
 typedef struct _LoquiAppClass       LoquiAppClass;
 
 typedef struct _LoquiAppPrivate     LoquiAppPrivate;
+
+#include "loqui_menu.h"
 
 struct _LoquiApp
 {
@@ -71,6 +72,17 @@ void loqui_app_set_focus(LoquiApp *app);
 
 void loqui_app_set_channel_buffer(LoquiApp *app, GtkTextBuffer *textbuf);
 void loqui_app_set_common_buffer(LoquiApp *app, GtkTextBuffer *textbuf);
+
+void loqui_app_get_current_widget_editing_status(LoquiApp *app, gboolean *cutable, gboolean *copiable, gboolean *pastable,
+						 gboolean *clearable, gboolean *findable);
+
+void loqui_app_current_widget_cut(LoquiApp *app);
+void loqui_app_current_widget_copy(LoquiApp *app);
+void loqui_app_current_widget_paste(LoquiApp *app);
+void loqui_app_current_widget_clear(LoquiApp *app);
+
+void loqui_app_current_widget_find(LoquiApp *app);
+void loqui_app_current_widget_find_next(LoquiApp *app);
 
 G_END_DECLS
 
