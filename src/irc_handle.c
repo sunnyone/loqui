@@ -48,6 +48,9 @@ static void irc_handle_finalize(GObject *object);
 static gpointer irc_handle_thread_func(IRCHandle *handle);
 
 static void irc_handle_response(IRCHandle *handle, IRCMessage *msg);
+static gboolean irc_handle_command(IRCHandle *handle, IRCMessage *msg);
+static gboolean irc_handle_reply(IRCHandle *handle, IRCMessage *msg);
+static gboolean irc_handle_error(IRCHandle *handle, IRCMessage *msg);
 
 static gboolean irc_handle_is_my_message(IRCHandle *handle, IRCMessage *msg);
 static void irc_handle_inspect_message(IRCHandle *handle, IRCMessage *msg);
@@ -117,7 +120,8 @@ irc_handle_finalize(GObject *object)
 
 	g_free(irc_handle->priv);
 }
-static void irc_handle_command_privmsg_notice(IRCHandle *handle, IRCMessage *msg)
+static void
+irc_handle_command_privmsg_notice(IRCHandle *handle, IRCMessage *msg)
 {
 	gchar *line;
 	gchar *receiver_name;
@@ -158,7 +162,8 @@ static void irc_handle_command_privmsg_notice(IRCHandle *handle, IRCMessage *msg
 	gdk_threads_leave();
 
 }
-static void irc_handle_command_ping(IRCHandle *handle, IRCMessage *msg)
+static void
+irc_handle_command_ping(IRCHandle *handle, IRCMessage *msg)
 {
 	gchar *server;
 
@@ -173,11 +178,11 @@ static void irc_handle_command_ping(IRCHandle *handle, IRCMessage *msg)
 
 	debug_puts("put PONG to %s", server);
 }
-static void irc_handle_my_command_join(IRCHandle *handle, IRCMessage *msg)
+static void
+irc_handle_my_command_join(IRCHandle *handle, IRCMessage *msg)
 {
 	Channel *channel;
 	gchar *name;
-	gchar *topic;
 
         g_return_if_fail(handle != NULL);
         g_return_if_fail(IS_IRC_HANDLE(handle));
@@ -193,7 +198,8 @@ static void irc_handle_my_command_join(IRCHandle *handle, IRCMessage *msg)
 }
 
 
-static void irc_handle_my_command_nick(IRCHandle *handle, IRCMessage *msg)
+static void
+irc_handle_my_command_nick(IRCHandle *handle, IRCMessage *msg)
 {
         g_return_if_fail(handle != NULL);
         g_return_if_fail(IS_IRC_HANDLE(handle));
@@ -237,20 +243,37 @@ irc_handle_inspect_message(IRCHandle *handle, IRCMessage *msg)
 	g_free(str);
 }
 
-static void
-irc_handle_response(IRCHandle *handle, IRCMessage *msg)
+static gboolean 
+irc_handle_reply(IRCHandle *handle, IRCMessage *msg)
 {
-        g_return_if_fail(handle != NULL);
-        g_return_if_fail(IS_IRC_HANDLE(handle));
+	g_return_val_if_fail(handle != NULL, FALSE);
+        g_return_val_if_fail(IS_IRC_HANDLE(handle), FALSE);
+
+	return FALSE;
+}
+
+static gboolean 
+irc_handle_error(IRCHandle *handle, IRCMessage *msg)
+{
+	g_return_val_if_fail(handle != NULL, FALSE);
+        g_return_val_if_fail(IS_IRC_HANDLE(handle), FALSE);
+
+	return FALSE;
+}
+static gboolean 
+irc_handle_command(IRCHandle *handle, IRCMessage *msg)
+{
+	g_return_val_if_fail(handle != NULL, FALSE);
+        g_return_val_if_fail(IS_IRC_HANDLE(handle), FALSE);
 
 	if(irc_handle_is_my_message(handle, msg)) {
 		switch(msg->response) {
 		case IRC_COMMAND_NICK:
 			irc_handle_my_command_nick(handle, msg);
-			return;
+			break;
 		case IRC_COMMAND_JOIN:
 			irc_handle_my_command_join(handle, msg);
-			return;
+			break;
 		default:
 			break;
 		}
@@ -259,14 +282,33 @@ irc_handle_response(IRCHandle *handle, IRCMessage *msg)
 	case IRC_COMMAND_NOTICE:
 	case IRC_COMMAND_PRIVMSG:
 		irc_handle_command_privmsg_notice(handle, msg);
-		return;
+		break;
 	case IRC_COMMAND_PING:
 		irc_handle_command_ping(handle, msg);
-		return;
-	default:
 		break;
+	default:
+		return FALSE;
 	}
-	irc_handle_inspect_message(handle, msg);
+
+	return TRUE;
+}
+static void
+irc_handle_response(IRCHandle *handle, IRCMessage *msg)
+{
+	gboolean proceeded = FALSE;
+
+        g_return_if_fail(handle != NULL);
+        g_return_if_fail(IS_IRC_HANDLE(handle));
+
+	if(msg->response > 1000)
+		proceeded = irc_handle_command(handle, msg);
+	if(200 < msg->response && msg->response < 400) 
+		proceeded = irc_handle_reply(handle, msg);
+	if(400 < msg->response && msg->response < 1000)
+		proceeded = irc_handle_error(handle, msg);
+
+	if(!proceeded)
+		irc_handle_inspect_message(handle, msg);
 }
 static gpointer irc_handle_thread_func(IRCHandle *handle)
 {
