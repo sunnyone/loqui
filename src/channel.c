@@ -109,16 +109,22 @@ channel_new (gchar *name)
 
 	channel = g_object_new(channel_get_type(), NULL);
 
-	channel->name = name;
+	channel->name = g_strdup(name);
 	channel->text = CHANNEL_TEXT(channel_text_new());
 
 	return channel;
 }
 
 void
-channel_append(Channel *channel, TextType type, gchar *str)
+channel_append_remark(Channel *channel, TextType type, gchar *name, gchar *remark)
 {
-	g_return_if_fail(channel != NULL);
+	gchar *line_with_nick;
 
-	channel_text_append(CHANNEL_TEXT(channel->text), type, str);
+	g_return_if_fail(channel != NULL);
+	g_return_if_fail(IS_CHANNEL(channel));
+
+	line_with_nick = g_strdup_printf("<%s> %s", name, remark);
+	channel_text_append(CHANNEL_TEXT(channel->text), type, line_with_nick);
+	g_free(line_with_nick);
+
 }
