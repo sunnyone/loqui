@@ -560,9 +560,7 @@ loqui_app_new(AccountManager *account_manager)
 	gtk_paned_pack1(GTK_PANED(vpaned), vbox, TRUE, TRUE);
 
 	app->channel_textview = loqui_channel_text_view_new(app);
-	SET_SCROLLED_WINDOW(scrolled_win, app->channel_textview, 
-			    GTK_POLICY_NEVER, GTK_POLICY_ALWAYS);
-	gtk_box_pack_start_defaults(GTK_BOX(vbox), scrolled_win);
+	gtk_box_pack_start_defaults(GTK_BOX(vbox), LOQUI_CHANNEL_TEXT_VIEW(app->channel_textview)->scrolled_window);
 	g_signal_connect(G_OBJECT(GTK_TEXT_VIEW(app->channel_textview)->vadjustment), "value-changed",
 			 G_CALLBACK(loqui_app_textview_scroll_value_changed_cb), app);
 
@@ -572,9 +570,7 @@ loqui_app_new(AccountManager *account_manager)
 			 G_CALLBACK(loqui_app_entry_activate_cb), app);
 
 	app->common_textview = loqui_channel_text_view_new(app);
-	SET_SCROLLED_WINDOW(scrolled_win, app->common_textview, 
-			    GTK_POLICY_NEVER, GTK_POLICY_ALWAYS);
-	gtk_paned_pack2(GTK_PANED(vpaned), scrolled_win, FALSE, TRUE);
+	gtk_paned_pack2(GTK_PANED(vpaned), LOQUI_CHANNEL_TEXT_VIEW(app->common_textview)->scrolled_window, FALSE, TRUE);
 
 	/* right side */
 	vpaned = gtk_vpaned_new();

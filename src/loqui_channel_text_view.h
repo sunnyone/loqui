@@ -42,6 +42,7 @@ struct _LoquiChannelTextView
 {
         GtkTextView parent;
 
+	GtkWidget *scrolled_window;
         gboolean is_scroll;
 
         LoquiChannelTextViewPrivate *priv;

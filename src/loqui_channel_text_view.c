@@ -199,6 +199,10 @@ loqui_channel_text_view_new(LoquiApp *app)
         priv = view->priv;
 	priv->app = app;
 
+	view->scrolled_window = gtk_scrolled_window_new(NULL, NULL);
+        gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(view->scrolled_window), GTK_POLICY_NEVER, GTK_POLICY_ALWAYS);
+	gtk_container_add(GTK_CONTAINER(view->scrolled_window), GTK_WIDGET(view));
+
         return GTK_WIDGET(view);
 }
 void
