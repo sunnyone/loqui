@@ -265,7 +265,7 @@ ipmsg_socket_bind(IPMsgSocket *sock)
 	priv->in_watch = g_io_add_watch(ioch, G_IO_IN | G_IO_ERR | G_IO_HUP | G_IO_NVAL,
 					(GIOFunc) ipmsg_socket_watch_in_cb, sock);
 
-	priv->inetaddr = gnet_inetaddr_new_nonblock("255.255.255.0", IPMSG_DEFAULT_PORT);
+	priv->inetaddr = gnet_inetaddr_new_nonblock("255.255.255.255", IPMSG_DEFAULT_PORT);
 
 	return TRUE;
 }
