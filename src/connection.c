@@ -41,6 +41,7 @@ struct _ConnectionPrivate
 
 static GObjectClass *parent_class = NULL;
 #define PARENT_TYPE G_TYPE_OBJECT
+#define FAILED_CODECONV_COMMAND IRCMessageFailedCodeconv " codeconv"
 
 static void connection_class_init(ConnectionClass *klass);
 static void connection_init(Connection *connection);
@@ -159,8 +160,10 @@ gchar *connection_gets(Connection *connection, GIOError *error)
 	}
 
 	local = codeconv_to_local(str);
+	if(local == NULL)
+		local = g_strdup(FAILED_CODECONV_COMMAND);
 	g_free(str);
-		
+	
 	return local;
 }
 

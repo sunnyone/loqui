@@ -860,6 +860,7 @@ irc_handle_command(IRCHandle *handle, IRCMessage *msg)
 	g_return_val_if_fail(handle != NULL, FALSE);
         g_return_val_if_fail(IS_IRC_HANDLE(handle), FALSE);
 
+
 	if(irc_handle_is_my_message(handle, msg)) {
 		switch(msg->response) {
 		case IRC_COMMAND_NICK:
@@ -921,13 +922,16 @@ irc_handle_response(IRCHandle *handle, IRCMessage *msg)
         g_return_if_fail(handle != NULL);
         g_return_if_fail(IS_IRC_HANDLE(handle));
 
-	if(IRC_MESSAGE_IS_COMMAND(msg))
+	if(msg->response == IRC_MESSAGE_FAILED_CODECONV) {
+		irc_handle_account_console_append(handle, msg, TEXT_TYPE_ERROR, "*** Failed to convert codeset.");
+		proceeded = TRUE;
+	} else if(IRC_MESSAGE_IS_COMMAND(msg)) {
 		proceeded = irc_handle_command(handle, msg);
-	if(IRC_MESSAGE_IS_REPLY(msg)) 
+	} else if(IRC_MESSAGE_IS_REPLY(msg)) {
 		proceeded = irc_handle_reply(handle, msg);
-	if(IRC_MESSAGE_IS_ERROR(msg))
+	} else if(IRC_MESSAGE_IS_ERROR(msg)) {
 		proceeded = irc_handle_error(handle, msg);
-	if(msg->response < 10) { /* FIXME: what's this? */
+	} else if(msg->response < 10) { /* FIXME: what's this? */
 		irc_handle_account_console_append(handle, msg, TEXT_TYPE_INFO, "*** %*2");
 		proceeded = TRUE;
 	}
