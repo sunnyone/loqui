@@ -115,7 +115,8 @@ start_element_handler  (GMarkupParseContext *context,
 	SET_VALUE_INT("common_buffer_height", prefs_general->common_buffer_height);
 	SET_VALUE_INT("channel_tree_width", prefs_general->channel_tree_width);
 	SET_VALUE_INT("channel_tree_height", prefs_general->channel_tree_height);
-	
+	SET_VALUE_STR("away_message", prefs_general->away_message);
+
 #undef SET_VALUE_INT
 #undef SET_VALUE_STR
 }
@@ -143,6 +144,7 @@ void prefs_general_set_default(void)
 	prefs_general->channel_tree_width = 100;
 
 	prefs_general->common_buffer_height = 150;
+	prefs_general->away_message = "Gone.";
 }
 
 void prefs_general_load(void)
@@ -219,6 +221,7 @@ void prefs_general_save(void)
 	WRITE_ENTRY_INT("common_buffer_height", prefs_general->common_buffer_height);
 	WRITE_ENTRY_INT("channel_tree_width", prefs_general->channel_tree_width);
 	WRITE_ENTRY_INT("channel_tree_height", prefs_general->channel_tree_height);
+	WRITE_ENTRY_STR("away_message", prefs_general->away_message);
 
 	fputs("</prefs>", fp);
 	fclose(fp);

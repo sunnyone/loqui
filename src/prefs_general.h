@@ -35,6 +35,8 @@ typedef struct _PrefsGeneral {
 
 	gint channel_tree_width;
 	gint channel_tree_height;
+
+	gchar *away_message;
 } PrefsGeneral;
 
 void prefs_general_load(void);
