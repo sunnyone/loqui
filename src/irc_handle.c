@@ -21,7 +21,6 @@
 
 #include "irc_handle.h"
 #include "connection.h"
-#include "irc_message.h"
 #include "utils.h"
 #include "account.h"
 
@@ -34,6 +33,9 @@ struct _IRCHandlePrivate
 	gboolean end_motd;
 
 	GThread *thread;
+	GThread *send_thread;
+
+	GAsyncQueue *msg_queue;
 
 	gboolean passed_motd;
 };
@@ -41,11 +43,19 @@ struct _IRCHandlePrivate
 static GObjectClass *parent_class = NULL;
 #define PARENT_TYPE G_TYPE_OBJECT
 
+typedef enum {
+	MESSAGE_TYPE_CHANNEL,
+	MESSAGE_TYPE_CHANNEL_NEGATIVE,
+	MESSAGE_TYPE_ACCOUNT,
+	MESSAGE_TYPE_COMMON
+} MessageType;
+
 static void irc_handle_class_init(IRCHandleClass *klass);
 static void irc_handle_init(IRCHandle *irc_handle);
 static void irc_handle_finalize(GObject *object);
 
 static gpointer irc_handle_thread_func(IRCHandle *handle);
+static gpointer irc_handle_send_thread_func(IRCHandle *handle);
 
 static void irc_handle_response(IRCHandle *handle, IRCMessage *msg);
 static gboolean irc_handle_command(IRCHandle *handle, IRCMessage *msg);
@@ -111,6 +121,11 @@ irc_handle_init(IRCHandle *irc_handle)
 	priv = g_new0(IRCHandlePrivate, 1);
 
 	irc_handle->priv = priv;
+
+	priv->thread = NULL;
+	priv->send_thread = NULL;
+	priv->msg_queue = NULL;
+
 }
 static void 
 irc_handle_finalize(GObject *object)
@@ -416,11 +431,11 @@ irc_handle_response(IRCHandle *handle, IRCMessage *msg)
         g_return_if_fail(handle != NULL);
         g_return_if_fail(IS_IRC_HANDLE(handle));
 
-	if(msg->response > 1000)
+	if(IRC_MESSAGE_IS_COMMAND(msg))
 		proceeded = irc_handle_command(handle, msg);
-	if(200 < msg->response && msg->response < 400) 
+	if(IRC_MESSAGE_IS_REPLY(msg)) 
 		proceeded = irc_handle_reply(handle, msg);
-	if(400 < msg->response && msg->response < 1000)
+	if(IRC_MESSAGE_IS_ERROR(msg))
 		proceeded = irc_handle_error(handle, msg);
 	if(msg->response < 10) { /* FIXME: what's this? */
 		irc_handle_account_console_append(handle, msg, TEXT_TYPE_INFO, "%*2");
@@ -455,18 +470,20 @@ static gpointer irc_handle_thread_func(IRCHandle *handle)
 	g_free(str);
 	gdk_threads_leave();
 
+	priv->send_thread = g_thread_create((GThreadFunc) irc_handle_send_thread_func,
+					   handle,
+					   TRUE,
+					   NULL);
+
 	msg = irc_message_create(IRCCommandPass, priv->server->password, NULL);
-	connection_put_irc_message(priv->connection, msg);
-	g_object_unref(msg);
+	irc_handle_push_message(handle, msg);
 
 	msg = irc_message_create(IRCCommandNick, "hogehoge", NULL);
-	connection_put_irc_message(priv->connection, msg);
-	g_object_unref(msg);
+	irc_handle_push_message(handle, msg);
 	priv->current_nick = g_strdup("hogehoge");
 
 	msg = irc_message_create(IRCCommandUser, "test", "*", "*", "*", NULL);
-	connection_put_irc_message(priv->connection, msg);
-	g_object_unref(msg);
+	irc_handle_push_message(handle, msg);
 
 	gdk_threads_enter();
 	account_console_text_append(account, TEXT_TYPE_INFO, _("Done."));
@@ -482,6 +499,32 @@ static gpointer irc_handle_thread_func(IRCHandle *handle)
 	account_console_text_append(account, TEXT_TYPE_INFO, _("Connection terminated."));
 	gdk_threads_leave();
 
+	msg = irc_message_create(IRCMessageEnd, NULL);
+	irc_handle_push_message(handle, msg);
+
+	return NULL;
+}
+static gpointer irc_handle_send_thread_func(IRCHandle *handle)
+{
+	IRCHandlePrivate *priv;
+	gpointer data;
+	IRCMessage *msg;
+
+	priv = handle->priv;
+
+	if(!priv->msg_queue)
+		return NULL;
+
+	while((data = g_async_queue_pop(priv->msg_queue)) != NULL) {
+		msg = IRC_MESSAGE(data);
+		if(msg->response == IRC_MESSAGE_END) {
+			g_object_unref(msg);
+			break;
+		}
+
+		connection_put_irc_message(priv->connection, msg);
+		g_object_unref(msg);
+	}
 	return NULL;
 }
 IRCHandle*
@@ -503,10 +546,36 @@ irc_handle_new(Account *account, guint server_num, gboolean fallback)
 	handle->server_num = server_num;
 	handle->fallback = fallback;
 
+	priv->msg_queue = g_async_queue_new();
+
 	priv->thread = g_thread_create((GThreadFunc) irc_handle_thread_func,
 				       handle,
 				       TRUE,
 				       NULL); 
 
 	return handle;
+}
+void irc_handle_push_message(IRCHandle *handle, IRCMessage *msg)
+{
+	IRCHandlePrivate *priv;
+
+        g_return_if_fail(handle != NULL);
+        g_return_if_fail(IS_IRC_HANDLE(handle));
+
+	priv = handle->priv;
+
+	if(!priv->thread) {
+		g_warning(_("Connection thread is not created."));
+		return;
+	}
+	if(!priv->send_thread) {
+		g_warning(_("Thread sending message is not created."));
+		return;
+	}
+	if(!priv->msg_queue) {
+		g_warning(_("Message queue is not created."));
+		return;
+	}
+
+	g_async_queue_push(priv->msg_queue, msg);
 }

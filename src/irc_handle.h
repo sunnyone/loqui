@@ -22,6 +22,7 @@
 
 #include <gnome.h>
 #include "account.h"
+#include "irc_message.h"
 
 G_BEGIN_DECLS
 
@@ -58,6 +59,7 @@ struct _IRCHandleClass
 GType irc_handle_get_type(void) G_GNUC_CONST;
 
 IRCHandle* irc_handle_new(Account *account, guint server_num, gboolean fallback);
+void irc_handle_push_message(IRCHandle *handle, IRCMessage *msg);
 
 G_END_DECLS
 

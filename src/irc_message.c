@@ -185,7 +185,7 @@ irc_message_new(const gchar *prefix, const gchar *command, gchar **parameter)
 	msg->command = g_strdup(command);
 	msg->parameter = g_strdupv(parameter);
 
-	msg->response = (int) g_ascii_strtod(command, NULL);
+	msg->response = (int) g_ascii_strtoull(command, NULL, 10);
 	if(msg->response == 0) {
 		msg->response = command_table_make_command_numeric(command);
 	}
