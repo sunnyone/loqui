@@ -42,5 +42,6 @@ void loqui_app_actions_update_sensitivity_related_channel(LoquiApp *app);
 #define LOQUI_ACTION_SET_TOPIC "SetTopic"
 #define LOQUI_ACTION_REFRESH_AWAY "RefreshAway"
 #define LOQUI_ACTION_START_PRIVATE_TALK "StartPrivateTalk"
+#define LOQUI_ACTION_END_PRIVATE_TALK "EndPrivateTalk"
 
 #endif /* __LOQUI_APP_ACTIONS_H__ */

@@ -30,6 +30,7 @@
     </menu>
     <menu name="UserMenu" action="StockUserMenu">
       <menuitem name="StartPrivateTalk" action="StartPrivateTalk"/>
+      <menuitem name="EndPrivateTalk" action="EndPrivateTalk"/>
     </menu>
     <menu name="ViewMenu" action="StockViewMenu">
       <menuitem name="ToggleChannelbar" action="ToggleChannelbar"/>

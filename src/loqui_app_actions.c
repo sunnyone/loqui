@@ -58,6 +58,7 @@ static void loqui_app_actions_set_topic_cb(GtkAction *action, LoquiApp *app);
 static void loqui_app_actions_nick_cb(GtkAction *action, LoquiApp *app);
 static void loqui_app_actions_away_info_cb(GtkAction *action, LoquiApp *app);
 static void loqui_app_actions_start_private_talk_cb(GtkAction *action, LoquiApp *app);
+static void loqui_app_actions_end_private_talk_cb(GtkAction *action, LoquiApp *app);
 
 static void loqui_app_actions_toggle_channelbar_cb(GtkAction *action, LoquiApp *app);
 static void loqui_app_actions_toggle_statusbar_cb(GtkAction *action, LoquiApp *app);
@@ -113,12 +114,14 @@ static GtkActionEntry loqui_action_entries[] =
         {"Find",                  GTK_STOCK_FIND, N_("_Find"), CTRL"F", NULL, NULL},
         {"FindAgain",             GTK_STOCK_FIND, N_("_Find Again"), NULL, NULL, NULL},
 
-	{"Join",                  GTK_STOCK_ADD, N_("_Join a Channel"), ALT "J", NULL, G_CALLBACK(loqui_app_actions_join_cb)},
-        {"StartPrivateTalk",      NULL, N_("_Start Private Talk"), NULL, NULL, G_CALLBACK(loqui_app_actions_start_private_talk_cb)},
-        {"Part",                  GTK_STOCK_REMOVE, N_("_Part Current Channel"), NULL, NULL, G_CALLBACK(loqui_app_actions_part_cb)},
-        {"SetTopic",              NULL, N_("Set _Topic of Current Channel"), ALT "T", NULL, G_CALLBACK(loqui_app_actions_set_topic_cb)},
-        {"ChangeNick",            NULL, N_("_Change Nickname"), CTRL ALT "N", NULL, G_CALLBACK(loqui_app_actions_nick_cb)},
-        {"RefreshAway",           NULL, N_("_Refresh Users' Away Information of Current Channel"), CTRL ALT "A", NULL, G_CALLBACK(loqui_app_actions_away_info_cb)},
+	{LOQUI_ACTION_JOIN,       GTK_STOCK_ADD, N_("_Join a Channel"), ALT "J", NULL, G_CALLBACK(loqui_app_actions_join_cb)},
+        {LOQUI_ACTION_PART,       GTK_STOCK_REMOVE, N_("_Part Current Channel"), NULL, NULL, G_CALLBACK(loqui_app_actions_part_cb)},
+        {LOQUI_ACTION_SET_TOPIC,  NULL, N_("Set _Topic of Current Channel"), ALT "T", NULL, G_CALLBACK(loqui_app_actions_set_topic_cb)},
+        {LOQUI_ACTION_CHANGE_NICK,NULL, N_("_Change Nickname"), CTRL ALT "N", NULL, G_CALLBACK(loqui_app_actions_nick_cb)},
+        {LOQUI_ACTION_REFRESH_AWAY,NULL, N_("_Refresh Users' Away Information of Current Channel"), CTRL ALT "A", NULL, G_CALLBACK(loqui_app_actions_away_info_cb)},
+
+        {LOQUI_ACTION_START_PRIVATE_TALK, NULL, N_("_Start Private Talk"), NULL, NULL, G_CALLBACK(loqui_app_actions_start_private_talk_cb)},
+	{LOQUI_ACTION_END_PRIVATE_TALK, NULL, N_("_End Current Private Talk"), NULL, NULL, G_CALLBACK(loqui_app_actions_end_private_talk_cb)},
 
         {"PreviousUpdatedChannel", GTK_STOCK_GOTO_TOP, N_("_Previous Updated Channel Buffer"), CTRL SHIFT "space", NULL, G_CALLBACK(loqui_app_actions_previous_updated_channel_buffer_cb)},
         {"NextUpdatedChannel",     GTK_STOCK_GOTO_BOTTOM, N_("_Next Updated Channel Buffer"), CTRL "space", NULL, G_CALLBACK(loqui_app_actions_next_updated_channel_buffer_cb)},
@@ -238,6 +241,12 @@ loqui_app_actions_update_sensitivity_related_channel(LoquiApp *app)
 		ACTION_GROUP_ACTION_SET_SENSITIVE(app->action_group, LOQUI_ACTION_SET_TOPIC, TRUE);
  		ACTION_GROUP_ACTION_SET_SENSITIVE(app->action_group, LOQUI_ACTION_PART, TRUE);
 		ACTION_GROUP_ACTION_SET_SENSITIVE(app->action_group, LOQUI_ACTION_REFRESH_AWAY, TRUE);
+	}
+
+	if (channel == NULL || !loqui_channel_get_is_private_talk(channel)) {
+		ACTION_GROUP_ACTION_SET_SENSITIVE(app->action_group, LOQUI_ACTION_END_PRIVATE_TALK, FALSE);
+	} else {
+		ACTION_GROUP_ACTION_SET_SENSITIVE(app->action_group, LOQUI_ACTION_END_PRIVATE_TALK, TRUE);
 	}
 }
 
@@ -471,6 +480,18 @@ loqui_app_actions_start_private_talk_cb(GtkAction *action, LoquiApp *app)
 {
 	command_dialog_private_talk(app,
 				    loqui_app_get_current_account(app));
+}
+static void
+loqui_app_actions_end_private_talk_cb(GtkAction *action, LoquiApp *app)
+{
+	LoquiChannel *channel;
+	channel = loqui_app_get_current_channel(app);
+	if (!channel)
+		gtkutils_msgbox_info(GTK_MESSAGE_ERROR, _("Channel is not selected"));
+	if (!loqui_channel_get_is_private_talk(channel))
+		gtkutils_msgbox_info(GTK_MESSAGE_ERROR, _("Current channel is not private talk"));
+
+	account_remove_channel(loqui_channel_get_account(channel), channel);
 }
 static void
 loqui_app_actions_give_op_selected_cb(GtkAction *action, LoquiApp *app)
