@@ -431,9 +431,6 @@ account_console_buffer_append(Account *account, gboolean with_common_buffer, Tex
 	g_return_if_fail(str != NULL);
 
 	channel_buffer_append_line(account->console_buffer, type, str);
-	if(account_manager_is_current_channel_buffer(account_manager_get(), account->console_buffer)) {
-		account_manager_scroll_channel_textview(account_manager_get());
-	}
 	if(with_common_buffer &&
 	   !account_manager_is_current_channel_buffer(account_manager_get(), account->console_buffer)) {
 		buf = g_strdup_printf("[%s] %s", account->name, str);

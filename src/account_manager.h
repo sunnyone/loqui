@@ -74,7 +74,6 @@ void account_manager_common_buffer_append(AccountManager *manager, TextType type
 void account_manager_common_buffer_append_remark(AccountManager *manager, TextType type,
 						 gboolean is_self, gboolean is_priv,
 						 const gchar *channel_name, const gchar *nick, const gchar *remark);
-void account_manager_scroll_channel_textview(AccountManager *manager);
 void account_manager_update_current_info(AccountManager *manager);
 
 void account_manager_select_channel(AccountManager *manager, Channel *channel);

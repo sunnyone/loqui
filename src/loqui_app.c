@@ -42,6 +42,9 @@ struct _LoquiAppPrivate
 	GtkWidget *label_channel;
 	GtkWidget *label_channel_mode;
 	GtkWidget *label_account;
+
+	guint channel_buffer_inserted_signal_id;
+	guint common_buffer_inserted_signal_id;
 };
 
 static GtkWindowClass *parent_class = NULL;
@@ -57,6 +60,11 @@ static gint loqui_app_delete_event_cb(GtkWidget *widget, GdkEventAny *event);
 static void loqui_app_restore_size(LoquiApp *app);
 static void loqui_app_save_size(LoquiApp *app);
 static void loqui_app_entry_activate_cb(GtkWidget *widget, gpointer data);
+static void loqui_app_text_buffer_inserted_cb(GtkTextBuffer *textbuf,
+					      GtkTextIter *arg1,
+					      gchar *arg2,
+					      gint arg3,
+					      gpointer data);
 
 GType
 loqui_app_get_type(void)
@@ -104,6 +112,8 @@ loqui_app_init (LoquiApp *app)
 	app->priv = priv;
 
 	app->menu = NULL;
+	priv->channel_buffer_inserted_signal_id = 0;
+	priv->common_buffer_inserted_signal_id = 0;
 }
 static void
 loqui_app_destroy(GtkObject *object)
@@ -206,6 +216,22 @@ loqui_app_entry_activate_cb(GtkWidget *widget, gpointer data)
 	
 	account_manager_speak(account_manager_get(), str);
 	gtk_entry_set_text(GTK_ENTRY(widget), "");
+}
+static void
+loqui_app_text_buffer_inserted_cb(GtkTextBuffer *textbuf,
+				  GtkTextIter *arg1,
+				  gchar *arg2,
+				  gint arg3,
+				  gpointer data)
+{
+	GtkTextView *textview;
+
+	textview = GTK_TEXT_VIEW(data);
+	if(!account_manager_get_whether_scrolling(account_manager_get()))
+		return;
+
+	gtk_text_view_scroll_mark_onscreen(GTK_TEXT_VIEW(textview),
+					   gtk_text_buffer_get_mark(textbuf, "end"));
 }
 void
 loqui_app_set_current_info(LoquiApp *app, const gchar *account_name, 
@@ -380,56 +406,48 @@ void loqui_app_set_focus(LoquiApp *app)
 
 	gtk_widget_grab_focus(app->priv->entry);
 }
-void loqui_app_scroll_channel_textview(LoquiApp *app)
-{
-	GtkTextBuffer *textbuf;
-	LoquiAppPrivate *priv;
-
-        g_return_if_fail(app != NULL);
-        g_return_if_fail(LOQUI_IS_APP(app));
-
-	priv = app->priv;
-
-	textbuf = gtk_text_view_get_buffer(GTK_TEXT_VIEW(app->channel_textview));
-	gtk_text_view_scroll_mark_onscreen(GTK_TEXT_VIEW(app->channel_textview),
-					   gtk_text_buffer_get_mark(textbuf, "end"));
-}
-void loqui_app_scroll_common_textview(LoquiApp *app)
-{
-	GtkTextBuffer *textbuf;
-	LoquiAppPrivate *priv;
-
-        g_return_if_fail(app != NULL);
-        g_return_if_fail(LOQUI_IS_APP(app));
-
-	priv = app->priv;
-
-	textbuf = gtk_text_view_get_buffer(GTK_TEXT_VIEW(priv->common_textview));
-	gtk_text_view_scroll_mark_onscreen(GTK_TEXT_VIEW(priv->common_textview),
-					   gtk_text_buffer_get_mark(textbuf, "end"));
-}
 
 void loqui_app_set_channel_buffer(LoquiApp *app, GtkTextBuffer *textbuf)
 {
 	LoquiAppPrivate *priv;
+	GtkTextBuffer *old_buf;
 
         g_return_if_fail(app != NULL);
         g_return_if_fail(LOQUI_IS_APP(app));
 
 	priv = app->priv;
 
+	if(priv->channel_buffer_inserted_signal_id > 0) {
+		old_buf = gtk_text_view_get_buffer(GTK_TEXT_VIEW(app->channel_textview));
+		g_signal_handler_disconnect(old_buf, priv->channel_buffer_inserted_signal_id);
+	}
+
 	gtk_text_view_set_buffer(GTK_TEXT_VIEW(app->channel_textview), textbuf);
-	loqui_app_scroll_channel_textview(app);
+	priv->channel_buffer_inserted_signal_id = g_signal_connect(G_OBJECT(textbuf), "insert-text",
+								  G_CALLBACK(loqui_app_text_buffer_inserted_cb),
+								  app->channel_textview);
+	gtk_text_view_scroll_mark_onscreen(GTK_TEXT_VIEW(app->channel_textview),
+					   gtk_text_buffer_get_mark(textbuf, "end"));
 }
 void loqui_app_set_common_buffer(LoquiApp *app, GtkTextBuffer *textbuf)
 {
 	LoquiAppPrivate *priv;
+	GtkTextBuffer *old_buf;
 
         g_return_if_fail(app != NULL);
         g_return_if_fail(LOQUI_IS_APP(app));
 
 	priv = app->priv;
 
+	if(priv->common_buffer_inserted_signal_id > 0) {
+		old_buf = gtk_text_view_get_buffer(GTK_TEXT_VIEW(priv->common_textview));
+		g_signal_handler_disconnect(old_buf, priv->common_buffer_inserted_signal_id);
+	}
+
 	gtk_text_view_set_buffer(GTK_TEXT_VIEW(priv->common_textview), textbuf);
-	loqui_app_scroll_common_textview(app);
+	priv->common_buffer_inserted_signal_id = g_signal_connect(G_OBJECT(textbuf), "insert-text",
+								  G_CALLBACK(loqui_app_text_buffer_inserted_cb),
+								  priv->common_textview);
+	gtk_text_view_scroll_mark_onscreen(GTK_TEXT_VIEW(priv->common_textview),
+					   gtk_text_buffer_get_mark(textbuf, "end"));
 }

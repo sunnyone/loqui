@@ -412,25 +412,12 @@ account_manager_is_current_channel_buffer(AccountManager *manager, ChannelBuffer
 }
 
 void
-account_manager_scroll_channel_textview(AccountManager *manager)
-{
-        g_return_if_fail(manager != NULL);
-        g_return_if_fail(IS_ACCOUNT_MANAGER(manager));	
-
-	if(account_manager_get_whether_scrolling(manager)) {
-		loqui_app_scroll_channel_textview(manager->priv->app);
-	}
-}
-void
 account_manager_common_buffer_append(AccountManager *manager, TextType type, gchar *str)
 {
         g_return_if_fail(manager != NULL);
         g_return_if_fail(IS_ACCOUNT_MANAGER(manager));
 
 	channel_buffer_append_line(manager->priv->common_buffer, type, str);
-	if(account_manager_get_whether_scrolling(manager)) {
-		loqui_app_scroll_common_textview(manager->priv->app);
-	}
 }
 
 void account_manager_common_buffer_append_remark(AccountManager *manager, TextType type,
@@ -442,9 +429,6 @@ void account_manager_common_buffer_append_remark(AccountManager *manager, TextTy
 
 	channel_buffer_append_remark(manager->priv->common_buffer, type, FALSE,
 				     is_self, is_priv, channel_name, nick, remark);
-	if(account_manager_get_whether_scrolling(manager)) {
-		loqui_app_scroll_common_textview(manager->priv->app);
-	}	
 }
 void account_manager_update_current_info(AccountManager *manager)
 {

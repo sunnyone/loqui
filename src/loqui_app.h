@@ -72,9 +72,6 @@ void loqui_app_set_focus(LoquiApp *app);
 void loqui_app_set_channel_buffer(LoquiApp *app, GtkTextBuffer *textbuf);
 void loqui_app_set_common_buffer(LoquiApp *app, GtkTextBuffer *textbuf);
 
-void loqui_app_scroll_channel_textview(LoquiApp *app);
-void loqui_app_scroll_common_textview(LoquiApp *app);
-
 G_END_DECLS
 
 #endif /* __LOQUI_APP_H__ */
