@@ -73,7 +73,7 @@ binary-arch: build install
 	dh_testroot	
 	dh_installdocs
 	dh_installmenu
-	dh_installcron
+#	dh_installcron
 #	dh_installman
 #	dh_installinfo
 	dh_undocumented loqui.1
