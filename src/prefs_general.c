@@ -49,6 +49,7 @@ PrefElement prefs_general_defs[] = {
 	{"use_notification", "true", G_TYPE_BOOLEAN, &prefs_general.use_notification },
 	{"notification_command", "esdplay /usr/share/sounds/email.wav", G_TYPE_STRING, &prefs_general.notification_command},
 
+	{"auto_switch_scrolling", "true", G_TYPE_BOOLEAN, &prefs_general.auto_switch_scrolling },
 	{NULL, NULL, 0, NULL}
 };
 

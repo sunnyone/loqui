@@ -53,6 +53,7 @@ typedef struct _PrefsGeneral {
 	gboolean use_notification;
 	gchar *notification_command;
 
+	gboolean auto_switch_scrolling;
 } PrefsGeneral;
 
 void prefs_general_load(void);

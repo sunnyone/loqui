@@ -68,6 +68,8 @@ static void loqui_app_text_buffer_inserted_cb(GtkTextBuffer *textbuf,
 					      gint length,
 					      gpointer data);
 
+static void loqui_app_textview_scroll_value_changed_cb(GtkAdjustment *adj, gpointer data);
+
 GType
 loqui_app_get_type(void)
 {
@@ -240,6 +242,26 @@ static void loqui_app_text_buffer_inserted_cb(GtkTextBuffer *textbuf,
 	gtk_text_view_scroll_mark_onscreen(GTK_TEXT_VIEW(textview),
 					   gtk_text_buffer_get_mark(textbuf, "end"));
 }
+static void loqui_app_textview_scroll_value_changed_cb(GtkAdjustment *adj, gpointer data)
+{
+	gboolean reached_to_end;
+	AccountManager *manager;
+
+	if(!prefs_general.auto_switch_scrolling)
+		return;
+
+	/* upper - page_size is max virtually. */
+	reached_to_end = (ABS(adj->upper - adj->page_size - adj->value) < adj->step_increment);
+
+	manager = account_manager_get();
+
+	if(reached_to_end && !account_manager_get_whether_scrolling(manager)) {
+		account_manager_set_whether_scrolling(manager, TRUE);
+	} else if(!reached_to_end && account_manager_get_whether_scrolling(manager)) {
+		account_manager_set_whether_scrolling(manager, FALSE);
+	}
+}
+
 void
 loqui_app_set_current_info(LoquiApp *app, const gchar *account_name, 
 			   const gchar *channel_name, const gchar *channel_mode,
@@ -368,6 +390,8 @@ loqui_app_new(void)
 	SET_SCROLLED_WINDOW(scrolled_win, app->channel_textview, 
 			    GTK_POLICY_NEVER, GTK_POLICY_ALWAYS);
 	gtk_box_pack_start_defaults(GTK_BOX(vbox), scrolled_win);
+	g_signal_connect(G_OBJECT(GTK_TEXT_VIEW(app->channel_textview)->vadjustment), "value-changed",
+			 G_CALLBACK(loqui_app_textview_scroll_value_changed_cb), app);
 
 	/* TODO: this should be replaced with a widget considered multiline editing */
 	priv->entry = gtk_entry_new();
@@ -381,6 +405,8 @@ loqui_app_new(void)
 	SET_SCROLLED_WINDOW(scrolled_win, priv->common_textview, 
 			    GTK_POLICY_NEVER, GTK_POLICY_ALWAYS);
 	gtk_paned_pack2(GTK_PANED(vpaned), scrolled_win, FALSE, TRUE);
+	g_signal_connect(G_OBJECT(GTK_TEXT_VIEW(priv->common_textview)->vadjustment), "value-changed",
+			 G_CALLBACK(loqui_app_textview_scroll_value_changed_cb), app);
 
 	/* right side */
 	vpaned = gtk_vpaned_new();
