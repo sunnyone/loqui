@@ -68,7 +68,7 @@ main(int argc, char *argv[])
 		}
 		if(strcmp(argv[i], "--help") == 0) {
 			g_print("Loqui %s\n", VERSION);
-			g_print(_("  --no-send-status-commands don't send commands to get status (like MODE, WHO)"));
+			g_print(_("  --no-send-status-commands don't send commands to get status (like MODE, WHO)\n"));
 			g_print(_("  --debug                   debug mode\n"));
 			g_print(_("  --show-msg                show message mode\n"));
 			g_print(_("  --help                    show this help\n"));
