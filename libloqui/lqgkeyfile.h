@@ -27,7 +27,9 @@
 
 #include <glib/gerror.h>
 
+#ifndef G_GNUC_MALLOC
 #define G_GNUC_MALLOC 
+#endif
 
 G_BEGIN_DECLS
 
