@@ -2224,14 +2224,14 @@ update_node (GtkUIManager *self,
 		  info->proxy = gtk_separator_menu_item_new ();
 		  g_object_set_data (G_OBJECT (info->proxy),
 				     "gtk-separator-mode",
-				     GINT_TO_POINTER (SEPARATOR_MODE_HIDDEN));
+				     GINT_TO_POINTER (SEPARATOR_MODE_SMART));
 		  gtk_menu_shell_insert (GTK_MENU_SHELL (menushell),
 					NODE_INFO (node)->proxy, pos);
 
 		  info->extra = gtk_separator_menu_item_new ();
 		  g_object_set_data (G_OBJECT (info->extra),
 				     "gtk-separator-mode",
-				     GINT_TO_POINTER (SEPARATOR_MODE_HIDDEN));
+				     GINT_TO_POINTER (SEPARATOR_MODE_SMART));
 		  gtk_menu_shell_insert (GTK_MENU_SHELL (menushell),
 					 NODE_INFO (node)->extra, pos+1);
 		}

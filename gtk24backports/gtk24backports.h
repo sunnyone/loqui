@@ -9,7 +9,6 @@
 #include <gtkradiotoolbutton.h>
 #include <gtkseparatortoolitem.h>
 #include <gtktoggleaction.h>
-#include <gtktoggleactionprivate.h>
 #include <gtktoggletoolbutton.h>
 #include <gtktoolbutton.h>
 #include <gtktoolitem.h>
