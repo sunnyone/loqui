@@ -28,7 +28,7 @@
 #include <ctype.h>
 #include <errno.h>
 
-#include "intl.h"
+#include <libloqui-intl.h>
 #include "loqui-static-core.h"
 
 const gchar* uri_prefix_list[] = { "http://", "https://", "ftp://", "mailto:", "ttp://", NULL };

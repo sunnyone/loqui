@@ -20,7 +20,7 @@
 #include "config.h"
 
 #include "loqui_message_text.h"
-#include "intl.h"
+#include <libloqui-intl.h>
 
 enum {
 	PROP_0,

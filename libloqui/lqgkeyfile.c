@@ -51,7 +51,7 @@
 #endif  /* G_OS_WIN23 */
 
 #include <glib.h>
-#include "intl.h"
+#include <libloqui-intl.h>
 
 typedef struct _LqGKeyFileGroup LqGKeyFileGroup;
 

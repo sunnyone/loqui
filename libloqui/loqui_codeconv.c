@@ -21,7 +21,7 @@
 
 #include "loqui_codeconv.h"
 
-#include "intl.h"
+#include <libloqui-intl.h>
 #include <string.h>
 #include <ctype.h>
 #include <locale.h>

@@ -26,7 +26,7 @@
 #include "ipmsg.h"
 #include <stdlib.h>
 #include <locale.h>
-#include "intl.h"
+#include <libloqui-intl.h>
 #include "loqui-static-core.h"
 
 enum {

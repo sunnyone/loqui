@@ -23,7 +23,7 @@
 #include "loqui_sender_irc.h"
 
 #include "ctcp_message.h"
-#include "intl.h"
+#include <libloqui-intl.h>
 #include "loqui_utils_irc.h"
 #include "loqui_account_irc.h"
 #include "loqui_channel_irc.h"

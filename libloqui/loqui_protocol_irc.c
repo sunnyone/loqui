@@ -28,7 +28,7 @@
 #include "loqui_sender_irc.h"
 #include "loqui_receiver_irc.h"
 #include "loqui_profile_account_irc.h"
-#include "intl.h"
+#include <libloqui-intl.h>
 #include "loqui_codeconv_tools.h"
 
 static LoquiProtocolClass *parent_class = NULL;

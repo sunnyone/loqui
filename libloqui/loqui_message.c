@@ -21,7 +21,7 @@
 #include "config.h"
 
 #include "loqui_message.h"
-#include "intl.h"
+#include <libloqui-intl.h>
 
 #include <string.h>
 #include <gobject/gvaluecollector.h>

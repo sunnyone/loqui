@@ -22,7 +22,7 @@
 
 #include "loqui_account_msn.h"
 #include "msn_login.h"
-#include "intl.h"
+#include <libloqui-intl.h>
 
 enum {
         LAST_SIGNAL

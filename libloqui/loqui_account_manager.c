@@ -22,7 +22,7 @@
 #include "loqui_account_manager.h"
 #include "loqui_account.h"
 #include "utils.h"
-#include "intl.h"
+#include <libloqui-intl.h>
 #include "loqui_profile_handle.h"
 
 #include "loqui_account_manager_iter.h"

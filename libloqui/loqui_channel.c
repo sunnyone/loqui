@@ -24,7 +24,7 @@
 #include "loqui-general-pref-default.h"
 
 #include "loqui_channel.h"
-#include "intl.h"
+#include <libloqui-intl.h>
 #include <string.h>
 #include "loqui_sender_irc.h"
 

@@ -22,7 +22,7 @@
 #include "irc_message.h"
 #include "utils.h"
 #include "irc_constants.h"
-#include "intl.h"
+#include <libloqui-intl.h>
 
 #include <stdarg.h>
 #include <string.h>

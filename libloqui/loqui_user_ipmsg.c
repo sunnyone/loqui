@@ -21,7 +21,7 @@
 #include "config.h"
 
 #include "loqui_user_ipmsg.h"
-#include "intl.h"
+#include <libloqui-intl.h>
 
 enum {
         LAST_SIGNAL

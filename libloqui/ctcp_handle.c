@@ -21,7 +21,7 @@
 
 #include "ctcp_handle.h"
 #include "ctcp_message.h"
-#include "intl.h"
+#include <libloqui-intl.h>
 #include "loqui_profile_account_irc.h"
 #include "loqui_sender_irc.h"
 #include "loqui_account_irc.h"

@@ -19,7 +19,7 @@
  */
 #include "config.h"
 
-#include "intl.h"
+#include <libloqui-intl.h>
 
 #include "loqui_channel_entry.h"
 

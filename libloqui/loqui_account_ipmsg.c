@@ -28,7 +28,7 @@
 #include "ipmsg_socket.h"
 #include "ipmsg_packet.h"
 #include "ipmsg.h"
-#include "intl.h"
+#include <libloqui-intl.h>
 
 enum {
         LAST_SIGNAL

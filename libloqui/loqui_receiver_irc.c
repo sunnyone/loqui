@@ -24,7 +24,7 @@
 
 #include "loqui_account_manager.h"
 #include "irc_constants.h"
-#include "intl.h"
+#include <libloqui-intl.h>
 #include "ctcp_message.h"
 #include "ctcp_handle.h"
 #include "loqui_user_irc.h"

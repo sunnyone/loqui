@@ -21,7 +21,7 @@
 #include "config.h"
 
 #include "loqui_profile_handle.h"
-#include "intl.h"
+#include <libloqui-intl.h>
 
 #include <string.h>
 

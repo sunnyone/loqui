@@ -23,7 +23,7 @@
 #include "loqui_sender_ipmsg.h"
 #include "ipmsg_socket.h"
 #include "ipmsg_packet.h"
-#include "intl.h"
+#include <libloqui-intl.h>
 #include "loqui_account_ipmsg.h"
 #include "ipmsg.h"
 
