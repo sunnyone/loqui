@@ -1029,11 +1029,12 @@ static gpointer irc_handle_thread_func(IRCHandle *handle)
 			irc_message_print(msg);
 		}
 		irc_handle_push_message(handle, msg);
+
+		gdk_threads_enter();
+		account_console_buffer_append(account, TRUE, TEXT_TYPE_INFO, _("Sent join command for autojoin."));
+		gdk_threads_leave();
 	}
 
-	gdk_threads_enter();
-	account_console_buffer_append(account, TRUE, TEXT_TYPE_INFO, _("Sent join command for autojoin."));
-	gdk_threads_leave();
 	
         while(priv->connection) {
 		if((msg = connection_get_irc_message(priv->connection, NULL)) == NULL)
