@@ -21,6 +21,7 @@
 #define __REMARK_ENTRY_H__
 
 #include <gtk/gtk.h>
+#include <gtk24backports.h>
 #include "loqui_app.h"
 
 G_BEGIN_DECLS
@@ -49,7 +50,6 @@ struct _RemarkEntryClass
         GtkHBoxClass parent_class;
 
 	void (* activate)(RemarkEntry *entry);
-	void (* toggle_command_mode)(RemarkEntry *entry);
 	void (* call_history)(RemarkEntry *entry,
 			      gint count);
 	void (* scroll_channel_textview)(RemarkEntry *entry,
@@ -60,7 +60,7 @@ struct _RemarkEntryClass
 
 GtkType remark_entry_get_type (void) G_GNUC_CONST;
 
-GtkWidget* remark_entry_new(LoquiApp *app);
+GtkWidget* remark_entry_new(LoquiApp *app, GtkToggleAction *toggle_command_action);
 G_CONST_RETURN gchar *remark_entry_get_text(RemarkEntry *entry);
 void remark_entry_clear_text(RemarkEntry *entry);
 void remark_entry_grab_focus(RemarkEntry *entry);

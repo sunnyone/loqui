@@ -118,7 +118,7 @@ static GtkActionEntry loqui_action_entries[] =
         {"CTCPFingerSelected",       NULL, N_("_Finger"), NULL, NULL, NULL},
 };
 static GtkToggleActionEntry loqui_toggle_action_entries[] = {
-        {"ToggleCommandMode", LOQUI_STOCK_COMMAND, N_("_Toggle Command Mode"),CTRL"slash", NULL, G_CALLBACK(loqui_actions_toggle_command_mode_cb), TRUE},
+        {"ToggleCommandMode", LOQUI_STOCK_COMMAND, N_("_Toggle Command Mode"),CTRL"slash", NULL, G_CALLBACK(loqui_actions_toggle_command_mode_cb), FALSE},
         {"ToggleChannelbar",  NULL, N_("_Channelbar"), NULL, NULL, G_CALLBACK(loqui_actions_toggle_channelbar_cb), TRUE},
         {"ToggleStatusbar",   NULL, N_("_Statusbar"), NULL, NULL, G_CALLBACK(loqui_actions_toggle_statusbar_cb), TRUE},
 };

@@ -68,7 +68,6 @@ static gint loqui_app_delete_event_cb(GtkWidget *widget, GdkEventAny *event);
 static void loqui_app_restore_size(LoquiApp *app);
 static void loqui_app_save_size(LoquiApp *app);
 static void loqui_app_entry_activate_cb(GtkWidget *widget, gpointer data);
-static void loqui_app_entry_toggle_command_toggled_cb(GtkWidget *widget, gpointer data);
 
 static void loqui_app_ui_manager_add_widget_cb(GtkUIManager *ui_manager, GtkWidget *widget, GtkBox *box);
 
@@ -249,20 +248,6 @@ loqui_app_entry_activate_cb(GtkWidget *widget, gpointer data)
 		gtkutils_msgbox_info(GTK_MESSAGE_ERROR, _("No accounts are selected!"));
 
 	remark_entry_clear_text(remark_entry);
-}
-static void
-loqui_app_entry_toggle_command_toggled_cb(GtkWidget *widget, gpointer data)
-{
-	LoquiApp *app;
-	GtkAction *action;
-
-	g_return_if_fail(data != NULL);
-	g_return_if_fail(LOQUI_IS_APP(data));
-
-	app = LOQUI_APP(data);
-
-	action = gtk_action_group_get_action(app->action_group, "ToggleCommandMode");
-	gtk_toggle_action_set_active(GTK_TOGGLE_ACTION(action), remark_entry_get_command_mode(REMARK_ENTRY(app->remark_entry)));
 }
 static void
 loqui_app_statusbar_nick_clicked_cb(GtkWidget *widget, gpointer data)
@@ -463,6 +448,8 @@ loqui_app_new(void)
 	
 	GtkWidget *menu_box;
 
+	GtkAction *toggle_command_action;
+
 	app = g_object_new(loqui_app_get_type(), NULL);
 	priv = app->priv;
 
@@ -478,6 +465,7 @@ loqui_app_new(void)
 	gtk_box_pack_start(GTK_BOX(vbox), menu_box, FALSE, FALSE, 0);
 
 	app->action_group = loqui_actions_create_group(app);
+	toggle_command_action = gtk_action_group_get_action(app->action_group, "ToggleCommandMode");
 
 	app->ui_manager = gtk_ui_manager_new();
 	gtk_window_add_accel_group(GTK_WINDOW(app),
@@ -526,7 +514,7 @@ loqui_app_new(void)
 	g_signal_connect(G_OBJECT(GTK_TEXT_VIEW(app->channel_textview)->vadjustment), "value-changed",
 			 G_CALLBACK(loqui_app_textview_scroll_value_changed_cb), app);
 
-	app->remark_entry = remark_entry_new(app);
+	app->remark_entry = remark_entry_new(app, GTK_TOGGLE_ACTION(toggle_command_action));
 	gtk_box_pack_end(GTK_BOX(vbox), app->remark_entry, FALSE, FALSE, 0);
 	g_signal_connect(G_OBJECT(app->remark_entry), "activate",
 			 G_CALLBACK(loqui_app_entry_activate_cb), NULL);
@@ -559,9 +547,6 @@ loqui_app_new(void)
 	app->channel_tree = CHANNEL_TREE(channel_tree);
 	app->nick_list = NICK_LIST(nick_list);
 
-	g_signal_connect(G_OBJECT(app->remark_entry), "toggle_command_mode",
-			 G_CALLBACK(loqui_app_entry_toggle_command_toggled_cb), app);
-	
 	loqui_app_update_info(app, TRUE, NULL, TRUE, NULL);
 	loqui_app_restore_size(app);
 
