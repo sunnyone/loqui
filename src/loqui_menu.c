@@ -716,22 +716,10 @@ loqui_menu_buffers_update_channel(LoquiMenu *menu, Account *account, Channel *ch
 	Channel *tmp_ch;
 	GList *cur;
 	GList *children;
-	PangoAttrList *pattr_list;
-	PangoAttribute *pattr;
-	PangoColor pcolor_fresh, pcolor_nonfresh;
 	GtkWidget *label;
 	
 	g_return_if_fail(menu != NULL);
         g_return_if_fail(LOQUI_IS_MENU(menu));
-
-	if(!pango_color_parse(&pcolor_fresh, FRESH_COLOR)) {
-		g_warning(_("Unable to determine color of fresh"));
-		return;
-	}
-	if(!pango_color_parse(&pcolor_nonfresh, NONFRESH_COLOR)) {
-		g_warning(_("Unable to determine color of nonfresh"));
-		return;
-	}
 
 	submenu = loqui_menu_get_buffers_menu(menu);
 	for(cur = GTK_MENU_SHELL(submenu)->children; cur != NULL; cur = cur->next) {
@@ -745,21 +733,8 @@ loqui_menu_buffers_update_channel(LoquiMenu *menu, Account *account, Channel *ch
 		label = children->data;
 
 		if(channel_get_updated(channel))
-			pattr = pango_attr_foreground_new(pcolor_fresh.red,
-							  pcolor_fresh.green,
-							  pcolor_fresh.blue);
+			gtkutils_set_label_color(GTK_LABEL(label), FRESH_COLOR);
 		else
-			pattr = pango_attr_foreground_new(pcolor_nonfresh.red,
-							  pcolor_nonfresh.green,
-							  pcolor_nonfresh.blue);
-		pattr->start_index = 0;
-		pattr->end_index = G_MAXUINT;
-		pattr_list = pango_attr_list_new();
-		pango_attr_list_insert(pattr_list, pattr);
-		gtk_label_set_use_markup(GTK_LABEL(label), FALSE);
-		gtk_label_set_use_underline(GTK_LABEL(label), FALSE);
-		gtk_label_set_attributes(GTK_LABEL(label), pattr_list);
-		/* pango_attr_list_unref(pattr_list);
-		   pango_attribute_destroy(pattr); */
+			gtkutils_set_label_color(GTK_LABEL(label), NONFRESH_COLOR);
 	}
 }

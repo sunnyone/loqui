@@ -40,4 +40,6 @@ gchar *gtkutils_menu_translate(const gchar *path, gpointer data);
 void gtkutils_exec_command_argument_with_error_dialog(const gchar *command, const gchar *argument);
 void gtkutils_exec_command_with_error_dialog(const gchar *command);
 
+void gtkutils_set_label_color(GtkLabel *label, const gchar *color);
+
 #endif /* __GTKUTILS_H__ */

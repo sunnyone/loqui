@@ -157,3 +157,30 @@ gtkutils_exec_command_with_error_dialog(const gchar *command)
 		g_error_free(error);
 	}
 }
+void
+gtkutils_set_label_color(GtkLabel *label, const gchar *color)
+{
+	PangoAttrList *pattr_list;
+	PangoAttribute *pattr;
+	PangoColor pcolor;
+
+	if(!pango_color_parse(&pcolor, color)) {
+		g_warning(_("Unable to determine color: %s"), color);
+		return;
+	}
+	
+	pattr = pango_attr_foreground_new(pcolor.red,
+					  pcolor.green,
+					  pcolor.blue);
+
+	pattr->start_index = 0;
+	pattr->end_index = G_MAXUINT;
+	pattr_list = pango_attr_list_new();
+	pango_attr_list_insert(pattr_list, pattr);
+
+	gtk_label_set_use_markup(label, FALSE);
+	gtk_label_set_use_underline(label, FALSE);
+	gtk_label_set_attributes(label, pattr_list);
+	/* pango_attr_list_unref(pattr_list);
+	   pango_attribute_destroy(pattr); */
+}
