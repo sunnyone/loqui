@@ -170,7 +170,7 @@ channel_input_dialog_new(AccountManager *manager)
 {
         ChannelInputDialog *dialog;
 	ChannelInputDialogPrivate *priv;
-	GSList *account_list, *cur;
+	GList *account_list, *cur;
 	Account *account;
 	GtkWidget *hbox;
 	GtkWidget *vsep;

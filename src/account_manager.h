@@ -63,11 +63,12 @@ void account_manager_save_accounts(AccountManager *account_manager);
 
 void account_manager_add_account(AccountManager *manager, Account *account);
 void account_manager_remove_account(AccountManager *manager, Account *account);
+void account_manager_remove_all_account(AccountManager *manager);
 
 void account_manager_connect_all_default(AccountManager *manager);
 void account_manager_disconnect_all(AccountManager *manager);
 
-GSList *account_manager_get_account_list(AccountManager *manager);
+GList *account_manager_get_account_list(AccountManager *manager);
 
 G_END_DECLS
 

@@ -30,7 +30,7 @@
 
 struct _AccountManagerPrivate
 {
-	GSList *account_list;
+	GList *account_list;
 };
 
 enum {
@@ -48,6 +48,9 @@ static guint account_manager_signals[LAST_SIGNAL] = { 0 };
 static void account_manager_class_init(AccountManagerClass *klass);
 static void account_manager_init(AccountManager *account_manager);
 static void account_manager_finalize(GObject *object);
+
+static void account_manager_add_account_real(AccountManager *manager, Account *account);
+static void account_manager_remove_account_real(AccountManager *manager, Account *account);
 
 GType
 account_manager_get_type(void)
@@ -83,6 +86,8 @@ account_manager_class_init (AccountManagerClass *klass)
         parent_class = g_type_class_peek_parent(klass);
         
         object_class->finalize = account_manager_finalize;
+	klass->add_account = account_manager_add_account_real;
+	klass->remove_account = account_manager_remove_account_real;
 
 	account_manager_signals[SIGNAL_ADD_ACCOUNT] = g_signal_new("add-account",
 								   G_OBJECT_CLASS_TYPE(object_class),
@@ -140,6 +145,36 @@ account_manager_new (void)
 	return account_manager;
 }
 
+static void
+account_manager_add_account_real(AccountManager *manager, Account *account)
+{
+	AccountManagerPrivate *priv;
+
+        g_return_if_fail(manager != NULL);
+        g_return_if_fail(IS_ACCOUNT_MANAGER(manager));
+	g_return_if_fail(account != NULL);
+	g_return_if_fail(IS_ACCOUNT(account));	
+
+	priv = manager->priv;
+
+	g_object_ref(account);
+	priv->account_list = g_list_append(priv->account_list, account);
+}
+static void
+account_manager_remove_account_real(AccountManager *manager, Account *account)
+{
+	AccountManagerPrivate *priv;
+
+        g_return_if_fail(manager != NULL);
+        g_return_if_fail(IS_ACCOUNT_MANAGER(manager));
+	g_return_if_fail(account != NULL);
+	g_return_if_fail(IS_ACCOUNT(account));
+
+	priv = manager->priv;
+
+	priv->account_list = g_list_remove(priv->account_list, account);
+	g_object_unref(account);
+}
 void
 account_manager_add_account(AccountManager *manager, Account *account)
 {
@@ -152,7 +187,6 @@ account_manager_add_account(AccountManager *manager, Account *account)
 
 	priv = manager->priv;
 
-	priv->account_list = g_slist_append(priv->account_list, account);
 	g_signal_emit(G_OBJECT(manager), account_manager_signals[SIGNAL_ADD_ACCOUNT], 0, account);
 }
 void
@@ -167,9 +201,24 @@ account_manager_remove_account(AccountManager *manager, Account *account)
 
 	priv = manager->priv;
 
-	priv->account_list = g_slist_remove(priv->account_list, account);
 	g_signal_emit(G_OBJECT(manager), account_manager_signals[SIGNAL_REMOVE_ACCOUNT], 0, account);
 }
+void
+account_manager_remove_all_account(AccountManager *manager)
+{
+	AccountManagerPrivate *priv;
+	GList *list;
+
+        g_return_if_fail(manager != NULL);
+        g_return_if_fail(IS_ACCOUNT_MANAGER(manager));
+
+	priv = manager->priv;	
+
+	list = g_list_copy(priv->account_list);
+	utils_g_list_foreach_swapped(list, (GFunc) account_manager_remove_account, manager);
+	g_list_free(list);
+}
+
 void
 account_manager_load_accounts(AccountManager *account_manager)
 {
@@ -199,7 +248,7 @@ account_manager_load_accounts(AccountManager *account_manager)
 void
 account_manager_save_accounts(AccountManager *account_manager)
 {
-        GSList *cur;
+        GList *cur;
 	GList *list = NULL;
 	gchar *path;
 	LoquiProfileHandle *handle;
@@ -222,9 +271,9 @@ void account_manager_disconnect_all(AccountManager *manager)
 	g_return_if_fail(manager != NULL);
         g_return_if_fail(IS_ACCOUNT_MANAGER(manager));
 
-	g_slist_foreach(manager->priv->account_list, (GFunc) account_disconnect, NULL);
+	g_list_foreach(manager->priv->account_list, (GFunc) account_disconnect, NULL);
 }
-GSList *account_manager_get_account_list(AccountManager *manager)
+GList *account_manager_get_account_list(AccountManager *manager)
 {
 	g_return_val_if_fail(manager != NULL, NULL);
         g_return_val_if_fail(IS_ACCOUNT_MANAGER(manager), NULL);
@@ -234,7 +283,7 @@ GSList *account_manager_get_account_list(AccountManager *manager)
 void
 account_manager_connect_all_default(AccountManager *manager)
 {
-	GSList *cur;
+	GList *cur;
 	Account *account;
 	AccountManagerPrivate *priv;
 

@@ -138,7 +138,7 @@ static void
 account_list_dialog_construct_list(AccountListDialog *dialog)
 {
 	AccountListDialogPrivate *priv;
-	GSList *account_list, *cur;
+	GList *account_list, *cur;
 	GtkTreeIter iter;
 	Account *account;
 
