@@ -32,8 +32,6 @@ src/ipmsg_packet.c
 src/ipmsg_packet.h
 src/ipmsg_socket.c
 src/ipmsg_socket.h
-src/irc_connection.c
-src/irc_connection.h
 src/irc_constants.h
 src/irc_message.c
 src/irc_message.h
@@ -49,6 +47,8 @@ src/loqui_account_manager_iter.c
 src/loqui_account_manager_iter.h
 src/loqui_account_manager_store.c
 src/loqui_account_manager_store.h
+src/loqui_account_msn.c
+src/loqui_account_msn.h
 src/loqui_app.c
 src/loqui_app.h
 src/loqui_app_actions.c
@@ -101,6 +101,8 @@ src/loqui_protocol_irc.c
 src/loqui_protocol_irc.h
 src/loqui_protocol_manager.c
 src/loqui_protocol_manager.h
+src/loqui_protocol_msn.c
+src/loqui_protocol_msn.h
 src/loqui_receiver.c
 src/loqui_receiver.h
 src/loqui_receiver_ipmsg.c
@@ -131,10 +133,17 @@ src/loqui_user_irc.c
 src/loqui_user_irc.h
 src/loqui_utils_irc.c
 src/loqui_utils_irc.h
+src/loqui_webutils.c
+src/loqui_webutils.h
 src/main.c
 src/main.h
 src/message_text.c
 src/message_text.h
+src/msn_constants.h
+src/msn_login.c
+src/msn_login.h
+src/msn_message.c
+src/msn_message.h
 src/nick_list.c
 src/nick_list.h
 src/prefs_dialog.c
