@@ -28,7 +28,8 @@ loqui_SOURCES = \
 	account_list_dialog.c account_list_dialog.h \
 	account_dialog.h account_dialog.c \
 	loqui_toolbar.c loqui_toolbar.h \
-	prefs_emphasis_words.c prefs_emphasis_words.h
+	prefs_emphasis_words.c prefs_emphasis_words.h \
+	prefs_dialog.c prefs_dialog.h
 
 loqui_LDADD = \
         $(GTK_LIBS) $(GNET_LIBS)
