@@ -214,7 +214,7 @@ irc_message_inspect(IRCMessage *msg)
 	}
 	
 	for(i = 0; msg->parameter[i] != NULL; i++) {
-		g_string_append_printf(string, "para[%d]: '%s'\n", i, msg->parameter[i]);
+		g_string_append_printf(string, "para[%d]: '%s'\n", i+1, msg->parameter[i]);
 	}
 	
 	str = string->str;

@@ -174,6 +174,13 @@ typedef enum {
 	IRC_RPL_MYPORTIS          = 384,
 	IRC_ERR_BADCHANMASK          = 476,
 
+	/* new replies. defined by loqui */
+	IRC_RPL_WELCOME = 001,
+	IRC_RPL_YOURHOST = 002,
+	IRC_RPL_CREATED = 003,
+	IRC_RPL_MYINFO = 004,
+	IRC_RPL_BOUCE = 005,
+
 	/* defined by loqui */
 	IRC_COMMAND_PRIVMSG = 1002,
 	IRC_COMMAND_JOIN = 1003,
