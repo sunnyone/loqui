@@ -46,6 +46,21 @@ requires 2.0.0
 
 class Loqui:Sender:IPMsg from Loqui:Sender
 {
+	override (Loqui:Sender)
+	void nick(Loqui:Sender *sender, const gchar *text) {
+		Self *self = SELF(sender);
+
+		loqui_user_set_nick(loqui_account_get_user_self(SELF_GET_ACCOUNT(self)), text);
+		self_br_absence(self);
+	}
+	override (Loqui:Sender)
+	void away(Loqui:Sender *sender, LoquiAwayType away_type, const gchar *away_message) {
+		Self *self = SELF(sender);
+
+		loqui_user_set_away(loqui_account_get_user_self(SELF_GET_ACCOUNT(self)), away_type);
+		self_br_absence(self);
+	}
+
 	/* helper */
 	private void send_packet(self, IPMsg:Packet *packet) {
 		LoquiAccount *account;
@@ -69,17 +84,43 @@ class Loqui:Sender:IPMsg from Loqui:Sender
 		loqui_sender_ipmsg_send_packet(self, packet);
 		g_object_unref(packet);
 	}
-	
-	public void br_entry(self) {
+
+	private gint helper_get_away_opt(LoquiUser *user) {
+		LoquiAwayType away_type = loqui_user_get_away(user);
+
+		if (away_type == LOQUI_AWAY_TYPE_ONLINE)
+			return 0;
+
+		return IPMSG_ABSENCEOPT;
+	}
+
+	private void helper_send_br_command(self, gint command_num) {
 		IPMsgPacket *packet;
+		LoquiUser *user_self;
+		const gchar *nick;
 
 		loqui_sender_ipmsg_nooperation(self);
+		
+		user_self = loqui_account_get_user_self(SELF_GET_ACCOUNT(self));
+		nick = loqui_user_get_nick(user_self);
+		command_num |= self_helper_get_away_opt(user_self);
 
 		packet = loqui_account_ipmsg_create_packet(SELF_GET_ACCOUNT_IPMSG(self),
-							   IPMSG_BR_ENTRY,
-							   loqui_user_get_nick(LOQUI_USER(loqui_account_get_user_self(SELF_GET_ACCOUNT(self)))));
+							   command_num,
+							   nick);
 		loqui_sender_ipmsg_send_packet(self, packet);
 		g_object_unref(packet);
+	}
+
+	public void br_entry(self) {
+		self_helper_send_br_command(self, IPMSG_BR_ENTRY);
+	}
+
+	public void br_absence(self) {
+		self_helper_send_br_command(self, IPMSG_BR_ABSENCE);
+	}
+	public void ansentry(self) {
+		self_helper_send_br_command(self, IPMSG_ANSENTRY);
 	}
 
 	public LoquiSenderIPMsg *

@@ -35,11 +35,13 @@ requires 2.0.0
 #include "loqui_user_ipmsg.h"
 #include "ipmsg.h"
 #include "loqui-account-ipmsg.h"
+#include "loqui-sender-ipmsg.h"
 %}
 
 %{
 /* account: Loqui:Account */
 #define SELF_GET_ACCOUNT(receiver) (LOQUI_RECEIVER(receiver)->account)
+#define SELF_GET_SENDER_IPMSG(receiver) (LOQUI_SENDER_IPMSG(SELF_GET_ACCOUNT(receiver)->sender))
 %}
 
 class Loqui:Receiver:IPMsg from Loqui:Receiver
@@ -70,13 +72,73 @@ class Loqui:Receiver:IPMsg from Loqui:Receiver
 		return TRUE;
 	}
 
-	private void helper_update_user(self, LoquiUser *user, IPMsgPacket *packet) {
-		loqui_user_set_nick(user, packet->username);
-		loqui_user_set_hostname(user, packet->hostname);
-		loqui_user_ipmsg_set_group_name(LOQUI_USER_IPMSG(user), packet->group_name);
+	private void helper_update_user(self, LoquiUser *user, gboolean print_changes,
+					const gchar *nick, gboolean is_away,
+					const gchar *username, const gchar *hostname, const gchar *group_name) {
+		LoquiAccount *account = SELF_GET_ACCOUNT(self);
+		const gchar *tmp;
+		gboolean old_is_away;
+
+#define STR_DIFFERENT(ptr1, ptr2) (ptr1 != ptr2 && (ptr1 == NULL || ptr2 == NULL || strcmp(ptr1, ptr2) != 0))
+
+		tmp = loqui_user_get_nick(user);
+		if (STR_DIFFERENT(tmp, nick)) {
+			if (print_changes)
+				loqui_account_append_text_printf(account, NULL, LOQUI_TEXT_TYPE_INFO,
+								 "*** %s is known as %s",
+								 LOQUI_UTILS_EMPTY_IF_NULL(tmp),
+								 LOQUI_UTILS_EMPTY_IF_NULL(nick));
+			loqui_user_set_nick(user, nick);
+		}
+
+		old_is_away = (loqui_user_get_away(user) != LOQUI_AWAY_TYPE_ONLINE) ? TRUE : FALSE;
+		if (old_is_away != is_away) {
+			if (print_changes) {
+				loqui_account_append_text_printf(account, NULL, LOQUI_TEXT_TYPE_INFO,
+								 is_away ?
+								  "*** %s has been marked as being away" : 
+								  "*** %s is no longer marked as being away",
+								 LOQUI_UTILS_EMPTY_IF_NULL(nick));
+			}
+			loqui_user_set_away(user, is_away ? LOQUI_AWAY_TYPE_AWAY : LOQUI_AWAY_TYPE_ONLINE);
+		}
+		    
+		tmp = loqui_user_get_username(user);
+		if (STR_DIFFERENT(tmp, username)) {
+			if (print_changes)
+				loqui_account_append_text_printf(account, NULL, LOQUI_TEXT_TYPE_INFO,
+								 "*** %s's username has changed from %s to %s",
+								 LOQUI_UTILS_EMPTY_IF_NULL(nick),
+								 LOQUI_UTILS_EMPTY_IF_NULL(tmp),
+								 LOQUI_UTILS_EMPTY_IF_NULL(username));
+			loqui_user_set_username(user, username);
+		}
+		
+		tmp = loqui_user_get_hostname(user);
+		if (STR_DIFFERENT(tmp, hostname)) {
+			if (print_changes)
+				loqui_account_append_text_printf(account, NULL, LOQUI_TEXT_TYPE_INFO,
+								 "*** %s's hostname has changed from %s to %s",
+								 LOQUI_UTILS_EMPTY_IF_NULL(nick),
+								 LOQUI_UTILS_EMPTY_IF_NULL(tmp),
+								 LOQUI_UTILS_EMPTY_IF_NULL(hostname));
+			loqui_user_set_hostname(user, hostname);
+		}
+
+		
+		tmp = loqui_user_ipmsg_get_group_name(LOQUI_USER_IPMSG(user));
+		if (STR_DIFFERENT(tmp, group_name)) {
+			if (print_changes)
+				loqui_account_append_text_printf(account, NULL, LOQUI_TEXT_TYPE_INFO,
+								 "*** %s's group name has changed from %s to %s",
+								 LOQUI_UTILS_EMPTY_IF_NULL(nick),
+								 LOQUI_UTILS_EMPTY_IF_NULL(tmp),
+								 LOQUI_UTILS_EMPTY_IF_NULL(group_name));
+			loqui_user_ipmsg_set_group_name(LOQUI_USER_IPMSG(user), group_name);
+		}
 	}
 
-	private gboolean helper_add_user(self, :IPMsg:Packet *packet) {
+	private gboolean helper_br_command(self, :IPMsg:Packet *packet, gboolean print_changes) {
 		LoquiAccount *account;
 		LoquiUser *user;
 		LoquiMember *member;
@@ -90,11 +152,14 @@ class Loqui:Receiver:IPMsg from Loqui:Receiver
 		port = ipmsg_packet_get_port(packet);
 		user = LOQUI_USER(loqui_account_ipmsg_fetch_user_by_pair(LOQUI_ACCOUNT_IPMSG(account), ip_addr, port));
 
-		self_helper_update_user(self, user, packet);
-
-
 		member = loqui_channel_entry_get_member_by_user(LOQUI_CHANNEL_ENTRY(account), user);
 		is_add = (member == NULL) ? TRUE : FALSE;
+
+		self_helper_update_user(self, user,
+					print_changes && !is_add,
+					packet->extra,
+					packet->command_num & IPMSG_ABSENCEOPT ? TRUE : FALSE,
+					packet->username, packet->hostname, packet->group_name);
 
 		if (is_add) {
 			member = loqui_member_new(user);
@@ -112,24 +177,42 @@ class Loqui:Receiver:IPMsg from Loqui:Receiver
 		if (!self_validate_and_warn_packet(self, packet))
 			return;
 		
-		if (self_helper_add_user(self, packet))
+		if (self_helper_br_command(self, packet, FALSE))
 			loqui_account_append_text_printf(SELF_GET_ACCOUNT(self), NULL, LOQUI_TEXT_TYPE_INFO,
-							 "*** Appeared %s@%s (%s)",
+							 "*** %s (%s) (%s@%s) has appeared",
+							 packet->extra,
+							 LOQUI_UTILS_EMPTY_IF_NULL(packet->group_name),
 							 packet->username,
-							 packet->hostname,
-							 packet->group_name ? packet->group_name : "");
+							 packet->hostname);
+
+		loqui_sender_ipmsg_ansentry(SELF_GET_SENDER_IPMSG(self));
 	}
 	
 	private void command_ansentry(self, IPMsgPacket *packet) {
 		if (!self_validate_and_warn_packet(self, packet))
 			return;
 
-		if (self_helper_add_user(self, packet))
+		if (self_helper_br_command(self, packet, FALSE))
 			loqui_account_append_text_printf(SELF_GET_ACCOUNT(self), NULL, LOQUI_TEXT_TYPE_INFO,
-							 "*** %s@%s (%s) is here",
+							 "*** %s (%s) (%s@%s) is here",
+							 packet->extra,
+							 LOQUI_UTILS_EMPTY_IF_NULL(packet->group_name),
 							 packet->username,
-							 packet->hostname,
-							 packet->group_name ? packet->group_name : "");
+							 packet->hostname);
+	}
+
+	private void command_br_absence(self, IPMsgPacket *packet) {
+		if (!self_validate_and_warn_packet(self, packet))
+			return;
+
+		if (self_helper_br_command(self, packet, TRUE))
+			loqui_account_append_text_printf(SELF_GET_ACCOUNT(self), NULL, LOQUI_TEXT_TYPE_INFO,
+							 "*** %s (%s) (%s@%s) has already be here",
+							 packet->extra,
+							 LOQUI_UTILS_EMPTY_IF_NULL(packet->group_name),
+							 packet->username,
+							 packet->hostname);
+		
 	}
 
 	private void command_br_exit(self, :IPMsg:Packet *packet) {
@@ -182,6 +265,9 @@ class Loqui:Receiver:IPMsg from Loqui:Receiver
 			return;
 		case IPMSG_ANSENTRY:
 			self_command_ansentry(self, packet);
+			return;
+		case IPMSG_BR_ABSENCE:
+			self_command_br_absence(self, packet);
 			return;
 		case IPMSG_SENDMSG:
 //		loqui_receiver_ipmsg_command_sendmsg(self, packet);
