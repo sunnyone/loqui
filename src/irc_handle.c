@@ -924,7 +924,8 @@ irc_handle_joined_channel_append(IRCHandle *handle, IRCMessage *msg, GSList *cha
 	gchar *str;
 	GSList *slist = NULL, *cur;
 	Channel *channel;
-	
+	MessageText *msgtext;
+
 	str = irc_message_format(msg, format);
 
 	if(channel_slist == NULL) {
@@ -934,14 +935,21 @@ irc_handle_joined_channel_append(IRCHandle *handle, IRCMessage *msg, GSList *cha
 		slist = channel_slist;
 	}
 
+	msgtext = message_text_new();
+	g_object_set(G_OBJECT(msgtext), 
+		     "is_remark", FALSE,
+		     "text_type", type,
+		     "text", str, NULL);
+
 	if(slist != NULL) {
 		for(cur = slist; cur != NULL; cur = cur->next) {
-			channel = (Channel *) cur->data;
-			channel_append_text(channel, type, str);
+			channel = CHANNEL(cur->data);
+			channel_buffer_append_message_text(channel->buffer, msgtext, FALSE, FALSE);
 		}
 	} else {
 		account_console_buffer_append(handle->priv->account, type, str);
 	}
+	g_object_unref(msgtext);
 
 	g_free(str);
 	if(channel_slist == NULL && slist != NULL)

@@ -331,10 +331,9 @@ account_manager_channel_buffer_append_cb(ChannelBuffer *buffer, MessageText *msg
 
 	priv = manager->priv;
 
-	if(priv->last_msgtext == msgtext) {
-		g_print("Duplicated!\n");
+	if(priv->last_msgtext == msgtext)
 		return;
-	}
+	
 	
 	channel_buffer_append_message_text(priv->common_buffer, msgtext, TRUE, FALSE);
 
