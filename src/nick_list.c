@@ -218,7 +218,7 @@ static void nick_list_cell_data_func_op(GtkTreeViewColumn *tree_column,
 	case USER_POWER_OP:
 		g_object_set(G_OBJECT(cell), "pixbuf", nick_list->priv->op_icon, NULL);
 		return;
-	case USER_POWER_V:
+	case USER_POWER_VOICE:
 		g_object_set(G_OBJECT(cell), "pixbuf", nick_list->priv->speak_ability_icon, NULL);
 		return;
 	case USER_POWER_NOTHING:

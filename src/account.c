@@ -365,7 +365,7 @@ gboolean account_is_connected(Account *account)
 {
         g_return_val_if_fail(account != NULL, FALSE);
         g_return_val_if_fail(IS_ACCOUNT(account), FALSE);
-		
+	
 	return (account->priv->handle != NULL);
 }
 

@@ -262,7 +262,7 @@ void channel_append_user(Channel *channel, const gchar *nick, UserPower power, U
 			tmp_power = USER_POWER_OP;
 		} else if (*nick == '+') {
 			tmp_nick = nick+1;
-			tmp_power = USER_POWER_V;
+			tmp_power = USER_POWER_VOICE;
 		} else {
 			tmp_nick = nick;
 			tmp_power = USER_POWER_NOTHING;
@@ -359,11 +359,11 @@ void channel_change_user_power(Channel *channel, const gchar *nick, UserPower po
 
 	if(!channel_find_user(channel, nick, &iter))
 		return;
-	
+
 	gtk_tree_model_get(GTK_TREE_MODEL(channel->user_list), &iter,
 			   USERLIST_COLUMN_OP, &old_power, -1);
 	/* meaningless change */
-	if(old_power == USER_POWER_OP && power == USER_POWER_V)
+	if(old_power == USER_POWER_OP && power == USER_POWER_VOICE)
 		return;
 
 	gtk_list_store_set(channel->user_list, &iter, USERLIST_COLUMN_OP, power, -1);

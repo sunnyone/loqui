@@ -387,7 +387,7 @@ irc_handle_parse_mode_arguments(IRCHandle *handle, IRCMessage *msg, Channel *cha
 				break;
 			case IRC_CHANNEL_MODE_VOICE:
 				GET_TARGET_OR_RETURN(msg, cur, &target);
-				CHANGE_USER_POWER(channel, target, is_add ? USER_POWER_V : USER_POWER_NOTHING); /* FIXME */
+				CHANGE_USER_POWER(channel, target, is_add ? USER_POWER_VOICE : USER_POWER_NOTHING); /* FIXME */
 				break;
 			case IRC_CHANNEL_MODE_CREATOR:
 				break;

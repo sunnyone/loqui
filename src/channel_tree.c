@@ -136,7 +136,6 @@ static void
 channel_tree_row_selected_cb(GtkTreeSelection *selection, gpointer data)
 {
 	GtkTreeIter iter;
-	GtkTreeView *treeview;
 	GtkTreeModel *model;
 	Account *account;
 	Channel *channel;

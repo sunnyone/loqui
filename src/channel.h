@@ -43,7 +43,7 @@ typedef struct _ChannelPrivate     ChannelPrivate;
 typedef enum {
 	USER_POWER_UNKNOWN,
 	USER_POWER_OP,
-	USER_POWER_V,
+	USER_POWER_VOICE,
 	USER_POWER_NOTHING,
 	USER_POWER_UNDETERMINED = 255,
 } UserPower;
