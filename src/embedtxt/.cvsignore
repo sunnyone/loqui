@@ -1,9 +1,0 @@
-*.d
-Makefile
-.deps
-.libs
-HTML
-Makefile.in
-cscope.out
-gmon.out
-*.h
