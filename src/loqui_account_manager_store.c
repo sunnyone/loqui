@@ -399,8 +399,16 @@ loqui_account_manager_store_get_value(GtkTreeModel *tree_model,
 		g_value_set_string(value, loqui_channel_entry_get_name(chent));
 		return;
 	case LOQUI_ACCOUNT_MANAGER_STORE_COLUMN_COLOR:
+		if (loqui_channel_entry_get_has_unread_keyword(chent)) {
+			g_value_set_string(value, HIGHLIGHT_COLOR);
+			return;
+		}
 		if (loqui_channel_entry_get_is_updated(chent)) {
 			g_value_set_string(value, FRESH_COLOR);
+			return;
+		}
+		if (loqui_channel_entry_get_is_updated_weak(chent)) {
+			g_value_set_string(value, FRESH_WEAK_COLOR);
 			return;
 		}
 		if (LOQUI_IS_CHANNEL(chent) &&

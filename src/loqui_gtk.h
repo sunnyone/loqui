@@ -23,6 +23,7 @@
 #define FRESH_COLOR "red"
 #define FRESH_WEAK_COLOR "blue"
 #define NONFRESH_COLOR "black"
+#define HIGHLIGHT_COLOR "purple"
 #define UNJOINED_COLOR "grey"
 
 #define SHORTCUT_CHANNEL_ENTRY_ACCEL_MAP_PREFIX "<ChannelEntries>/ChannelEntry "

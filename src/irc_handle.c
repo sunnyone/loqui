@@ -216,7 +216,7 @@ irc_handle_parse_plum_recent(IRCHandle *handle, const gchar *line)
 
 	buf = g_strdup_printf("[LOG] %s", line);
 	loqui_channel_append_text(channel, TEXT_TYPE_NOTICE, buf);
-	loqui_channel_entry_set_is_updated(LOQUI_CHANNEL_ENTRY(channel), TRUE);
+	loqui_channel_entry_set_is_updated_weak(LOQUI_CHANNEL_ENTRY(channel), TRUE);
 	g_free(buf);
 
 	return TRUE;

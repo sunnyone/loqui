@@ -538,8 +538,12 @@ loqui_channel_append_remark(LoquiChannel *channel, TextType type, gboolean is_se
 		     "text", remark,
 		     "nick", nick,
 		     "channel_name", loqui_channel_entry_get_name(LOQUI_CHANNEL_ENTRY(channel)), NULL);
-	loqui_channel_entry_set_is_updated(LOQUI_CHANNEL_ENTRY(channel), TRUE);
-  
+
+	if (type == TEXT_TYPE_NOTICE)
+		loqui_channel_entry_set_is_updated_weak(LOQUI_CHANNEL_ENTRY(channel), TRUE);
+	else
+		loqui_channel_entry_set_is_updated(LOQUI_CHANNEL_ENTRY(channel), TRUE);
+
 	channel_buffer_append_message_text(buffer, msgtext, FALSE, exec_notification);
 	g_object_unref(msgtext);
 }

@@ -25,7 +25,7 @@
 #include "prefs_general.h"
 #include "utils.h"
 #include "gtkutils.h"
-
+#include "loqui_gtk.h"
 
 enum {
 	APPEND,
@@ -146,7 +146,7 @@ channel_buffer_init_tags(void)
 	gtk_text_tag_table_add(default_tag_table, tag);
 
 	tag = gtk_text_tag_new("highlight");
-	g_object_set(tag, "weight", PANGO_WEIGHT_BOLD, "foreground", "purple", NULL);
+	g_object_set(tag, "weight", PANGO_WEIGHT_BOLD, "foreground", HIGHLIGHT_COLOR, NULL);
 	gtk_text_tag_table_add(default_tag_table, tag);
 
 	highlight_area_tag = gtk_text_tag_new("highlight-area");

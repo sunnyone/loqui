@@ -35,6 +35,8 @@ enum {
 	PROP_NAME,
 	PROP_TOPIC,
 	PROP_IS_UPDATED,
+	PROP_IS_UPDATED_WEAK,
+	PROP_HAS_UNREAD_KEYWORD,
 	PROP_BUFFER,
 	PROP_MEMBER_NUMBER,
 	PROP_OP_NUMBER,
@@ -163,6 +165,12 @@ loqui_channel_entry_get_property(GObject *object, guint param_id, GValue *value,
 	case PROP_IS_UPDATED:
 		g_value_set_boolean(value, chent->is_updated);
 		break;
+	case PROP_IS_UPDATED_WEAK:
+		g_value_set_boolean(value, chent->is_updated_weak);
+		break;
+	case PROP_HAS_UNREAD_KEYWORD:
+		g_value_set_boolean(value, chent->has_unread_keyword);
+		break;
 	case PROP_BUFFER:
 		g_value_set_object(value, chent->buffer);
 		break;
@@ -202,6 +210,12 @@ loqui_channel_entry_set_property(GObject *object, guint param_id, const GValue *
 		break;
 	case PROP_IS_UPDATED:
 		loqui_channel_entry_set_is_updated(chent, g_value_get_boolean(value));
+		break;
+	case PROP_IS_UPDATED_WEAK:
+		loqui_channel_entry_set_is_updated_weak(chent, g_value_get_boolean(value));
+		break;
+	case PROP_HAS_UNREAD_KEYWORD:
+		loqui_channel_entry_set_has_unread_keyword(chent, g_value_get_boolean(value));
 		break;
 	case PROP_BUFFER:
 		loqui_channel_entry_set_buffer(chent, g_value_get_object(value));
@@ -253,6 +267,18 @@ loqui_channel_entry_class_init(LoquiChannelEntryClass *klass)
 					g_param_spec_boolean("is_updated",
 							     _("Updated"),
 							     _("Updated or not"),
+							     FALSE, G_PARAM_READWRITE));
+	g_object_class_install_property(object_class,
+					PROP_IS_UPDATED_WEAK,
+					g_param_spec_boolean("is_updated_weak",
+							     _("Updated weak"),
+							     _("Updated weak or not"),
+							     FALSE, G_PARAM_READWRITE));
+	g_object_class_install_property(object_class,
+					PROP_HAS_UNREAD_KEYWORD,
+					g_param_spec_boolean("has_unread_keyword",
+							     _("Has unread keyword"),
+							     _("Has unread keyword or not"),
 							     FALSE, G_PARAM_READWRITE));
 	g_object_class_install_property(object_class,
 					PROP_BUFFER,
@@ -635,10 +661,60 @@ loqui_channel_entry_set_is_updated(LoquiChannelEntry *chent, gboolean is_updated
 gboolean
 loqui_channel_entry_get_is_updated(LoquiChannelEntry *chent)
 {
-        g_return_val_if_fail(chent != NULL, 0);
-        g_return_val_if_fail(LOQUI_IS_CHANNEL_ENTRY(chent), 0);
+        g_return_val_if_fail(chent != NULL, FALSE);
+        g_return_val_if_fail(LOQUI_IS_CHANNEL_ENTRY(chent), FALSE);
 
 	return chent->is_updated;
+}
+void
+loqui_channel_entry_set_is_updated_weak(LoquiChannelEntry *chent, gboolean is_updated_weak)
+{
+	g_return_if_fail(chent != NULL);
+        g_return_if_fail(LOQUI_IS_CHANNEL_ENTRY(chent));
+
+	if (chent->is_updated_weak == is_updated_weak)
+		return;
+
+	chent->is_updated_weak = is_updated_weak;
+	g_object_notify(G_OBJECT(chent), "is_updated_weak");
+}
+gboolean
+loqui_channel_entry_get_is_updated_weak(LoquiChannelEntry *chent)
+{
+        g_return_val_if_fail(chent != NULL, FALSE);
+        g_return_val_if_fail(LOQUI_IS_CHANNEL_ENTRY(chent), FALSE);
+
+	return chent->is_updated_weak;
+}
+void
+loqui_channel_entry_set_has_unread_keyword(LoquiChannelEntry *chent, gboolean has_unread_keyword)
+{
+	g_return_if_fail(chent != NULL);
+        g_return_if_fail(LOQUI_IS_CHANNEL_ENTRY(chent));
+
+	if (chent->has_unread_keyword == has_unread_keyword)
+		return;
+
+	chent->has_unread_keyword = has_unread_keyword;
+	g_object_notify(G_OBJECT(chent), "has_unread_keyword");
+}
+gboolean
+loqui_channel_entry_get_has_unread_keyword(LoquiChannelEntry *chent)
+{
+        g_return_val_if_fail(chent != NULL, FALSE);
+        g_return_val_if_fail(LOQUI_IS_CHANNEL_ENTRY(chent), FALSE);
+
+	return chent->has_unread_keyword;
+}
+void
+loqui_channel_entry_set_as_read(LoquiChannelEntry *chent)
+{
+	g_return_if_fail(chent != NULL);
+        g_return_if_fail(LOQUI_IS_CHANNEL_ENTRY(chent));
+
+	loqui_channel_entry_set_is_updated(chent, FALSE);
+	loqui_channel_entry_set_is_updated_weak(chent, FALSE);
+	loqui_channel_entry_set_has_unread_keyword(chent, FALSE);
 }
 void
 loqui_channel_entry_set_do_sort(LoquiChannelEntry *chent, gboolean do_sort)
@@ -658,8 +734,8 @@ loqui_channel_entry_set_do_sort(LoquiChannelEntry *chent, gboolean do_sort)
 gboolean
 loqui_channel_entry_get_do_sort(LoquiChannelEntry *chent)
 {
-        g_return_val_if_fail(chent != NULL, 0);
-        g_return_val_if_fail(LOQUI_IS_CHANNEL_ENTRY(chent), 0);
+        g_return_val_if_fail(chent != NULL, FALSE);
+        g_return_val_if_fail(LOQUI_IS_CHANNEL_ENTRY(chent), FALSE);
 
 	return chent->do_sort;
 }

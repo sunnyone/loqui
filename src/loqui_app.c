@@ -310,7 +310,7 @@ loqui_app_channel_text_view_scrolled_to_end_cb(LoquiChannelTextView *chview, Loq
         g_return_if_fail(chent != NULL);
         g_return_if_fail(LOQUI_IS_CHANNEL_ENTRY(chent));
 	
-	loqui_channel_entry_set_is_updated(chent, FALSE);
+	loqui_channel_entry_set_as_read(chent);
 }
 static void
 loqui_app_channel_text_view_notify_is_scroll_cb(LoquiChannelTextView *chview, GParamSpec *pspec, LoquiApp *app)
@@ -785,7 +785,7 @@ loqui_app_set_current_channel_entry(LoquiApp *app, LoquiChannelEntry *chent)
 			      is_account_changed, account,
 			      is_channel_changed, channel);
 
-	loqui_channel_entry_set_is_updated(chent, FALSE);
+	loqui_channel_entry_set_as_read(chent);
 
 	g_signal_connect(G_OBJECT(chent), "notify",
 			 G_CALLBACK(loqui_app_channel_entry_notify_cb), app);

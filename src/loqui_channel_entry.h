@@ -48,6 +48,9 @@ struct _LoquiChannelEntry
 	GHashTable *user_hash; /* key: user, value: position + 1 */
 
 	gboolean is_updated;
+	gboolean is_updated_weak; /* for NOTICE */
+	gboolean has_unread_keyword;
+
 	gchar *name;
 	gchar *topic;
 
@@ -98,6 +101,14 @@ ChannelBuffer *loqui_channel_entry_get_buffer(LoquiChannelEntry *chent);
 
 void loqui_channel_entry_set_is_updated(LoquiChannelEntry *chent, gboolean is_updated);
 gboolean loqui_channel_entry_get_is_updated(LoquiChannelEntry *chent);
+
+void loqui_channel_entry_set_is_updated_weak(LoquiChannelEntry *chent, gboolean is_updated_weak);
+gboolean loqui_channel_entry_get_is_updated_weak(LoquiChannelEntry *chent);
+
+void loqui_channel_entry_set_has_unread_keyword(LoquiChannelEntry *chent, gboolean has_unread_keyword);
+gboolean loqui_channel_entry_get_has_unread_keyword(LoquiChannelEntry *chent);
+
+void loqui_channel_entry_set_as_read(LoquiChannelEntry *chent);
 
 void loqui_channel_entry_set_do_sort(LoquiChannelEntry *chent, gboolean do_sort);
 gboolean loqui_channel_entry_get_do_sort(LoquiChannelEntry *chent);
