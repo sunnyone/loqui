@@ -72,8 +72,11 @@ typedef struct _PrefsGeneral {
 	GList *highlight_list;
 
 	guint remark_history_number;
-
 	gboolean auto_reconnect;
+
+	gboolean use_transparent_ignore;
+	GList *transparent_ignore_list;
+
 } PrefsGeneral;
 
 void prefs_general_load(void);

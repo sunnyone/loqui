@@ -62,6 +62,9 @@ PrefElement prefs_general_defs[] = {
 
 	{"auto_reconnect", "true", PREF_TYPE_BOOLEAN, &prefs_general.auto_reconnect },
 
+	{"use_transparent_ignore", "true", PREF_TYPE_BOOLEAN, &prefs_general.use_transparent_ignore },
+	{"transparent_ignore_list", "", PREF_TYPE_STRING_LIST, &prefs_general.transparent_ignore_list },
+
 	{NULL, NULL, 0, NULL}
 };
 

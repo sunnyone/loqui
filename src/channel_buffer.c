@@ -319,11 +319,11 @@ channel_buffer_new(void)
 					 "foreground", "blue",
 					 "underline", PANGO_UNDERLINE_SINGLE,
 					 NULL);
+	gtk_text_buffer_create_tag(textbuf, "transparent", NULL);
 	gtk_text_buffer_create_tag(textbuf, "highlight",
 				   "weight", PANGO_WEIGHT_BOLD,
 				   "foreground", "purple",
 				   NULL);
-	gtk_text_buffer_create_tag(textbuf, "transparent", NULL);
 	priv->highlight_area_tag = gtk_text_buffer_create_tag(textbuf, "highlight-area",
 							      NULL);
 	priv->notification_area_tag = gtk_text_buffer_create_tag(textbuf, "notification-area",
@@ -382,6 +382,9 @@ channel_buffer_append(ChannelBuffer *buffer, TextType type, gchar *str,
 	case TEXT_TYPE_TIME:
 		style = "time";
 		break;
+	case TEXT_TYPE_TRANSPARENT:
+		style = "transparent";
+		break;
 	default:
 		style = "normal";
 	}
@@ -402,6 +405,7 @@ channel_buffer_append_message_text(ChannelBuffer *buffer, MessageText *msgtext,
 {
 	gchar *buf;
 	TextType type;
+	GList *cur;
 
         g_return_if_fail(buffer != NULL);
         g_return_if_fail(IS_CHANNEL_BUFFER(buffer));
@@ -413,6 +417,13 @@ channel_buffer_append_message_text(ChannelBuffer *buffer, MessageText *msgtext,
 	type = message_text_get_text_type(msgtext);
 
 	if(message_text_get_is_remark(msgtext)) {
+		/* FIXME: should be more efficient */
+		if(prefs_general.use_transparent_ignore) {
+			for(cur = prefs_general.transparent_ignore_list; cur != NULL; cur = cur->next) {
+				if(g_pattern_match_simple((gchar *) cur->data, message_text_get_nick(msgtext)))
+					type = TEXT_TYPE_TRANSPARENT;
+			}
+		}
 		buf = message_text_get_nick_string(msgtext, verbose);
 		channel_buffer_append(buffer, type, buf, FALSE, FALSE);
 		g_free(buf);

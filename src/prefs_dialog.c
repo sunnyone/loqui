@@ -41,6 +41,9 @@ struct _PrefsDialogPrivate
 	GtkWidget *check_use_notification;
 	GtkWidget *textview_highlight;
 
+	GtkWidget *check_use_transparent_ignore;
+	GtkWidget *textview_transparent_ignore;
+
 	GtkWidget *entry_browser_command;
 	GtkWidget *entry_notification_command;
 };
@@ -159,11 +162,19 @@ prefs_dialog_load_settings(PrefsDialog *dialog)
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(priv->check_parse_plum_recent), prefs_general.parse_plum_recent);
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(priv->check_save_size), prefs_general.save_size);
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(priv->check_use_notification), prefs_general.use_notification);
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(priv->check_use_transparent_ignore), prefs_general.use_transparent_ignore);
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(priv->check_auto_reconnect), prefs_general.auto_reconnect);
 
 	buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(priv->textview_highlight));
 	if(prefs_general.highlight_list) {
 		buf = utils_line_separated_text_from_list(prefs_general.highlight_list);
+		gtk_text_buffer_set_text(GTK_TEXT_BUFFER(buffer), buf, -1);
+		g_free(buf);
+	}
+
+	buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(priv->textview_transparent_ignore));
+	if(prefs_general.transparent_ignore_list) {
+		buf = utils_line_separated_text_from_list(prefs_general.transparent_ignore_list);
 		gtk_text_buffer_set_text(GTK_TEXT_BUFFER(buffer), buf, -1);
 		g_free(buf);
 	}
@@ -188,6 +199,7 @@ prefs_dialog_save_settings(PrefsDialog *dialog)
 	prefs_general.save_size = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(priv->check_save_size));
 	prefs_general.auto_switch_scrolling = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(priv->check_auto_switch_scrolling));
 	prefs_general.parse_plum_recent = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(priv->check_parse_plum_recent));
+	prefs_general.use_transparent_ignore = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(priv->check_use_transparent_ignore));
 	prefs_general.use_notification = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(priv->check_use_notification));
 	prefs_general.auto_reconnect = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(priv->check_auto_reconnect));
 
@@ -200,6 +212,14 @@ prefs_dialog_save_settings(PrefsDialog *dialog)
 
 	G_LIST_FREE_WITH_ELEMENT_FREE_UNLESS_NULL(prefs_general.highlight_list);
 	prefs_general.highlight_list = utils_line_separated_text_to_list(buf);
+
+	buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(priv->textview_transparent_ignore));
+	gtk_text_buffer_get_start_iter(GTK_TEXT_BUFFER(buffer), &start);
+	gtk_text_buffer_get_end_iter(GTK_TEXT_BUFFER(buffer), &end);
+	buf = gtk_text_buffer_get_text(GTK_TEXT_BUFFER(buffer), &start, &end, FALSE);
+
+	G_LIST_FREE_WITH_ELEMENT_FREE_UNLESS_NULL(prefs_general.transparent_ignore_list);
+	prefs_general.transparent_ignore_list = utils_line_separated_text_to_list(buf);
 
 	G_FREE_UNLESS_NULL(prefs_general.codeset);
 	prefs_general.codeset = g_strdup(gtk_entry_get_text(GTK_ENTRY(priv->entry_codeset)));
@@ -328,6 +348,23 @@ prefs_dialog_new(void)
 
 	priv->textview_highlight = gtk_text_view_new();
 	gtk_container_add(GTK_CONTAINER(scrolled_win), priv->textview_highlight);
+
+	vbox = gtk_vbox_new(FALSE, 0);
+	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), vbox, gtk_label_new(_("Ignore")));
+
+	priv->check_use_transparent_ignore = gtk_check_button_new_with_label(_("Use ignore (transparent) feature"));
+	gtk_box_pack_start(GTK_BOX(vbox), priv->check_use_transparent_ignore, FALSE, FALSE, 0);
+
+	frame = gtk_frame_new(_("Nickname list to ignore (transparent) ('*' and '?' can be used)"));
+	gtk_box_pack_start(GTK_BOX(vbox), frame, TRUE, TRUE, 0);
+
+	scrolled_win = gtk_scrolled_window_new(NULL, NULL);
+	gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled_win), GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
+	gtk_container_add(GTK_CONTAINER(frame), scrolled_win);
+
+	priv->textview_transparent_ignore = gtk_text_view_new();
+	gtk_container_add(GTK_CONTAINER(scrolled_win), priv->textview_transparent_ignore);
+
 	vbox = gtk_vbox_new(FALSE, 0);
 	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), vbox, gtk_label_new(_("Command")));
 
