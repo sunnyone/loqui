@@ -541,12 +541,12 @@ loqui_channel_append_remark(LoquiChannel *channel, TextType type, gboolean is_se
 		     "nick", nick,
 		     "channel_name", loqui_channel_entry_get_name(LOQUI_CHANNEL_ENTRY(channel)), NULL);
 
-	if (type == TEXT_TYPE_NOTICE)
+	if (type == TEXT_TYPE_NOTICE || is_from_server)
 		loqui_channel_entry_set_is_updated_weak(LOQUI_CHANNEL_ENTRY(channel), TRUE);
 	else
 		loqui_channel_entry_set_is_updated(LOQUI_CHANNEL_ENTRY(channel), TRUE);
-
-	if (!is_self) {
+	
+	if (!is_self && !is_from_server) {
 		for (cur = prefs_general.highlight_list; cur != NULL; cur = cur->next) {
 			word = (gchar *) cur->data;
 			if (strstr(remark, word) != NULL) {
