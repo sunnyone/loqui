@@ -29,6 +29,13 @@
  } \
 }
 
+#define G_OBJECT_UNREF_UNLESS_NULL(obj) { \
+ if(obj != NULL) { \
+     g_object_unref(obj); \
+     obj = NULL; \
+ } \
+}
+
 #define G_LIST_FREE_WITH_ELEMENT_FREE_UNLESS_NULL(list) { \
  if(list != NULL) { \
     g_list_foreach(list, (GFunc) g_free, NULL); \
