@@ -882,6 +882,20 @@ loqui_account_remove_user_from_all(LoquiAccount *account, LoquiUser *user, gbool
 		g_list_free(list);
 	}
 }
+void
+loqui_account_remove_all_user(LoquiAccount *account)
+{
+	GList *list, *cur;
+
+	g_return_if_fail(account != NULL);
+        g_return_if_fail(LOQUI_IS_ACCOUNT(account));
+
+	list = utils_get_key_list_from_hash(account->user_identifier_table);
+	for (cur = list; cur != NULL; cur = cur->next) {
+		loqui_account_remove_user_from_all(account, cur->data, TRUE, NULL);
+	}
+}
+
 LoquiChannel *
 loqui_account_open_private_talk(LoquiAccount *account, const gchar *identifier, LoquiUser *user)
 {
