@@ -114,6 +114,8 @@ account_manager_init (AccountManager *account_manager)
 	priv = g_new0(AccountManagerPrivate, 1);
 
 	account_manager->priv = priv;
+
+	account_manager->max_channel_entry_id = -1;
 }
 static void 
 account_manager_finalize (GObject *object)
@@ -413,6 +415,12 @@ account_manager_get_previous_channel_entry(AccountManager *manager, LoquiChannel
 	} while (matched_count == 1); /* matched but failed to get previous */
 
 	return NULL;
+}
+
+gint
+account_manager_new_channel_entry_id(AccountManager *manager)
+{
+	return ++manager->max_channel_entry_id;
 }
 
 void

@@ -41,6 +41,7 @@ enum {
 	PROP_MEMBER_NUMBER,
 	PROP_OP_NUMBER,
 	PROP_POSITION,
+	PROP_ID,
         LAST_PROP
 };
 
@@ -167,6 +168,9 @@ loqui_channel_entry_get_property(GObject *object, guint param_id, GValue *value,
 	case PROP_POSITION:
 		g_value_set_int(value, chent->position);
 		break;
+	case PROP_ID:
+		g_value_set_int(value, chent->id);
+		break;
         default:
                 G_OBJECT_WARN_INVALID_PROPERTY_ID(object, param_id, pspec);
                 break;
@@ -194,6 +198,9 @@ loqui_channel_entry_set_property(GObject *object, guint param_id, const GValue *
 		break;
 	case PROP_POSITION:
 		loqui_channel_entry_set_position(chent, g_value_get_int(value));
+		break;
+	case PROP_ID:
+		loqui_channel_entry_set_id(chent, g_value_get_int(value));
 		break;
         default:
                 G_OBJECT_WARN_INVALID_PROPERTY_ID(object, param_id, pspec);
@@ -259,8 +266,15 @@ loqui_channel_entry_class_init(LoquiChannelEntryClass *klass)
 					g_param_spec_int("position",
 							 _("Position"),
 							 _("Position of all channel entries"),
-							 0, G_MAXINT,
-							 0, G_PARAM_READABLE));
+							 -1, G_MAXINT,
+							 -1, G_PARAM_READABLE));
+	g_object_class_install_property(object_class,
+					PROP_ID,
+					g_param_spec_int("id",
+							 _("ChannelEntryID"),
+							 _("ID of channel entry."),
+							 -1, G_MAXINT,
+							 -1, G_PARAM_READABLE));
 
 	loqui_channel_entry_signals[SIGNAL_REMOVE] = g_signal_new("remove",
 								  G_OBJECT_CLASS_TYPE(object_class),
@@ -302,6 +316,7 @@ loqui_channel_entry_init(LoquiChannelEntry *chent)
 	
 	chent->op_number = 0;
 	chent->position = -1;
+	chent->id = -1;
 }
 LoquiChannelEntry*
 loqui_channel_entry_new(void)
@@ -554,3 +569,4 @@ loqui_channel_entry_get_is_updated(LoquiChannelEntry *chent)
 LOQUI_CHANNEL_ENTRY_ACCESSOR_STRING(topic);
 LOQUI_CHANNEL_ENTRY_ACCESSOR_STRING(name);
 LOQUI_CHANNEL_ENTRY_ACCESSOR_GENERIC(gint, position);
+LOQUI_CHANNEL_ENTRY_ACCESSOR_GENERIC(gint, id);

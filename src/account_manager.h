@@ -40,7 +40,9 @@ typedef struct _AccountManagerPrivate     AccountManagerPrivate;
 struct _AccountManager
 {
         GObject parent;
-        
+
+        gint max_channel_entry_id;
+
         AccountManagerPrivate *priv;
 };
 
@@ -71,6 +73,8 @@ void account_manager_disconnect_all(AccountManager *manager);
 GList *account_manager_get_account_list(AccountManager *manager);
 
 void account_manager_update_positions(AccountManager *manager);
+
+gint account_manager_new_channel_entry_id(AccountManager *manager);
 
 LoquiChannelEntry * account_manager_get_next_channel_entry(AccountManager *manager,
 							   LoquiChannelEntry *chent,

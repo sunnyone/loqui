@@ -22,8 +22,7 @@
 
 #define FRESH_COLOR "red"
 #define NONFRESH_COLOR "black"
-#define MAX_SHORTCUT_CHANNEL_NUMBER 19
-#define SHORTCUT_CHANNEL_ACCEL_MAP_PREFIX "<main>/Channels/Channel "
+#define SHORTCUT_CHANNEL_ENTRY_ACCEL_MAP_PREFIX "<ChannelEntries>/ChannelEntry "
 
 void loqui_gtk_init(int *argc, char ***argv);
 void loqui_gtk_start_main_loop(void);

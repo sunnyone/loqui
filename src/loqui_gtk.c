@@ -29,33 +29,6 @@
 #include "loqui_stock.h"
 #include "prefs_general.h"
 
-static void make_accel_map_entries_for_channel_shortcutkeys(void);
-
-/* temporary implementation */
-static void
-make_accel_map_entries_for_channel_shortcutkeys(void)
-{
-	int i;
-	gchar *path;
-	guint key = 0;
-	GdkModifierType mods = 0;
-	
-	for (i = 0; i <= MAX_SHORTCUT_CHANNEL_NUMBER; i++) {
-		if (i < 10) {
-			key = GDK_0 + i;
-			mods = GDK_CONTROL_MASK;
-		} else if (i < 20) {
-			key = GDK_0 + i - 10;
-			mods = GDK_MOD1_MASK;
-		} else {
-			g_assert_not_reached();
-		}
-		path = g_strdup_printf(SHORTCUT_CHANNEL_ACCEL_MAP_PREFIX "%d", i);
-		gtk_accel_map_add_entry(path, key, mods);
-		g_free(path);
-	}
-}
-
 void
 loqui_gtk_init(int *argc, char **argv[])
 {
@@ -71,8 +44,6 @@ loqui_gtk_init(int *argc, char **argv[])
 	path = g_build_filename(g_get_home_dir(), PREFS_DIR, "gtkrc-2.0", NULL);
 	gtk_rc_parse(path);
 	g_free(path);
-
-	make_accel_map_entries_for_channel_shortcutkeys();
 }
 void
 loqui_gtk_start_main_loop(void)

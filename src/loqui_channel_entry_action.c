@@ -57,8 +57,8 @@ static void loqui_channel_entry_action_set_property(GObject *object, guint param
 static void loqui_channel_entry_action_entry_notify_is_updated_cb(LoquiChannelEntry *chent, GParamSpec *psec, LoquiChannelEntryAction *action);
 static void loqui_channel_entry_action_set_label_color(LoquiChannelEntryAction *ce_ction);
 
-static void loqui_channel_entry_action_entry_notify_position_cb(LoquiChannelEntry *ce_action, GParamSpec *psec, LoquiChannelEntryAction *action);
-static void loqui_channel_entry_set_position_accel_path(LoquiChannelEntryAction *action);
+static void loqui_channel_entry_action_entry_notify_id_cb(LoquiChannelEntry *ce_action, GParamSpec *psec, LoquiChannelEntryAction *action);
+static void loqui_channel_entry_set_id_accel_path(LoquiChannelEntryAction *action);
 
 GType
 loqui_channel_entry_action_get_type(void)
@@ -245,20 +245,25 @@ loqui_channel_entry_action_entry_notify_is_updated_cb(LoquiChannelEntry *chent, 
 	loqui_channel_entry_action_set_label_color(action);
 }
 static void
-loqui_channel_entry_action_entry_notify_position_cb(LoquiChannelEntry *ce_action, GParamSpec *psec, LoquiChannelEntryAction *action)
+loqui_channel_entry_action_entry_notify_id_cb(LoquiChannelEntry *ce_action, GParamSpec *psec, LoquiChannelEntryAction *action)
 {
-	loqui_channel_entry_set_position_accel_path(action);
+	loqui_channel_entry_set_id_accel_path(action);
 }
 static void
-loqui_channel_entry_set_position_accel_path(LoquiChannelEntryAction *action)
+loqui_channel_entry_set_id_accel_path(LoquiChannelEntryAction *action)
 {
-	gint pos = -1;
+	gint id;
 	gchar *path;
 
 	if (action->channel_entry)
-		pos = loqui_channel_entry_get_position(action->channel_entry);
+		id = loqui_channel_entry_get_id(action->channel_entry);
+	else
+		return;
 
-	path = g_strdup_printf(SHORTCUT_CHANNEL_ACCEL_MAP_PREFIX "%d", pos);
+	if (id < 0)
+		return;
+
+	path = g_strdup_printf(SHORTCUT_CHANNEL_ENTRY_ACCEL_MAP_PREFIX "%d", id);
 	gtk_action_set_accel_path(GTK_ACTION(action), path);
 	g_free(path);
 }
@@ -274,12 +279,12 @@ loqui_channel_entry_action_set_channel_entry(LoquiChannelEntryAction *action, Lo
 	g_signal_handlers_disconnect_by_func(G_OBJECT(channel_entry),
 					     loqui_channel_entry_action_entry_notify_is_updated_cb, action);
 	g_signal_handlers_disconnect_by_func(G_OBJECT(channel_entry),
-					     loqui_channel_entry_action_entry_notify_position_cb, action);
+					     loqui_channel_entry_action_entry_notify_id_cb, action);
 
 	if (channel_entry) {
 		action->channel_entry = channel_entry;
-		g_signal_connect(G_OBJECT(channel_entry), "notify::position",
-				 G_CALLBACK(loqui_channel_entry_action_entry_notify_position_cb), action);
+		g_signal_connect(G_OBJECT(channel_entry), "notify::id",
+				 G_CALLBACK(loqui_channel_entry_action_entry_notify_id_cb), action);
 
 		g_signal_connect(G_OBJECT(channel_entry), "notify::is-updated",
 				 G_CALLBACK(loqui_channel_entry_action_entry_notify_is_updated_cb), action);
@@ -290,7 +295,7 @@ loqui_channel_entry_action_set_channel_entry(LoquiChannelEntryAction *action, Lo
 
 		loqui_channel_entry_action_set_label_color(action);
 
-		loqui_channel_entry_set_position_accel_path(action);
+		loqui_channel_entry_set_id_accel_path(action);
 	}
 }
 LoquiChannelEntry *

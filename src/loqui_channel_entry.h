@@ -58,6 +58,7 @@ struct _LoquiChannelEntry
 
 	gint op_number; /* cache */
 
+	gint id;
 	gint position;
 
         LoquiChannelEntryPrivate *priv;
@@ -112,6 +113,7 @@ ATTR_READER_GENERIC_PROTOTYPE(gint, LoquiChannelEntry, loqui_channel_entry, op_n
 LOQUI_CHANNEL_ENTRY_ACCESSOR_STRING_PROTOTYPE(name);
 LOQUI_CHANNEL_ENTRY_ACCESSOR_STRING_PROTOTYPE(topic);
 LOQUI_CHANNEL_ENTRY_ACCESSOR_GENERIC_PROTOTYPE(gint, position);
+LOQUI_CHANNEL_ENTRY_ACCESSOR_GENERIC_PROTOTYPE(gint, id);
 
 G_END_DECLS
 
