@@ -9,6 +9,7 @@ SRC_BASE_UTILITIES = \
 	intl.h \
 	utils.c utils.h \
 	gobject_utils.c gobject_utils.h \
+	loqui_string_tokenizer.c loqui_string_tokenizer.h \
 	loqui_title_format.c loqui_title_format.h \
 	loqui_marshalers.c loqui_marshalers.h
 
