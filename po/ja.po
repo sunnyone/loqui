@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: loqui 0.1.20\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2004-04-16 21:07+0900\n"
+"POT-Creation-Date: 2004-04-16 21:27+0900\n"
 "PO-Revision-Date: 2002-11-10 13:17+0900\n"
 "Last-Translator: Yoichi Imai <yoichi@silver-forest.com>\n"
 "Language-Team: Japanese <ja@li.org>\n"
@@ -159,6 +159,10 @@ msgstr "コード"
 msgid "Code convertion"
 msgstr "コード変換"
 
+#: src/account_dialog.c:316
+msgid "codeset: "
+msgstr "コードセット: "
+
 #: src/account_dialog.c:329 src/loqui_profile_account.c:243
 #: src/loqui_user.c:217 src/message_text.c:115 src/nick_list.c:444
 msgid "Nick"
@@ -300,7 +304,7 @@ msgstr ""
 
 #: src/command_dialog.c:266
 msgid "Change nickname"
-msgstr ""
+msgstr "ニックネームの変更"
 
 #: src/command_dialog.c:274
 #, c-format
@@ -639,7 +643,7 @@ msgstr "CTCP"
 
 #: src/loqui_app_actions.c:102
 msgid "Sort Type of NickList"
-msgstr ""
+msgstr "Nickリストのソート順"
 
 #: src/loqui_app_actions.c:107
 msgid "_Quit"
@@ -667,7 +671,7 @@ msgstr "改行を削除してペースト(_P)"
 
 #: src/loqui_app_actions.c:115
 msgid "_Clear"
-msgstr ""
+msgstr "クリア(_C)"
 
 #: src/loqui_app_actions.c:117
 msgid "_Find"
@@ -687,7 +691,7 @@ msgstr "現在のチャンネルを抜ける"
 
 #: src/loqui_app_actions.c:122
 msgid "Set _Topic of Current Channel"
-msgstr ""
+msgstr "現在のチャンネルのトピックを変更(_T)"
 
 #: src/loqui_app_actions.c:123
 msgid "_Change Nickname"
@@ -801,6 +805,7 @@ msgstr "チャンネルバッファをスクロールする"
 msgid ""
 "Whether scrolling the channel buffer to the end when new message arrived."
 msgstr ""
+"新しいメッセージの投稿時にチャンネルバッファを最下行にスクロールする/しない。"
 
 #: src/loqui_app_actions.c:157
 msgid "_Scroll common buffer"
@@ -810,6 +815,7 @@ msgstr ""
 msgid ""
 "Whether scrolling the common buffer to the end when new message arrived."
 msgstr ""
+"新しいメッセージの投稿時に共通バッファを最下行にスクロールする/しない。"
 
 #: src/loqui_app_actions.c:494
 msgid "Not selected a channel!"
@@ -1154,6 +1160,15 @@ msgstr "オンライン"
 msgid "Away"
 msgstr "離席"
 
+#: src/loqui_statusbar.c:396
+#, fuzzy
+msgid "Change nick"
+msgstr "ニックネームの変更(_C)"
+
+#: src/loqui_statusbar.c:396
+msgid "Change nick"
+msgstr "ニックネームの変更"
+
 #: src/loqui_user.c:218
 msgid "Nick name"
 msgstr "ニックネーム"
@@ -1320,7 +1335,7 @@ msgstr "離席メッセージ: "
 
 #: src/prefs_dialog.c:291
 msgid "Format of time in buffers: "
-msgstr ""
+msgstr "バッファの時間表示形式"
 
 #: src/prefs_dialog.c:294
 msgid "Max line number of a common buffer(0: unlimited): "
@@ -1332,15 +1347,15 @@ msgstr "チャンネルバッファの最大行数(0: 無制限): "
 
 #: src/prefs_dialog.c:302
 msgid "Toggle command mode automatically"
-msgstr ""
+msgstr "コマンドモードへ自動的に移行する"
 
 #: src/prefs_dialog.c:305
 msgid "Prefix for commands: "
-msgstr ""
+msgstr "コマンド文字"
 
 #: src/prefs_dialog.c:307
 msgid "Save logs (Experimental)"
-msgstr ""
+msgstr "ログの保存(実験的)"
 
 #: src/prefs_dialog.c:311
 msgid "Highlight"
@@ -1356,15 +1371,15 @@ msgstr "強調するキーワード(改行で区切って下さい)"
 
 #: src/prefs_dialog.c:321
 msgid "Ignore"
-msgstr ""
+msgstr "無視"
 
 #: src/prefs_dialog.c:323
 msgid "Use ignore (transparent) feature"
-msgstr ""
+msgstr "無視(透明)機能を使用する"
 
 #: src/prefs_dialog.c:327
 msgid "Nickname list to ignore (transparent) ('*' and '?' can be used)"
-msgstr ""
+msgstr "無視する(透明)ニックネームのリスト('*'や'?'を使用できます)"
 
 #: src/prefs_dialog.c:333
 msgid "Browser: "
@@ -1372,97 +1387,8 @@ msgstr "ブラウザ: "
 
 #: src/prefs_dialog.c:335
 msgid "URL is passed to a browser with quoted, like 'http://example.com/'"
-msgstr ""
+msgstr "'http://example.com/'のように、URLはクォートしてブラウザに渡されます。"
 
 #: src/prefs_dialog.c:338
 msgid "Notification: "
 msgstr "通知: "
-
-#: src/prefs_general.c:160
-#, c-format
-msgid "prefs_general: Invalid attribute for entry: %s"
-msgstr ""
-
-#: src/prefs_general.c:166
-#, c-format
-msgid "Unknown key: %s\n"
-msgstr ""
-
-#: src/prefs_general.c:231 src/prefs_general.c:257
-msgid "Unsupported pref type!"
-msgstr ""
-
-#: src/prefs_general.c:317
-#, c-format
-msgid "Loquirc parse error: %s"
-msgstr ""
-
-#: src/prefs_general.c:339
-#, c-format
-msgid "Can't open %s: %s"
-msgstr "%sが開けませんでした: %s"
-
-#: src/utils.c:172
-#, c-format
-msgid "?x flag doesn't have { in '%s'"
-msgstr ""
-
-#~ msgid "Account: "
-#~ msgstr "アカウント: "
-
-#~ msgid "Channel: "
-#~ msgstr "チャンネル: "
-
-#~ msgid "Type channel name to join (and channel key, if any)."
-#~ msgstr "入りたいチャンネル名(とあればチャンネルキー)を入力してください"
-
-#~ msgid "Type nick to start private talk."
-#~ msgstr "プライベートトークを開始したいnickを入力してください"
-
-#~ msgid "Failed to add channel"
-#~ msgstr "チャンネルを追加するのに失敗しました"
-
-#~ msgid "Next Channel"
-#~ msgstr "次のチャンネル"
-
-#~ msgid "Servers (Cells are editable.)"
-#~ msgstr "サーバ(セルは編集可能です)"
-
-#~ msgid "Select accounts/server to connect"
-#~ msgstr "接続するアカウント/サーバを選んでください"
-
-#~ msgid "Default"
-#~ msgstr "デフォルト"
-
-#~ msgid "/Edit/Cut"
-#~ msgstr "/Edit/切り取り"
-
-#~ msgid "/Edit/Clear"
-#~ msgstr "/Edit/クリア"
-
-#~ msgid "/_Command"
-#~ msgstr "/コマンド(_C)"
-
-#~ msgid "/Command/_Join channel"
-#~ msgstr "/Command/チャンネルに参加(_J)"
-
-#~ msgid "/Command/Start private talk"
-#~ msgstr "/Command/プライベートトークの開始"
-
-#~ msgid "/Command/_Part channel"
-#~ msgstr "/Command/チャンネルを抜ける(_P)"
-
-#~ msgid "/Command/_Set channel topic"
-#~ msgstr "/Command/チャンネルのトピックをセットする(_S)"
-
-#~ msgid "/Settings/Common preferences..."
-#~ msgstr "/Settings/全般の設定..."
-
-#~ msgid "/Settings/Account settings..."
-#~ msgstr "/Settings/アカウント設定..."
-
-#~ msgid "/Start private talk"
-#~ msgstr "/プライベートトークの開始"
-
-#~ msgid "Illegal command"
-#~ msgstr "無効なコマンドです"
