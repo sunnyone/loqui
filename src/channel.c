@@ -266,7 +266,7 @@ void channel_remove_user(Channel *channel, const gchar *nick)
 		account_manager_nick_list_remove(account_manager_get(), user);
 	}
 
-	g_slist_remove(channel->user_list, user);
+	channel->user_list = g_slist_remove(channel->user_list, user);
 	g_free(user->nick);
 	g_free(user);
 
