@@ -25,9 +25,12 @@
 #include "loqui-account-ipmsg.h"
 #include "loqui_user_ipmsg.h"
 /* #include "loqui_channel_ipmsg.h" */
-#include "loqui_sender_ipmsg.h"
+#include "loqui-sender-ipmsg.h"
 /* #include "loqui_receiver_ipmsg.h" */
 #include "loqui_profile_account_ipmsg.h"
+#include "loqui_codeconv.h"
+
+#include <libloqui-intl.h>
 
 static LoquiProtocolClass *parent_class = NULL;
 
@@ -35,6 +38,17 @@ static void loqui_protocol_ipmsg_class_init(LoquiProtocolIPMsgClass *klass);
 static void loqui_protocol_ipmsg_init(LoquiProtocolIPMsg *protocol);
 
 static LoquiProtocolIPMsg* loqui_protocol_ipmsg_new(void);
+
+static LoquiCodeConvTableItem codeconv_table[] = {
+	{"ja",
+	 N_("Japanese"),
+	 N_("CP932"),
+	 "ja_JP",
+	 NULL,
+	 "CP932", "Shift_JIS",
+	},
+	{NULL, NULL, NULL, NULL, NULL, NULL, NULL},
+};
 
 GType
 loqui_protocol_ipmsg_get_type(void)
@@ -80,6 +94,7 @@ loqui_protocol_ipmsg_init(LoquiProtocolIPMsg *protocol)
 	LOQUI_PROTOCOL(protocol)->type_profile_account = LOQUI_TYPE_PROFILE_ACCOUNT_IPMSG;
 
 	loqui_protocol_set_identifier(LOQUI_PROTOCOL(protocol), "IPMsg");
+	loqui_protocol_set_codeconv_table(LOQUI_PROTOCOL(protocol), codeconv_table);
 }
 static LoquiProtocolIPMsg*
 loqui_protocol_ipmsg_new(void)

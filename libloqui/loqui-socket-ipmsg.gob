@@ -55,24 +55,12 @@ class Loqui:Socket:IPMsg from G:Object
 
 	private GInetAddr *inetaddr unrefwith gnet_inetaddr_unref;
 
-	private GIConv iconv;
+	private LoquiCodeConv *codeconv unrefwith g_object_unref;
 
 	private guint in_watch;
 	private guint out_watch;
 
 	public LoquiAccount *account;
-
-	init(self) {
-		gchar *ctype;
-
-		ctype = setlocale(LC_CTYPE, NULL);
-	
-		if (ctype != NULL && g_str_has_prefix(ctype, "ja")) {
-			selfp->iconv = g_iconv_open("UTF-8", "Shift_JIS");
-		} else {
-			selfp->iconv = NULL;
-		}
-	}
 
 	private gboolean 
 	watch_in_cb(GIOChannel *ioch, GIOCondition condition, Self *self) {
@@ -81,9 +69,11 @@ class Loqui:Socket:IPMsg from G:Object
 		gsize len;
 		IPMsgPacket *packet;
 		GInetAddr *addr;
-		gchar *local;
-		gsize local_len;
+		gchar *local, *local_extra;
+		gint len2zero;
 		LoquiAccount *account;
+		GString *string;
+		GError *error = NULL;
 
 		account = SELF_GET_ACCOUNT(self);
 
@@ -97,25 +87,36 @@ class Loqui:Socket:IPMsg from G:Object
 			return TRUE;
 		}
 		buf[len] = '\0';
-	
-		if (selfp->iconv) {
-			local = g_convert_with_iconv(buf, len+1, selfp->iconv, NULL, &local_len, NULL);
-		} else {
-			local = g_memdup(buf, len+1);
-		}
-	
-		if (local == NULL) {
-			loqui_account_warning(account, _("Failed to convert codeset"));
+
+		/* extra message exists after '\0' */
+		if ((local = loqui_codeconv_to_local(selfp->codeconv, buf, &error)) == NULL) {
+			loqui_account_warning(account, _("Failed to convert codeset: %s"), error->message);
+			g_error_free(error);
 			return TRUE;
 		}
+		string = g_string_new(local);
+		g_free(local);
 
-		packet = ipmsg_packet_parse(local, len);
+		len2zero = strlen(buf);
+		if (len2zero < len) {
+			if ((local_extra = loqui_codeconv_to_local(selfp->codeconv, buf + len2zero, &error)) == NULL) {
+				loqui_account_warning(account, _("Failed to convert codeset of extra: %s"), error->message);
+				g_error_free(error);
+				g_string_free(string, TRUE);
+				return TRUE;
+			}
+			g_string_append_c(string, '\0');
+			g_string_append(string, local_extra);
+			g_free(local_extra);
+		}
+		
+		packet = ipmsg_packet_parse(string->str, string->len);
 		if (!packet) {
 			loqui_account_warning(account, _("Invalid packet: '%s'"), local);
-			g_free(local);
+			g_string_free(string, TRUE);
 			return TRUE;
 		}
-		g_free(local);
+		g_string_free(string, TRUE);
 
 		ipmsg_packet_set_inetaddr(packet, addr);
 		gnet_inetaddr_unref(addr);
@@ -188,6 +189,11 @@ class Loqui:Socket:IPMsg from G:Object
 
 		self = GET_NEW;
 		self->account = account;
+
+		selfp->codeconv = loqui_codeconv_new();
+		loqui_codeconv_set_table(selfp->codeconv, loqui_protocol_get_codeconv_table(loqui_account_get_profile(account)->protocol));
+		loqui_codeconv_set_mode(selfp->codeconv, LOQUI_CODECONV_MODE_AUTOMATIC);
+		g_assert(loqui_codeconv_update(selfp->codeconv, NULL));
 
 		return self;
 	}
