@@ -1,0 +1,150 @@
+/* -*- Mode: C; tab-width: 8; indent-tabs-mode: t; c-basic-offset: 8 -*- */
+/*
+ * Loqui -- IRC client for GNOME2
+ * Copyright (C) 2002 Yoichi Imai <yoichi@silver-forest.com>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+ */
+#include "config.h"
+
+#include "account_manager.h"
+#include "loqui_gconf.h"
+#include "account.h"
+#include "channel_tree.h"
+#include "loqui_common_text.h"
+
+struct _AccountManagerPrivate
+{
+	GList *account_list;
+
+	LoquiCommonText *common_text;
+	ChannelTree *channel_tree;
+};
+
+static GObjectClass *parent_class = NULL;
+#define PARENT_TYPE G_TYPE_OBJECT
+
+static void account_manager_class_init(AccountManagerClass *klass);
+static void account_manager_init(AccountManager *account_manager);
+static void account_manager_finalize(GObject *object);
+
+GType
+account_manager_get_type(void)
+{
+	static GType type = 0;
+	if (type == 0) {
+		static const GTypeInfo our_info =
+			{
+				sizeof(AccountManagerClass),
+				NULL,           /* base_init */
+				NULL,           /* base_finalize */
+				(GClassInitFunc) account_manager_class_init,
+				NULL,           /* class_finalize */
+				NULL,           /* class_data */
+				sizeof(AccountManager),
+				0,              /* n_preallocs */
+				(GInstanceInitFunc) account_manager_init
+			};
+		
+		type = g_type_register_static(PARENT_TYPE,
+					      "AccountManager",
+					      &our_info,
+					      0);
+	}
+	
+	return type;
+}
+static void
+account_manager_class_init (AccountManagerClass *klass)
+{
+        GObjectClass *object_class = G_OBJECT_CLASS(klass);
+
+        parent_class = g_type_class_peek_parent(klass);
+        
+        object_class->finalize = account_manager_finalize;
+}
+static void 
+account_manager_init (AccountManager *account_manager)
+{
+	AccountManagerPrivate *priv;
+
+	priv = g_new0(AccountManagerPrivate, 1);
+
+	account_manager->priv = priv;
+}
+static void 
+account_manager_finalize (GObject *object)
+{
+	AccountManager *account_manager;
+
+        g_return_if_fail(object != NULL);
+        g_return_if_fail(IS_ACCOUNT_MANAGER(object));
+
+        account_manager = ACCOUNT_MANAGER(object);
+
+        if (G_OBJECT_CLASS(parent_class)->finalize)
+                (* G_OBJECT_CLASS(parent_class)->finalize) (object);
+
+	g_free(account_manager->priv);
+}
+
+AccountManager*
+account_manager_new (void)
+{
+        AccountManager *account_manager;
+	AccountManagerPrivate *priv;
+
+	account_manager = g_object_new(account_manager_get_type(), NULL);
+
+	return account_manager;
+}
+void account_manager_load(AccountManager *account_manager)
+{
+	GSList *list;
+	GSList *cur;
+	gchar *name;
+	Account *account;
+	AccountManagerPrivate *priv;
+
+	priv = account_manager->priv;
+
+	list = eel_gconf_get_string_list(LOQUI_GCONF_ACCOUNT "/account_list");
+	if(list == NULL) return;
+
+	for(cur = list; cur != NULL; cur = cur->next) {
+		name = (gchar *) cur->data;
+		account = account_new();
+		account_restore(account, name);
+		channel_tree_add_account(priv->channel_tree, account);
+		g_free(name);
+	}
+	g_slist_free(list);
+
+}
+void account_manager_set_widgets(AccountManager *account_manager,
+				 GtkWidget *channel_book,
+				 GtkWidget *common_text,
+				 GtkWidget *nick_list,
+				 GtkWidget *channel_tree)
+{
+	AccountManagerPrivate *priv;
+
+	priv = account_manager->priv;
+
+/*	priv->channel_book = CHANNEL_BOOK(channel_book); */
+	priv->common_text = LOQUI_COMMON_TEXT(common_text);
+/*	priv->nick_list = nick_list; */
+	priv->channel_tree = CHANNEL_TREE(channel_tree);
+}
