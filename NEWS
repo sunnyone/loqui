@@ -178,3 +178,13 @@
 * Fixed the bug failed to sort.
 * Fixed to receive SEGV when an user is parted/quit.
 
+2004-04-09   0.3.0pre3
+* Fixed the bug the program quit when received WHO on the special condition.
+* Added icon and desktop file.
+* Changed the dialog for commands.
+* Menu changes according to the current status.
+
+2004-04-09   0.3.0pre4
+* Fixed the bug failed to save codeset.
+* Changed the method to manage channel buffers.
+
