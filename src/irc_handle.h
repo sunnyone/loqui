@@ -56,9 +56,10 @@ struct _IRCHandleClass
 
 GType irc_handle_get_type(void) G_GNUC_CONST;
 
-IRCHandle* irc_handle_new(Account *account, Server *server);
+IRCHandle* irc_handle_new(Account *account);
 void irc_handle_push_message(IRCHandle *handle, IRCMessage *msg);
 
+void irc_handle_connect(IRCHandle *handle, gboolean fallback, Server *server);
 void irc_handle_disconnect(IRCHandle *handle);
 
 G_END_DECLS

@@ -58,7 +58,6 @@ static void irc_handle_class_init(IRCHandleClass *klass);
 static void irc_handle_init(IRCHandle *irc_handle);
 static void irc_handle_finalize(GObject *object);
 
-static void irc_handle_connection_start(IRCHandle *handle);
 static void irc_handle_connect_cb(GTcpSocket *socket,
 				  GInetAddr *ia,
 				  GTcpSocketConnectAsyncStatus status,
@@ -1283,7 +1282,7 @@ irc_handle_connect_cb(GTcpSocket *socket,
 	if(status != GTCP_SOCKET_CONNECT_ASYNC_STATUS_OK || socket == NULL) {
 		account_console_buffer_append(priv->account, TRUE, TEXT_TYPE_INFO, _("Failed to connect"));
 		if(priv->fallback)
-			irc_handle_connection_start(handle);
+			irc_handle_connect(handle, priv->fallback, priv->server);
 		return;
 	}
 
@@ -1341,8 +1340,8 @@ irc_handle_connect_cb(GTcpSocket *socket,
 
 	account_console_buffer_append(priv->account, TRUE, TEXT_TYPE_INFO, _("Done."));
 }
-static void
-irc_handle_connection_start(IRCHandle *handle)
+void
+irc_handle_connect(IRCHandle *handle, gboolean fallback, Server *server)
 {
 	IRCHandlePrivate *priv;
 	GSList *cur;
@@ -1352,6 +1351,9 @@ irc_handle_connection_start(IRCHandle *handle)
         g_return_if_fail(IS_IRC_HANDLE(handle));
 
 	priv = handle->priv;
+
+	priv->fallback = fallback;
+	priv->server = server;
 
 	if(priv->fallback) {
 		if(priv->server) {
@@ -1390,7 +1392,7 @@ irc_handle_connection_start(IRCHandle *handle)
 							 irc_handle_connect_cb, handle);
 }
 IRCHandle*
-irc_handle_new(Account *account, Server *server)
+irc_handle_new(Account *account)
 {
         IRCHandle *handle;
 	IRCHandlePrivate *priv;
@@ -1401,11 +1403,6 @@ irc_handle_new(Account *account, Server *server)
 
 	priv->account = account;
 	priv->msg_queue = g_queue_new();
-
-	priv->fallback = (server == NULL) ? TRUE : FALSE;
-	priv->server = server;
-
-	irc_handle_connection_start(handle);
 
 	return handle;
 }

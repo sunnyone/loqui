@@ -33,6 +33,8 @@
 #include <string.h>
 
 enum {
+	CONNECTED,
+	DISCONNECTED,
 	NICK_CHANGED,
 	AWAY_CHANGED,
 	ADD_CHANNEL,
@@ -92,7 +94,21 @@ account_class_init (AccountClass *klass)
         parent_class = g_type_class_peek_parent(klass);
         
         object_class->finalize = account_finalize;
-
+	
+	account_signals[CONNECTED] = g_signal_new("connected",
+						  G_OBJECT_CLASS_TYPE(object_class),
+						  G_SIGNAL_RUN_FIRST,
+						  0,
+						  NULL, NULL,
+						  g_cclosure_marshal_VOID__VOID,
+						  G_TYPE_NONE, 0);
+	account_signals[DISCONNECTED] = g_signal_new("disconnected",
+						     G_OBJECT_CLASS_TYPE(object_class),
+						     G_SIGNAL_RUN_FIRST,
+						     0,
+						     NULL, NULL,
+						     g_cclosure_marshal_VOID__VOID,
+						     G_TYPE_NONE, 0);
 	account_signals[NICK_CHANGED] = g_signal_new("nick-changed",
 						     G_OBJECT_CLASS_TYPE(object_class),
 						     G_SIGNAL_RUN_FIRST,
@@ -386,7 +402,10 @@ account_connect(Account *account, Server *server)
 	}
 
 	account_manager_set_current_account(account_manager_get(), account); 
-	priv->handle = irc_handle_new(account, server);
+
+	priv->handle = irc_handle_new(account);
+	irc_handle_connect(priv->handle, (server == NULL) ? TRUE : FALSE, server);
+
 }
 void
 account_disconnect(Account *account)
