@@ -249,6 +249,7 @@ typedef enum {
 #define IRCCTCPTime        "TIME"
 #define IRCCTCPFinger      "FINGER"
 #define IRCCTCPDCC         "DCC"
+#define IRCCTCPAction      "ACTION"
 
 #define IRCDCCSend         "SEND"
 #define IRCDCCChat         "CHAT"

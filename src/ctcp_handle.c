@@ -24,6 +24,8 @@
 #include "intl.h"
 #include "loqui_profile_account_irc.h"
 #include "loqui_sender_irc.h"
+#include "loqui_account_irc.h"
+#include "loqui_channel.h"
 
 #include <string.h>
 
@@ -151,13 +153,16 @@ void ctcp_handle_message(CTCPHandle *ctcp_handle, CTCPMessage *ctcp_msg, gboolea
 	gint i;
 	CTCPHandlePrivate *priv;
 	gchar *buf, *sender, *receiver;
-	
+	LoquiAccount *account;
+	LoquiChannel *channel;
+
         g_return_if_fail(ctcp_handle != NULL);
         g_return_if_fail(IS_CTCP_HANDLE(ctcp_handle));
         g_return_if_fail(ctcp_msg != NULL);
         g_return_if_fail(IS_CTCP_MESSAGE(ctcp_msg));
 	
 	priv = ctcp_handle->priv;
+	account = priv->account;
 
 	if(ctcp_msg->command == NULL)
 		return;
@@ -172,6 +177,18 @@ void ctcp_handle_message(CTCPHandle *ctcp_handle, CTCPMessage *ctcp_msg, gboolea
 	if(receiver == NULL) {
 		g_warning(_("Receiver is not set in a CTCP message"));
 		return;
+	}
+
+	if (strcmp(ctcp_msg->command, IRCCTCPAction) == 0) {
+		channel = loqui_account_get_channel_by_identifier(account, receiver);
+		if (channel) {
+			loqui_channel_append_remark(channel, TEXT_TYPE_ACTION,
+						    loqui_account_irc_is_current_nick(LOQUI_ACCOUNT_IRC(account), sender),
+						    sender,
+						    ctcp_msg->argument ? ctcp_msg->argument : "",
+						    FALSE);
+			return;
+		}
 	}
 
 	buf = g_strdup_printf(_("Received CTCP %s from %s to %s: %s%s%s"), 

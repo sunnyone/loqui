@@ -136,6 +136,10 @@ channel_buffer_init_tags(void)
 	g_object_set(tag, "foreground", "#555555", NULL);
 	gtk_text_tag_table_add(default_tag_table, tag);
 
+	tag = gtk_text_tag_new("action");
+	g_object_set(tag, "style", PANGO_STYLE_ITALIC, NULL);
+	gtk_text_tag_table_add(default_tag_table, tag);
+
 	tag = gtk_text_tag_new("link");
 	g_object_set(tag, "foreground", "blue", "underline", PANGO_UNDERLINE_SINGLE, NULL);
 	g_signal_connect(G_OBJECT(tag), "event",
@@ -443,6 +447,9 @@ channel_buffer_append(ChannelBuffer *buffer, TextType type, gchar *str,
 	switch(type) {
 	case TEXT_TYPE_NOTICE:
 		style = "notice";
+		break;
+	case TEXT_TYPE_ACTION:
+		style = "action";
 		break;
 	case TEXT_TYPE_ERROR:
 		style = "error";

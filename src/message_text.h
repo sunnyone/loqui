@@ -40,6 +40,7 @@ typedef struct _MessageTextPrivate     MessageTextPrivate;
 typedef enum {
 	TEXT_TYPE_NORMAL,
 	TEXT_TYPE_NOTICE,
+	TEXT_TYPE_ACTION,
 	TEXT_TYPE_INFO,
 	TEXT_TYPE_ERROR,
 	/* private */
