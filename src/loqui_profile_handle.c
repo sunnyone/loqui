@@ -916,7 +916,6 @@ loqui_profile_handle_write_to_buffer(LoquiProfileHandle *handle, GList *profile_
 
         g_return_val_if_fail(handle != NULL, FALSE);
         g_return_val_if_fail(LOQUI_IS_PROFILE_HANDLE(handle), FALSE);
-	g_return_val_if_fail(profile_list != NULL, FALSE);
 
         priv = handle->priv;
 
@@ -954,7 +953,6 @@ loqui_profile_handle_write_to_file(LoquiProfileHandle *handle, GList *profile_li
 
         g_return_val_if_fail(handle != NULL, FALSE);
         g_return_val_if_fail(LOQUI_IS_PROFILE_HANDLE(handle), FALSE);
-	g_return_val_if_fail(profile_list != NULL, FALSE);
 
         priv = handle->priv;
 
