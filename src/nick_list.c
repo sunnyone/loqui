@@ -23,6 +23,7 @@
 #include "gtkutils.h"
 #include "intl.h"
 #include "main.h"
+#include "irc_constants.h"
 
 struct _NickListPrivate
 {
@@ -32,6 +33,9 @@ struct _NickListPrivate
 
 	GdkPixbuf *home_icon;
 	GdkPixbuf *away_icon;
+
+	GtkItemFactory *item_factory;
+	GtkWidget *popup_menu;
 };
 
 static GtkTreeViewClass *parent_class = NULL;
@@ -54,6 +58,27 @@ static void nick_list_cell_data_func_away(GtkTreeViewColumn *tree_column,
 					  GtkTreeModel *tree_model,
 					  GtkTreeIter *iter,
 					  gpointer data);
+static gint nick_list_button_press_event_cb(GtkWidget *widget, GdkEventButton *event, gpointer data);
+static GSList *nick_list_menu_get_selected_nicks(NickList *nick_list);
+
+static void nick_list_menu_whois_cb(gpointer data, guint action, GtkWidget *widget);
+static void nick_list_menu_mode_give_cb(gpointer data, guint action, GtkWidget *widget);
+static void nick_list_menu_mode_deprive_cb(gpointer data, guint action, GtkWidget *widget);
+
+static GtkItemFactoryEntry popup_menu_items[] = {
+	{ N_("/Whois"), NULL, nick_list_menu_whois_cb, 0 },
+	{ N_("/Mode"), NULL, 0, 0, "<Branch>"},
+	{ N_("/Mode/Give channel operator privilege (+o)"), NULL, 
+	     nick_list_menu_mode_give_cb, MODE_IRC_ChannelOperatorPrivs },
+	{ N_("/Mode/Give speak ability (+v)"), NULL,
+             nick_list_menu_mode_give_cb, MODE_IRC_ChannelSpeakAbility },
+	{    "/Mode/sep1", NULL, 0, 0, "<Separator>" },
+
+	{ N_("/Mode/Deprive channel operator privilege (-o)"), NULL, 
+	     nick_list_menu_mode_deprive_cb, MODE_IRC_ChannelOperatorPrivs },
+	{ N_("/Mode/Deprive speak ability (-v)"), NULL,
+	     nick_list_menu_mode_deprive_cb, MODE_IRC_ChannelSpeakAbility }
+};
 
 GType
 nick_list_get_type(void)
@@ -147,6 +172,11 @@ nick_list_destroy (GtkObject *object)
 		gdk_pixbuf_unref(priv->away_icon);
 		priv->away_icon = NULL;
 	}
+	if(priv->item_factory) {
+		g_object_unref(priv->item_factory);
+                priv->item_factory = NULL;
+	}
+
         if (GTK_OBJECT_CLASS(parent_class)->destroy)
                 (* GTK_OBJECT_CLASS(parent_class)->destroy) (object);
 }
@@ -223,9 +253,126 @@ static void nick_list_cell_data_func_away(GtkTreeViewColumn *tree_column,
 		break;
 	}
 }
+static GSList *
+nick_list_menu_get_selected_nicks(NickList *nick_list)
+{
+	GSList *str_list = NULL;
+	GList *row_list, *cur;
+	GtkTreePath *path;
+	GtkTreeSelection *selection;
+	GtkTreeIter iter;
+	GtkTreeModel *model;
+	gchar *nick;
 
+	selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(nick_list));
+	if(!selection)
+		return NULL;
+
+	row_list = gtk_tree_selection_get_selected_rows(selection, NULL);
+	if(!row_list)
+		return NULL;
+
+	model = gtk_tree_view_get_model(GTK_TREE_VIEW(nick_list));
+
+	for(cur = row_list; cur != NULL; cur = cur->next) {
+		path = cur->data;
+
+		if(!gtk_tree_model_get_iter(model, &iter, path)) {
+			continue;
+                }
+		gtk_tree_model_get(model, &iter, USERLIST_COLUMN_NICK, &nick, -1);
+		str_list = g_slist_append(str_list, nick);
+	}
+	g_list_foreach(row_list, (GFunc) gtk_tree_path_free, NULL);
+	g_list_free(row_list);
+
+	return str_list;
+}
+static void
+nick_list_menu_whois_cb(gpointer data, guint action, GtkWidget *widget)
+{
+	NickList *nick_list;
+	GSList *str_list, *cur;
+
+	nick_list = NICK_LIST(data);
+
+	str_list = nick_list_menu_get_selected_nicks(nick_list);
+	for(cur = str_list; cur != NULL; cur = cur->next) {
+		g_print("WHOIS %s\n", (gchar *) cur->data);
+		g_free(cur->data);
+	}
+	g_slist_free(str_list);
+}
+static void
+nick_list_menu_mode_give_cb(gpointer data, guint action, GtkWidget *widget)
+{
+	NickList *nick_list;
+	GSList *str_list, *cur;
+
+	nick_list = NICK_LIST(data);
+	
+	str_list = nick_list_menu_get_selected_nicks(nick_list);
+	for(cur = str_list; cur != NULL; cur = cur->next) {
+		g_print("MODE +%c %s\n", (gchar) action, (gchar *) cur->data);
+		g_free(cur->data);
+	}
+	g_slist_free(str_list);
+}
+static void
+nick_list_menu_mode_deprive_cb(gpointer data, guint action, GtkWidget *widget)
+{
+	NickList *nick_list;
+	GSList *str_list, *cur;
+
+	nick_list = NICK_LIST(data);
+
+	str_list = nick_list_menu_get_selected_nicks(nick_list);
+	for(cur = str_list; cur != NULL; cur = cur->next) {
+		g_print("MODE -%c %s\n", (gchar) action, (gchar *) cur->data);
+		g_free(cur->data);
+	}
+	g_slist_free(str_list);
+}
+
+static gint
+nick_list_button_press_event_cb(GtkWidget *widget, GdkEventButton *event, gpointer data)
+{
+	NickList *nick_list;
+	NickListPrivate *priv;
+	GtkMenu *menu;
+	GtkTreePath *path;
+	GtkTreeSelection *selection;
+	GList *row_list = NULL;
+
+	nick_list = NICK_LIST(widget);
+	priv = nick_list->priv;
+
+	menu = GTK_MENU(priv->popup_menu);
+
+	if(event->type == GDK_BUTTON_PRESS && event->button == 3) {
+		if(!gtk_tree_view_get_path_at_pos(GTK_TREE_VIEW(nick_list), event->x, event->y,
+						  &path, NULL, NULL, NULL))
+                        return FALSE;
+		gtk_tree_path_free(path);
+		
+		selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(nick_list));
+                if(!selection)
+                        return FALSE;
+		row_list = gtk_tree_selection_get_selected_rows(selection, NULL);
+		if(!row_list)
+			return FALSE;
+		g_list_foreach(row_list, (GFunc) gtk_tree_path_free, NULL);
+		g_list_free(row_list);
+
+		gtk_menu_popup(menu, NULL, NULL, NULL,
+			       nick_list, event->button, event->time);
+		return TRUE;
+	}
+
+	return FALSE;
+}
 GtkWidget*
-nick_list_new (void)
+nick_list_new(void)
 {
         NickList *list;
 	NickListPrivate *priv;
@@ -275,6 +422,16 @@ nick_list_new (void)
 	gtk_tree_view_set_search_column(GTK_TREE_VIEW(list), USERLIST_COLUMN_NICK);
 	gtk_tree_view_set_enable_search(GTK_TREE_VIEW(list), TRUE);
 
+	priv->item_factory = gtk_item_factory_new(GTK_TYPE_MENU, "<main>", NULL);
+        gtk_item_factory_set_translate_func(priv->item_factory, gtkutils_menu_translate,
+                                            NULL, NULL);
+        gtk_item_factory_create_items(priv->item_factory, G_N_ELEMENTS(popup_menu_items),
+                                      popup_menu_items, list);
+	priv->popup_menu = gtk_item_factory_get_widget(priv->item_factory, "<main>");
+
+	g_signal_connect(G_OBJECT(list), "button_press_event",
+			 G_CALLBACK(nick_list_button_press_event_cb), NULL);
+	
 	return GTK_WIDGET(list);
 }
 void nick_list_set_store(NickList *list, GtkListStore *store)
