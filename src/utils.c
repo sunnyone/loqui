@@ -407,6 +407,16 @@ utils_return_true_if_value_equals_data(gpointer key, gpointer value, gpointer da
 	return (value == data);
 }
 
+/* ::ffff:127.0.0.1 -> 127.0.0.1 */
+G_CONST_RETURN gchar *
+utils_remove_ipv6_prefix_ffff(const gchar *str)
+{
+	if (strncmp(str, "::ffff:", 7) == 0) {
+		return str + 7;
+	}
+	return str;
+}
+
 /* copied from Sylpheed. (c) 2002, Hiroyuki Yamamoto. */
 gint make_dir(const gchar *dir)
 {
