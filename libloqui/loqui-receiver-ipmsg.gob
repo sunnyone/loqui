@@ -306,6 +306,14 @@ class Loqui:Receiver:IPMsg from Loqui:Receiver
 			/* FIXME: the message by not registered user */
 		}
 
+		if (packet->command_num & IPMSG_SENDCHECKOPT &&
+		    !(packet->command_num & IPMSG_BROADCASTOPT) &&
+		    !(packet->command_num & IPMSG_AUTORETOPT)) {
+			loqui_sender_ipmsg_send_recvmsg(SELF_GET_SENDER_IPMSG(self),
+							packet->packet_num,
+							packet->inetaddr);
+		}
+
 		g_free(identifier);
 	}
 

@@ -25,6 +25,8 @@ requires 2.0.0
 %h{
 #include "loqui_sender.h"
 #include "loqui_account.h"
+
+#include <gnet.h>
 %}
 
 %{
@@ -91,6 +93,21 @@ class Loqui:Sender:IPMsg from Loqui:Sender
 		loqui_socket_ipmsg_send_packet(socket, packet, ip_addr, port);
 	}
 
+	private void send_packet_with_inetaddr(self, :IPMsg:Packet *packet, GInetAddr *inetaddr) {
+		LoquiAccount *account;
+		LoquiSocketIPMsg *socket;
+
+		account = SELF_GET_ACCOUNT(self);
+
+		if (!loqui_account_get_is_connected(account)) {
+			loqui_account_warning(account, _("The account is not connected."));
+			return;
+		}
+		
+		socket = loqui_account_ipmsg_get_socket(LOQUI_ACCOUNT_IPMSG(account));
+		loqui_socket_ipmsg_send_packet_with_inetaddr(socket, packet, inetaddr);
+	}
+
 	public void nooperation(self) {
 		IPMsgPacket *packet;
 
@@ -137,6 +154,18 @@ class Loqui:Sender:IPMsg from Loqui:Sender
 	}
 	public void br_exit(self) {
 		self_helper_send_br_command(self, IPMSG_BR_EXIT);
+	}
+	public void send_recvmsg(self, gint orig_packet_num, GInetAddr *dest_inetaddr) {
+		IPMsgPacket *packet;
+		gchar *tmp;
+		
+		tmp = g_strdup_printf("%d", orig_packet_num);
+		packet = loqui_account_ipmsg_create_packet(SELF_GET_ACCOUNT_IPMSG(self),
+							   IPMSG_RECVMSG,
+							   tmp);
+		g_free(tmp);
+		
+		self_send_packet_with_inetaddr(self, packet, dest_inetaddr);
 	}
 
 	public LoquiSenderIPMsg *
