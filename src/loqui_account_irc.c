@@ -324,6 +324,7 @@ static void
 loqui_account_irc_connection_terminated_cb(GObject *object, LoquiAccountIRC *account)
 {
 	LoquiAccountIRCPrivate *priv;
+	GList *cur;
 
         g_return_if_fail(account != NULL);
         g_return_if_fail(LOQUI_IS_ACCOUNT_IRC(account));
@@ -335,6 +336,9 @@ loqui_account_irc_connection_terminated_cb(GObject *object, LoquiAccountIRC *acc
 
 	loqui_account_console_buffer_append(LOQUI_ACCOUNT(account), TEXT_TYPE_INFO, _("Connection terminated."));
 	loqui_user_set_away(LOQUI_ACCOUNT(account)->user_self, LOQUI_AWAY_TYPE_OFFLINE);
+
+	for (cur = LOQUI_ACCOUNT(account)->channel_list; cur != NULL; cur = cur->next)
+		loqui_channel_set_is_joined(LOQUI_CHANNEL(cur->data), FALSE);
 
 	if(prefs_general.auto_reconnect) {
 		loqui_account_console_buffer_append(LOQUI_ACCOUNT(account), TEXT_TYPE_INFO, _("Trying to reconnect..."));

@@ -108,7 +108,7 @@ loqui_account_get_type(void)
 	return type;
 }
 static void
-loqui_account_class_init (LoquiAccountClass *klass)
+loqui_account_class_init(LoquiAccountClass *klass)
 {
         GObjectClass *object_class = G_OBJECT_CLASS(klass);
 
@@ -191,7 +191,7 @@ loqui_account_class_init (LoquiAccountClass *klass)
 
 	account_signals[DISCONNECTED] = g_signal_new("disconnected",
 						     G_OBJECT_CLASS_TYPE(object_class),
-						     G_SIGNAL_RUN_FIRST,
+						     G_SIGNAL_RUN_LAST,
 						     G_STRUCT_OFFSET(LoquiAccountClass, disconnected),
 						     NULL, NULL,
 						     g_cclosure_marshal_VOID__VOID,
@@ -213,7 +213,7 @@ loqui_account_init(LoquiAccount *account)
 	account->identifier_user_table = g_hash_table_new_full(utils_strcase_hash, utils_strcase_equal, g_free, NULL);
 }
 static void 
-loqui_account_finalize (GObject *object)
+loqui_account_finalize(GObject *object)
 {
 	LoquiAccount *account;
 	LoquiAccountPrivate *priv;
