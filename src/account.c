@@ -927,7 +927,7 @@ void account_whois(Account *account, const gchar *target)
 
 	priv = account->priv;
 
-	msg = irc_message_create(IRCCommandWhois, target, NULL);
+	msg = irc_message_create(IRCCommandWhois, target, target, NULL);
 	irc_handle_push_message(priv->handle, msg);
 	g_object_unref(msg);
 }
