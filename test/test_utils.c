@@ -2,6 +2,7 @@
 
 #include "test_helper.h"
 #include "utils.h"
+#include <glib.h>
 
 static int
 test_utils_format(void)
@@ -36,6 +37,34 @@ test_utils_search_uri(void)
 
 	return TRUE;
 }
+
+static gint
+sort_func(gconstpointer *a, gconstpointer *b)
+{
+	g_print("compare: %d - %d\n", GPOINTER_TO_INT(*a), GPOINTER_TO_INT(*b));
+	return GPOINTER_TO_INT(*a) - GPOINTER_TO_INT(*b);
+}
+static int
+test_utils_g_ptr_array_insert_sort(void)
+{
+	GPtrArray *ptr_array;
+	gint i;
+
+	ptr_array = g_ptr_array_new();
+	g_ptr_array_add(ptr_array, GINT_TO_POINTER(2));
+	g_ptr_array_add(ptr_array, GINT_TO_POINTER(2));
+	g_ptr_array_add(ptr_array, GINT_TO_POINTER(2));
+	g_ptr_array_add(ptr_array, GINT_TO_POINTER(2));
+	g_ptr_array_add(ptr_array, GINT_TO_POINTER(1));
+	utils_g_ptr_array_insert_sort(ptr_array, 4, (GCompareFunc) sort_func);
+//	g_ptr_array_sort(ptr_array, (GCompareFunc) sort_func);
+	for(i = 0; i < ptr_array->len; i++) {
+		g_print("Result[%d] = %d\n", i, GPOINTER_TO_INT(g_ptr_array_index(ptr_array, i)));
+	}
+	g_ptr_array_free(ptr_array, TRUE);
+	
+	return TRUE;
+}
 int
 main()
 {
@@ -43,6 +72,7 @@ main()
 
 	DO_TEST(all, failed, test_utils_format);
 	DO_TEST(all, failed, test_utils_search_uri);
+	DO_TEST(all, failed, test_utils_g_ptr_array_insert_sort);
 
 	SHOW_RESULT_AND_EXIT(all, failed, utils);
 }
