@@ -985,6 +985,8 @@ static gpointer irc_handle_thread_func(IRCHandle *handle)
 	g_thread_join(priv->send_thread);
 	debug_puts("Done.");
 
+	connection_disconnect(priv->connection);
+
 	g_thread_exit(NULL);
 	return NULL;
 }
