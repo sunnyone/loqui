@@ -12,6 +12,15 @@ EXTRA_DIST= autogen.sh \
 	ABOUT-NLS \
 	INSTALL \
 	loqui.spec \
-	loqui.spec.in
+	loqui.spec.in \
+	loqui.desktop \
+	loqui.png
 
 ACLOCAL_AMFLAGS = -I m4
+
+icon_DATA = loqui.png
+icondir = $(datadir)/pixmaps
+
+desktop_DATA = loqui.desktop
+desktopdir = $(sysconfdir)/X11/applnk/Internet
+

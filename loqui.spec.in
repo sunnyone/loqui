@@ -1,7 +1,7 @@
 %define ver @VERSION@
 %define rel 1
 
-Summary: an IRC client for Gtk2
+Summary: IRC client for Gtk2
 Name: loqui
 Version: %{ver}
 Release: %{rel}
@@ -40,8 +40,13 @@ rm -rf $RPM_BUILD_ROOT
 %defattr (-,root,root)
 %doc README COPYING INSTALL ChangeLog ABOUT-NLS AUTHORS NEWS NEWS.ja
 %{_bindir}/loqui
+%{_sysconfdir}/X11/applnk/Internet/loqui.desktop
+%{_datadir}/pixmaps/loqui.png
 
 %changelog
+* Thu Wed  8 2004 Yoichi Imai <yoichi@silver-forest.com>
+- Added icon / desktop file.
+
 * Thu Jan 22 2004 Yoichi Imai <yoichi@silver-forest.com>
 - Improvement by iwaim. Thanks.
 
