@@ -367,7 +367,7 @@ msgstr "切断(_D)"
 
 #: src/loqui_app_actions.c:144
 msgid "_Terminate"
-msgstr "切断"
+msgstr "強制切断"
 
 #: src/loqui_app_actions.c:146
 msgid "_Cut"
@@ -815,7 +815,7 @@ msgstr "plum(IRC proxy)のrecentをパースする (実験的)"
 
 #: src/prefs_dialog.c:440
 msgid "Reconnect automatically when connections are terminated."
-msgstr "接続が切断されたとき自動的に再接続する"
+msgstr "接続が強制的に切断されたとき自動的に再接続する"
 
 #: src/prefs_dialog.c:443
 msgid "Connect default accounts when the program started"
