@@ -58,6 +58,8 @@ src/loqui_channel_entry_store.c
 src/loqui_channel_entry_store.h
 src/loqui_channel_entry_ui.c
 src/loqui_channel_entry_ui.h
+src/loqui_channel_irc.c
+src/loqui_channel_irc.h
 src/loqui_channel_text_view.c
 src/loqui_channel_text_view.h
 src/loqui_channelbar.c

@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: loqui 0.1.20\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2004-06-15 23:40+0900\n"
+"POT-Creation-Date: 2004-06-19 02:18+0900\n"
 "PO-Revision-Date: 2002-11-10 13:17+0900\n"
 "Last-Translator: Yoichi Imai <yoichi@silver-forest.com>\n"
 "Language-Team: Japanese <ja@li.org>\n"
@@ -157,7 +157,7 @@ msgstr "アカウントが選択されていません"
 msgid "Account is not connected."
 msgstr "アカウントが接続されていません"
 
-#: src/command_dialog.c:46 src/loqui_app_actions.c:636
+#: src/command_dialog.c:46 src/loqui_app_actions.c:653
 msgid "Channel is not selected"
 msgstr "チャンネルが選択されていません"
 
@@ -190,7 +190,7 @@ msgstr "チャンネルの名前:"
 msgid "Channel key (if any):"
 msgstr "チャンネルキー (もしあれば): "
 
-#: src/command_dialog.c:135 src/loqui_app_actions.c:153
+#: src/command_dialog.c:135 src/loqui_app_actions.c:159
 msgid "Start private talk"
 msgstr "プライベートトークの開始"
 
@@ -556,272 +556,280 @@ msgstr "再接続の試行中です..."
 msgid "Disconnected."
 msgstr "切断されました"
 
-#: src/loqui_app.c:1190
+#: src/loqui_app.c:1335
 #, c-format
 msgid "Updated: %d private talk(s), %d channel(s)."
 msgstr ""
 
-#: src/loqui_app.c:1194
+#: src/loqui_app.c:1339
 #, c-format
 msgid "Updated: %d private talk(s)."
 msgstr ""
 
-#: src/loqui_app.c:1197
+#: src/loqui_app.c:1342
 #, c-format
 msgid "Updated: %d channel(s)."
 msgstr ""
 
 #. name, stock_id, label, accelerator, tooltip, callback
 #. see gdkkeynames.c to find key name
-#: src/loqui_app_actions.c:99
+#: src/loqui_app_actions.c:102
 msgid "_File"
 msgstr "ファイル(_F)"
 
-#: src/loqui_app_actions.c:100
+#: src/loqui_app_actions.c:103
 msgid "_Edit"
 msgstr "編集(_E)"
 
-#: src/loqui_app_actions.c:101
+#: src/loqui_app_actions.c:104
 msgid "_Account"
 msgstr "アカウント(_A)"
 
-#: src/loqui_app_actions.c:102
+#: src/loqui_app_actions.c:105
 msgid "_Channel"
 msgstr "チャンネル(_C)"
 
-#: src/loqui_app_actions.c:103
+#: src/loqui_app_actions.c:106
 msgid "_User"
 msgstr "ユーザ(_U)"
 
-#: src/loqui_app_actions.c:104
+#: src/loqui_app_actions.c:107
 msgid "_View"
 msgstr "表示(_V)"
 
-#: src/loqui_app_actions.c:105
+#: src/loqui_app_actions.c:108
 msgid "_Buffers"
 msgstr "バッファ(_B)"
 
-#: src/loqui_app_actions.c:106
+#: src/loqui_app_actions.c:109
 msgid "_Settings"
 msgstr "設定(_S)"
 
-#: src/loqui_app_actions.c:107
+#: src/loqui_app_actions.c:110
 msgid "_Help"
 msgstr "ヘルプ(_H)"
 
-#: src/loqui_app_actions.c:109
+#: src/loqui_app_actions.c:112
 msgid "Change user mode [Mode]"
 msgstr "ユーザモードの変更 [Mode]"
 
-#: src/loqui_app_actions.c:110
+#: src/loqui_app_actions.c:113
 msgid "CTCP"
 msgstr "CTCP"
 
-#: src/loqui_app_actions.c:111
+#: src/loqui_app_actions.c:114
 msgid "Sort Type of NickList"
 msgstr "Nickリストのソート順"
 
-#: src/loqui_app_actions.c:116
+#: src/loqui_app_actions.c:117
+msgid "Buffers"
+msgstr "バッファ"
+
+#: src/loqui_app_actions.c:121
 msgid "_Quit"
 msgstr "終了(_Q)"
 
-#: src/loqui_app_actions.c:118
+#: src/loqui_app_actions.c:123
 msgid "_Connect"
 msgstr "接続(_C)"
 
-#: src/loqui_app_actions.c:120
+#: src/loqui_app_actions.c:125
 msgid "_Connect Current Account"
 msgstr "現在のアカウントを接続する"
 
-#: src/loqui_app_actions.c:121
+#: src/loqui_app_actions.c:126
 msgid "_Reconnect Current Account"
 msgstr "現在のアカウントを再接続する"
 
-#: src/loqui_app_actions.c:122
+#: src/loqui_app_actions.c:127
 msgid "_Disconnect Current Account"
 msgstr "現在のアカウントを切断する"
 
-#: src/loqui_app_actions.c:124
+#: src/loqui_app_actions.c:129
 msgid "_Cut"
 msgstr "切り取り(_C)"
 
-#: src/loqui_app_actions.c:125
+#: src/loqui_app_actions.c:130
 msgid "_Copy"
 msgstr "コピー(_C)"
 
-#: src/loqui_app_actions.c:126
+#: src/loqui_app_actions.c:131
 msgid "_Paste"
 msgstr "ペースト(_P)"
 
-#: src/loqui_app_actions.c:127
+#: src/loqui_app_actions.c:132
 msgid "_Paste with Linefeeds Cut"
 msgstr "改行を削除してペースト(_P)"
 
-#: src/loqui_app_actions.c:128
+#: src/loqui_app_actions.c:133
 msgid "_Clear"
 msgstr "クリア(_C)"
 
-#: src/loqui_app_actions.c:130
+#: src/loqui_app_actions.c:135
 msgid "_Find"
 msgstr "検索(_F)"
 
-#: src/loqui_app_actions.c:131
+#: src/loqui_app_actions.c:136
 msgid "_Find Again"
 msgstr "次を検索(_F)"
 
-#: src/loqui_app_actions.c:132
+#: src/loqui_app_actions.c:137
 msgid "Jump to Previous Keyword"
 msgstr "前のキーワードに飛ぶ"
 
-#: src/loqui_app_actions.c:133
+#: src/loqui_app_actions.c:138
 msgid "Jump to Next Keyword"
 msgstr "次のキーワードに飛ぶ"
 
-#: src/loqui_app_actions.c:135
+#: src/loqui_app_actions.c:140
 msgid "_Join a Channel"
 msgstr "チャンネルにjoinする"
 
-#: src/loqui_app_actions.c:136
+#: src/loqui_app_actions.c:141
 msgid "_Part Current Channel"
 msgstr "現在のチャンネルを抜ける"
 
-#: src/loqui_app_actions.c:137
+#: src/loqui_app_actions.c:142
 msgid "Set _Topic of Current Channel"
 msgstr "現在のチャンネルのトピックを変更(_T)"
 
-#: src/loqui_app_actions.c:138
+#: src/loqui_app_actions.c:143
 msgid "_Change Nickname"
 msgstr "ニックネームの変更(_C)"
 
-#: src/loqui_app_actions.c:139
+#: src/loqui_app_actions.c:144
 msgid "_Refresh Information of Current Channel"
 msgstr "現在のチャンネルの情報の更新(_R)"
 
-#: src/loqui_app_actions.c:141
+#: src/loqui_app_actions.c:146
 msgid "_Start Private Talk"
 msgstr "プライベートトークの開始"
 
-#: src/loqui_app_actions.c:142
+#: src/loqui_app_actions.c:147
 msgid "_End Current Private Talk"
 msgstr "プライベートトークの終了"
 
-#: src/loqui_app_actions.c:144
+#: src/loqui_app_actions.c:149
 msgid "_Previous Unread Channel Buffer"
 msgstr "前の未読のチャンネルバッファ"
 
-#: src/loqui_app_actions.c:145
+#: src/loqui_app_actions.c:150
 msgid "_Next Unread Channel Buffer"
 msgstr "次の未読のチャンネルバッファ"
 
-#: src/loqui_app_actions.c:146
+#: src/loqui_app_actions.c:151
 msgid "Previous Channel Buffer"
 msgstr "前のチャンネルバッファ"
 
-#: src/loqui_app_actions.c:147
+#: src/loqui_app_actions.c:152
 msgid "Next Channel Buffer"
 msgstr "次のチャンネルバッファ"
 
-#: src/loqui_app_actions.c:148
+#: src/loqui_app_actions.c:153
+msgid "Clear All Unread Flags of Buffers"
+msgstr "すべてのバッファの未読フラグをクリアする"
+
+#: src/loqui_app_actions.c:154
 msgid "_General Settings"
 msgstr "一般的な設定"
 
-#: src/loqui_app_actions.c:149
+#: src/loqui_app_actions.c:155
 msgid "_Account Settings"
 msgstr "アカウント設定"
 
-#: src/loqui_app_actions.c:151
+#: src/loqui_app_actions.c:157
 msgid "_About"
 msgstr "このプログラムについて(_A)"
 
-#: src/loqui_app_actions.c:154
+#: src/loqui_app_actions.c:160
 msgid "Show Information [Whois]"
 msgstr "情報の表示 [Whois]"
 
-#: src/loqui_app_actions.c:155
+#: src/loqui_app_actions.c:161
 msgid "Give Channel Operator Privilege (+o)"
 msgstr "チャンネルオペレータ権限を与える (+o)"
 
-#: src/loqui_app_actions.c:156
+#: src/loqui_app_actions.c:162
 msgid "Give Voice Privilege (+v)"
 msgstr "発言権を与える (+v)"
 
-#: src/loqui_app_actions.c:157
+#: src/loqui_app_actions.c:163
 msgid "Deprive Channel Operator Privilege (-o)"
 msgstr "チャンネルオペレータ権限を奪う (-o)"
 
-#: src/loqui_app_actions.c:158
+#: src/loqui_app_actions.c:164
 msgid "Deprive Voice Privilege (-v)"
 msgstr "発言権を奪う (-v)"
 
-#: src/loqui_app_actions.c:160
+#: src/loqui_app_actions.c:166
 msgid "_Version"
 msgstr "_Version"
 
-#: src/loqui_app_actions.c:161
+#: src/loqui_app_actions.c:167
 msgid "_Clientinfo"
 msgstr "_Clientinfo"
 
-#: src/loqui_app_actions.c:162
+#: src/loqui_app_actions.c:168
 msgid "User_info"
 msgstr "Userinfo(_I)"
 
-#: src/loqui_app_actions.c:163
+#: src/loqui_app_actions.c:169
 msgid "_Ping"
 msgstr "_Ping"
 
-#: src/loqui_app_actions.c:164
+#: src/loqui_app_actions.c:170
 msgid "_Time"
 msgstr "_Time"
 
-#: src/loqui_app_actions.c:165
+#: src/loqui_app_actions.c:171
 msgid "_Finger"
 msgstr "Finger(_F)"
 
-#: src/loqui_app_actions.c:168
+#: src/loqui_app_actions.c:174
 msgid "_Toggle Command Mode"
 msgstr "コマンドモードを切り替える"
 
-#: src/loqui_app_actions.c:168
+#: src/loqui_app_actions.c:174
 msgid "Interpret and send the message as command if toggled"
 msgstr "トグルされていた場合メッセージをコマンドとして解釈し送信する"
 
-#: src/loqui_app_actions.c:169
+#: src/loqui_app_actions.c:175
 msgid "_Channelbar"
 msgstr "チャンネルバー"
 
-#: src/loqui_app_actions.c:170
+#: src/loqui_app_actions.c:176
 msgid "_Statusbar"
 msgstr "ステータスバー"
 
-#: src/loqui_app_actions.c:171
+#: src/loqui_app_actions.c:177
 msgid "_Scroll channel buffer"
 msgstr "チャンネルバッファをスクロールする"
 
-#: src/loqui_app_actions.c:171
+#: src/loqui_app_actions.c:177
 msgid ""
 "Whether scrolling the channel buffer to the end when new message arrived."
 msgstr ""
 "新しいメッセージの投稿時にチャンネルバッファを最下行にスクロールする/しない。"
 
-#: src/loqui_app_actions.c:172
+#: src/loqui_app_actions.c:178
 msgid "_Scroll common buffer"
 msgstr ""
 
-#: src/loqui_app_actions.c:172
+#: src/loqui_app_actions.c:178
 msgid ""
 "Whether scrolling the common buffer to the end when new message arrived."
 msgstr ""
 "新しいメッセージの投稿時に共通バッファを最下行にスクロールする/しない。"
 
-#: src/loqui_app_actions.c:616
+#: src/loqui_app_actions.c:633
 msgid "The account is not connected"
 msgstr "アカウントが接続されていません"
 
-#: src/loqui_app_actions.c:622
+#: src/loqui_app_actions.c:639
 msgid "Not selected a channel!"
 msgstr ""
 
-#: src/loqui_app_actions.c:638
+#: src/loqui_app_actions.c:655
 msgid "Current channel is not private talk"
 msgstr "現在のチャンネルはプライベートトークではありません"
 
@@ -974,7 +982,7 @@ msgstr ""
 msgid "Last message time"
 msgstr "最終メッセージ時刻"
 
-#: src/loqui_message.c:165 src/loqui_message.c:166 src/prefs_dialog.c:336
+#: src/loqui_message.c:165 src/loqui_message.c:166 src/prefs_dialog.c:342
 msgid "Command"
 msgstr "コマンド"
 
@@ -1086,7 +1094,7 @@ msgstr "無効なパラメータキー"
 msgid "Invalid object element: parent is not object type"
 msgstr ""
 
-#: src/loqui_profile_handle.c:351 src/prefs_general.c:153
+#: src/loqui_profile_handle.c:351 src/prefs_general.c:154
 #, c-format
 msgid "Invalid element: %s"
 msgstr ""
@@ -1317,126 +1325,130 @@ msgstr ""
 msgid "Text type"
 msgstr ""
 
-#: src/prefs_dialog.c:258
+#: src/prefs_dialog.c:261
 msgid "Common Preferences"
 msgstr "全般の設定"
 
-#: src/prefs_dialog.c:276
+#: src/prefs_dialog.c:279
 msgid "General"
 msgstr "全般"
 
-#: src/prefs_dialog.c:278
+#: src/prefs_dialog.c:281
 msgid "Save window/widget sizes"
 msgstr "ウィンドウとウィジットのサイズを保存する"
 
-#: src/prefs_dialog.c:280
+#: src/prefs_dialog.c:283
 msgid "Switch whether scrolling channel buffer or not automatically"
 msgstr "チャンネルバッファをスクロールするかしないかを自動的に切り替える"
 
-#: src/prefs_dialog.c:282
+#: src/prefs_dialog.c:285
 msgid "Switch whether scrolling common buffer or not automatically"
 msgstr "共通バッファをスクロールするかしないかを自動的に切り替える"
 
-#: src/prefs_dialog.c:285
+#: src/prefs_dialog.c:288
 msgid "Parse plum (an irc proxy) recent feature (Experimental)"
 msgstr "plum(IRC proxy)のrecentをパースする (実験的)"
 
-#: src/prefs_dialog.c:287
+#: src/prefs_dialog.c:290
 msgid "Reconnect automatically when connections are terminated."
 msgstr "接続が切断されたとき自動的に再接続する"
 
-#: src/prefs_dialog.c:290
+#: src/prefs_dialog.c:293
 msgid "Connect default accounts when the program started"
 msgstr "プログラム起動時にデフォルトのアカウントを接続する"
 
-#: src/prefs_dialog.c:292
+#: src/prefs_dialog.c:295
 msgid "Select a new channel automatically."
 msgstr "新しいチャンネルを自動的に選択する"
 
-#: src/prefs_dialog.c:295
+#: src/prefs_dialog.c:298
 msgid "Away message: "
 msgstr "離席メッセージ: "
 
-#: src/prefs_dialog.c:296
+#: src/prefs_dialog.c:299
 msgid "Format of time in buffers: "
 msgstr "バッファの時間表示形式"
 
-#: src/prefs_dialog.c:299
+#: src/prefs_dialog.c:302
 msgid "Max line number of a common buffer(0: unlimited): "
 msgstr "共通バッファの最大行数(0: 無制限): "
 
-#: src/prefs_dialog.c:303
+#: src/prefs_dialog.c:306
 msgid "Max line number of a channel buffer(0: unlimited): "
 msgstr "チャンネルバッファの最大行数(0: 無制限): "
 
-#: src/prefs_dialog.c:307
+#: src/prefs_dialog.c:310
 msgid "Toggle command mode automatically"
 msgstr "コマンドモードへ自動的に移行する"
 
-#: src/prefs_dialog.c:310
+#: src/prefs_dialog.c:313
 msgid "Prefix for commands: "
 msgstr "コマンド文字"
 
-#: src/prefs_dialog.c:312
+#: src/prefs_dialog.c:315
 msgid "Save logs (Experimental)"
 msgstr "ログの保存(実験的)"
 
-#: src/prefs_dialog.c:316
+#: src/prefs_dialog.c:319
 msgid "Highlight"
 msgstr "強調"
 
-#: src/prefs_dialog.c:318
+#: src/prefs_dialog.c:321
 msgid "Use notification"
 msgstr "通知を使用する"
 
-#: src/prefs_dialog.c:322
+#: src/prefs_dialog.c:324
+msgid "Execute notification by NOTICE"
+msgstr "NOTICEによって通知を実行する"
+
+#: src/prefs_dialog.c:328
 msgid "Highlighting keywords(Separate each words with linefeeds)"
 msgstr "強調するキーワード(改行で区切って下さい)"
 
-#: src/prefs_dialog.c:326
+#: src/prefs_dialog.c:332
 msgid "Ignore"
 msgstr "無視"
 
-#: src/prefs_dialog.c:328
+#: src/prefs_dialog.c:334
 msgid "Use ignore (transparent) feature"
 msgstr "無視(透明)機能を使用する"
 
-#: src/prefs_dialog.c:332
+#: src/prefs_dialog.c:338
 msgid "Nickname list to ignore (transparent) ('*' and '?' can be used)"
 msgstr "無視する(透明)ニックネームのリスト('*'や'?'を使用できます)"
 
-#: src/prefs_dialog.c:338
+#: src/prefs_dialog.c:344
 msgid "Browser: "
 msgstr "ブラウザ: "
 
-#: src/prefs_dialog.c:340
+#: src/prefs_dialog.c:346
 msgid "URL is passed to a browser with quoted, like 'http://example.com/'"
 msgstr "'http://example.com/'のように、URLはクォートしてブラウザに渡されます。"
 
-#: src/prefs_dialog.c:343
+#: src/prefs_dialog.c:349
 msgid "Notification: "
 msgstr "通知: "
 
-#: src/prefs_general.c:162
+#: src/prefs_general.c:163
 #, c-format
 msgid "prefs_general: Invalid attribute for entry: %s"
 msgstr ""
 
-#: src/prefs_general.c:168
+#: src/prefs_general.c:169
 #, c-format
 msgid "Unknown key: %s\n"
 msgstr ""
 
-#: src/prefs_general.c:233 src/prefs_general.c:259
+#: src/prefs_general.c:234 src/prefs_general.c:260
 msgid "Unsupported pref type!"
 msgstr ""
 
-#: src/prefs_general.c:319
+#: src/prefs_general.c:320
 #, c-format
 msgid "Loquirc parse error: %s"
 msgstr ""
 
-#: src/prefs_general.c:341
+#: src/prefs_general.c:342
 #, c-format
 msgid "Can't open %s: %s"
 msgstr ""
