@@ -26,6 +26,11 @@
 
 #include <string.h>
 
+enum {
+	TOPIC_CHANGED,
+	LAST_SIGNAL
+};
+
 struct _ChannelPrivate
 {
 	gchar *topic;
@@ -56,6 +61,7 @@ typedef struct {
 
 static GObjectClass *parent_class = NULL;
 #define PARENT_TYPE G_TYPE_OBJECT
+static guint channel_signals[LAST_SIGNAL] = { 0 };
 
 static void channel_class_init(ChannelClass *klass);
 static void channel_init(Channel *channel);
@@ -101,6 +107,14 @@ channel_class_init (ChannelClass *klass)
         parent_class = g_type_class_peek_parent(klass);
         
         object_class->finalize = channel_finalize;
+
+	channel_signals[TOPIC_CHANGED] = g_signal_new("topic-changed",
+						      G_OBJECT_CLASS_TYPE(object_class),
+						      G_SIGNAL_RUN_FIRST,
+						      0,
+						      NULL, NULL,
+						      g_cclosure_marshal_VOID__VOID,
+						      G_TYPE_NONE, 0);
 }
 static void 
 channel_init (Channel *channel)
@@ -232,9 +246,7 @@ void channel_set_topic(Channel *channel, const gchar *topic)
 	G_FREE_UNLESS_NULL(priv->topic);
 	priv->topic = g_strdup(topic);
 
-	if(account_manager_is_current_channel(account_manager_get(), channel)) {
-		account_manager_update_current_info(account_manager_get());
-	}
+	g_signal_emit(channel, channel_signals[TOPIC_CHANGED], 0);
 }
 gchar *channel_get_topic(Channel *channel)
 {

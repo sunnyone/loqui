@@ -249,6 +249,7 @@ account_manager_set_fresh(AccountManager *manager, Account *account, Channel *ch
 void account_manager_set_current_channel(AccountManager *manager, Channel *channel)
 {
 	AccountManagerPrivate *priv;
+	guint id;
 
         g_return_if_fail(manager != NULL);
         g_return_if_fail(IS_ACCOUNT_MANAGER(manager));
@@ -256,6 +257,11 @@ void account_manager_set_current_channel(AccountManager *manager, Channel *chann
 	
 	priv = manager->priv;
 	
+	if(priv->current_channel) {
+		while((id = g_signal_handler_find(priv->current_channel, G_SIGNAL_MATCH_DATA, 0, 0, NULL, NULL, manager)))
+			g_signal_handler_disconnect(G_OBJECT(priv->current_channel), id);
+	}
+
 	priv->current_account = NULL; /* FIXME: this should be not NULL but channel->account */
 	priv->current_channel = channel;
 
@@ -265,6 +271,10 @@ void account_manager_set_current_channel(AccountManager *manager, Channel *chann
 	account_manager_update_current_info(manager);
 	channel_set_fresh(channel, FALSE);
 	account_manager_update_away_status(manager, account_get_away_status(channel->account));
+
+	g_signal_connect_swapped(G_OBJECT(channel), "topic-changed",
+				 G_CALLBACK(account_manager_update_current_info),
+				 manager);
 
 	if(prefs_general.auto_switch_scrolling)
 		account_manager_set_whether_scrolling(manager, TRUE);
