@@ -39,7 +39,7 @@ struct _LoquiAppPrivate
 	GtkWidget *common_textview;
 	GtkWidget *entry;
 	GtkWidget *statusbar;
-	GtkWidget *handlebox;
+	GtkWidget *handlebox_toolbar;
 	GtkWidget *label_user_number;
 	GtkWidget *label_channel;
 	GtkWidget *label_channel_mode;
@@ -407,11 +407,11 @@ loqui_app_new(void)
 	gtk_box_pack_start(GTK_BOX(vbox), loqui_menu_get_widget(app->menu),
 			   FALSE, FALSE, 0);
 
-	priv->handlebox = gtk_handle_box_new();
-	gtk_box_pack_start(GTK_BOX(vbox), priv->handlebox, FALSE, FALSE, 0);
+	priv->handlebox_toolbar = gtk_handle_box_new();
+	gtk_box_pack_start(GTK_BOX(vbox), priv->handlebox_toolbar, FALSE, FALSE, 0);
 
 	app->toolbar = loqui_toolbar_new(app);
-	gtk_container_add(GTK_CONTAINER(priv->handlebox), app->toolbar);
+	gtk_container_add(GTK_CONTAINER(priv->handlebox_toolbar), app->toolbar);
 
 #define SET_SCROLLED_WINDOW(s, w, vpolicy, hpolicy) \
 { \
@@ -597,10 +597,10 @@ loqui_app_set_toolbar_style(LoquiApp *app, guint style)
 	priv = app->priv;
 
 	if(style > 10) {
-		gtk_widget_hide(priv->handlebox);
+		gtk_widget_hide(priv->handlebox_toolbar);
 	} else {
 		gtk_toolbar_set_style(GTK_TOOLBAR(app->toolbar), style);
-		gtk_widget_show(priv->handlebox);
+		gtk_widget_show(priv->handlebox_toolbar);
 	}
 	
 	prefs_general.toolbar_style = style;
