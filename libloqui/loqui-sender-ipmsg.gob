@@ -37,6 +37,8 @@ requires 2.0.0
 #include "ipmsg_packet.h"
 #include "loqui-account-ipmsg.h"
 #include "ipmsg.h"
+
+#include "loqui_message_text.h"
 %}
 
 %{
@@ -44,10 +46,18 @@ requires 2.0.0
 #define SELF_GET_ACCOUNT(sender) (LOQUI_SENDER(sender)->account)
 
 #define SELF_GET_ACCOUNT_IPMSG(sender) (LOQUI_ACCOUNT_IPMSG(SELF_GET_ACCOUNT(self)))
+
+#define MAX_RETRY_SENDMSG_COUNT 5
+#define SENDMSG_RETRY_INTERVAL 1000 /* ms */
 %}
 
 class Loqui:Sender:IPMsg from Loqui:Sender
 {
+	public GList *retring_sendmsg_list = NULL unref {
+		g_list_foreach(retring_sendmsg_list, (GFunc) g_object_unref, NULL);
+		g_list_free(retring_sendmsg_list);
+	};
+
 	override (Loqui:Sender)
 	void nick(Loqui:Sender *sender, const gchar *text) {
 		Self *self = SELF(sender);
@@ -61,6 +71,34 @@ class Loqui:Sender:IPMsg from Loqui:Sender
 
 		loqui_user_set_away(loqui_account_get_user_self(SELF_GET_ACCOUNT(self)), away_type);
 		self_br_absence(self);
+	}
+	override (Loqui:Sender)
+	void say(Loqui:Sender *sender, LoquiChannel *channel, const gchar *text) {
+		LoquiMember *member;
+		LoquiUser *user_self;
+		Self *self = SELF(sender);
+		gint num, i;
+
+		user_self = loqui_account_get_user_self(SELF_GET_ACCOUNT(self));
+		num = loqui_channel_entry_get_member_number(LOQUI_CHANNEL_ENTRY(channel));
+		for (i = 0; i < num; i++) {
+			member = loqui_channel_entry_get_nth_member(LOQUI_CHANNEL_ENTRY(channel), i);
+			if (num == 1 || member->user != user_self)
+			self_send_sendmsg(self, member->user, text);
+		}
+
+		
+		loqui_channel_append_remark(channel,
+					    LOQUI_TEXT_TYPE_NORMAL,
+					    TRUE, 
+					    loqui_user_get_nick(user_self),
+					    text,
+					    FALSE);
+	}
+
+	override (Loqui:Sender)
+	void start_private_talk(Loqui:Sender *sender, Loqui:User *user) {
+		loqui_account_open_private_talk(loqui_sender_get_account(sender), loqui_user_get_nick(user), user);
 	}
 
 	/* helper */
@@ -143,6 +181,32 @@ class Loqui:Sender:IPMsg from Loqui:Sender
 		g_object_unref(packet);
 	}
 
+	private gboolean sendmsg_timeout_cb(IPMsgPacket *packet) {
+		Self *self = g_object_get_data(G_OBJECT(packet), "sender-ipmsg");
+		const gchar *ip_addr;
+		gint port, retry_count;
+		GList *cur;
+
+		if ((cur = g_list_find(self->retring_sendmsg_list, packet)) != NULL) {
+			ip_addr = g_object_get_data(G_OBJECT(packet), "dest-ip-addr");
+			port = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(packet), "dest-port"));
+			retry_count = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(packet), "retry-count"));
+
+			if (retry_count >= MAX_RETRY_SENDMSG_COUNT) {
+				self->retring_sendmsg_list = g_list_delete_link(self->retring_sendmsg_list, cur);
+				g_object_unref(packet);
+				return FALSE;
+			}
+			self_send_packet(self, packet, ip_addr, port);
+			g_object_set_data(G_OBJECT(packet), "retry-count", GINT_TO_POINTER(retry_count + 1));
+
+			return TRUE;
+		}
+
+		g_object_unref(packet);
+		return FALSE;
+	}
+
 	public void br_entry(self) {
 		self_helper_send_br_command(self, IPMSG_BR_ENTRY);
 	}
@@ -155,6 +219,31 @@ class Loqui:Sender:IPMsg from Loqui:Sender
 	public void br_exit(self) {
 		self_helper_send_br_command(self, IPMSG_BR_EXIT);
 	}
+	
+	public void send_sendmsg(self, LoquiUser *user, const gchar *text) {
+		IPMsgPacket *packet;
+		const gchar *ip_addr;
+		gint port;
+
+		packet = loqui_account_ipmsg_create_packet(SELF_GET_ACCOUNT_IPMSG(self),
+							   IPMSG_SENDMSG | IPMSG_SENDCHECKOPT,
+							   text);
+		
+		self->retring_sendmsg_list = g_list_prepend(self->retring_sendmsg_list, packet);
+
+		ip_addr = loqui_user_ipmsg_get_ip_addr(LOQUI_USER_IPMSG(user));
+		port = loqui_user_ipmsg_get_port(LOQUI_USER_IPMSG(user));
+
+		self_send_packet(self, packet, ip_addr, port);
+
+		g_object_set_data(G_OBJECT(packet), "sender-ipmsg", self);
+		g_object_set_data_full(G_OBJECT(packet), "dest-ip-addr", g_strdup(ip_addr), (GDestroyNotify) g_free);
+		g_object_set_data(G_OBJECT(packet), "dest-port", GINT_TO_POINTER(port));
+		g_object_set_data(G_OBJECT(packet), "retry-count", GINT_TO_POINTER(1));
+
+		g_timeout_add(SENDMSG_RETRY_INTERVAL, (GSourceFunc) self_sendmsg_timeout_cb, packet);
+	}
+
 	public void send_recvmsg(self, gint orig_packet_num, GInetAddr *dest_inetaddr) {
 		IPMsgPacket *packet;
 		gchar *tmp;

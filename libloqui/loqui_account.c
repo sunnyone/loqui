@@ -857,6 +857,31 @@ loqui_account_peek_user(LoquiAccount *account, const gchar *identifier)
 
 	return g_hash_table_lookup(account->identifier_user_table, identifier);
 }
+void
+loqui_account_remove_user_from_all(LoquiAccount *account, LoquiUser *user, gboolean include_account_channel_entry, GList **removed_channel_entry_list)
+{
+	GList *list;
+
+	g_return_if_fail(account != NULL);
+        g_return_if_fail(LOQUI_IS_ACCOUNT(account));
+	g_return_if_fail(user != NULL);
+        g_return_if_fail(LOQUI_IS_USER(user));
+
+	list = loqui_account_search_joined_channel(account, user);
+	g_list_foreach(list, (GFunc) loqui_channel_entry_remove_member_by_user, user);
+	
+	if (include_account_channel_entry &&
+	    loqui_channel_entry_get_member_by_user(LOQUI_CHANNEL_ENTRY(account), user)) {
+		list = g_list_prepend(list, account);
+		loqui_channel_entry_remove_member_by_user(LOQUI_CHANNEL_ENTRY(account), user);
+	}
+
+	if (removed_channel_entry_list) {
+		*removed_channel_entry_list = list;
+	} else {
+		g_list_free(list);
+	}
+}
 LoquiChannel *
 loqui_account_open_private_talk(LoquiAccount *account, const gchar *identifier, LoquiUser *user)
 {

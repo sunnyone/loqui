@@ -353,7 +353,7 @@ static void
 loqui_receiver_irc_command_quit(LoquiReceiverIRC *receiver, IRCMessage *msg)
 {
 	LoquiReceiverIRCPrivate *priv;
-	GList *list = NULL;
+	GList *list;
 	LoquiUser *user;
 	LoquiAccount *account;
 
@@ -366,10 +366,8 @@ loqui_receiver_irc_command_quit(LoquiReceiverIRC *receiver, IRCMessage *msg)
 	}
 
 	user = loqui_account_peek_user(account, msg->nick);
-	if (user) {
-		list = loqui_account_search_joined_channel(account, user);
-		g_list_foreach(list, (GFunc) loqui_channel_entry_remove_member_by_user, user);
-	}
+	if (user)
+		loqui_account_remove_user_from_all(account, user, FALSE, &list);
 
 	loqui_receiver_irc_joined_channel_append(receiver, msg, list, LOQUI_TEXT_TYPE_INFO, _("*** %n has quit IRC(%t)"));
 

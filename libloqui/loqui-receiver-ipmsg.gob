@@ -220,6 +220,8 @@ class Loqui:Receiver:IPMsg from Loqui:Receiver
 		LoquiAccount *account;
 		LoquiUser *user;
 		gchar *identifier;
+		GList *list, *cur;
+		gchar *tmp;
 
 		account = SELF_GET_ACCOUNT(self);
 
@@ -236,15 +238,21 @@ class Loqui:Receiver:IPMsg from Loqui:Receiver
 		}
 		g_free(identifier);
 
-		loqui_account_append_text_printf(SELF_GET_ACCOUNT(self), NULL, LOQUI_TEXT_TYPE_INFO,
-						 "*** %s (%s) (%s@%s) has quit",
-						 loqui_user_get_nick(user),
-						 LOQUI_UTILS_EMPTY_IF_NULL(loqui_user_ipmsg_get_group_name(LOQUI_USER_IPMSG(user))),
-						 loqui_user_get_username(user),
-						 loqui_user_get_hostname(user));
-	
-		/* TODO: loqui_account_remove_user(user); */
-		loqui_channel_entry_remove_member_by_user(LOQUI_CHANNEL_ENTRY(account), user);
+		tmp = g_strdup_printf("*** %s (%s) (%s@%s) has quit",
+				      loqui_user_get_nick(user),
+				      LOQUI_UTILS_EMPTY_IF_NULL(loqui_user_ipmsg_get_group_name(LOQUI_USER_IPMSG(user))),
+				      loqui_user_get_username(user),
+				      loqui_user_get_hostname(user));
+
+		loqui_account_remove_user_from_all(account, user, TRUE, &list);
+		for (cur = list; cur != NULL; cur = cur->next) {
+			if (LOQUI_IS_ACCOUNT(cur->data)) {
+				loqui_account_append_text(cur->data, NULL, LOQUI_TEXT_TYPE_INFO, tmp);
+			} else {
+				loqui_channel_append_text(cur->data, LOQUI_TEXT_TYPE_INFO, tmp);
+			}
+		}
+		g_free(tmp);
 	}
 
 	private void command_sendmsg(self, :IPMsg:Packet *packet) {
@@ -265,24 +273,11 @@ class Loqui:Receiver:IPMsg from Loqui:Receiver
 
 		identifier = ipmsg_packet_get_identifier(packet);
 		user = loqui_account_peek_user(account, identifier);
-		/* FIXME: conflict with group name? */
 		channel = loqui_account_get_channel_by_identifier(account, identifier);
 
 		if (channel == NULL && user != NULL) {
-			channel = LOQUI_CHANNEL(loqui_channel_new(account, loqui_user_get_nick(user), identifier, FALSE, TRUE));
-
-			member = loqui_member_new(user_self);
-			loqui_channel_entry_add_member(LOQUI_CHANNEL_ENTRY(channel), member);
-			g_object_unref(member);
-
-			if (user_self != user) {
-				member = loqui_member_new(user);
-				loqui_channel_entry_add_member(LOQUI_CHANNEL_ENTRY(channel), member);
-				g_object_unref(member);
-			}
-
-			loqui_account_add_channel(account, channel);
-			g_object_unref(channel);
+			/* FIXME: conflict with group name? */
+			channel = loqui_account_open_private_talk(account, identifier, user);
 		}
 
 		text_type = packet->command_num & IPMSG_AUTORETOPT ? LOQUI_TEXT_TYPE_NOTICE : LOQUI_TEXT_TYPE_NORMAL;
@@ -317,6 +312,32 @@ class Loqui:Receiver:IPMsg from Loqui:Receiver
 		g_free(identifier);
 	}
 
+	private void command_recvmsg(self, :IPMsg:Packet *packet) {
+		GList *cur;
+		LoquiSenderIPMsg *sender;
+		IPMsgPacket *sendmsg_packet;
+
+		gint orig_command_num;
+
+		orig_command_num = (gint) g_ascii_strtoull(packet->extra, NULL, 10);
+		if (orig_command_num == 0) {
+			loqui_account_warning(SELF_GET_ACCOUNT(self), "Invalid RECVMSG message.");
+			return;
+		}
+
+		sender = SELF_GET_SENDER_IPMSG(self);
+		for (cur = sender->retring_sendmsg_list; cur != NULL; cur = cur->next) {
+			sendmsg_packet = cur->data;
+			if (sendmsg_packet->packet_num == orig_command_num) {
+				/* TODO: show an message to indicate to succeed to send */
+				debug_puts("Sent successfully: %d", sendmsg_packet->packet_num);
+
+				sender->retring_sendmsg_list = g_list_delete_link(sender->retring_sendmsg_list, cur);
+				break;
+			}
+		}
+	}
+
 	public void handle(self, :IPMsg:Packet *packet (check null type)) {
 		gchar *str;
 
@@ -343,6 +364,9 @@ class Loqui:Receiver:IPMsg from Loqui:Receiver
 			return;
 		case IPMSG_SENDMSG:
 			self_command_sendmsg(self, packet);
+			return;
+		case IPMSG_RECVMSG:
+			self_command_recvmsg(self, packet);
 			return;
 		default:
 			break;

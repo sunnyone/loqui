@@ -148,6 +148,7 @@ void loqui_account_get_updated_number(LoquiAccount *account, gint *updated_priva
 
 void loqui_account_add_user(LoquiAccount *account, LoquiUser *user);
 LoquiUser* loqui_account_peek_user(LoquiAccount *account, const gchar *identifier);
+void loqui_account_remove_user_from_all(LoquiAccount *account, LoquiUser *user, gboolean include_account_channel_entry, GList **removed_channel_entry_list);
 
 LoquiChannel *loqui_account_open_private_talk(LoquiAccount *account, const gchar *identifier, LoquiUser *user);
 

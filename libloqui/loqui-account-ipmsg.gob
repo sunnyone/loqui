@@ -97,7 +97,16 @@ class Loqui:Account:IPMsg from Loqui:Account
 		loqui_user_set_nick(user_self, loqui_profile_account_get_nick(loqui_account_get_profile(LOQUI_ACCOUNT(self))));
 		loqui_user_set_hostname(user_self,
 					gnet_inetaddr_get_host_name());
-		/* TODO: set hostname */
+
+		/* FIXME: can't get ?
+		   tmp = loqui_socket_ipmsg_get_current_ip_addr(selfp->sock);
+		   loqui_user_ipmsg_set_ip_addr(LOQUI_USER_IPMSG(user_self), tmp);
+		   g_free(tmp); */
+
+		loqui_user_ipmsg_set_ip_addr(LOQUI_USER_IPMSG(user_self), "127.0.0.1");
+		loqui_user_ipmsg_set_port(LOQUI_USER_IPMSG(user_self), loqui_socket_ipmsg_get_current_port(selfp->sock));
+		/* FIXME: originally this should do in UserIPMsg */
+		g_object_notify(G_OBJECT(user_self), "identifier");
 
 		loqui_sender_ipmsg_br_entry(LOQUI_SENDER_IPMSG(LOQUI_ACCOUNT(self)->sender));
 	}

@@ -416,10 +416,6 @@ loqui_sender_irc_topic(LoquiSender *sender, LoquiChannel *channel, const gchar *
 static void
 loqui_sender_irc_start_private_talk(LoquiSender *sender, LoquiUser *user)
 {
-	LoquiMember *member;
-	LoquiChannel *channel;
-	LoquiUser *user_self;
-
         g_return_if_fail(sender != NULL);
         g_return_if_fail(LOQUI_IS_SENDER_IRC(sender));
 
