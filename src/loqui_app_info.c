@@ -389,7 +389,7 @@ loqui_app_info_update_channel_mode(LoquiAppInfo *appinfo, LoquiChannel *channel)
 
 	G_FREE_UNLESS_NULL(appinfo->cache_channel_mode);
 	if (channel && channel->channel_mode_manager)
-		appinfo->cache_channel_mode = loqui_mode_manager_to_string(channel->channel_mode_manager);
+		appinfo->cache_channel_mode = loqui_mode_manager_to_string(channel->channel_mode_manager, TRUE);
 
 	loqui_channelbar_update_channel_mode(LOQUI_CHANNELBAR(appinfo->priv->app->channelbar), channel);
 }
