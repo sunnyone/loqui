@@ -35,6 +35,8 @@ static void channel_text_init(ChannelText *channel_text);
 static void channel_text_finalize(GObject *object);
 static void channel_text_destroy(GtkObject *object);
 
+static void channel_text_insert_current_time(ChannelText *channel_text, GtkTextBuffer *textbuf, GtkTextIter *iter);
+
 #define TIME_LEN 11
 
 GType
@@ -143,11 +145,26 @@ channel_text_new(void)
 				   "foreground", "grey", 
 				   NULL);
 
-	gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(channel_text), GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC);
+	gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(channel_text), 
+				       GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC);
 	gtk_container_add(GTK_CONTAINER(channel_text), channel_text->text);
 
 	return GTK_WIDGET(channel_text);
 }
+static void
+channel_text_insert_current_time(ChannelText *channel_text, GtkTextBuffer *textbuf, GtkTextIter *iter)
+{
+	gchar buf[TIME_LEN];
+	time_t t;
+	struct tm tm;
+
+	t = time(NULL);
+	localtime_r(&t, &tm);
+	strftime(buf, TIME_LEN, "%H:%M ", &tm);
+
+	gtk_text_buffer_insert_with_tags_by_name(textbuf, iter, buf, -1, "time", NULL);
+}
+
 void channel_text_append(ChannelText *channel_text, TextType type, gchar *str)
 {
 	GtkTextIter iter;
@@ -155,22 +172,15 @@ void channel_text_append(ChannelText *channel_text, TextType type, gchar *str)
 	GtkTextView *text;
 	gchar *style;
 
-	gchar buf[TIME_LEN];
-	time_t t;
-	struct tm tm;
-
 	g_return_if_fail(channel_text != NULL);
 	g_return_if_fail(channel_text->text != NULL);
 	text = GTK_TEXT_VIEW(channel_text->text);
 
-	t = time(NULL);
-	localtime_r(&t, &tm);
-	strftime(buf, TIME_LEN, "%H:%M ", &tm);
-
 	textbuf = GTK_TEXT_BUFFER(gtk_text_view_get_buffer(text));
 	gtk_text_buffer_get_end_iter(textbuf, &iter);
 
-	gtk_text_buffer_insert_with_tags_by_name(textbuf, &iter, buf, -1, "time", NULL);
+	channel_text_insert_current_time(channel_text, textbuf, &iter);
+
 	switch(type) {
 	case TEXT_TYPE_NOTICE:
 		style = "notice";

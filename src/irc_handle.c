@@ -44,6 +44,10 @@ static void irc_handle_finalize(GObject *object);
 
 static gpointer irc_handle_thread_func(IRCHandle *handle);
 
+static void irc_handle_normal_command(IRCHandle *handle, IRCMessage *msg);
+
+static void irc_handle_command_privmsg(IRCHandle *handle, IRCMessage *msg);
+
 GType
 irc_handle_get_type(void)
 {
@@ -103,6 +107,37 @@ irc_handle_finalize(GObject *object)
 
 	g_free(irc_handle->priv);
 }
+static void irc_handle_command_privmsg(IRCHandle *handle, IRCMessage *msg)
+{
+	gchar *str;
+	GString *string;
+
+	string = g_string_new(NULL);
+	if(msg->nick != NULL) {
+		g_string_printf(string, "<%s:%s> ", irc_message_get_param(msg, 0), msg->nick);
+	}
+	g_string_append(string, irc_message_get_param(msg, 1));
+	g_string_append_c(string, '\n');
+	
+	str = string->str;
+	g_string_free(string, FALSE);
+
+	gdk_threads_enter();
+	account_console_text_append(handle->priv->account, str);
+	gdk_threads_leave();
+
+	g_free(str);
+}
+static void irc_handle_normal_command(IRCHandle *handle, IRCMessage *msg)
+{
+	switch (msg->response) {
+	case IRC_COMMAND_NOTICE:
+	case IRC_COMMAND_PRIVMSG:
+		irc_handle_command_privmsg(handle, msg);
+	default:
+		irc_message_print(msg);
+	}
+}
 static gpointer irc_handle_thread_func(IRCHandle *handle)
 {
 	IRCHandlePrivate *priv;
@@ -145,13 +180,15 @@ static gpointer irc_handle_thread_func(IRCHandle *handle)
 	gdk_threads_leave();
 
         while((msg = connection_get_irc_message(priv->connection, NULL)) != NULL) {
-		str = irc_message_inspect(msg);
-
-		gdk_threads_enter();
-		account_console_text_append(account, str);
-		gdk_threads_leave();
-
-/*		irc_message_print(msg); */
+		if(IRC_MESSAGE_IS_NORMAL_COMMAND(msg)) {
+			irc_handle_normal_command(handle, msg);
+		} else {
+			str = irc_message_inspect(msg);
+			
+			gdk_threads_enter();
+			account_console_text_append(account, str);
+			gdk_threads_leave();
+		}			
 		g_object_unref(msg);
 	}
 

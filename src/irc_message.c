@@ -339,6 +339,10 @@ gchar *
 irc_message_get_param(IRCMessage *msg, guint i)
 {
 	g_return_val_if_fail(0 < i && i < 15, NULL);
+	int num;
 
+	for(num = 0; msg->parameter[num] != NULL; num++); /* count the number of parameters */
+	g_return_val_if_fail(num >= i, NULL);
 	
+	return msg->parameter[i];
 }

@@ -37,6 +37,8 @@ typedef struct _IRCMessageClass       IRCMessageClass;
 
 typedef struct _IRCMessagePrivate     IRCMessagePrivate;
 
+#define IRC_MESSAGE_IS_NORMAL_COMMAND(msg) (msg->response > 1000)
+
 /* typedef enum {
 	IRC_MESSAGE_COMMAND,
 	IRC_MESSAGE_REPLY,
