@@ -25,6 +25,8 @@
 #include "loqui_user.h"
 #include "loqui_member.h"
 
+#include "channel_buffer.h"
+
 G_BEGIN_DECLS
 
 #define LOQUI_TYPE_CHANNEL_ENTRY                 (loqui_channel_entry_get_type ())
@@ -45,6 +47,12 @@ struct _LoquiChannelEntry
         
 	GArray *member_array;
 	GHashTable *user_hash; /* key: user, value: position + 1 */
+
+	gboolean is_updated;
+	gchar *name;
+	gchar *topic;
+
+	ChannelBuffer *buffer;
 
 	GCompareFunc sort_func;
 
@@ -76,6 +84,25 @@ void loqui_channel_entry_sort(LoquiChannelEntry *chent);
 
 LoquiMember *loqui_channel_entry_get_nth_member(LoquiChannelEntry *chent, gint n);
 gint loqui_channel_entry_get_member_number(LoquiChannelEntry *chent);
+
+void loqui_channel_entry_set_buffer(LoquiChannelEntry *chent, ChannelBuffer *buffer);
+ChannelBuffer *loqui_channel_entry_get_buffer(LoquiChannelEntry *chent);
+
+void loqui_channel_entry_set_is_updated(LoquiChannelEntry *chent, gboolean is_updated);
+gboolean loqui_channel_entry_is_updated(LoquiChannelEntry *chent);
+
+#define LOQUI_CHANNEL_ENTRY_ACCESSOR_STRING(attr_name) \
+  ATTR_ACCESSOR_POINTER(g_strdup, g_free, const gchar *, G_CONST_RETURN gchar *, LoquiChannelEntry, loqui_channel_entry, attr_name)
+#define LOQUI_CHANNEL_ENTRY_ACCESSOR_STRING_PROTOTYPE(attr_name) \
+  ATTR_ACCESSOR_POINTER_PROTOTYPE(const gchar *, G_CONST_RETURN gchar *, LoquiChannelEntry, loqui_channel_entry, attr_name)
+
+#define LOQUI_CHANNEL_ENTRY_ACCESSOR_GENERIC(type, attr_name) \
+  ATTR_ACCESSOR_GENERIC(type, 0, LoquiChannelEntry, loqui_channel_entry, attr_name)
+#define LOQUI_CHANNEL_ENTRY_ACCESSOR_GENERIC_PROTOTYPE(type, attr_name) \
+  ATTR_ACCESSOR_GENERIC_PROTOTYPE(type, LoquiChannelEntry, loqui_channel_entry, attr_name)
+
+LOQUI_CHANNEL_ENTRY_ACCESSOR_STRING_PROTOTYPE(name);
+LOQUI_CHANNEL_ENTRY_ACCESSOR_STRING_PROTOTYPE(topic);
 
 G_END_DECLS
 

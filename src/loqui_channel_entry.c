@@ -20,6 +20,8 @@
  */
 #include "config.h"
 
+#include "intl.h"
+
 #include "loqui_channel_entry.h"
 #include "loqui_marshalers.h"
 
@@ -31,6 +33,11 @@ enum {
 };
 
 enum {
+	PROP_0,
+	PROP_NAME,
+	PROP_TOPIC,
+	PROP_IS_UPDATED,
+	PROP_BUFFER,
         LAST_PROP
 };
 
@@ -108,6 +115,10 @@ loqui_channel_entry_dispose(GObject *object)
 
         chent = LOQUI_CHANNEL_ENTRY(object);
 
+	G_FREE_UNLESS_NULL(chent->name);
+	G_FREE_UNLESS_NULL(chent->topic);
+	G_OBJECT_UNREF_UNLESS_NULL(chent->buffer);
+
 	for (i = 0; i < chent->member_array->len; i++) {
 		member = g_array_index(chent->member_array, LoquiMember *, i);
 		g_object_unref(member);
@@ -119,11 +130,23 @@ loqui_channel_entry_dispose(GObject *object)
 static void
 loqui_channel_entry_get_property(GObject *object, guint param_id, GValue *value, GParamSpec *pspec)
 {
-        LoquiChannelEntry *entry;        
+        LoquiChannelEntry *chent;        
 
-        entry = LOQUI_CHANNEL_ENTRY(object);
+        chent = LOQUI_CHANNEL_ENTRY(object);
 
         switch (param_id) {
+	case PROP_NAME:
+		g_value_set_string(value, chent->name);
+		break;
+	case PROP_TOPIC:
+		g_value_set_string(value, chent->topic);
+		break;
+	case PROP_IS_UPDATED:
+		g_value_set_boolean(value, chent->is_updated);
+		break;
+	case PROP_BUFFER:
+		g_value_set_object(value, chent->buffer);
+		break;
         default:
                 G_OBJECT_WARN_INVALID_PROPERTY_ID(object, param_id, pspec);
                 break;
@@ -132,11 +155,23 @@ loqui_channel_entry_get_property(GObject *object, guint param_id, GValue *value,
 static void
 loqui_channel_entry_set_property(GObject *object, guint param_id, const GValue *value, GParamSpec *pspec)
 {
-        LoquiChannelEntry *entry;        
+        LoquiChannelEntry *chent;
 
-        entry = LOQUI_CHANNEL_ENTRY(object);
+        chent = LOQUI_CHANNEL_ENTRY(object);
 
         switch (param_id) {
+	case PROP_NAME:
+		loqui_channel_entry_set_name(chent, g_value_get_string(value));
+		break;
+	case PROP_TOPIC:
+		loqui_channel_entry_set_topic(chent, g_value_get_string(value));
+		break;
+	case PROP_IS_UPDATED:
+		loqui_channel_entry_set_is_updated(chent, g_value_get_boolean(value));
+		break;
+	case PROP_BUFFER:
+		loqui_channel_entry_set_buffer(chent, g_value_get_object(value));
+		break;
         default:
                 G_OBJECT_WARN_INVALID_PROPERTY_ID(object, param_id, pspec);
                 break;
@@ -157,6 +192,31 @@ loqui_channel_entry_class_init(LoquiChannelEntryClass *klass)
 	klass->remove = loqui_channel_entry_real_remove;
 	klass->inserted = NULL;
 	klass->reordered = NULL;
+
+	g_object_class_install_property(object_class,
+					PROP_NAME,
+					g_param_spec_string("name",
+							    _("Name"),
+							    _("Name"),
+							    NULL, G_PARAM_READWRITE));
+	g_object_class_install_property(object_class,
+					PROP_TOPIC,
+					g_param_spec_string("topic",
+							    _("Topic"),
+							    _("Topic"),
+							    NULL, G_PARAM_READWRITE));
+	g_object_class_install_property(object_class,
+					PROP_IS_UPDATED,
+					g_param_spec_boolean("is_updated",
+							     _("Updated"),
+							     _("Updated or not"),
+							     FALSE, G_PARAM_READWRITE));
+	g_object_class_install_property(object_class,
+					PROP_BUFFER,
+					g_param_spec_object("buffer",
+							    _("Buffer"),
+							    _("Channel buffer"),
+							    TYPE_CHANNEL_BUFFER, G_PARAM_READWRITE));
 
 	loqui_channel_entry_signals[SIGNAL_REMOVE] = g_signal_new("remove",
 								  G_OBJECT_CLASS_TYPE(object_class),
@@ -324,8 +384,54 @@ loqui_channel_entry_get_nth_member(LoquiChannelEntry *chent, gint n)
 gint
 loqui_channel_entry_get_member_number(LoquiChannelEntry *chent)
 {
-        g_return_val_if_fail(chent != NULL, NULL);
-        g_return_val_if_fail(LOQUI_IS_CHANNEL_ENTRY(chent), NULL);
+        g_return_val_if_fail(chent != NULL, 0);
+        g_return_val_if_fail(LOQUI_IS_CHANNEL_ENTRY(chent), 0);
 	
 	return chent->member_array->len;
 }
+void
+loqui_channel_entry_set_buffer(LoquiChannelEntry *chent, ChannelBuffer *buffer)
+{
+        LoquiChannelEntryPrivate *priv;
+
+        g_return_if_fail(chent != NULL);
+        g_return_if_fail(LOQUI_IS_CHANNEL_ENTRY(chent));
+
+        priv = chent->priv;
+
+	G_OBJECT_UNREF_UNLESS_NULL(chent->buffer);
+
+	g_object_ref(buffer);
+	chent->buffer = buffer;
+	g_object_notify(G_OBJECT(chent), "buffer");
+}
+ChannelBuffer *
+loqui_channel_entry_get_buffer(LoquiChannelEntry *chent)
+{
+        g_return_val_if_fail(chent != NULL, 0);
+        g_return_val_if_fail(LOQUI_IS_CHANNEL_ENTRY(chent), 0);
+
+	return chent->buffer;
+}
+void
+loqui_channel_entry_set_is_updated(LoquiChannelEntry *chent, gboolean is_updated)
+{
+	g_return_if_fail(chent != NULL);
+        g_return_if_fail(LOQUI_IS_CHANNEL_ENTRY(chent));
+
+	if (chent->is_updated == is_updated)
+		return;
+
+	chent->is_updated = is_updated;
+	g_object_notify(G_OBJECT(chent), "is_updated");
+}
+gboolean
+loqui_channel_entry_is_updated(LoquiChannelEntry *chent)
+{
+        g_return_val_if_fail(chent != NULL, 0);
+        g_return_val_if_fail(LOQUI_IS_CHANNEL_ENTRY(chent), 0);
+
+	return chent->is_updated;
+}
+LOQUI_CHANNEL_ENTRY_ACCESSOR_STRING(topic);
+LOQUI_CHANNEL_ENTRY_ACCESSOR_STRING(name);
