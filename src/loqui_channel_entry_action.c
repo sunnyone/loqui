@@ -183,7 +183,15 @@ loqui_channel_entry_action_set_label_color(LoquiChannelEntryAction *action)
 	for (cur = gtk_action_get_proxies(GTK_ACTION(action)); cur != NULL; cur = cur->next) {
 		proxy = cur->data;
 
-		color = loqui_channel_entry_get_is_updated(action->channel_entry) ? FRESH_COLOR : NONFRESH_COLOR;
+		if (loqui_channel_entry_get_has_unread_keyword(action->channel_entry))
+			color = HIGHLIGHT_COLOR;
+		else if (loqui_channel_entry_get_is_updated(action->channel_entry))
+			color = FRESH_COLOR;
+		else if (loqui_channel_entry_get_is_updated_weak(action->channel_entry))
+			color = FRESH_WEAK_COLOR;
+		else
+			color = NONFRESH_COLOR;
+
 		if (GTK_IS_LABEL(proxy))
 			gtkutils_set_label_color(GTK_LABEL(proxy), color);
 		else if (GTK_IS_MENU_ITEM(proxy)) {
