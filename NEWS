@@ -73,3 +73,8 @@
 * Implemented multiline editing mode.
 * Fix the bug about threading.
 
+2003-03-17     0.1.11
+* Stop using multi-threading in Loqui.
+* Enable reconnecting.
+* Auto-reconnect feature.
+

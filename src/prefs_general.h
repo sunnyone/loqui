@@ -73,7 +73,7 @@ typedef struct _PrefsGeneral {
 
 	guint remark_history_number;
 
-	gboolean reconnect_when_terminated;
+	gboolean auto_reconnect;
 } PrefsGeneral;
 
 void prefs_general_load(void);

@@ -1,3 +1,76 @@
+2003-03-18 00:57  y-imai
+
+	* src/: account.c, account.h, irc_handle.c:
+	account_remove_channel() unref Channel object.
+
+2003-03-18 00:23  y-imai
+
+	* src/: account.c, irc_handle.c, irc_handle.h, prefs_general.c,
+	prefs_general.h: reconnect function
+
+2003-03-18 00:00  y-imai
+
+	* src/: account.c, irc_handle.c: handling IRCHandle's disconnection
+
+2003-03-17 23:32  y-imai
+
+	* src/irc_handle.c: removed thread variables
+
+2003-03-17 23:14  y-imai
+
+	* src/: irc_handle.c, irc_handle.h: added disconnect/terminated
+	signal
+
+2003-03-17 22:41  y-imai
+
+	* src/: account.c, account.h, channel.c, channel.h: add class
+	methods
+
+2003-03-17 18:47  y-imai
+
+	* src/: account.c, account_manager.c: connected signal
+
+2003-03-17 17:46  y-imai
+
+	* src/: account.c, irc_handle.c, irc_handle.h: changed arguments of
+	irc_handle_new/connect
+
+2003-03-17 17:07  y-imai
+
+	* src/: account.c, account_manager.c: move set_current_channel to
+	account_manager
+
+2003-03-17 15:40  y-imai
+
+	* src/: account.c, account.h, account_manager.c, account_manager.h:
+	handle adding/removing channels with signal
+
+2003-03-17 01:35  y-imai
+
+	* src/: irc_constants.h, irc_handle.c: Removed needless constants
+
+2003-03-17 01:33  y-imai
+
+	* src/: Makefile.am, connection.c, connection.h, irc_handle.c,
+	loqui_app.c: Replaced implementation of IRCHandle with async
+	function in GNet and g_io_channel_*_watch
+
+2003-03-16 23:09  y-imai
+
+	* src/connection.c: Use io_channel_unref instead of _shutdown
+
+2003-03-16 22:05  y-imai
+
+	* src/remark_entry.c: check whether the length of remark string
+
+2003-03-16 17:41  y-imai
+
+	* debian/changelog: updated debian changelog
+
+2003-03-16 17:39  y-imai
+
+	* ChangeLog, NEWS, NEWS.ja, configure.in, po/ja.po: 0.1.10
+
 2003-03-16 17:35  y-imai
 
 	* src/: account.c, remark_entry.c, remark_entry.h: implemented

@@ -60,7 +60,7 @@ PrefElement prefs_general_defs[] = {
 
 	{"remark_history_number", "10", PREF_TYPE_UINT, &prefs_general.remark_history_number },
 
-	{"reconnect_when_terminated", "true", PREF_TYPE_BOOLEAN, &prefs_general.reconnect_when_terminated },
+	{"auto_reconnect", "true", PREF_TYPE_BOOLEAN, &prefs_general.auto_reconnect },
 
 	{NULL, NULL, 0, NULL}
 };

@@ -33,6 +33,7 @@ struct _PrefsDialogPrivate
 	GtkWidget *check_save_size;
 	GtkWidget *check_auto_switch_scrolling;
 	GtkWidget *check_parse_plum_recent;
+	GtkWidget *check_auto_reconnect;
 	GtkWidget *entry_away_message;
 	GtkWidget *option_codeconv;
 	GtkWidget *entry_codeset;
@@ -158,6 +159,7 @@ prefs_dialog_load_settings(PrefsDialog *dialog)
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(priv->check_parse_plum_recent), prefs_general.parse_plum_recent);
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(priv->check_save_size), prefs_general.save_size);
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(priv->check_use_notification), prefs_general.use_notification);
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(priv->check_auto_reconnect), prefs_general.auto_reconnect);
 
 	buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(priv->textview_highlight));
 	if(prefs_general.highlight_list) {
@@ -187,6 +189,8 @@ prefs_dialog_save_settings(PrefsDialog *dialog)
 	prefs_general.auto_switch_scrolling = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(priv->check_auto_switch_scrolling));
 	prefs_general.parse_plum_recent = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(priv->check_parse_plum_recent));
 	prefs_general.use_notification = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(priv->check_use_notification));
+	prefs_general.auto_reconnect = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(priv->check_auto_reconnect));
+
 	prefs_general.codeconv = gtk_option_menu_get_history(GTK_OPTION_MENU(priv->option_codeconv));
 
 	buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(priv->textview_highlight));
@@ -285,6 +289,8 @@ prefs_dialog_new(void)
 	gtk_box_pack_start(GTK_BOX(vbox), priv->check_auto_switch_scrolling, FALSE, FALSE, 0);
 	priv->check_parse_plum_recent = gtk_check_button_new_with_label(_("Parse plum (an irc proxy) recent feature (Experimental)"));
 	gtk_box_pack_start(GTK_BOX(vbox), priv->check_parse_plum_recent, FALSE, FALSE, 0);
+	priv->check_auto_reconnect = gtk_check_button_new_with_label(_("Reconnect automatically when connections are terminated."));
+	gtk_box_pack_start(GTK_BOX(vbox), priv->check_auto_reconnect, FALSE, FALSE, 0);
 
 	frame = gtk_frame_new(_("Code convertion"));
 	gtk_box_pack_start(GTK_BOX(vbox), frame, FALSE, FALSE, 2);

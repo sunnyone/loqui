@@ -434,7 +434,7 @@ account_handle_terminated_cb(GObject *object, Account *account)
 
 	account_console_buffer_append(account, TRUE, TEXT_TYPE_INFO, _("Connection terminated."));
 
-	if(prefs_general.reconnect_when_terminated) {
+	if(prefs_general.auto_reconnect) {
 		account_console_buffer_append(account, TRUE, TEXT_TYPE_INFO, _("Trying to reconnect..."));
 		priv->handle = irc_handle_new(account);
 		irc_handle_connect(priv->handle, (priv->server_on_connecting == NULL) ? TRUE : FALSE,
