@@ -10,7 +10,9 @@ loqui_SOURCES = \
 	main.c main.h \
 	gobject_utils.c gobject_utils.h \
 	prefs_general.c prefs_general.h \
-	prefs_account.c prefs_account.h \
+	loqui_profile_handle.c loqui_profile_handle.h \
+	loqui_profile_account.c loqui_profile_account.h \
+	loqui_profile_account_irc.c loqui_profile_account_irc.h \
 	loqui_menu.c loqui_menu.h \
 	account_manager.c account_manager.h \
 	loqui_app.c loqui_app.h \
@@ -34,7 +36,6 @@ loqui_SOURCES = \
 	account_dialog.h account_dialog.c \
 	loqui_statusbar.c loqui_statusbar.h \
 	prefs_dialog.c prefs_dialog.h \
-	connect_dialog.c connect_dialog.h \
 	channel_input_dialog.c channel_input_dialog.h \
 	command_dialog.c command_dialog.h \
 	remark_entry.c remark_entry.h \
