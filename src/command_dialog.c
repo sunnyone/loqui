@@ -76,7 +76,7 @@ command_dialog_join(LoquiApp *app, LoquiAccount *account)
 					     NULL);
         gtk_dialog_set_default_response(GTK_DIALOG(dialog), GTK_RESPONSE_OK);
 
-	buf = g_strdup_printf(_("Join a channel with the account '%s'"), loqui_channel_entry_get_name(LOQUI_CHANNEL_ENTRY(account)));
+	buf = g_strdup_printf(_("Join a channel with the account %s"), loqui_channel_entry_get_name(LOQUI_CHANNEL_ENTRY(account)));
 	label = gtk_label_new(buf);
 	gtk_box_pack_start(GTK_BOX(GTK_DIALOG(dialog)->vbox), label, FALSE, FALSE, 0);
 	g_free(buf);
@@ -119,7 +119,7 @@ command_dialog_private_talk(LoquiApp *app, LoquiAccount *account)
 					     NULL);
         gtk_dialog_set_default_response(GTK_DIALOG(dialog), GTK_RESPONSE_OK);
 
-	buf = g_strdup_printf(_("Start private talk with the user in '%s'"), loqui_channel_entry_get_name(LOQUI_CHANNEL_ENTRY(account)));
+	buf = g_strdup_printf(_("Start private talk with the user in %s"), loqui_channel_entry_get_name(LOQUI_CHANNEL_ENTRY(account)));
 	label = gtk_label_new(buf);
 	gtk_box_pack_start(GTK_BOX(GTK_DIALOG(dialog)->vbox), label, FALSE, FALSE, 0);
 	g_free(buf);
@@ -157,7 +157,7 @@ command_dialog_part(LoquiApp *app, LoquiAccount *account, LoquiChannel *channel)
 					     NULL);
         gtk_dialog_set_default_response(GTK_DIALOG(dialog), GTK_RESPONSE_OK);
 
-	buf = g_strdup_printf(_("Part the channel '%s' (in '%s')"),
+	buf = g_strdup_printf(_("Part the channel %s (in %s)"),
 			      loqui_channel_entry_get_name(LOQUI_CHANNEL_ENTRY(channel)),
 			      loqui_channel_entry_get_name(LOQUI_CHANNEL_ENTRY(account)));
 
@@ -201,7 +201,7 @@ command_dialog_topic(LoquiApp *app, LoquiAccount *account, LoquiChannel *channel
         gtk_dialog_set_default_response(GTK_DIALOG(dialog), GTK_RESPONSE_OK);
 
 
-	buf = g_strdup_printf(_("Set the topic of the channel '%s' (in '%s')"),
+	buf = g_strdup_printf(_("Set the topic of the channel %s (in %s)"),
 			      loqui_channel_entry_get_name(LOQUI_CHANNEL_ENTRY(channel)),
 			      loqui_channel_entry_get_name(LOQUI_CHANNEL_ENTRY(account)));
 
@@ -243,7 +243,7 @@ command_dialog_nick(LoquiApp *app, LoquiAccount *account)
         gtk_dialog_set_default_response(GTK_DIALOG(dialog), GTK_RESPONSE_OK);
 
 
-	buf = g_strdup_printf(_("New nickname of the account '%s'"), loqui_channel_entry_get_name(LOQUI_CHANNEL_ENTRY(account)));
+	buf = g_strdup_printf(_("New nickname of the account %s"), loqui_channel_entry_get_name(LOQUI_CHANNEL_ENTRY(account)));
 	label = gtk_label_new(buf);
 	gtk_box_pack_start(GTK_BOX(GTK_DIALOG(dialog)->vbox), label, FALSE, FALSE, 0);
 	g_free(buf);
