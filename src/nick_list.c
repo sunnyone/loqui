@@ -22,6 +22,7 @@
 #include "nick_list.h"
 #include "gtkutils.h"
 #include "intl.h"
+#include "main.h"
 
 struct _NickListPrivate
 {
@@ -50,8 +51,16 @@ static void nick_list_destroy(GtkObject *object);
 
 static void nick_list_create_icons(NickList *list);
 
-static GdkPixbuf* nick_list_get_icon_op(NickList *list, UserPower power);
-static GdkPixbuf* nick_list_get_icon_away(NickList *list, UserPower power);
+static void nick_list_cell_data_func_op(GtkTreeViewColumn *tree_column,
+					GtkCellRenderer *cell,
+					GtkTreeModel *tree_model,
+					GtkTreeIter *iter,
+					gpointer data);
+static void nick_list_cell_data_func_away(GtkTreeViewColumn *tree_column,
+					  GtkCellRenderer *cell,
+					  GtkTreeModel *tree_model,
+					  GtkTreeIter *iter,
+					  gpointer data);
 
 GType
 nick_list_get_type(void)
@@ -169,6 +178,59 @@ nick_list_create_icons(NickList *list)
 	priv->away_icon = gtk_widget_render_icon(GTK_WIDGET(list), GTK_STOCK_QUIT,
 						 GTK_ICON_SIZE_MENU, NULL);
 }
+static void nick_list_cell_data_func_op(GtkTreeViewColumn *tree_column,
+					GtkCellRenderer *cell,
+					GtkTreeModel *tree_model,
+					GtkTreeIter *iter,
+					gpointer data)
+{
+	UserPower power;
+	NickList *nick_list;
+
+	nick_list = NICK_LIST(data);
+	gtk_tree_model_get(tree_model, iter, COLUMN_OP, &power, -1);
+
+	switch(power) {
+	case USER_POWER_OP:
+		g_object_set(G_OBJECT(cell), "pixbuf", nick_list->priv->op_icon, NULL);
+		return;
+	case USER_POWER_V:
+		g_object_set(G_OBJECT(cell), "pixbuf", nick_list->priv->speak_ability_icon, NULL);
+		return;
+	case USER_POWER_NOTHING:
+		g_object_set(G_OBJECT(cell), "pixbuf", nick_list->priv->nonop_icon, NULL);
+		return;
+	default:
+		break;
+	}
+}
+static void nick_list_cell_data_func_away(GtkTreeViewColumn *tree_column,
+					  GtkCellRenderer *cell,
+					  GtkTreeModel *tree_model,
+					  GtkTreeIter *iter,
+					  gpointer data)
+{
+	NickList *nick_list;
+	NickListPrivate *priv;
+	UserExistence exist;
+
+	nick_list = NICK_LIST(data);
+	priv = nick_list->priv;
+
+	gtk_tree_model_get(tree_model, iter, COLUMN_HOMEAWAY, &exist, -1);
+
+	switch(exist) {
+	case USER_EXISTENCE_HOME:
+		g_object_set(G_OBJECT(cell), "pixbuf", priv->home_icon, NULL);
+		return;
+	case USER_EXISTENCE_AWAY:
+		g_object_set(G_OBJECT(cell), "pixbuf", priv->away_icon, NULL);
+		return;
+	default:
+		break;
+	}
+}
+
 GtkWidget*
 nick_list_new (void)
 {
@@ -185,8 +247,8 @@ nick_list_new (void)
 
 	nick_list_create_icons(list);
 	model = gtk_list_store_new(COLUMN_NUMBER, 
-				   GDK_TYPE_PIXBUF,
-				   GDK_TYPE_PIXBUF,
+				   G_TYPE_INT,
+				   G_TYPE_INT,
                                    G_TYPE_STRING, 
                                    G_TYPE_POINTER);
         gtk_tree_view_set_model(GTK_TREE_VIEW(list), GTK_TREE_MODEL(model));
@@ -197,19 +259,19 @@ nick_list_new (void)
         gtk_tree_selection_set_mode(sel, GTK_SELECTION_MULTIPLE);
 	
         renderer = gtk_cell_renderer_pixbuf_new();
-        column = gtk_tree_view_column_new_with_attributes("Away",
-							  renderer,
-							  "pixbuf", COLUMN_HOMEAWAY,
-							  NULL);
+        column = gtk_tree_view_column_new_with_attributes("Away", renderer, NULL);
+	gtk_tree_view_column_set_cell_data_func(column, renderer,
+						nick_list_cell_data_func_away,
+						list, NULL);
 	gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
 	gtk_tree_view_column_set_fixed_width(column, 20);
         gtk_tree_view_append_column(GTK_TREE_VIEW(list), column);
 
         renderer = gtk_cell_renderer_pixbuf_new();
-        column = gtk_tree_view_column_new_with_attributes("@",
-							  renderer,
-							  "pixbuf", COLUMN_OP,
-							  NULL);
+        column = gtk_tree_view_column_new_with_attributes("@", renderer, NULL);
+	gtk_tree_view_column_set_cell_data_func(column, renderer,
+						nick_list_cell_data_func_op,
+						list, NULL);
 	gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
 	gtk_tree_view_column_set_fixed_width(column, 20);
         gtk_tree_view_append_column(GTK_TREE_VIEW(list), column);
@@ -229,61 +291,7 @@ nick_list_new (void)
         gtk_tree_view_column_set_visible (column, FALSE);
         gtk_tree_view_append_column(GTK_TREE_VIEW(list), column);
 
-#if 0
-	{
-		GtkTreeIter iter;
-		gtk_list_store_append(GTK_LIST_STORE(model), &iter);
-		gtk_list_store_set(GTK_LIST_STORE(model), &iter,
-				   COLUMN_HOMEAWAY, priv->away_icon,
-				   COLUMN_OP, priv->speak_ability_icon,
-				   COLUMN_NICK, "Hogeo",
-				   -1);
-		gtk_list_store_append(GTK_LIST_STORE(model), &iter);
-		gtk_list_store_set(GTK_LIST_STORE(model), &iter,
-				   COLUMN_HOMEAWAY, priv->home_icon,
-				   COLUMN_OP, priv->nonop_icon,
-				   COLUMN_NICK, "Fugao",
-				   -1);
-	}
-#endif
-
 	return GTK_WIDGET(list);
-}
-static GdkPixbuf *
-nick_list_get_icon_op(NickList *list, UserPower power)
-{
-	NickListPrivate *priv;
-
-	priv = list->priv;
-
-	switch(power) {
-	case USER_POWER_OP:
-		return priv->op_icon;
-	case USER_POWER_V:
-		return priv->speak_ability_icon;
-	case USER_POWER_NOTHING:
-		return priv->nonop_icon;
-	default:
-		break;
-	}
-	return NULL;
-}
-static GdkPixbuf *
-nick_list_get_icon_away(NickList *list, UserExistence exist)
-{
-	NickListPrivate *priv;
-
-	priv = list->priv;
-
-	switch(exist) {
-	case USER_EXISTENCE_HOME:
-		return priv->home_icon;
-	case USER_EXISTENCE_AWAY:
-		return priv->away_icon;
-	default:
-		break;
-	}
-	return NULL;
 }
 void nick_list_append(NickList *list, User *user)
 {
@@ -297,8 +305,8 @@ void nick_list_append(NickList *list, User *user)
 
 	gtk_list_store_append(GTK_LIST_STORE(model), &iter);
 	gtk_list_store_set(GTK_LIST_STORE(model), &iter,
-			   COLUMN_HOMEAWAY, nick_list_get_icon_away(list, user->exist),
-			   COLUMN_OP, nick_list_get_icon_op(list, user->power),
+			   COLUMN_HOMEAWAY, user->exist,
+			   COLUMN_OP, user->power,
 			   COLUMN_NICK, user->nick,
 			   COLUMN_POINTER, user,
 			   -1);
@@ -334,8 +342,8 @@ void nick_list_update(NickList *list, User *user)
 		return;
 
 	gtk_list_store_set(GTK_LIST_STORE(model), &iter,
-			   COLUMN_HOMEAWAY, nick_list_get_icon_away(list, user->exist),
-			   COLUMN_OP, nick_list_get_icon_op(list, user->power),
+			   COLUMN_HOMEAWAY, user->exist,
+			   COLUMN_OP, user->power,
 			   COLUMN_NICK, user->nick,
 			   COLUMN_POINTER, user,
 			   -1);
