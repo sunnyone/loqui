@@ -202,14 +202,18 @@ irc_handle_parse_plum_recent(IRCHandle *handle, const gchar *line)
 
 	priv = handle->priv;
 
-	buf = g_strdup(line);
+	cur = buf = g_strdup(line);
 
-	if(((cur = strstr(buf, " <")) == NULL) &&
-	   ((cur = strstr(buf, " >")) == NULL) &&
-	   ((cur = strstr(buf, " =")) == NULL)) {
+	if(!g_ascii_isdigit(*cur) ||
+	   !g_ascii_isdigit(*(++cur)) ||
+	   *(++cur) != ':' ||
+	   !g_ascii_isdigit(*(++cur)) ||
+	   !g_ascii_isdigit(*(++cur)) ||
+	   *(++cur) != ' ')
 		goto error;
-	}
-	prefix = *++cur;
+	prefix = *(++cur);
+	if(prefix != '<' && prefix != '>' && prefix != '=')
+		goto error;
 	name = ++cur;
 
 	switch(prefix) {
