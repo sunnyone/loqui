@@ -28,6 +28,7 @@
 #include "loqui_utils_irc.h"
 #include "loqui_account_irc.h"
 #include "loqui_channel_irc.h"
+#include "loqui_receiver_irc.h"
 
 #include <string.h>
 
@@ -442,15 +443,15 @@ static void
 loqui_sender_irc_refresh(LoquiSender *sender, LoquiChannel *channel)
 {
 	IRCMessage *msg;
-	IRCHandle *handle;
+	LoquiReceiverIRC *receiver;
 
         g_return_if_fail(sender != NULL);
         g_return_if_fail(LOQUI_IS_SENDER_IRC(sender));
 
 	WARN_AND_RETURN_UNLESS_CONNECTED(sender);
 
-	handle = loqui_account_irc_get_handle(LOQUI_ACCOUNT_IRC(sender->account));
-	handle->prevent_print_who_reply_count++;
+	receiver = LOQUI_RECEIVER_IRC(loqui_account_get_receiver(sender->account));
+	receiver->prevent_print_who_reply_count++;
 	
 	msg = irc_message_create(IRCCommandWho, loqui_channel_get_identifier(channel), NULL);
 	loqui_sender_irc_send_irc_message(LOQUI_SENDER_IRC(sender), msg);

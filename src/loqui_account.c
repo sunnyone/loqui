@@ -245,6 +245,9 @@ loqui_account_finalize(GObject *object)
   } \
 }
 
+	G_OBJECT_UNREF_UNLESS_NULL(account->sender);
+	G_OBJECT_UNREF_UNLESS_NULL(account->receiver);
+
 	DESTROY_HASH_TABLE(account->identifier_channel_table);
 	DESTROY_HASH_TABLE(account->user_identifier_table);
 	DESTROY_HASH_TABLE(account->identifier_user_table);

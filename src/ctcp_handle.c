@@ -30,7 +30,7 @@
 struct _CTCPHandlePrivate
 {
 	LoquiAccount *account;
-	IRCHandle *handle;
+	LoquiReceiverIRC *receiver;
 
 	GTimer *interval_timer;
 };
@@ -131,7 +131,7 @@ ctcp_handle_finalize(GObject *object)
 }
 
 CTCPHandle*
-ctcp_handle_new(IRCHandle *handle, LoquiAccount *account)
+ctcp_handle_new(LoquiReceiverIRC *receiver, LoquiAccount *account)
 {
         CTCPHandle *ctcp_handle;
 	CTCPHandlePrivate *priv;
@@ -141,7 +141,7 @@ ctcp_handle_new(IRCHandle *handle, LoquiAccount *account)
 	priv = ctcp_handle->priv;
 
 	priv->account = account;
-	priv->handle = handle;
+	priv->receiver = receiver;
 
 	return ctcp_handle;
 }

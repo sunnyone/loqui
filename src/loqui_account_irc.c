@@ -20,11 +20,12 @@
 #include "config.h"
 
 #include "loqui_account_irc.h"
-#include "irc_handle.h"
 
 #include "loqui_profile_account_irc.h"
-#include "loqui_utils_irc.h"
 #include "loqui_sender_irc.h"
+#include "loqui_receiver_irc.h"
+
+#include "loqui_utils_irc.h"
 #include "intl.h"
 #include "main.h"
 #include "prefs_general.h"
@@ -41,7 +42,6 @@ enum {
 
 struct _LoquiAccountIRCPrivate
 {
-	IRCHandle *handle;
 	IRCConnection *connection;
 };
 
@@ -121,7 +121,6 @@ loqui_account_irc_dispose(GObject *object)
         account = LOQUI_ACCOUNT_IRC(object);
 	priv = account->priv;
 
-	G_OBJECT_UNREF_UNLESS_NULL(priv->handle);
 	G_OBJECT_UNREF_UNLESS_NULL(priv->connection);
 
         if (G_OBJECT_CLASS(parent_class)->dispose)
@@ -181,6 +180,7 @@ loqui_account_irc_init(LoquiAccountIRC *account)
 	account->priv = priv;
 
 	loqui_account_set_sender(LOQUI_ACCOUNT(account), LOQUI_SENDER(loqui_sender_irc_new(LOQUI_ACCOUNT(account))));
+	loqui_account_set_receiver(LOQUI_ACCOUNT(account), LOQUI_RECEIVER(loqui_receiver_irc_new(LOQUI_ACCOUNT(account))));
 }
 LoquiAccountIRC*
 loqui_account_irc_new(LoquiProfileAccount *profile)
@@ -247,8 +247,6 @@ loqui_account_irc_connect(LoquiAccount *account)
 	codeset_type = loqui_profile_account_irc_get_codeset_type(LOQUI_PROFILE_ACCOUNT_IRC(loqui_account_get_profile(account)));
 	codeset = loqui_profile_account_irc_get_codeset(LOQUI_PROFILE_ACCOUNT_IRC(loqui_account_get_profile(account)));
 	
-	priv->handle = irc_handle_new(account);
-
 	priv->connection = irc_connection_new(servername, port);
 
 	codeconv = codeconv_new();
@@ -332,7 +330,8 @@ loqui_account_irc_connection_terminated_cb(GObject *object, LoquiAccountIRC *acc
 	priv = account->priv;
 
 	G_OBJECT_UNREF_UNLESS_NULL(priv->connection);
-	G_OBJECT_UNREF_UNLESS_NULL(priv->handle);
+
+	loqui_receiver_irc_reset(LOQUI_RECEIVER_IRC(LOQUI_ACCOUNT(account)->receiver));
 
 	loqui_account_console_buffer_append(LOQUI_ACCOUNT(account), TEXT_TYPE_INFO, _("Connection terminated."));
 	loqui_user_set_away(LOQUI_ACCOUNT(account)->user_self, LOQUI_AWAY_TYPE_OFFLINE);
@@ -356,7 +355,7 @@ loqui_account_irc_connection_disconnected_cb(GObject *object, LoquiAccountIRC *a
 	priv = account->priv;
 
 	G_OBJECT_UNREF_UNLESS_NULL(priv->connection);
-	G_OBJECT_UNREF_UNLESS_NULL(priv->handle);
+	loqui_receiver_irc_reset(LOQUI_RECEIVER_IRC(LOQUI_ACCOUNT(account)->receiver));
 
 	loqui_account_console_buffer_append(LOQUI_ACCOUNT(account), TEXT_TYPE_INFO, _("Disconnected."));
 	loqui_account_remove_all_channel(LOQUI_ACCOUNT(account));
@@ -386,9 +385,8 @@ loqui_account_irc_connection_arrive_message_cb(IRCConnection *connection, IRCMes
         g_return_if_fail(account != NULL);
         g_return_if_fail(LOQUI_IS_ACCOUNT_IRC(account));
 
-	irc_handle_response(account->priv->handle, msg);
+	loqui_receiver_irc_response(LOQUI_RECEIVER_IRC(LOQUI_ACCOUNT(account)->receiver), msg);
 }
-
 static void
 loqui_account_irc_disconnect(LoquiAccount *account)
 {
@@ -401,14 +399,6 @@ loqui_account_irc_disconnect(LoquiAccount *account)
 
 	if (priv->connection)
 		irc_connection_disconnect(priv->connection);
-}
-IRCHandle *
-loqui_account_irc_get_handle(LoquiAccountIRC *account)
-{
-        g_return_val_if_fail(account != NULL, NULL);
-        g_return_val_if_fail(LOQUI_IS_ACCOUNT_IRC(account), NULL);
-	
-	return account->priv->handle;
 }
 IRCConnection *
 loqui_account_irc_get_connection(LoquiAccountIRC *account)

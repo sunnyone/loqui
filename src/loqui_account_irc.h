@@ -25,7 +25,6 @@
 #include "loqui_account.h"
 #include "loqui_user_irc.h"
 #include "irc_connection.h"
-#include "irc_handle.h"
 
 G_BEGIN_DECLS
 
@@ -60,7 +59,6 @@ LoquiAccountIRC* loqui_account_irc_new(LoquiProfileAccount *profile);
 LoquiUserIRC* loqui_account_irc_fetch_user(LoquiAccountIRC *account, const gchar *nick);
 
 IRCConnection *loqui_account_irc_get_connection(LoquiAccountIRC *account);
-IRCHandle* loqui_account_irc_get_handle(LoquiAccountIRC *account);
 
 gboolean loqui_account_irc_is_current_nick(LoquiAccountIRC *account, const gchar *str);
 
