@@ -4,7 +4,7 @@ requires 2.0.0
 %}
 
 %{
-#include "intl.h"
+#include <glib/gi18n.h>
 #include "utils.h"
 %}
 

@@ -46,7 +46,7 @@ requires 2.0.0
 #include <loqui_protocol_ipmsg.h>
 #include <loqui_protocol_msn.h>
 
-#include "intl.h"
+#include <glib/gi18n.h>
 #include "utils.h"
 #include "main.h"
 
