@@ -60,8 +60,6 @@ MSNMessage* msn_message_new(const gchar *raw_text, GList *parameters, GList *pay
 MSNMessage* msn_message_parse(const gchar *text);
 MSNMessage* msn_message_create(GList *payload_headers, const gchar *payload_body, const gchar *param, ...);
 
-void msn_login_connect(MSNLogin *login);
-
 G_END_DECLS
 
 #endif /* __MSN_MESSAGE_H__ */

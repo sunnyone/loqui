@@ -56,6 +56,8 @@ GType msn_login_get_type(void) G_GNUC_CONST;
 
 MSNLogin* msn_login_new(LoquiAccount *account);
 
+void msn_login_connect(MSNLogin *login);
+
 G_END_DECLS
 
 #endif /* __MSN_LOGIN_H__ */
