@@ -25,10 +25,13 @@
 #include "utils.h"
 #include "gtkutils.h"
 
+#include "main.h"
+
 #include <string.h>
 
 enum {
 	ACTIVATE,
+	TOGGLE_COMMAND_MODE,
         LAST_SIGNAL
 };
 
@@ -40,13 +43,17 @@ struct _RemarkEntryPrivate
 	gboolean is_multiline;
 
 	GtkWidget *vbox;
+	
+	GtkWidget *toggle_command;
+	guint toggle_command_toggled_id;
+	
 	GtkWidget *entry;
 	GtkWidget *hbox_text;
 	GtkWidget *textview;
 	GtkWidget *button_ok;
 
 	GtkWidget *toggle_multiline;
-	guint toggled_id;
+	guint toggle_multiline_toggled_id;
 
 	GtkWidget *toggle_palette;
 };
@@ -62,10 +69,13 @@ static void remark_entry_finalize(GObject *object);
 static void remark_entry_destroy(GtkObject *object);
 
 static void remark_entry_entry_text_shown_cb(GtkWidget *widget, gpointer data);
+static void remark_entry_toggle_command_toggled_cb(GtkWidget *widget, gpointer data);
+static void remark_entry_toggle_command_toggled_cb_for_signal(GtkWidget *widget, gpointer data);
 static void remark_entry_entry_multiline_toggled_cb(GtkWidget *widget, gpointer data);
 static void remark_entry_activated_cb(GtkWidget *widget, gpointer data);
 static gint remark_entry_entry_key_pressed_cb(GtkEntry *widget, GdkEventKey *event,
 					      gpointer data);
+static void remark_entry_entry_changed_cb(GtkEntry *widget, RemarkEntry *remark_entry);
 
 static void remark_entry_history_add(RemarkEntry *entry, const gchar *str);
 
@@ -113,6 +123,14 @@ remark_entry_class_init(RemarkEntryClass *klass)
 						      NULL, NULL,
 						      g_cclosure_marshal_VOID__VOID,
 						      G_TYPE_NONE, 0);
+
+        remark_entry_signals[TOGGLE_COMMAND_MODE] = g_signal_new("toggle_command_mode",
+							         G_OBJECT_CLASS_TYPE(object_class),
+						      	         G_SIGNAL_RUN_FIRST,
+						                 0,
+						                 NULL, NULL,
+						                 g_cclosure_marshal_VOID__VOID,
+						                 G_TYPE_NONE, 0);						      
 }
 static void 
 remark_entry_init(RemarkEntry *remark_entry)
@@ -171,9 +189,22 @@ remark_entry_new(void)
 
 	hbox = GTK_WIDGET(remark_entry);
 
+	priv->toggle_command = gtk_toggle_button_new();
+	image = gtk_image_new_from_stock(LOQUI_STOCK_COMMAND, GTK_ICON_SIZE_BUTTON);
+	gtk_container_add(GTK_CONTAINER(priv->toggle_command), image);
+	priv->toggle_command_toggled_id = g_signal_connect(G_OBJECT(priv->toggle_command), "toggled",
+				 	                   G_CALLBACK(remark_entry_toggle_command_toggled_cb),
+				 	                   remark_entry);
+	g_signal_connect(G_OBJECT(priv->toggle_command), "toggled",
+			 G_CALLBACK(remark_entry_toggle_command_toggled_cb_for_signal),
+			 remark_entry);
+
+	gtk_button_set_relief(GTK_BUTTON(priv->toggle_command), GTK_RELIEF_NONE);
+	gtk_box_pack_start(GTK_BOX(hbox), priv->toggle_command, FALSE, FALSE, 0);
+	
 	priv->vbox = gtk_vbox_new(FALSE, 0);
 	gtk_box_pack_start(GTK_BOX(hbox), priv->vbox, TRUE, TRUE, 0);
-
+	
 	priv->entry = gtk_entry_new();
 	g_signal_connect(G_OBJECT(priv->entry), "activate",
 			 G_CALLBACK(remark_entry_activated_cb), remark_entry);
@@ -181,6 +212,9 @@ remark_entry_new(void)
 			 G_CALLBACK(remark_entry_entry_text_shown_cb), remark_entry);
 	g_signal_connect(G_OBJECT(priv->entry), "key_press_event",
 			 G_CALLBACK(remark_entry_entry_key_pressed_cb), remark_entry);
+	g_signal_connect(G_OBJECT(priv->entry), "changed",
+			 G_CALLBACK(remark_entry_entry_changed_cb), remark_entry);
+			 
 	gtk_box_pack_start(GTK_BOX(priv->vbox), priv->entry, TRUE, TRUE, 0);
 
 	priv->hbox_text = gtk_hbox_new(FALSE, 0);
@@ -207,8 +241,8 @@ remark_entry_new(void)
 	image = gtk_image_new_from_stock(GTK_STOCK_JUSTIFY_LEFT, GTK_ICON_SIZE_BUTTON);
 	priv->toggle_multiline = gtk_toggle_button_new();
 	gtk_container_add(GTK_CONTAINER(priv->toggle_multiline), image);
-	priv->toggled_id = g_signal_connect(G_OBJECT(priv->toggle_multiline), "toggled",
-					    G_CALLBACK(remark_entry_entry_multiline_toggled_cb), remark_entry);
+	priv->toggle_multiline_toggled_id = g_signal_connect(G_OBJECT(priv->toggle_multiline), "toggled",
+						  	     G_CALLBACK(remark_entry_entry_multiline_toggled_cb), remark_entry);
 	gtk_box_pack_start(GTK_BOX(hbox), priv->toggle_multiline, FALSE, FALSE, 0);
 
 	/* TODO: color palette
@@ -293,11 +327,10 @@ remark_entry_set_multiline(RemarkEntry *entry, gboolean is_multiline)
 		gtk_widget_hide_all(priv->hbox_text);
 		gtk_widget_show(priv->entry);
 	}
-
-	g_signal_handler_block(priv->toggle_multiline, priv->toggled_id);
-	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(priv->toggle_multiline), is_multiline);
-	g_signal_handler_unblock(priv->toggle_multiline, priv->toggled_id);
-
+	
+	gtkutils_toggle_button_with_signal_handler_blocked(GTK_TOGGLE_BUTTON(priv->toggle_multiline),
+							   priv->toggle_multiline_toggled_id,
+							   is_multiline);
 	remark_entry_grab_focus(entry);
 }
 gboolean
@@ -312,7 +345,32 @@ remark_entry_get_multiline(RemarkEntry *entry)
 
 	return priv->is_multiline;
 }
+void
+remark_entry_set_command_mode(RemarkEntry *entry, gboolean command_mode)
+{
+	RemarkEntryPrivate *priv;
 
+        g_return_if_fail(entry != NULL);
+        g_return_if_fail(IS_REMARK_ENTRY(entry));
+
+	priv = entry->priv;	
+
+	gtkutils_toggle_button_with_signal_handler_blocked(GTK_TOGGLE_BUTTON(priv->toggle_command),
+							   priv->toggle_command_toggled_id,
+							   command_mode);
+}
+gboolean
+remark_entry_get_command_mode(RemarkEntry *entry)
+{
+	RemarkEntryPrivate *priv;
+
+        g_return_val_if_fail(entry != NULL, FALSE);
+        g_return_val_if_fail(IS_REMARK_ENTRY(entry), FALSE);
+
+	priv = entry->priv;
+
+	return gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(priv->toggle_command));
+}	
 /* FIXME: this should be done with gtk_widget_grab_focus */
 void
 remark_entry_grab_focus(RemarkEntry *entry)
@@ -428,6 +486,33 @@ remark_entry_activated_cb(GtkWidget *widget, gpointer data)
 	priv->current_index = 0;
 	G_FREE_UNLESS_NULL(priv->string_list->data);
 }
+static void
+remark_entry_toggle_command_toggled_cb(GtkWidget *widget, gpointer data)
+{
+        RemarkEntry *remark_entry;
+	RemarkEntryPrivate *priv;
+
+        g_return_if_fail(data != NULL);
+        g_return_if_fail(IS_REMARK_ENTRY(data));
+
+        remark_entry = REMARK_ENTRY(data);
+	priv = remark_entry->priv;
+	
+	remark_entry_grab_focus(remark_entry);	
+}
+static void
+remark_entry_toggle_command_toggled_cb_for_signal(GtkWidget *widget, gpointer data)
+{
+        RemarkEntry *remark_entry;
+	RemarkEntryPrivate *priv;
+
+        g_return_if_fail(data != NULL);
+        g_return_if_fail(IS_REMARK_ENTRY(data));
+
+        remark_entry = REMARK_ENTRY(data);
+	
+	g_signal_emit(remark_entry, remark_entry_signals[TOGGLE_COMMAND_MODE], 0);
+}
 
 static void
 remark_entry_entry_multiline_toggled_cb(GtkWidget *widget, gpointer data)
@@ -443,6 +528,25 @@ remark_entry_entry_multiline_toggled_cb(GtkWidget *widget, gpointer data)
 
 	remark_entry_set_multiline(remark_entry,
 				   gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget)));
+}
+static void
+remark_entry_entry_changed_cb(GtkEntry *widget, RemarkEntry *remark_entry)
+{
+	RemarkEntryPrivate *priv;
+	const gchar *tmp;
+	
+        g_return_if_fail(remark_entry != NULL);
+        g_return_if_fail(IS_REMARK_ENTRY(remark_entry));
+
+	priv = remark_entry->priv;
+	
+	if (prefs_general.auto_command_mode) {
+		tmp = gtk_entry_get_text(GTK_ENTRY(priv->entry));
+		if (strncmp(tmp, prefs_general.command_prefix, strlen(prefs_general.command_prefix)) == 0)
+			remark_entry_set_command_mode(remark_entry, TRUE);
+		else
+			remark_entry_set_command_mode(remark_entry, FALSE);
+	}
 }
 static void
 remark_entry_entry_text_shown_cb(GtkWidget *widget, gpointer data)

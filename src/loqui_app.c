@@ -39,7 +39,6 @@
 struct _LoquiAppPrivate
 {
 	GtkWidget *common_textview;
-	GtkWidget *entry;
 	GtkWidget *handlebox_channelbar;
 
 	guint channel_buffer_inserted_signal_id;
@@ -59,6 +58,7 @@ static gint loqui_app_delete_event_cb(GtkWidget *widget, GdkEventAny *event);
 static void loqui_app_restore_size(LoquiApp *app);
 static void loqui_app_save_size(LoquiApp *app);
 static void loqui_app_entry_activate_cb(GtkWidget *widget, gpointer data);
+static void loqui_app_entry_toggle_command_toggled_cb(GtkWidget *widget, gpointer data);
 
 static void loqui_app_channel_textview_inserted_cb(GtkTextBuffer *textbuf,
 						   GtkTextIter *pos,
@@ -223,19 +223,35 @@ static void
 loqui_app_entry_activate_cb(GtkWidget *widget, gpointer data)
 {
 	Account *account;
+	RemarkEntry *remark_entry;
 	const gchar *str;
 
-	str = remark_entry_get_text(REMARK_ENTRY(widget));
-	if(str == NULL || strlen(str) == 0)
+	remark_entry = REMARK_ENTRY(widget);
+	
+	str = remark_entry_get_text(remark_entry);
+	if (str == NULL || strlen(str) == 0)
 		return;
 	
 	account = account_manager_get_current_account(account_manager_get());
-	if(account)
-		account_speak(account, account_manager_get_current_channel(account_manager_get()), str);
+	if (account)
+		account_speak(account, account_manager_get_current_channel(account_manager_get()), str,
+			      remark_entry_get_command_mode(remark_entry));
 	else
 		gtkutils_msgbox_info(GTK_MESSAGE_ERROR, _("No accounts are selected!"));
 
-	remark_entry_clear_text(REMARK_ENTRY(widget));
+	remark_entry_clear_text(remark_entry);
+}
+static void
+loqui_app_entry_toggle_command_toggled_cb(GtkWidget *widget, gpointer data)
+{
+	LoquiApp *app;
+	
+	g_return_if_fail(data != NULL);
+	g_return_if_fail(LOQUI_IS_APP(data));
+
+	app = LOQUI_APP(data);
+	
+	loqui_menu_set_command_mode(app->menu, remark_entry_get_command_mode(REMARK_ENTRY(app->remark_entry)));
 }
 static void
 loqui_app_statusbar_nick_clicked_cb(GtkWidget *widget, gpointer data)
@@ -477,9 +493,9 @@ loqui_app_new(void)
 	g_signal_connect(G_OBJECT(GTK_TEXT_VIEW(app->channel_textview)->vadjustment), "value-changed",
 			 G_CALLBACK(loqui_app_textview_scroll_value_changed_cb), app);
 
-	priv->entry = remark_entry_new();
-	gtk_box_pack_end(GTK_BOX(vbox), priv->entry, FALSE, FALSE, 0);
-	g_signal_connect(G_OBJECT(priv->entry), "activate",
+	app->remark_entry = remark_entry_new();
+	gtk_box_pack_end(GTK_BOX(vbox), app->remark_entry, FALSE, FALSE, 0);
+	g_signal_connect(G_OBJECT(app->remark_entry), "activate",
 			 G_CALLBACK(loqui_app_entry_activate_cb), NULL);
 	g_signal_connect(G_OBJECT(app->statusbar), "nick-change",
 			 G_CALLBACK(loqui_app_statusbar_nick_clicked_cb), app);
@@ -510,6 +526,9 @@ loqui_app_new(void)
 	app->channel_tree = CHANNEL_TREE(channel_tree);
 	app->nick_list = NICK_LIST(nick_list);
 
+	g_signal_connect(G_OBJECT(app->remark_entry), "toggle_command_mode",
+			 G_CALLBACK(loqui_app_entry_toggle_command_toggled_cb), app);
+			 
 	loqui_app_update_info(app, TRUE, NULL, TRUE, NULL);
 	loqui_app_restore_size(app);
 
@@ -532,7 +551,7 @@ void loqui_app_set_focus(LoquiApp *app)
         g_return_if_fail(app != NULL);
         g_return_if_fail(LOQUI_IS_APP(app));
 
-	remark_entry_grab_focus(REMARK_ENTRY(app->priv->entry));
+	remark_entry_grab_focus(REMARK_ENTRY(app->remark_entry));
 }
 static void
 scroll_channel_buffer(GtkWidget *textview)

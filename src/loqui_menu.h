@@ -68,6 +68,8 @@ void loqui_menu_buffers_add_channel(LoquiMenu *menu, Channel *channel);
 void loqui_menu_buffers_remove_channel(LoquiMenu *menu, Channel *channel);
 void loqui_menu_buffers_update_channel(LoquiMenu *menu, Channel *channel);
 
+void loqui_menu_set_command_mode(LoquiMenu *menu, gboolean command_mode);
+
 G_END_DECLS
 
 #endif /* __LOQUI_MENU_H__ */

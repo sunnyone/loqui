@@ -40,7 +40,10 @@ struct _PrefsDialogPrivate
 	
 	GtkWidget *spin_common_buffer_max_line_number;
 	GtkWidget *spin_channel_buffer_max_line_number;
-	
+
+	GtkWidget *check_auto_command_mode;
+	GtkWidget *entry_command_prefix;
+		
 	GtkWidget *check_use_notification;
 	GtkWidget *textview_highlight;
 
@@ -155,6 +158,7 @@ prefs_dialog_load_settings(PrefsDialog *dialog)
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(priv->check_use_transparent_ignore), prefs_general.use_transparent_ignore);
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(priv->check_auto_reconnect), prefs_general.auto_reconnect);
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(priv->check_connect_startup), prefs_general.connect_startup);
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(priv->check_auto_command_mode), prefs_general.auto_command_mode);
 
 	gtkutils_set_textview_from_string_list(GTK_TEXT_VIEW(priv->textview_highlight), prefs_general.highlight_list);
 	gtkutils_set_textview_from_string_list(GTK_TEXT_VIEW(priv->textview_transparent_ignore),
@@ -164,6 +168,7 @@ prefs_dialog_load_settings(PrefsDialog *dialog)
 	gtk_entry_set_text(GTK_ENTRY(priv->entry_browser_command), prefs_general.browser_command);
 	gtk_entry_set_text(GTK_ENTRY(priv->entry_notification_command), prefs_general.notification_command);
 	gtk_entry_set_text(GTK_ENTRY(priv->entry_time_format), prefs_general.time_format);
+	gtk_entry_set_text(GTK_ENTRY(priv->entry_command_prefix), prefs_general.command_prefix);
 
 	gtk_spin_button_set_value(GTK_SPIN_BUTTON(priv->spin_common_buffer_max_line_number),
 				  prefs_general.common_buffer_max_line_number);
@@ -187,6 +192,7 @@ prefs_dialog_save_settings(PrefsDialog *dialog)
 	prefs_general.use_notification = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(priv->check_use_notification));
 	prefs_general.auto_reconnect = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(priv->check_auto_reconnect));
 	prefs_general.connect_startup = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(priv->check_connect_startup));
+	prefs_general.auto_command_mode = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(priv->check_auto_command_mode));
 
 	gtkutils_set_string_list_from_textview(&prefs_general.highlight_list, GTK_TEXT_VIEW(priv->textview_highlight));
 	gtkutils_set_string_list_from_textview(&prefs_general.transparent_ignore_list,
@@ -203,6 +209,9 @@ prefs_dialog_save_settings(PrefsDialog *dialog)
 
 	G_FREE_UNLESS_NULL(prefs_general.time_format);
 	prefs_general.time_format = g_strdup(gtk_entry_get_text(GTK_ENTRY(priv->entry_time_format)));
+
+	G_FREE_UNLESS_NULL(prefs_general.command_prefix);
+	prefs_general.command_prefix = g_strdup(gtk_entry_get_text(GTK_ENTRY(priv->entry_command_prefix)));
 
 	prefs_general.common_buffer_max_line_number = (guint) gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(priv->spin_common_buffer_max_line_number));
 	prefs_general.channel_buffer_max_line_number = (guint) gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(priv->spin_channel_buffer_max_line_number));
@@ -274,6 +283,11 @@ prefs_dialog_new(void)
 				       &priv->spin_channel_buffer_max_line_number,
 				       0, G_MAXDOUBLE, 50);
 
+	priv->check_auto_command_mode = gtk_check_button_new_with_label(_("Toggle command mode automatically"));
+	gtk_box_pack_start(GTK_BOX(vbox), priv->check_auto_command_mode, FALSE, FALSE, 0);
+	
+	gtkutils_add_label_entry(vbox, _("Prefix for commands: "), &priv->entry_command_prefix, "");
+	
 	vbox = gtk_vbox_new(FALSE, 0);
 	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), vbox, gtk_label_new(_("Highlight")));
 

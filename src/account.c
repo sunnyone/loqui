@@ -824,7 +824,7 @@ account_console_buffer_append(Account *account, TextType type, gchar *str)
 	g_object_unref(msgtext);
 }
 void
-account_speak(Account *account, Channel *channel, const gchar *str)
+account_speak(Account *account, Channel *channel, const gchar *str, gboolean command_mode)
 {
 	AccountPrivate *priv;
 	const gchar *cur;
@@ -845,10 +845,18 @@ account_speak(Account *account, Channel *channel, const gchar *str)
 	}
 
 	cur = str;
-	if(*cur == '/' && !strchr(cur, '\n')) {
-		cur++;
+	if (command_mode) {
+		if (strchr(cur, '\n')) {
+			gtkutils_msgbox_info(GTK_MESSAGE_ERROR,
+					     _("Command contains linefeed."));
+			return;
+		}
+		
+		if (strncmp(cur, prefs_general.command_prefix, strlen(prefs_general.command_prefix)) == 0)
+			cur += strlen(prefs_general.command_prefix);
+
 		msg = irc_message_parse_line(cur);
-		if(debug_mode) {
+		if (debug_mode) {
 			buf = irc_message_to_string(msg);
 			debug_puts("msg: %s", buf);
 			g_free(buf);

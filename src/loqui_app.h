@@ -51,6 +51,8 @@ struct _LoquiApp
 	GtkWidget *channelbar;
 	GtkWidget *statusbar;
 	
+	GtkWidget *remark_entry;
+	
 	GtkWidget *channel_textview;
 	NickList *nick_list;
 	ChannelTree *channel_tree;

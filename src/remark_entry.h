@@ -59,6 +59,9 @@ void remark_entry_grab_focus(RemarkEntry *entry);
 void remark_entry_set_multiline(RemarkEntry *entry, gboolean is_multiline);
 gboolean remark_entry_get_multiline(RemarkEntry *entry);
 
+void remark_entry_set_command_mode(RemarkEntry *entry, gboolean command_mode);
+gboolean remark_entry_get_command_mode(RemarkEntry *entry);
+
 G_END_DECLS
 
 #endif /* __REMARK_ENTRY_H__ */

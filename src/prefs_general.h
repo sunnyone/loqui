@@ -81,6 +81,10 @@ typedef struct _PrefsGeneral {
 	gboolean connect_startup;
 	
 	gchar *time_format;
+	
+	gboolean auto_command_mode;
+	gchar *command_prefix;
+	
 } PrefsGeneral;
 
 void prefs_general_load(void);

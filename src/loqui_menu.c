@@ -29,6 +29,7 @@
 #include "channel_input_dialog.h"
 #include "command_dialog.h"
 #include "buffer_menu.h"
+#include "remark_entry.h"
 
 struct _LoquiMenuPrivate
 {
@@ -50,6 +51,7 @@ static void loqui_menu_connect_cb(gpointer data, guint callback_action, GtkWidge
 static void loqui_menu_quit_cb(gpointer data, guint callback_action, GtkWidget *widget);
 
 static void loqui_menu_edit_cb(gpointer data, guint callback_action, GtkWidget *widget);
+static void loqui_menu_toggle_command_mode_cb(gpointer data, guint callback_action, GtkWidget *widget);
 static void loqui_menu_find_cb(gpointer data, guint callback_action, GtkWidget *widget);
 
 static void loqui_menu_join_channel_cb(gpointer data, guint callback_action, GtkWidget *widget);
@@ -70,6 +72,7 @@ static void loqui_menu_about_cb(gpointer data, guint callback_action, GtkWidget 
 
 static void loqui_menu_account_activate_cb(GtkWidget *widget, gpointer data);
 static void loqui_menu_channel_activate_cb(GtkWidget *widget, gpointer data);
+
 enum {
 	LOQUI_MENU_CUT,
 	LOQUI_MENU_COPY,
@@ -90,6 +93,8 @@ static GtkItemFactoryEntry menu_items[] = {
 	  "<StockItem>", GTK_STOCK_PASTE },
 	{ N_("/Edit/Clear"), NULL, loqui_menu_edit_cb,  LOQUI_MENU_CLEAR, "<StockItem>", GTK_STOCK_CLEAR },
 	{ "/Edit/sep",        NULL,         0,       0, "<Separator>" },
+	{ N_("/Edit/Toggle command mode"), "<Control>slash", loqui_menu_toggle_command_mode_cb, 0, "<ToggleItem>" },
+	{ "/Edit/sep2",        NULL,         0,       0, "<Separator>" },
 	{ N_("/Edit/_Find"),    "<control>F", loqui_menu_find_cb, 0, "<StockItem>", GTK_STOCK_FIND },
 	{ N_("/Edit/_Find again"), NULL, loqui_menu_find_cb, 1, "<StockItem>", GTK_STOCK_FIND },
 	{ N_("/_Command"), NULL, 0, 0, "<Branch>" },
@@ -270,7 +275,7 @@ loqui_menu_new(LoquiApp *app)
 
 	g_signal_connect(G_OBJECT(gtk_item_factory_get_item(priv->item_factory, "/Edit")), "activate",
 			 G_CALLBACK(loqui_menu_edit_activate_cb), menu);
-
+			 
 	return menu;
 }
 GtkWidget*
@@ -514,7 +519,6 @@ loqui_menu_topic_cb(gpointer data, guint callback_action, GtkWidget *widget)
 static void
 loqui_menu_nick_cb(gpointer data, guint callback_action, GtkWidget *widget)
 {
-
 	LoquiMenu *menu;
 	LoquiMenuPrivate *priv;
 	AccountManager *manager;
@@ -529,6 +533,22 @@ loqui_menu_nick_cb(gpointer data, guint callback_action, GtkWidget *widget)
 	manager = account_manager_get();
 	command_dialog_nick(GTK_WINDOW(priv->app),
 			    account_manager_get_current_account(manager));
+}
+static void
+loqui_menu_toggle_command_mode_cb(gpointer data, guint callback_action, GtkWidget *widget)
+{
+	LoquiMenu *menu;
+	LoquiMenuPrivate *priv;
+
+	menu = LOQUI_MENU(data);
+
+	g_return_if_fail(menu != NULL);
+        g_return_if_fail(LOQUI_IS_MENU(menu));
+        
+        priv = menu->priv;
+        
+        remark_entry_set_command_mode(REMARK_ENTRY(priv->app->remark_entry),
+        			      gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(widget)));
 }
 static void
 loqui_menu_away_info_cb(gpointer data, guint callback_action, GtkWidget *widget)
@@ -645,5 +665,18 @@ loqui_menu_buffers_update_channel(LoquiMenu *menu, Channel *channel)
 
 	buffer_menu_update_channel(GTK_MENU_SHELL(loqui_menu_get_buffers_menu(menu)),
 				   channel);
+}
+void
+loqui_menu_set_command_mode(LoquiMenu *menu, gboolean command_mode)
+{
+	LoquiMenuPrivate *priv;
+	GtkWidget *item;
 
+	g_return_if_fail(menu != NULL);
+        g_return_if_fail(LOQUI_IS_MENU(menu));
+
+	priv = menu->priv;
+
+	item = gtk_item_factory_get_item(priv->item_factory, "/Edit/Toggle command mode");
+	gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(item), command_mode);
 }

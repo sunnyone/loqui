@@ -126,7 +126,7 @@ Channel* account_get_channel(Account *account, const gchar *name);
 GSList *account_search_joined_channel(Account *account, gchar *nick);
 
 void account_console_buffer_append(Account *account, TextType type, gchar *str);
-void account_speak(Account *account, Channel *channel, const gchar *str);
+void account_speak(Account *account, Channel *channel, const gchar *str, gboolean command_mode);
 
 void account_set_current_nick(Account *account, const gchar *nick);
 G_CONST_RETURN gchar* account_get_current_nick(Account *account);
