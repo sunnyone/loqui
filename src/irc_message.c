@@ -434,10 +434,11 @@ irc_message_format(IRCMessage *msg, const gchar *format)
 			if(i == 0) break;
 
 			end = irc_message_count_parameters(msg);
-			for(; i <= end; i++) {
+			for(; i < end; i++) {
 				string = g_string_append(string, irc_message_get_param(msg, i));
-				string = g_string_append_c(string, ' '); /* FIXME: this way remains a space as the last character */
+				string = g_string_append_c(string, ' ');
 			}
+			string = g_string_append(string, irc_message_get_param(msg, i)); /* not to append space at last */
 			break;
 
 		case 'n': /* nick */

@@ -526,6 +526,7 @@ irc_handle_parse_mode_arguments(IRCHandle *handle, IRCMessage *msg, Channel *cha
 			break;
 		}
 	}
+#undef GET_TARGET_OR_RETURN	
 }
 static void
 irc_handle_reply_channelmodeis(IRCHandle *handle, IRCMessage *msg)
@@ -607,7 +608,6 @@ irc_handle_command_mode(IRCHandle *handle, IRCMessage *msg)
 		irc_handle_account_console_append(handle, msg, TEXT_TYPE_INFO, format);
 
 	g_free(format);
-#undef GET_TARGET_OR_RETURN
 }
 static void
 irc_handle_command_join(IRCHandle *handle, IRCMessage *msg)
