@@ -374,52 +374,65 @@ loqui_channel_buffer_gtk_new(void)
 	return channel_buffer;
 }
 static void
+loqui_channel_buffer_gtk_pref_changed_cb(LoquiPref *pref, const gchar *group_name, const gchar *key, gpointer data)
+{
+	LoquiChannelBufferGtk *buffer;
+	GtkTextTag *tag;
+
+	g_return_if_fail(group_name != NULL);
+	g_return_if_fail(key != NULL);
+
+	buffer = LOQUI_CHANNEL_BUFFER_GTK(data);
+
+#define BUFFER_GROUP "Buffer"
+
+	if (strcmp(group_name, BUFFER_GROUP) != 0)
+		return;
+
+#define GET_TAG(buffer, name) gtk_text_tag_table_lookup(gtk_text_buffer_get_tag_table(GTK_TEXT_BUFFER(buffer)), name)
+#define SET_STRING_IF_MATCHED(tag_name, tag_attribute, _key) { \
+	if (strcmp(key, _key) == 0) { \
+		tag = GET_TAG(buffer, tag_name); \
+if (tag == NULL) { g_print("null tag: %s\n", tag_name); } \
+                g_return_if_fail(tag != NULL); \
+		g_object_set(tag, tag_attribute, \
+			     loqui_pref_get_string(pref, BUFFER_GROUP, _key, NULL), NULL); \
+		return; \
+	} \
+}
+
+	SET_STRING_IF_MATCHED("time", "foreground", "TimeColor");
+	SET_STRING_IF_MATCHED("info", "foreground", "InfoColor");
+	SET_STRING_IF_MATCHED("normal", "foreground", "NormalColor");
+	SET_STRING_IF_MATCHED("error", "foreground", "ErrorColor");
+	SET_STRING_IF_MATCHED("notice", "foreground", "NoticeColor");
+	SET_STRING_IF_MATCHED("link", "foreground", "LinkColor");
+	SET_STRING_IF_MATCHED("highlight", "foreground", "HighlightColor");
+
+#undef SET_STRING_IF_MATCHED
+#undef GET_TAG
+
+}
+static void
 loqui_channel_buffer_gtk_load_styles(LoquiChannelBufferGtk *buffer)
 {
-	LoquiStylePrefs *sp;
-	GtkTextTag *tag;
-	gchar *str;
- 
-#define GET_TAG(buffer, name) gtk_text_tag_table_lookup(gtk_text_buffer_get_tag_table(GTK_TEXT_BUFFER(buffer)), name)
+	LoquiPref *pref;
 
-	sp = LOQUI_CORE_GTK(loqui_get_core())->style_prefs;
+	pref = LOQUI_CORE_GTK(loqui_get_core())->style_pref;
 
-	tag = GET_TAG(buffer, "time");
-	str = loqui_style_prefs_get_buffer_time_color(sp);
-	if (str && tag)
-		g_object_set(tag, "foreground", str, NULL);
+#define SET_STRING_DEFAULT(key, value) loqui_pref_set_string_default(pref, "Buffer", key, value)
 
-	tag = GET_TAG(buffer, "info");
-	str = loqui_style_prefs_get_buffer_info_color(sp);
-	if (str && tag)
-		g_object_set(tag, "foreground", str, NULL);
+	SET_STRING_DEFAULT("TimeColor", "blue");
+	SET_STRING_DEFAULT("InfoColor", "green3");
+	SET_STRING_DEFAULT("NormalColor", "black");
+	SET_STRING_DEFAULT("ErrorColor", "red");
+	SET_STRING_DEFAULT("NoticeColor", "#555555");
+	SET_STRING_DEFAULT("LinkColor", "blue");
+	SET_STRING_DEFAULT("HighlightColor", "purple");
 
-	tag = GET_TAG(buffer, "normal");
-	str = loqui_style_prefs_get_buffer_normal_color(sp);
-	if (str && tag)
-		g_object_set(tag, "foreground", str, NULL);
-
-	tag = GET_TAG(buffer, "error");
-	str = loqui_style_prefs_get_buffer_error_color(sp);
-	if (str && tag)
-		g_object_set(tag, "foreground", str, NULL);
-
-	tag = GET_TAG(buffer, "notice");
-	str = loqui_style_prefs_get_buffer_notice_color(sp);
-	if (str && tag)
-		g_object_set(tag, "foreground", str, NULL);
-
-	tag = GET_TAG(buffer, "link");
-	str = loqui_style_prefs_get_buffer_link_color(sp);
-	if (str && tag)
-		g_object_set(tag, "foreground", str, NULL);
-
-	tag = GET_TAG(buffer, "hilight");
-	str = loqui_style_prefs_get_buffer_hilight_color(sp);
-	if (str && tag)
-		g_object_set(tag, "foreground", str, NULL);
-
-#undef GET_TAG
+#undef SET_STRING_DEFAULT
+	loqui_pref_changed_all_with_callback(pref, (LoquiPrefChangedFunction) loqui_channel_buffer_gtk_pref_changed_cb, buffer);
+	loqui_pref_connect__changed(pref, loqui_channel_buffer_gtk_pref_changed_cb, buffer);
 }
 static void
 loqui_channel_buffer_gtk_append_current_time(LoquiChannelBufferGtk *buffer)

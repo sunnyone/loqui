@@ -25,9 +25,9 @@ requires 2.0.0
 #include <libloqui/loqui-core.h>
 #include <loqui_account_manager.h>
 #include <loqui_protocol_manager.h>
+#include <loqui-pref.h>
 
 #include "loqui_app.h"
-#include "loqui-style-prefs.h"
 
 #define FRESH_COLOR "red"
 #define FRESH_WEAK_COLOR "blue"
@@ -56,6 +56,7 @@ requires 2.0.0
 #include <loqui.h>
 
 #define ACCEL_MAP_FILE "accelmaprc"
+#define STYLERC_FILE "stylerc"
 
 #include "loqui_stock.h"
 
@@ -63,7 +64,7 @@ requires 2.0.0
 
 class Loqui:Core:Gtk from Loqui:Core
 {
-	public LoquiStylePrefs *style_prefs = { loqui_style_prefs_new() }
+	public LoquiPref *style_pref = { loqui_pref_new() }
 	    unrefwith g_object_unref;
 	public LoquiProtocolManager *protocol_manager
 	    unrefwith g_object_unref;
@@ -91,6 +92,34 @@ class Loqui:Core:Gtk from Loqui:Core
 		PARENT_HANDLER(self);
 	}
 */
+
+	public void load_stylerc(self) {
+		gchar *path;
+
+		path = self_get_stylerc_path(self);
+		if (!loqui_pref_load_from_file(self->style_pref, path, LQG_KEY_FILE_NONE, NULL)) {
+			g_warning(_("Failed to load %s"), path);
+			g_free(path);
+			return;
+		}
+		g_free(path);
+	}
+	public void save_stylerc(self) {
+		gchar *path;
+
+		path = self_get_stylerc_path(self);
+		if (!loqui_pref_save_to_file(self->style_pref, path, NULL)) {
+			g_warning(_("Failed to save %s"), path);
+			g_free(path);
+			return;
+		}
+		g_free(path);
+	}
+
+	private gchar *get_stylerc_path(self) {
+		return g_build_filename(loqui_core_get_user_dir(LOQUI_CORE(self)),
+					STYLERC_FILE, NULL);
+	}
 
 	private void make_program_dir(self) {
 		const gchar *dirname;
@@ -152,18 +181,19 @@ class Loqui:Core:Gtk from Loqui:Core
 		prefs_general_load();
 
 		self->app = LOQUI_APP(loqui_app_new(self->account_manager));
+		self_load_stylerc(self);
+
 		loqui_app_info_load_from_prefs_general(self->app->appinfo);
 		loqui_app_info_update_string_idle(self->app->appinfo);
 
 		self_load_accelmap(self);
-		loqui_style_prefs_load(self->style_prefs);
 
 		loqui_account_manager_load_accounts(self->account_manager);
 		if(prefs_general.connect_startup)
 			loqui_account_manager_connect_all_default(self->account_manager);
 	
 		gtk_main();
-		loqui_style_prefs_save(self->style_prefs);
+		self_save_stylerc(self);
 		self_save_accelmap(self);
 
 		prefs_general_save();
