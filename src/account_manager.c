@@ -256,6 +256,7 @@ void account_manager_set_current_channel(AccountManager *manager, Channel *chann
 	priv = manager->priv;
 	
 	priv->current_account = NULL; /* FIXME: this should be not NULL but channel->account */
+	priv->current_channel = channel;
 
 	loqui_app_set_channel_buffer(priv->app, GTK_TEXT_BUFFER(channel->buffer));
 	nick_list_set_store(priv->app->nick_list, channel->user_list);
@@ -276,6 +277,7 @@ void account_manager_set_current_account(AccountManager *manager, Account *accou
 
 	priv = manager->priv;
 	priv->current_channel = NULL; /* FIXME */
+	priv->current_account = account;
 
 	loqui_app_set_channel_buffer(priv->app, GTK_TEXT_BUFFER(account->console_buffer));
 	nick_list_set_store(priv->app->nick_list, NULL);
@@ -395,12 +397,7 @@ account_manager_is_current_account(AccountManager *manager, Account *account)
 
 	priv = manager->priv;
 
-	if(priv->current_account == account)
-		return (priv->current_account == account);
-	else if(priv->current_channel) {
-		return (priv->current_channel->account == account);
-	}
-	return FALSE;
+	return (account_manager_get_current_account(manager) == account);
 }
 gboolean
 account_manager_is_current_channel(AccountManager *manager, Channel *channel)
@@ -408,7 +405,7 @@ account_manager_is_current_channel(AccountManager *manager, Channel *channel)
         g_return_val_if_fail(manager != NULL, FALSE);
         g_return_val_if_fail(IS_ACCOUNT_MANAGER(manager), FALSE);
 
-	return (manager->priv->current_channel == channel);
+	return (account_manager_get_current_channel(manager) == channel);
 }
 gboolean
 account_manager_is_current_channel_buffer(AccountManager *manager, ChannelBuffer *buffer)
