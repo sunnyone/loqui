@@ -77,10 +77,14 @@ codeconv_to_server(const gchar *input)
 	gchar *output;
 	GError *error = NULL;
 
+	if(input == NULL) {
+		return NULL;
+	}
+
 	if(strlen(server_codeset) == 0)
 		return g_strdup(input);
 
-	output = g_convert(input, strlen(input), server_codeset, GTK_CODESET,
+	output = g_convert(input, strlen(input)+1, server_codeset, GTK_CODESET,
 			   NULL, NULL, &error);
 	if(error != NULL) {
 		g_warning(_("Code convartion error: %s"), error->message);
@@ -102,6 +106,10 @@ codeconv_to_local(const gchar *input)
 	gboolean add_unknown_mark;
 	GIConv cd;
 
+	if(input == NULL) {
+		return NULL;
+	}
+
 	if(strlen(server_codeset) == 0)
 		return g_strdup(input);
 
@@ -114,7 +122,7 @@ codeconv_to_local(const gchar *input)
 	original_len = strlen(input);
 	cur = input;
 	while(cur < input + original_len) {
-		tmp = g_convert_with_iconv(cur, -1, cd,
+		tmp = g_convert_with_iconv(cur, strlen(cur)+1, cd,
 				&len_to_read, NULL, &error);
 		if(error == NULL) {
 			cur += len_to_read;
