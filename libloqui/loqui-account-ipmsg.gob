@@ -44,21 +44,16 @@ requires 2.0.0
 class Loqui:Account:IPMsg from Loqui:Account
 {
 	private IPMsgSocket *sock;
-	private gint current_packet_num = { (gint) time(NULL); };
+	private gint current_packet_num = { (gint) time(NULL) };
 
-	class_init(klass) {
-		
-	}
-
-	private GObject *
+	override (G:Object) GObject *
 	constructor(GType type, guint n_props, GObjectConstructParam *props) {
 		GObject *object;
-		GObjectClass *object_class = G_OBJECT_CLASS(parent_class);
 
 		LoquiAccount *account;
 		LoquiUser *user;
 
-		object = object_class->constructor(type, n_props, props);
+		object = PARENT_HANDLER(type, n_props, props);
 
 		account = LOQUI_ACCOUNT(object);
 
