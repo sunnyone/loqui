@@ -1,10 +1,318 @@
-2002-11-04  gettextize  <bug-gnu-gettext@gnu.org>
+2003-01-08 21:17  y-imai
 
-	* Makefile.am (SUBDIRS): Add m4.
-	(ACLOCAL_AMFLAGS): New variable.
-	* configure.in (AC_OUTPUT): Add m4/Makefile.
+	* po/ja.po: po updated
 
-2002-11-04  gettextize  <bug-gnu-gettext@gnu.org>
+2003-01-08 21:11  y-imai
 
-	* configure.in (AC_OUTPUT): Add po/Makefile.in.
+	* src/irc_handle.c: implemented kick and replies
+
+2003-01-08 20:35  y-imai
+
+	* src/: account.c, account.h, account_manager.c, irc_handle.c: made
+	account restoring secure
+
+2003-01-08 20:19  y-imai
+
+	* src/: account.c, channel.c, channel.h, irc_constants.h,
+	irc_handle.c, irc_message.c, irc_message.h, nick_list.c: implement
+	mode command temporarily
+
+2003-01-08 17:33  y-imai
+
+	* src/irc_handle.c: fix behavior of join
+
+2003-01-08 17:19  y-imai
+
+	* src/: channel.c, channel.h, channel_tree.c, irc_handle.c,
+	irc_handle.h, nick_list.c: handling priv
+
+2003-01-08 16:56  y-imai
+
+	* src/irc_handle.c: implemenet some commands
+
+2003-01-08 15:53  y-imai
+
+	* src/: account.c, account_manager.c, account_manager.h,
+	channel_tree.c, channel_tree.h, irc_handle.c: fix selection
+	behavior
+
+2003-01-08 14:43  y-imai
+
+	* src/irc_handle.c: remove the name in each channels when the user
+	quit
+
+2003-01-08 01:03  y-imai
+
+	* src/: account.c, account.h, channel.c, irc_handle.c: show
+	messages to channels that speaker joined
+
+2003-01-07 23:48  y-imai
+
+	* src/: account_manager.c, account_manager.h, channel.c,
+	loqui_app.c: topicing
+
+2003-01-07 23:32  y-imai
+
+	* src/: account_manager.c, account_manager.h, channel.c, channel.h,
+	irc_handle.c, nick_list.c, nick_list.h: implement nick list
+
+2003-01-07 20:57  y-imai
+
+	* src/: channel.c, channel.h, irc_handle.c: implement channel user
+	list
+
+2003-01-07 20:57  y-imai
+
+	* src/loqui_menu.c: set sensitivity of the Settings menuitem as
+	false
+
+2003-01-07 01:16  y-imai
+
+	* src/: loqui_app.c, account_manager.c: fix focusing
+
+2003-01-07 01:11  y-imai
+
+	* src/account.c: use message box
+
+2003-01-07 01:01  y-imai
+
+	* src/: account.c, account.h, account_manager.c, account_manager.h,
+	channel.c, channel_book.c, channel_book.h, channel_tree.c,
+	channel_tree.h, cscope.out, irc_handle.c: implemeneted my command,
+	part
+
+2003-01-06 23:46  y-imai
+
+	* src/: account.c, channel_tree.c, irc_handle.c, irc_handle.h,
+	irc_message.c, loqui_app.c: reimplement irc_message_parse_line
+
+2003-01-06 20:25  y-imai
+
+	* src/: account.c, account.h, account_manager.c, account_manager.h,
+	channel.c, channel.h, irc_handle.c, loqui_app.c: show messages
+	other than the current channel view to the common textview
+
+2003-01-06 17:55  y-imai
+
+	* src/: account.c, account.h, account_manager.c, account_manager.h,
+	loqui_app.c: implemented speaking temporalily
+
+2003-01-06 15:43  y-imai
+
+	* src/: irc_constants.h, irc_handle.c, irc_handle.h, irc_message.c,
+	irc_message.h: sending message queue
+
+2003-01-06 01:06  y-imai
+
+	* src/irc_handle.c: implements response for quit command
+	temporalily
+
+2003-01-06 00:52  y-imai
+
+	* src/: irc_handle.c, irc_message.c: handling reponse, 00x
+
+2003-01-05 23:52  y-imai
+
+	* src/: channel.c, irc_handle.c: implements reply of topic,motd
+
+2003-01-05 23:32  y-imai
+
+	* src/: account_manager.c, irc_handle.c, irc_message.c: implemenets
+	reply_names utility function to display a irc message for threading
+	created get_trailing
+
+2003-01-05 22:57  y-imai
+
+	* src/: irc_message.c, irc_message.h: added get_trailing
+
+2003-01-05 22:19  y-imai
+
+	* src/: channel.c, channel_text.c, irc_handle.c:
+	channel_text_append adds a linefeed automatically
+
+2003-01-05 22:04  y-imai
+
+	* src/irc_handle.c: implement handlers for a little replies
+
+2003-01-05 12:07  y-imai
+
+	* src/: account_manager.c, irc_handle.c, loqui_app.c, loqui_app.h:
+	change scroll lock into scroll
+
+2003-01-05 11:52  y-imai
+
+	* src/: irc_handle.c, irc_message.c, irc_message.h: added
+	irc_message_format
+
+2003-01-05 11:14  y-imai
+
+	* src/: irc_handle.c, irc_message.c, irc_message.h: made
+	irc_message_get_param's first number 1
+
+2003-01-05 02:42  y-imai
+
+	* src/irc_handle.c: prepared to handle reply and error messages
+
+2003-01-05 02:21  y-imai
+
+	* src/: channel.c, channel.h, irc_handle.c: handling topic
+
+2003-01-05 02:03  y-imai
+
+	* src/: account_manager.c, channel_book.c, channel_book.h: changing
+	page feature
+
+2003-01-05 01:34  y-imai
+
+	* src/: irc_constants.h, irc_handle.c: remove //-style comment
+
+2003-01-05 01:30  y-imai
+
+	* src/: account_manager.c, channel_book.c, channel_text.c,
+	channel_tree.c, connection.c, irc_handle.c, irc_message.c,
+	nick_list.c: checking type
+
+2003-01-05 01:09  y-imai
+
+	* src/: account.h, irc_handle.c: show remarks in each channels'
+	textview
+
+2003-01-05 01:06  y-imai
+
+	* src/: channel.c, channel.h: doing g_strdup channel name
+
+2003-01-04 21:16  y-imai
+
+	* src/irc_handle.c: response against PING
+
+2003-01-04 21:07  y-imai
+
+	* src/: account.c, account.h, account_manager.c, channel.c,
+	channel.h, channel_tree.c, irc_handle.c: code clean up
+
+2003-01-04 19:33  y-imai
+
+	* src/: connection.c, irc_handle.c, irc_message.h: handling my own
+	messages
+
+2003-01-04 19:32  y-imai
+
+	* src/channel_tree.c: clean up implemets
+
+2003-01-04 19:25  y-imai
+
+	* src/codeconv.c: handling broken code
+
+2002-12-15 23:30  y-imai
+
+	* README: change README
+
+2002-11-23 17:51  y-imai
+
+	* src/: account.c, account.h, account_manager.c, account_manager.h,
+	channel.c, channel.h, channel_tree.c, channel_tree.h, gtkutils.c,
+	gtkutils.h, irc_constants.h, irc_handle.c, irc_message.c,
+	nick_list.h: added a feature to handle join command
+
+2002-11-23 14:56  y-imai
+
+	* src/: channel_text.c, irc_handle.c, irc_message.c, irc_message.h:
+	implement function of handling message experimentally.
+
+2002-11-23 00:18  y-imai
+
+	* src/: account.c, account.h, channel_text.c, channel_text.h:
+	apending text function moved to channel_text
+
+2002-11-22 23:33  y-imai
+
+	* src/: account.c, account.h, account_manager.c, account_manager.h,
+	channel_text.c, channel_text.h, gtkutils.h, irc_handle.c,
+	irc_message.c, irc_message.h, loqui_app.c, loqui_app.h,
+	loqui_menu.c: showing message experimentally
+
+2002-11-22 21:27  y-imai
+
+	* src/: Makefile.am, loqui_app.c, loqui_common_text.c,
+	loqui_common_text.h: removed LoquiCommonText
+
+2002-11-22 21:25  y-imai
+
+	* src/: account.c, account.h, account_manager.c, account_manager.h,
+	channel_book.c, channel_book.h, channel_text.c, channel_tree.h,
+	loqui_app.c, loqui_app.h, main.c, nick_list.h: created add channel
+	text
+
+2002-11-22 20:39  y-imai
+
+	* src/: Makefile.am, account_manager.c, account_manager.h,
+	channel_book.c, cscope.out, irc_constants.h, irc_handle.c,
+	loqui_app.c, loqui_app.h, loqui_menu.c, main.c: enabled account
+	manager again
+
+2002-11-21 22:56  y-imai
+
+	* ABOUT-NLS, autogen.sh, config.rpath, configure.in,
+	intltool-extract.in, intltool-merge.in, intltool-update.in,
+	aclocal.m4, install-sh, missing, mkinstalldirs, COPYING, ChangeLog,
+	INSTALL, Makefile.am, README, acconfig.h, config.guess,
+	config.h.in, config.sub, configure, gettext.h, intltool-extract,
+	intltool-merge, intltool-update, loqui.schemas, stamp-h.in,
+	src/Makefile.am, src/account_manager.c, src/main.c, src/main.h,
+	src/nick_list.h, src/about.h, src/account.c, src/account.h,
+	src/account_manager.h, src/channel.c, src/channel.h,
+	src/channel_text.c, src/channel_text.h, src/channel_tree.c,
+	src/channel_tree.h, src/codeconv.c, src/codeconv.h,
+	src/connection.c, src/connection.h, src/cscope.out,
+	src/eel-gconf-extensions.c, src/eel-gconf-extensions.h,
+	src/gtkutils.c, src/gtkutils.h, src/irc_constants.h,
+	src/irc_message.h, src/loqui_app.c, src/loqui_app.h,
+	src/loqui_common_text.c, src/loqui_common_text.h,
+	src/loqui_gconf.h, src/loqui_menu.c, src/loqui_menu.h,
+	src/nick_list.c, src/utils.c, src/utils.h, m4/ChangeLog,
+	m4/Makefile.am, m4/codeset.m4, m4/gettext.m4, m4/glibc21.m4,
+	m4/iconv.m4, m4/intdiv0.m4, m4/inttypes-pri.m4, m4/inttypes.m4,
+	m4/inttypes_h.m4, m4/isc-posix.m4, m4/lcmessage.m4, m4/lib-ld.m4,
+	m4/lib-link.m4, m4/lib-prefix.m4, m4/progtest.m4, m4/stdint_h.m4,
+	m4/uintmax_t.m4, m4/ulonglong.m4, po/ChangeLog, po/Makefile.in.in,
+	po/Makevars, po/Makevars.template, po/POTFILES.in, po/Rules-quot,
+	po/boldquot.sed, po/en@boldquot.header, po/en@quot.header,
+	po/insert-header.sin, po/ja.po, po/loqui.pot, po/quot.sed,
+	po/remove-potcdate.sin, src/about.c, src/channel_book.c,
+	src/channel_book.h, src/command_table.c, src/command_table.h,
+	src/irc_handle.c, src/irc_handle.h, src/irc_message.c: [no log
+	message]
+
+2002-11-21 22:56  y-imai
+
+	* ABOUT-NLS, autogen.sh, config.rpath, configure.in,
+	intltool-extract.in, intltool-merge.in, intltool-update.in,
+	aclocal.m4, install-sh, missing, mkinstalldirs, COPYING, ChangeLog,
+	INSTALL, Makefile.am, README, acconfig.h, config.guess,
+	config.h.in, config.sub, configure, gettext.h, intltool-extract,
+	intltool-merge, intltool-update, loqui.schemas, stamp-h.in,
+	src/Makefile.am, src/account_manager.c, src/main.c, src/main.h,
+	src/nick_list.h, src/about.h, src/account.c, src/account.h,
+	src/account_manager.h, src/channel.c, src/channel.h,
+	src/channel_text.c, src/channel_text.h, src/channel_tree.c,
+	src/channel_tree.h, src/codeconv.c, src/codeconv.h,
+	src/connection.c, src/connection.h, src/cscope.out,
+	src/eel-gconf-extensions.c, src/eel-gconf-extensions.h,
+	src/gtkutils.c, src/gtkutils.h, src/irc_constants.h,
+	src/irc_message.h, src/loqui_app.c, src/loqui_app.h,
+	src/loqui_common_text.c, src/loqui_common_text.h,
+	src/loqui_gconf.h, src/loqui_menu.c, src/loqui_menu.h,
+	src/nick_list.c, src/utils.c, src/utils.h, m4/ChangeLog,
+	m4/Makefile.am, m4/codeset.m4, m4/gettext.m4, m4/glibc21.m4,
+	m4/iconv.m4, m4/intdiv0.m4, m4/inttypes-pri.m4, m4/inttypes.m4,
+	m4/inttypes_h.m4, m4/isc-posix.m4, m4/lcmessage.m4, m4/lib-ld.m4,
+	m4/lib-link.m4, m4/lib-prefix.m4, m4/progtest.m4, m4/stdint_h.m4,
+	m4/uintmax_t.m4, m4/ulonglong.m4, po/ChangeLog, po/Makefile.in.in,
+	po/Makevars, po/Makevars.template, po/POTFILES.in, po/Rules-quot,
+	po/boldquot.sed, po/en@boldquot.header, po/en@quot.header,
+	po/insert-header.sin, po/ja.po, po/loqui.pot, po/quot.sed,
+	po/remove-potcdate.sin, src/about.c, src/channel_book.c,
+	src/channel_book.h, src/command_table.c, src/command_table.h,
+	src/irc_handle.c, src/irc_handle.h, src/irc_message.c: Initial
+	revision
 

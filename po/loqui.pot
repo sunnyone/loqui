@@ -7,7 +7,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2002-11-10 13:22+0900\n"
+"POT-Creation-Date: 2003-01-08 21:13+0900\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -15,6 +15,298 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: src/main.c:51
+#: src/about.c:31 src/loqui_app.c:203
+msgid "Loqui"
+msgstr ""
+
+#: src/about.c:32
+msgid "(C) 2002 Yoichi Imai"
+msgstr ""
+
+#: src/about.c:33
+msgid ""
+"IRC client for GNOME2\n"
+"http://loqui.good-day.net/"
+msgstr ""
+
+#: src/account.c:294
+#, c-format
+msgid "Account '%s': Nick is empty"
+msgstr ""
+
+#: src/account.c:300
+#, c-format
+msgid "Account '%s': Username is empty"
+msgstr ""
+
+#: src/account.c:306
+#, c-format
+msgid "Account '%s': Realname is empty"
+msgstr ""
+
+#: src/account.c:357
+#, c-format
+msgid "Account '%s' has already connected."
+msgstr ""
+
+#: src/account.c:449
+msgid "Not connected with this account"
+msgstr ""
+
+#: src/account.c:466
+msgid "No channel is selected"
+msgstr ""
+
+#: src/channel_tree.c:241
+msgid "Failed to add channel"
+msgstr ""
+
+#: src/codeconv.c:47
+msgid "the setting of codeconv was invalid; now 'Auto Detection' is selected."
+msgstr ""
+
+#: src/codeconv.c:86
+#, c-format
+msgid "Code convartion error: %s"
+msgstr ""
+
+#: src/connection.c:129
+msgid "Connection error"
+msgstr ""
+
+#: src/eel-gconf-extensions.c:79
+msgid ""
+"Cannot find a schema for loqui preferences. \n"
+"Check your gconf setup"
+msgstr ""
+
+#: src/eel-gconf-extensions.c:105
+#, c-format
+msgid ""
+"GConf error:\n"
+"  %s"
+msgstr ""
+
+#: src/irc_handle.c:213 src/irc_handle.c:235 src/irc_handle.c:261
+#: src/irc_handle.c:287 src/irc_handle.c:438
+msgid "The message does not contain nick"
+msgstr ""
+
+#: src/irc_handle.c:224
+msgid "*** %n has quit IRC(%t)"
+msgstr ""
+
+#: src/irc_handle.c:241 src/irc_handle.c:267
+msgid "The message does not contain the channal name"
+msgstr ""
+
+#: src/irc_handle.c:252
+msgid "*** %n has just part %1(%t)"
+msgstr ""
+
+#: src/irc_handle.c:278
+msgid "*** %2 was kicked from %1 by %n(%3)"
+msgstr ""
+
+#: src/irc_handle.c:293
+msgid "The NICK message does not contain new nick"
+msgstr ""
+
+#: src/irc_handle.c:304
+msgid "*** %n is known as %1"
+msgstr ""
+
+#: src/irc_handle.c:325
+msgid "Who can change mode?"
+msgstr ""
+
+#: src/irc_handle.c:329
+#, c-format
+msgid "Nick should not contain '%%'"
+msgstr ""
+
+#: src/irc_handle.c:335
+msgid "The target is not found in MODE command"
+msgstr ""
+
+#: src/irc_handle.c:341
+msgid "Flags are not found in MODE command"
+msgstr ""
+
+#: src/irc_handle.c:355
+msgid "Flags don't have + or -"
+msgstr ""
+
+#: src/irc_handle.c:365
+msgid "Why can you know the change of his mode?"
+msgstr ""
+
+#: src/irc_handle.c:371
+msgid "Invalid MODE command"
+msgstr ""
+
+#: src/irc_handle.c:376
+msgid "Can't find a nick to change mode"
+msgstr ""
+
+#: src/irc_handle.c:411
+msgid "Unknown mode flag"
+msgstr ""
+
+#: src/irc_handle.c:422
+#, c-format
+msgid "*** New mode for %%1 by %s: %%*2"
+msgstr ""
+
+#: src/irc_handle.c:443
+msgid "Invalid JOIN command"
+msgstr ""
+
+#: src/irc_handle.c:449
+msgid "Why do you know that the user join the channel?"
+msgstr ""
+
+#: src/irc_handle.c:457
+msgid "*** %n (%u@%h) joined channel %t"
+msgstr ""
+
+#: src/irc_handle.c:471 src/irc_handle.c:494 src/irc_handle.c:520
+msgid "Can't get channel name"
+msgstr ""
+
+#: src/irc_handle.c:623
+msgid "Topic for %2: %t"
+msgstr ""
+
+#: src/irc_handle.c:642
+msgid "*** New topic on %1 by %n: %t"
+msgstr ""
+
+#: src/irc_handle.c:701
+msgid "Can't find the channel from the message"
+msgstr ""
+
+#: src/irc_handle.c:735
+msgid "*** %2 is marked as begin AWAY, but left the message: %3"
+msgstr ""
+
+#: src/irc_handle.c:744
+msgid "*** %t"
+msgstr ""
+
+#: src/irc_handle.c:747
+msgid "*** You are inviting %2 to %3"
+msgstr ""
+
+#: src/irc_handle.c:750
+msgid "*** %3 is running IRC version %2 (%4)"
+msgstr ""
+
+#: src/irc_handle.c:775
+msgid "%2 is %3@%4: %t"
+msgstr ""
+
+#: src/irc_handle.c:778
+msgid "%2 was %3@%4: %t"
+msgstr ""
+
+#: src/irc_handle.c:781
+msgid "%2: %t"
+msgstr ""
+
+#: src/irc_handle.c:784
+msgid "on via server %3(%t)"
+msgstr ""
+
+#: src/irc_handle.c:787
+msgid "%3 %t"
+msgstr ""
+
+#: src/irc_handle.c:790
+msgid "Banned on %2 : %3"
+msgstr ""
+
+#: src/irc_handle.c:793
+msgid "Time: %3(%2)"
+msgstr ""
+
+#: src/irc_handle.c:909
+#, c-format
+msgid "Connecting to %s:%d"
+msgstr ""
+
+#: src/irc_handle.c:917
+msgid "Connected. Sending Initial command..."
+msgstr ""
+
+#: src/irc_handle.c:940
+msgid "Done."
+msgstr ""
+
+#: src/irc_handle.c:950
+msgid "Connection terminated."
+msgstr ""
+
+#: src/irc_handle.c:1019
+msgid "Connection thread is not created."
+msgstr ""
+
+#: src/irc_handle.c:1023
+msgid "Thread sending message is not created."
+msgstr ""
+
+#: src/irc_handle.c:1027
+msgid "Message queue is not created."
+msgstr ""
+
+#: src/loqui_app.c:291
+msgid "No topic"
+msgstr ""
+
+#: src/loqui_menu.c:43
+msgid "_Connect All"
+msgstr ""
+
+#: src/loqui_menu.c:43
+msgid "Connect to IRC server marked"
+msgstr ""
+
+#: src/loqui_menu.c:44
+msgid "_Connect"
+msgstr ""
+
+#: src/loqui_menu.c:44
+msgid "Connect to IRC server"
+msgstr ""
+
+#: src/loqui_menu.c:52
+msgid "Paste with linefeeds cut"
+msgstr ""
+
+#: src/loqui_menu.c:52
+msgid "Paste selection with linefeeds cut"
+msgstr ""
+
+#: src/loqui_menu.c:58
+msgid "Clear buffer"
+msgstr ""
+
+#: src/loqui_menu.c:58
+msgid "Clear buffer of current channel"
+msgstr ""
+
+#: src/loqui_menu.c:60
+msgid "Clear common buffer"
+msgstr ""
+
+#: src/main.c:33
+msgid "Enable debugging"
+msgstr ""
+
+#: src/main.c:57
 msgid "Loqui IRC client"
+msgstr ""
+
+#: src/nick_list.c:217
+msgid "Nick"
 msgstr ""
