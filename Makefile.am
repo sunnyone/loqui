@@ -1,5 +1,7 @@
 SUBDIRS =  m4 libloqui src po # test
 
+AUTOMAKE_OPTIONS = 1.5
+
 .PHONY: ChangeLog
 ChangeLog:
 	svn log -v > $@
