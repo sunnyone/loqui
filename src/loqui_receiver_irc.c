@@ -1104,7 +1104,7 @@ loqui_receiver_irc_command_topic(LoquiReceiverIRC *receiver, IRCMessage *msg)
 		return;
 
 	topic = irc_message_get_trailing(msg);
-	loqui_channel_entry_set_topic(LOQUI_CHANNEL_ENTRY(channel), topic);
+	loqui_channel_entry_set_topic(LOQUI_CHANNEL_ENTRY(channel), strlen(topic) ? topic : NULL);
 	
 	loqui_receiver_irc_channel_append(receiver, msg, FALSE, 1, TEXT_TYPE_INFO, _("*** New topic on %1 by %n: %t"));
 }
