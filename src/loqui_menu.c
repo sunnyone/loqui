@@ -43,6 +43,7 @@ static void loqui_menu_about_cb(gpointer data, guint callback_action, GtkWidget 
 static void loqui_menu_quit_cb(gpointer data, guint callback_action, GtkWidget *widget);
 static void loqui_menu_connect_cb(GtkWidget *widget, gpointer data);
 static void loqui_menu_account_settings_cb(gpointer data, guint callback_action, GtkWidget *widget);
+static void loqui_menu_common_settings_cb(gpointer data, guint callback_action, GtkWidget *widget);
 
 static GtkItemFactoryEntry menu_items[] = {
 	{ N_("/_File"),     NULL, 0, 0, "<Branch>" },
@@ -63,6 +64,7 @@ static GtkItemFactoryEntry menu_items[] = {
 	{ N_("/_User"), NULL, 0, 0, "<Branch>" },
 	{ N_("/_View"), NULL, 0, 0, "<Branch>" },
 	{ N_("/_Settings"), NULL, 0, 0, "<Branch>" },
+	{ N_("/Settings/Common Prefsrences..."), NULL, loqui_menu_common_settings_cb, 0 },
 	{ N_("/Settings/Account Settings..."), NULL, loqui_menu_account_settings_cb, 0 },
 	{ N_("/_Help"), NULL, 0, 0, "<Branch>" },
 	{ N_("/Help/_About"), NULL, loqui_menu_about_cb, 0 },
@@ -218,7 +220,11 @@ loqui_menu_account_settings_cb(gpointer data, guint callback_action, GtkWidget *
 {
 	account_manager_open_account_list_dialog(account_manager_get());
 }
-
+static void
+loqui_menu_common_settings_cb(gpointer data, guint callback_action, GtkWidget *widget)
+{
+	account_manager_open_prefs_dialog(account_manager_get());
+}
 static void
 loqui_menu_quit_cb(gpointer data, guint callback_action, GtkWidget *widget)
 {

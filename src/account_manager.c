@@ -29,6 +29,7 @@
 #include "account_dialog.h"
 #include "intl.h"
 #include "loqui_toolbar.h"
+#include "prefs_dialog.h"
 
 struct _AccountManagerPrivate
 {
@@ -490,7 +491,13 @@ void account_manager_open_account_list_dialog(AccountManager *manager)
 
 	account_list_dialog_open(GTK_WINDOW(manager->priv->app));
 }
+void account_manager_open_prefs_dialog(AccountManager *manager)
+{
+	g_return_if_fail(manager != NULL);
+        g_return_if_fail(IS_ACCOUNT_MANAGER(manager));	
 
+	prefs_dialog_open(GTK_WINDOW(manager->priv->app));
+}
 void
 account_manager_set_whether_scrolling(AccountManager *manager, gboolean is_scroll)
 {
