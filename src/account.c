@@ -316,20 +316,11 @@ account_connect(Account *account, gint server_num, gboolean fallback)
 	priv->handle = irc_handle_new(account, server_num, fallback);
 }
 void
-account_console_text_append(Account *account, gchar *text)
+account_console_text_append(Account *account, gchar *str)
 {
-	GtkTextIter iter;
-	GtkTextBuffer *textbuf;
-
 	g_return_if_fail(account != NULL);
-	g_return_if_fail(text != NULL);
+	g_return_if_fail(str != NULL);
 
-	textbuf = GTK_TEXT_BUFFER(gtk_text_view_get_buffer(GTK_TEXT_VIEW(account->console_text->text)));
-	gtk_text_buffer_get_end_iter(textbuf, &iter);
-	gtk_text_buffer_insert(textbuf, &iter, text, -1);
+	channel_text_append(account->console_text, TEXT_TYPE_NORMAL, str);
 
-	if(account_manager_whether_scroll(account_manager_get())) {
-		gtk_adjustment_set_value(GTK_TEXT_VIEW(account->console_text->text)->vadjustment,
-					 GTK_TEXT_VIEW(account->console_text->text)->vadjustment->upper);
-	}
 }

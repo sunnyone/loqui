@@ -20,6 +20,8 @@
 #include "config.h"
 
 #include "channel_text.h"
+#include "account_manager.h"
+#include <time.h>
 
 struct _ChannelTextPrivate
 {
@@ -32,6 +34,8 @@ static void channel_text_class_init(ChannelTextClass *klass);
 static void channel_text_init(ChannelText *channel_text);
 static void channel_text_finalize(GObject *object);
 static void channel_text_destroy(GtkObject *object);
+
+#define TIME_LEN 11
 
 GType
 channel_text_get_type(void)
@@ -113,6 +117,7 @@ channel_text_new(void)
 {
         ChannelText *channel_text;
 	ChannelTextPrivate *priv;
+	GtkTextBuffer *textbuf;
 
 	channel_text = g_object_new(channel_text_get_type(), NULL);
 	priv = channel_text->priv;
@@ -121,8 +126,67 @@ channel_text_new(void)
 	gtk_text_view_set_editable(GTK_TEXT_VIEW(channel_text->text), FALSE);
 	gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(channel_text->text), GTK_WRAP_CHAR);
 
+	textbuf = GTK_TEXT_BUFFER(gtk_text_view_get_buffer(GTK_TEXT_VIEW(channel_text->text)));
+        gtk_text_buffer_create_tag(textbuf, "time", 
+				   "foreground", "blue", 
+				   NULL);
+        gtk_text_buffer_create_tag(textbuf, "info", 
+				   "foreground", "green", 
+				   NULL);
+        gtk_text_buffer_create_tag(textbuf, "normal", 
+				   "foreground", "black", 
+				   NULL);
+        gtk_text_buffer_create_tag(textbuf, "error", 
+				   "foreground", "red", 
+				   NULL);
+        gtk_text_buffer_create_tag(textbuf, "notice", 
+				   "foreground", "grey", 
+				   NULL);
+
 	gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(channel_text), GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC);
 	gtk_container_add(GTK_CONTAINER(channel_text), channel_text->text);
 
 	return GTK_WIDGET(channel_text);
+}
+void channel_text_append(ChannelText *channel_text, TextType type, gchar *str)
+{
+	GtkTextIter iter;
+	GtkTextBuffer *textbuf;
+	GtkTextView *text;
+	gchar *style;
+
+	gchar buf[TIME_LEN];
+	time_t t;
+	struct tm tm;
+
+	g_return_if_fail(channel_text != NULL);
+	g_return_if_fail(channel_text->text != NULL);
+	text = GTK_TEXT_VIEW(channel_text->text);
+
+	t = time(NULL);
+	localtime_r(&t, &tm);
+	strftime(buf, TIME_LEN, "%H:%M ", &tm);
+
+	textbuf = GTK_TEXT_BUFFER(gtk_text_view_get_buffer(text));
+	gtk_text_buffer_get_end_iter(textbuf, &iter);
+
+	gtk_text_buffer_insert_with_tags_by_name(textbuf, &iter, buf, -1, "time", NULL);
+	switch(type) {
+	case TEXT_TYPE_NOTICE:
+		style = "notice";
+		break;
+	case TEXT_TYPE_ERROR:
+		style = "error";
+		break;
+	case TEXT_TYPE_INFO:
+		style = "info";
+		break;
+	default:
+		style = "normal";
+	}
+	gtk_text_buffer_insert_with_tags_by_name(textbuf, &iter, str, -1, style, NULL);
+
+	if(account_manager_whether_scroll(account_manager_get())) {
+		gtk_adjustment_set_value(text->vadjustment, text->vadjustment->upper);
+	}
 }

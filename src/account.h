@@ -85,7 +85,7 @@ void account_add_server(Account *account, const gchar *hostname,
 			gboolean use);
 void account_restore(Account *account, const gchar *name);
 void account_connect(Account *account, gint server_num, gboolean fallback);
-void account_console_text_append(Account *account, gchar *text);
+void account_console_text_append(Account *account, gchar *str);
 
 G_END_DECLS
 

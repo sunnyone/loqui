@@ -36,6 +36,13 @@ typedef struct _ChannelTextClass       ChannelTextClass;
 
 typedef struct _ChannelTextPrivate     ChannelTextPrivate;
 
+typedef enum {
+	TEXT_TYPE_NORMAL,
+	TEXT_TYPE_NOTICE,
+	TEXT_TYPE_INFO,
+	TEXT_TYPE_ERROR
+} TextType;
+
 struct _ChannelText
 {
         GtkScrolledWindow parent;
@@ -54,6 +61,7 @@ struct _ChannelTextClass
 GtkType channel_text_get_type (void) G_GNUC_CONST;
 
 GtkWidget* channel_text_new (void);
+void channel_text_append(ChannelText *channel_text, TextType type, gchar *str);
 
 G_END_DECLS
 
