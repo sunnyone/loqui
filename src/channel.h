@@ -78,7 +78,7 @@ struct _ChannelClass
 
 GType channel_get_type(void) G_GNUC_CONST;
 
-Channel* channel_new(Account *account, gchar *name);
+Channel* channel_new(Account *account, const gchar *name);
 void channel_append_text(Channel *channel, gboolean with_common_buffer, TextType type, gchar *str);
 void channel_append_remark(Channel *channel, TextType type, gboolean is_self, const gchar *nick, const gchar *remark);
 

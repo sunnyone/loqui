@@ -126,18 +126,15 @@ channel_input_dialog_response_cb(GtkWidget *widget, gint response, gpointer data
 {
 	ChannelInputDialog *dialog;
 	ChannelInputDialogPrivate *priv;
-	const gchar *text, *channel_text;
 
 	dialog = CHANNEL_INPUT_DIALOG(data);
 	priv = dialog->priv;
 
 	if(response == GTK_RESPONSE_OK) {
 		if(priv->func) {
-			text = gtk_entry_get_text(GTK_ENTRY(dialog->entry));
-			channel_text = gtk_entry_get_text(GTK_ENTRY(GTK_COMBO(dialog->combo)->entry));
 			priv->func(channel_input_dialog_get_account(dialog),
-				   strlen(channel_text) > 0 ? channel_text : NULL,
-				   strlen(text) > 0 ? text : NULL,
+				   gtk_entry_get_text(GTK_ENTRY(GTK_COMBO(dialog->combo)->entry)),
+				   gtk_entry_get_text(GTK_ENTRY(dialog->entry)),
 				   priv->data);
 		}
 	}
@@ -344,16 +341,20 @@ Account *channel_input_dialog_get_account(ChannelInputDialog *dialog)
 	return priv->account;
 }
 
-void channel_input_dialog_open(GtkWindow *parent_window, gchar *title, gchar *info_label,
-			       ChannelHistoryType history_type, ChannelInputFunc func,
+void channel_input_dialog_open(GtkWindow *parent_window, 
+			       gchar *title, gchar *info_label,
+			       ChannelHistoryType history_type, 
+			       ChannelInputFunc func, gpointer data,
 			       gboolean use_account, Account *account, 
 			       gboolean use_channel, gchar *channel_name, 
-			       gboolean use_text, gchar *default_text,
-			       gpointer data)
+			       gboolean use_text, gchar *default_text)
 {
 	ChannelInputDialog *dialog;
+	ChannelInputDialogPrivate *priv;
 
 	dialog = CHANNEL_INPUT_DIALOG(channel_input_dialog_new());
+	priv = dialog->priv;
+
 	gtk_window_set_transient_for(GTK_WINDOW(dialog), parent_window);
 	if(title)
 		gtk_window_set_title(GTK_WINDOW(dialog), title);
@@ -380,6 +381,9 @@ void channel_input_dialog_open(GtkWindow *parent_window, gchar *title, gchar *in
 		gtk_widget_grab_focus(GTK_COMBO(dialog->combo)->entry);
 	else
 		gtk_widget_grab_focus(dialog->entry);
+
+	priv->func = func;
+	priv->data = data;
 
 	gtk_widget_show_all(GTK_WIDGET(dialog));
 }

@@ -75,12 +75,13 @@ Account *channel_input_dialog_get_account(ChannelInputDialog *dialog);
 void channel_input_dialog_set_channel_history_type(ChannelInputDialog *dialog,
 						   ChannelHistoryType history_type);
 ChannelHistoryType channel_input_dialog_get_channel_history_type(ChannelInputDialog *dialog);
-void channel_input_dialog_open(GtkWindow *parent_window, gchar *title, gchar *info_label,
-			       ChannelHistoryType history_type, ChannelInputFunc func,
+void channel_input_dialog_open(GtkWindow *parent_window, 
+			       gchar *title, gchar *info_label,
+			       ChannelHistoryType history_type, 
+			       ChannelInputFunc func, gpointer data,
 			       gboolean use_account, Account *account, 
 			       gboolean use_channel, gchar *channel_name, 
-			       gboolean use_text, gchar *default_text,
-			       gpointer data);
+			       gboolean use_text, gchar *default_text);
 
 G_END_DECLS
 

@@ -575,11 +575,63 @@ void account_whois(Account *account, const gchar *target)
 
         g_return_if_fail(account != NULL);
         g_return_if_fail(IS_ACCOUNT(account));
+	
+	if(!account_is_connected(account)) {
+		g_warning(_("Account is not connected."));
+		return;
+	}
 
 	priv = account->priv;
 
 	msg = irc_message_create(IRCCommandWhois, target, NULL);
 	irc_handle_push_message(priv->handle, msg);
+}
+void account_join(Account *account, const gchar *target)
+{
+	IRCMessage *msg;
+	AccountPrivate *priv;
+	Channel *channel;
+
+        g_return_if_fail(account != NULL);
+        g_return_if_fail(IS_ACCOUNT(account));
+		
+	if(!account_is_connected(account)) {
+		g_warning(_("Account is not connected."));
+		return;
+	}
+
+	priv = account->priv;
+
+	if(STRING_IS_CHANNEL(target)) {
+		msg = irc_message_create(IRCCommandJoin, target, NULL);
+		irc_handle_push_message(priv->handle, msg);
+	} else {
+		channel = channel_new(account, target);
+		account_add_channel(account, channel);
+		account_manager_set_current_channel(account_manager_get(), channel);
+	}
+}
+void account_part(Account *account, const gchar *target, const gchar *part_message)
+{
+	IRCMessage *msg;
+	AccountPrivate *priv;
+
+        g_return_if_fail(account != NULL);
+        g_return_if_fail(IS_ACCOUNT(account));
+		
+	if(!account_is_connected(account)) {
+		g_warning(_("Account is not connected."));
+		return;
+	}
+
+	priv = account->priv;
+
+	if(STRING_IS_CHANNEL(target)) {
+		msg = irc_message_create(IRCCommandPart, target, part_message, NULL);
+		irc_handle_push_message(priv->handle, msg);
+	} else {
+		/* FIXME: close private message page? */
+	}	
 }
 void account_change_channel_user_mode(Account *account, Channel *channel, 
 				      gboolean is_give, IRCModeFlag flag, GList *str_list)

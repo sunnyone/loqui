@@ -148,7 +148,7 @@ channel_finalize (GObject *object)
 }
 
 Channel*
-channel_new(Account *account, gchar *name)
+channel_new(Account *account, const gchar *name)
 {
         Channel *channel;
 
