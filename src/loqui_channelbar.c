@@ -376,7 +376,7 @@ loqui_channelbar_set_current_channel(LoquiChannelbar *channelbar, Channel *chann
 	gtk_label_set(GTK_LABEL(priv->label_channel_mode), "");
 	gtk_label_set(GTK_LABEL(priv->label_user_number), "");
 			
-	if(channel_is_private_talk(channel)) {
+	if(!channel || channel_is_private_talk(channel)) {
 		gtk_widget_set_sensitive(priv->entry_topic, FALSE);
 	} else {
 		topic = channel_get_topic(channel);
