@@ -246,13 +246,30 @@ account_add_server(Account *account, const gchar *hostname, gint port,
 	else
 		server->port = port;
 
-	if(password)
+	if(password && strlen(password) > 0)
 		server->password = g_strdup(password);
 	server->use = use;
 
 	account->server_list = g_slist_append(account->server_list, server);
 }
+void
+account_remove_all_server(Account *account)
+{
+	GSList *cur;
+	Server *server;
 
+	for(cur = account->server_list; cur != NULL; cur = cur->next) {
+		server = (Server *) cur->data;
+
+		if(server->password)
+			g_free(server->password);
+		if(server->hostname)
+			g_free(server->hostname);
+		g_free(server);
+	}
+	g_slist_free(account->server_list);
+	account->server_list = NULL;
+}
 #if 0
 static Server*
 account_parse_server_string(const gchar *input)
