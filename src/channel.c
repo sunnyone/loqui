@@ -24,6 +24,8 @@
 #include "utils.h"
 #include "main.h"
 
+#include <string.h>
+
 struct _ChannelPrivate
 {
 	gchar *topic;
@@ -312,7 +314,7 @@ gboolean channel_find_user(Channel *channel, const gchar *nick, GtkTreeIter *ite
 			continue;
 		}
 		
-		if(g_ascii_strcasecmp(tmp, nick) == 0)
+		if(strcmp(tmp, nick) == 0)
 			return TRUE;
 
 	} while(gtk_tree_model_iter_next(model, iter));
