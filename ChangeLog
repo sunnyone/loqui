@@ -1,12 +1,50 @@
-2003-01-08  gettextize  <bug-gnu-gettext@gnu.org>
+2003-01-10 20:46  y-imai
 
-	* Makefile.am (SUBDIRS): Remove intl.
-	* configure.in (AC_OUTPUT): Remove intl/Makefile.
+	* src/irc_handle.c: remove needless printing
 
-2003-01-08  gettextize  <bug-gnu-gettext@gnu.org>
+2003-01-10 20:45  y-imai
 
-	* Makefile.am (SUBDIRS): Add intl.
-	* configure.in (AC_OUTPUT): Add intl/Makefile.
+	* src/: loqui_app.c, loqui_app.h: fix focusing
+
+2003-01-10 20:43  y-imai
+
+	* src/: irc_constants.h, irc_message.c: new commands in new rfc
+
+2003-01-10 20:38  y-imai
+
+	* src/: account_manager.c, channel.c, channel.h, connection.c,
+	irc_constants.h, loqui_app.c: set focusing
+
+2003-01-10 20:37  y-imai
+
+	* src/account.c: password null checking
+
+2003-01-10 20:37  y-imai
+
+	* src/codeconv.c: fix iso-2022 terminating
+
+2003-01-10 20:37  y-imai
+
+	* src/irc_handle.c: handling multiple names
+
+2003-01-08 23:01  y-imai
+
+	* src/irc_handle.c: sends password if any
+
+2003-01-08 22:56  y-imai
+
+	* loqui.schemas: fix schema
+
+2003-01-08 22:32  y-imai
+
+	* ChangeLog, Makefile.am, aclocal.m4, config.h.in, configure,
+	configure.in, loqui.schemas, mkinstalldirs, po/ChangeLog, po/ja.po,
+	po/loqui.pot, src/account_manager.c: fixed gconf stuffs
+
+2003-01-08 21:32  y-imai
+
+	* ChangeLog, Makefile.am, configure.in, mkinstalldirs,
+	po/ChangeLog, po/POTFILES.in, po/loqui.pot: autoconf stuffs
 
 2003-01-08 21:17  y-imai
 
