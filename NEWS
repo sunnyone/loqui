@@ -10,3 +10,7 @@
 * Improved performance of scrolling
 * Removed dependency of GConf/GNOME2
 
+2003-01-19     0.0.8 Release
+* Changed the way to change buffers/userlists.
+* Saving channel tree/common buffer size.
+

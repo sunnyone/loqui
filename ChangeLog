@@ -1,3 +1,63 @@
+2003-01-19 21:17  y-imai
+
+	* src/channel.c: fix wrong handling iter
+
+2003-01-19 21:17  y-imai
+
+	* src/: account.c, account.h: removed use_server_list
+
+2003-01-19 20:36  y-imai
+
+	* src/: account_manager.c, account_manager.h, channel.c, channel.h,
+	main.h, nick_list.c, nick_list.h: user lists are saved list_store
+	directly
+
+2003-01-19 19:19  y-imai
+
+	* src/: account.c, channel.c, prefs_general.c, utils.h:
+	STR_FREE_UNLESS_NULL is replaced with G_FREE_UNLESS_NULL
+
+2003-01-19 19:17  y-imai
+
+	* src/: main.h, nick_list.c: COLUMN_* of NickList are moved to
+	main.h and
+
+2003-01-19 19:12  y-imai
+
+	* src/nick_list.c: pixmaps of nicklist are drawn by enum number
+	directly
+
+2003-01-19 16:42  y-imai
+
+	* src/: loqui_app.c, prefs_general.c, prefs_general.h: save widgets
+	size
+
+2003-01-19 15:47  y-imai
+
+	* src/loqui_app.c: fixed mistaken target
+
+2003-01-19 14:30  y-imai
+
+	* src/irc_message.c: merge to count_param
+
+2003-01-19 14:28  y-imai
+
+	* src/: Makefile.am, account.c, account.h, account_manager.c,
+	account_manager.h, channel.c, channel.h, channel_buffer.c,
+	channel_buffer.h, channel_text.c, channel_text.h, irc_handle.c,
+	loqui_app.h: channel_text is moved to channel_buffer
+
+2003-01-19 13:39  y-imai
+
+	* src/: account.c, account_manager.c, account_manager.h, channel.c,
+	channel_book.c, channel_book.h, channel_text.c, channel_text.h,
+	loqui_app.c, loqui_app.h: change the way to manage channel buffers
+	from notebook+scwin+textview+buffer to textview+buffer
+
+2003-01-19 00:05  y-imai
+
+	* ChangeLog: Updated changelog
+
 2003-01-18 23:55  y-imai
 
 	* po/ja.po: updated po
