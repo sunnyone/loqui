@@ -32,7 +32,8 @@ loqui_SOURCES = \
 	connect_dialog.c connect_dialog.h \
 	channel_input_dialog.c channel_input_dialog.h \
 	command_dialog.c command_dialog.h \
-	remark_entry.c remark_entry.h
+	remark_entry.c remark_entry.h \
+	message_text.c message_text.h
 
 loqui_LDADD = \
         $(GTK_LIBS) $(GNET_LIBS)
