@@ -45,6 +45,7 @@
 #include "loqui_account_manager_iter.h"
 
 #include "embedtxt/loqui_app_ui.h"
+#include "icons/pixbufs.h"
 
 #include "intl.h"
 #include "utils.h"
@@ -492,6 +493,8 @@ loqui_app_new(AccountManager *account_manager)
 	GtkWidget *menu_channelbar;
 	GtkWidget *menu_nick_list;
 
+	GdkPixbuf *loqui_icon;
+
 	GtkAction *toggle_command_action;
 
 	app = g_object_new(loqui_app_get_type(), NULL);
@@ -501,6 +504,12 @@ loqui_app_new(AccountManager *account_manager)
 	app->account_manager = account_manager;
 
 	gtk_window_set_policy(GTK_WINDOW (app), TRUE, TRUE, TRUE);
+
+	/* set icon */
+	if((loqui_icon = gdk_pixbuf_new_from_inline(-1, loqui_pixbuf, FALSE, NULL)) == NULL)
+		g_error("Failed to load loqui icon.");
+	gtk_window_set_icon(GTK_WINDOW(app), loqui_icon);
+	g_object_unref(loqui_icon);
 
 	vbox = gtk_vbox_new(FALSE, 0);
 	gtk_container_add(GTK_CONTAINER(app), vbox);
