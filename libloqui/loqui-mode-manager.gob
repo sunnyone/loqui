@@ -174,7 +174,7 @@ class Loqui:Mode:Manager from G:Object
 	}
 
 	public gchar *
-	to_string(self, gboolean set_flag_only) {
+	to_string(self) {
 		GString *flag_string;
 		GString *data_str_string;
 		gchar *str;
@@ -193,9 +193,10 @@ class Loqui:Mode:Manager from G:Object
 		for (cur = self->mode_item_list; cur != NULL; cur = cur->next) {
 			item = LOQUI_MODE_ITEM(cur->data);
 
-			if (set_flag_only && !item->is_set)
+			if (!item->is_change &&
+			    !item->is_set)
 				continue;
-				
+
 			if (!is_flag_added ||
 			    is_set != item->is_set) {
 				is_set = item->is_set;
