@@ -173,6 +173,7 @@ account_manager_add_account(AccountManager *manager, Account *account)
 			 G_CALLBACK(account_manager_channel_buffer_append_cb), manager);
 
 	channel_tree_add_account(priv->app->channel_tree, account);
+	loqui_menu_buffers_add_account(priv->app->menu, account);
 }
 void
 account_manager_remove_account(AccountManager *manager, Account *account)
@@ -188,6 +189,8 @@ account_manager_remove_account(AccountManager *manager, Account *account)
 
 	priv->account_list = g_slist_remove(priv->account_list, account);
 	channel_tree_remove_account(priv->app->channel_tree, account);
+	loqui_menu_buffers_remove_account(priv->app->menu, account);
+
 	/* FIXME: should disconnect signals? */
 	g_object_unref(account);
 }
@@ -204,9 +207,8 @@ account_manager_update_account(AccountManager *manager, Account *account)
 
 	priv = manager->priv;
 	
-	for(cur = priv->account_list; cur != NULL; cur = cur->next) {
-		channel_tree_update_account(priv->app->channel_tree, account);
-	}
+	channel_tree_update_account(priv->app->channel_tree, account);
+	loqui_menu_buffers_update_account(priv->app->menu, account);
 }
 void
 account_manager_load_accounts(AccountManager *account_manager)
@@ -237,6 +239,8 @@ account_manager_save_accounts(AccountManager *account_manager)
 static void
 account_manager_add_channel_cb(Account *account, Channel *channel, AccountManager *manager)
 {
+	AccountManagerPrivate *priv;
+
         g_return_if_fail(manager != NULL);
         g_return_if_fail(IS_ACCOUNT_MANAGER(manager));
 	g_return_if_fail(account != NULL);
@@ -244,25 +248,32 @@ account_manager_add_channel_cb(Account *account, Channel *channel, AccountManage
 	g_return_if_fail(channel != NULL);
 	g_return_if_fail(IS_CHANNEL(channel));
 
+	priv = manager->priv;
+
 	g_signal_connect(G_OBJECT(channel), "updated",
 			 G_CALLBACK(account_manager_channel_updated_cb), manager);
 	g_signal_connect_swapped(G_OBJECT(channel), "user-number-changed",
-				 G_CALLBACK(channel_tree_update_user_number), manager->priv->app->channel_tree);
+				 G_CALLBACK(channel_tree_update_user_number), priv->app->channel_tree);
 	g_signal_connect(G_OBJECT(channel->buffer), "append",
 			 G_CALLBACK(account_manager_channel_buffer_append_cb), manager);
 
-	channel_tree_add_channel(manager->priv->app->channel_tree, account, channel);
+	channel_tree_add_channel(priv->app->channel_tree, account, channel);
+	loqui_menu_buffers_add_channel(priv->app->menu, account, channel);
 	account_manager_set_current_channel(manager, channel);
 }
 static void
 account_manager_remove_channel_cb(Account *account, Channel *channel, AccountManager *manager)
 {
+	AccountManagerPrivate *priv;
+
         g_return_if_fail(manager != NULL);
         g_return_if_fail(IS_ACCOUNT_MANAGER(manager));
 	g_return_if_fail(account != NULL);
 	g_return_if_fail(IS_ACCOUNT(account));
 	g_return_if_fail(channel != NULL);
 	g_return_if_fail(IS_CHANNEL(channel));
+
+	priv = manager->priv;
 
 	account_manager_set_current_account(manager, account);
 	g_signal_handlers_disconnect_by_func(channel, account_manager_channel_updated_cb, manager);
@@ -270,6 +281,7 @@ account_manager_remove_channel_cb(Account *account, Channel *channel, AccountMan
 	g_signal_handlers_disconnect_by_func(channel->buffer, account_manager_channel_buffer_append_cb, manager);
 
 	channel_tree_remove_channel(manager->priv->app->channel_tree, channel);
+	loqui_menu_buffers_remove_channel(priv->app->menu, account, channel);
 }
 static gboolean
 account_manager_update_account_info(AccountManager *manager)
@@ -361,6 +373,7 @@ account_manager_channel_updated_cb(Channel *channel, gpointer data)
 		channel_set_updated(channel, FALSE);
 
 	channel_tree_set_updated(priv->app->channel_tree, NULL, channel);
+	loqui_menu_buffers_update_channel(priv->app->menu, channel->account, channel);
 }
 static void
 account_manager_channel_buffer_append_cb(ChannelBuffer *buffer, MessageText *msgtext, AccountManager *manager)

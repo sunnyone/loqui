@@ -55,6 +55,7 @@ AC_CHECK_FUNCS(bind_textdomain_codeset)
 AC_OUTPUT(
 Makefile
 src/Makefile
+src/icons/Makefile
 po/Makefile.in
 intl/Makefile
 m4/Makefile

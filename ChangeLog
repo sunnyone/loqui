@@ -1,3 +1,12 @@
+2003-05-29 19:48  y-imai
+
+	* ChangeLog, NEWS, NEWS.ja, configure.in, po/ja.po, po/loqui.pot:
+	0.1.15
+
+2003-05-29 19:46  y-imai
+
+	* src/nick_list.c: changed speak ability to voice privilege
+
 2003-05-29 19:23  y-imai
 
 	* src/main.c: parse ~/.loqui/gtkrc-2.0

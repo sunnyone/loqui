@@ -41,6 +41,8 @@ static void loqui_menu_class_init(LoquiMenuClass *klass);
 static void loqui_menu_init(LoquiMenu *loqui_menu);
 static void loqui_menu_finalize(GObject *object);
 
+static GtkWidget* loqui_menu_get_buffers_menu(LoquiMenu *menu);
+
 static void loqui_menu_edit_activate_cb(GtkWidget *widget, gpointer data);
 
 static void loqui_menu_connect_cb(gpointer data, guint callback_action, GtkWidget *widget);
@@ -64,6 +66,8 @@ static void loqui_menu_common_settings_cb(gpointer data, guint callback_action, 
 
 static void loqui_menu_about_cb(gpointer data, guint callback_action, GtkWidget *widget);
 
+static void loqui_menu_account_activate_cb(GtkWidget *widget, gpointer data);
+static void loqui_menu_channel_activate_cb(GtkWidget *widget, gpointer data);
 enum {
 	LOQUI_MENU_CUT,
 	LOQUI_MENU_COPY,
@@ -107,6 +111,8 @@ static GtkItemFactoryEntry menu_items[] = {
 	{ "/View/sep2",        NULL,         0,       0, "<Separator>" },
 	{ N_("/View/Previous channel"), "<Control>P", loqui_menu_view_move_cb, 2, "<StockItem>", GTK_STOCK_GO_UP},
 	{ N_("/View/Next channel"), "<Control>N", loqui_menu_view_move_cb, 3, "<StockItem>", GTK_STOCK_GO_DOWN},
+	{ N_("/_Buffers"), NULL, 0, 0, "<Branch>" },
+	{ "/Buffers/tearoff", NULL, 0, 0, "<Tearoff>" },
 	{ N_("/_Settings"), NULL, 0, 0, "<Branch>" },
 	{ N_("/Settings/Common preferences..."), NULL, loqui_menu_common_settings_cb, 0 },
 	{ N_("/Settings/Account settings..."), NULL, loqui_menu_account_settings_cb, 0 },
@@ -116,6 +122,9 @@ static GtkItemFactoryEntry menu_items[] = {
 
 static GObjectClass *parent_class = NULL;
 #define PARENT_TYPE G_TYPE_OBJECT
+
+#define FRESH_COLOR "red"
+#define NONFRESH_COLOR "black"
 
 GType
 loqui_menu_get_type(void)
@@ -180,6 +189,31 @@ loqui_menu_finalize (GObject *object)
                 (* G_OBJECT_CLASS(parent_class)->finalize) (object);
 
 	g_free(menu->priv);
+}
+
+static void
+loqui_menu_account_activate_cb(GtkWidget *widget, gpointer data)
+{
+	Account *account;
+
+	g_return_if_fail(widget != NULL);
+
+	account = g_object_get_data(G_OBJECT(widget), "account");
+	g_return_if_fail(account != NULL);
+
+	account_manager_set_current_account(account_manager_get(), account);
+}
+static void
+loqui_menu_channel_activate_cb(GtkWidget *widget, gpointer data)
+{	
+	Channel *channel;
+
+	g_return_if_fail(widget != NULL);
+
+	channel = g_object_get_data(G_OBJECT(widget), "channel");
+	g_return_if_fail(channel != NULL);
+
+	account_manager_set_current_channel(account_manager_get(), channel);
 }
 
 static void
@@ -251,7 +285,23 @@ GtkWidget* loqui_menu_get_widget(LoquiMenu *menu)
 
 	return gtk_item_factory_get_widget(menu->priv->item_factory, "<main>");
 }
+static GtkWidget*
+loqui_menu_get_buffers_menu(LoquiMenu *menu)
+{
+	GtkWidget *menuitem;
+	GtkWidget *submenu;
+	LoquiMenuPrivate *priv;
 
+	g_return_val_if_fail(menu != NULL, NULL);
+        g_return_val_if_fail(LOQUI_IS_MENU(menu), NULL);
+
+	priv = menu->priv;
+
+	menuitem = gtk_item_factory_get_item(priv->item_factory, "/Buffers");
+	submenu = gtk_menu_item_get_submenu(GTK_MENU_ITEM(menuitem));
+
+	return submenu;
+}
 
 static void
 loqui_menu_edit_cb(gpointer data, guint callback_action, GtkWidget *widget)
@@ -432,6 +482,189 @@ void loqui_menu_set_view_statusbar(LoquiMenu *menu, gboolean show)
 
 	gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(item), show);
 }
+void
+loqui_menu_buffers_add_account(LoquiMenu *menu, Account *account)
+{
+	GtkWidget *menuitem;
+	GtkWidget *submenu;
+	GtkWidget *image;
+
+	g_return_if_fail(menu != NULL);
+        g_return_if_fail(LOQUI_IS_MENU(menu));
+
+	submenu = loqui_menu_get_buffers_menu(menu);
+
+	menuitem = gtk_image_menu_item_new_with_label(account_get_name(account));
+	image = gtk_image_new_from_stock("loqui-console", GTK_ICON_SIZE_MENU);
+	gtk_widget_show(image);
+	gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(menuitem), image);
+
+	g_object_ref(account);
+	g_object_set_data_full(G_OBJECT(menuitem), "account", account, g_object_unref);
+	g_signal_connect(G_OBJECT(menuitem), "activate",
+			 G_CALLBACK(loqui_menu_account_activate_cb), menuitem);
+	gtk_widget_show(menuitem);
+
+	gtk_menu_shell_append(GTK_MENU_SHELL(submenu), menuitem);
+}
+void
+loqui_menu_buffers_update_account(LoquiMenu *menu, Account *account)
+{
+	GtkWidget *menuitem;
+	GtkWidget *submenu;
+	Account *tmp_ac;
+	GList *cur;
+	GList *children;
+
+	g_return_if_fail(menu != NULL);
+        g_return_if_fail(LOQUI_IS_MENU(menu));
+
+	submenu = loqui_menu_get_buffers_menu(menu);
+	for(cur = GTK_MENU_SHELL(submenu)->children; cur != NULL; cur = cur->next) {
+		menuitem = GTK_WIDGET(cur->data);
+		tmp_ac = g_object_get_data(G_OBJECT(menuitem), "account");
+		if(tmp_ac != account)
+			continue;
+		children = gtk_container_get_children(GTK_CONTAINER(menuitem));
+		/* FIXME: dirty way */
+		gtk_label_set_text(GTK_LABEL(children->data), account_get_name(account));
+	}
+}
+
+void
+loqui_menu_buffers_remove_account(LoquiMenu *menu, Account *account)
+{
+	GtkWidget *submenu;
+	Account *tmp_ac;
+	GList *cur;
+	GList *removing_items = NULL;
+
+	g_return_if_fail(menu != NULL);
+        g_return_if_fail(LOQUI_IS_MENU(menu));
+
+	submenu = loqui_menu_get_buffers_menu(menu);
+	for(cur = GTK_MENU_SHELL(submenu)->children; cur != NULL; cur = cur->next) {
+		tmp_ac = ACCOUNT(g_object_get_data(G_OBJECT(cur->data), "account"));
+		if(tmp_ac == account)
+			removing_items = g_list_append(removing_items, cur->data);
+	}
+	for(cur = removing_items; cur != NULL; cur = cur->next) {
+		gtk_widget_destroy(cur->data);
+	}
+	g_list_free(removing_items);
+}
+void
+loqui_menu_buffers_add_channel(LoquiMenu *menu, Account *account, Channel *channel)
+{
+	GtkWidget *menuitem;
+	GtkWidget *submenu;
+	Account *tmp_ac;
+	GList *cur;
+	GList *children;
+	guint i;
+
+	g_return_if_fail(menu != NULL);
+        g_return_if_fail(LOQUI_IS_MENU(menu));
+
+	submenu = loqui_menu_get_buffers_menu(menu);
+	children = GTK_MENU_SHELL(submenu)->children;
+	i = g_list_length(children);
+	for(cur = g_list_last(children); cur != NULL; cur = cur->prev) {
+		tmp_ac = g_object_get_data(G_OBJECT(cur->data), "account");
+		if(tmp_ac == account)
+			break;
+		i--;
+	}
+
+	menuitem = gtk_menu_item_new_with_label(channel_get_name(channel));
+	g_object_ref(account);
+	g_object_set_data_full(G_OBJECT(menuitem), "account", account, g_object_unref);
+	g_object_ref(channel);
+	g_object_set_data_full(G_OBJECT(menuitem), "channel", channel, g_object_unref);
+	g_signal_connect(G_OBJECT(menuitem), "activate",
+			 G_CALLBACK(loqui_menu_channel_activate_cb), menuitem);
+	gtk_widget_show(menuitem);
+
+	gtk_menu_shell_insert(GTK_MENU_SHELL(submenu), menuitem, i);
+}
+void
+loqui_menu_buffers_remove_channel(LoquiMenu *menu, Account *account, Channel *channel)
+{
+	GtkWidget *submenu;
+	Channel *tmp_ch;
+	GList *cur;
+	GList *removing_items = NULL;
+
+	g_return_if_fail(menu != NULL);
+        g_return_if_fail(LOQUI_IS_MENU(menu));
+
+	submenu = loqui_menu_get_buffers_menu(menu);
+	for(cur = GTK_MENU_SHELL(submenu)->children; cur != NULL; cur = cur->next) {
+		tmp_ch = CHANNEL(g_object_get_data(G_OBJECT(cur->data), "channel"));
+		if(tmp_ch == channel)
+			removing_items = g_list_append(removing_items, cur->data);
+	}
+	for(cur = removing_items; cur != NULL; cur = cur->next) {
+		gtk_widget_destroy(cur->data);
+	}
+	g_list_free(removing_items);
+}
+void
+loqui_menu_buffers_update_channel(LoquiMenu *menu, Account *account, Channel *channel)
+{
+	GtkWidget *menuitem;
+	GtkWidget *submenu;
+	Channel *tmp_ch;
+	GList *cur;
+	GList *children;
+	PangoAttrList *pattr_list;
+	PangoAttribute *pattr;
+	PangoColor pcolor_fresh, pcolor_nonfresh;
+	GtkWidget *label;
+	
+	g_return_if_fail(menu != NULL);
+        g_return_if_fail(LOQUI_IS_MENU(menu));
+
+	if(!pango_color_parse(&pcolor_fresh, FRESH_COLOR)) {
+		g_warning(_("Unable to determine color of fresh"));
+		return;
+	}
+	if(!pango_color_parse(&pcolor_nonfresh, NONFRESH_COLOR)) {
+		g_warning(_("Unable to determine color of nonfresh"));
+		return;
+	}
+
+	submenu = loqui_menu_get_buffers_menu(menu);
+	for(cur = GTK_MENU_SHELL(submenu)->children; cur != NULL; cur = cur->next) {
+		menuitem = GTK_WIDGET(cur->data);
+		tmp_ch = g_object_get_data(G_OBJECT(menuitem), "channel");
+		if(tmp_ch != channel)
+			continue;
+		children = gtk_container_get_children(GTK_CONTAINER(menuitem));
+
+		/* FIXME: dirty way */
+		label = children->data;
+
+		if(channel_get_updated(channel))
+			pattr = pango_attr_foreground_new(pcolor_fresh.red,
+							  pcolor_fresh.green,
+							  pcolor_fresh.blue);
+		else
+			pattr = pango_attr_foreground_new(pcolor_nonfresh.red,
+							  pcolor_nonfresh.green,
+							  pcolor_nonfresh.blue);
+		pattr->start_index = 0;
+		pattr->end_index = G_MAXUINT;
+		pattr_list = pango_attr_list_new();
+		pango_attr_list_insert(pattr_list, pattr);
+		gtk_label_set_use_markup(GTK_LABEL(label), FALSE);
+		gtk_label_set_use_underline(GTK_LABEL(label), FALSE);
+		gtk_label_set_attributes(GTK_LABEL(label), pattr_list);
+		/* pango_attr_list_unref(pattr_list);
+		   pango_attribute_destroy(pattr); */
+	}
+}
+
 static void
 loqui_menu_join_channel_cb(gpointer data, guint callback_action, GtkWidget *widget)
 {

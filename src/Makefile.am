@@ -1,3 +1,5 @@
+SUBDIRS = icons
+
 bin_PROGRAMS = loqui
 
 INCLUDES = $(GTK_CFLAGS) $(EXTRA_WARNING_CFLAGS) -g -I$(includedir) \

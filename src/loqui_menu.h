@@ -60,6 +60,14 @@ GtkWidget* loqui_menu_get_widget(LoquiMenu *menu);
 void loqui_menu_set_view_toolbar(LoquiMenu *menu, guint style);
 void loqui_menu_set_view_statusbar(LoquiMenu *menu, gboolean show);
 
+void loqui_menu_buffers_add_account(LoquiMenu *menu, Account *account);
+void loqui_menu_buffers_remove_account(LoquiMenu *menu, Account *account);
+void loqui_menu_buffers_update_account(LoquiMenu *menu, Account *account);
+
+void loqui_menu_buffers_add_channel(LoquiMenu *menu, Account *account, Channel *channel);
+void loqui_menu_buffers_remove_channel(LoquiMenu *menu, Account *account, Channel *channel);
+void loqui_menu_buffers_update_channel(LoquiMenu *menu, Account *account, Channel *channel);
+
 G_END_DECLS
 
 #endif /* __LOQUI_MENU_H__ */

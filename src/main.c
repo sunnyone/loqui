@@ -26,6 +26,8 @@
 #include "prefs_general.h"
 #include "utils.h"
 
+#include "icons/pixbufs.h"
+
 #include <gtk/gtk.h>
 #include <string.h>
 #include <stdlib.h>
@@ -37,7 +39,15 @@
 int debug_mode;
 int show_msg_mode;
 
+struct icon_pair {
+	const gchar *id;
+	const guint8 *inline_pixbuf;
+};
+static struct icon_pair icon_list[] = { { "loqui-console", console_pixbuf },
+					{ NULL, NULL } };
+
 static void make_program_dir(void);
+static void make_icons(void);
 
 static void make_program_dir(void)
 {
@@ -52,6 +62,29 @@ static void make_program_dir(void)
 		g_error(_("Invalid \"%s\""), dirname);
 	}
 	g_free(dirname);
+}
+
+static void
+make_icons(void)
+{
+	GdkPixbuf *pixbuf;
+	GtkIconSet *icon_set;
+	GtkIconFactory *icon_factory;
+	int i;
+
+	icon_factory = gtk_icon_factory_new();
+	gtk_icon_factory_add_default(icon_factory);
+
+	for(i = 0; icon_list[i].id != NULL; i++) {
+		pixbuf = gdk_pixbuf_new_from_inline(-1, icon_list[i].inline_pixbuf, FALSE, NULL);
+		if(pixbuf == NULL)
+			continue;
+		icon_set = gtk_icon_set_new_from_pixbuf(pixbuf);
+		g_object_unref(pixbuf);
+		
+		gtk_icon_factory_add(icon_factory, icon_list[i].id, icon_set);
+	}
+	g_object_unref(icon_factory);
 }
 
 int
@@ -72,9 +105,11 @@ main(int argc, char *argv[])
 	gdk_threads_init();
 
 	make_program_dir();
-
+	
 	gnet_init();
 	gtk_init(&argc, &argv);
+
+	make_icons();
 
 	path = g_build_filename(g_get_home_dir(), PREFS_DIR, "gtkrc-2.0", NULL);
 	gtk_rc_parse(path);
