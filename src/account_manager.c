@@ -262,12 +262,12 @@ account_manager_set_current(AccountManager *manager, Account *account, Channel *
 	if(channel) {
 		loqui_app_set_channel_buffer(priv->app, GTK_TEXT_BUFFER(channel->buffer));
 		nick_list_set_store(priv->app->nick_list, channel->user_list);
-		account_manager_set_topic(manager, channel_get_topic(channel));
+		account_manager_update_current_info(manager);
 		channel_set_fresh(channel, FALSE);
 	} else if(account) {
 		loqui_app_set_channel_buffer(priv->app, GTK_TEXT_BUFFER(account->console_buffer));
 		nick_list_set_store(priv->app->nick_list, NULL);
-		account_manager_set_topic(manager, "");
+		account_manager_update_current_info(manager);
 	}
 	loqui_app_set_focus(priv->app);
 }
@@ -396,12 +396,43 @@ void account_manager_common_buffer_append_remark(AccountManager *manager, TextTy
 		loqui_app_scroll_common_textview(manager->priv->app);
 	}	
 }
-void account_manager_set_topic(AccountManager *manager, const gchar *topic)
+void account_manager_update_current_info(AccountManager *manager)
 {
-	g_return_if_fail(manager != NULL);
+	gchar *account_name = NULL;
+	gchar *channel_name = NULL, *channel_mode = NULL;
+	gchar *topic = NULL;
+	gint user_number = -1, op_number = -1;
+	Account *account = NULL;
+	Channel *channel = NULL;
+	AccountManagerPrivate *priv;
+
+        g_return_if_fail(manager != NULL);
         g_return_if_fail(IS_ACCOUNT_MANAGER(manager));
 
-	loqui_app_set_topic(manager->priv->app, topic);
+	priv = manager->priv;
+
+	if(priv->current_channel) {
+		account = account_manager_search_account(manager, priv->current_channel);
+		channel = priv->current_channel;
+	} else
+		account = priv->current_account;
+
+	if(!account) {
+		loqui_app_set_current_info(manager->priv->app, NULL, NULL, NULL, NULL, -1, -1);
+		return;
+	}
+
+	account_name = account_get_name(account);
+	if(channel) {
+		channel_name = channel->name;
+		topic = channel_get_topic(channel);
+		/* channel_count_users(channel, (guint *) &user_number, (guint *) & op_number); */
+		/* TODO: mode, users */
+	}
+
+	loqui_app_set_current_info(manager->priv->app, account_name, 
+				   channel_name, channel_mode,
+				   topic, user_number, op_number);
 }
 void account_manager_update_channel_user_number(AccountManager *manager, Channel *channel)
 {

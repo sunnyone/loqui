@@ -60,7 +60,10 @@ GType        loqui_app_get_type             (void) G_GNUC_CONST;
 
 GtkWidget*      loqui_app_new                 (void);
 
-void loqui_app_set_topic(LoquiApp *app, const gchar *str);
+
+void loqui_app_set_current_info(LoquiApp *app, const gchar *account_name, 
+				const gchar *channel_name, const gchar *channel_mode,
+				const gchar *topic, gint user_number, gint op_number);
 gboolean loqui_app_is_scroll(LoquiApp *app);
 void loqui_app_set_focus(LoquiApp *app);
 

@@ -28,6 +28,7 @@
 #include "prefs_general.h"
 
 #include "intl.h"
+#include "utils.h"
 
 #include <string.h>
 
@@ -203,6 +204,43 @@ loqui_app_entry_activate_cb(GtkWidget *widget, gpointer data)
 	account_manager_speak(account_manager_get(), str);
 	gtk_entry_set_text(GTK_ENTRY(widget), "");
 }
+void
+loqui_app_set_current_info(LoquiApp *app, const gchar *account_name, 
+			   const gchar *channel_name, const gchar *channel_mode,
+			   const gchar *topic, gint user_number, gint op_number)
+{
+	LoquiAppPrivate *priv;
+	GString *string;
+	
+	priv = app->priv;
+
+	if(topic)
+		gtk_label_set_text(GTK_LABEL(app->priv->label_topic), topic);
+	else
+		gtk_label_set_text(GTK_LABEL(app->priv->label_topic), _("No topic"));
+
+	string = g_string_new(NULL);
+	if(account_name) {
+		g_string_append_printf(string, "[%s] ", account_name);
+	}
+	if(channel_name) {
+		g_string_append_printf(string, "%s ", channel_name);
+	}
+	if(channel_mode) {
+		g_string_append_printf(string, "[%s] ", channel_mode);
+	}
+	if(user_number >= 0 && op_number >= 0) {
+		g_string_append_printf(string, "(%d/%d) ", op_number, user_number);
+	}
+	if(topic) {
+		g_string_append_printf(string, "%s - ", topic);
+	}
+	g_string_append_printf(string, "Loqui version %s", VERSION);
+
+	gtk_window_set_title(GTK_WINDOW(app), string->str);
+	g_string_free(string, TRUE);
+
+}
 GtkWidget*
 loqui_app_new (void)
 {
@@ -224,8 +262,7 @@ loqui_app_new (void)
 	g_signal_connect(G_OBJECT(app), "delete_event",
 			 G_CALLBACK(loqui_app_delete_event_cb), NULL);
 
-	gtk_window_set_title(GTK_WINDOW(app), "Loqui");
-	gtk_window_set_policy (GTK_WINDOW (app), TRUE, TRUE, TRUE);
+	gtk_window_set_policy(GTK_WINDOW (app), TRUE, TRUE, TRUE);
 
 	vbox = gtk_vbox_new(FALSE, 0);
 	gtk_container_add(GTK_CONTAINER(app), vbox);
@@ -299,6 +336,7 @@ loqui_app_new (void)
 	app->channel_tree = CHANNEL_TREE(channel_tree);
 	app->nick_list = NICK_LIST(nick_list);
 
+	loqui_app_set_current_info(app, NULL, NULL, NULL, NULL, -1, -1);
 	loqui_app_restore_size(app);
 
 #undef SET_SCROLLED_WINDOW
@@ -306,17 +344,6 @@ loqui_app_new (void)
 	loqui_app_set_focus(app);
 
 	return GTK_WIDGET(app);
-}
-void
-loqui_app_set_topic(LoquiApp *app, const gchar *str)
-{
-        g_return_if_fail(app != NULL);
-        g_return_if_fail(LOQUI_IS_APP(app));
-
-	if(str)
-		gtk_label_set_text(GTK_LABEL(app->priv->label_topic), str);
-	else
-		gtk_label_set_text(GTK_LABEL(app->priv->label_topic), _("No topic"));
 }
 gboolean
 loqui_app_is_scroll(LoquiApp *app)

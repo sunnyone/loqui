@@ -209,7 +209,7 @@ void channel_set_topic(Channel *channel, const gchar *topic)
 	priv->topic = g_strdup(topic);
 
 	if(account_manager_is_current_channel(account_manager_get(), channel)) {
-		account_manager_set_topic(account_manager_get(), topic);
+		account_manager_update_current_info(account_manager_get());
 	}
 }
 gchar *channel_get_topic(Channel *channel)
