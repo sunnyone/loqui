@@ -28,6 +28,8 @@
 struct _AccountManagerPrivate
 {
 	GSList *account_list;
+	Account *current_account;
+	Channel *current_channel;
 
 	LoquiApp *app;
 };
@@ -143,20 +145,24 @@ void account_manager_load_accounts(AccountManager *account_manager)
 
 	loqui_menu_create_connect_submenu(priv->app->menu, priv->account_list);
 }
-ChannelText *account_manager_add_channel_text(AccountManager *manager)
+void account_manager_add_channel_text(AccountManager *manager, ChannelText *text)
 {
 	AccountManagerPrivate *priv;
-	ChannelText *text;
 
 	priv = manager->priv;
 
-	text = CHANNEL_TEXT(channel_text_new());
 	channel_book_add_channel_text(priv->app->channel_book, text);
 	gtk_widget_show_all(GTK_WIDGET(text));
-
-	return text;
 }
+void account_manager_add_channel(AccountManager *manager, Account *account, Channel *channel)
+{
+	account_manager_add_channel_text(manager, channel->text);
+	channel_tree_add_channel(manager->priv->app->channel_tree, account, channel);
+}
+void account_manager_set_current(AccountManager *manager, Account *account, Channel *channel)
+{
 
+}
 AccountManager *account_manager_get(void)
 {
 	if(!main_account_manager)

@@ -21,7 +21,7 @@
 #define __ACCOUNT_H__
 
 #include <gnome.h>
-#include "channel_text.h"
+#include "channel.h"
 
 G_BEGIN_DECLS
 
@@ -46,6 +46,8 @@ struct _Account
 
 	GSList *server_list; /* list of Server */
 	GSList *use_server_list; /* list of integer */
+	
+	GSList *channel_list; /* list of Channel */
 
 	gchar *nick;
 	gchar *username;
@@ -85,7 +87,11 @@ void account_add_server(Account *account, const gchar *hostname,
 			gboolean use);
 void account_restore(Account *account, const gchar *name);
 void account_connect(Account *account, gint server_num, gboolean fallback);
+
+void account_add_channel(Account *account, Channel *channel);
+
 void account_console_text_append(Account *account, gchar *str);
+
 
 G_END_DECLS
 

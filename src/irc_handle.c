@@ -44,9 +44,10 @@ static void irc_handle_finalize(GObject *object);
 
 static gpointer irc_handle_thread_func(IRCHandle *handle);
 
-static void irc_handle_normal_command(IRCHandle *handle, IRCMessage *msg);
+static void irc_handle_response(IRCHandle *handle, IRCMessage *msg);
 
 static void irc_handle_command_privmsg(IRCHandle *handle, IRCMessage *msg);
+static void irc_handle_command_join(IRCHandle *handle, IRCMessage *msg);
 
 GType
 irc_handle_get_type(void)
@@ -107,6 +108,21 @@ irc_handle_finalize(GObject *object)
 
 	g_free(irc_handle->priv);
 }
+static void irc_handle_command_join(IRCHandle *handle, IRCMessage *msg)
+{
+	Channel *channel;
+	gchar *name;
+
+	g_return_if_fail(msg != NULL);
+
+	name = irc_message_get_param(msg, 0);
+	g_return_if_fail(name != NULL);
+
+	gdk_threads_enter();
+	channel = channel_new(name);
+	account_add_channel(handle->priv->account, channel);
+	gdk_threads_leave();
+}
 static void irc_handle_command_privmsg(IRCHandle *handle, IRCMessage *msg)
 {
 	gchar *str;
@@ -128,14 +144,27 @@ static void irc_handle_command_privmsg(IRCHandle *handle, IRCMessage *msg)
 
 	g_free(str);
 }
-static void irc_handle_normal_command(IRCHandle *handle, IRCMessage *msg)
+
+static void irc_handle_response(IRCHandle *handle, IRCMessage *msg)
 {
+	gchar *str;
+
 	switch (msg->response) {
 	case IRC_COMMAND_NOTICE:
 	case IRC_COMMAND_PRIVMSG:
 		irc_handle_command_privmsg(handle, msg);
+		break;
+	case IRC_COMMAND_JOIN:
+		irc_handle_command_join(handle, msg);
+		break;
 	default:
-		irc_message_print(msg);
+		str = irc_message_inspect(msg);
+		
+		gdk_threads_enter();
+		account_console_text_append(handle->priv->account, str);
+		gdk_threads_leave();
+
+		g_free(str);
 	}
 }
 static gpointer irc_handle_thread_func(IRCHandle *handle)
@@ -158,7 +187,7 @@ static gpointer irc_handle_thread_func(IRCHandle *handle)
 	priv->connection = connection_new(priv->server);
 
 	gdk_threads_enter();
-	str = g_strdup_printf(_("%s: Connected. Sending Initial command..."), priv->account->name);
+	str = g_strdup_printf(_("%s: Connected. Sending Initial command...\n"), priv->account->name);
 	account_console_text_append(account, str);
 	g_free(str);
 	gdk_threads_leave();
@@ -180,15 +209,7 @@ static gpointer irc_handle_thread_func(IRCHandle *handle)
 	gdk_threads_leave();
 
         while((msg = connection_get_irc_message(priv->connection, NULL)) != NULL) {
-		if(IRC_MESSAGE_IS_NORMAL_COMMAND(msg)) {
-			irc_handle_normal_command(handle, msg);
-		} else {
-			str = irc_message_inspect(msg);
-			
-			gdk_threads_enter();
-			account_console_text_append(account, str);
-			gdk_threads_leave();
-		}			
+		irc_handle_response(handle, msg);
 		g_object_unref(msg);
 	}
 

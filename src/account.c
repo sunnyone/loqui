@@ -26,6 +26,7 @@
 #include "gtkutils.h"
 #include "utils.h"
 #include "account_manager.h"
+#include <string.h>
 
 struct _AccountPrivate
 {
@@ -120,9 +121,21 @@ account_finalize (GObject *object)
 	}
 	if(account->server_list) {
 		g_slist_free(account->server_list);
+		account->server_list = NULL;
 	}
-	if(account->use_server_list)
+	if(account->use_server_list) {
 		g_slist_free(account->use_server_list);
+		account->use_server_list = NULL;
+	}
+	if(account->channel_list) {
+		for(cur = account->channel_list; cur != NULL; cur = cur->next) {
+			if(cur->data) {
+				g_object_unref(cur->data);
+			}
+		}
+		g_slist_free(account->channel_list);
+		account->channel_list = NULL;
+	}
 
         if (G_OBJECT_CLASS(parent_class)->finalize)
                 (* G_OBJECT_CLASS(parent_class)->finalize) (object);
@@ -137,7 +150,8 @@ account_new (void)
 
 	account = g_object_new(account_get_type(), NULL);
 	
-	account->console_text = account_manager_add_channel_text(account_manager_get());
+	account->console_text = CHANNEL_TEXT(channel_text_new());
+	account_manager_add_channel_text(account_manager_get(), account->console_text);
 	
 	return account;
 }
@@ -316,6 +330,27 @@ account_connect(Account *account, gint server_num, gboolean fallback)
 	priv->handle = irc_handle_new(account, server_num, fallback);
 }
 void
+account_add_channel(Account *account, Channel *channel)
+{
+	account->channel_list = g_slist_append(account->channel_list, channel);
+	account_manager_add_channel(account_manager_get(), account, channel);
+}
+Channel*
+account_search_channel_by_name(Account *account, gchar *name)
+{
+	GSList *cur;
+	Channel *channel;
+
+	g_return_val_if_fail(name != NULL, NULL);
+
+	for(cur = account->channel_list; cur != NULL; cur = cur->next) {
+		channel = CHANNEL(cur->data);
+		if(strcmp(channel->name, name) == 0)
+			return channel;
+	}
+	return NULL;
+}
+void
 account_console_text_append(Account *account, gchar *str)
 {
 	g_return_if_fail(account != NULL);
@@ -324,3 +359,4 @@ account_console_text_append(Account *account, gchar *str)
 	channel_text_append(account->console_text, TEXT_TYPE_NORMAL, str);
 
 }
+

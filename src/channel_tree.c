@@ -20,6 +20,9 @@
 #include "config.h"
 
 #include "channel_tree.h"
+#include "gtkutils.h"
+#include "utils.h"
+#include "account_manager.h"
 
 struct _ChannelTreePrivate
 {
@@ -32,6 +35,9 @@ static void channel_tree_class_init(ChannelTreeClass *klass);
 static void channel_tree_init(ChannelTree *channel_tree);
 static void channel_tree_finalize(GObject *object);
 static void channel_tree_destroy(GtkObject *object);
+
+static void channel_tree_row_activated_cb(ChannelTree *tree, GtkTreePath *path, GtkTreeViewColumn *col, gpointer data);
+static void channel_tree_row_selected_cb(GtkTreeSelection *selection, GtkTreeModel *model);
 
 enum {
 	COLUMN_TEXT,
@@ -114,7 +120,29 @@ channel_tree_destroy(GtkObject *object)
         if (GTK_OBJECT_CLASS(parent_class)->destroy)
                 (* GTK_OBJECT_CLASS(parent_class)->destroy) (object);
 }
+static void
+channel_tree_row_activated_cb(ChannelTree *tree, GtkTreePath *path, GtkTreeViewColumn *col, gpointer data)
+{
+	debug_puts("Double clicked!");
+}
+static void
+channel_tree_row_selected_cb(GtkTreeSelection *selection, GtkTreeModel *model)
+{
+	GtkTreeIter iter;
+	Account *account;
+	Channel *channel;
 
+	if (!gtk_tree_selection_get_selected(selection, NULL, &iter))
+		return;
+
+	gtk_tree_model_get(model, &iter,
+			   COLUMN_ACCOUNT, &account,
+			   COLUMN_CHANNEL, &channel,
+			   -1);
+	account_manager_set_current(account_manager_get(), account, channel);
+		
+	debug_puts("Selected!");
+}
 GtkWidget*
 channel_tree_new(void)
 {
@@ -123,10 +151,12 @@ channel_tree_new(void)
 	GtkTreeStore *model;
 	GtkTreeViewColumn *column;
 	GtkCellRenderer *renderer;
+	GtkTreeSelection *selection;
 
 	tree = g_object_new(channel_tree_get_type(), NULL);
 
         gtk_tree_view_set_headers_visible(GTK_TREE_VIEW(tree), FALSE);
+	selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(tree));
 
 	model = gtk_tree_store_new(COLUMN_NUMBER, 
 				   G_TYPE_STRING, 
@@ -157,19 +187,11 @@ channel_tree_new(void)
         gtk_tree_view_column_set_visible(column, FALSE);
         gtk_tree_view_append_column(GTK_TREE_VIEW(tree), column);
 
-	{
-		GtkTreeIter iter, par;
-		gtk_tree_store_append (GTK_TREE_STORE(model), &par, NULL);
-		gtk_tree_store_set (GTK_TREE_STORE (model), &par,
-				    COLUMN_TEXT, "test (irc.kyoto.wide.ad.jp)",
-				    COLUMN_ACCOUNT, NULL,
-				    COLUMN_CHANNEL, NULL, -1);
-		gtk_tree_store_append (GTK_TREE_STORE(model), &iter, &par);
-		gtk_tree_store_set (GTK_TREE_STORE (model), &iter,
-				    COLUMN_TEXT, "#Sylpheed",
-				    COLUMN_ACCOUNT, NULL,
-				    COLUMN_CHANNEL, NULL, -1);		
-	}
+	g_signal_connect(G_OBJECT(tree), "row_activated",
+			 G_CALLBACK(channel_tree_row_activated_cb), NULL);
+	g_signal_connect(G_OBJECT(selection), "changed",
+			 G_CALLBACK(channel_tree_row_selected_cb), model);
+
 	return GTK_WIDGET(tree);
 }
 void
@@ -188,5 +210,25 @@ channel_tree_add_account(ChannelTree *tree, Account *account)
 			   COLUMN_ACCOUNT, account,
 			   COLUMN_CHANNEL, NULL, -1);
 }
+void
+channel_tree_add_channel(ChannelTree *tree, Account *account, Channel *channel)
+{
+	GtkTreeIter iter, parent;
+	GtkTreeModel *model;
+	gboolean is_found;
 
+	model = gtk_tree_view_get_model(GTK_TREE_VIEW(tree));
+	is_found = gtk_tree_model_find_by_column_data(model, &parent, NULL, COLUMN_ACCOUNT, account);
 
+	if(is_found) {
+		gtk_tree_store_append (GTK_TREE_STORE(model), &iter, &parent);
+		gtk_tree_store_set (GTK_TREE_STORE (model), &iter,
+				    COLUMN_TEXT, channel->name,
+				    COLUMN_ACCOUNT, NULL,
+				    COLUMN_CHANNEL, channel, -1);
+	} else {
+		gtkutils_msgbox_info(GTK_MESSAGE_ERROR, _("Failed to add channel"));
+	}
+
+}
+	

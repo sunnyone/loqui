@@ -37,12 +37,24 @@ typedef struct _ChannelClass       ChannelClass;
 
 typedef struct _ChannelPrivate     ChannelPrivate;
 
+typedef enum {
+	USER_POWER_UNKNOWN,
+	USER_POWER_OP,
+	USER_POWER_V,
+	USER_POWER_NONOP
+} UserPower;
+
+typedef struct _User {
+	UserPower power;
+	gchar *nick;
+} User;
+
 struct _Channel
 {
         GObject parent;
 	
-	gint page_num;
 	gchar *name;
+	GSList *user_list;
 	ChannelText *text;
 
         ChannelPrivate *priv;
@@ -54,9 +66,9 @@ struct _ChannelClass
 };
 
 
-GType channel_get_type (void) G_GNUC_CONST;
+GType channel_get_type(void) G_GNUC_CONST;
 
-Channel* channel_new (void);
+Channel* channel_new(gchar *name);
 
 G_END_DECLS
 

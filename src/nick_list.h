@@ -21,6 +21,7 @@
 #define __NICK_LIST_H__
 
 #include <gnome.h>
+#include "channel.h"
 
 G_BEGIN_DECLS
 
@@ -35,13 +36,6 @@ typedef struct _NickList            NickList;
 typedef struct _NickListClass       NickListClass;
 
 typedef struct _NickListPrivate     NickListPrivate;
-
-typedef enum {
-	USER_POWER_UNKNOWN,
-	USER_POWER_OP,
-	USER_POWER_V,
-	USER_POWER_NONOP
-} UserPower;
 
 struct _NickList
 {

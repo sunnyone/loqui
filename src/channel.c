@@ -86,6 +86,15 @@ channel_finalize (GObject *object)
 
         channel = CHANNEL(object);
 
+	if(channel->name) {
+		g_free(channel->name);
+		channel->name = NULL;
+	}
+	if(channel->text) {
+		gtk_widget_destroy(GTK_WIDGET(channel->text));
+		channel->text = NULL;
+	}
+
         if (G_OBJECT_CLASS(parent_class)->finalize)
                 (* G_OBJECT_CLASS(parent_class)->finalize) (object);
 
@@ -93,14 +102,16 @@ channel_finalize (GObject *object)
 }
 
 Channel*
-channel_new (void)
+channel_new (gchar *name)
 {
         Channel *channel;
 	ChannelPrivate *priv;
 
 	channel = g_object_new(channel_get_type(), NULL);
-	
+
+	channel->name = name;
+	channel->text = CHANNEL_TEXT(channel_text_new());
+
 	return channel;
 }
-
 

@@ -2,7 +2,7 @@
 /*
  * Loqui -- IRC client for GNOME2 <http://loqui.good-day.net/>
  * Copyright (C) 2002 Yoichi Imai <yoichi@silver-forest.com>
- *
+ * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -17,6 +17,10 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
+
+/* Copyright (C) 2002  Takuo KITAME
+   gtk_tree_model_find_by_column_data() is written by him. */
+
 #include "config.h"
 #include "gtkutils.h"
 #include <stdarg.h>
@@ -45,4 +49,38 @@ void gtkutils_msgbox_info(GtkMessageType icon, const gchar *format, ...)
 	gtk_widget_show_all(dialog);
 
 	g_free(buf);
+}
+
+gboolean
+gtk_tree_model_find_by_column_data (GtkTreeModel * model, GtkTreeIter * iter,
+				    GtkTreeIter * start, gint col,
+				    gpointer data)
+{
+	gpointer stock;
+	gboolean valid = TRUE;
+	
+	if (start == NULL) {
+		valid = gtk_tree_model_get_iter_first(model, iter);
+	} else {
+		valid = gtk_tree_model_iter_children(model, iter, start);
+	}
+	
+	while (valid) {
+		gtk_tree_model_get(model, iter, col, &stock, -1);
+		if (stock && stock == data) {
+			return valid;
+		}
+		if (gtk_tree_model_iter_has_child(model, iter)) {
+			GtkTreeIter toget;
+			valid = gtk_tree_model_find_by_column_data (model, &toget, iter,
+								    col, data);
+			if (valid) {
+				*iter = toget;
+				return valid;
+			}
+		}
+		valid = gtk_tree_model_iter_next (model, iter);
+	}
+	
+	return FALSE;
 }

@@ -28,5 +28,8 @@
 }
 
 void gtkutils_msgbox_info(GtkMessageType icon, const gchar *format, ...) G_GNUC_PRINTF(2, 3);
+gboolean gtk_tree_model_find_by_column_data(GtkTreeModel * model, GtkTreeIter * iter,
+					    GtkTreeIter * start, gint col,
+					    gpointer data);
 
 #endif /* __GTKUTILS_H__ */

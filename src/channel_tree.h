@@ -22,6 +22,7 @@
 
 #include <gnome.h>
 #include "account.h"
+#include "channel.h"
 
 G_BEGIN_DECLS
 
@@ -55,6 +56,7 @@ GtkType channel_tree_get_type(void) G_GNUC_CONST;
 GtkWidget* channel_tree_new(void);
 
 void channel_tree_add_account(ChannelTree *tree, Account *account);
+void channel_tree_add_channel(ChannelTree *tree, Account *account, Channel *channel);
 
 G_END_DECLS
 
