@@ -93,7 +93,7 @@ static GtkItemFactoryEntry menu_items[] = {
 	{ N_("/View/Previous channel"), "<Control>P", loqui_menu_view_move_cb, 2},
 	{ N_("/View/Next channel"), "<Control>N", loqui_menu_view_move_cb, 3 },
 	{ N_("/_Settings"), NULL, 0, 0, "<Branch>" },
-	{ N_("/Settings/Common prefsrences..."), NULL, loqui_menu_common_settings_cb, 0 },
+	{ N_("/Settings/Common preferences..."), NULL, loqui_menu_common_settings_cb, 0 },
 	{ N_("/Settings/Account settings..."), NULL, loqui_menu_account_settings_cb, 0 },
 	{ N_("/_Help"), NULL, 0, 0, "<Branch>" },
 	{ N_("/Help/_About"), NULL, loqui_menu_about_cb, 0 },
