@@ -182,6 +182,7 @@ void ctcp_handle_message(CTCPHandle *ctcp_handle, CTCPMessage *ctcp_msg, gboolea
 			      ctcp_msg->argument ? " " : "",
 			      ctcp_msg->argument ? ctcp_msg->argument : "");
 	loqui_account_console_buffer_append(priv->account, TEXT_TYPE_INFO, buf);
+	g_free(buf);
 
 	if(!is_request)
 		return;
