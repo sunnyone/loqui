@@ -30,6 +30,7 @@ struct _LoquiChannelbarPrivate
 	GtkWidget *option_menu;
 	GtkWidget *entry_topic;
 	GtkWidget *button_ok;
+	gboolean entry_changed;
 };
 
 static GtkHBoxClass *parent_class = NULL;
@@ -42,6 +43,7 @@ static void loqui_channelbar_destroy(GtkObject *object);
 
 static void loqui_channelbar_option_changed_cb(GtkWidget *widget, gpointer data);
 static void loqui_channelbar_entry_topic_activated_cb(GtkWidget *widget, gpointer data);
+static void loqui_channelbar_entry_changed_cb(GtkWidget *widget, gpointer data);
 
 GType
 loqui_channelbar_get_type(void)
@@ -130,9 +132,26 @@ loqui_channelbar_entry_topic_activated_cb(GtkWidget *widget, gpointer data)
 	channelbar = LOQUI_CHANNELBAR(data);
 	priv = channelbar->priv;
 	
+	if(!priv->entry_changed)
+		return;
+	
 	channel = account_manager_get_current_channel(account_manager_get());
 	str = gtk_entry_get_text(GTK_ENTRY(priv->entry_topic));
 	account_set_topic(channel->account, channel_get_name(channel), str);
+}
+static void
+loqui_channelbar_entry_changed_cb(GtkWidget *widget, gpointer data)
+{
+	LoquiChannelbar *channelbar;
+	LoquiChannelbarPrivate *priv;
+	
+	g_return_if_fail(data != NULL);
+	
+	channelbar = LOQUI_CHANNELBAR(data);
+	priv = channelbar->priv;
+
+	priv->entry_changed = TRUE;
+	gtk_widget_set_sensitive(priv->button_ok, TRUE);
 }
 static void
 loqui_channelbar_option_changed_cb(GtkWidget *widget, gpointer data)
@@ -188,6 +207,8 @@ loqui_channelbar_new (void)
 	gtk_option_menu_set_menu(GTK_OPTION_MENU(priv->option_menu), menu);
 
 	priv->entry_topic = gtk_entry_new();
+	g_signal_connect(G_OBJECT(priv->entry_topic), "changed",
+			 G_CALLBACK(loqui_channelbar_entry_changed_cb), channelbar);
 	g_signal_connect(G_OBJECT(priv->entry_topic), "activate",
 			 G_CALLBACK(loqui_channelbar_entry_topic_activated_cb), channelbar);
 	gtk_box_pack_start(GTK_BOX(channelbar), priv->entry_topic, TRUE, TRUE, 0);
@@ -200,6 +221,7 @@ loqui_channelbar_new (void)
 	gtk_container_add(GTK_CONTAINER(priv->button_ok), image);
 	gtk_box_pack_start(GTK_BOX(channelbar), priv->button_ok, FALSE, FALSE, 0);
 	gtk_widget_set_sensitive(priv->button_ok, FALSE);
+	priv->entry_changed = FALSE;
 
 	return GTK_WIDGET(channelbar);
 }
@@ -346,7 +368,8 @@ loqui_channelbar_set_current_channel(LoquiChannelbar *channelbar, Channel *chann
 		topic = channel_get_topic(channel);
 		gtk_entry_set_text(GTK_ENTRY(priv->entry_topic), topic ? topic : "");
 		gtk_widget_set_sensitive(priv->entry_topic, TRUE);
-		gtk_widget_set_sensitive(priv->button_ok, TRUE);
+		gtk_widget_set_sensitive(priv->button_ok, FALSE);
+		priv->entry_changed = FALSE;
 	}
 }
 
@@ -379,4 +402,5 @@ loqui_channelbar_set_current_account(LoquiChannelbar *channelbar, Account *accou
 	gtk_entry_set_text(GTK_ENTRY(priv->entry_topic), "");
 	gtk_widget_set_sensitive(priv->entry_topic, FALSE);
 	gtk_widget_set_sensitive(priv->button_ok, FALSE);
+	priv->entry_changed = FALSE;
 }
