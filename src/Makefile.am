@@ -9,6 +9,7 @@ loqui_SOURCES = \
 	intl.h \
 	utils.c utils.h \
 	gobject_utils.c gobject_utils.h \
+	loqui_protocol.c loqui_protocol.h \
 	loqui_utils_irc.c loqui_utils_irc.h \
 	loqui_marshalers.c loqui_marshalers.h \
 	loqui_title_format.c loqui_title_format.h \
