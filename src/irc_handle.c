@@ -33,6 +33,7 @@
 #include "loqui_utils_irc.h"
 #include "loqui_sender_irc.h"
 #include "loqui_account_irc.h"
+#include "loqui_channel_irc.h"
 
 #include "codeconv.h"
 #include <string.h>
@@ -210,7 +211,7 @@ irc_handle_parse_plum_recent(IRCHandle *handle, const gchar *line)
 	
 	channel = loqui_account_get_channel_by_identifier(priv->account, name);
 	if(channel == NULL) {
-		channel = loqui_channel_new(priv->account, name, name, FALSE, !LOQUI_UTILS_IRC_STRING_IS_CHANNEL(name));
+		channel = LOQUI_CHANNEL(loqui_channel_irc_new(priv->account, name, FALSE, !LOQUI_UTILS_IRC_STRING_IS_CHANNEL(name)));
 		loqui_account_add_channel(priv->account, channel);
 		g_object_unref(channel);
 	}
@@ -295,7 +296,7 @@ irc_handle_command_privmsg_notice(IRCHandle *handle, IRCMessage *msg)
 		channel = loqui_account_get_channel_by_identifier(priv->account, channel_name);
 		if(channel == NULL) {
 			is_priv = !LOQUI_UTILS_IRC_STRING_IS_CHANNEL(channel_name);
-			channel = loqui_channel_new(priv->account, channel_name, channel_name, FALSE, is_priv);
+			channel = LOQUI_CHANNEL(loqui_channel_irc_new(priv->account, channel_name, FALSE, is_priv));
 			if (is_priv) {
 				member = loqui_member_new(loqui_account_get_user_self(priv->account));
 				loqui_channel_entry_add_member(LOQUI_CHANNEL_ENTRY(channel), member);
@@ -684,7 +685,7 @@ irc_handle_command_join(IRCHandle *handle, IRCMessage *msg)
 	channel = loqui_account_get_channel_by_identifier(handle->priv->account, name);
 	if(loqui_account_irc_is_current_nick(LOQUI_ACCOUNT_IRC(handle->priv->account), msg->nick)) {
 		if(!channel) {
-			channel = loqui_channel_new(priv->account, name, name, TRUE, !LOQUI_UTILS_IRC_STRING_IS_CHANNEL(name));
+			channel = LOQUI_CHANNEL(loqui_channel_irc_new(priv->account, name, TRUE, !LOQUI_UTILS_IRC_STRING_IS_CHANNEL(name)));
 			loqui_account_add_channel(priv->account, channel);
 			g_object_unref(channel);
 		} else {
@@ -1068,7 +1069,7 @@ irc_handle_channel_append(IRCHandle *handle, IRCMessage *msg, gboolean make_chan
 
 	channel = loqui_account_get_channel_by_identifier(priv->account, receiver_name);
 	if(make_channel == TRUE && channel == NULL) { /* FIXME as well as privmsg_notice */
-		channel = loqui_channel_new(priv->account, receiver_name, receiver_name, FALSE, !LOQUI_UTILS_IRC_STRING_IS_CHANNEL(receiver_name)); /* FIXME priv should not have a identifier */
+		channel = LOQUI_CHANNEL(loqui_channel_irc_new(priv->account, receiver_name, FALSE, !LOQUI_UTILS_IRC_STRING_IS_CHANNEL(receiver_name))); /* FIXME priv should not have a identifier */
 		loqui_account_add_channel(priv->account, channel);
 		g_object_unref(channel);
 	}

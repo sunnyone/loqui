@@ -27,6 +27,7 @@
 #include "intl.h"
 #include "loqui_utils_irc.h"
 #include "loqui_account_irc.h"
+#include "loqui_channel_irc.h"
 
 #include <string.h>
 
@@ -402,7 +403,7 @@ loqui_sender_irc_start_private_talk(LoquiSender *sender, LoquiUser *user)
 
 	if ((channel = loqui_account_get_channel_by_identifier(sender->account, loqui_user_get_nick(user))) == NULL) {
 		/* FIXME: priv should not have a identifier */
-		channel = loqui_channel_new(sender->account, loqui_user_get_nick(user), loqui_user_get_nick(user), TRUE, TRUE);
+		channel = LOQUI_CHANNEL(loqui_channel_irc_new(sender->account, loqui_user_get_nick(user), TRUE, TRUE));
 		
 		user_self = loqui_account_get_user_self(sender->account);
 		
