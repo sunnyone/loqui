@@ -42,8 +42,11 @@ static void channel_tree_destroy(GtkObject *object);
 static void channel_tree_row_activated_cb(ChannelTree *tree, GtkTreePath *path, GtkTreeViewColumn *col, gpointer data);
 static void channel_tree_row_selected_cb(GtkTreeSelection *selection, gpointer data);
 
+static void channel_tree_update_buffer_number(ChannelTree *tree);
+
 enum {
 	COLUMN_TEXT,
+	COLUMN_BUFFER_NUMBER,
 	COLUMN_ACCOUNT,
 	COLUMN_CHANNEL,
 	COLUMN_COLOR,
@@ -169,13 +172,32 @@ channel_tree_new(void)
 	selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(tree));
 
 	model = gtk_tree_store_new(COLUMN_NUMBER, 
-				   G_TYPE_STRING, 
+				   G_TYPE_STRING,
+				   G_TYPE_UINT,
 				   G_TYPE_POINTER,
 				   G_TYPE_POINTER,
 				   G_TYPE_STRING,
 				   G_TYPE_UINT,
 				   G_TYPE_UINT);
 	gtk_tree_view_set_model(GTK_TREE_VIEW(tree), GTK_TREE_MODEL(model));
+
+
+        renderer = gtk_cell_renderer_text_new();
+	g_object_set(renderer, "ypad", 0, NULL);	
+	column = gtk_tree_view_column_new_with_attributes (_("E"), renderer, NULL);
+	gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
+	gtk_tree_view_column_set_fixed_width(column, 15);
+	gtk_tree_view_append_column(GTK_TREE_VIEW (tree), column);
+	gtk_tree_view_set_expander_column(GTK_TREE_VIEW(tree), column);
+
+        renderer = gtk_cell_renderer_text_new();
+	g_object_set(renderer, "ypad", 0, NULL);
+	column = gtk_tree_view_column_new_with_attributes ("#",
+							   renderer,
+							   "text", COLUMN_BUFFER_NUMBER,
+							   NULL);
+	gtk_tree_view_column_set_resizable(column, TRUE);
+        gtk_tree_view_append_column(GTK_TREE_VIEW(tree), column);
 
         renderer = gtk_cell_renderer_text_new();
 	g_object_set(renderer, "ypad", 0, NULL);
@@ -210,7 +232,7 @@ channel_tree_new(void)
 	priv->selection_changed_signal_id = g_signal_connect(G_OBJECT(selection), "changed",
 							     G_CALLBACK(channel_tree_row_selected_cb), tree);
 
-/* gtk_tree_view_set_rules_hint(GTK_TREE_VIEW(tree), TRUE); */
+	gtk_tree_view_set_rules_hint(GTK_TREE_VIEW(tree), TRUE);
 
 	return GTK_WIDGET(tree);
 }
@@ -232,6 +254,8 @@ channel_tree_add_account(ChannelTree *tree, Account *account)
 			   COLUMN_ACCOUNT, account,
 			   COLUMN_CHANNEL, NULL,
 			   -1);
+
+	channel_tree_update_buffer_number(tree);
 }
 void
 channel_tree_update_account(ChannelTree *tree, Account *account)
@@ -269,6 +293,8 @@ channel_tree_remove_account(ChannelTree *tree, Account *account)
 		return;
 	}
 	gtk_tree_store_remove(GTK_TREE_STORE(model), &iter);
+
+	channel_tree_update_buffer_number(tree);
 }
 void
 channel_tree_add_channel(ChannelTree *tree, Account *account, Channel *channel)
@@ -296,6 +322,8 @@ channel_tree_add_channel(ChannelTree *tree, Account *account, Channel *channel)
 			   COLUMN_CHANNEL, channel, -1);
 
 	gtk_tree_view_expand_row(GTK_TREE_VIEW(tree), gtk_tree_model_get_path(model, &parent), TRUE);
+
+	channel_tree_update_buffer_number(tree);
 }
 void
 channel_tree_remove_channel(ChannelTree *tree, Channel *channel)
@@ -313,6 +341,7 @@ channel_tree_remove_channel(ChannelTree *tree, Channel *channel)
 	if(gtk_tree_model_find_by_column_data(model, &iter, NULL, COLUMN_CHANNEL, channel))
 		gtk_tree_store_remove(GTK_TREE_STORE(model), &iter);
 
+	channel_tree_update_buffer_number(tree);
 }
 void
 channel_tree_select_channel(ChannelTree *tree, Channel *channel)
@@ -527,4 +556,36 @@ channel_tree_select_next_channel(ChannelTree *tree, gboolean require_updated)
 			return;
 		goto retry;
 	}
+}
+static void
+channel_tree_update_buffer_number(ChannelTree *tree)
+{
+	GtkTreeModel *model;
+	GtkTreeIter tmp, iter;
+	gboolean is_enter_child = FALSE;
+	int i;
+
+        g_return_if_fail(tree != NULL);
+        g_return_if_fail(IS_CHANNEL_TREE(tree));
+	
+	model = gtk_tree_view_get_model(GTK_TREE_VIEW(tree));
+
+	if (!gtk_tree_model_get_iter_first(model, &iter))
+		return;
+
+	i = 0;
+	do {
+		do {
+			is_enter_child = FALSE;
+			gtk_tree_store_set(GTK_TREE_STORE(model), &iter, COLUMN_BUFFER_NUMBER, i, -1);
+			if(gtk_tree_model_iter_children(model, &tmp, &iter)) {
+				iter = tmp;
+				is_enter_child = TRUE;
+			}
+			tmp = iter;
+			i++;
+		} while(is_enter_child || gtk_tree_model_iter_next(model, &iter));
+		if(!gtk_tree_model_iter_parent(model, &iter, &tmp))
+			break;
+	} while(gtk_tree_model_iter_next(model, &iter));
 }
