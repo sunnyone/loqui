@@ -7,7 +7,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2003-02-08 22:54+0900\n"
+"POT-Creation-Date: 2003-02-11 00:01+0900\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -52,7 +52,7 @@ msgstr ""
 msgid "Auto join channels:"
 msgstr ""
 
-#: src/account_dialog.c:369
+#: src/account_dialog.c:373
 msgid "Servers (Cells are editable.)"
 msgstr ""
 
@@ -74,13 +74,17 @@ msgstr ""
 msgid "Failed to add channel"
 msgstr ""
 
-#: src/codeconv.c:50
+#: src/codeconv.c:52
 msgid "the setting of codeconv was invalid; now 'Auto Detection' is selected."
 msgstr ""
 
-#: src/codeconv.c:93
+#: src/codeconv.c:95
 #, c-format
 msgid "Code convartion error: %s"
+msgstr ""
+
+#: src/codeconv.c:157
+msgid "Unknown error occurs in code convertion."
 msgstr ""
 
 #: src/connection.c:254
@@ -267,83 +271,87 @@ msgstr ""
 msgid "Message queue is not created."
 msgstr ""
 
-#: src/loqui_menu.c:49
-msgid "/_File"
-msgstr ""
-
-#: src/loqui_menu.c:50
-msgid "/File/_Connect"
+#: src/irc_message.c:404
+msgid "Invalid parameter number"
 msgstr ""
 
 #: src/loqui_menu.c:51
-msgid "/File/_Quit"
+msgid "/_File"
 msgstr ""
 
 #: src/loqui_menu.c:52
-msgid "/_Edit"
+msgid "/File/_Connect"
 msgstr ""
 
 #: src/loqui_menu.c:53
-msgid "/Edit/Cut"
+msgid "/File/_Quit"
 msgstr ""
 
 #: src/loqui_menu.c:54
-msgid "/Edit/_Copy"
+msgid "/_Edit"
 msgstr ""
 
 #: src/loqui_menu.c:55
-msgid "/Edit/_Paste"
+msgid "/Edit/Cut"
 msgstr ""
 
 #: src/loqui_menu.c:56
-msgid "/Edit/Paste with linefeeds cut"
+msgid "/Edit/_Copy"
 msgstr ""
 
 #: src/loqui_menu.c:57
-msgid "/Edit/_Find"
+msgid "/Edit/_Paste"
 msgstr ""
 
 #: src/loqui_menu.c:58
-msgid "/Edit/_Find again"
+msgid "/Edit/Paste with linefeeds cut"
+msgstr ""
+
+#: src/loqui_menu.c:59
+msgid "/Edit/_Find"
 msgstr ""
 
 #: src/loqui_menu.c:60
-msgid "/Edit/Clear _buffer"
-msgstr ""
-
-#: src/loqui_menu.c:61
-msgid "/Edit/Clear co_mmon buffer"
+msgid "/Edit/_Find again"
 msgstr ""
 
 #: src/loqui_menu.c:62
-msgid "/_Server"
+msgid "/Edit/Clear _buffer"
 msgstr ""
 
 #: src/loqui_menu.c:63
-msgid "/_Channel"
+msgid "/Edit/Clear co_mmon buffer"
 msgstr ""
 
 #: src/loqui_menu.c:64
-msgid "/_User"
+msgid "/_Server"
 msgstr ""
 
 #: src/loqui_menu.c:65
-msgid "/_View"
+msgid "/_Channel"
 msgstr ""
 
 #: src/loqui_menu.c:66
-msgid "/_Settings"
+msgid "/_User"
 msgstr ""
 
 #: src/loqui_menu.c:67
-msgid "/Settings/Account Settings..."
+msgid "/_View"
 msgstr ""
 
 #: src/loqui_menu.c:68
-msgid "/_Help"
+msgid "/_Settings"
 msgstr ""
 
 #: src/loqui_menu.c:69
+msgid "/Settings/Account Settings..."
+msgstr ""
+
+#: src/loqui_menu.c:70
+msgid "/_Help"
+msgstr ""
+
+#: src/loqui_menu.c:71
 msgid "/Help/_About"
 msgstr ""
 
