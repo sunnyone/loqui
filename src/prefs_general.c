@@ -112,8 +112,8 @@ start_element_handler  (GMarkupParseContext *context,
 	SET_VALUE_INT("save_size", prefs_general->save_size);
 	SET_VALUE_INT("window_width", prefs_general->window_width);
 	SET_VALUE_INT("window_height", prefs_general->window_height);
-	SET_VALUE_INT("channel_book_width", prefs_general->channel_book_width);
-	SET_VALUE_INT("channel_book_height", prefs_general->channel_book_height);
+	SET_VALUE_INT("common_buffer_height", prefs_general->common_buffer_height);
+	SET_VALUE_INT("channel_tree_width", prefs_general->channel_tree_width);
 	SET_VALUE_INT("channel_tree_height", prefs_general->channel_tree_height);
 	
 #undef SET_VALUE_INT
@@ -136,13 +136,13 @@ void prefs_general_set_default(void)
 	prefs_general->codeconv = 0;
 	prefs_general->codeset = g_strdup("");
 	prefs_general->save_size = 1;
-	prefs_general->window_height = 480;
-	prefs_general->window_width = 400;
+	prefs_general->window_height = 400;
+	prefs_general->window_width = 480;
 
-	prefs_general->channel_tree_height = 150;
+	prefs_general->channel_tree_height = 180;
+	prefs_general->channel_tree_width = 100;
 
-	prefs_general->channel_book_height = 370;
-	prefs_general->channel_book_width = 200;
+	prefs_general->common_buffer_height = 150;
 }
 
 void prefs_general_load(void)
@@ -216,8 +216,8 @@ void prefs_general_save(void)
 	WRITE_ENTRY_INT("save_size", prefs_general->save_size);
 	WRITE_ENTRY_INT("window_width", prefs_general->window_width);
 	WRITE_ENTRY_INT("window_height", prefs_general->window_height);
-	WRITE_ENTRY_INT("channel_book_width", prefs_general->channel_book_width);
-	WRITE_ENTRY_INT("channel_book_height", prefs_general->channel_book_height);
+	WRITE_ENTRY_INT("common_buffer_height", prefs_general->common_buffer_height);
+	WRITE_ENTRY_INT("channel_tree_width", prefs_general->channel_tree_width);
 	WRITE_ENTRY_INT("channel_tree_height", prefs_general->channel_tree_height);
 
 	fputs("</prefs>", fp);

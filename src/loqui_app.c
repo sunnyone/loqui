@@ -151,26 +151,44 @@ loqui_app_delete_event_cb(GtkWidget *widget, GdkEventAny *event)
 }
 static void loqui_app_save_size(LoquiApp *app)
 {
+	LoquiAppPrivate *priv;
+
 	gint height;
 	gint width;
 
         g_return_if_fail(app != NULL);
         g_return_if_fail(LOQUI_IS_APP(app));
 
+	priv = app->priv;
+
 	gtk_window_get_size(GTK_WINDOW(app), &width, &height);
 	prefs_general->window_width = width;
 	prefs_general->window_height = height;
 	
-	/* TODO: save other size */
+	prefs_general->common_buffer_height = priv->common_textview->allocation.height;
+
+	prefs_general->channel_tree_height = GTK_WIDGET(app->channel_tree)->allocation.height;
+	prefs_general->channel_tree_width = GTK_WIDGET(app->channel_tree)->allocation.width;
 }
 static void loqui_app_restore_size(LoquiApp *app)
 {
+	LoquiAppPrivate *priv;
+
         g_return_if_fail(app != NULL);
         g_return_if_fail(LOQUI_IS_APP(app));
+
+	priv = app->priv;
 
         gtk_window_set_default_size(GTK_WINDOW(app),
 				    prefs_general->window_width,
 				    prefs_general->window_height);
+
+	gtk_widget_set_usize(priv->common_textview, -1,
+			     prefs_general->common_buffer_height);
+
+	gtk_widget_set_usize(GTK_WIDGET(app->channel_tree),
+			     prefs_general->channel_tree_width,
+			     prefs_general->channel_tree_height);
 }
 
 static void

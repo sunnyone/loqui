@@ -31,9 +31,9 @@ typedef struct _PrefsGeneral {
 	gint window_height;
 	gint window_width;
 
-	gint channel_book_height;
-	gint channel_book_width;
+	gint common_buffer_height;
 
+	gint channel_tree_width;
 	gint channel_tree_height;
 } PrefsGeneral;
 
