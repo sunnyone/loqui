@@ -30,6 +30,8 @@
     </menu>
     <menu name="ChannelMenu" action="StockChannelMenu">
       <menuitem name="Join" action="Join"/>
+      <separator/>
+      <menuitem name="JoinCurrentChannel" action="JoinCurrentChannel"/>
       <menuitem name="Part" action="Part"/>
       <menuitem name="CloseChannel" action="CloseChannel"/>
       <separator/>
@@ -129,6 +131,7 @@
   </popup>
 
   <popup name="ChannelPopup" action="ChannelPopup">
+     <menuitem name="JoinCurrentChannel" action="JoinCurrentChannel"/>
      <menuitem name="Part" action="Part"/>
      <menuitem name="CloseChannel" action="CloseChannel"/>
      <separator/>
@@ -137,6 +140,7 @@
   </popup>
 
   <popup name="PrivateTalkPopup" action="PrivateTalkPopup">
+    <menuitem name="CloseChannel" action="CloseChannel"/>
     <menuitem name="EndPrivateTalk" action="EndPrivateTalk"/>
   </popup>
 

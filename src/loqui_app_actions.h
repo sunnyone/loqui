@@ -45,6 +45,7 @@ void loqui_app_actions_update_sensitivity_related_channel(LoquiApp *app);
 
 #define LOQUI_ACTION_CLOSE_CHANNEL "CloseChannel"
 #define LOQUI_ACTION_JOIN "Join"
+#define LOQUI_ACTION_JOIN_CURRENT_CHANNEL "JoinCurrentChannel"
 #define LOQUI_ACTION_PART "Part"
 #define LOQUI_ACTION_CHANGE_NICK "ChangeNick"
 #define LOQUI_ACTION_SET_TOPIC "SetTopic"

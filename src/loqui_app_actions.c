@@ -76,6 +76,7 @@ static void loqui_app_actions_clear_all_unread_flags_cb(GtkAction *action, Loqui
 static void loqui_app_actions_close_channel_cb(GtkAction *action, LoquiApp *app);
 
 static void loqui_app_actions_join_cb(GtkAction *action, LoquiApp *app);
+static void loqui_app_actions_join_current_channel_cb(GtkAction *action, LoquiApp *app);
 static void loqui_app_actions_part_cb(GtkAction *action, LoquiApp *app);
 static void loqui_app_actions_set_topic_cb(GtkAction *action, LoquiApp *app);
 static void loqui_app_actions_nick_cb(GtkAction *action, LoquiApp *app);
@@ -154,6 +155,7 @@ static GtkActionEntry loqui_action_entries[] =
 	{LOQUI_ACTION_CLOSE_CHANNEL, NULL, N_("Close Channel"), NULL, NULL, G_CALLBACK(loqui_app_actions_close_channel_cb)},
 
 	{LOQUI_ACTION_JOIN,       GTK_STOCK_ADD, N_("_Join a Channel..."), ALT "J", NULL, G_CALLBACK(loqui_app_actions_join_cb)},
+	{LOQUI_ACTION_JOIN_CURRENT_CHANNEL, NULL, N_("_Join Current Channel..."), NULL, NULL, G_CALLBACK(loqui_app_actions_join_current_channel_cb)},
         {LOQUI_ACTION_PART,       GTK_STOCK_REMOVE, N_("_Part Current Channel..."), NULL, NULL, G_CALLBACK(loqui_app_actions_part_cb)},
         {LOQUI_ACTION_SET_TOPIC,  NULL, N_("Set _Topic of Current Channel..."), ALT "T", NULL, G_CALLBACK(loqui_app_actions_set_topic_cb)},
         {LOQUI_ACTION_CHANGE_NICK,NULL, N_("_Change Nickname..."), CTRL ALT "N", NULL, G_CALLBACK(loqui_app_actions_nick_cb)},
@@ -668,17 +670,17 @@ loqui_app_actions_clear_all_unread_flags_cb(GtkAction *action, LoquiApp *app)
 static void
 loqui_app_actions_close_channel_cb(GtkAction *action, LoquiApp *app)
 {
-	LoquiChannelEntry *chent;
 	LoquiChannel *channel;
 	LoquiAccount *account;
 
-	chent = loqui_app_get_current_channel_entry(app);
-	if (!LOQUI_IS_CHANNEL(chent)) {
-		g_warning("The current channel entry is not a channel");
+	channel = loqui_app_get_current_channel(app);
+	if (!channel) {
+		gtkutils_msgbox_info(GTK_MESSAGE_ERROR,
+				     _("A channel is not selected."));
 		return;
 	}
+	account = loqui_channel_get_account(channel);
 
-	loqui_channel_entry_utils_separate(chent, &account, &channel);
 	if (loqui_channel_get_is_joined(channel)) {
 		gtkutils_msgbox_info(GTK_MESSAGE_ERROR,
 				     _("The channel has not be parted yet."));
@@ -687,7 +689,28 @@ loqui_app_actions_close_channel_cb(GtkAction *action, LoquiApp *app)
 
 	loqui_account_remove_channel(loqui_channel_get_account(channel), channel);
 }
+static void
+loqui_app_actions_join_current_channel_cb(GtkAction *action, LoquiApp *app)
+{
+	LoquiChannel *channel;
+	LoquiAccount *account;
 
+	channel = loqui_app_get_current_channel(app);
+	if (!channel) {
+		gtkutils_msgbox_info(GTK_MESSAGE_ERROR,
+				     _("A channel is not selected."));
+		return;
+	}
+	account = loqui_channel_get_account(channel);
+
+	if (loqui_channel_get_is_joined(channel)) {
+		gtkutils_msgbox_info(GTK_MESSAGE_ERROR,
+				     _("You have already joined in the channel."));
+		return;
+	}
+
+	loqui_sender_join(loqui_account_get_sender(account), channel);
+}
 static void
 loqui_app_actions_join_cb(GtkAction *action, LoquiApp *app)
 {
