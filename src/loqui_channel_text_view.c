@@ -37,7 +37,7 @@ struct _LoquiChannelTextViewPrivate
 
 static GtkTextViewClass *parent_class = NULL;
 
-static guint channel_text_view_signals[LAST_SIGNAL] = { 0 };
+/* static guint channel_text_view_signals[LAST_SIGNAL] = { 0 }; */
 
 static void loqui_channel_text_view_class_init(LoquiChannelTextViewClass *klass);
 static void loqui_channel_text_view_init(LoquiChannelTextView *view);
