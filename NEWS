@@ -14,3 +14,6 @@
 * Changed the way to change buffers/userlists.
 * Saving channel tree/common buffer size.
 
+2003-01-23     0.0.9 Release
+* Fix the bug a connection is terminated when failed to convert codeset.
+* Change color of the channel on the channel tree when new messages are arrived.
