@@ -132,7 +132,7 @@ loqui_channel_entry_dispose(GObject *object)
 		}
 		for (cur = member_slist; cur != NULL; cur = cur->next) {
 			member = cur->data;
-			g_signal_emit(G_OBJECT(chent), loqui_channel_entry_signals[SIGNAL_REORDERED], 0, member);
+			g_signal_emit(G_OBJECT(chent), loqui_channel_entry_signals[SIGNAL_REMOVE], 0, member);
 		}
 		g_slist_free(member_slist);
 		g_ptr_array_free(chent->member_ptr_array, TRUE);
