@@ -20,7 +20,6 @@
 #include "config.h"
 
 #include "channel_buffer.h"
-#include "account_manager.h"
 #include <time.h>
 #include <string.h>
 #include <ctype.h>
