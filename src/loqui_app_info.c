@@ -506,7 +506,7 @@ loqui_app_info_current_channel_entry_changed(LoquiAppInfo *appinfo, LoquiChannel
 		g_signal_handlers_disconnect_by_func(old_account, loqui_app_info_account_notify_is_pending_reconnecting_cb, appinfo);
 	}
 	if (old_channel) {
-		g_signal_handlers_disconnect_by_func(old_channel, loqui_app_info_account_notify_name_cb, appinfo);
+		g_signal_handlers_disconnect_by_func(old_channel, loqui_app_info_channel_notify_name_cb, appinfo);
 		g_signal_handlers_disconnect_by_func(old_channel, loqui_app_info_channel_mode_changed_cb, appinfo);
 	}
 
@@ -547,7 +547,8 @@ loqui_app_info_current_channel_entry_changed(LoquiAppInfo *appinfo, LoquiChannel
 		g_signal_connect(G_OBJECT(account), "notify::is-connected",
 				 G_CALLBACK(loqui_app_info_account_notify_is_connected_cb), appinfo);
 		g_signal_connect(G_OBJECT(account), "notify::is-pending-reconnecting",
-				 G_CALLBACK(loqui_app_info_account_notify_is_pending_reconnecting_cb), appinfo);	}
+				 G_CALLBACK(loqui_app_info_account_notify_is_pending_reconnecting_cb), appinfo);
+	}
 	if (channel) {
 		g_signal_connect(G_OBJECT(channel), "notify::name",
 				 G_CALLBACK(loqui_app_info_channel_notify_name_cb), appinfo);
