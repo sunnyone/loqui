@@ -278,7 +278,8 @@ irc_message_parse_line(const gchar *line)
 		array[i++] = cur;
 	num = i;
 
-	if(num < 2) {
+	if(num < 1) {
+		debug_puts("No prefix/command/parameters given.");
 		g_free(buf);
 		return NULL;
 	}
@@ -288,6 +289,7 @@ irc_message_parse_line(const gchar *line)
 		command = array[1];
 	        start = 2;
 	} else {
+		prefix = NULL;
 		command = array[0];
 		start = 1;
 	}
@@ -305,7 +307,7 @@ irc_message_parse_line(const gchar *line)
 }
 
 IRCMessage *
-irc_message_create(gchar *command, gchar *param, ...)
+irc_message_create(const gchar *command, const gchar *param, ...)
 {
 	IRCMessage *msg;
 	va_list args;
@@ -318,7 +320,7 @@ irc_message_create(gchar *command, gchar *param, ...)
 	
 	strings = g_new(gchar *, num + 2);
 
-	strings[0] = param;
+	strings[0] = (gchar *) param; /* FIXME: originally this needn't cast */
 
 	va_start(args, param);
 	for(i = 1; i < num+1; i++) {
@@ -334,7 +336,7 @@ irc_message_create(gchar *command, gchar *param, ...)
 }
 
 IRCMessage *
-irc_message_createv(gchar *command, gchar *param_array[])
+irc_message_createv(const gchar *command, gchar *param_array[])
 {
 	return irc_message_new(NULL, command, param_array);
 }
@@ -355,16 +357,16 @@ irc_message_to_string(IRCMessage *msg)
 	g_return_val_if_fail(msg->parameter != NULL, NULL);
 
 	num = irc_message_count_parameters(msg);
-	if(num < 1)
-		return NULL;
 
 	string = g_string_new(msg->command);
 
-	for(i = 0; i < num - 1; i++) {
-		g_string_append_c(string, ' ');
-		g_string_append(string, msg->parameter[i]);
+	if(num > 0) {
+		for(i = 0; i < num - 1; i++) {
+			g_string_append_c(string, ' ');
+			g_string_append(string, msg->parameter[i]);
+		}
+		g_string_append_printf(string, " :%s", msg->parameter[i]);
 	}
-	g_string_append_printf(string, " :%s", msg->parameter[i]);
 
 	str = string->str;
 	g_string_free(string, FALSE);
