@@ -219,3 +219,12 @@
 * Save the key-event when focusing the entry.
 * Fixed the bug that failed to show some icons on gtk-2.4 environment.
 * Implemented the system tray icon (notification area).
+
+2004-06-19  0.3.7
+* Fixed the condition to hilight the system tray icon (whether focused or not)
+* Clicking the system tray icon iconify/deiconify the window.
+* Blink the system tray icon when the new keyword is arrived.
+* The feature to select a channel/account from the system tray icon.
+* An option whether to execute notification or not when the new keyword in the NOTICE message is arrived.
+* The feature to clear all unread flags of buffers.
+ 
