@@ -266,7 +266,7 @@ ipmsg_packet_inspect(IPMsgPacket *packet)
 	g_string_append_printf(string, "Version: %d, PacketNumber: %d\n", packet->version, packet->packet_num);
 	g_string_append_printf(string, "Username: %s, Hostname: %s, Group: %s\n",
 		packet->username, packet->hostname, packet->group_name ? packet->group_name : "(not set)");
-	g_string_append_printf(string, "Command Number: %d\n", packet->command_num);
+	g_string_append_printf(string, "Command Number: 0x%x\n", packet->command_num);
 	g_string_append_printf(string, "Extra: %s", packet->extra);
 
 	return g_string_free(string, FALSE);

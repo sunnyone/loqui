@@ -228,7 +228,8 @@ loqui_receiver_ipmsg_command_br_exit(LoquiReceiverIPMsg *receiver, IPMsgPacket *
 	VALIDATE_PACKET_AND_RETURN_IF_FAIL(&identifier, account, packet);
 
 	if ((user = loqui_account_peek_user(account, identifier)) == NULL) {
-		loqui_account_warning(account, _("The user '%s' exit, but he/she is not registered."), identifier);
+		/* two BR_EXIT packet come from original IPMsg, so just ignore the packet */
+		/* loqui_account_warning(account, _("The user '%s' exit, but he/she is not registered."), identifier); */
 		return;
 	}
 
@@ -239,7 +240,6 @@ loqui_receiver_ipmsg_command_br_exit(LoquiReceiverIPMsg *receiver, IPMsgPacket *
 	
 	/* TODO: loqui_account_remove_user(user); */
 	loqui_channel_entry_remove_member_by_user(LOQUI_CHANNEL_ENTRY(account), user);
-	/* FIXME: reference count remains... */
 }
 static void
 loqui_receiver_ipmsg_command_sendmsg(LoquiReceiverIPMsg *receiver, IPMsgPacket *packet)
@@ -276,7 +276,7 @@ loqui_receiver_ipmsg_handle(LoquiReceiverIPMsg *receiver, IPMsgPacket *packet)
 		return;
 	}
 
-	switch (packet->command_num) {
+	switch (IPMSG_GET_MODE(packet->command_num)) {
 	case IPMSG_NOOPERATION:
 		return;
 	case IPMSG_BR_ENTRY:
