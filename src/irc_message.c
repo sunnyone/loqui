@@ -203,7 +203,7 @@ irc_message_inspect(IRCMessage *msg)
         g_return_val_if_fail(IS_IRC_MESSAGE(msg), NULL);
 
 	string = g_string_new(NULL);
-	g_string_printf(string, "prefix: %s, command: %s, numeric: %d\n", msg->prefix, msg->command, msg->response);
+	g_string_printf(string, "prefix: %s, command: %s(%d)\n", msg->prefix, msg->command, msg->response);
 	if(msg->prefix != NULL) {
 		if(msg->nick) {
 			g_string_append_printf(string, "nick: %s, user: %s, host: %s\n", 
@@ -214,9 +214,12 @@ irc_message_inspect(IRCMessage *msg)
 	}
 	
 	for(i = 0; msg->parameter[i] != NULL; i++) {
-		g_string_append_printf(string, "para[%d]: '%s'\n", i+1, msg->parameter[i]);
+		g_string_append_printf(string, "\"%s\"", msg->parameter[i]);
+		if(msg->parameter[i+1] != NULL)
+			g_string_append_printf(string, ", ");
 	}
-	
+	g_string_append(string, "\n");
+
 	str = string->str;
 	g_string_free(string, FALSE);
 	return str;
@@ -230,7 +233,7 @@ irc_message_print(IRCMessage *msg)
         g_return_if_fail(IS_IRC_MESSAGE(msg));
 
 	str = irc_message_inspect(msg);
-	g_print("%s", str);
+	g_print("%s\n", str);
 	g_free(str);
 }
 IRCMessage*
