@@ -78,6 +78,7 @@ typedef struct _PrefsGeneral {
 	gboolean use_transparent_ignore;
 	GList *transparent_ignore_list;
 
+	gboolean connect_startup;
 } PrefsGeneral;
 
 void prefs_general_load(void);

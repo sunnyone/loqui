@@ -643,3 +643,25 @@ account_manager_open_connect_dialog(AccountManager *manager)
 
 	connect_dialog_open(GTK_WINDOW(manager->priv->app));
 }
+void
+account_manager_connect_all_default(AccountManager *manager)
+{
+	GSList *cur;
+	Account *account;
+	AccountManagerPrivate *priv;
+
+	g_return_if_fail(manager != NULL);
+        g_return_if_fail(IS_ACCOUNT_MANAGER(manager));
+
+	priv = manager->priv;
+
+	for(cur = priv->account_list; cur != NULL; cur = cur->next) {
+		account = ACCOUNT(cur->data);
+		if(account_is_connected(account))
+			continue;
+		if(!account->use)
+			continue;
+
+		account_connect(account, NULL);
+	}
+}

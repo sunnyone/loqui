@@ -72,6 +72,7 @@ gboolean account_manager_is_current_account(AccountManager *manager, Account *ac
 gboolean account_manager_is_current_channel(AccountManager *manager, Channel *channel);
 gboolean account_manager_is_current_channel_buffer(AccountManager *manager, ChannelBuffer *buffer);
 
+void account_manager_connect_all_default(AccountManager *manager);
 void account_manager_disconnect_all(AccountManager *manager);
 
 void account_manager_open_account_list_dialog(AccountManager *manager);
