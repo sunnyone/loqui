@@ -169,7 +169,7 @@ gchar *connection_gets(Connection *connection, GError **error)
 		return NULL;
 
 	string = g_string_sized_new(512);
-	while(priv->io) {
+	while(1) {
 		g_mutex_lock(priv->mutex);
 		if(!priv->io) { 
 			g_mutex_unlock(priv->mutex);
