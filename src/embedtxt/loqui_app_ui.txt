@@ -33,7 +33,7 @@
       <menuitem name="Part" action="Part"/>
       <separator/>
       <menuitem name="SetTopic" action="SetTopic"/>
-      <menuitem name="RefreshAway" action="RefreshAway"/>
+      <menuitem name="Refresh" action="Refresh"/>
     </menu>
     <menu name="UserMenu" action="StockUserMenu">
       <menuitem name="StartPrivateTalk" action="StartPrivateTalk"/>
@@ -126,7 +126,7 @@
      <placeholder>
       <menuitem name="Part" action="Part"/>
       <menuitem name="SetTopic" action="SetTopic"/>
-      <menuitem name="RefreshAway" action="RefreshAway"/>
+      <menuitem name="Refresh" action="Refresh"/>
      </placeholder>
   </popup>
 

@@ -579,6 +579,14 @@ account_is_connected(Account *account)
 	return (account->priv->connection != NULL);
 }
 
+IRCHandle *
+account_get_handle(Account *account)
+{
+        g_return_val_if_fail(account != NULL, NULL);
+        g_return_val_if_fail(IS_ACCOUNT(account), NULL);
+	
+	return account->priv->handle;
+}
 IRCConnection *
 account_get_connection(Account *account)
 {
@@ -928,30 +936,6 @@ account_get_channel_mode(Account *account, const gchar *channel_name)
 	priv = account->priv;
 
 	msg = irc_message_create(IRCCommandMode, channel_name, NULL);
-	irc_connection_push_message(priv->connection, msg);
-	g_object_unref(msg);
-}
-void
-account_fetch_away_information(Account *account, LoquiChannel *channel)
-{
-	IRCMessage *msg;
-	AccountPrivate *priv;
-
-        g_return_if_fail(account != NULL);
-        g_return_if_fail(IS_ACCOUNT(account));
-        g_return_if_fail(channel != NULL);
-        g_return_if_fail(LOQUI_IS_CHANNEL(channel));        
-
-	priv = account->priv;
-
-	if(!account_is_connected(account)) {
-		g_warning(_("Account is not connected."));
-		return;
-	}
-
-	priv->handle->prevent_print_who_reply_count++;
-	
-	msg = irc_message_create(IRCCommandWho, loqui_channel_entry_get_name(LOQUI_CHANNEL_ENTRY(channel)), NULL);
 	irc_connection_push_message(priv->connection, msg);
 	g_object_unref(msg);
 }

@@ -59,7 +59,9 @@ static void loqui_sender_irc_join(LoquiSender *sender, LoquiChannel *channel);
 static void loqui_sender_irc_part(LoquiSender *sender, LoquiChannel *channel);
 static void loqui_sender_irc_topic(LoquiSender *sender, LoquiChannel *channel, const gchar *topic);
 static void loqui_sender_irc_start_private_talk(LoquiSender *sender, LoquiChannel *channel);
+static void loqui_sender_irc_refresh(LoquiSender *sender, LoquiChannel *channel);
 
+/* helper */
 static void loqui_sender_irc_speak(LoquiSenderIRC *sender, LoquiChannel *channel, const gchar *text, gboolean is_notice);
 
 GType
@@ -165,6 +167,7 @@ loqui_sender_irc_class_init(LoquiSenderIRCClass *klass)
 	sender_class->part = loqui_sender_irc_part;
 	sender_class->topic = loqui_sender_irc_topic;
 	sender_class->start_private_talk = loqui_sender_irc_start_private_talk;
+	sender_class->refresh = loqui_sender_irc_refresh;
 }
 static void 
 loqui_sender_irc_init(LoquiSenderIRC *sender)
@@ -342,6 +345,31 @@ loqui_sender_irc_start_private_talk(LoquiSender *sender, LoquiChannel *channel)
         g_return_if_fail(sender != NULL);
         g_return_if_fail(LOQUI_IS_SENDER_IRC(sender));
 
+}
+static void
+loqui_sender_irc_refresh(LoquiSender *sender, LoquiChannel *channel)
+{
+	IRCMessage *msg;
+	IRCConnection *conn;
+	IRCHandle *handle;
+
+        g_return_if_fail(sender != NULL);
+        g_return_if_fail(LOQUI_IS_SENDER_IRC(sender));
+
+	if (!account_is_connected(sender->account)) {
+		g_warning("Not connected");
+		return;
+	}
+
+	conn = account_get_connection(sender->account);
+	g_return_if_fail(conn != NULL);
+
+	handle = account_get_handle(sender->account);
+	handle->prevent_print_who_reply_count++;
+	
+	msg = irc_message_create(IRCCommandWho, loqui_channel_entry_get_name(LOQUI_CHANNEL_ENTRY(channel)), NULL);
+	irc_connection_push_message(conn, msg);
+	g_object_unref(msg);
 }
 void
 loqui_sender_irc_pong_raw(LoquiSenderIRC *sender, const gchar *target)

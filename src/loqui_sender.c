@@ -258,3 +258,13 @@ loqui_sender_start_private_talk(LoquiSender *sender, LoquiChannel *channel)
 
 	(* LOQUI_SENDER_GET_CLASS(sender)->start_private_talk) (sender, channel);
 }
+void
+loqui_sender_refresh(LoquiSender *sender, LoquiChannel *channel)
+{
+        g_return_if_fail(sender != NULL);
+        g_return_if_fail(LOQUI_IS_SENDER(sender));
+
+	CHECK_FUNCTION_IS_DEFINED_AND_RETURN_IF_FAIL(sender, refresh);
+
+	(* LOQUI_SENDER_GET_CLASS(sender)->refresh) (sender, channel);
+}

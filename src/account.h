@@ -89,6 +89,7 @@ void account_disconnect(Account *account);
 gboolean account_is_connected(Account *account);
 
 IRCConnection *account_get_connection(Account *account);
+IRCHandle *account_get_handle(Account *account);
 LoquiSender *account_get_sender(Account *account);
 
 void account_set_codeconv(Account *account, CodeConv *codeconv);
@@ -118,8 +119,6 @@ void account_send_ctcp_request(Account *account, const gchar *target, const gcha
 
 void account_change_channel_user_mode(Account *account, LoquiChannel *channel, 
 				      gboolean is_give, IRCModeFlag flag, GList *str_list);
-
-void account_fetch_away_information(Account *account, LoquiChannel *channel);
 
 void account_get_updated_number(Account *account, gint *updated_private_talk_number, gint *updated_channel_number); 
 
