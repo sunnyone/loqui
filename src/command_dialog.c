@@ -246,7 +246,7 @@ command_dialog_topic(LoquiApp *app, Account *account, LoquiChannel *channel)
 	if (result == GTK_RESPONSE_OK) {
 		text = gtk_entry_get_text(GTK_ENTRY(entry));
 
-		account_set_topic(account, loqui_channel_entry_get_name(LOQUI_CHANNEL_ENTRY(channel)), text);
+		loqui_sender_topic(account_get_sender(account), channel, text);
 	}
 	gtk_widget_destroy(dialog);
 }
@@ -290,7 +290,7 @@ command_dialog_nick(LoquiApp *app, Account *account)
 			return;
 		}
 
-		account_change_nick(account, text);
+		loqui_sender_nick(account_get_sender(account), text);
 	}
 	gtk_widget_destroy(dialog);
 }

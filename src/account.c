@@ -201,6 +201,8 @@ account_init(Account *account)
 	
 	account->user_nick_table = g_hash_table_new_full(g_direct_hash, g_direct_equal, NULL, g_free);
 	account->nick_user_table = g_hash_table_new_full(utils_strcase_hash, utils_strcase_equal, g_free, NULL);
+
+	account->sender = LOQUI_SENDER(loqui_sender_irc_new(account));
 }
 static void 
 account_finalize (GObject *object)
@@ -572,6 +574,14 @@ account_get_connection(Account *account)
 	
 	return account->priv->connection;
 }
+LoquiSender *
+account_get_sender(Account *account)
+{
+        g_return_val_if_fail(account != NULL, NULL);
+        g_return_val_if_fail(IS_ACCOUNT(account), NULL);
+	
+	return account->sender;
+}
 
 void
 account_add_channel(Account *account, LoquiChannel *channel)
@@ -750,42 +760,6 @@ account_is_current_nick(Account *account, const gchar *str)
 	
 	return (strcmp(loqui_user_get_nick(account->user_self), str) == 0 ? TRUE : FALSE);
 }
-void
-account_set_away_type(Account *account, LoquiAwayType away_type)
-{
-        g_return_if_fail(account != NULL);
-        g_return_if_fail(IS_ACCOUNT(account));
-
-	if(!account_is_connected(account))
-		return;
-
-	if (away_type == LOQUI_AWAY_TYPE_AWAY)
-		account_set_away_message(account, prefs_general.away_message);
-	else
-		account_set_away_message(account, NULL);
-}
-void
-account_set_away_message(Account *account, const gchar *away_message)
-{
-	IRCMessage *msg;
-	AccountPrivate *priv;
-
-        g_return_if_fail(account != NULL);
-        g_return_if_fail(IS_ACCOUNT(account));
-
-	priv = account->priv;
-
-	if(!account_is_connected(account))
-		return;
-
-	if(away_message == NULL)
-		msg = irc_message_create(IRCCommandAway, NULL);
-	else
-		msg = irc_message_create(IRCCommandAway, away_message, NULL);
-	
-	irc_connection_push_message(priv->connection, msg);
-	g_object_unref(msg);
-}
 
 GSList *
 account_search_joined_channel(Account *account, gchar *nick)
@@ -813,25 +787,6 @@ account_search_joined_channel(Account *account, gchar *nick)
 	return list;
 }
 
-void account_change_nick(Account *account, const gchar *nick)
-{
-	IRCMessage *msg;
-	AccountPrivate *priv;
-
-        g_return_if_fail(account != NULL);
-        g_return_if_fail(IS_ACCOUNT(account));
-	
-	if(!account_is_connected(account)) {
-		g_warning(_("Account is not connected."));
-		return;
-	}
-
-	priv = account->priv;
-
-	msg = irc_message_create(IRCCommandNick, nick, NULL);
-	irc_connection_push_message(priv->connection, msg);
-	g_object_unref(msg);
-}
 void account_send_ctcp_request(Account *account, const gchar *target, const gchar *command)
 {
 	IRCMessage *msg;
@@ -959,27 +914,6 @@ void account_part(Account *account, const gchar *target, const gchar *part_messa
 			account_remove_channel(account, channel);
 	}	
 }
-void account_set_topic(Account *account, const gchar *target, const gchar *topic)
-{
-	IRCMessage *msg;
-	AccountPrivate *priv;
-
-        g_return_if_fail(account != NULL);
-        g_return_if_fail(IS_ACCOUNT(account));
-		
-	if(!account_is_connected(account)) {
-		g_warning(_("Account is not connected."));
-		return;
-	}
-
-	priv = account->priv;
-
-	if(LOQUI_UTILS_IRC_STRING_IS_CHANNEL(target)) {
-		msg = irc_message_create(IRCCommandTopic, target, topic, NULL);
-		irc_connection_push_message(priv->connection, msg);
-		g_object_unref(msg);
-	}
-}
 void account_change_channel_user_mode(Account *account, LoquiChannel *channel, 
 				      gboolean is_give, IRCModeFlag flag, GList *str_list)
 {
@@ -1030,28 +964,6 @@ void account_change_channel_user_mode(Account *account, LoquiChannel *channel,
 		irc_message_print(msg);
 	irc_connection_push_message(priv->connection, msg);
 	g_object_unref(msg);
-}
-void
-account_pong(Account *account, const gchar *target)
-{
-	IRCMessage *msg;
-	AccountPrivate *priv;
-
-        g_return_if_fail(account != NULL);
-        g_return_if_fail(IS_ACCOUNT(account));
-	
-	if(!account_is_connected(account)) {
-		g_warning(_("Account is not connected."));
-		return;
-	}
-
-	priv = account->priv;
-
-	msg = irc_message_create(IRCCommandPong, target, NULL);
-	irc_connection_push_message(priv->connection, msg);
-	g_object_unref(msg);
-
-	debug_puts("put PONG to %s", target);
 }
 void
 account_get_channel_mode(Account *account, const gchar *channel_name)

@@ -89,6 +89,7 @@ void account_disconnect(Account *account);
 gboolean account_is_connected(Account *account);
 
 IRCConnection *account_get_connection(Account *account);
+LoquiSender *account_get_sender(Account *account);
 
 void account_set_codeconv(Account *account, CodeConv *codeconv);
 CodeConv *account_get_codeconv(Account *account);
@@ -106,16 +107,12 @@ void account_speak(Account *account, LoquiChannel *channel, const gchar *str, gb
 
 gboolean account_is_current_nick(Account *account, const gchar *str);
 
-void account_set_away_type(Account *account, LoquiAwayType away_type);
-void account_set_away_message(Account *account, const gchar *away_message);
-
 void account_change_nick(Account *account, const gchar *nick);
 void account_whois(Account *account, const gchar *target);
 void account_join(Account *account, const gchar *target, const gchar *key);
 void account_start_private_talk(Account *account, const gchar *target);
 void account_part(Account *account, const gchar *target, const gchar *part_message);
 void account_set_topic(Account *account, const gchar *target, const gchar *topic);
-void account_pong(Account *account, const gchar *target);
 void account_get_channel_mode(Account *account, const gchar *channel_name);
 void account_notice(Account *account, const gchar *target, const gchar *str);
 

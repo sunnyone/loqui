@@ -150,7 +150,7 @@ loqui_channelbar_entry_topic_activated_cb(GtkWidget *widget, gpointer data)
 	
 	channel = loqui_app_get_current_channel(priv->app);
 	str = gtk_entry_get_text(GTK_ENTRY(priv->entry_topic));
-	account_set_topic(channel->account, loqui_channel_entry_get_name(LOQUI_CHANNEL_ENTRY(channel)), str);
+	loqui_sender_topic(account_get_sender(loqui_channel_get_account(channel)), channel, str);
 }
 static void
 loqui_channelbar_entry_changed_cb(GtkWidget *widget, gpointer data)

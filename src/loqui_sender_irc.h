@@ -52,7 +52,9 @@ struct _LoquiSenderIRCClass
 
 GType loqui_sender_irc_get_type(void) G_GNUC_CONST;
 
-LoquiSenderIRC* loqui_sender_irc_new(void);
+LoquiSenderIRC* loqui_sender_irc_new(Account *account);
+
+void loqui_sender_irc_pong_raw(LoquiSenderIRC *sender, const gchar *target);
 
 G_END_DECLS
 

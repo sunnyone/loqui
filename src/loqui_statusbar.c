@@ -27,6 +27,7 @@
 #include "main.h"
 #include "loqui_dropdown_box.h"
 #include "command_dialog.h"
+#include "loqui_sender.h"
 
 #include <string.h>
 
@@ -197,7 +198,10 @@ loqui_statusbar_preset_menuitem_activated_cb(GtkWidget *widget, LoquiStatusbar *
 
 	account = loqui_app_get_current_account(priv->app);
 	if (account)
-		account_change_nick(account, nick);
+		if (account_is_connected(account))
+			loqui_sender_nick(account_get_sender(account), nick);
+	        else
+			gtkutils_msgbox_info(GTK_MESSAGE_ERROR, _("The account is not connected!"));
 	else
 		gtkutils_msgbox_info(GTK_MESSAGE_ERROR, _("Not selected an account!"));	
 }
@@ -219,7 +223,7 @@ loqui_statusbar_away_menuitem_activated_cb(GtkWidget *widget, LoquiStatusbar *st
 	account = loqui_app_get_current_account(priv->app);
 	if (account) {
 		if (account_is_connected(account))
-			account_set_away_type(account, away_type);
+			loqui_sender_away(account_get_sender(account), away_type, NULL);
 		else
 			gtkutils_msgbox_info(GTK_MESSAGE_ERROR, _("The account is not connected!"));
 	} else {

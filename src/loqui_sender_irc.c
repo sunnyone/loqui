@@ -20,6 +20,7 @@
 #include "config.h"
 
 #include "loqui_sender_irc.h"
+#include "prefs_general.h"
 
 enum {
         LAST_SIGNAL
@@ -169,7 +170,7 @@ loqui_sender_irc_init(LoquiSenderIRC *sender)
 	sender->priv = priv;
 }
 LoquiSenderIRC*
-loqui_sender_irc_new(void)
+loqui_sender_irc_new(Account *account)
 {
         LoquiSenderIRC *sender;
 	LoquiSenderIRCPrivate *priv;
@@ -177,6 +178,7 @@ loqui_sender_irc_new(void)
 	sender = g_object_new(loqui_sender_irc_get_type(), NULL);
 	
         priv = sender->priv;
+	LOQUI_SENDER(sender)->account = account;
 
         return sender;
 }
@@ -198,16 +200,53 @@ loqui_sender_irc_notice(LoquiSender *sender, LoquiChannel *channel, const gchar 
 static void
 loqui_sender_irc_nick(LoquiSender *sender, const gchar *text)
 {
+	IRCMessage *msg;
+	IRCConnection *conn;
+
         g_return_if_fail(sender != NULL);
         g_return_if_fail(LOQUI_IS_SENDER_IRC(sender));
 
+	if (!account_is_connected(sender->account)) {
+		g_warning("Not connected");
+		return;
+	}
+
+	conn = account_get_connection(sender->account);
+	g_return_if_fail(conn != NULL);
+
+	msg = irc_message_create(IRCCommandNick, text, NULL);
+	irc_connection_push_message(conn, msg);
+	g_object_unref(msg);
 }
 static void
 loqui_sender_irc_away(LoquiSender *sender, LoquiAwayType away_type, const gchar *away_message)
 {
+	const gchar *text;
+	IRCMessage *msg = NULL;
+	IRCConnection *conn;
+
         g_return_if_fail(sender != NULL);
         g_return_if_fail(LOQUI_IS_SENDER_IRC(sender));
 
+	if (!account_is_connected(sender->account)) {
+		g_warning("Not connected");
+		return;
+	}
+
+	conn = account_get_connection(sender->account);
+	g_return_if_fail(conn != NULL);
+
+	if (away_type == LOQUI_AWAY_TYPE_AWAY) {
+		text = away_message == NULL ? prefs_general.away_message : away_message;
+		msg = irc_message_create(IRCCommandAway, text, NULL);
+	} else if (away_type == LOQUI_AWAY_TYPE_ONLINE) {
+		msg = irc_message_create(IRCCommandAway, NULL);
+	}
+
+	if (msg) {
+		irc_connection_push_message(conn, msg);
+		g_object_unref(msg);
+	}
 }
 static void
 loqui_sender_irc_whois(LoquiSender *sender, LoquiUser *user)
@@ -233,9 +272,30 @@ loqui_sender_irc_part(LoquiSender *sender, LoquiChannel *channel)
 static void
 loqui_sender_irc_topic(LoquiSender *sender, LoquiChannel *channel, const gchar *topic)
 {
+	IRCMessage *msg;
+	IRCConnection *conn;
+
         g_return_if_fail(sender != NULL);
         g_return_if_fail(LOQUI_IS_SENDER_IRC(sender));
 
+	if (loqui_channel_get_is_private_talk(channel)) {
+		g_warning("This is a private talk");
+		return;
+	}
+	if (!account_is_connected(sender->account)) {
+		g_warning("Not connected");
+		return;
+	}
+
+	conn = account_get_connection(sender->account);
+	g_return_if_fail(conn != NULL);
+
+	msg = irc_message_create(IRCCommandTopic,
+				 loqui_channel_entry_get_name(LOQUI_CHANNEL_ENTRY(channel)),
+				 topic,
+				 NULL);
+	irc_connection_push_message(conn, msg);
+	g_object_unref(msg);
 }
 static void
 loqui_sender_irc_start_private_talk(LoquiSender *sender, LoquiChannel *channel)
@@ -243,4 +303,25 @@ loqui_sender_irc_start_private_talk(LoquiSender *sender, LoquiChannel *channel)
         g_return_if_fail(sender != NULL);
         g_return_if_fail(LOQUI_IS_SENDER_IRC(sender));
 
+}
+void
+loqui_sender_irc_pong_raw(LoquiSenderIRC *sender, const gchar *target)
+{
+	IRCMessage *msg;
+	IRCConnection *conn;
+
+        g_return_if_fail(sender != NULL);
+        g_return_if_fail(LOQUI_IS_SENDER_IRC(sender));
+
+	if (!account_is_connected(LOQUI_SENDER(sender)->account)) {
+		g_warning("Not connected");
+		return;
+	}
+
+	conn = account_get_connection(LOQUI_SENDER(sender)->account);
+	g_return_if_fail(conn != NULL);
+
+	msg = irc_message_create(IRCCommandPong, target, NULL);
+	irc_connection_push_message(conn, msg);
+	g_object_unref(msg);
 }

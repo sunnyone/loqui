@@ -31,6 +31,7 @@
 #include "ctcp_handle.h"
 #include "loqui_user_irc.h"
 #include "loqui_utils_irc.h"
+#include "loqui_sender_irc.h"
 
 #include "codeconv.h"
 #include <string.h>
@@ -323,7 +324,7 @@ irc_handle_command_ping(IRCHandle *handle, IRCMessage *msg)
         g_return_if_fail(handle != NULL);
 	g_return_if_fail(IS_IRC_HANDLE(handle));
 
-	account_pong(handle->priv->account, irc_message_get_param(msg, 1));
+	loqui_sender_irc_pong_raw(LOQUI_SENDER_IRC(account_get_sender(handle->priv->account)), irc_message_get_param(msg, 1));
 }
 static void
 irc_handle_command_quit(IRCHandle *handle, IRCMessage *msg)
