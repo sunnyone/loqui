@@ -176,7 +176,7 @@ loqui_menu_attach(LoquiMenu *menu, GnomeApp *app)
 	
 	gtk_widget_set_sensitive(file_menu[0].widget, FALSE);
 	gtk_widget_set_sensitive(menubar[1].widget, FALSE);
- 
+	gtk_widget_set_sensitive(menubar[2].widget, FALSE);	
 }
 
 void loqui_menu_create_connect_submenu(LoquiMenu *menu, GSList *account_list)
