@@ -1,11 +1,11 @@
 ORIG_OBJS := $(wildcard orig_src/*.o)
 LDFLAGS = `pkg-config --libs gtk+-2.0 gnet-2.0`
-CPPFLAGS = -I../ -I../src/ `pkg-config --cflags gtk+-2.0 gnet-2.0` -g -Wall
-FLAGS = $(LDFLAGS) $(CPPFLAGS)
+CFLAGS = -I../ -I../src/ `pkg-config --cflags gtk+-2.0 gnet-2.0` -g -Wall
+FLAGS = $(LDFLAGS) $(CFLAGS) $(ORIG_OBJS)
 
-TARGET := test_utils
+TARGET := test_utils test_profile_account test_profile_handle
 
-test_utils: test_utils.c
+%: %.c
 	gcc -o $@ $(FLAGS) $(OBJS) $@.c
 
 all: $(TARGET)
@@ -15,4 +15,8 @@ report: $(TARGET)
 	./$<
 
 clean:
+	rm -f $(TARGET)
+
+distclean: clean
 	rm -rf orig_src
+

@@ -3,9 +3,11 @@
 #include "main.h"
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 
 int debug_mode = 0;
 int show_msg_mode = 0;
+int send_status_commands_mode = 0;
 
 #define DO_TEST(all, failed, func) { \
   fprintf(stderr, "Testing %s...\n",  # func); \
