@@ -151,3 +151,8 @@
 * Fixed the bug failed to parse channel mode.
 * Changed icons of +o and +v.
 
+2004-03-07     0.2.5
+* Implemented feature to save logs experimentally.
+* Show buffer numbers at the channel tree.
+* PageUp/Down scrolls the channel buffer, Alt+PageUp/Down scrolls the common buffer.
+

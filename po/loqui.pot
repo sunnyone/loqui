@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2004-02-26 01:41+0900\n"
+"POT-Creation-Date: 2004-03-07 03:40+0900\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,7 +16,7 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: src/account.c:137 src/account_list_dialog.c:255 src/channel_tree.c:182
+#: src/account.c:137 src/account_list_dialog.c:255 src/channel_tree.c:204
 msgid "Name"
 msgstr ""
 
@@ -213,22 +213,22 @@ msgstr ""
 msgid "Account List"
 msgstr ""
 
-#: src/account_manager.c:406
+#: src/account_manager.c:410
 #, c-format
 msgid "Updated: %d private talk(s), %d channel(s)."
 msgstr ""
 
-#: src/account_manager.c:410
+#: src/account_manager.c:414
 #, c-format
 msgid "Updated: %d private talk(s)."
 msgstr ""
 
-#: src/account_manager.c:413
+#: src/account_manager.c:417
 #, c-format
 msgid "Updated: %d channel(s)."
 msgstr ""
 
-#: src/account_manager.c:581
+#: src/account_manager.c:637
 msgid ""
 "main_account_manager should be created. account_manager_get() may be called "
 "recursively."
@@ -246,7 +246,11 @@ msgstr ""
 msgid "Channel: "
 msgstr ""
 
-#: src/channel_tree.c:289
+#: src/channel_tree.c:187
+msgid "E"
+msgstr ""
+
+#: src/channel_tree.c:315
 msgid "Failed to add channel"
 msgstr ""
 
@@ -762,26 +766,26 @@ msgstr ""
 msgid "Away"
 msgstr ""
 
-#: src/main.c:73
+#: src/main.c:74
 #, c-format
 msgid "Invalid \"%s\""
 msgstr ""
 
-#: src/main.c:173
+#: src/main.c:180
 msgid ""
 "  --no-send-status-commands don't send commands to get status (like MODE, "
 "WHO)"
 msgstr ""
 
-#: src/main.c:174
+#: src/main.c:181
 msgid "  --debug                   debug mode\n"
 msgstr ""
 
-#: src/main.c:175
+#: src/main.c:182
 msgid "  --show-msg                show message mode\n"
 msgstr ""
 
-#: src/main.c:176
+#: src/main.c:183
 msgid "  --help                    show this help\n"
 msgstr ""
 
@@ -905,7 +909,7 @@ msgstr ""
 msgid "Invalid hostname: %s"
 msgstr ""
 
-#: src/prefs_account.c:243 src/prefs_general.c:146
+#: src/prefs_account.c:243 src/prefs_general.c:148
 #, c-format
 msgid "Invalid element: %s"
 msgstr ""
@@ -915,119 +919,123 @@ msgstr ""
 msgid "Accountrc parse error: %s"
 msgstr ""
 
-#: src/prefs_account.c:335 src/prefs_general.c:312
+#: src/prefs_account.c:335 src/prefs_general.c:314
 #, c-format
 msgid "Loquirc parse error: %s"
 msgstr ""
 
-#: src/prefs_account.c:366 src/prefs_general.c:334
+#: src/prefs_account.c:366 src/prefs_general.c:336
 #, c-format
 msgid "Can't open %s: %s"
 msgstr ""
 
-#: src/prefs_dialog.c:244
+#: src/prefs_dialog.c:248
 msgid "Common Preferences"
 msgstr ""
 
-#: src/prefs_dialog.c:261
+#: src/prefs_dialog.c:265
 msgid "General"
 msgstr ""
 
-#: src/prefs_dialog.c:263
+#: src/prefs_dialog.c:267
 msgid "Save window/widget sizes"
 msgstr ""
 
-#: src/prefs_dialog.c:265
+#: src/prefs_dialog.c:269
 msgid "Switch whether scrolling or not automatically"
 msgstr ""
 
-#: src/prefs_dialog.c:267
+#: src/prefs_dialog.c:271
 msgid "Parse plum (an irc proxy) recent feature (Experimental)"
 msgstr ""
 
-#: src/prefs_dialog.c:269
+#: src/prefs_dialog.c:273
 msgid "Reconnect automatically when connections are terminated."
 msgstr ""
 
-#: src/prefs_dialog.c:272
+#: src/prefs_dialog.c:276
 msgid "Connect default accounts when the program started"
 msgstr ""
 
-#: src/prefs_dialog.c:275
+#: src/prefs_dialog.c:279
 msgid "Away message: "
 msgstr ""
 
-#: src/prefs_dialog.c:276
+#: src/prefs_dialog.c:280
 msgid "Format of time in buffers: "
 msgstr ""
 
-#: src/prefs_dialog.c:279
+#: src/prefs_dialog.c:283
 msgid "Max line number of a common buffer(0: unlimited): "
 msgstr ""
 
-#: src/prefs_dialog.c:283
+#: src/prefs_dialog.c:287
 msgid "Max line number of a channel buffer(0: unlimited): "
 msgstr ""
 
-#: src/prefs_dialog.c:287
+#: src/prefs_dialog.c:291
 msgid "Toggle command mode automatically"
 msgstr ""
 
-#: src/prefs_dialog.c:290
+#: src/prefs_dialog.c:294
 msgid "Prefix for commands: "
 msgstr ""
 
-#: src/prefs_dialog.c:293
+#: src/prefs_dialog.c:296
+msgid "Save logs (Experimental)"
+msgstr ""
+
+#: src/prefs_dialog.c:300
 msgid "Highlight"
 msgstr ""
 
-#: src/prefs_dialog.c:295
+#: src/prefs_dialog.c:302
 msgid "Use notification"
 msgstr ""
 
-#: src/prefs_dialog.c:299
+#: src/prefs_dialog.c:306
 msgid "Highlighting keywords(Separate each words with linefeeds)"
 msgstr ""
 
-#: src/prefs_dialog.c:303
+#: src/prefs_dialog.c:310
 msgid "Ignore"
 msgstr ""
 
-#: src/prefs_dialog.c:305
+#: src/prefs_dialog.c:312
 msgid "Use ignore (transparent) feature"
 msgstr ""
 
-#: src/prefs_dialog.c:309
+#: src/prefs_dialog.c:316
 msgid "Nickname list to ignore (transparent) ('*' and '?' can be used)"
 msgstr ""
 
-#: src/prefs_dialog.c:313
+#: src/prefs_dialog.c:320
 msgid "Command"
 msgstr ""
 
-#: src/prefs_dialog.c:315
+#: src/prefs_dialog.c:322
 msgid "Browser: "
 msgstr ""
 
-#: src/prefs_dialog.c:317
+#: src/prefs_dialog.c:324
 msgid "URL is passed to a browser with quoted, like 'http://example.com/'"
 msgstr ""
 
-#: src/prefs_dialog.c:320
+#: src/prefs_dialog.c:327
 msgid "Notification: "
 msgstr ""
 
-#: src/prefs_general.c:155
+#: src/prefs_general.c:157
 #, c-format
 msgid "prefs_general: Invalid attribute for entry: %s"
 msgstr ""
 
-#: src/prefs_general.c:161
+#: src/prefs_general.c:163
 #, c-format
 msgid "Unknown key: %s\n"
 msgstr ""
 
-#: src/prefs_general.c:226 src/prefs_general.c:252
+#: src/prefs_general.c:228 src/prefs_general.c:254
 msgid "Unsupported pref type!"
 msgstr ""
 

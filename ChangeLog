@@ -1,3 +1,53 @@
+2004-03-07 03:44  y-imai
+
+	* src/: remark_entry.c, remark_entry.h: Fixed signals of
+	  RemarkEntry
+
+2004-03-07 03:27  y-imai
+
+	* src/: loqui_app.c, loqui_app.h, remark_entry.c, remark_entry.h:
+	  (Alt+)PageDown/Up scroll common/channel buffer. Use GtkBidings
+
+2004-03-07 02:03  y-imai
+
+	* src/channel_tree.c: Fixed the expander column. Added the buffer
+	  number column.
+
+2004-03-05 20:12  y-imai
+
+	* test/: .cvsignore, Makefile, Makefile.am, Makefile.am.after,
+	  test_helper.h, test_main.c, test_main.h, test_utils.c,
+	  test_utils.h, update-makefile.sh, update.sh: new testing
+	  framework
+
+2004-02-28 14:50  y-imai
+
+	* src/: account.h, gobject_utils.h, message_text.c, message_text.h:
+	  Modified READER, WRITER, ACCESSOR macros
+
+2004-02-27 13:42  y-imai
+
+	* src/: account_manager.c, main.c, main.h, prefs_dialog.c,
+	  prefs_general.c, prefs_general.h: Implemented the feature to save
+	  logs experimentally.
+
+2004-02-27 12:41  y-imai
+
+	* src/icons/naruto.png: Deepen icon.
+
+2004-02-27 12:13  y-imai
+
+	* src/irc_handle.c: Fixed typo.
+
+2004-02-26 01:52  y-imai
+
+	* debian/changelog: updated debian changelog
+
+2004-02-26 01:49  y-imai
+
+	* ChangeLog, NEWS, NEWS.ja, configure.in, po/ja.po, po/loqui.pot:
+	  0.2.4
+
 2004-02-26 01:03  y-imai
 
 	* src/nick_list.c: Use naruto and speaker icons.  Made icons
