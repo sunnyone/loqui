@@ -274,11 +274,6 @@ loqui_receiver_irc_command_privmsg_notice(LoquiReceiverIRC *receiver, IRCMessage
 		return;
 	}
 
-	if(msg->nick)
-		is_self = loqui_account_irc_is_current_nick(LOQUI_ACCOUNT_IRC(account), msg->nick);
-	else
-		is_self = FALSE;
-
 	if(priv->end_motd == FALSE &&
 	   msg->response == IRC_COMMAND_NOTICE &&
 	   loqui_pref_get_with_default_boolean(loqui_get_general_pref(),
@@ -286,12 +281,6 @@ loqui_receiver_irc_command_privmsg_notice(LoquiReceiverIRC *receiver, IRCMessage
 					       LOQUI_GENERAL_PREF_DEFAULT_PROXY_PARSE_PLUM_RECENT, NULL)) {
 		if(loqui_receiver_irc_parse_plum_recent(receiver, remark))
 			return;
-	}
-
-	if(msg->response == IRC_COMMAND_NOTICE) {
-		type = LOQUI_TEXT_TYPE_NOTICE;
-	} else {
-		type = LOQUI_TEXT_TYPE_NORMAL;
 	}
 
 	if (msg->nick) {
@@ -304,6 +293,17 @@ loqui_receiver_irc_command_privmsg_notice(LoquiReceiverIRC *receiver, IRCMessage
 		        return;
                 }
 	}
+
+	if(msg->response == IRC_COMMAND_NOTICE) {
+		type = LOQUI_TEXT_TYPE_NOTICE;
+	} else {
+		type = LOQUI_TEXT_TYPE_NORMAL;
+	}
+
+	if(msg->nick)
+		is_self = loqui_account_irc_is_current_nick(LOQUI_ACCOUNT_IRC(account), msg->nick);
+	else
+		is_self = FALSE;
 
 	if (receiver_name != NULL) {
 		if(LOQUI_UTILS_IRC_STRING_IS_CHANNEL(receiver_name))

@@ -22,7 +22,7 @@
 
 #include "loqui_protocol_ipmsg.h"
 
-#include "loqui_account_ipmsg.h"
+#include "loqui-account-ipmsg.h"
 #include "loqui_user_ipmsg.h"
 /* #include "loqui_channel_ipmsg.h" */
 #include "loqui_sender_ipmsg.h"

@@ -24,7 +24,7 @@
 #include "ipmsg_socket.h"
 #include "ipmsg_packet.h"
 #include <libloqui-intl.h>
-#include "loqui_account_ipmsg.h"
+#include "loqui-account-ipmsg.h"
 #include "ipmsg.h"
 
 enum {

@@ -50,16 +50,18 @@ SRC_PROTOCOL_IRC = \
 	ctcp_message.c ctcp_message.h \
 	ctcp_handle.c ctcp_handle.h
 
+define(`M4_SRC_PROTOCOL_IPMSG_GOB',`loqui-account-ipmsg.gob')
+
 SRC_PROTOCOL_IPMSG = \
 	loqui_protocol_ipmsg.c loqui_protocol_ipmsg.h \
 	loqui_user_ipmsg.c loqui_user_ipmsg.h \
 	loqui_profile_account_ipmsg.c loqui_profile_account_ipmsg.h \
 	loqui_sender_ipmsg.c loqui_sender_ipmsg.h \
 	loqui_receiver_ipmsg.c loqui_receiver_ipmsg.h \
-	loqui_account_ipmsg.c loqui_account_ipmsg.h \
 	ipmsg.h \
 	ipmsg_socket.c ipmsg_socket.h \
-	ipmsg_packet.c ipmsg_packet.h
+	ipmsg_packet.c ipmsg_packet.h \
+	M4_SRC_PROTOCOL_IPMSG_GOB gob_to_built_sources(M4_SRC_PROTOCOL_IPMSG_GOB)
 
 SRC_PROTOCOL_MSN = \
 	msn_login.c msn_login.h \
@@ -67,6 +69,8 @@ SRC_PROTOCOL_MSN = \
 	loqui_protocol_msn.c loqui_protocol_msn.h \
 	loqui_account_msn.c loqui_account_msn.h \
 	msn_constants.h
+
+define(`M4_SRC_LIBRARY_CORE_GOB',`loqui-core.gob loqui-pref.gob loqui-pref-partial.gob')dnl
 
 SRC_LIBRARY_CORE = \
 	libloqui-intl.h \
@@ -77,16 +81,13 @@ SRC_LIBRARY_CORE = \
 	loqui_account_manager.c loqui_account_manager.h \
 	loqui_account_manager_iter.c loqui_account_manager_iter.h \
 	loqui-static-core.c loqui-static-core.h \
-	loqui.h
-
-define(`M4_SRC_LIBRARY_GOB',`loqui-core.gob loqui-pref.gob loqui-pref-partial.gob')dnl
-
-SRC_LIBRARY_GOB := M4_SRC_LIBRARY_GOB
-
-BUILT_SOURCES_FROM_GOB := gob_to_built_sources(M4_SRC_LIBRARY_GOB)
+	loqui.h \
+	M4_SRC_LIBRARY_CORE_GOB \
+	gob_to_built_sources(M4_SRC_LIBRARY_CORE_GOB)
 
 BUILT_SOURCES := loqui_marshalers.c loqui_marshalers.h \
-	$(BUILT_SOURCES_FROM_GOB)
+	gob_to_built_sources(M4_SRC_LIBRARY_CORE_GOB) \
+	gob_to_built_sources(M4_SRC_PROTOCOL_IPMSG_GOB)
 
 lib_LTLIBRARIES = libloqui.la
 
@@ -97,8 +98,7 @@ libloqui_la_SOURCES =  \
 	$(SRC_PROTOCOL_IRC) \
 	$(SRC_PROTOCOL_IPMSG) \
 	$(SRC_PROTOCOL_MSN) \
-	$(SRC_LIBRARY_CORE) \
-	$(BUILT_SOURCES_FROM_GOB)
+	$(SRC_LIBRARY_CORE)
 
 libloqui_la_LIBADD = $(GLIB_LIBS) $(GNET_LIBS)
 
