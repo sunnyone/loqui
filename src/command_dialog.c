@@ -148,5 +148,5 @@ void command_dialog_nick(GtkWindow *parent_window, Account *account)
 				  _("Type nickname."),
 				  CHANNEL_HISTORY_NONE,
 				  command_dialog_nick_cb, NULL,
-				  TRUE, account, FALSE, NULL, TRUE, NULL);
+				  TRUE, account, FALSE, NULL, TRUE, account_get_nick(account));
 }
