@@ -45,7 +45,6 @@ typedef struct _LoquiAppPrivate     LoquiAppPrivate;
 #include "loqui_app_info.h"
 #include "loqui_channel_buffer_gtk.h"
 #include "loqui_transfer_window.h"
-#include "loqui-style-prefs.h"
 
 struct _LoquiApp
 {
