@@ -369,7 +369,8 @@ loqui_app_update_info(LoquiApp *app,
 	}
 
 	if(is_channel_changed) {
-		loqui_channelbar_set_current_channel(LOQUI_CHANNELBAR(app->channelbar), channel);
+		if(channel)
+			loqui_channelbar_set_current_channel(LOQUI_CHANNELBAR(app->channelbar), channel);
 		loqui_statusbar_set_current_channel(LOQUI_STATUSBAR(priv->statusbar), channel);
 	}
 	
