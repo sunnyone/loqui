@@ -405,15 +405,17 @@ irc_message_format(IRCMessage *msg, const gchar *format)
 {
 	GString *string;
 	const gchar *cur;
-	gchar *tmp, *buf;
+	gchar *tmp, *buf, *format_buf;
 	guint64 i, end;
 
         g_return_val_if_fail(msg != NULL, NULL);
         g_return_val_if_fail(IS_IRC_MESSAGE(msg), NULL);
 	g_return_val_if_fail(format != NULL, NULL);
 
-	string = g_string_new_len(NULL, strlen(format));
-	cur = format;
+	format_buf = g_strdup(format);
+	string = g_string_new(NULL);
+	cur = format_buf;
+
 	while((tmp = strchr(cur, '%')) != NULL) {
 		if(tmp > cur) {
 			string = g_string_append_len(string, cur, tmp - cur);
@@ -474,6 +476,8 @@ irc_message_format(IRCMessage *msg, const gchar *format)
 
 	tmp = string->str;
 	g_string_free(string, FALSE);
+
+	g_free(format_buf);
 
 	return tmp;
 }
