@@ -62,6 +62,8 @@
 #define CHANNEL_ENTRY_STORE_KEY "channel-entry-store"
 #define CHANNEL_TEXT_VIEW_KEY "channel-text-view"
 
+#define DISCONNECT_WAIT_WHEN_QUIT 3000
+
 struct _LoquiAppPrivate
 {
 	GtkWidget *handlebox_channelbar;
@@ -74,6 +76,8 @@ struct _LoquiAppPrivate
 
 	gboolean has_toplevel_focus;
 	gboolean is_obscured;
+
+	gint remained_account_num;
 
 	GCompareFunc sort_func;
 };
@@ -121,6 +125,7 @@ static gboolean loqui_app_set_current_channel_for_idle(LoquiApp *app);
 static void loqui_app_set_current_channel_lazy(LoquiApp *app, LoquiChannel *channel);
 static void loqui_app_update_channel_entry_accel_key(LoquiApp *app);
 
+static void loqui_app_disconnect_all_account_for_quit(LoquiApp *app);
 
 /* utilities */
 static void loqui_app_set_channel_entry_accel_key(LoquiApp *app, LoquiChannelEntry *chent);
@@ -152,7 +157,7 @@ loqui_app_get_type(void)
 	return type;
 }
 static void
-loqui_app_class_init (LoquiAppClass *klass)
+loqui_app_class_init(LoquiAppClass *klass)
 {
         GObjectClass *object_class = G_OBJECT_CLASS(klass);
         GtkObjectClass *gtk_object_class = GTK_OBJECT_CLASS(klass);
@@ -168,7 +173,7 @@ loqui_app_class_init (LoquiAppClass *klass)
 	gtk_widget_class->visibility_notify_event = loqui_app_visibility_notify_event;
 }
 static void 
-loqui_app_init (LoquiApp *app)
+loqui_app_init(LoquiApp *app)
 {
 	LoquiAppPrivate *priv;
 
@@ -239,8 +244,7 @@ loqui_app_delete_event(GtkWidget *widget, GdkEventAny *event)
         if (prefs_general.save_size) {
 		loqui_app_save_size(LOQUI_APP(widget));
         }
-	gtk_widget_destroy(widget);
-	gtk_main_quit();
+	loqui_app_disconnect_all_account_for_quit(app);
 
 	if (GTK_WIDGET_CLASS(parent_class)->delete_event)
                return (* GTK_WIDGET_CLASS(parent_class)->delete_event) (widget, event);
@@ -352,7 +356,8 @@ loqui_app_is_obscured(LoquiApp *app)
 
 	return priv->is_obscured;
 }
-static void loqui_app_save_size(LoquiApp *app)
+static void
+loqui_app_save_size(LoquiApp *app)
 {
 	LoquiAppPrivate *priv;
 
@@ -373,7 +378,8 @@ static void loqui_app_save_size(LoquiApp *app)
 	prefs_general.channel_tree_height = GTK_WIDGET(app->channel_tree)->allocation.height;
 	prefs_general.channel_tree_width = GTK_WIDGET(app->channel_tree)->allocation.width;
 }
-static void loqui_app_restore_size(LoquiApp *app)
+static void
+loqui_app_restore_size(LoquiApp *app)
 {
 	LoquiAppPrivate *priv;
 
@@ -462,6 +468,82 @@ loqui_app_create_tray_icon(LoquiApp *app)
 
 	/* to avoid dieing when the tray died? */
 	g_object_ref(app->tray_icon);
+}
+static gboolean
+loqui_app_quit_idle_cb(LoquiApp *app)
+{
+	gtk_widget_destroy(GTK_WIDGET(app));
+	gtk_main_quit();
+
+	return FALSE;
+}
+static void
+loqui_app_quit_idle(LoquiApp *app)
+{
+	g_idle_add_full(G_PRIORITY_LOW, (GSourceFunc) loqui_app_quit_idle_cb, app, NULL);
+}
+static void
+loqui_app_account_notify_is_connected_cb_for_quit(LoquiAccount *account, GParamSpec *pspec, LoquiApp *app)
+{
+	LoquiAppPrivate *priv;
+
+	g_return_if_fail(loqui_account_get_is_connected(account) == FALSE);
+
+	priv = app->priv;
+	
+	priv->remained_account_num--;
+
+	if (priv->remained_account_num <= 0) {
+		loqui_app_quit_idle(app);
+	}
+}
+static gboolean
+loqui_app_disconnect_all_timeout_cb(LoquiApp *app)
+{
+	GList *list, *cur;
+	LoquiAccount *account;
+
+	list = loqui_account_manager_get_account_list(loqui_app_get_account_manager(app));
+
+	for (cur = list; cur != NULL; cur = cur->next) {
+		account = LOQUI_ACCOUNT(cur->data);
+
+		loqui_account_terminate(account);
+	}
+
+	loqui_app_quit_idle(app);
+
+	return FALSE;
+}
+static void
+loqui_app_disconnect_all_account_for_quit(LoquiApp *app)
+{
+	GList *list, *cur;
+	LoquiAccount *account;
+	LoquiAppPrivate *priv;
+
+	priv = app->priv;
+	list = loqui_account_manager_get_account_list(loqui_app_get_account_manager(app));
+
+	priv->remained_account_num = 0;
+
+	for (cur = list; cur != NULL; cur = cur->next) {
+		account = LOQUI_ACCOUNT(cur->data);
+		
+		if (!loqui_account_get_is_connected(account))
+			continue;
+
+		priv->remained_account_num++;
+
+		g_signal_connect(G_OBJECT(account), "notify::is-connected",
+				 G_CALLBACK(loqui_app_account_notify_is_connected_cb_for_quit), app);
+		loqui_account_disconnect(account);
+	}
+	g_timeout_add(DISCONNECT_WAIT_WHEN_QUIT, (GSourceFunc) loqui_app_disconnect_all_timeout_cb, app);
+
+	if (app->priv->remained_account_num <= 0) {
+		loqui_app_quit_idle(app);
+	}
 }
 GtkWidget*
 loqui_app_new(LoquiAccountManager *account_manager)
