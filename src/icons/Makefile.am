@@ -1,4 +1,4 @@
-IMAGES_ID = console online offline away busy
+IMAGES_ID = console online offline away busy command
 IMAGES = $(IMAGES_ID:%=%.png)
 IMAGES_H = $(IMAGES_ID:%=%.h)
 
