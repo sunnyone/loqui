@@ -11,6 +11,16 @@
             <long>Test key for GConf</long>
 	  </locale>
 	</schema>
+	<key>/schemas/apps/loqui/account/gconf_test</key>
+	<applyto>/apps/loqui/account/gconf_test</applyto>
+	<owner>loqui</owner>
+	  <type>string</type>
+	  <default>test</default>
+	  <locale name="C">
+            <short>GConf test</short>
+            <long>Test key for GConf(Account setting)</long>
+	  </locale>
+	</schema>
         <schema>
 	<key>/schemas/apps/loqui/codeconv</key>
 	<applyto>/apps/loqui/codeconv</applyto>

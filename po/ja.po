@@ -5,7 +5,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: loqui 0.0.1\n"
-"POT-Creation-Date: 2003-01-08 21:13+0900\n"
+"POT-Creation-Date: 2003-01-08 21:53+0900\n"
 "PO-Revision-Date: 2002-11-10 13:17+0900\n"
 "Last-Translator: Yoichi Imai <yoichi@silver-forest.com>\n"
 "Language-Team: Japanese <ja@li.org>\n"
@@ -76,7 +76,9 @@ msgstr "接続エラー"
 msgid ""
 "Cannot find a schema for loqui preferences. \n"
 "Check your gconf setup"
-msgstr "loqui設定のschemaを見つけられませんでした。GConfのセットアップを確認してください。"
+msgstr ""
+"loqui設定のschemaを見つけられませんでした。GConfのセットアップを確認してくだ"
+"さい。"
 
 #: src/eel-gconf-extensions.c:105
 #, c-format
@@ -308,4 +310,3 @@ msgstr "Loqui IRC クライアント"
 #: src/nick_list.c:217
 msgid "Nick"
 msgstr ""
-

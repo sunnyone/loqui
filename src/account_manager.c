@@ -133,7 +133,10 @@ account_manager_load_accounts(AccountManager *account_manager)
         priv = account_manager->priv;
 
 	list = eel_gconf_get_dirs(LOQUI_GCONF_ACCOUNT);
-        if(list == NULL) return;
+        if(list == NULL) {
+		debug_puts("No accounts on setting dirs");
+		return;
+	}
 
         for(cur = list; cur != NULL; cur = cur->next) {
                 name = utils_gconf_get_basename((gchar *) cur->data);
@@ -142,6 +145,7 @@ account_manager_load_accounts(AccountManager *account_manager)
                 account = account_new();
                 if(!account_restore(account, name)) {
 			g_object_unref(account);
+			debug_puts("Failed to restore account setting!");
 			continue;
 		}
  		priv->account_list = g_slist_append(priv->account_list, account);

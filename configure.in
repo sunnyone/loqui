@@ -19,7 +19,6 @@ AM_MAINTAINER_MODE
 GNOME_PLATFORM_GNOME_2(yes)
 
 PKG_CHECK_MODULES(LOQUI, libgnomeui-2.0 >= 2.0.0)
-LOQUI_LIBS="${LOQUI_LIBS}"
 AC_SUBST(LOQUI_LIBS)
 AC_SUBST(LOQUI_CFLAGS)
 
@@ -83,7 +82,7 @@ AC_DEFINE_UNQUOTED(G_LOG_DOMAIN, "$PACKAGE")
 
 AC_CHECK_FUNCS(bind_textdomain_codeset)
 
-AC_OUTPUT( po/Makefile.in  m4/Makefile 
+AC_OUTPUT( po/Makefile.in  m4/Makefile  
 Makefile
 src/Makefile
 )
