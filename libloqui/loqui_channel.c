@@ -19,9 +19,12 @@
  */
 #include "config.h"
 
+#include "loqui-general-pref.h"
+#include "loqui-general-pref-keys.h"
+#include "loqui-general-pref-default.h"
+
 #include "loqui_channel.h"
 #include "intl.h"
-#include "prefs_general.h"
 #include <string.h>
 #include "loqui_sender_irc.h"
 
@@ -505,8 +508,8 @@ loqui_channel_append_remark(LoquiChannel *channel, LoquiTextType type, gboolean 
 {
 	LoquiChannelPrivate *priv;
 	LoquiMessageText *msgtext;
-	GList *cur;
 	gchar *word;
+	int i;
 
 	gboolean is_priv = FALSE;
 	gboolean exec_notification = TRUE && !is_from_server && !is_self;
@@ -518,15 +521,32 @@ loqui_channel_append_remark(LoquiChannel *channel, LoquiTextType type, gboolean 
 
 	is_priv = loqui_channel_get_is_private_talk(channel);
 
+	LOQUI_GENERAL_PREF_SET_BOOLEAN_DEFAULT(LOQUI_GENERAL_PREF_GROUP_IGNORE,
+					       LOQUI_GENERAL_PREF_KEY_IGNORE_USE_TRANSPARENT_IGNORE,
+					       LOQUI_GENERAL_PREF_DEFAULT_IGNORE_USE_TRANSPARENT_IGNORE);
+
 	/* FIXME: should be more efficient */
-	if(prefs_general.use_transparent_ignore && nick != NULL) {
-		for(cur = prefs_general.transparent_ignore_list; cur != NULL; cur = cur->next) {
-			if(g_pattern_match_simple((gchar *) cur->data, nick))
+	if (LOQUI_GENERAL_PREF_GET_BOOLEAN(LOQUI_GENERAL_PREF_GROUP_IGNORE,
+					   LOQUI_GENERAL_PREF_KEY_IGNORE_USE_TRANSPARENT_IGNORE) && nick != NULL) {
+		gchar **ignore_list;
+		gsize len;
+
+		ignore_list = LOQUI_GENERAL_PREF_GET_STRING_LIST(LOQUI_GENERAL_PREF_GROUP_IGNORE, LOQUI_GENERAL_PREF_KEY_IGNORE_IGNORE_PATTERNS, &len);
+
+		for (i = 0; i < len; i++) {
+			if (g_pattern_match_simple(ignore_list[i], nick))
 				type = LOQUI_TEXT_TYPE_TRANSPARENT;
 		}
+
+		g_strfreev(ignore_list);
 	}
 
-	if (!prefs_general.exec_notification_by_notice && type == LOQUI_TEXT_TYPE_NOTICE)
+	LOQUI_GENERAL_PREF_SET_BOOLEAN_DEFAULT(LOQUI_GENERAL_PREF_GROUP_NOTIFICATION,
+					       LOQUI_GENERAL_PREF_KEY_NOTIFICATION_EXEC_NOTIFICATION_BY_NOTICE,
+					       LOQUI_GENERAL_PREF_DEFAULT_EXEC_NOTIFICATION_BY_NOTICE);
+
+	if (type == LOQUI_TEXT_TYPE_NOTICE &&
+	    !LOQUI_GENERAL_PREF_GET_BOOLEAN(LOQUI_GENERAL_PREF_GROUP_NOTIFICATION, LOQUI_GENERAL_PREF_KEY_NOTIFICATION_EXEC_NOTIFICATION_BY_NOTICE))
 		exec_notification = FALSE;
 
 	msgtext = loqui_message_text_new();
@@ -548,12 +568,19 @@ loqui_channel_append_remark(LoquiChannel *channel, LoquiTextType type, gboolean 
 		loqui_channel_entry_set_is_updated(LOQUI_CHANNEL_ENTRY(channel), TRUE);
 	
 	if (!is_self && !is_from_server) {
-		for (cur = prefs_general.highlight_list; cur != NULL; cur = cur->next) {
-			word = (gchar *) cur->data;
+		gchar **highlight_list;
+		gsize len;
+
+		highlight_list = LOQUI_GENERAL_PREF_GET_STRING_LIST(LOQUI_GENERAL_PREF_GROUP_NOTIFICATION, LOQUI_GENERAL_PREF_KEY_NOTIFICATION_HIGHLIGHT_LIST, &len);
+
+		for (i = 0; i < len; i++) {
+			word = highlight_list[i];
 			if (strstr(remark, word) != NULL) {
 				loqui_channel_entry_set_has_unread_keyword(LOQUI_CHANNEL_ENTRY(channel), TRUE);
 			}
 		}
+
+		g_strfreev(highlight_list);
 	}
 
 	loqui_channel_entry_append_message_text(LOQUI_CHANNEL_ENTRY(channel), msgtext);

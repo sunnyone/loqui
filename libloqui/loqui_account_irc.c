@@ -28,7 +28,6 @@
 
 #include "loqui_utils_irc.h"
 #include "intl.h"
-#include "prefs_general.h"
 #include "loqui.h"
 
 #include <string.h>
