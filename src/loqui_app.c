@@ -60,7 +60,6 @@
 
 struct _LoquiAppPrivate
 {
-	GtkWidget *common_textview;
 	GtkWidget *handlebox_channelbar;
 
 	GtkWidget *buffers_menu;
@@ -274,7 +273,7 @@ static void loqui_app_save_size(LoquiApp *app)
 	prefs_general.window_width = width;
 	prefs_general.window_height = height;
 	
-	prefs_general.common_buffer_height = priv->common_textview->allocation.height;
+	prefs_general.common_buffer_height = app->common_textview->allocation.height;
 
 	prefs_general.channel_tree_height = GTK_WIDGET(app->channel_tree)->allocation.height;
 	prefs_general.channel_tree_width = GTK_WIDGET(app->channel_tree)->allocation.width;
@@ -291,7 +290,7 @@ static void loqui_app_restore_size(LoquiApp *app)
 				    prefs_general.window_width,
 				    prefs_general.window_height);
 
-	gtk_widget_set_usize(priv->common_textview, -1,
+	gtk_widget_set_usize(app->common_textview, -1,
 			     prefs_general.common_buffer_height);
 
 	gtk_widget_set_usize(GTK_WIDGET(app->channel_tree),
@@ -573,8 +572,8 @@ loqui_app_new(AccountManager *account_manager)
 	g_signal_connect(G_OBJECT(app->remark_entry), "activate",
 			 G_CALLBACK(loqui_app_entry_activate_cb), app);
 
-	priv->common_textview = loqui_channel_text_view_new(app);
-	SET_SCROLLED_WINDOW(scrolled_win, priv->common_textview, 
+	app->common_textview = loqui_channel_text_view_new(app);
+	SET_SCROLLED_WINDOW(scrolled_win, app->common_textview, 
 			    GTK_POLICY_NEVER, GTK_POLICY_ALWAYS);
 	gtk_paned_pack2(GTK_PANED(vpaned), scrolled_win, FALSE, TRUE);
 
@@ -648,7 +647,7 @@ void loqui_app_scroll_common_buffer(LoquiApp *app)
         g_return_if_fail(app != NULL);
         g_return_if_fail(LOQUI_IS_APP(app));
 
-	scroll_channel_buffer(app->priv->common_textview);
+	scroll_channel_buffer(app->common_textview);
 }
 void
 loqui_app_scroll_page_channel_buffer(LoquiApp *app, gint pages)
@@ -664,7 +663,7 @@ loqui_app_scroll_page_common_buffer(LoquiApp *app, gint pages)
         g_return_if_fail(app != NULL);
         g_return_if_fail(LOQUI_IS_APP(app));
 
-	g_signal_emit_by_name(app->priv->common_textview, "move_cursor", GTK_MOVEMENT_PAGES, pages, FALSE);
+	g_signal_emit_by_name(app->common_textview, "move_cursor", GTK_MOVEMENT_PAGES, pages, FALSE);
 }
 
 static void
@@ -717,7 +716,7 @@ void loqui_app_set_common_buffer(LoquiApp *app, ChannelBuffer *buffer)
         g_return_if_fail(app != NULL);
         g_return_if_fail(LOQUI_IS_APP(app));
 
-	set_channel_buffer(app, app->priv->common_textview, buffer, &app->priv->common_buffer_inserted_signal_id,
+	set_channel_buffer(app, app->common_textview, buffer, &app->priv->common_buffer_inserted_signal_id,
 			   G_CALLBACK(loqui_app_common_textview_inserted_cb));
 }
 void

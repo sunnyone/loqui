@@ -79,6 +79,7 @@ struct _LoquiApp
 	GtkWidget *channel_textview;
 	NickList *nick_list;
 	ChannelTree *channel_tree;
+	GtkWidget *common_textview;
 };
 
 struct _LoquiAppClass
