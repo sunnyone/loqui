@@ -1,6 +1,8 @@
 <ui>
   <menubar>
     <menu name="FileMenu" action="StockFileMenu">
+      <menuitem name="Connect" action="Connect"/>
+      <separator />
       <menuitem name="Quit" action="Quit"/>
     </menu>
     <menu name="EditMenu" action="StockEditMenu">
@@ -18,8 +20,6 @@
       <menuitem name="JumpToNextKeyword" action="JumpToNextKeyword" />
     </menu>
     <menu name="AccountMenu" action="StockAccountMenu">
-      <menuitem name="Connect" action="Connect"/>
-      <separator />
       <menuitem name="ConnectCurrentAccount" action="ConnectCurrentAccount"/>
       <menuitem name="CancelPendingReconnectingCurrentAccount" action="CancelPendingReconnectingCurrentAccount" />
       <menuitem name="ReconnectCurrentAccount" action="ReconnectCurrentAccount"/>

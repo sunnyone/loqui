@@ -128,13 +128,13 @@ static GtkActionEntry loqui_action_entries[] =
 
         {"Quit",                 GTK_STOCK_QUIT, N_("_Quit"), CTRL"Q", NULL, G_CALLBACK(loqui_app_actions_quit_cb)},
 
-        {"Connect",              NULL, N_("_Connect"), NULL, NULL, G_CALLBACK(loqui_app_actions_connect_cb)},
+        {"Connect",              NULL, N_("Open _Connection Dialog..."), NULL, NULL, G_CALLBACK(loqui_app_actions_connect_cb)},
 
-	{LOQUI_ACTION_CONNECT_CURRENT_ACCOUNT, NULL, N_("_Connect Current Account"), NULL, NULL, G_CALLBACK(loqui_app_actions_connect_current_account_cb)},
-	{LOQUI_ACTION_CANCEL_PENDING_RECONNECTING_CURRENT_ACCOUNT,  NULL, N_("Cancel Pending Reconnecting Current Account"), NULL, NULL, G_CALLBACK(loqui_app_actions_cancel_pending_reconnecting_current_account_cb)},
-	{LOQUI_ACTION_RECONNECT_CURRENT_ACCOUNT, NULL, N_("_Reconnect Current Account"), NULL, NULL, G_CALLBACK(loqui_app_actions_reconnect_current_account_cb)},
-	{LOQUI_ACTION_DISCONNECT_CURRENT_ACCOUNT, NULL, N_("_Disconnect Current Account"), NULL, NULL, G_CALLBACK(loqui_app_actions_disconnect_current_account_cb)},
-	{LOQUI_ACTION_TERMINATE_CURRENT_ACCOUNT, NULL, N_("_Terminate Current Account"), NULL, NULL, G_CALLBACK(loqui_app_actions_terminate_current_account_cb)},
+	{LOQUI_ACTION_CONNECT_CURRENT_ACCOUNT, NULL, N_("_Connect"), NULL, NULL, G_CALLBACK(loqui_app_actions_connect_current_account_cb)},
+	{LOQUI_ACTION_CANCEL_PENDING_RECONNECTING_CURRENT_ACCOUNT,  NULL, N_("Cancel Pending Reconnecting"), NULL, NULL, G_CALLBACK(loqui_app_actions_cancel_pending_reconnecting_current_account_cb)},
+	{LOQUI_ACTION_RECONNECT_CURRENT_ACCOUNT, NULL, N_("_Reconnect"), NULL, NULL, G_CALLBACK(loqui_app_actions_reconnect_current_account_cb)},
+	{LOQUI_ACTION_DISCONNECT_CURRENT_ACCOUNT, NULL, N_("_Disconnect"), NULL, NULL, G_CALLBACK(loqui_app_actions_disconnect_current_account_cb)},
+	{LOQUI_ACTION_TERMINATE_CURRENT_ACCOUNT, NULL, N_("_Terminate"), NULL, NULL, G_CALLBACK(loqui_app_actions_terminate_current_account_cb)},
 
         {"Cut",                   GTK_STOCK_CUT, N_("_Cut"), CTRL "X", NULL, G_CALLBACK(loqui_app_actions_cut_cb)},
         {"Copy",                  GTK_STOCK_COPY, N_("_Copy"), CTRL "C", NULL, G_CALLBACK(loqui_app_actions_copy_cb)},
