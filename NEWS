@@ -128,3 +128,7 @@
 * Handle in case that the speaker is myself.
 * Fixed the problem of auto detection of the locale.
 
+2004-01-18     0.2.0
+* Fixed some bugs.
+* Changed user interface(Abolished toolbar, enhanced statusbar, etc).
+

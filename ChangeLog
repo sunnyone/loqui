@@ -1,3 +1,172 @@
+2004-01-18 17:32  y-imai
+
+	* src/: Makefile.am, account_manager.c, loqui_app.c, loqui_app.h,
+	  loqui_menu.c, loqui_menu.h, loqui_toolbar.c, loqui_toolbar.h,
+	  prefs_general.c, prefs_general.h: Removed the toolbar.
+
+2004-01-18 17:21  y-imai
+
+	* src/: account_manager.c, loqui_app.c, loqui_app.h,
+	  loqui_statusbar.c, loqui_statusbar.h: Implemented switching
+	  scrolling with the statusbar.
+
+2004-01-18 17:20  y-imai
+
+	* src/icons/.cvsignore: Added *.h to .cvsignore.
+
+2004-01-18 17:00  y-imai
+
+	* src/: account.h, loqui_app.c, loqui_statusbar.c: Implemented the
+	  feature to change away state with statusbar.
+
+2004-01-18 16:37  y-imai
+
+	* src/loqui_statusbar.c: Created away menu.
+
+2004-01-18 15:39  y-imai
+
+	* src/loqui_statusbar.c: Added status Away/Busy.
+
+2004-01-18 15:14  y-imai
+
+	* src/: irc_handle.c, main.c, main.h: Created
+	  --no-send-status-commands.
+
+2004-01-18 15:01  y-imai
+
+	* src/loqui_channelbar.c: Changed the timing to ok button of the
+	  channel bar.
+
+2004-01-18 14:57  y-imai
+
+	* src/: loqui_app.c, remark_entry.c, remark_entry.h: Removed nick
+	  related features from RemarkEntry.
+
+2004-01-18 14:40  y-imai
+
+	* src/loqui_statusbar.c: Imported nick related features from
+	  RemarkEntry.
+
+2004-01-18 13:40  y-imai
+
+	* src/icons/Makefile.am: Updated icon Makefile
+
+2004-01-18 13:23  y-imai
+
+	* src/loqui_app.c: Changed the method to change current
+	  channel/account on the channelbar.
+
+2004-01-18 03:36  y-imai
+
+	* src/icons/: away.png, busy.png: changed sizes of away, busy
+
+2004-01-18 03:27  y-imai
+
+	* src/loqui_statusbar.c: Removed labels of the channel name and
+	  user number.
+
+2004-01-18 03:21  y-imai
+
+	* src/main.c: Added new icons.
+
+2004-01-18 03:19  y-imai
+
+	* src/loqui_app.c: Fixed the problem that failed to select account.
+
+2004-01-18 02:53  y-imai
+
+	* src/icons/: Makefile.am, away.png, busy.png: added icons: busy,
+	  away
+
+2004-01-18 02:28  y-imai
+
+	* src/loqui_statusbar.c: Added away state icon.
+
+2004-01-18 01:18  y-imai
+
+	* src/loqui_statusbar.c: Added button_away, button_nick,
+	  button_preset to statusbar.
+
+2004-01-17 23:38  y-imai
+
+	* src/icons/: Makefile.am, offline.png, online.png,
+	  person-orig.xcf: added online/offline.png
+
+2004-01-17 23:37  y-imai
+
+	* src/icons/: Makefile.am, person.png: removed person.png
+
+2004-01-17 02:43  y-imai
+
+	* src/: account_manager.c, loqui_app.c: Update channelbar in
+	  loqui_app_update_info() instead of in account_manager_*.
+
+2004-01-17 02:40  y-imai
+
+	* src/loqui_channelbar.c: Fixed the previous change.
+
+2004-01-17 02:37  y-imai
+
+	* src/loqui_channelbar.c: Check wheather the channel is null or not
+	  before channel_is_private_talk().
+
+2004-01-17 02:01  y-imai
+
+	* src/: Makefile.am, loqui_app.c, loqui_statusbar.c,
+	  loqui_statusbar.h: Created LoquiStatusbar class.
+
+2004-01-17 00:59  y-imai
+
+	* src/remark_entry.c: Disabled color palette in the remark entry.
+
+2004-01-17 00:53  y-imai
+
+	* src/channel_tree.c: Set the header of channel tree invisible.
+
+2004-01-17 00:49  y-imai
+
+	* src/channel_tree.c: Removed NONOP column from channel tree.
+
+2004-01-16 18:24  y-imai
+
+	* src/: account_dialog.c, account_manager.c, irc_connection.c,
+	  loqui_app.c, loqui_channelbar.c: Show channel mode / the number
+	  of users on the channelbar.
+
+2004-01-14 19:30  y-imai
+
+	* src/utils.c: Fixed the bug that uri parser may fail to search uri
+	  in a string like "https://localhost/ http://example.com/".
+
+2003-12-21 03:28  y-imai
+
+	* debian/changelog: updated debian changelog
+
+2003-12-21 03:13  y-imai
+
+	* ChangeLog, NEWS, NEWS.ja, configure.in: 0.1.20
+
+2003-12-21 02:40  y-imai
+
+	* po/: ja.po, loqui.pot: updated po
+
+2003-12-20 12:30  y-imai
+
+	* src/irc_handle.c: changed TEXT_TYPE_NORMAL to TEXT_TYPE_ERROR
+
+2003-12-20 12:28  y-imai
+
+	* src/: account.c, account.h: added const to function definitions
+
+2003-12-20 12:27  y-imai
+
+	* src/: irc_constants.h, irc_handle.c: handle ERR_* messages
+
+2003-12-20 11:56  y-imai
+
+	* src/: irc_constants.h, irc_handle.c: fixed behavior when received
+	  433/437 error
+
 2003-12-20 03:27  y-imai
 
 	* src/: account_dialog.c, connect_dialog.c: changed checkbox <->
