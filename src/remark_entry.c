@@ -22,6 +22,8 @@
 #include "remark_entry.h"
 #include "prefs_general.h"
 
+#include <string.h>
+
 enum {
 	ACTIVATE,
         LAST_SIGNAL
@@ -383,7 +385,8 @@ remark_entry_activated_cb(GtkWidget *widget, gpointer data)
 
 	g_signal_emit(remark_entry, remark_entry_signals[ACTIVATE], 0);
 
-	remark_entry_history_add(remark_entry, str);
+	if(strlen(str) > 0)
+		remark_entry_history_add(remark_entry, str);
 	g_free(str);
 }
 static void
