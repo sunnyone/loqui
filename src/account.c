@@ -878,9 +878,11 @@ account_start_private_talk(Account *account, const gchar *target)
 				     _("This nick seems to be channel."));
 	}
 
-	channel = loqui_channel_new(account, target, TRUE, TRUE);
-	account_add_channel(account, channel);
-	g_object_unref(channel);
+	if ((channel = account_get_channel_by_name(account, target)) == NULL) {
+		channel = loqui_channel_new(account, target, TRUE, TRUE);
+		account_add_channel(account, channel);
+		g_object_unref(channel);
+	}
 }
 void account_part(Account *account, const gchar *target, const gchar *part_message)
 {
