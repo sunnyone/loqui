@@ -27,7 +27,8 @@ SRC_PROTOCOL_BASE = \
 	loqui_receiver.c loqui_receiver.h \
 	loqui_account.c loqui_account.h \
 	loqui_message.c loqui_message.h \
-	loqui_member.c loqui_member.h
+	loqui_member.c loqui_member.h \
+	loqui_transfer_item.c loqui_transfer_item.h
 
 SRC_PROTOCOL_IRC = \
 	loqui_protocol_irc.c loqui_protocol_irc.h \

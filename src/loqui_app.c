@@ -560,7 +560,6 @@ loqui_app_transfer_window_delete_event_cb(GtkWidget *widget, GdkEventAny *event,
 
 	gtk_widget_hide(GTK_WIDGET(app->transfer_window));
 
-	g_print("hide\n");
 	return TRUE;
 }
 GtkWidget*
@@ -1244,6 +1243,8 @@ loqui_app_channel_entry_append_message_text_cb(LoquiChannelEntry *chent, LoquiMe
 	GList *cur;
 	gchar *word;
 	const gchar *remark;
+	gchar *tmp;
+	LoquiTextRegion *region;
 
         g_return_if_fail(app != NULL);
         g_return_if_fail(LOQUI_IS_APP(app));
@@ -1261,20 +1262,25 @@ loqui_app_channel_entry_append_message_text_cb(LoquiChannelEntry *chent, LoquiMe
 	    prefs_general.use_notification &&
 	    prefs_general.notification_command &&
 	    strlen(prefs_general.notification_command) > 0) {
-		
+
 		remark = loqui_message_text_get_text(msgtext);
 		matched = FALSE;
 		for (cur = prefs_general.highlight_list; cur != NULL; cur = cur->next) {
 			word = (gchar *) cur->data;
-			if (strstr(remark, word) != NULL) {
-				loqui_channel_entry_set_has_unread_keyword(chent, TRUE);
+			if ((tmp = strstr(remark, word)) != NULL) {
+				region = g_new0(LoquiTextRegion, 1);
+				region->start = tmp - remark;
+				region->len = strlen(word);
+				msgtext->highlight_region_list = g_list_append(msgtext->highlight_region_list, region);
+
 				matched = TRUE;
-				break;
 			}
 		}
 
-		if (matched)
+		if (matched) {
+			loqui_channel_entry_set_has_unread_keyword(chent, TRUE);
 			gtkutils_exec_command_with_error_dialog(prefs_general.notification_command);
+		}
 	}
 
 	loqui_message_text_set_exec_notification(msgtext, FALSE);

@@ -50,6 +50,12 @@ typedef enum {
 	LOQUI_TEXT_TYPE_TRANSPARENT,
 } LoquiTextType;
 
+/* in bytes */
+typedef struct _LoquiTextRegion {
+	gsize start; /* relative offset */
+	gsize len;
+} LoquiTextRegion;
+
 struct _LoquiMessageText
 {
         GObject parent;
@@ -65,6 +71,9 @@ struct _LoquiMessageText
 	gboolean is_priv;
 	gboolean is_remark;
 	gboolean exec_notification;
+
+	GList *highlight_region_list;
+	GList *uri_region_list;
 
         LoquiMessageTextPrivate *priv;
 };

@@ -172,6 +172,17 @@ loqui_message_text_finalize(GObject *object)
 	G_FREE_UNLESS_NULL(msgtext->nick);
 	G_FREE_UNLESS_NULL(msgtext->account_name);
 
+	if (msgtext->uri_region_list) {
+		g_list_foreach(msgtext->uri_region_list, (GFunc) g_free, NULL);
+		g_list_free(msgtext->uri_region_list);
+		msgtext->uri_region_list = NULL;
+	}
+	if (msgtext->highlight_region_list) {
+		g_list_foreach(msgtext->highlight_region_list, (GFunc) g_free, NULL);
+		g_list_free(msgtext->highlight_region_list);
+		msgtext->highlight_region_list = NULL;
+	}
+
         if (G_OBJECT_CLASS(parent_class)->finalize)
                 (* G_OBJECT_CLASS(parent_class)->finalize) (object);
 
