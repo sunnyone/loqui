@@ -478,6 +478,7 @@ loqui_app_grab_focus_if_key_unused(LoquiApp *app, const gchar *class_name, GdkEv
 	case GDK_Hyper_R: /* FIXME: modifiers. enough? */
 	case GDK_ISO_Left_Tab: /* FIXME: if this doesn't exist, shift + tab does not work... */
 	case GDK_Tab:
+	case GDK_Menu: /* Application key opens context menu */
 		found = TRUE;
 		break;
 	default:
