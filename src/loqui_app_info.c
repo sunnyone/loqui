@@ -492,6 +492,7 @@ loqui_app_info_current_channel_entry_changed(LoquiAppInfo *appinfo, LoquiChannel
 	if (old_chent) {
 		g_signal_handlers_disconnect_by_func(old_chent, loqui_app_info_channel_entry_notify_member_number_cb, appinfo);
 		g_signal_handlers_disconnect_by_func(old_chent, loqui_app_info_channel_entry_notify_op_number_cb, appinfo);
+		g_signal_handlers_disconnect_by_func(old_chent, loqui_app_info_channel_entry_notify_topic_cb, appinfo);
 	}
 	if (old_account) {
 		g_signal_handlers_disconnect_by_func(old_account, loqui_app_info_user_self_notify_nick_cb, appinfo);
