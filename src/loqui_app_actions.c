@@ -39,6 +39,8 @@
 #include "loqui_transfer_window.h"
 #include "loqui_select_dialog.h"
 
+#include "loqui_channel_entry_utils.h"
+
 #define CTRL "<control>"
 #define ALT  "<alt>"
 #define SHIFT "<shift>"
@@ -70,6 +72,8 @@ static void loqui_app_actions_next_unread_channel_buffer_cb(GtkAction *action, L
 static void loqui_app_actions_previous_channel_buffer_cb(GtkAction *action, LoquiApp *app);
 static void loqui_app_actions_next_channel_buffer_cb(GtkAction *action, LoquiApp *app);
 static void loqui_app_actions_clear_all_unread_flags_cb(GtkAction *action, LoquiApp *app);
+
+static void loqui_app_actions_close_channel_cb(GtkAction *action, LoquiApp *app);
 
 static void loqui_app_actions_join_cb(GtkAction *action, LoquiApp *app);
 static void loqui_app_actions_part_cb(GtkAction *action, LoquiApp *app);
@@ -146,6 +150,8 @@ static GtkActionEntry loqui_action_entries[] =
         {"FindAgain",             NULL, N_("_Find Again"), NULL, NULL, NULL},
 	{"JumpToPreviousKeyword", NULL, N_("Jump to Previous Keyword"), NULL, NULL, G_CALLBACK(loqui_app_actions_jump_to_previous_keyword_cb)},
 	{"JumpToNextKeyword",     NULL, N_("Jump to Next Keyword"), NULL, NULL, G_CALLBACK(loqui_app_actions_jump_to_next_keyword_cb)},
+
+	{LOQUI_ACTION_CLOSE_CHANNEL, NULL, N_("Close Channel"), NULL, NULL, G_CALLBACK(loqui_app_actions_close_channel_cb)},
 
 	{LOQUI_ACTION_JOIN,       GTK_STOCK_ADD, N_("_Join a Channel..."), ALT "J", NULL, G_CALLBACK(loqui_app_actions_join_cb)},
         {LOQUI_ACTION_PART,       GTK_STOCK_REMOVE, N_("_Part Current Channel..."), NULL, NULL, G_CALLBACK(loqui_app_actions_part_cb)},
@@ -659,6 +665,29 @@ loqui_app_actions_clear_all_unread_flags_cb(GtkAction *action, LoquiApp *app)
 	while ((chent = loqui_account_manager_iter_channel_entry_next(&iter)) != NULL)
 		loqui_channel_entry_set_as_read(chent);	
 }
+static void
+loqui_app_actions_close_channel_cb(GtkAction *action, LoquiApp *app)
+{
+	LoquiChannelEntry *chent;
+	LoquiChannel *channel;
+	LoquiAccount *account;
+
+	chent = loqui_app_get_current_channel_entry(app);
+	if (!LOQUI_IS_CHANNEL(chent)) {
+		g_warning("The current channel entry is not a channel");
+		return;
+	}
+
+	loqui_channel_entry_utils_separate(chent, &account, &channel);
+	if (loqui_channel_get_is_joined(channel)) {
+		gtkutils_msgbox_info(GTK_MESSAGE_ERROR,
+				     _("The channel has not be parted yet."));
+		return;
+	}
+
+	loqui_account_remove_channel(loqui_channel_get_account(channel), channel);
+}
+
 static void
 loqui_app_actions_join_cb(GtkAction *action, LoquiApp *app)
 {

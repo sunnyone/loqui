@@ -31,6 +31,7 @@
     <menu name="ChannelMenu" action="StockChannelMenu">
       <menuitem name="Join" action="Join"/>
       <menuitem name="Part" action="Part"/>
+      <menuitem name="CloseChannel" action="CloseChannel"/>
       <separator/>
       <menuitem name="SetTopic" action="SetTopic"/>
       <menuitem name="Refresh" action="Refresh"/>
@@ -122,13 +123,15 @@
     <menuitem name="TerminateCurrentAccount" action="TerminateCurrentAccount"/>
     <separator />
     <menuitem name="ChangeNick" action="ChangeNick"/>
-    <separator />
+    <separator />	
     <menuitem name="Join" action="Join"/>
     <menuitem name="StartPrivateTalk" action="StartPrivateTalk"/>
   </popup>
 
   <popup name="ChannelPopup" action="ChannelPopup">
      <menuitem name="Part" action="Part"/>
+     <menuitem name="CloseChannel" action="CloseChannel"/>
+     <separator/>
      <menuitem name="SetTopic" action="SetTopic"/>
      <menuitem name="Refresh" action="Refresh"/>
   </popup>
