@@ -55,6 +55,7 @@ GtkWidget* remark_entry_new (void);
 G_CONST_RETURN gchar *remark_entry_get_text(RemarkEntry *entry);
 void remark_entry_clear_text(RemarkEntry *entry);
 void remark_entry_set_nick(RemarkEntry *entry, const gchar *nick);
+void remark_entry_grab_focus(RemarkEntry *entry);
 
 G_END_DECLS
 

@@ -500,7 +500,7 @@ void loqui_app_set_focus(LoquiApp *app)
         g_return_if_fail(app != NULL);
         g_return_if_fail(LOQUI_IS_APP(app));
 
-	gtk_widget_grab_focus(app->priv->entry);
+	remark_entry_grab_focus(REMARK_ENTRY(app->priv->entry));
 }
 void loqui_app_scroll_channel_buffer(LoquiApp *app)
 {

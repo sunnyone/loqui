@@ -165,13 +165,13 @@ remark_entry_new(void)
 	priv->toggle_multiline = gtk_toggle_button_new();
 	gtk_container_add(GTK_CONTAINER(priv->toggle_multiline), image);
 	gtk_box_pack_start(GTK_BOX(hbox), priv->toggle_multiline, FALSE, FALSE, 0);
-//	gtk_widget_set_sensitive(priv->toggle_multiline, FALSE);
+	gtk_widget_set_sensitive(priv->toggle_multiline, FALSE);
 
 	image = gtk_image_new_from_stock(GTK_STOCK_SELECT_COLOR, GTK_ICON_SIZE_BUTTON);
 	priv->toggle_palette = gtk_toggle_button_new();
 	gtk_container_add(GTK_CONTAINER(priv->toggle_palette), image);
 	gtk_box_pack_start(GTK_BOX(hbox), priv->toggle_palette, FALSE, FALSE, 0);
-//	gtk_widget_set_sensitive(priv->toggle_palette, FALSE);
+	gtk_widget_set_sensitive(priv->toggle_palette, FALSE);
 
 	return GTK_WIDGET(remark_entry);
 }
@@ -212,6 +212,21 @@ remark_entry_set_nick(RemarkEntry *entry, const gchar *nick)
 	gtk_label_set_text(GTK_LABEL(priv->label_nick), nick);
 }
 
+/* FIXME: this should be done with gtk_widget_grab_focus */
+void
+remark_entry_grab_focus(RemarkEntry *entry)
+{
+	RemarkEntryPrivate *priv;
+
+        g_return_if_fail(entry != NULL);
+        g_return_if_fail(IS_REMARK_ENTRY(entry));
+
+	priv = entry->priv;
+
+	/* FIXME */
+	gtk_widget_grab_focus(GTK_COMBO(priv->combo)->entry);
+}
+
 static void
 remark_entry_combo_activated_cb(GtkWidget *widget, gpointer data)
 {
@@ -224,3 +239,4 @@ remark_entry_combo_activated_cb(GtkWidget *widget, gpointer data)
 
 	g_signal_emit(remark_entry, remark_entry_signals[ACTIVATE], 0);
 }
+
