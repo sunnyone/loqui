@@ -325,6 +325,11 @@ gtkutils_tree_view_popup(GtkTreeView *tree, GdkEventButton *event, GtkMenu *menu
 	gtk_menu_popup(menu, NULL, NULL, NULL,
 		       tree, event->button, event->time);
 }
+gboolean
+gtkutils_widget_is_iconified(GtkWidget *widget)
+{
+	return gdk_window_get_state(widget->window) & GDK_WINDOW_STATE_ICONIFIED;
+}
 void
 gtkutils_menu_position_under_widget(GtkMenu   *menu,
 				    gint      *x,

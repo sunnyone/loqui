@@ -178,7 +178,11 @@ loqui_tray_icon_button_press_event_cb(GtkWidget *widget, GdkEventButton *event, 
 	if (event->type == GDK_BUTTON_PRESS) {
 		switch (event->button) {
 		case 1:
-			gtk_window_present(GTK_WINDOW(tray_icon->app));
+			if (gtkutils_widget_is_iconified(GTK_WIDGET(tray_icon->app)) ||
+			    loqui_app_is_obscured(tray_icon->app))
+				gtk_window_present(GTK_WINDOW(tray_icon->app));
+			else
+				gtk_window_iconify(GTK_WINDOW(tray_icon->app));
 			break;
 		case 3:
 			gtk_menu_popup(GTK_MENU(priv->menu), NULL, NULL,

@@ -58,6 +58,8 @@ void gtkutils_get_current_font_pixel_size(GtkWidget *widget, gint *width, gint *
 gboolean gtkutils_bindings_has_matched_entry(const gchar *class_name, guint modifiers, guint keyval);
 void gtkutils_tree_view_popup(GtkTreeView *tree, GdkEventButton *event, GtkMenu *menu);
 
+gboolean gtkutils_widget_is_iconified(GtkWidget *widget);
+
 void gtkutils_menu_position_under_widget(GtkMenu   *menu,
 					 gint      *x,
 					 gint      *y,

@@ -83,6 +83,7 @@ struct _LoquiAppPrivate
 	guint updated_private_talk_number;
 
 	gboolean has_toplevel_focus;
+	gboolean is_obscured;
 
 	GCompareFunc sort_func;
 };
@@ -97,6 +98,7 @@ static void loqui_app_destroy(GtkObject *object);
 static gboolean loqui_app_delete_event(GtkWidget *widget, GdkEventAny *event);
 static gboolean loqui_app_focus_in_event(GtkWidget *widget, GdkEventFocus *event);
 static gboolean loqui_app_focus_out_event(GtkWidget *widget, GdkEventFocus *event);
+static gboolean loqui_app_visibility_notify_event(GtkWidget *widget, GdkEventVisibility *event);
 
 static void loqui_app_restore_size(LoquiApp *app);
 static void loqui_app_save_size(LoquiApp *app);
@@ -174,6 +176,7 @@ loqui_app_class_init (LoquiAppClass *klass)
 	gtk_widget_class->delete_event = loqui_app_delete_event;
 	gtk_widget_class->focus_in_event = loqui_app_focus_in_event;
 	gtk_widget_class->focus_out_event = loqui_app_focus_out_event;
+	gtk_widget_class->visibility_notify_event = loqui_app_visibility_notify_event;
 }
 static void 
 loqui_app_init (LoquiApp *app)
@@ -182,6 +185,8 @@ loqui_app_init (LoquiApp *app)
 
 	priv = g_new0(LoquiAppPrivate, 1);
 	app->priv = priv;
+
+        gtk_widget_add_events(GTK_WIDGET(app), GDK_VISIBILITY_NOTIFY_MASK);
 }
 static void
 loqui_app_destroy(GtkObject *object)
@@ -291,6 +296,25 @@ loqui_app_focus_out_event(GtkWidget *widget, GdkEventFocus *event)
                return (* GTK_WIDGET_CLASS(parent_class)->focus_out_event) (widget, event);
 	return FALSE;
 }
+static gboolean
+loqui_app_visibility_notify_event(GtkWidget *widget, GdkEventVisibility *event)
+{
+	LoquiApp *app;
+	LoquiAppPrivate *priv;
+
+        g_return_val_if_fail(widget != NULL, FALSE);
+        g_return_val_if_fail(LOQUI_IS_APP(widget), FALSE);
+
+	app = LOQUI_APP(widget);
+	priv = app->priv;
+
+	priv->is_obscured = (event->state == GDK_VISIBILITY_FULLY_OBSCURED || event->state == GDK_VISIBILITY_PARTIAL) ? TRUE : FALSE;
+
+	if (GTK_WIDGET_CLASS(parent_class)->visibility_notify_event)
+               return (* GTK_WIDGET_CLASS(parent_class)->visibility_notify_event) (widget, event);
+
+	return FALSE;
+}
 gboolean
 loqui_app_has_toplevel_focus(LoquiApp *app)
 {
@@ -302,6 +326,18 @@ loqui_app_has_toplevel_focus(LoquiApp *app)
 	priv = app->priv;
 
 	return priv->has_toplevel_focus;
+}
+gboolean
+loqui_app_is_obscured(LoquiApp *app)
+{
+	LoquiAppPrivate *priv;
+
+        g_return_val_if_fail(app != NULL, FALSE);
+        g_return_val_if_fail(LOQUI_IS_APP(app), FALSE);
+
+	priv = app->priv;
+
+	return priv->is_obscured;
 }
 static void loqui_app_save_size(LoquiApp *app)
 {
