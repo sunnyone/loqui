@@ -734,7 +734,9 @@ irc_handle_my_command_nick(IRCHandle *handle, IRCMessage *msg)
         g_return_if_fail(handle != NULL);
         g_return_if_fail(IS_IRC_HANDLE(handle));
 
+	gdk_threads_enter();
 	account_set_current_nick(handle->priv->account, irc_message_get_param(msg, 1));
+	gdk_threads_leave();
 }
 
 static gboolean
@@ -1271,7 +1273,10 @@ static gpointer irc_handle_thread_func(IRCHandle *handle)
 		irc_message_print(msg);
 	}
 	irc_handle_push_message(handle, msg);
+
+	gdk_threads_enter();
 	account_set_current_nick(priv->account, account_get_nick(priv->account));
+	gdk_threads_leave();
 
 	msg = irc_message_create(IRCCommandUser, 
 				 priv->account->username, "*", "*", 
