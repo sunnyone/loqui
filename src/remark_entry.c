@@ -178,6 +178,7 @@ remark_entry_new(void)
 
 	priv->combo = gtk_combo_new();
 	gtk_combo_disable_activate(GTK_COMBO(priv->combo));
+	gtk_combo_set_case_sensitive(GTK_COMBO(priv->combo), TRUE);
 	g_signal_connect(G_OBJECT(GTK_COMBO(priv->combo)->entry), "activate",
 			 G_CALLBACK(remark_entry_activated_cb), remark_entry);
 	g_signal_connect(G_OBJECT(priv->combo), "show",
