@@ -23,12 +23,11 @@
 #include "intl.h"
 
 #include "loqui_channel_entry.h"
-#include "loqui_marshalers.h"
 
 enum {
+	SIGNAL_ADD,
 	SIGNAL_REMOVE,
 	SIGNAL_REORDERED,
-	SIGNAL_INSERTED,
         LAST_SIGNAL
 };
 
@@ -63,7 +62,8 @@ static void loqui_channel_entry_dispose(GObject *object);
 static void loqui_channel_entry_get_property(GObject *object, guint param_id, GValue *value, GParamSpec *pspec);
 static void loqui_channel_entry_set_property(GObject *object, guint param_id, const GValue *value, GParamSpec *pspec);
 
-static void loqui_channel_entry_real_remove(LoquiChannelEntry *chent, LoquiMember *member);
+static void loqui_channel_entry_add_real(LoquiChannelEntry *chent, LoquiMember *member);
+static void loqui_channel_entry_remove_real(LoquiChannelEntry *chent, LoquiMember *member);
 static void loqui_channel_entry_user_notify_is_channel_operator_cb(LoquiMember *member, GParamSpec *pspec, LoquiChannelEntry *chent);
 
 GType
@@ -219,8 +219,8 @@ loqui_channel_entry_class_init(LoquiChannelEntryClass *klass)
         object_class->dispose = loqui_channel_entry_dispose;
         object_class->get_property = loqui_channel_entry_get_property;
         object_class->set_property = loqui_channel_entry_set_property;
-	klass->remove = loqui_channel_entry_real_remove;
-	klass->inserted = NULL;
+	klass->remove = loqui_channel_entry_remove_real;
+	klass->add = loqui_channel_entry_add_real;
 	klass->reordered = NULL;
 
 	g_object_class_install_property(object_class,
@@ -276,6 +276,14 @@ loqui_channel_entry_class_init(LoquiChannelEntryClass *klass)
 							 -1, G_MAXINT,
 							 -1, G_PARAM_READABLE));
 
+	loqui_channel_entry_signals[SIGNAL_ADD] = g_signal_new("add",
+							       G_OBJECT_CLASS_TYPE(object_class),
+							       G_SIGNAL_RUN_FIRST,
+							       G_STRUCT_OFFSET(LoquiChannelEntryClass, add),
+							       NULL, NULL,
+							       g_cclosure_marshal_VOID__OBJECT,
+							       G_TYPE_NONE, 1,
+							       LOQUI_TYPE_MEMBER);
 	loqui_channel_entry_signals[SIGNAL_REMOVE] = g_signal_new("remove",
 								  G_OBJECT_CLASS_TYPE(object_class),
 								  G_SIGNAL_RUN_LAST,
@@ -284,15 +292,6 @@ loqui_channel_entry_class_init(LoquiChannelEntryClass *klass)
 								  g_cclosure_marshal_VOID__OBJECT,
 								  G_TYPE_NONE, 1,
 								  LOQUI_TYPE_MEMBER);
-	loqui_channel_entry_signals[SIGNAL_INSERTED] = g_signal_new("inserted",
-								    G_OBJECT_CLASS_TYPE(object_class),
-								    G_SIGNAL_RUN_FIRST,
-								    G_STRUCT_OFFSET(LoquiChannelEntryClass, inserted),
-								    NULL, NULL,
-								    _loqui_marshal_VOID__OBJECT_INT,
-								    G_TYPE_NONE, 2,
-								    LOQUI_TYPE_MEMBER,
-								    G_TYPE_INT);
 	loqui_channel_entry_signals[SIGNAL_REORDERED] = g_signal_new("reordered",
 								     G_OBJECT_CLASS_TYPE(object_class),
 								     G_SIGNAL_RUN_FIRST,
@@ -331,7 +330,45 @@ loqui_channel_entry_new(void)
         return chent;
 }
 static void
-loqui_channel_entry_real_remove(LoquiChannelEntry *chent, LoquiMember *member)
+loqui_channel_entry_add_real(LoquiChannelEntry *chent, LoquiMember *member)
+{
+	LoquiChannelEntryPrivate *priv;
+	gint i, pos;
+
+        g_return_if_fail(chent != NULL);
+        g_return_if_fail(LOQUI_IS_CHANNEL_ENTRY(chent));
+        g_return_if_fail(member != NULL);
+        g_return_if_fail(LOQUI_IS_MEMBER(member));
+	
+        priv = chent->priv;
+
+	g_object_ref(member);
+	if (chent->sort_func) {
+		for (i = 0; i < chent->member_array->len; i++) {
+			if (chent->sort_func(g_array_index(chent->member_array, LoquiMember *, i), member) > 0)
+				break;
+		}
+		pos = i;
+		if (i < chent->member_array->len)
+			g_array_insert_val(chent->member_array, pos, member);
+		g_array_append_val(chent->member_array, member);
+	} else {
+		g_array_append_val(chent->member_array, member);
+		pos = chent->member_array->len - 1;
+	}
+	g_hash_table_insert(chent->user_hash, member->user, GINT_TO_POINTER(pos + 1));
+
+	if (loqui_member_get_is_channel_operator(member)) {
+		chent->op_number++;
+		g_object_notify(G_OBJECT(chent), "op_number");
+	}
+	g_signal_connect(G_OBJECT(member), "notify::is-channel-operator",
+			 G_CALLBACK(loqui_channel_entry_user_notify_is_channel_operator_cb), chent);
+
+	g_object_notify(G_OBJECT(chent), "member-number");
+}
+static void
+loqui_channel_entry_remove_real(LoquiChannelEntry *chent, LoquiMember *member)
 {
 	gint i;
 	gint old_pos;
@@ -373,7 +410,6 @@ void
 loqui_channel_entry_add_member(LoquiChannelEntry *chent, LoquiMember *member)
 {
 	LoquiChannelEntryPrivate *priv;
-	gint i, pos;
 
         g_return_if_fail(chent != NULL);
         g_return_if_fail(LOQUI_IS_CHANNEL_ENTRY(chent));
@@ -382,31 +418,7 @@ loqui_channel_entry_add_member(LoquiChannelEntry *chent, LoquiMember *member)
 	
         priv = chent->priv;
 
-	g_object_ref(member);
-	if (chent->sort_func) {
-		for (i = 0; i < chent->member_array->len; i++) {
-			if (chent->sort_func(g_array_index(chent->member_array, LoquiMember *, i), member) > 0)
-				break;
-		}
-		pos = i;
-		if (i < chent->member_array->len)
-			g_array_insert_val(chent->member_array, pos, member);
-		g_array_append_val(chent->member_array, member);
-	} else {
-		g_array_append_val(chent->member_array, member);
-		pos = chent->member_array->len - 1;
-	}
-	g_hash_table_insert(chent->user_hash, member->user, GINT_TO_POINTER(pos + 1));
-
-	if (loqui_member_get_is_channel_operator(member)) {
-		chent->op_number++;
-		g_object_notify(G_OBJECT(chent), "op_number");
-	}
-	g_signal_connect(G_OBJECT(member), "notify::is-channel-operator",
-			 G_CALLBACK(loqui_channel_entry_user_notify_is_channel_operator_cb), chent);
-	g_object_notify(G_OBJECT(chent), "member-number");
-
-	g_signal_emit(chent, loqui_channel_entry_signals[SIGNAL_INSERTED], 0, member, pos);
+	g_signal_emit(chent, loqui_channel_entry_signals[SIGNAL_ADD], 0, member);
 }
 void
 loqui_channel_entry_remove_member_by_user(LoquiChannelEntry *chent, LoquiUser *user)

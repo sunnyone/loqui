@@ -69,10 +69,10 @@ struct _LoquiChannelEntryClass
         GObjectClass parent_class;
 	
 	/* RUN_LAST */
+	void (* add) (LoquiChannelEntry *chent, LoquiMember *member);
 	void (* remove) (LoquiChannelEntry *chent, LoquiMember *member);
 
 	/* RUN_FIRST */
-	void (* inserted) (LoquiChannelEntry *chent, LoquiMember *member, gint pos);
 	void (* reordered) (LoquiChannelEntry *chent);
 };
 

@@ -78,10 +78,9 @@ static gboolean loqui_channel_entry_store_iter_parent(GtkTreeModel *tree_model,
 						      GtkTreeIter *child);
 
 
-static void loqui_channel_entry_store_inserted_cb(LoquiChannelEntry *entry,
-						  LoquiMember *member,
-						  gint pos,
-						  LoquiChannelEntryStore *store);
+static void loqui_channel_entry_store_add_after_cb(LoquiChannelEntry *entry,
+						   LoquiMember *member,
+						   LoquiChannelEntryStore *store);
 static void loqui_channel_entry_store_remove_cb(LoquiChannelEntry *chent,
 						LoquiMember *member,
 						LoquiChannelEntryStore *store);
@@ -465,16 +464,19 @@ loqui_channel_entry_store_iter_parent(GtkTreeModel *tree_model,
 	return FALSE;
 }
 static void
-loqui_channel_entry_store_inserted_cb(LoquiChannelEntry *entry,
-				      LoquiMember *member,
-				      gint pos,
-				      LoquiChannelEntryStore *store)
+loqui_channel_entry_store_add_after_cb(LoquiChannelEntry *entry,
+				       LoquiMember *member,
+				       LoquiChannelEntryStore *store)
 {
 	GtkTreeIter iter;
 	GtkTreePath *path;
+	gint pos;
 
 	iter.user_data = member;
+	pos = loqui_channel_entry_get_member_pos(entry, member);
+	g_return_if_fail(pos >= 0);
 	iter.user_data2 = GINT_TO_POINTER(pos + 1);
+
 	path = loqui_channel_entry_store_get_path(GTK_TREE_MODEL(store), &iter);
 	gtk_tree_model_row_inserted(GTK_TREE_MODEL(store), path, &iter);
 	gtk_tree_path_free(path);
@@ -571,11 +573,11 @@ loqui_channel_entry_store_new(LoquiChannelEntry *chent)
 
 	for(i = 0; i < num; i++) {
 		member = loqui_channel_entry_get_nth_member(chent, i);
-		loqui_channel_entry_store_inserted_cb(chent, member, i, store);
+		loqui_channel_entry_store_add_after_cb(chent, member, store);
 	}
 
-	g_signal_connect(G_OBJECT(chent), "inserted",
-			 G_CALLBACK(loqui_channel_entry_store_inserted_cb), store);
+	g_signal_connect_after(G_OBJECT(chent), "add",
+			       G_CALLBACK(loqui_channel_entry_store_add_after_cb), store);
 	g_signal_connect(G_OBJECT(chent), "remove",
 			 G_CALLBACK(loqui_channel_entry_store_remove_cb), store);
         return store;
