@@ -174,7 +174,8 @@ irc_connection_finalize(GObject *object)
 	irc_connection_disconnect_internal(connection);
 
 	G_FREE_UNLESS_NULL(priv->hostname);
-
+	G_OBJECT_UNREF_UNLESS_NULL(priv->codeconv);
+	
         if (G_OBJECT_CLASS(parent_class)->finalize)
                 (* G_OBJECT_CLASS(parent_class)->finalize) (object);
 
@@ -397,6 +398,9 @@ irc_connection_set_codeconv(IRCConnection *connection, CodeConv *codeconv)
 
 	priv = connection->priv;
 
+	G_OBJECT_UNREF_UNLESS_NULL(priv->codeconv);
+	
+	g_object_ref(codeconv);
 	priv->codeconv = codeconv;
 }
 void
