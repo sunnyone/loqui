@@ -44,6 +44,9 @@ PrefElement prefs_general_defs[] = {
 
 	{"away_message", "Gone.", G_TYPE_STRING, &prefs_general.away_message},
 
+	{"browser_command", "mozilla %s", G_TYPE_STRING, &prefs_general.browser_command},
+	{"notification_command", "esdplay /usr/share/sounds/email.wav", G_TYPE_STRING, &prefs_general.notification_command},
+
 	{NULL, NULL, 0, NULL}
 };
 

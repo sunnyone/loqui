@@ -47,6 +47,10 @@ typedef struct _PrefsGeneral {
 	gint channel_tree_height;
 
 	gchar *away_message;
+
+	gchar *browser_command;
+	gchar *notification_command;
+
 } PrefsGeneral;
 
 void prefs_general_load(void);
