@@ -211,11 +211,11 @@ loqui_app_new (void)
 	hbox = gtk_hbox_new(FALSE, 0);
 	gtk_box_pack_start(GTK_BOX(vbox), hbox, FALSE, FALSE, 0);
 
-	priv->toggle_scroll = gtk_toggle_button_new_with_mnemonic("Sc_roll");
+	priv->toggle_scroll = gtk_toggle_button_new_with_mnemonic(_("Sc_roll"));
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(priv->toggle_scroll), TRUE);
 	gtk_box_pack_start(GTK_BOX(hbox), priv->toggle_scroll, FALSE, FALSE, 0);
 
-	priv->label_topic = gtk_label_new("Topic");
+	priv->label_topic = gtk_label_new(_("Topic"));
 	gtk_label_set_selectable(GTK_LABEL(priv->label_topic), TRUE);
 	gtk_label_set_justify(GTK_LABEL(priv->label_topic), GTK_JUSTIFY_LEFT);
 

@@ -269,7 +269,7 @@ channel_text_append(ChannelText *channel_text, TextType type, gchar *str)
 	gtk_text_buffer_get_end_iter(textbuf, &iter);
 
 	channel_text_insert_current_time(channel_text, textbuf, &iter);
-	channel_text_get_uri_chunk(str);
+/*	channel_text_get_uri_chunk(str); */
 
 	switch(type) {
 	case TEXT_TYPE_NOTICE:
