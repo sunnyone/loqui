@@ -304,6 +304,10 @@ loqui_channel_entry_action_set_channel_entry(LoquiChannelEntryAction *action, Lo
 
 		g_signal_connect(G_OBJECT(channel_entry), "notify::is-updated",
 				 G_CALLBACK(loqui_channel_entry_action_entry_notify_is_updated_cb), action);
+		g_signal_connect(G_OBJECT(channel_entry), "notify::is-updated-weak",
+				 G_CALLBACK(loqui_channel_entry_action_entry_notify_is_updated_cb), action);
+		g_signal_connect(G_OBJECT(channel_entry), "notify::has-unread-keyword",
+				 G_CALLBACK(loqui_channel_entry_action_entry_notify_is_updated_cb), action);
 		g_signal_connect(G_OBJECT(channel_entry), "notify::name",
 				 G_CALLBACK(loqui_channel_entry_action_entry_notify_name_cb), action);
 
