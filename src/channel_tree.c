@@ -381,11 +381,10 @@ channel_tree_select_channel_entry(ChannelTree *tree, LoquiChannelEntry *chent)
 	
 	g_signal_handler_block(selection, priv->selection_changed_signal_id);
 
-	if (LOQUI_IS_CHANNEL(chent)) {
-		loqui_account_manager_store_get_iter_by_channel_entry(store, &iter,
-								      LOQUI_CHANNEL_ENTRY(loqui_channel_get_account(LOQUI_CHANNEL(chent))));
-		gtk_tree_view_expand_row(GTK_TREE_VIEW(tree), gtk_tree_model_get_path(model, &iter), TRUE);
-	}
+	loqui_account_manager_store_get_iter_by_channel_entry(store, &iter, chent);
+	path = gtk_tree_model_get_path(model, &iter);
+	gtk_tree_view_expand_to_path(GTK_TREE_VIEW(tree), path);
+	gtk_tree_path_free(path);
 
 	loqui_account_manager_store_get_iter_by_channel_entry(store, &iter, chent);
 	gtk_tree_selection_select_iter(selection, &iter);
