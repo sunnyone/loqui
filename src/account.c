@@ -500,6 +500,7 @@ account_connection_terminated_cb(GObject *object, Account *account)
 	G_OBJECT_UNREF_UNLESS_NULL(priv->handle);
 
 	account_console_buffer_append(account, TEXT_TYPE_INFO, _("Connection terminated."));
+	loqui_user_set_away(account->user_self, LOQUI_AWAY_TYPE_OFFLINE);
 
 	if(prefs_general.auto_reconnect) {
 		account_console_buffer_append(account, TEXT_TYPE_INFO, _("Trying to reconnect..."));
@@ -521,6 +522,7 @@ account_connection_disconnected_cb(GObject *object, Account *account)
 	account_console_buffer_append(account, TEXT_TYPE_INFO, _("Disconnected."));
 	account_remove_all_channel(account);
 
+	loqui_user_set_away(account->user_self, LOQUI_AWAY_TYPE_OFFLINE);
 	g_signal_emit(account, account_signals[DISCONNECTED], 0);
 }
 static void account_connection_warn_cb(GObject *object, gchar *str, Account *account)
