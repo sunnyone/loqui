@@ -60,6 +60,10 @@ SRC_PROTOCOL_IPMSG = \
 	ipmsg_socket.c ipmsg_socket.h \
 	ipmsg_packet.c ipmsg_packet.h
 
+SRC_PROTOCOL_MSN = \
+	loqui_protocol_msn.c loqui_protocol_msn.h \
+	loqui_account_msn.c loqui_account_msn.h
+
 SRC_LIBRARY_CORE = \
 	loqui_protocol_manager.c loqui_protocol_manager.h \
 	loqui_member_sort_funcs.c loqui_member_sort_funcs.h \
@@ -101,6 +105,7 @@ loqui_SOURCES = \
 	$(SRC_PROTOCOL_BASE) \
 	$(SRC_PROTOCOL_IRC) \
 	$(SRC_PROTOCOL_IPMSG) \
+	$(SRC_PROTOCOL_MSN) \
 	$(SRC_LIBRARY_CORE) \
 	$(SRC_GTK)
 
