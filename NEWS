@@ -1,55 +1,55 @@
-2003-01-09     0.0.5 Release
+2003-01-09     0.0.5
 * First release.
 
-2003-01-10     0.0.6 Release
+2003-01-10     0.0.6
 * Fixed a incorrect handling with a private message.
 * Fixed some small bugs.
 
-2003-01-19     0.0.7 Release
+2003-01-19     0.0.7
 * Fixed a bug sometimes nicklist is broken by user's part/quit.
 * Improved performance of scrolling
 * Removed dependency of GConf/GNOME2
 
-2003-01-19     0.0.8 Release
+2003-01-19     0.0.8
 * Changed the way to change buffers/userlists.
 * Saving channel tree/common buffer size.
 
-2003-01-23     0.0.9 Release
+2003-01-23     0.0.9
 * Fix the bug a connection is terminated when failed to convert codeset.
 * Change color of the channel on the channel tree when new messages are arrived.
 
-2003-01-27     0.1.0 Release
+2003-01-27     0.1.0
 * Created account settings.
 * Fix the bug blocking when disconnecting.
 * Enabled nicklist sorting.
 
-2003-02-08     0.1.1 Release
+2003-02-08     0.1.1
 * Changed interface.
 * Fix a bug to fail sending a message that contains no parameters.
 * Implemented a feature to toggle home/away.
 
-2003-02-10     0.1.2 Release
+2003-02-10     0.1.2
 * Fix the bug the program quits when it received a QUIT message that doesn't contain no parameters.
 * New code convertion method.
 * Enabled translation of menu.
 
-2003-02-12     0.1.3 Release
+2003-02-12     0.1.3
 * Change the charset of .po file into UTF-8
 * Change implementation of prefs_general(data saved in loquirc.xml will be lost.)
 * Popup menu of NickList is implemented.
 
-2003-02-16     0.1.4 Release
+2003-02-16     0.1.4
 * Autojoin feature.
 * Notification feature.
 * Clickable URL.
 * Common Preferences dialog.
 
-2003-02-19     0.1.5 Release
+2003-02-19     0.1.5
 * Replaced emphasis with highlight.
 * Fix the high load when selected a channel.
 * Show channel modes.
 
-2003-02-19     0.1.6 Release
+2003-02-19     0.1.6
 * Implemented Cut/Copy/Paste
 * Fix scrollbar behavior.
 * Function to determine whether scrolling or not with scrollbar operation.
