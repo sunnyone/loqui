@@ -520,7 +520,7 @@ loqui_channel_append_remark(LoquiChannel *channel, TextType type, gboolean is_se
 	gchar *word;
 
 	gboolean is_priv = FALSE;
-	gboolean exec_notification = TRUE && is_from_server && !is_self;
+	gboolean exec_notification = TRUE && !is_from_server && !is_self;
 
 	g_return_if_fail(channel != NULL);
 	g_return_if_fail(LOQUI_IS_CHANNEL(channel));
