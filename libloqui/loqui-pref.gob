@@ -99,6 +99,9 @@ class Loqui:Pref from G:Object
 	public gint get_integer(self, const gchar *group_name, const gchar *key, GError **error) {
 		return lqg_key_file_get_integer(selfp->keyfile, group_name, key, error);
 	}
+	public gboolean get_boolean(self, const gchar *group_name, const gchar *key, GError **error) {
+		return lqg_key_file_get_integer(selfp->keyfile, group_name, key, error);
+	}
 
 	public void set_string(self, const gchar *group_name, const gchar *key, const gchar *value) {
 		lqg_key_file_set_string(selfp->keyfile, group_name, key, value);
@@ -108,10 +111,19 @@ class Loqui:Pref from G:Object
 		lqg_key_file_set_integer(selfp->keyfile, group_name, key, value);
 		self_changed(self, group_name, key);
 	}
-	
+	public void set_boolean(self, const gchar *group_name, const gchar *key, gboolean value) {
+		lqg_key_file_set_integer(selfp->keyfile, group_name, key, value);
+		self_changed(self, group_name, key);
+	}
+
 	public void set_string_default(self, const gchar *group_name, const gchar *key, const gchar *default_value) {
 		if (lqg_key_file_has_key(selfp->keyfile, group_name, key, NULL))
 			return;
 		self_set_string(self, group_name, key, default_value);
+	}
+	public void set_boolean_default(self, const gchar *group_name, const gchar *key, gboolean default_value) {
+		if (lqg_key_file_has_key(selfp->keyfile, group_name, key, NULL))
+			return;
+		self_set_boolean(self, group_name, key, default_value);
 	}
 }
