@@ -106,6 +106,7 @@ loqui_user_dispose(GObject *object)
         user = LOQUI_USER(object);
 
 	G_FREE_UNLESS_NULL(user->nick);
+	G_FREE_UNLESS_NULL(user->nick_key);
 	G_FREE_UNLESS_NULL(user->username);
 	G_FREE_UNLESS_NULL(user->hostname);
 	G_FREE_UNLESS_NULL(user->realname);
@@ -355,7 +356,6 @@ loqui_user_class_away_type_get_info(LoquiUserClass *user_class, LoquiAwayType aw
 LOQUI_USER_ACCESSOR_GENERIC(gint, idle_time);
 LOQUI_USER_ACCESSOR_GENERIC(gboolean, is_ignored);
 LOQUI_USER_ACCESSOR_GENERIC(LoquiAwayType, away);
-LOQUI_USER_ACCESSOR_STRING(nick);
 LOQUI_USER_ACCESSOR_STRING(username);
 LOQUI_USER_ACCESSOR_STRING(hostname);
 LOQUI_USER_ACCESSOR_STRING(realname);
@@ -379,4 +379,31 @@ loqui_user_get_basic_away(LoquiUser *user)
 		return LOQUI_BASIC_AWAY_TYPE_UNKNOWN;
 
 	return away_info->basic_away_type;
+}
+
+void
+loqui_user_set_nick(LoquiUser *user, const gchar* nick)
+{
+	gchar *tmp;
+
+	g_return_if_fail(user != NULL);
+        g_return_if_fail(LOQUI_IS_USER(user));
+
+	G_FREE_UNLESS_NULL(user->nick);
+	G_FREE_UNLESS_NULL(user->nick_key);
+
+	user->nick = g_strdup(nick);
+	tmp = g_ascii_strdown(nick, -1);
+	user->nick_key = g_utf8_collate_key(tmp, -1);
+	g_free(tmp);
+
+	g_object_notify(G_OBJECT(user), "nick");
+}
+G_CONST_RETURN gchar *
+loqui_user_get_nick(LoquiUser *user)
+{
+        g_return_val_if_fail(user != NULL, 0);
+        g_return_val_if_fail(LOQUI_IS_USER(user), 0);
+
+	return user->nick;
 }

@@ -64,6 +64,7 @@ struct _LoquiUser
         GObject parent;
         
 	gchar *nick;
+	gchar *nick_key;
 
 	/* mailaddress == username@hostname */
 	gchar *username;
