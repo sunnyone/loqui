@@ -122,6 +122,14 @@ loqui_channel_entry_dispose(GObject *object)
 		member = g_array_index(chent->member_array, LoquiMember *, i);
 		g_object_unref(member);
 	}
+	if (chent->member_array) {
+		g_array_free(chent->member_array, TRUE);
+		chent->member_array = NULL;
+	}
+	if (chent->user_hash) {
+		g_hash_table_destroy(chent->user_hash);
+		chent->user_hash = NULL;
+	}
 
         if (G_OBJECT_CLASS(parent_class)->dispose)
                 (* G_OBJECT_CLASS(parent_class)->dispose)(object);
@@ -277,10 +285,15 @@ loqui_channel_entry_real_remove(LoquiChannelEntry *chent, LoquiMember *member)
         g_return_if_fail(chent != NULL);
         g_return_if_fail(LOQUI_IS_CHANNEL_ENTRY(chent));
 
+	/* remove the last user from table */
+	mcur = g_array_index(chent->member_array, LoquiMember *, chent->member_array->len - 1);
+	g_hash_table_remove(chent->user_hash, GINT_TO_POINTER(mcur));
+
 	old_pos = GPOINTER_TO_INT(g_hash_table_lookup(chent->user_hash, member->user)) - 1;
-	g_return_if_fail(old_pos < 0);
+	g_return_if_fail(old_pos >= 0);
 	g_array_remove_index(chent->member_array, old_pos);
-	g_hash_table_remove(chent->user_hash, GINT_TO_POINTER(chent->member_array->len - 1 + 1));
+
+	/* update len - 2 users */
 	for (i = 0; i < chent->member_array->len; i++) {
 		mcur = loqui_channel_entry_get_nth_member(chent, i);
 		g_hash_table_replace(chent->user_hash, mcur->user, GINT_TO_POINTER(i + 1));
@@ -324,8 +337,11 @@ loqui_channel_entry_remove_member_by_user(LoquiChannelEntry *chent, LoquiUser *u
 	LoquiMember *member;
         g_return_if_fail(chent != NULL);
         g_return_if_fail(LOQUI_IS_CHANNEL_ENTRY(chent));
-	
+	g_return_if_fail(user != NULL);
+
 	member = loqui_channel_entry_get_member_by_user(chent, user);
+	g_return_if_fail(member != NULL);
+
 	g_signal_emit(G_OBJECT(chent), loqui_channel_entry_signals[SIGNAL_REMOVE], 0, member);
 }
 void
