@@ -28,18 +28,12 @@ requires 2.0.0
 %}
 
 %h{
-#include <libloqui/loqui-sequenced-pref.h>
-%h}
+#include <libloqui/loqui-pref-partial.h>
+%}
 
 class Loqui:Pref:Sequence from G:Object
 {
-	public Loqui:Pref:Sequence *
-	new() {
-		Self *self = GET_NEW;
-		return self;
-	}
-
-	public LoquiPref *pref
+	public Loqui:Pref *pref
 	  unref {
 		self_set_pref(self, NULL);
 	  };
@@ -71,14 +65,14 @@ class Loqui:Pref:Sequence from G:Object
 		self->prefix = g_strdup(prefix);
 	}
 
-	public /*G_CONST_RETURN*/
+	public /*G_CONST_RETURN*/ gchar *
 	get_prefix(self) {
 		return self->prefix;
 	}
 	
 	public gchar *
 	create_group_name(self, gint id) {
-		g_return_val_if_fail(self->prefix != NULL);
+		g_return_val_if_fail(self->prefix != NULL, NULL);
 
 		return g_strdup_printf("%s%d", self->prefix, id);
 	}
@@ -88,8 +82,8 @@ class Loqui:Pref:Sequence from G:Object
 		gchar *group_name;
 		gboolean has_id;
 
-		g_return_val_if_fail(self->prefix != NULL);
-		g_return_val_if_fail(self->pref != NULL);
+		g_return_val_if_fail(self->prefix != NULL, FALSE);
+		g_return_val_if_fail(self->pref != NULL, FALSE);
 
 		group_name = self_create_group_name(self, id);
 		has_id = loqui_pref_has_group(self->pref, group_name);
@@ -109,8 +103,8 @@ class Loqui:Pref:Sequence from G:Object
 		gint id;
 		gint i;
 
-		g_return_val_if_fail(self->prefix != NULL);
-		g_return_val_if_fail(self->pref != NULL);
+		g_return_val_if_fail(self->prefix != NULL, 0);
+		g_return_val_if_fail(self->pref != NULL, 0);
 
 		id = loqui_pref_get_integer(self->pref, "Sequence", self->prefix, NULL);
 		if (id <= 0)
@@ -129,5 +123,57 @@ class Loqui:Pref:Sequence from G:Object
 		}
 		return 0;
 	}
-	
+
+	public GList *
+	get_id_list(self) {
+		gchar **array;
+		int i;
+		GList *list = NULL;
+		gchar *id_str;
+		gint id;
+
+		g_return_val_if_fail(self->prefix != NULL, NULL);
+		g_return_val_if_fail(self->pref != NULL, NULL);
+
+		array = loqui_pref_get_groups(self->pref, NULL);
+		for (i = 0; array[i] != NULL; i++) {
+			if (!g_str_has_prefix(array[i], self->prefix))
+				continue;
+			id_str = array[i] + strlen(self->prefix);
+
+			id = g_ascii_strtoull(id_str, NULL, 10);
+			if (id <= 0)
+				continue;
+			
+			list = g_list_prepend(list, GINT_TO_POINTER(id));
+		}
+		g_strfreev(array);
+
+		return g_list_reverse(list);
+	}
+	public LoquiPrefPartial *
+	get_pref_partial(self, gint id) {
+		gchar *group_name;
+		LoquiPrefPartial *ppref;
+
+		if (!self_has_id(self, id))
+			return NULL;
+
+		group_name = self_create_group_name(self, id);
+		ppref = loqui_pref_partial_new();
+		
+		loqui_pref_partial_set_group_name(ppref, group_name);
+		g_free(group_name);
+		
+		loqui_pref_partial_set_pref(ppref, self->pref);
+
+		return ppref;
+	}
+
+	public LoquiPrefSequence *
+	new(void) {
+		Self *self = GET_NEW;
+		return self;
+	}
+
 }
