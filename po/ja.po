@@ -455,6 +455,7 @@ msgid "Time: %3(%2)"
 msgstr ""
 
 #: src/irc_handle.c:1229
+#, c-format
 msgid "IOChannel write error: %s"
 msgstr "IOChannel書き込みエラー: %s"
 

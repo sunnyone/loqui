@@ -2,12 +2,12 @@ Source: loqui
 Section: net
 Priority: optional
 Maintainer: Yoichi Imai <yoichi@silver-forest.com>
-Build-Depends: debhelper (>> 3.0.0), libgtk2.0-dev (>= 2.2.0), libglib2.0-dev (>= 2.2.0), libgnet-dev
+Build-Depends: debhelper (>> 3.0.0), libgtk2.0-dev (>= 2.2.0), libglib2.0-dev (>= 2.2.0), libgnet-dev, intltool
 Standards-Version: 3.5.2
 
 Package: loqui
 Architecture: any
 Depends: ${shlibs:Depends}
-Description: Loqui - IRC client for Gtk2
+Description: IRC client for Gtk2
  Loqui is a 4-paned IRC client, supported multiserver.
  This software is still experimental.
