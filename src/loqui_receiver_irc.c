@@ -266,7 +266,7 @@ loqui_receiver_irc_command_privmsg_notice(LoquiReceiverIRC *receiver, IRCMessage
 	remark = irc_message_get_param(msg, 2);
 
 	if(remark == NULL) {
-		loqui_account_warning(LOQUI_RECEIVER(receiver)->account, _("This PRIVMSG/NOTICE message doesn't contain a remark."));
+		loqui_account_warning(account, _("This PRIVMSG/NOTICE message doesn't contain a remark."));
 		return;
 	}
 
