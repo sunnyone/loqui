@@ -134,6 +134,7 @@ connection_new (Server *server)
 		return NULL;
 	}
 	priv->io = gnet_tcp_socket_get_iochannel(priv->sock);
+	g_io_channel_set_close_on_unref(priv->io, TRUE);
 
 	return connection;
 }
@@ -150,6 +151,9 @@ gchar *connection_gets(Connection *connection, GIOError *error)
         g_return_val_if_fail(IS_CONNECTION(connection), NULL);
 
 	priv = connection->priv;
+	if(priv->io == NULL)
+		return NULL;
+
 	tmp_err = gnet_io_channel_readline_strdup(priv->io, &str, &len);
 	if(tmp_err != G_IO_ERROR_NONE) {
 		if(error != NULL) {
@@ -222,5 +226,10 @@ void connection_disconnect(Connection *connection)
         g_return_if_fail(connection != NULL);
         g_return_if_fail(IS_CONNECTION(connection));
 
+	debug_puts("Disconnecting...");
+	g_io_channel_set_flags(connection->priv->io, G_IO_FLAG_NONBLOCK, NULL);
+	g_io_channel_unref(connection->priv->io);
+	connection->priv->io = NULL;
 	gnet_tcp_socket_delete(connection->priv->sock);
+	debug_puts("Done.");
 }

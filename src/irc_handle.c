@@ -1097,7 +1097,6 @@ void irc_handle_disconnect(IRCHandle *handle)
 	priv = handle->priv;
 
 	if(priv->connection) {
-		connection_disconnect(priv->connection);
 		g_object_unref(priv->connection);
 		priv->connection = NULL;
 	}
