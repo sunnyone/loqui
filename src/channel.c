@@ -165,6 +165,8 @@ channel_finalize (GObject *object)
 
 	G_FREE_UNLESS_NULL(priv->name);
 	G_FREE_UNLESS_NULL(priv->topic);
+	G_OBJECT_UNREF_UNLESS_NULL(channel->buffer);
+	G_OBJECT_UNREF_UNLESS_NULL(channel->user_list);
 
         if (G_OBJECT_CLASS(parent_class)->finalize)
                 (* G_OBJECT_CLASS(parent_class)->finalize) (object);
