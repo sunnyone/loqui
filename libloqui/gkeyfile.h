@@ -22,10 +22,8 @@
 /* backported for glib-2.4. 2004-12-30 Yoichi Imai <yoichi@silver-forest.com>
    locale-related functions do not work. */
 
-#ifdef USE_GLIB_2_4
-
-#ifndef __G_KEY_FILE_H__
-#define __G_KEY_FILE_H__
+#ifndef __LQG_KEY_FILE_H__
+#define __LQG_KEY_FILE_H__
 
 #include <glib/gerror.h>
 
@@ -35,148 +33,145 @@ G_BEGIN_DECLS
 
 typedef enum
 {
-  G_KEY_FILE_ERROR_UNKNOWN_ENCODING,
-  G_KEY_FILE_ERROR_PARSE,
-  G_KEY_FILE_ERROR_NOT_FOUND,
-  G_KEY_FILE_ERROR_KEY_NOT_FOUND,
-  G_KEY_FILE_ERROR_GROUP_NOT_FOUND,
-  G_KEY_FILE_ERROR_INVALID_VALUE
-} GKeyFileError;
+  LQG_KEY_FILE_ERROR_UNKNOWN_ENCODING,
+  LQG_KEY_FILE_ERROR_PARSE,
+  LQG_KEY_FILE_ERROR_NOT_FOUND,
+  LQG_KEY_FILE_ERROR_KEY_NOT_FOUND,
+  LQG_KEY_FILE_ERROR_GROUP_NOT_FOUND,
+  LQG_KEY_FILE_ERROR_INVALID_VALUE
+} LqGKeyFileError;
 
-#define G_KEY_FILE_ERROR g_key_file_error_quark()
+#define LQG_KEY_FILE_ERROR lqg_key_file_error_quark()
 
-GQuark g_key_file_error_quark (void);
+GQuark lqg_key_file_error_quark (void);
 
-typedef struct _GKeyFile GKeyFile;
+typedef struct _LqGKeyFile LqGKeyFile;
 
 typedef enum
 {
-  G_KEY_FILE_NONE              = 0,
-  G_KEY_FILE_KEEP_COMMENTS     = 1 << 0,
-  G_KEY_FILE_KEEP_TRANSLATIONS = 1 << 1
-} GKeyFileFlags;
+  LQG_KEY_FILE_NONE              = 0,
+  LQG_KEY_FILE_KEEP_COMMENTS     = 1 << 0,
+  LQG_KEY_FILE_KEEP_TRANSLATIONS = 1 << 1
+} LqGKeyFileFlags;
 
-GKeyFile *g_key_file_new                    (void);
-void      g_key_file_free                   (GKeyFile             *key_file);
-void      g_key_file_set_list_separator     (GKeyFile             *key_file,
+LqGKeyFile *lqg_key_file_new                    (void);
+void      lqg_key_file_free                   (LqGKeyFile             *key_file);
+void      lqg_key_file_set_list_separator     (LqGKeyFile             *key_file,
 					     gchar                 separator);
-gboolean  g_key_file_load_from_file         (GKeyFile             *key_file,
+gboolean  lqg_key_file_load_from_file         (LqGKeyFile             *key_file,
 					     const gchar          *file,
-					     GKeyFileFlags         flags,
+					     LqGKeyFileFlags         flags,
 					     GError              **error);
-gboolean  g_key_file_load_from_data         (GKeyFile             *key_file,
+gboolean  lqg_key_file_load_from_data         (LqGKeyFile             *key_file,
 					     const gchar          *data,
 					     gsize                 length,
-					     GKeyFileFlags         flags,
+					     LqGKeyFileFlags         flags,
 					     GError              **error);
-gboolean g_key_file_load_from_data_dirs    (GKeyFile             *key_file,
+gboolean lqg_key_file_load_from_data_dirs    (LqGKeyFile             *key_file,
 					     const gchar          *file,
 					     gchar               **full_path,
-					     GKeyFileFlags         flags,
+					     LqGKeyFileFlags         flags,
 					     GError              **error);
-gchar    *g_key_file_to_data                (GKeyFile             *key_file,
+gchar    *lqg_key_file_to_data                (LqGKeyFile             *key_file,
 					     gsize                *length,
 					     GError              **error) G_GNUC_MALLOC;
-gchar    *g_key_file_get_start_group        (GKeyFile             *key_file) G_GNUC_MALLOC;
-gchar   **g_key_file_get_groups             (GKeyFile             *key_file,
+gchar    *lqg_key_file_get_start_group        (LqGKeyFile             *key_file) G_GNUC_MALLOC;
+gchar   **lqg_key_file_get_groups             (LqGKeyFile             *key_file,
 					     gsize                *length) G_GNUC_MALLOC;
-gchar   **g_key_file_get_keys               (GKeyFile             *key_file,
+gchar   **lqg_key_file_get_keys               (LqGKeyFile             *key_file,
 					     const gchar          *group_name,
 					     gsize                *length,
 					     GError              **error) G_GNUC_MALLOC;
-gboolean  g_key_file_has_group              (GKeyFile             *key_file,
+gboolean  lqg_key_file_has_group              (LqGKeyFile             *key_file,
 					     const gchar          *group_name);
-gboolean  g_key_file_has_key                (GKeyFile             *key_file,
+gboolean  lqg_key_file_has_key                (LqGKeyFile             *key_file,
 					     const gchar          *group_name,
 					     const gchar          *key,
 					     GError              **error);
-gchar    *g_key_file_get_value              (GKeyFile             *key_file,
+gchar    *lqg_key_file_get_value              (LqGKeyFile             *key_file,
 					     const gchar          *group_name,
 					     const gchar          *key,
 					     GError              **error) G_GNUC_MALLOC;
-void      g_key_file_set_value              (GKeyFile             *key_file,
+void      lqg_key_file_set_value              (LqGKeyFile             *key_file,
 					     const gchar          *group_name,
 					     const gchar          *key,
 					     const gchar          *value);
-gchar    *g_key_file_get_string             (GKeyFile             *key_file,
+gchar    *lqg_key_file_get_string             (LqGKeyFile             *key_file,
 					     const gchar          *group_name,
 					     const gchar          *key,
 					     GError              **error) G_GNUC_MALLOC;
-void      g_key_file_set_string             (GKeyFile             *key_file,
+void      lqg_key_file_set_string             (LqGKeyFile             *key_file,
 					     const gchar          *group_name,
 					     const gchar          *key,
 					     const gchar          *string);
-gboolean  g_key_file_get_boolean            (GKeyFile             *key_file,
+gboolean  lqg_key_file_get_boolean            (LqGKeyFile             *key_file,
 					     const gchar          *group_name,
 					     const gchar          *key,
 					     GError              **error);
-void      g_key_file_set_boolean            (GKeyFile             *key_file,
+void      lqg_key_file_set_boolean            (LqGKeyFile             *key_file,
 					     const gchar          *group_name,
 					     const gchar          *key,
 					     gboolean              value);
-gint      g_key_file_get_integer            (GKeyFile             *key_file,
+gint      lqg_key_file_get_integer            (LqGKeyFile             *key_file,
 					     const gchar          *group_name,
 					     const gchar          *key,
 					     GError              **error);
-void      g_key_file_set_integer            (GKeyFile             *key_file,
+void      lqg_key_file_set_integer            (LqGKeyFile             *key_file,
 					     const gchar          *group_name,
 					     const gchar          *key,
 					     gint                  value);
-gchar   **g_key_file_get_string_list        (GKeyFile             *key_file,
+gchar   **lqg_key_file_get_string_list        (LqGKeyFile             *key_file,
 					     const gchar          *group_name,
 					     const gchar          *key,
 					     gsize                *length,
 					     GError              **error) G_GNUC_MALLOC;
-void      g_key_file_set_string_list        (GKeyFile             *key_file,
+void      lqg_key_file_set_string_list        (LqGKeyFile             *key_file,
 					     const gchar          *group_name,
 					     const gchar          *key,
 					     const gchar * const   list[],
 					     gsize                 length);
-gboolean *g_key_file_get_boolean_list       (GKeyFile             *key_file,
+gboolean *lqg_key_file_get_boolean_list       (LqGKeyFile             *key_file,
 					     const gchar          *group_name,
 					     const gchar          *key,
 					     gsize                *length,
 					     GError              **error) G_GNUC_MALLOC;
-void      g_key_file_set_boolean_list       (GKeyFile             *key_file,
+void      lqg_key_file_set_boolean_list       (LqGKeyFile             *key_file,
 					     const gchar          *group_name,
 					     const gchar          *key,
 					     gboolean              list[],
 					     gsize                 length);
-gint     *g_key_file_get_integer_list       (GKeyFile             *key_file,
+gint     *lqg_key_file_get_integer_list       (LqGKeyFile             *key_file,
 					     const gchar          *group_name,
 					     const gchar          *key,
 					     gsize                *length,
 					     GError              **error) G_GNUC_MALLOC;
-void      g_key_file_set_integer_list       (GKeyFile             *key_file,
+void      lqg_key_file_set_integer_list       (LqGKeyFile             *key_file,
 					     const gchar          *group_name,
 					     const gchar          *key,
 					     gint                  list[],
 					     gsize                 length);
-void      g_key_file_set_comment            (GKeyFile             *key_file,
+void      lqg_key_file_set_comment            (LqGKeyFile             *key_file,
                                              const gchar          *group_name,
                                              const gchar          *key,
                                              const gchar          *comment,
                                              GError              **error);
-gchar    *g_key_file_get_comment            (GKeyFile             *key_file,
+gchar    *lqg_key_file_get_comment            (LqGKeyFile             *key_file,
                                              const gchar          *group_name,
                                              const gchar          *key,
                                              GError              **error) G_GNUC_MALLOC;
 
-void      g_key_file_remove_comment         (GKeyFile             *key_file,
+void      lqg_key_file_remove_comment         (LqGKeyFile             *key_file,
                                              const gchar          *group_name,
                                              const gchar          *key,
 					     GError              **error);
-void      g_key_file_remove_key             (GKeyFile             *key_file,
+void      lqg_key_file_remove_key             (LqGKeyFile             *key_file,
 					     const gchar          *group_name,
 					     const gchar          *key,
 					     GError              **error);
-void      g_key_file_remove_group           (GKeyFile             *key_file,
+void      lqg_key_file_remove_group           (LqGKeyFile             *key_file,
 					     const gchar          *group_name,
 					     GError              **error);
 
 G_END_DECLS
 
-#endif /* __G_KEY_FILE_H__ */
-
-#endif /* USE_GLIB_2_4 */
-
+#endif /* __LQG_KEY_FILE_H__ */
