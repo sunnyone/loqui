@@ -238,7 +238,7 @@ irc_message_parse_line(const gchar *line)
 	g_return_val_if_fail(line != NULL, NULL);
 	
 	buf = g_strdup(line);
-	g_strstrip(buf);
+	utils_remove_return_code(buf);
 
 	if(buf == NULL || *buf == '\0') {
 		debug_puts("Empty line was sent by server.");
