@@ -240,7 +240,7 @@ irc_handle_parse_plum_recent(IRCHandle *handle, const gchar *line)
 
 		break;
 	case '=':
-		if((cur = strchr(buf, '=')) == NULL)
+		if((cur = strstr(buf, "= ")) == NULL)
 			goto error;
 		*cur = '\0';
 
