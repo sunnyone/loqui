@@ -207,7 +207,8 @@ account_manager_set_current(AccountManager *manager, Account *account, Channel *
 {
 	AccountManagerPrivate *priv;
 	GSList *cur;
-	
+	User *user;
+
         g_return_if_fail(manager != NULL);
         g_return_if_fail(IS_ACCOUNT_MANAGER(manager));
 
@@ -222,7 +223,12 @@ account_manager_set_current(AccountManager *manager, Account *account, Channel *
 		channel_book_change_current(priv->app->channel_book, channel->text);
 		/* FIXME */
 		for(cur = channel->user_list; cur != NULL; cur = cur->next) {
-			account_manager_nick_list_append(manager, (User *) cur->data);
+			user = (User *) cur->data;
+			if(!user) {
+				g_warning("NULL user!");
+				continue;
+			}
+			account_manager_nick_list_append(manager, user);
 		}
 		account_manager_set_topic(manager, channel_get_topic(channel));
 	} else if(account) {
