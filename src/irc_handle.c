@@ -337,7 +337,7 @@ irc_handle_parse_mode_arguments(IRCHandle *handle, IRCMessage *msg, Channel *cha
 	gint cur;
 	gint param_num;
 	gchar *flags, *target;
-	gboolean is_add = TRUE;
+	gint is_add = -1; /* -1: uninitialized, 0: false, 1: true */
 
 	cur = mode_start;
 	param_num = irc_message_count_parameters(msg);
@@ -349,19 +349,6 @@ irc_handle_parse_mode_arguments(IRCHandle *handle, IRCMessage *msg, Channel *cha
 		return;
 	}
 	cur++;
-
-	switch (*flags) {
-	case '+':
-		is_add = TRUE;
-		break;
-	case '-':
-		is_add = FALSE;
-		break;
-	default:
-		g_warning(_("Flags don't have + or -"));
-		return;
-	}
-	flags++;
 
 #define CHANGE_USER_POWER(channel, nick, power) { \
   gdk_threads_enter(); \
@@ -377,19 +364,29 @@ irc_handle_parse_mode_arguments(IRCHandle *handle, IRCMessage *msg, Channel *cha
   } \
   i++; \
 }
+#define BREAK_IF_ADD_FLAG_IS_UNINITIALIZED() if(is_add < 0) { g_warning(_("Flags don't have + or -")); break; }
 
 	if(channel) {
 		while (*flags) {
 			switch(*flags) {
+			case '+':
+				is_add = 1;
+				break;
+			case '-':
+				is_add = 0;
+				break;
 			case IRC_CHANNEL_MODE_OPERATOR:
+				BREAK_IF_ADD_FLAG_IS_UNINITIALIZED();
 				GET_TARGET_OR_RETURN(msg, cur, &target);
 				CHANGE_USER_POWER(channel, target, is_add ? USER_POWER_OP : USER_POWER_NOTHING); /* FIXME */
 				break;
 			case IRC_CHANNEL_MODE_VOICE:
+				BREAK_IF_ADD_FLAG_IS_UNINITIALIZED();
 				GET_TARGET_OR_RETURN(msg, cur, &target);
 				CHANGE_USER_POWER(channel, target, is_add ? USER_POWER_VOICE : USER_POWER_NOTHING); /* FIXME */
 				break;
 			case IRC_CHANNEL_MODE_CREATOR:
+				BREAK_IF_ADD_FLAG_IS_UNINITIALIZED();
 				break;
 			case IRC_CHANNEL_MODE_ANONYMOUS:
 			case IRC_CHANNEL_MODE_INVITE_ONLY:
@@ -399,20 +396,24 @@ irc_handle_parse_mode_arguments(IRCHandle *handle, IRCMessage *msg, Channel *cha
 			case IRC_CHANNEL_MODE_SECRET:
 			case IRC_CHANNEL_MODE_SERVER_REOP:
 			case IRC_CHANNEL_MODE_TOPIC_SETTABLE_BY_CHANNEL_OPERATOR_ONLY:
+				BREAK_IF_ADD_FLAG_IS_UNINITIALIZED();
 				gdk_threads_enter();
-				channel_change_mode(channel, is_add, *flags, NULL);
+				channel_change_mode(channel, (gboolean) is_add, *flags, NULL);
 				gdk_threads_leave();
 				break;
 			case IRC_CHANNEL_MODE_CHANNEL_KEY:
 			case IRC_CHANNEL_MODE_USER_LIMIT:
+				BREAK_IF_ADD_FLAG_IS_UNINITIALIZED();
 				GET_TARGET_OR_RETURN(msg, cur, &target);
 				gdk_threads_enter();
-				channel_change_mode(channel, is_add, *flags, NULL);
+				channel_change_mode(channel, (gboolean) is_add, *flags, NULL);
 				gdk_threads_leave();
 				break;
 			case IRC_CHANNEL_MODE_BAN_MASK:
 			case IRC_CHANNEL_MODE_EXCEPTION_TO_OVERIDE_BAN_MASK:
 			case IRC_CHANNEL_MODE_INVITATION_MASK:
+				BREAK_IF_ADD_FLAG_IS_UNINITIALIZED();
+				break;
 			default:
 				g_warning(_("Unknown mode flag"));
 				break;
