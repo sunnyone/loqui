@@ -50,125 +50,6 @@ static void connection_finalize(GObject *object);
 
 /* FIXME: ERROR_CONNECTION_* are required */
 
-/* copied from GNet - Networking library. 
- * Copyright (C) 2000  David Helder
- * Copyright (C) 2000  Andrew Lanoix
- * I added g_usleep on 2003/01/26
- */
-
-static GIOError
-io_channel_readline_strdup (GIOChannel    *channel, 
-			    gchar         **buf_ptr, 
-			    guint         *bytes_read);
-GIOError
-io_channel_readn (GIOChannel    *channel, 
-                       gpointer       buf, 
-                       guint          len,
-		  guint         *bytes_read);
-
-GIOError
-io_channel_readn (GIOChannel    *channel, 
-                       gpointer       buf, 
-                       guint          len,
-                       guint         *bytes_read)
-{
-  guint nleft;
-  guint nread;
-  gchar* ptr;
-  GIOError error = G_IO_ERROR_NONE;
-
-  ptr = buf;
-  nleft = len;
-
-  while (nleft > 0)
-    {
-      if ((error = g_io_channel_read(channel, ptr, nleft, &nread))
-          !=  G_IO_ERROR_NONE)
-        {
-	  if (error == G_IO_ERROR_AGAIN) {
-            nread = 0;
-	    g_usleep(500);
-	  }
-          else
-            break;
-        }
-      else if (nread == 0)
-        break;
-
-      nleft -= nread;
-      ptr += nread;
-    }
-
-  *bytes_read = (len - nleft);
-
-  return error;
-}
-
-static GIOError
-io_channel_readline_strdup (GIOChannel    *channel, 
-                                 gchar         **buf_ptr, 
-                                 guint         *bytes_read)
-{
-  guint rc, n, len;
-  gchar c, *ptr, *buf;
-  GIOError error = G_IO_ERROR_NONE;
-
-  len = 100;
-  buf = (gchar *)g_malloc(len);
-  ptr = buf;
-  n = 1;
-
-  while (1)
-    {
-    try_again:
-      error = io_channel_readn(channel, &c, 1, &rc);
-
-      if (error == G_IO_ERROR_NONE && rc == 1)          /* read 1 char */
-        {
-          *ptr++ = c;
-          if (c == '\n')
-            break;
-        }
-      else if (error == G_IO_ERROR_NONE && rc == 0)     /* read EOF */
-        {
-          if (n == 1)   /* no data read */
-            {
-              *bytes_read = 0;
-              *buf_ptr = NULL;
-              g_free(buf);
-
-              return G_IO_ERROR_NONE;
-            }
-          else          /* some data read */
-            break;
-        }
-      else
-        {
-	   if (error == G_IO_ERROR_AGAIN)
-            goto try_again;
-
-          g_free(buf);
-
-          return error;
-        }
-
-      ++n;
-
-      if (n >= len)
-        {
-          len *= 2;
-          buf = g_realloc(buf, len);
-          ptr = buf + n - 1;
-        }
-    }
-
-  *ptr = 0;
-  *buf_ptr = buf;
-  *bytes_read = n;
-
-  return error;
-}
-
 GType
 connection_get_type(void)
 {
@@ -262,13 +143,13 @@ connection_new (Server *server)
 	return connection;
 }
 
-gchar *connection_gets(Connection *connection, GIOError *error)
+gchar *connection_gets(Connection *connection, GError **error)
 {
 	ConnectionPrivate *priv;
-	GIOError tmp_err;
-	gchar *str;
+	GIOStatus status;
 	gchar *local;
-	guint len;
+	GString *string;
+	gchar c;
 
         g_return_val_if_fail(connection != NULL, NULL);
         g_return_val_if_fail(IS_CONNECTION(connection), NULL);
@@ -277,24 +158,39 @@ gchar *connection_gets(Connection *connection, GIOError *error)
 	if(priv->io == NULL)
 		return NULL;
 
-	tmp_err = io_channel_readline_strdup(priv->io, &str, &len);
-	if(tmp_err != G_IO_ERROR_NONE) {
-		if(error != NULL) {
-			*error = tmp_err;
-			debug_puts("connection_gets error: %d", tmp_err);
+	string = g_string_sized_new(512);
+	while(priv->io) {
+		status = g_io_channel_read_chars(priv->io, &c, 1, NULL, error);
+		if(status == G_IO_STATUS_EOF) {
+			break;
+		} else if(status == G_IO_STATUS_ERROR) {
+			if(error && *error) {
+				g_warning(_("connection_gets error: %s"), (*error)->message);
+				return NULL;
+			} else {
+				return NULL;
+			}
+		} else if (status == G_IO_STATUS_AGAIN) {
+			g_usleep(500);
+			continue;
 		}
-		return NULL;
+		string = g_string_append_c(string, c);
+		if(c == '\n')
+			break;
 	}
 
-	local = codeconv_to_local(str);
-	if(str != NULL && local == NULL)
+	if(priv->io == NULL)
+		return NULL;
+
+	local = codeconv_to_local(string->str);
+	if(string->len > 0 && local == NULL)
 		local = g_strdup(FAILED_CODECONV_COMMAND);
-	g_free(str);
+	g_string_free(string, TRUE);
 	
 	return local;
 }
 
-IRCMessage *connection_get_irc_message(Connection *connection, GIOError *error)
+IRCMessage *connection_get_irc_message(Connection *connection, GError **error)
 {
 	IRCMessage *msg;
 	gchar *str;
@@ -312,10 +208,10 @@ IRCMessage *connection_get_irc_message(Connection *connection, GIOError *error)
 	return msg;
 }
 
-GIOError connection_puts(Connection *connection, gchar *in_str)
+gboolean connection_puts(Connection *connection, gchar *in_str, GError **error)
 {
 	ConnectionPrivate *priv;
-	GIOError error;
+	GIOStatus status;
 	gchar *str;
 	gchar *serv_str;
 	gint len;
@@ -326,23 +222,26 @@ GIOError connection_puts(Connection *connection, gchar *in_str)
 	str = g_strdup_printf("%s\r\n", serv_str);
 	g_free(serv_str);
 
-	error = gnet_io_channel_writen(priv->io, str, strlen(str), &len);
+	status = g_io_channel_write_chars(priv->io, str, -1, &len, error);
 	g_free(str);
 
-	return error;
+	if(status == G_IO_STATUS_ERROR)
+		return FALSE;
+	return TRUE;
 }
-GIOError connection_put_irc_message(Connection *connection, IRCMessage *msg)
+gboolean connection_put_irc_message(Connection *connection, IRCMessage *msg, GError **error)
 {
 	gchar *str;
-	GIOError error;
+	gboolean success;
 
-	str = irc_message_to_string(msg);
-	if(!str) return -1;
+	if((str = irc_message_to_string(msg)) == NULL)
+		return FALSE;
 
-	error = connection_puts(connection, str);
+	success = connection_puts(connection, str, error);
+
 	g_free(str);
 	
-	return error;
+	return success;
 }
 void connection_disconnect(Connection *connection)
 {

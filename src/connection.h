@@ -53,11 +53,11 @@ struct _ConnectionClass
 GType connection_get_type (void) G_GNUC_CONST;
 
 Connection* connection_new(Server *server);
-gchar *connection_gets(Connection *connection, GIOError *error);
-GIOError connection_puts(Connection *connection, gchar *in_str);
+gchar *connection_gets(Connection *connection, GError **error);
+gboolean connection_puts(Connection *connection, gchar *in_str, GError **error);
 
-IRCMessage *connection_get_irc_message(Connection *connection, GIOError *error);
-GIOError connection_put_irc_message(Connection *connection, IRCMessage *msg);
+IRCMessage *connection_get_irc_message(Connection *connection, GError **error);
+gboolean connection_put_irc_message(Connection *connection, IRCMessage *msg, GError **error);
 
 void connection_disconnect(Connection *connection);
 

@@ -218,8 +218,7 @@ irc_handle_command_ping(IRCHandle *handle, IRCMessage *msg)
 	server = irc_message_get_param(msg, 1);
 
 	msg = irc_message_create(IRCCommandPong, server, NULL);
-	connection_put_irc_message(handle->priv->connection, msg);
-	g_object_unref(msg);
+	irc_handle_push_message(handle, msg);
 
 	debug_puts("put PONG to %s", server);
 }
@@ -1168,7 +1167,7 @@ static gpointer irc_handle_send_thread_func(IRCHandle *handle)
 			break;
 		}
 
-		connection_put_irc_message(priv->connection, msg);
+		connection_put_irc_message(priv->connection, msg, NULL);
 		g_object_unref(msg);
 	}
 
