@@ -22,17 +22,18 @@
 #include "irc_handle.h"
 #include "connection.h"
 #include "irc_message.h"
+#include "utils.h"
 
 struct _IRCHandlePrivate
 {
 	Connection *connection;
 	Account *account;
 	Server *server;
+	gchar *current_nick;
 
 	GThread *thread;
 
 	gboolean passed_motd;
-
 };
 
 static GObjectClass *parent_class = NULL;
@@ -45,9 +46,13 @@ static void irc_handle_finalize(GObject *object);
 static gpointer irc_handle_thread_func(IRCHandle *handle);
 
 static void irc_handle_response(IRCHandle *handle, IRCMessage *msg);
+static gboolean irc_handle_is_my_message(IRCHandle *handle, IRCMessage *msg);
+static void irc_handle_inspect_message(IRCHandle *handle, IRCMessage *msg);
+
+static void irc_handle_my_command_nick(IRCHandle *handle, IRCMessage *msg);
+static void irc_handle_my_command_join(IRCHandle *handle, IRCMessage *msg);
 
 static void irc_handle_command_privmsg(IRCHandle *handle, IRCMessage *msg);
-static void irc_handle_command_join(IRCHandle *handle, IRCMessage *msg);
 
 GType
 irc_handle_get_type(void)
@@ -108,21 +113,7 @@ irc_handle_finalize(GObject *object)
 
 	g_free(irc_handle->priv);
 }
-static void irc_handle_command_join(IRCHandle *handle, IRCMessage *msg)
-{
-	Channel *channel;
-	gchar *name;
 
-	g_return_if_fail(msg != NULL);
-
-	name = irc_message_get_param(msg, 0);
-	g_return_if_fail(name != NULL);
-
-	gdk_threads_enter();
-	channel = channel_new(name);
-	account_add_channel(handle->priv->account, channel);
-	gdk_threads_leave();
-}
 static void irc_handle_command_privmsg(IRCHandle *handle, IRCMessage *msg)
 {
 	gchar *str;
@@ -144,27 +135,81 @@ static void irc_handle_command_privmsg(IRCHandle *handle, IRCMessage *msg)
 
 	g_free(str);
 }
+static void irc_handle_my_command_join(IRCHandle *handle, IRCMessage *msg)
+{
+	Channel *channel;
+	gchar *name;
 
-static void irc_handle_response(IRCHandle *handle, IRCMessage *msg)
+	g_return_if_fail(msg != NULL);
+
+	name = irc_message_get_param(msg, 0);
+	g_return_if_fail(name != NULL);
+
+	gdk_threads_enter();
+	channel = channel_new(name);
+	account_add_channel(handle->priv->account, channel);
+	gdk_threads_leave();
+}
+static void irc_handle_my_command_nick(IRCHandle *handle, IRCMessage *msg)
+{
+	g_return_if_fail(handle != NULL);
+
+	if(handle->priv->current_nick) {
+		g_free(handle->priv->current_nick);
+	}
+
+	handle->priv->current_nick = g_strdup(irc_message_get_param(msg, 0));
+	debug_puts("current nick is set to %s", handle->priv->current_nick);
+}
+
+static gboolean
+irc_handle_is_my_message(IRCHandle *handle, IRCMessage *msg)
+{
+	g_return_val_if_fail(handle != NULL, FALSE);
+	g_return_val_if_fail(msg != NULL, FALSE);
+	g_return_val_if_fail(handle->priv->current_nick != NULL, TRUE);
+	
+	if(msg->nick == NULL)
+		return FALSE;
+
+	return (strcmp(msg->nick,handle->priv->current_nick) == 0);
+}
+static void
+irc_handle_inspect_message(IRCHandle *handle, IRCMessage *msg)
 {
 	gchar *str;
 
+	str = irc_message_inspect(msg);
+			
+	gdk_threads_enter();
+	account_console_text_append(handle->priv->account, str);
+	gdk_threads_leave();
+	
+	g_free(str);	
+}
+
+static void
+irc_handle_response(IRCHandle *handle, IRCMessage *msg)
+{
+	if(irc_handle_is_my_message(handle, msg)) {
+		switch(msg->response) {
+		case IRC_COMMAND_NICK:
+			irc_handle_my_command_nick(handle, msg);
+			return;
+		case IRC_COMMAND_JOIN:
+			irc_handle_my_command_join(handle, msg);
+			return;
+		default:
+			break;
+		}
+	}
 	switch (msg->response) {
 	case IRC_COMMAND_NOTICE:
 	case IRC_COMMAND_PRIVMSG:
 		irc_handle_command_privmsg(handle, msg);
 		break;
-	case IRC_COMMAND_JOIN:
-		irc_handle_command_join(handle, msg);
-		break;
 	default:
-		str = irc_message_inspect(msg);
-		
-		gdk_threads_enter();
-		account_console_text_append(handle->priv->account, str);
-		gdk_threads_leave();
-
-		g_free(str);
+		irc_handle_inspect_message(handle, msg);
 	}
 }
 static gpointer irc_handle_thread_func(IRCHandle *handle)
@@ -199,6 +244,7 @@ static gpointer irc_handle_thread_func(IRCHandle *handle)
 	msg = irc_message_create(IRCCommandNick, "hogehoge", NULL);
 	connection_put_irc_message(priv->connection, msg);
 	g_object_unref(msg);
+	priv->current_nick = g_strdup("hogehoge");
 
 	msg = irc_message_create(IRCCommandUser, "test", "*", "*", "*", NULL);
 	connection_put_irc_message(priv->connection, msg);
@@ -210,9 +256,11 @@ static gpointer irc_handle_thread_func(IRCHandle *handle)
 
         while((msg = connection_get_irc_message(priv->connection, NULL)) != NULL) {
 		irc_handle_response(handle, msg);
+		/* irc_handle_inspect_message(handle, msg); */
 		g_object_unref(msg);
 	}
 
+	debug_puts("Connection terminated.");
 	return NULL;
 }
 IRCHandle*

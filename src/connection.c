@@ -145,12 +145,15 @@ gchar *connection_gets(Connection *connection, GIOError *error)
 	priv = connection->priv;
 	tmp_err = gnet_io_channel_readline_strdup(priv->io, &str, &len);
 	if(tmp_err != G_IO_ERROR_NONE) {
-		if(error != NULL)
+		if(error != NULL) {
 			*error = tmp_err;
+			debug_puts("connection_gets error: %d", tmp_err);
+		}
 		return NULL;
 	}
 	local = codeconv_to_local(str);
-
+	g_free(str);
+		
 	return local;
 }
 
