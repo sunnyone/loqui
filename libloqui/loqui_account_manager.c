@@ -27,12 +27,6 @@
 
 #include "loqui_account_manager_iter.h"
 
-#include "loqui_profile_account_irc.h"
-#include "loqui_account_irc.h"
-
-#include "loqui_profile_account_ipmsg.h"
-#include "loqui_account_ipmsg.h"
-
 #include "loqui.h"
 
 struct _LoquiAccountManagerPrivate

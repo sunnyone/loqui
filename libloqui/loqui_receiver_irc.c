@@ -334,7 +334,7 @@ loqui_receiver_irc_command_privmsg_notice(LoquiReceiverIRC *receiver, IRCMessage
 			loqui_member_set_last_message_time(member, time(NULL));
 		}
 	} else {
-		loqui_account_console_buffer_append(account, type, remark);
+		loqui_account_append_text(account, NULL, type, remark);
 	}
 }
 static void
@@ -774,7 +774,7 @@ loqui_receiver_irc_inspect_message(LoquiReceiverIRC *receiver, IRCMessage *msg)
 
 	str = irc_message_inspect(msg);
 	
-	loqui_account_console_buffer_append(loqui_receiver_get_account(LOQUI_RECEIVER(receiver)), LOQUI_TEXT_TYPE_NORMAL, str);
+	loqui_account_append_text(loqui_receiver_get_account(LOQUI_RECEIVER(receiver)), NULL, LOQUI_TEXT_TYPE_NORMAL, str);
 	
 	g_free(str);
 }
@@ -1070,7 +1070,7 @@ loqui_receiver_irc_reply_who(LoquiReceiverIRC *receiver, IRCMessage *msg)
 		buf2 = g_strdup_printf(_("%c%s(%s) is %s@%s (%s) on %s(%s hops) [%s]"),
 					op_char, nick, channel_name, username, hostname,
 					realname, server_name, hops_str ? hops_str : "?", away_str);
-		loqui_account_console_buffer_append(account, LOQUI_TEXT_TYPE_INFO, buf2);
+		loqui_account_append_text(account, NULL, LOQUI_TEXT_TYPE_INFO, buf2);
 		g_free(buf2);
 	}
 	
@@ -1144,9 +1144,7 @@ loqui_receiver_irc_joined_channel_append(LoquiReceiverIRC *receiver, IRCMessage 
 {
 	LoquiReceiverIRCPrivate *priv;
 	gchar *str;
-	GList *list = NULL, *cur;
 	LoquiUser *user = NULL;
-	LoquiMessageText *msgtext;
 	LoquiAccount *account;
 
         g_return_if_fail(receiver != NULL);
@@ -1160,29 +1158,12 @@ loqui_receiver_irc_joined_channel_append(LoquiReceiverIRC *receiver, IRCMessage 
 	if (msg->nick)
 		user = loqui_account_peek_user(account, msg->nick);
 
-	if (user && channel_list == NULL)
-		list = loqui_account_search_joined_channel(account, user);
+	if (!channel_list && user)
+		loqui_account_append_text_to_joined_channels(account, user, TRUE, type, str);
 	else
-		list = channel_list;
-
-	msgtext = loqui_message_text_new();
-	g_object_set(G_OBJECT(msgtext), 
-		     "is_remark", FALSE,
-		     "text_type", type,
-		     "text", str, NULL);
-
-	if (list != NULL) {
-		for(cur = list; cur != NULL; cur = cur->next)
-			loqui_channel_entry_append_message_text(LOQUI_CHANNEL_ENTRY(cur->data), msgtext);
-	} else {
-		loqui_account_console_buffer_append(account, type, str);
-	}
-	g_object_unref(msgtext);
+		loqui_account_append_text(account, channel_list, type, str);
 
 	g_free(str);
-
-	if(channel_list == NULL && list != NULL)
-		g_list_free(list);
 }
 static void /* utility function */
 loqui_receiver_irc_account_console_append(LoquiReceiverIRC *receiver, IRCMessage *msg, LoquiTextType type, gchar *format)
@@ -1193,7 +1174,7 @@ loqui_receiver_irc_account_console_append(LoquiReceiverIRC *receiver, IRCMessage
 	account = loqui_receiver_get_account(LOQUI_RECEIVER(receiver));
 
 	str = irc_message_format(msg, format);
-	loqui_account_console_buffer_append(account, type, str);
+	loqui_account_append_text(account, NULL, type, str);
 
 	g_free(str);
 }
@@ -1230,7 +1211,7 @@ loqui_receiver_irc_channel_append(LoquiReceiverIRC *receiver, IRCMessage *msg, g
 	str = irc_message_format(msg, format);
 
 	if(channel == NULL) {
-		loqui_account_console_buffer_append(account, type, str);
+		loqui_account_append_text(account, NULL, type, str);
 	} else {
 		loqui_channel_append_text(channel, type, str);
 

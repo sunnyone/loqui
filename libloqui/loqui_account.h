@@ -127,7 +127,16 @@ LoquiChannel* loqui_account_get_channel_by_identifier(LoquiAccount *account, con
 GList *loqui_account_search_joined_channel(LoquiAccount *account, LoquiUser *user);
 GList *loqui_account_search_joined_channel_by_identifier(LoquiAccount *account, gchar *user_identifier);
 
-void loqui_account_console_buffer_append(LoquiAccount *account, LoquiTextType type, const gchar *str);
+void loqui_account_append_text(LoquiAccount *account,
+			       GList *channel_list,
+			       LoquiTextType text_type,
+			       gchar *text);
+void loqui_account_append_text_to_joined_channels(LoquiAccount *account,
+						  LoquiUser *user,
+						  gboolean fallback_console,
+						  LoquiTextType text_type,
+						  gchar *text);
+
 
 void loqui_account_get_updated_number(LoquiAccount *account, gint *updated_private_talk_number, gint *updated_channel_number); 
 

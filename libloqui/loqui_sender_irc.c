@@ -635,7 +635,7 @@ loqui_sender_irc_ctcp_request_raw(LoquiSenderIRC *sender, const gchar *target, c
 	g_object_unref(msg);
 
 	buf = g_strdup_printf(_("Sent CTCP request to %s: %s"), target, command);
-	loqui_account_console_buffer_append(loqui_sender_get_account(LOQUI_SENDER(sender)), LOQUI_TEXT_TYPE_INFO, buf);
+	loqui_account_append_text(loqui_sender_get_account(LOQUI_SENDER(sender)), NULL, LOQUI_TEXT_TYPE_INFO, buf);
 	g_free(buf);
 }
 void

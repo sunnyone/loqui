@@ -192,22 +192,24 @@ irc_message_inspect(IRCMessage *msg)
         g_return_val_if_fail(IS_IRC_MESSAGE(msg), NULL);
 
 	string = g_string_new(NULL);
-	g_string_printf(string, "prefix: %s, command: %s(%d)\n", msg->prefix, msg->command, msg->response);
+	g_string_printf(string, "command: %s(%d), prefix: %s", msg->command, msg->response, msg->prefix);
 	if(msg->prefix != NULL) {
 		if(msg->nick) {
-			g_string_append_printf(string, "nick: %s, user: %s, host: %s\n", 
+			g_string_append_printf(string, "(nick: %s, user: %s, host: %s)", 
 					       msg->nick, msg->user, msg->host);
 		} else {
-			g_string_append_printf(string, "server: %s\n", msg->prefix);
+			g_string_append_printf(string, "(server: %s)", msg->prefix);
 		}
 	}
-	
+	g_string_append(string, ", args: [");
+
 	for(i = 0; msg->parameter[i] != NULL; i++) {
-		g_string_append_printf(string, "\"%s\"", msg->parameter[i]);
+		g_string_append_printf(string, "'%s'", msg->parameter[i]);
 		if(msg->parameter[i+1] != NULL)
 			g_string_append_printf(string, ", ");
 	}
-	g_string_append(string, "\n");
+
+	g_string_append(string, "]");
 
 	str = string->str;
 	g_string_free(string, FALSE);

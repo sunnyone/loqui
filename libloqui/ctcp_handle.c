@@ -198,7 +198,7 @@ void ctcp_handle_message(CTCPHandle *ctcp_handle, CTCPMessage *ctcp_msg, gboolea
 			      ctcp_msg->command,
 			      ctcp_msg->argument ? " " : "",
 			      ctcp_msg->argument ? ctcp_msg->argument : "");
-	loqui_account_console_buffer_append(priv->account, LOQUI_TEXT_TYPE_INFO, buf);
+	loqui_account_append_text(priv->account, NULL, LOQUI_TEXT_TYPE_INFO, buf);
 	g_free(buf);
 
 	if(!is_request)
@@ -206,7 +206,7 @@ void ctcp_handle_message(CTCPHandle *ctcp_handle, CTCPMessage *ctcp_msg, gboolea
 
 	g_timer_stop(priv->interval_timer);
 	if(g_timer_elapsed(priv->interval_timer, NULL) < CTCP_INTERVAL) {
-		loqui_account_console_buffer_append(priv->account, LOQUI_TEXT_TYPE_INFO, _("The CTCP request was ignored."));
+		loqui_account_append_text(priv->account, NULL, LOQUI_TEXT_TYPE_INFO, _("The CTCP request was ignored."));
 		g_timer_start(priv->interval_timer);
 		return;
 	}
@@ -244,7 +244,7 @@ ctcp_handle_send_ctcp_reply(CTCPHandle *ctcp_handle, CTCPMessage *ctcp_msg, cons
 		tmp = g_strdup(ctcp_msg->command);
 
 	buf = g_strdup_printf(_("Sent CTCP reply to %s: %s"), target, tmp);
-	loqui_account_console_buffer_append(priv->account, LOQUI_TEXT_TYPE_INFO, buf);
+	loqui_account_append_text(priv->account, NULL, LOQUI_TEXT_TYPE_INFO, buf);
 	g_free(tmp);
 	g_free(buf);
 }

@@ -371,7 +371,7 @@ loqui_account_warn_real(LoquiAccount *account, const gchar *str)
 	gchar *tmp;
 
 	tmp = g_strconcat("+++ ", str, NULL);
-	loqui_account_console_buffer_append(account, LOQUI_TEXT_TYPE_ERROR, tmp);
+	loqui_account_append_text(account, NULL, LOQUI_TEXT_TYPE_ERROR, tmp);
 	g_free(tmp);
 }
 static void
@@ -380,7 +380,7 @@ loqui_account_info_real(LoquiAccount *account, const gchar *str)
 	gchar *tmp;
 
 	tmp = g_strconcat("+++ ", str, NULL);
-	loqui_account_console_buffer_append(account, LOQUI_TEXT_TYPE_INFO, tmp);
+	loqui_account_append_text(account, NULL, LOQUI_TEXT_TYPE_INFO, tmp);
 	g_free(tmp);
 }
 static void
@@ -681,26 +681,55 @@ loqui_account_get_channel_by_identifier(LoquiAccount *account, const gchar *iden
 
 	return NULL;
 }
+/**
+   @param channel_list if NULL, fallback to the console.
+*/
 void
-loqui_account_console_buffer_append(LoquiAccount *account, LoquiTextType type, const gchar *str)
+loqui_account_append_text(LoquiAccount *account,
+			  GList *channel_list,
+			  LoquiTextType text_type,
+			  gchar *text)
 {
 	LoquiMessageText *msgtext;
 
-	g_return_if_fail(account != NULL);
-	g_return_if_fail(str != NULL);
+        g_return_if_fail(account != NULL);
+        g_return_if_fail(LOQUI_IS_ACCOUNT(account));
 
 	msgtext = loqui_message_text_new();
 	g_object_set(G_OBJECT(msgtext),
 		     "is_remark", FALSE,
 		     "account_name", loqui_profile_account_get_name(loqui_account_get_profile(account)),
-		     "text_type", type,
-		     "text", str,
+		     "text_type", text_type,
+		     "text", text,
 		     NULL);
+	
+	if (channel_list) {
+		g_list_foreach(channel_list, (GFunc) loqui_channel_entry_append_message_text, msgtext);
+	} else {
+		loqui_channel_entry_append_message_text(LOQUI_CHANNEL_ENTRY(account), msgtext);
+	}
 
-	loqui_channel_entry_append_message_text(LOQUI_CHANNEL_ENTRY(account), msgtext);
 	g_object_unref(msgtext);
 }
+void
+loqui_account_append_text_to_joined_channels(LoquiAccount *account,
+					     LoquiUser *user,
+					     gboolean fallback_console,
+					     LoquiTextType text_type,
+					     gchar *text)
+{
+	GList *list;
 
+        g_return_if_fail(account != NULL);
+        g_return_if_fail(LOQUI_IS_ACCOUNT(account));
+
+	list = loqui_account_search_joined_channel(account, user);
+	
+	if (list != NULL || fallback_console)
+		loqui_account_append_text(account, list, text_type, text);
+
+	g_list_free(list);
+}
 GList *
 loqui_account_search_joined_channel(LoquiAccount *account, LoquiUser *user)
 {

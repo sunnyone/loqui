@@ -209,7 +209,7 @@ loqui_receiver_ipmsg_command_br_entry(LoquiReceiverIPMsg *receiver, IPMsgPacket 
 		
 		str = g_strdup_printf("*** Appeared %s@%s (%s)",
 				      packet->username, packet->hostname, packet->group_name ? packet->group_name : "");
-		loqui_account_console_buffer_append(account, LOQUI_TEXT_TYPE_INFO, str);
+		loqui_account_append_text(account, NULL, LOQUI_TEXT_TYPE_INFO, str);
 		g_free(str);
 	}
 
@@ -235,7 +235,7 @@ loqui_receiver_ipmsg_command_br_exit(LoquiReceiverIPMsg *receiver, IPMsgPacket *
 
 	str = g_strdup_printf("*** Disappeared %s@%s (%s)",
 			      packet->username, packet->hostname, packet->group_name ? packet->group_name : "");
-	loqui_account_console_buffer_append(account, LOQUI_TEXT_TYPE_INFO, str);
+	loqui_account_append_text(account, NULL, LOQUI_TEXT_TYPE_INFO, str);
 	g_free(str);
 	
 	/* TODO: loqui_account_remove_user(user); */
@@ -293,6 +293,6 @@ loqui_receiver_ipmsg_handle(LoquiReceiverIPMsg *receiver, IPMsgPacket *packet)
 	}
 
 	str = ipmsg_packet_inspect(packet);
-	loqui_account_console_buffer_append(LOQUI_ACCOUNT(account), LOQUI_TEXT_TYPE_NORMAL, str);
+	loqui_account_append_text(LOQUI_ACCOUNT(account), NULL, LOQUI_TEXT_TYPE_NORMAL, str);
 	g_free(str);
 }
