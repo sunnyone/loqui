@@ -269,7 +269,7 @@ account_new (LoquiProfileAccount *profile)
 
 	user = LOQUI_USER(loqui_user_irc_new());
 	loqui_user_set_nick(user, loqui_profile_account_get_nick(profile));
-	loqui_user_set_away(user, LOQUI_AWAY_TYPE_ONLINE);
+	loqui_user_set_away(user, LOQUI_AWAY_TYPE_OFFLINE);
 
 	account = g_object_new(account_get_type(), 
 			       "buffer", channel_buffer_new(),
@@ -449,6 +449,8 @@ account_connection_connected_cb(GObject *object, gboolean is_success, Account *a
 	}
 
 	account_console_buffer_append(account, TEXT_TYPE_INFO, _("Done."));
+
+	loqui_user_set_away(account->user_self, LOQUI_AWAY_TYPE_ONLINE);
 }
 static void
 account_connection_terminated_cb(GObject *object, Account *account)
