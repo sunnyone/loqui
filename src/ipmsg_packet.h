@@ -71,6 +71,11 @@ void ipmsg_packet_print(IPMsgPacket *packet);
 void ipmsg_packet_set_inetaddr(IPMsgPacket *packet, GInetAddr *inetaddr);
 GInetAddr *ipmsg_packet_get_inetaddr(IPMsgPacket *packet);
 
+gchar *ipmsg_packet_get_ip_addr(IPMsgPacket *packet);
+gint ipmsg_packet_get_port(IPMsgPacket *packet);
+
+gchar *ipmsg_packet_get_identifier(IPMsgPacket *packet);
+
 G_END_DECLS
 
 #endif /* __IPMSG_PACKET_H__ */

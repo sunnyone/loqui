@@ -216,6 +216,7 @@ ipmsg_socket_watch_in_cb(GIOChannel *ioch, GIOCondition condition, gpointer data
 		return TRUE;
 	}
 	ipmsg_packet_set_inetaddr(packet, addr);
+	gnet_inetaddr_unref(addr);
 	if (show_msg_mode)
 		ipmsg_packet_print(packet);
 	g_signal_emit(G_OBJECT(sock), signals[SIGNAL_ARRIVE_PACKET], 0, packet);

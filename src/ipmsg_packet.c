@@ -22,6 +22,7 @@
 #include "ipmsg_packet.h"
 #include "ipmsg.h"
 #include "gobject_utils.h"
+#include "utils.h"
 
 #include <string.h>
 
@@ -104,6 +105,11 @@ ipmsg_packet_dispose(GObject *object)
 	G_FREE_UNLESS_NULL(packet->hostname);
 	G_FREE_UNLESS_NULL(packet->extra);
 	G_FREE_UNLESS_NULL(packet->group_name);
+	
+	if (packet->inetaddr) {
+		gnet_inetaddr_unref(packet->inetaddr);
+		packet->inetaddr = NULL;
+	}
 
         if (G_OBJECT_CLASS(parent_class)->dispose)
                 (* G_OBJECT_CLASS(parent_class)->dispose)(object);
@@ -300,4 +306,48 @@ ipmsg_packet_get_inetaddr(IPMsgPacket *packet)
 	
 	return packet->inetaddr;
 }
+gchar *
+ipmsg_packet_get_ip_addr(IPMsgPacket *packet)
+{
+	gchar *addr_str;
+	gchar *str;
+        g_return_val_if_fail(packet != NULL, NULL);
+        g_return_val_if_fail(IS_IPMSG_PACKET(packet), NULL);
 
+	if (packet->inetaddr == NULL)
+		return NULL;
+
+	addr_str = gnet_inetaddr_get_canonical_name(packet->inetaddr);
+	str = g_strdup(utils_remove_ipv6_prefix_ffff(addr_str));
+	g_free(addr_str);
+
+	return str;
+}
+gint
+ipmsg_packet_get_port(IPMsgPacket *packet)
+{
+        g_return_val_if_fail(packet != NULL, 0);
+        g_return_val_if_fail(IS_IPMSG_PACKET(packet), 0);
+
+	if (packet->inetaddr == NULL)
+		return 0;
+
+	return gnet_inetaddr_get_port(packet->inetaddr);
+}
+gchar *
+ipmsg_packet_get_identifier(IPMsgPacket *packet)
+{
+	gchar *str;
+	gchar *addr_str;
+        g_return_val_if_fail(packet != NULL, NULL);
+        g_return_val_if_fail(IS_IPMSG_PACKET(packet), NULL);
+
+	if (packet->inetaddr == NULL)
+		return NULL;
+
+	addr_str = ipmsg_packet_get_ip_addr(packet);
+	str = g_strdup_printf("%s:%d", addr_str, ipmsg_packet_get_port(packet));
+	g_free(addr_str);
+
+	return str;
+}

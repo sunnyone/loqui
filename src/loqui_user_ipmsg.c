@@ -20,12 +20,17 @@
 #include "config.h"
 
 #include "loqui_user_ipmsg.h"
+#include "intl.h"
 
 enum {
         LAST_SIGNAL
 };
 
 enum {
+	PROP_0,
+	PROP_IP_ADDR,
+	PROP_PORT,
+	PROP_GROUP_NAME,
         LAST_PROP
 };
 
@@ -98,6 +103,9 @@ loqui_user_ipmsg_dispose(GObject *object)
 
         user = LOQUI_USER_IPMSG(object);
 
+	G_FREE_UNLESS_NULL(user->ip_addr);
+	G_FREE_UNLESS_NULL(user->group_name);
+
         if (G_OBJECT_CLASS(parent_class)->dispose)
                 (* G_OBJECT_CLASS(parent_class)->dispose)(object);
 }
@@ -109,6 +117,15 @@ loqui_user_ipmsg_get_property(GObject *object, guint param_id, GValue *value, GP
         user = LOQUI_USER_IPMSG(object);
 
         switch (param_id) {
+	case PROP_IP_ADDR:
+		g_value_set_string(value, user->ip_addr);
+		break;
+	case PROP_GROUP_NAME:
+		g_value_set_string(value, user->group_name);
+		break;
+	case PROP_PORT:
+		g_value_set_int(value, user->port);
+		break;
         default:
                 G_OBJECT_WARN_INVALID_PROPERTY_ID(object, param_id, pspec);
                 break;
@@ -122,6 +139,15 @@ loqui_user_ipmsg_set_property(GObject *object, guint param_id, const GValue *val
         user = LOQUI_USER_IPMSG(object);
 
         switch (param_id) {
+	case PROP_IP_ADDR:
+		loqui_user_ipmsg_set_ip_addr(user, g_value_get_string(value));
+		break;
+	case PROP_GROUP_NAME:
+		loqui_user_ipmsg_set_group_name(user, g_value_get_string(value));
+		break;
+	case PROP_PORT:
+		loqui_user_ipmsg_set_port(user, g_value_get_int(value));
+		break;
         default:
                 G_OBJECT_WARN_INVALID_PROPERTY_ID(object, param_id, pspec);
                 break;
@@ -140,6 +166,26 @@ loqui_user_ipmsg_class_init(LoquiUserIPMsgClass *klass)
         object_class->get_property = loqui_user_ipmsg_get_property;
         object_class->set_property = loqui_user_ipmsg_set_property;
 	LOQUI_USER_CLASS(klass)->get_identifier = loqui_user_ipmsg_get_identifier;
+
+	g_object_class_install_property(object_class,
+					PROP_IP_ADDR,
+					g_param_spec_string("ip_addr",
+							    _("IPAddr"),
+							    _("IP Address"),
+							    NULL, G_PARAM_READWRITE));
+	g_object_class_install_property(object_class,
+					PROP_GROUP_NAME,
+					g_param_spec_string("group_name",
+							    _("GroupName"),
+							    _("Group Name"),
+							    NULL, G_PARAM_READWRITE));
+	g_object_class_install_property(object_class,
+					PROP_PORT,
+					g_param_spec_int("port",
+							 _("Port"),
+							 _("Port number"),
+							 0, G_MAXINT,
+							 0, G_PARAM_READWRITE));
 }
 static void 
 loqui_user_ipmsg_init(LoquiUserIPMsg *user)
@@ -157,7 +203,7 @@ loqui_user_ipmsg_get_identifier(LoquiUser *user)
         g_return_val_if_fail(user != NULL, NULL);
         g_return_val_if_fail(LOQUI_IS_USER_IPMSG(user), NULL);
 
-	return g_strdup("");
+	return g_strdup_printf("%s:%d", LOQUI_USER_IPMSG(user)->ip_addr, LOQUI_USER_IPMSG(user)->port);
 }
 LoquiUserIPMsg*
 loqui_user_ipmsg_new(void)
@@ -171,3 +217,7 @@ loqui_user_ipmsg_new(void)
 
         return user;
 }
+
+LOQUI_USER_IPMSG_ACCESSOR_GENERIC(gint, port);
+LOQUI_USER_IPMSG_ACCESSOR_STRING(ip_addr);
+LOQUI_USER_IPMSG_ACCESSOR_STRING(group_name);

@@ -232,11 +232,7 @@ loqui_account_ipmsg_disconnect(LoquiAccount *account)
 static void
 loqui_account_ipmsg_socket_arrive_packet_cb(IPMsgSocket *socket, IPMsgPacket *packet, LoquiAccount *account)
 {
-	gchar *str;
-
-	str = ipmsg_packet_inspect(packet);
-	loqui_account_console_buffer_append(LOQUI_ACCOUNT(account), TEXT_TYPE_NORMAL, str);
-	g_free(str);
+	loqui_receiver_ipmsg_handle(LOQUI_RECEIVER_IPMSG(loqui_account_get_receiver(account)), packet);
 }
 static void
 loqui_account_ipmsg_socket_warn_cb(IPMsgSocket *socket, const gchar *warn, LoquiAccount *account)
@@ -263,3 +259,4 @@ loqui_account_ipmsg_new(LoquiProfileAccount *profile)
 
         return account;
 }
+
