@@ -1432,6 +1432,9 @@ loqui_receiver_irc_reset(LoquiReceiverIRC *receiver)
 {
 	LoquiReceiverIRCPrivate *priv;
 
+	g_return_if_fail(receiver != NULL);
+	g_return_if_fail(LOQUI_RECEIVER_IRC(receiver));
+
 	priv = receiver->priv;
 
 	receiver->prevent_print_who_reply_count = 0;
