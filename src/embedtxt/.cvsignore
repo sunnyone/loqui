@@ -6,4 +6,4 @@ HTML
 Makefile.in
 cscope.out
 gmon.out
-loqui
+*.h
