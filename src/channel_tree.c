@@ -238,4 +238,22 @@ channel_tree_add_channel(ChannelTree *tree, Account *account, Channel *channel)
 	}
 	gtk_tree_view_expand_row(GTK_TREE_VIEW(tree), gtk_tree_model_get_path(model, &parent), TRUE);
 }
+void
+channel_tree_remove_channel(ChannelTree *tree, Channel *channel)
+{
+	GtkTreeModel *model;
+	gboolean is_found;
+	GtkTreeIter iter;
+
+        g_return_if_fail(tree != NULL);
+        g_return_if_fail(IS_CHANNEL_TREE(tree));
+	g_return_if_fail(channel != NULL);
+	g_return_if_fail(IS_CHANNEL(channel));
 	
+	model = gtk_tree_view_get_model(GTK_TREE_VIEW(tree));
+	is_found = gtk_tree_model_find_by_column_data(model, &iter, NULL, COLUMN_CHANNEL, channel);
+
+	if(is_found)
+		gtk_tree_store_remove(GTK_TREE_STORE(model), &iter);
+
+}

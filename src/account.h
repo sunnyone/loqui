@@ -89,6 +89,8 @@ void account_restore(Account *account, const gchar *name);
 void account_connect(Account *account, gint server_num, gboolean fallback);
 
 void account_add_channel(Account *account, Channel *channel);
+void account_remove_channel(Account *account, Channel *channel);
+
 gboolean account_has_channel(Account *account, Channel *channel);
 
 Channel* account_search_channel_by_name(Account *account, gchar *name);

@@ -96,10 +96,10 @@ channel_finalize (GObject *object)
 		g_free(channel->name);
 		channel->name = NULL;
 	}
-	if(channel->text) {
+/*	if(channel->text) {
 		gtk_widget_destroy(GTK_WIDGET(channel->text));
 		channel->text = NULL;
-	}
+		} */
 	if(priv->topic) {
 		g_free(priv->topic);
 		priv->topic = NULL;

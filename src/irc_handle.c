@@ -61,6 +61,7 @@ static void irc_handle_inspect_message(IRCHandle *handle, IRCMessage *msg);
 
 static void irc_handle_my_command_nick(IRCHandle *handle, IRCMessage *msg);
 static void irc_handle_my_command_join(IRCHandle *handle, IRCMessage *msg);
+static void irc_handle_my_command_part(IRCHandle *handle, IRCMessage *msg);
 
 static void irc_handle_command_privmsg_notice(IRCHandle *handle, IRCMessage *msg);
 static void irc_handle_command_ping(IRCHandle *handle, IRCMessage *msg);
@@ -210,7 +211,10 @@ irc_handle_my_command_join(IRCHandle *handle, IRCMessage *msg)
 	g_return_if_fail(msg != NULL);
 
 	name = irc_message_get_param(msg, 1);
-	g_return_if_fail(name != NULL);
+	if(name == NULL) {
+		g_warning(_("Can't get channel name"));
+		return;
+	}
 
 	gdk_threads_enter();
 	channel = channel_new(name);
@@ -218,7 +222,32 @@ irc_handle_my_command_join(IRCHandle *handle, IRCMessage *msg)
 	account_manager_set_current(account_manager_get(), NULL, channel);
 	gdk_threads_leave();
 }
+static void
+irc_handle_my_command_part(IRCHandle *handle, IRCMessage *msg)
+{
+	Channel *channel;
+	gchar *name;
 
+        g_return_if_fail(handle != NULL);
+        g_return_if_fail(IS_IRC_HANDLE(handle));
+	g_return_if_fail(msg != NULL);
+	
+	name = irc_message_get_param(msg, 1);
+	if(name == NULL) {
+		g_warning(_("Can't get channel name"));
+		return;
+	}
+	channel = account_search_channel_by_name(handle->priv->account, name);
+	if(channel == NULL)
+		return;
+
+	irc_handle_account_console_append(handle, msg, TEXT_TYPE_INFO, "*** You has left %1");
+
+	gdk_threads_enter();
+	account_remove_channel(handle->priv->account, channel);
+	g_object_unref(channel);
+	gdk_threads_leave();
+}
 
 static void
 irc_handle_my_command_nick(IRCHandle *handle, IRCMessage *msg)
@@ -396,6 +425,9 @@ irc_handle_command(IRCHandle *handle, IRCMessage *msg)
 			return TRUE;
 		case IRC_COMMAND_JOIN:
 			irc_handle_my_command_join(handle, msg);
+			return TRUE;
+		case IRC_COMMAND_PART:
+			irc_handle_my_command_part(handle, msg);
 			return TRUE;
 		default:
 			break;
@@ -577,8 +609,8 @@ void irc_handle_push_message(IRCHandle *handle, IRCMessage *msg)
 gchar *
 irc_handle_get_current_nick(IRCHandle *handle)
 {
-        g_return_if_fail(handle != NULL);
-        g_return_if_fail(IS_IRC_HANDLE(handle));
+        g_return_val_if_fail(handle != NULL, NULL);
+        g_return_val_if_fail(IS_IRC_HANDLE(handle), NULL);
 
 	return handle->priv->current_nick;
 }

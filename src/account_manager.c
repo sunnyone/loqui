@@ -163,6 +163,19 @@ account_manager_add_channel_text(AccountManager *manager, ChannelText *text)
 	channel_book_add_channel_text(priv->app->channel_book, text);
 	gtk_widget_show_all(GTK_WIDGET(text));
 }
+static void
+account_manager_remove_channel_text(AccountManager *manager, ChannelText *text)
+{
+	AccountManagerPrivate *priv;
+
+        g_return_if_fail(manager != NULL);
+        g_return_if_fail(IS_ACCOUNT_MANAGER(manager));
+
+	priv = manager->priv;
+
+	channel_book_remove_channel_text(priv->app->channel_book, text);
+}
+
 void
 account_manager_add_channel(AccountManager *manager, Account *account, Channel *channel)
 {
@@ -171,6 +184,15 @@ account_manager_add_channel(AccountManager *manager, Account *account, Channel *
 
 	account_manager_add_channel_text(manager, channel->text);
 	channel_tree_add_channel(manager->priv->app->channel_tree, account, channel);
+}
+void
+account_manager_remove_channel(AccountManager *manager, Account *account, Channel *channel)
+{
+        g_return_if_fail(manager != NULL);
+        g_return_if_fail(IS_ACCOUNT_MANAGER(manager));
+
+	account_manager_remove_channel_text(manager, channel->text);
+//	channel_tree_remove_channel(manager->priv->app->channel_tree, channel);
 }
 void
 account_manager_set_current(AccountManager *manager, Account *account, Channel *channel)

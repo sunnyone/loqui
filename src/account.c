@@ -352,6 +352,14 @@ account_add_channel(Account *account, Channel *channel)
 	account->channel_list = g_slist_append(account->channel_list, channel);
 	account_manager_add_channel(account_manager_get(), account, channel);
 }
+void account_remove_channel(Account *account, Channel *channel)
+{
+        g_return_if_fail(account != NULL);
+        g_return_if_fail(IS_ACCOUNT(account));
+
+	account->channel_list = g_slist_remove(account->channel_list, channel);
+	account_manager_remove_channel(account_manager_get(), account, channel);
+}
 Channel*
 account_search_channel_by_name(Account *account, gchar *name)
 {

@@ -57,6 +57,7 @@ GtkWidget* channel_tree_new(void);
 
 void channel_tree_add_account(ChannelTree *tree, Account *account);
 void channel_tree_add_channel(ChannelTree *tree, Account *account, Channel *channel);
+void channel_tree_remove_channel(ChannelTree *tree, Channel *channel);
 
 G_END_DECLS
 
