@@ -81,6 +81,7 @@ static void remark_entry_grab_focus(GtkWidget *widget);
 static void remark_entry_entry_text_shown_cb(GtkWidget *widget, gpointer data);
 static void remark_entry_entry_multiline_toggled_cb(GtkWidget *widget, gpointer data);
 static void remark_entry_ok_clicked_cb(GtkWidget *widget, gpointer data);
+static void remark_entry_activate_cb(GtkWidget *widget, gpointer data);
 static void remark_entry_notice_clicked_cb(GtkWidget *widget, gpointer data);
 static void remark_entry_entry_changed_cb(GtkEntry *widget, RemarkEntry *remark_entry);
 static gboolean remark_entry_entry_key_press_event_cb(GtkWidget *widget, GdkEventKey *event, RemarkEntry *remark_entry);
@@ -279,6 +280,8 @@ remark_entry_new(LoquiApp *app, GtkToggleAction *toggle_command_action)
 	gtk_box_pack_start(GTK_BOX(hbox), priv->vbox, TRUE, TRUE, 0);
 	
 	priv->entry = gtk_entry_new();
+	g_signal_connect(G_OBJECT(priv->entry), "activate",
+			 G_CALLBACK(remark_entry_activate_cb), remark_entry);
 	g_signal_connect(G_OBJECT(priv->entry), "key_press_event",
 			 G_CALLBACK(remark_entry_entry_key_press_event_cb), remark_entry);
 	g_signal_connect(G_OBJECT(priv->entry), "show",
@@ -590,16 +593,13 @@ remark_entry_entry_key_press_event_cb(GtkWidget *ewidget, GdkEventKey *event, Re
 		}
 	}
 
-	switch (event->keyval) {
-	case GDK_Return:
-	case GDK_KP_Enter:
-		remark_entry_send_text(remark_entry, FALSE);
-		return TRUE;
-	default:
-		break;
-	}
-		
 	return FALSE;
+}
+
+static void
+remark_entry_activate_cb(GtkWidget *widget, gpointer data)
+{
+	remark_entry_send_text(data, FALSE);
 }
 static void
 remark_entry_ok_clicked_cb(GtkWidget *widget, gpointer data)
