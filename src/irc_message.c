@@ -99,10 +99,14 @@ irc_message_finalize(GObject *object)
 
 	G_FREE_UNLESS_NULL(msg->prefix);
 	G_FREE_UNLESS_NULL(msg->command);
-	G_FREE_UNLESS_NULL(msg->parameter);
 	G_FREE_UNLESS_NULL(msg->nick);
 	G_FREE_UNLESS_NULL(msg->user);
 	G_FREE_UNLESS_NULL(msg->host);
+
+	if (msg->parameter) {
+		g_strfreev(msg->parameter);
+		msg->parameter = NULL;
+	}
 
         if (G_OBJECT_CLASS(parent_class)->finalize)
                 (* G_OBJECT_CLASS(parent_class)->finalize) (object);
