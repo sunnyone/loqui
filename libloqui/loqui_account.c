@@ -717,6 +717,23 @@ loqui_account_append_text(LoquiAccount *account,
 	g_object_unref(msgtext);
 }
 void
+loqui_account_append_text_printf(LoquiAccount *account,
+				 GList *channel_list,
+				 LoquiTextType text_type,
+				 const gchar *format, ...)
+{
+	va_list args;
+	gchar *str;
+	
+	va_start(args, format);
+	str = g_strdup_vprintf(format, args);
+	va_end(args);
+	
+	loqui_account_append_text(account, channel_list, text_type, str);
+
+	g_free(str);
+}
+void
 loqui_account_append_text_to_joined_channels(LoquiAccount *account,
 					     LoquiUser *user,
 					     gboolean fallback_console,

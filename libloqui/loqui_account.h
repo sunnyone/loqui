@@ -132,6 +132,11 @@ void loqui_account_append_text(LoquiAccount *account,
 			       GList *channel_list,
 			       LoquiTextType text_type,
 			       gchar *text);
+void loqui_account_append_text_printf(LoquiAccount *account,
+				      GList *channel_list,
+				      LoquiTextType text_type,
+				      const gchar *format, ...);
+
 void loqui_account_append_text_to_joined_channels(LoquiAccount *account,
 						  LoquiUser *user,
 						  gboolean fallback_console,
