@@ -1,5 +1,5 @@
 #include <gnet.h>
-#include <gtk/gtk.h>
+#include <glib-object.h>
 #include "main.h"
 #include <stdlib.h>
 #include <stdio.h>
