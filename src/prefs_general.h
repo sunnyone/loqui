@@ -57,7 +57,7 @@ typedef struct _PrefsGeneral {
 	gchar *notification_command;
 
 	gboolean auto_switch_scrolling;
-
+	gboolean parse_plum_recent;
 } PrefsGeneral;
 
 void prefs_general_load(void);

@@ -27,6 +27,7 @@
 #include "irc_constants.h"
 #include "main.h"
 #include "intl.h"
+#include "prefs_general.h"
 
 #include <string.h>
 
@@ -89,6 +90,7 @@ static void irc_handle_reply_channelmodeis(IRCHandle *handle, IRCMessage *msg);
 static void irc_handle_reply_creationtime(IRCHandle *handle, IRCMessage *msg);
 
 static void irc_handle_parse_mode_arguments(IRCHandle *handle, IRCMessage *msg, Channel *channel, gint mode_start);
+static gboolean irc_handle_parse_plum_recent(IRCHandle *handle, const gchar *line);
 
 GType
 irc_handle_get_type(void)
@@ -157,6 +159,84 @@ irc_handle_finalize(GObject *object)
 
 	g_free(handle->priv);
 }
+static gboolean
+irc_handle_parse_plum_recent(IRCHandle *handle, const gchar *line)
+{
+	gchar *buf, *cur, *name;
+	gchar prefix;
+	Channel *channel;
+	IRCHandlePrivate *priv;
+
+        g_return_val_if_fail(handle != NULL, FALSE);
+        g_return_val_if_fail(IS_IRC_HANDLE(handle), FALSE);
+	g_return_val_if_fail(line != NULL, FALSE);
+
+	priv = handle->priv;
+
+	buf = g_strdup(line);
+
+	if(((cur = strstr(buf, " <")) == NULL) &&
+	   ((cur = strstr(buf, " =")) == NULL) &&
+	   ((cur = strstr(buf, " >")) == NULL)) {
+		goto error;
+	}
+	prefix = *++cur;
+	name = ++cur;
+
+	switch(prefix) {
+	case '<':
+		if((cur = strstr(buf, "> ")) == NULL)
+			goto error;
+		*cur = '\0';
+		
+		if((cur = strrchr(buf, ':')) == NULL)
+			goto error;
+		*cur = '\0';
+
+		break;
+	case '=':
+		if((cur = strchr(buf, '=')) == NULL)
+			goto error;
+		*cur = '\0';
+
+		break;
+	case '>':
+		if((cur = strstr(buf, "< ")) == NULL)
+			goto error;
+		*cur = '\0';
+
+		if((cur = strrchr(buf, ':')) != NULL)
+			*cur = '\0';
+
+		break;
+	default:
+		g_assert_not_reached();
+	}
+	
+	channel = account_search_channel_by_name(priv->account, name);
+	if(channel == NULL) {
+		gdk_threads_enter();
+		channel = channel_new(priv->account, name);
+		account_add_channel(priv->account, channel);
+		gdk_threads_leave();
+	}
+
+	g_free(buf);
+
+	buf = g_strdup_printf("[LOG] %s", line);
+
+	gdk_threads_enter();
+	channel_append_text(channel, TRUE, TEXT_TYPE_NOTICE, buf);
+	channel_set_updated(channel, TRUE);
+	gdk_threads_leave();
+
+	g_free(buf);
+	return TRUE;
+
+ error:
+	g_free(buf);
+	return FALSE;
+}
 static void
 irc_handle_command_privmsg_notice(IRCHandle *handle, IRCMessage *msg)
 {
@@ -178,6 +258,13 @@ irc_handle_command_privmsg_notice(IRCHandle *handle, IRCMessage *msg)
 	if(remark == NULL) {
 		g_warning(_("This PRIVMSG/NOTICE message doesn't contain a remark."));
 		return;
+	}
+
+	if(priv->end_motd == FALSE &&
+	   msg->response == IRC_COMMAND_NOTICE &&
+	   prefs_general.parse_plum_recent) {
+		if(irc_handle_parse_plum_recent(handle, remark))
+			return;
 	}
 
 	if(msg->response == IRC_COMMAND_NOTICE) {
@@ -573,11 +660,14 @@ irc_handle_my_command_join(IRCHandle *handle, IRCMessage *msg)
 		return;
 	}
 
-	gdk_threads_enter();
-	channel = channel_new(priv->account, name);
-	account_add_channel(priv->account, channel);
+	channel = account_search_channel_by_name(priv->account, name);
+	if(channel == NULL) {
+		gdk_threads_enter();
+		channel = channel_new(priv->account, name);
+		account_add_channel(priv->account, channel);
+		gdk_threads_leave();
+	}
 	account_manager_set_current_channel(account_manager_get(), channel);
-	gdk_threads_leave();
 
 	mode_msg = irc_message_create(IRCCommandMode, channel->name, NULL);
 	irc_handle_push_message(handle, mode_msg);
