@@ -589,10 +589,14 @@ loqui_account_force_reconnect(LoquiAccount *account)
         g_return_if_fail(LOQUI_IS_ACCOUNT(account));
 
 	priv = account->priv;
-	g_signal_connect(G_OBJECT(account), "notify::is-connected",
-			 G_CALLBACK(loqui_account_force_reconnect_notify_is_connected_cb), account);
 
-	loqui_account_disconnect(account);
+	if (loqui_account_get_is_connected(account)) {
+		g_signal_connect(G_OBJECT(account), "notify::is-connected",
+				 G_CALLBACK(loqui_account_force_reconnect_notify_is_connected_cb), account);
+		loqui_account_disconnect(account);
+	} else {
+		loqui_account_connect(account);
+	}
 }
 void
 loqui_account_cancel_pending_reconnecting(LoquiAccount *account)
