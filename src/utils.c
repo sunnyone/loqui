@@ -365,6 +365,15 @@ utils_strftime(const gchar *format, struct tm *time)
 	
 	return NULL;
 }
+void
+g_list_foreach_swapped(GList *list, GFunc func, gpointer user_data)
+{
+	GList *cur;
+
+	for (cur = list; cur != NULL; cur = cur->next)
+		(*func)(user_data, cur->data);
+}
+
 /* copied from Sylpheed. (c) 2002, Hiroyuki Yamamoto. */
 gint make_dir(const gchar *dir)
 {
