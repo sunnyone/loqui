@@ -19,6 +19,7 @@ loqui_SOURCES = \
 	loqui_app.c loqui_app.h \
 	account.c account.h \
 	codeconv.c codeconv.h \
+	loqui_dropdown_box.c loqui_dropdown_box.h \
 	channel_tree.c channel_tree.h \
 	gtkutils.c gtkutils.h \
 	utils.c utils.h \

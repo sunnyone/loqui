@@ -25,6 +25,7 @@
 #include "gtkutils.h"
 #include "account_manager.h"
 #include "main.h"
+#include "loqui_dropdown_box.h"
 
 #include <string.h>
 
@@ -43,16 +44,14 @@ struct _LoquiStatusbarPrivate
 	LoquiApp *app;
 	
 	GtkWidget *label_account;
-	
-	GtkWidget *image_online;
-	GtkWidget *image_offline;
+
 	GtkWidget *image_away;
-	GtkWidget *image_busy;
-		
-	GtkWidget *toggle_away;
+	GtkWidget *dbox_away;
+
 	GtkWidget *button_nick;
 	GtkWidget *label_nick;
-	GtkWidget *toggle_preset;
+	GtkWidget *dbox_preset;
+
 	GtkWidget *progress_lag;
 	GtkWidget *toggle_scroll;
 	
@@ -72,13 +71,9 @@ static void loqui_statusbar_init(LoquiStatusbar *statusbar);
 static void loqui_statusbar_finalize(GObject *object);
 static void loqui_statusbar_destroy(GtkObject *object);
 
-static void loqui_statusbar_preset_menu_deactivated_cb(GtkWidget *widget, LoquiStatusbar *statusbar);
-static void loqui_statusbar_preset_button_press_event_cb(GtkWidget *widget, GdkEventButton *event, LoquiStatusbar *statusbar);
-static void loqui_statusbar_preset_menuitem_activated_cb(GtkWidget *widget, LoquiStatusbar *statusbar);
 static void loqui_statusbar_set_preset_menu(LoquiStatusbar *statusbar, GList *nick_list);
 
 static void loqui_statusbar_set_away_state(LoquiStatusbar *statusbar, AwayState away_state);
-static void loqui_statusbar_away_menu_deactivated_cb(GtkWidget *widget, LoquiStatusbar *statusbar);
 static void loqui_statusbar_away_button_press_event_cb(GtkWidget *widget, GdkEventButton *event, LoquiStatusbar *statusbar);
 static void loqui_statusbar_away_menuitem_activated_cb(GtkWidget *widget, LoquiStatusbar *statusbar);
 static void loqui_statusbar_set_away_menu(LoquiStatusbar *statusbar);
@@ -189,88 +184,31 @@ static void
 loqui_statusbar_set_away_state(LoquiStatusbar *statusbar, AwayState away_state)
 {
 	LoquiStatusbarPrivate *priv;
-        GtkWidget *old_image;
+	const gchar *stock_id;
 
         g_return_if_fail(statusbar != NULL);
         g_return_if_fail(LOQUI_IS_STATUSBAR(statusbar));
         
         priv = statusbar->priv;	
-	
-	old_image = gtk_bin_get_child(GTK_BIN(priv->toggle_away));
-	if (old_image) {
-		g_object_ref(old_image);
-		gtk_container_remove(GTK_CONTAINER(priv->toggle_away), old_image);
-	}
-	
+		
 	switch (away_state) {
 	case AWAY_STATE_ONLINE:
-		gtk_container_add(GTK_CONTAINER(priv->toggle_away), priv->image_online);
+		stock_id = LOQUI_STOCK_ONLINE;
 		break;
 	case AWAY_STATE_AWAY:
-		gtk_container_add(GTK_CONTAINER(priv->toggle_away), priv->image_away);
+		stock_id = LOQUI_STOCK_AWAY;
 		break;
 	case AWAY_STATE_BUSY:
-		gtk_container_add(GTK_CONTAINER(priv->toggle_away), priv->image_busy);
+		stock_id = LOQUI_STOCK_BUSY;
 		break;		
 	case AWAY_STATE_OFFLINE:
-		gtk_container_add(GTK_CONTAINER(priv->toggle_away), priv->image_offline);
+		stock_id = LOQUI_STOCK_OFFLINE;
 		break;
 	default:
-		break;
+		g_warning("Invalid AwayState.");
+		return;
 	}
-	
-}
-static void
-loqui_statusbar_preset_menu_deactivated_cb(GtkWidget *widget, LoquiStatusbar *statusbar)
-{
-	LoquiStatusbarPrivate *priv;
-        g_return_if_fail(statusbar != NULL);
-        g_return_if_fail(LOQUI_IS_STATUSBAR(statusbar));
-        
-        priv = statusbar->priv;	
-	
-	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(priv->toggle_preset), FALSE);
-}
-static void
-loqui_statusbar_preset_button_press_event_cb(GtkWidget *widget, GdkEventButton *event, LoquiStatusbar *statusbar)
-{
-	LoquiStatusbarPrivate *priv;
-        g_return_if_fail(statusbar != NULL);
-        g_return_if_fail(LOQUI_IS_STATUSBAR(statusbar));
-        
-        priv = statusbar->priv;	
-        
-        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(priv->toggle_preset), TRUE);
-	gtk_menu_popup(GTK_MENU(priv->menu_preset), NULL, NULL,
-		       gtkutils_menu_position_under_widget, priv->toggle_preset,
-		       event ? event->button : 0,
-		       event ? event->time : gtk_get_current_event_time());
-}
-static void
-loqui_statusbar_away_menu_deactivated_cb(GtkWidget *widget, LoquiStatusbar *statusbar)
-{
-	LoquiStatusbarPrivate *priv;
-        g_return_if_fail(statusbar != NULL);
-        g_return_if_fail(LOQUI_IS_STATUSBAR(statusbar));
-        
-        priv = statusbar->priv;	
-	
-	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(priv->toggle_away), FALSE);
-}
-static void
-loqui_statusbar_away_button_press_event_cb(GtkWidget *widget, GdkEventButton *event, LoquiStatusbar *statusbar)
-{
-	LoquiStatusbarPrivate *priv;
-        g_return_if_fail(statusbar != NULL);
-        g_return_if_fail(LOQUI_IS_STATUSBAR(statusbar));
-        
-        priv = statusbar->priv;	
-        
-        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(priv->toggle_away), TRUE);
-	gtk_menu_popup(GTK_MENU(priv->menu_away), NULL, NULL,
-		       gtkutils_menu_position_under_widget, priv->toggle_away,
-		       event ? event->button : 0,
-		       event ? event->time : gtk_get_current_event_time());
+	gtk_image_set_from_stock(GTK_IMAGE(priv->image_away), stock_id, LOQUI_ICON_SIZE_FONT);
 }
 static void
 loqui_statusbar_preset_menuitem_activated_cb(GtkWidget *widget, LoquiStatusbar *statusbar)
@@ -287,7 +225,6 @@ loqui_statusbar_preset_menuitem_activated_cb(GtkWidget *widget, LoquiStatusbar *
 	str = g_object_get_data(G_OBJECT(widget), "nick");
 	g_signal_emit(statusbar, loqui_statusbar_signals[NICK_SELECTED], 0, str);
 }
-
 static void
 loqui_statusbar_away_menuitem_activated_cb(GtkWidget *widget, LoquiStatusbar *statusbar)
 {
@@ -425,7 +362,6 @@ loqui_statusbar_new(LoquiApp *app)
         LoquiStatusbar *statusbar;
 	LoquiStatusbarPrivate *priv;
 	GtkWidget *hsep;
-	GtkWidget *arrow;
 	
 	statusbar = g_object_new(loqui_statusbar_get_type(), NULL);
 	priv = statusbar->priv;
@@ -435,47 +371,30 @@ loqui_statusbar_new(LoquiApp *app)
 	gtk_statusbar_set_has_resize_grip(GTK_STATUSBAR(statusbar), FALSE);
 	gtk_label_set_selectable(GTK_LABEL(GTK_STATUSBAR(statusbar)->label), TRUE);
 	
-	priv->image_offline = gtk_image_new_from_stock(LOQUI_STOCK_OFFLINE, LOQUI_ICON_SIZE_FONT);
-	gtk_widget_show(priv->image_offline);
-
-	priv->image_online = gtk_image_new_from_stock(LOQUI_STOCK_ONLINE, LOQUI_ICON_SIZE_FONT);
-	gtk_widget_show(priv->image_online);
-
-	priv->image_away = gtk_image_new_from_stock(LOQUI_STOCK_AWAY, LOQUI_ICON_SIZE_FONT);
-	gtk_widget_show(priv->image_away);
-
-	priv->image_busy = gtk_image_new_from_stock(LOQUI_STOCK_AWAY, LOQUI_ICON_SIZE_FONT);
-	gtk_widget_show(priv->image_busy);
+	priv->image_away = gtk_image_new();
 
 /* FIXME: why statusbar becomes taller when button widget is on it? */
 #define WIDGET_MINIMIZE_HEIGHT(widget) gtk_widget_set_usize(widget, -1, 1);
 
-	priv->toggle_away = gtk_toggle_button_new();
-	WIDGET_MINIMIZE_HEIGHT(priv->toggle_away);
-	gtk_box_pack_start(GTK_BOX(statusbar), priv->toggle_away, FALSE, FALSE, 0);
-	gtk_button_set_relief(GTK_BUTTON(priv->toggle_away), GTK_RELIEF_NONE);	
-	g_signal_connect(G_OBJECT(priv->toggle_away), "button_press_event",
-			 G_CALLBACK(loqui_statusbar_away_button_press_event_cb), statusbar);
+	priv->dbox_away = loqui_dropdown_box_new(priv->image_away);
+	WIDGET_MINIMIZE_HEIGHT(priv->dbox_away);
+	gtk_box_pack_start(GTK_BOX(statusbar), priv->dbox_away, FALSE, FALSE, 0);
+	gtk_button_set_relief(GTK_BUTTON(LOQUI_DROPDOWN_BOX(priv->dbox_away)->drop_button), GTK_RELIEF_NONE);
+	
+	priv->dbox_preset = loqui_dropdown_box_new(NULL);
+	WIDGET_MINIMIZE_HEIGHT(priv->dbox_preset);
+	gtk_button_set_relief(GTK_BUTTON(LOQUI_DROPDOWN_BOX(priv->dbox_preset)->drop_button), GTK_RELIEF_NONE);
+	gtk_box_pack_start(GTK_BOX(statusbar), priv->dbox_preset, FALSE, FALSE, 0);
 
 	priv->button_nick = gtk_button_new();
 	WIDGET_MINIMIZE_HEIGHT(priv->button_nick);
 	g_signal_connect(G_OBJECT(priv->button_nick), "clicked",
 			 G_CALLBACK(loqui_statusbar_nick_button_clicked_cb), statusbar);
-	gtk_box_pack_start(GTK_BOX(statusbar), priv->button_nick, FALSE, FALSE, 0);
 	gtk_button_set_relief(GTK_BUTTON(priv->button_nick), GTK_RELIEF_NONE);
-	
+	gtk_box_pack_start(GTK_BOX(priv->dbox_preset), priv->button_nick, FALSE, FALSE, 0);
+
 	priv->label_nick = gtk_label_new("");
 	gtk_container_add(GTK_CONTAINER(priv->button_nick), priv->label_nick);
-
-	priv->toggle_preset = gtk_toggle_button_new();
-	
-	gtk_box_pack_start(GTK_BOX(statusbar), priv->toggle_preset, FALSE, FALSE, 0);
-	gtk_button_set_relief(GTK_BUTTON(priv->toggle_preset), GTK_RELIEF_NONE);
-	WIDGET_MINIMIZE_HEIGHT(priv->toggle_preset);
-	arrow = gtk_arrow_new(GTK_ARROW_DOWN, GTK_SHADOW_OUT);
-	gtk_container_add(GTK_CONTAINER(priv->toggle_preset), arrow);
-	g_signal_connect(G_OBJECT(priv->toggle_preset), "button_press_event",
-			 G_CALLBACK(loqui_statusbar_preset_button_press_event_cb), statusbar);
 
 	hsep = gtk_vseparator_new();
 	gtk_box_pack_start(GTK_BOX(statusbar), hsep, FALSE, FALSE, 2);
@@ -492,12 +411,11 @@ loqui_statusbar_new(LoquiApp *app)
 	gtk_box_pack_start(GTK_BOX(statusbar), priv->toggle_scroll, FALSE, FALSE, 0);
 	
 	priv->menu_preset = gtk_menu_new();
-	g_signal_connect(priv->menu_preset, "deactivate",
-			 G_CALLBACK(loqui_statusbar_preset_menu_deactivated_cb), statusbar);
+	loqui_dropdown_box_set_menu(LOQUI_DROPDOWN_BOX(priv->dbox_preset), priv->menu_preset);
+
 	priv->menu_away = gtk_menu_new();
-	g_signal_connect(priv->menu_away, "deactivate",
-			 G_CALLBACK(loqui_statusbar_away_menu_deactivated_cb), statusbar);
-	
+	loqui_dropdown_box_set_menu(LOQUI_DROPDOWN_BOX(priv->dbox_away), priv->menu_away);
+
 	loqui_statusbar_set_away_menu(statusbar);
 	
 	priv->toggle_scroll_handler_id = g_signal_connect(G_OBJECT(priv->toggle_scroll),
@@ -534,19 +452,17 @@ loqui_statusbar_set_current_account(LoquiStatusbar *statusbar, Account *account)
 
 	// set nick        
         if (account == NULL) {
-        	gtk_widget_set_sensitive(priv->button_nick, FALSE);
-        	gtk_widget_set_sensitive(priv->toggle_preset, FALSE);
-        	gtk_widget_set_sensitive(priv->toggle_away, FALSE);        	
+        	gtk_widget_set_sensitive(priv->dbox_preset, FALSE);
+        	gtk_widget_set_sensitive(priv->dbox_away, FALSE);        	
         	gtk_label_set(GTK_LABEL(priv->label_nick), STRING_UNSELECTED);
         } else if (!account_is_connected(account)) {
- 	      	gtk_widget_set_sensitive(priv->button_nick, FALSE);
-      	 	gtk_widget_set_sensitive(priv->toggle_preset, FALSE);
-        	gtk_widget_set_sensitive(priv->toggle_away, FALSE);      	 	
+      	 	gtk_widget_set_sensitive(priv->dbox_preset, FALSE);
+        	gtk_widget_set_sensitive(priv->dbox_away, FALSE);
         	gtk_label_set(GTK_LABEL(priv->label_nick), STRING_DISCONNECTED);
         } else {
         	gtk_widget_set_sensitive(priv->button_nick, TRUE);
-        	gtk_widget_set_sensitive(priv->toggle_preset, TRUE);
-        	gtk_widget_set_sensitive(priv->toggle_away, TRUE);        	
+        	gtk_widget_set_sensitive(priv->dbox_preset, TRUE);
+        	gtk_widget_set_sensitive(priv->dbox_away, TRUE);
         	gtk_label_set(GTK_LABEL(priv->label_nick), account_get_current_nick(account));
         }
         
