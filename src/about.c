@@ -27,6 +27,6 @@ about_open(void)
 	gtkutils_msgbox_info(GTK_MESSAGE_INFO,
 			     "Loqui version %s\n"
 			     "IRC client for Gtk2\n"
-			     "Copyright (C) 2002, Yoichi Imai <yoichi@silver-forest.com>\n"
+			     "Copyright (C) 2002-2004, Yoichi Imai <yoichi@silver-forest.com>\n"
 			     "http://loqui.good-day.net/", VERSION);
 }
