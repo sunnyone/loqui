@@ -78,6 +78,7 @@ static void irc_handle_reply_creationtime(IRCHandle *handle, IRCMessage *msg);
 static void irc_handle_reply_topicwhotime(IRCHandle *handle, IRCMessage *msg);
 static void irc_handle_reply_whoisidle(IRCHandle *handle, IRCMessage *msg);
 static void irc_handle_error_nick_unusable(IRCHandle *handle, IRCMessage *msg);
+static void irc_handle_reply_who(IRCHandle *handle, IRCMessage *msg);
 
 static void irc_handle_parse_mode_arguments(IRCHandle *handle, IRCMessage *msg, Channel *channel, gint mode_start);
 static gboolean irc_handle_parse_plum_recent(IRCHandle *handle, const gchar *line);
@@ -797,6 +798,83 @@ irc_handle_reply_whoisidle(IRCHandle *handle, IRCMessage *msg)
 	g_free(str);
 }
 
+/* 352 RPL_WHOREPLY
+    "<channel> <user> <host> <server> <nick> 
+    ( "H" / "G" > ["*"] [ ( "@" / "+" ) ] 
+    :<hopcount> <real name>" */
+static void
+irc_handle_reply_who(IRCHandle *handle, IRCMessage *msg)
+{
+	IRCHandlePrivate *priv;
+	
+	gchar *channel_name, *username, *hostname, *server_name, *nick, *flags, *trailing;
+	gchar *away_str = NULL, *hops_str = NULL, *realname = NULL;
+	gchar *buf, *buf2, *tmp;
+	gchar op_char;
+	Channel *channel = NULL;
+	
+	priv = handle->priv;
+
+	channel_name = irc_message_get_param(msg, 2);
+	username = irc_message_get_param(msg, 3);
+	hostname = irc_message_get_param(msg, 4);
+	server_name = irc_message_get_param(msg, 5);
+	nick = irc_message_get_param(msg, 6);
+	flags = irc_message_get_param(msg, 7);
+	trailing = irc_message_get_param(msg, 8);
+	if (!channel_name || !username || !hostname || !server_name || !nick || !flags || !trailing) {
+		account_console_buffer_append(priv->account, TEXT_TYPE_ERROR, _("Invalid WHO reply"));
+		return;
+	}
+	
+	if (flags[0] == 'H') {
+		away_str = "Home";
+	} else if (flags[0] == 'G') {
+		away_str = "Gone";
+	}
+	
+	op_char = ' ';
+	if (flags[0] != '\0') {
+		switch(flags[1]) {
+		case '@':
+		case '+':
+			op_char = flags[1];
+			break;
+		default:
+			break;
+		}
+	}
+	
+	buf = g_strdup(trailing);
+	tmp = strchr(buf, ' ');
+	if (tmp) {
+		*tmp = '\0';
+		hops_str = buf;
+		realname = tmp + 1;
+	} else {
+		realname = buf;
+	}
+	
+	channel_name = irc_message_get_param(msg, 2);
+	if (strcmp(channel_name, "*") == 0) {
+		/* TODO: search channels he is joined */
+	} else {
+		channel = account_get_channel(priv->account, channel_name);
+	}
+
+	buf2 = g_strdup_printf(_("%c%s(%s) is %s@%s (%s) on %s(%s hops) [%s]"),
+				op_char, nick, channel_name, username, hostname,
+				realname, server_name, hops_str ? hops_str : "?", away_str);
+	account_console_buffer_append(handle->priv->account, TEXT_TYPE_INFO, buf2);
+	g_free(buf2);
+	
+	if (channel != NULL) {
+		
+	}
+	
+	g_free(buf);
+	
+}
 static void
 irc_handle_reply_topic(IRCHandle *handle, IRCMessage *msg)
 {
@@ -992,6 +1070,9 @@ irc_handle_reply(IRCHandle *handle, IRCMessage *msg)
 	case IRC_RPL_TOPIC:
 		irc_handle_reply_topic(handle, msg);
 		return TRUE;
+	case IRC_RPL_WHOREPLY:
+		irc_handle_reply_who(handle, msg);
+		return TRUE;
 	case IRC_RPL_WHOISUSER:
 		irc_handle_account_console_append(handle, msg, TEXT_TYPE_NORMAL, _("%2 is %3@%4: %t"));
 		return TRUE;
@@ -1024,6 +1105,8 @@ irc_handle_reply(IRCHandle *handle, IRCMessage *msg)
 	case IRC_RPL_ENDOFBANLIST:
 	case IRC_RPL_ENDOFINFO:
 	case IRC_RPL_ENDOFUSERS:
+		irc_handle_account_console_append(handle, msg, TEXT_TYPE_INFO, _("%3"));
+		return TRUE;
 	case IRC_RPL_NONE:
 		return TRUE;
 	default:
