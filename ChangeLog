@@ -1,3 +1,15 @@
+2003-02-12 02:39  y-imai
+
+	* src/gtkutils.c: include intl.h
+
+2003-02-12 02:39  y-imai
+
+	* src/loqui_menu.c: new callback function type
+
+2003-02-12 02:35  y-imai
+
+	* ChangeLog, NEWS, configure.in: 0.1.3
+
 2003-02-12 02:31  y-imai
 
 	* src/nick_list.c: implemented popup menu actually.
