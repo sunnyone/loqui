@@ -47,6 +47,7 @@ struct _AccountDialogPrivate
 	GtkWidget *entry_realname;
 	GtkWidget *entry_userinfo;
 	GtkWidget *entry_autojoin;
+	GtkWidget *entry_quit_message;
 
 	GtkWidget *option_codeconv;
 	GtkWidget *entry_codeset;
@@ -178,6 +179,7 @@ account_dialog_response_cb(GtkWidget *widget, gint response, gpointer data)
 			     "realname", gtk_entry_get_text(GTK_ENTRY(priv->entry_realname)),
 			     "userinfo", gtk_entry_get_text(GTK_ENTRY(priv->entry_userinfo)),
 			     "autojoin", gtk_entry_get_text(GTK_ENTRY(priv->entry_autojoin)),
+			     "quit_message", gtk_entry_get_text(GTK_ENTRY(priv->entry_quit_message)),
 			     "servername", gtk_entry_get_text(GTK_ENTRY(priv->entry_servername)),
 			     "port", (int) gtk_spin_button_get_value(GTK_SPIN_BUTTON(priv->spin_port)),
 			     NULL);
@@ -291,6 +293,8 @@ account_dialog_new(LoquiProfileAccount *profile)
 				 loqui_profile_account_irc_get_userinfo(LOQUI_PROFILE_ACCOUNT_IRC(profile)));
 	gtkutils_add_label_entry(vbox, _("Auto join channels:"), &priv->entry_autojoin,
 				 loqui_profile_account_irc_get_autojoin(LOQUI_PROFILE_ACCOUNT_IRC(profile)));
+	gtkutils_add_label_entry(vbox, _("Quit message:"), &priv->entry_quit_message,
+				 loqui_profile_account_irc_get_quit_message(LOQUI_PROFILE_ACCOUNT_IRC(profile)));
 
 	vbox = gtk_vbox_new(FALSE, 0);
 	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), vbox, gtk_label_new(_("Code")));
