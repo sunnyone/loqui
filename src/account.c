@@ -221,6 +221,7 @@ account_init (Account *account)
 
 	account->priv = priv;
 	priv->is_away = FALSE;
+	account->channel_hash = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, g_object_unref);
 }
 static void 
 account_finalize (GObject *object)
@@ -257,14 +258,9 @@ account_finalize (GObject *object)
 		g_slist_free(account->server_list);
 		account->server_list = NULL;
 	}
-	if(account->channel_list) {
-		for(cur = account->channel_list; cur != NULL; cur = cur->next) {
-			if(cur->data) {
-				g_object_unref(cur->data);
-			}
-		}
-		g_slist_free(account->channel_list);
-		account->channel_list = NULL;
+	if(account->channel_hash) {
+		g_hash_table_destroy(account->channel_hash);
+		account->channel_hash = NULL;
 	}
 
 	G_OBJECT_UNREF_UNLESS_NULL(account->console_buffer);
@@ -594,7 +590,7 @@ account_add_channel(Account *account, Channel *channel)
         g_return_if_fail(account != NULL);
         g_return_if_fail(IS_ACCOUNT(account));
 
-	account->channel_list = g_slist_append(account->channel_list, channel);
+	g_hash_table_insert(account->channel_hash, g_strdup(channel_get_name(channel)), channel);
 
 	g_signal_emit(account, account_signals[ADD_CHANNEL], 0, channel);
 }
@@ -606,64 +602,32 @@ account_remove_channel(Account *account, Channel *channel)
 
 	g_signal_emit(account, account_signals[REMOVE_CHANNEL], 0, channel);
 
-	account->channel_list = g_slist_remove(account->channel_list, channel);
-	g_object_unref(channel);
+	g_hash_table_remove(account->channel_hash, channel_get_name(channel));
+}
+static gboolean
+account_remove_channel_func(gpointer key, gpointer value, Account *account)
+{
+	g_signal_emit(account, account_signals[REMOVE_CHANNEL], 0, CHANNEL(value));
+	return TRUE;
 }
 void
 account_remove_all_channel(Account *account)
 {
-	GSList *cur;
-	Channel *channel;
-
         g_return_if_fail(account != NULL);
         g_return_if_fail(IS_ACCOUNT(account));
 	
-	for(cur = account->channel_list; cur != NULL; cur = cur->next) {
-		channel = CHANNEL(cur->data);
-		g_signal_emit(account, account_signals[REMOVE_CHANNEL], 0, channel);
-		g_object_unref(channel);
-	}
-
-	g_slist_free(account->channel_list);
-	account->channel_list = NULL;
+	g_hash_table_foreach_remove(account->channel_hash, (GHRFunc) account_remove_channel_func, account);
 }
 
 Channel*
-account_search_channel_by_name(Account *account, gchar *name)
+account_get_channel(Account *account, const gchar *name)
 {
-	GSList *cur;
-	Channel *channel;
-
         g_return_val_if_fail(account != NULL, NULL);
         g_return_val_if_fail(IS_ACCOUNT(account), NULL);
-
 	g_return_val_if_fail(name != NULL, NULL);
 
-	for(cur = account->channel_list; cur != NULL; cur = cur->next) {
-		channel = CHANNEL(cur->data);
-		if(g_ascii_strcasecmp(channel_get_name(channel), name) == 0)
-			return channel;
-	}
-	return NULL;
+	return (Channel *) g_hash_table_lookup(account->channel_hash, name);
 }
-gboolean
-account_has_channel(Account *account, Channel *channel)
-{
-	GSList *cur;
-	Channel *tmp;
-
-        g_return_val_if_fail(account != NULL, FALSE);
-        g_return_val_if_fail(IS_ACCOUNT(account), FALSE);
-	g_return_val_if_fail(channel != NULL, FALSE);
-
-	for(cur = account->channel_list; cur != NULL; cur = cur->next) {
-		tmp = CHANNEL(cur->data);
-		if(channel == tmp)
-			return TRUE;
-	}
-	return FALSE;
-}
-
 void
 account_console_buffer_append(Account *account, TextType type, gchar *str)
 {
@@ -828,22 +792,24 @@ account_set_away_message(Account *account, const gchar *away_message)
 GSList *
 account_search_joined_channel(Account *account, gchar *nick)
 {
-	GSList *list = NULL, *cur;
+	GList *channel_list, *cur;
+	GSList *list = NULL;
 	Channel *channel = NULL;
 
         g_return_val_if_fail(account != NULL, NULL);
         g_return_val_if_fail(IS_ACCOUNT(account), NULL);
 	g_return_val_if_fail(nick != NULL, NULL);
 
-	for(cur = account->channel_list; cur != NULL; cur = cur->next) {
-		channel = (Channel *) cur->data;
-		if(!channel) continue;
-		
+	channel_list = utils_get_value_list_from_hash(account->channel_hash);
+	for(cur = channel_list; cur != NULL; cur = cur->next) {
+		channel = CHANNEL(cur->data);
 		if(channel_find_user(channel, nick, NULL)) {
 			list = g_slist_append(list, channel);
 		}
 	}
-
+	if(channel_list)
+		g_list_free(channel_list);
+	
 	return list;
 }
 

@@ -228,6 +228,47 @@ gchar *utils_get_iso8601_date_string(time_t t)
 #undef DATE_LEN
 }
 
+static void
+add_key_to_list_func(gpointer key, gpointer value, gpointer user_data)
+{
+	GList **list_ptr;
+
+	list_ptr = (GList **) user_data;
+
+	*list_ptr = g_list_append(*list_ptr, key);
+}
+static void
+add_value_to_list_func(gpointer key, gpointer value, gpointer user_data)
+{
+	GList **list_ptr;
+
+	list_ptr = (GList **) user_data;
+
+	*list_ptr = g_list_append(*list_ptr, value);
+}
+GList *
+utils_get_key_list_from_hash(GHashTable *hash_table)
+{
+	GList *list = NULL;
+
+	g_return_val_if_fail(hash_table != NULL, NULL);
+
+	g_hash_table_foreach(hash_table, add_key_to_list_func, &list);
+
+	return list;
+}
+GList *
+utils_get_value_list_from_hash(GHashTable *hash_table)
+{
+	GList *list = NULL;
+
+	g_return_val_if_fail(hash_table != NULL, NULL);
+
+	g_hash_table_foreach(hash_table, add_value_to_list_func, &list);
+
+	return list;
+}
+
 /* copied from Sylpheed. (c) 2002, Hiroyuki Yamamoto. */
 gint make_dir(const gchar *dir)
 {

@@ -249,7 +249,7 @@ irc_handle_parse_plum_recent(IRCHandle *handle, const gchar *line)
 		g_assert_not_reached();
 	}
 	
-	channel = account_search_channel_by_name(priv->account, name);
+	channel = account_get_channel(priv->account, name);
 	if(channel == NULL) {
 		channel = channel_new(priv->account, name);
 		account_add_channel(priv->account, channel);
@@ -320,7 +320,7 @@ irc_handle_command_privmsg_notice(IRCHandle *handle, IRCMessage *msg)
 		else
 			channel_name = msg->nick;
 
-		channel = account_search_channel_by_name(priv->account, channel_name);
+		channel = account_get_channel(priv->account, channel_name);
 		if(channel == NULL) {
 			channel = channel_new(priv->account, channel_name);
 			account_add_channel(priv->account, channel);
@@ -391,7 +391,7 @@ irc_handle_command_part(IRCHandle *handle, IRCMessage *msg)
 		return;
 	}
 
-	channel = account_search_channel_by_name(handle->priv->account, name);
+	channel = account_get_channel(handle->priv->account, name);
 	if(channel) {
 		channel_remove_user(channel, msg->nick);
 	}
@@ -415,7 +415,7 @@ irc_handle_command_kick(IRCHandle *handle, IRCMessage *msg)
 		return;
 	}
 
-	channel = account_search_channel_by_name(handle->priv->account, name);
+	channel = account_get_channel(handle->priv->account, name);
 	if(channel) {
 		channel_remove_user(channel, msg->nick);
 	}
@@ -564,7 +564,7 @@ irc_handle_reply_channelmodeis(IRCHandle *handle, IRCMessage *msg)
 	cur++;
 
 	if(STRING_IS_CHANNEL(name)) {
-		channel = account_search_channel_by_name(handle->priv->account, name);
+		channel = account_get_channel(handle->priv->account, name);
 		if(!channel)
 			return;
 	} else {
@@ -608,7 +608,7 @@ irc_handle_command_mode(IRCHandle *handle, IRCMessage *msg)
 	cur++;
 
 	if(STRING_IS_CHANNEL(name)) {
-		channel = account_search_channel_by_name(handle->priv->account, name);
+		channel = account_get_channel(handle->priv->account, name);
 		if(!channel) {
 			g_warning(_("Why can you know the change of his mode?"));
 			return;
@@ -645,7 +645,7 @@ irc_handle_command_join(IRCHandle *handle, IRCMessage *msg)
 		return;
 	}
 	
-	channel = account_search_channel_by_name(handle->priv->account, name);
+	channel = account_get_channel(handle->priv->account, name);
 	if(!channel) {
 		g_warning(_("Why do you know that the user join the channel?"));
 		return;
@@ -675,7 +675,7 @@ irc_handle_my_command_join(IRCHandle *handle, IRCMessage *msg)
 		return;
 	}
 
-	channel = account_search_channel_by_name(priv->account, name);
+	channel = account_get_channel(priv->account, name);
 	if(channel == NULL) {
 		channel = channel_new(priv->account, name);
 		account_add_channel(priv->account, channel);
@@ -702,7 +702,7 @@ irc_handle_my_command_part(IRCHandle *handle, IRCMessage *msg)
 		g_warning(_("Can't get channel name"));
 		return;
 	}
-	channel = account_search_channel_by_name(handle->priv->account, name);
+	channel = account_get_channel(handle->priv->account, name);
 	if(channel == NULL)
 		return;
 
@@ -725,7 +725,7 @@ irc_handle_my_command_kick(IRCHandle *handle, IRCMessage *msg)
 		g_warning(_("Can't get channel name"));
 		return;
 	}
-	channel = account_search_channel_by_name(handle->priv->account, name);
+	channel = account_get_channel(handle->priv->account, name);
 	if(channel == NULL)
 		return;
 
@@ -786,7 +786,7 @@ irc_handle_reply_names(IRCHandle *handle, IRCMessage *msg)
 	gint i;
 
 	name = irc_message_get_param(msg, 3);
-	channel = account_search_channel_by_name(handle->priv->account, name);
+	channel = account_get_channel(handle->priv->account, name);
 	if(channel == NULL)
 		return;
 
@@ -811,7 +811,7 @@ irc_handle_reply_endofnames(IRCHandle *handle, IRCMessage *msg)
 	gchar *name;
 
 	name = irc_message_get_param(msg, 2);
-	channel = account_search_channel_by_name(handle->priv->account, name);
+	channel = account_get_channel(handle->priv->account, name);
 	if(channel == NULL)
 		return;
 
@@ -891,7 +891,7 @@ irc_handle_reply_topic(IRCHandle *handle, IRCMessage *msg)
 	gchar *name;
 
 	name = irc_message_get_param(msg, 2);
-	channel = account_search_channel_by_name(handle->priv->account, name);
+	channel = account_get_channel(handle->priv->account, name);
 	if(channel == NULL)
 		return;
 
@@ -909,7 +909,7 @@ irc_handle_command_topic(IRCHandle *handle, IRCMessage *msg)
 	gchar *name;
 
 	name = irc_message_get_param(msg, 1);
-	channel = account_search_channel_by_name(handle->priv->account, name);
+	channel = account_get_channel(handle->priv->account, name);
 	if(channel == NULL)
 		return;
 
@@ -984,7 +984,7 @@ irc_handle_channel_append(IRCHandle *handle, IRCMessage *msg, gboolean make_chan
 		return;
 	}
 
-	channel = account_search_channel_by_name(priv->account, receiver_name);
+	channel = account_get_channel(priv->account, receiver_name);
 	if(make_channel == TRUE && channel == NULL) { /* FIXME as well as privmsg_notice */
 		channel = channel_new(priv->account, receiver_name);
 		account_add_channel(priv->account, channel);

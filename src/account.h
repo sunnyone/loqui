@@ -49,7 +49,9 @@ struct _Account
 	gboolean use;
 
 	GSList *server_list; /* list of Server */
-	GSList *channel_list; /* list of Channel */
+
+	/* key: channel name(gchar *), value: channel(Channel) */
+	GHashTable *channel_hash;
 
 	gchar *nick;
 	gchar *username;
@@ -115,10 +117,7 @@ void account_add_channel(Account *account, Channel *channel);
 void account_remove_channel(Account *account, Channel *channel);
 void account_remove_all_channel(Account *account);
 
-gboolean account_has_channel(Account *account, Channel *channel);
-
-Channel* account_search_channel_by_name(Account *account, gchar *name);
-
+Channel* account_get_channel(Account *account, const gchar *name);
 GSList *account_search_joined_channel(Account *account, gchar *nick);
 
 void account_console_buffer_append(Account *account, TextType type, gchar *str);

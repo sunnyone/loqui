@@ -243,9 +243,8 @@ static void channel_input_dialog_update_combo(ChannelInputDialog *dialog)
 {
 	ChannelInputDialogPrivate *priv;
 	GList *items = NULL;
-	GSList *cur;
-	Channel *channel;
-	
+	GList *channel_name_list;
+
         g_return_if_fail(dialog != NULL);
         g_return_if_fail(IS_CHANNEL_INPUT_DIALOG(dialog));
 	
@@ -265,13 +264,10 @@ static void channel_input_dialog_update_combo(ChannelInputDialog *dialog)
 	case CHANNEL_HISTORY_JOINED:
 		if(priv->account == NULL) break;
 
-		for(cur = priv->account->channel_list; cur != NULL; cur = cur->next) {
-			channel = CHANNEL(cur->data);
-			items = g_list_append(items, channel_get_name(channel));
-		}
-		if(items) {
-			gtk_combo_set_popdown_strings(GTK_COMBO(dialog->combo), items);
-			g_list_free(items);
+		channel_name_list = utils_get_key_list_from_hash(priv->account->channel_hash);
+		if(channel_name_list) {
+			gtk_combo_set_popdown_strings(GTK_COMBO(dialog->combo), channel_name_list);
+			g_list_free(channel_name_list);
 		}
 
 		break;

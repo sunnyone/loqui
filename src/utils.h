@@ -67,6 +67,11 @@ gchar *utils_get_iso8601_date_string(time_t t);
 /* pairs of flag and characters, terminated with -1 */
 gchar *utils_format(const gchar *format, ...);
 
+GList *utils_get_key_list_from_hash(GHashTable *hash_table);
+GList *utils_get_value_list_from_hash(GHashTable *hash_table);
+
+gpointer utils_get_key_from_value(GHashTable *hash_table);
+
 /* copied from Sylpheed. (c) 2002, Hiroyuki Yamamoto. */
 gint make_dir(const gchar *dir);
 
