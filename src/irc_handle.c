@@ -81,12 +81,7 @@ static gboolean irc_handle_command(IRCHandle *handle, IRCMessage *msg);
 static gboolean irc_handle_reply(IRCHandle *handle, IRCMessage *msg);
 static gboolean irc_handle_error(IRCHandle *handle, IRCMessage *msg);
 
-static gboolean irc_handle_is_my_message(IRCHandle *handle, IRCMessage *msg);
 static void irc_handle_inspect_message(IRCHandle *handle, IRCMessage *msg);
-
-static void irc_handle_my_command_nick(IRCHandle *handle, IRCMessage *msg);
-static void irc_handle_my_command_join(IRCHandle *handle, IRCMessage *msg);
-static void irc_handle_my_command_part(IRCHandle *handle, IRCMessage *msg);
 
 static void irc_handle_command_privmsg_notice(IRCHandle *handle, IRCMessage *msg);
 static void irc_handle_command_ping(IRCHandle *handle, IRCMessage *msg);
@@ -390,11 +385,17 @@ irc_handle_command_part(IRCHandle *handle, IRCMessage *msg)
 	}
 
 	channel = account_get_channel(handle->priv->account, name);
-	if(channel) {
+	if(channel)
 		channel_remove_user(channel, msg->nick);
+	
+	if(account_is_current_nick(handle->priv->account, msg->nick)) {
+		if(channel) {
+			irc_handle_account_console_append(handle, msg, TEXT_TYPE_INFO, "*** You has left %1");
+			account_remove_channel(handle->priv->account, channel);
+		}
+	} else {
+		irc_handle_channel_append(handle, msg, FALSE, 1, TEXT_TYPE_INFO, _("*** %n has just part %1(%t)"));
 	}
-
-	irc_handle_channel_append(handle, msg, FALSE, 1, TEXT_TYPE_INFO, _("*** %n has just part %1(%t)"));
 }
 static void
 irc_handle_command_kick(IRCHandle *handle, IRCMessage *msg)
@@ -402,7 +403,6 @@ irc_handle_command_kick(IRCHandle *handle, IRCMessage *msg)
 	Channel *channel;
 	gchar *name;
 	gchar *sender, *receiver;
-	const gchar *current_nick;
 
 	sender = msg->nick;
 	if(sender == NULL) {
@@ -418,30 +418,29 @@ irc_handle_command_kick(IRCHandle *handle, IRCMessage *msg)
 
 	receiver = irc_message_get_param(msg, 2);
 	if(!receiver) {
-		g_warning(_("The KICK message doesn't contain the user to bekicked."));
+		g_warning(_("The KICK message doesn't contain the user to be kicked."));
 		return;
 	}
 	
-	current_nick = account_get_current_nick(handle->priv->account);
 	channel = account_get_channel(handle->priv->account, name);
+	if(channel)
+		channel_remove_user(channel, receiver);
 
-	/* is the message for me? */
-	if(receiver && current_nick && strcmp(receiver,current_nick) == 0) { /* me */
+	if(account_is_current_nick(handle->priv->account, receiver)) {
 		irc_handle_account_console_append(handle, msg, TEXT_TYPE_INFO, "*** You were kicked from %1 by %n (%3)");
 		account_remove_channel(handle->priv->account, channel);
 	} else {
-		if(channel) {
-			channel_remove_user(channel, msg->nick);
-		}
 		irc_handle_channel_append(handle, msg, FALSE, 1, TEXT_TYPE_INFO, _("*** %2 was kicked from %1 by %n(%3)"));
 	}
 }
-
 static void
 irc_handle_command_nick(IRCHandle *handle, IRCMessage *msg)
 {
 	GSList *slist, *cur;
 	gchar *nick_new;
+
+        g_return_if_fail(handle != NULL);
+        g_return_if_fail(IS_IRC_HANDLE(handle));
 
 	if(msg->nick == NULL) {
 		g_warning(_("The message does not contain nick"));
@@ -460,6 +459,9 @@ irc_handle_command_nick(IRCHandle *handle, IRCMessage *msg)
 	}
 
 	irc_handle_joined_channel_append(handle, msg, slist, TEXT_TYPE_INFO, _("*** %n is known as %1"));
+
+	if(account_is_current_nick(handle->priv->account, msg->nick))
+		account_set_current_nick(handle->priv->account, nick_new);
 
 	if(slist)
 		g_slist_free(slist);
@@ -649,6 +651,14 @@ irc_handle_command_join(IRCHandle *handle, IRCMessage *msg)
 {
 	gchar *name;
 	Channel *channel;
+	IRCHandlePrivate *priv;
+	IRCMessage *mode_msg;
+
+        g_return_if_fail(handle != NULL);
+        g_return_if_fail(IS_IRC_HANDLE(handle));
+	g_return_if_fail(msg != NULL);
+
+	priv = handle->priv;
 
 	if(msg->nick == NULL) {
 		g_warning(_("The message does not contain nick."));
@@ -661,99 +671,24 @@ irc_handle_command_join(IRCHandle *handle, IRCMessage *msg)
 	}
 	
 	channel = account_get_channel(handle->priv->account, name);
-	if(!channel) {
-		g_warning(_("Why do you know that the user join the channel?"));
-		return;
+	if(account_is_current_nick(handle->priv->account, msg->nick)) {
+		if(!channel) {
+			channel = channel_new(priv->account, name);
+			account_add_channel(priv->account, channel);
+		}
+		account_manager_set_current_channel(account_manager_get(), channel);
+
+		mode_msg = irc_message_create(IRCCommandMode, channel_get_name(channel), NULL);
+		irc_handle_push_message(handle, mode_msg);
+		g_object_unref(mode_msg);
+	} else {
+		if(!channel) {
+			g_warning(_("Why do you know that the user join the channel?"));
+			return;
+		}
+		channel_append_user(channel, msg->nick, USER_POWER_NOTHING, USER_EXISTENCE_UNKNOWN);
+		irc_handle_channel_append(handle, msg, FALSE, 1, TEXT_TYPE_INFO, _("*** %n (%u@%h) joined channel %t"));
 	}
-	
-	channel_append_user(channel, msg->nick, USER_POWER_NOTHING, USER_EXISTENCE_UNKNOWN);
-
-	irc_handle_channel_append(handle, msg, FALSE, 1, TEXT_TYPE_INFO, _("*** %n (%u@%h) joined channel %t"));
-}
-static void
-irc_handle_my_command_join(IRCHandle *handle, IRCMessage *msg)
-{
-	IRCHandlePrivate *priv;
-	Channel *channel;
-	gchar *name;
-	IRCMessage *mode_msg;
-
-        g_return_if_fail(handle != NULL);
-        g_return_if_fail(IS_IRC_HANDLE(handle));
-	g_return_if_fail(msg != NULL);
-
-	priv = handle->priv;
-
-	name = irc_message_get_param(msg, 1);
-	if(name == NULL) {
-		g_warning(_("Can't get channel name"));
-		return;
-	}
-
-	channel = account_get_channel(priv->account, name);
-	if(channel == NULL) {
-		channel = channel_new(priv->account, name);
-		account_add_channel(priv->account, channel);
-	}
-	account_manager_set_current_channel(account_manager_get(), channel);
-
-	mode_msg = irc_message_create(IRCCommandMode, channel_get_name(channel), NULL);
-	irc_handle_push_message(handle, mode_msg);
-	g_object_unref(mode_msg);
-}
-
-static void
-irc_handle_my_command_part(IRCHandle *handle, IRCMessage *msg)
-{
-	Channel *channel;
-	gchar *name;
-
-        g_return_if_fail(handle != NULL);
-        g_return_if_fail(IS_IRC_HANDLE(handle));
-	g_return_if_fail(msg != NULL);
-	
-	name = irc_message_get_param(msg, 1);
-	if(name == NULL) {
-		g_warning(_("Can't get channel name"));
-		return;
-	}
-	channel = account_get_channel(handle->priv->account, name);
-	if(channel == NULL)
-		return;
-
-	irc_handle_account_console_append(handle, msg, TEXT_TYPE_INFO, "*** You has left %1");
-
-	account_remove_channel(handle->priv->account, channel);
-}
-static void
-irc_handle_my_command_nick(IRCHandle *handle, IRCMessage *msg)
-{
-        g_return_if_fail(handle != NULL);
-        g_return_if_fail(IS_IRC_HANDLE(handle));
-
-	account_set_current_nick(handle->priv->account, irc_message_get_param(msg, 1));
-}
-
-static gboolean
-irc_handle_is_my_message(IRCHandle *handle, IRCMessage *msg)
-{
-	const gchar *current_nick;
-        g_return_val_if_fail(handle != NULL, FALSE);
-        g_return_val_if_fail(IS_IRC_HANDLE(handle), FALSE);
-
-	g_return_val_if_fail(msg != NULL, FALSE);
-
-	current_nick = account_get_current_nick(handle->priv->account);
-
-	if(current_nick == NULL) {
-		g_warning(_("Nick is null"));
-		return FALSE;
-	}
-	
-	if(msg->nick == NULL)
-		return FALSE;
-
-	return (strcmp(msg->nick,current_nick) == 0);
 }
 static void
 irc_handle_inspect_message(IRCHandle *handle, IRCMessage *msg)
@@ -1111,22 +1046,6 @@ irc_handle_command(IRCHandle *handle, IRCMessage *msg)
 	g_return_val_if_fail(handle != NULL, FALSE);
         g_return_val_if_fail(IS_IRC_HANDLE(handle), FALSE);
 
-
-	if(irc_handle_is_my_message(handle, msg)) {
-		switch(msg->response) {
-		case IRC_COMMAND_NICK:
-			irc_handle_my_command_nick(handle, msg);
-			break;
-		case IRC_COMMAND_JOIN:
-			irc_handle_my_command_join(handle, msg);
-			return TRUE;
-		case IRC_COMMAND_PART:
-			irc_handle_my_command_part(handle, msg);
-			return TRUE;
-		default:
-			break;
-		}
-	} 
 	switch (msg->response) {
 	case IRC_COMMAND_NOTICE:
 	case IRC_COMMAND_PRIVMSG:

@@ -728,6 +728,24 @@ account_get_current_nick(Account *account)
 
 	return priv->current_nick;
 }
+
+gboolean
+account_is_current_nick(Account *account, const gchar *str)
+{
+	AccountPrivate *priv;
+
+        g_return_val_if_fail(account != NULL, FALSE);
+        g_return_val_if_fail(IS_ACCOUNT(account), FALSE);
+
+	priv = account->priv;
+
+	g_return_val_if_fail(priv->current_nick != NULL, FALSE);
+
+	if(str == NULL)
+		return FALSE;
+	
+	return (strcmp(priv->current_nick, str) == 0 ? TRUE : FALSE);
+}
 void
 account_set_away_status(Account *account, gboolean is_away)
 {
