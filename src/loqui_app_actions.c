@@ -127,10 +127,10 @@ static GtkActionEntry loqui_action_entries[] =
         {"PasteWithLinefeedsCut", GTK_STOCK_PASTE, N_("_Paste with Linefeeds Cut"), NULL, NULL, NULL},
         {"Clear",                 GTK_STOCK_CLEAR, N_("_Clear"), NULL, NULL, G_CALLBACK(loqui_app_actions_clear_cb)},
 
-        {"Find",                  NULL /*GTK_STOCK_FIND*/, N_("_Find"), NULL, NULL, NULL},
-        {"FindAgain",             NULL /*GTK_STOCK_FIND*/, N_("_Find Again"), NULL, NULL, NULL},
-	{"JumpToPreviousKeyword", NULL /*GTK_STOCK_FIND*/, N_("Jump to previous keyword"), NULL, NULL, G_CALLBACK(loqui_app_actions_jump_to_previous_keyword_cb)},
-	{"JumpToNextKeyword",     NULL /*GTK_STOCK_FIND*/, N_("Jump to next keyword"), NULL, NULL, G_CALLBACK(loqui_app_actions_jump_to_next_keyword_cb)},
+        {"Find",                  NULL, N_("_Find"), NULL, NULL, NULL},
+        {"FindAgain",             NULL, N_("_Find Again"), NULL, NULL, NULL},
+	{"JumpToPreviousKeyword", NULL, N_("Jump to Previous Keyword"), NULL, NULL, G_CALLBACK(loqui_app_actions_jump_to_previous_keyword_cb)},
+	{"JumpToNextKeyword",     NULL, N_("Jump to Next Keyword"), NULL, NULL, G_CALLBACK(loqui_app_actions_jump_to_next_keyword_cb)},
 
 	{LOQUI_ACTION_JOIN,       GTK_STOCK_ADD, N_("_Join a Channel"), ALT "J", NULL, G_CALLBACK(loqui_app_actions_join_cb)},
         {LOQUI_ACTION_PART,       GTK_STOCK_REMOVE, N_("_Part Current Channel"), NULL, NULL, G_CALLBACK(loqui_app_actions_part_cb)},
