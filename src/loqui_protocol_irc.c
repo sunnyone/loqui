@@ -28,18 +28,10 @@
 #include "loqui_receiver_irc.h"
 #include "loqui_profile_account_irc.h"
 
-enum {
-        LAST_SIGNAL
-};
-
 static LoquiProtocolClass *parent_class = NULL;
-
-/* static guint loqui_protocol_irc_signals[LAST_SIGNAL] = { 0 }; */
 
 static void loqui_protocol_irc_class_init(LoquiProtocolIRCClass *klass);
 static void loqui_protocol_irc_init(LoquiProtocolIRC *protocol);
-static void loqui_protocol_irc_finalize(GObject *object);
-static void loqui_protocol_irc_dispose(GObject *object);
 
 static LoquiProtocolIRC* loqui_protocol_irc_new(void);
 
@@ -69,43 +61,12 @@ loqui_protocol_irc_get_type(void)
 	
 	return type;
 }
-static void 
-loqui_protocol_irc_finalize(GObject *object)
-{
-	LoquiProtocolIRC *protocol;
-
-        g_return_if_fail(object != NULL);
-        g_return_if_fail(LOQUI_IS_PROTOCOL_IRC(object));
-
-        protocol = LOQUI_PROTOCOL_IRC(object);
-
-        if (G_OBJECT_CLASS(parent_class)->finalize)
-                (* G_OBJECT_CLASS(parent_class)->finalize)(object);
-
-	g_free(protocol->priv);
-}
-static void 
-loqui_protocol_irc_dispose(GObject *object)
-{
-	LoquiProtocolIRC *protocol;
-
-        g_return_if_fail(object != NULL);
-        g_return_if_fail(LOQUI_IS_PROTOCOL_IRC(object));
-
-        protocol = LOQUI_PROTOCOL_IRC(object);
-
-        if (G_OBJECT_CLASS(parent_class)->dispose)
-                (* G_OBJECT_CLASS(parent_class)->dispose)(object);
-}
 static void
 loqui_protocol_irc_class_init(LoquiProtocolIRCClass *klass)
 {
         GObjectClass *object_class = G_OBJECT_CLASS(klass);
 
         parent_class = g_type_class_peek_parent(klass);
-        
-        object_class->finalize = loqui_protocol_irc_finalize;
-        object_class->dispose = loqui_protocol_irc_dispose;
 }
 static void 
 loqui_protocol_irc_init(LoquiProtocolIRC *protocol)

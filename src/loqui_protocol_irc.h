@@ -35,8 +35,6 @@ G_BEGIN_DECLS
 typedef struct _LoquiProtocolIRC            LoquiProtocolIRC;
 typedef struct _LoquiProtocolIRCClass       LoquiProtocolIRCClass;
 
-typedef struct _LoquiProtocolIRCPrivate     LoquiProtocolIRCPrivate;
-
 struct _LoquiProtocolIRC
 {
         LoquiProtocol parent;

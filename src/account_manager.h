@@ -60,7 +60,6 @@ struct _AccountManagerClass
 GType account_manager_get_type(void) G_GNUC_CONST;
 
 AccountManager* account_manager_new(LoquiProtocolManager *manager);
-AccountManager *account_manager_get(void);
 
 void account_manager_load_accounts(AccountManager *account_manager);
 void account_manager_save_accounts(AccountManager *account_manager);
