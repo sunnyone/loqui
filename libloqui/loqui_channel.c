@@ -25,6 +25,8 @@
 #include <string.h>
 #include "loqui_sender_irc.h"
 
+#include "utils.h"
+
 enum {
 	MODE_CHANGED,
         LAST_SIGNAL
@@ -124,6 +126,8 @@ loqui_channel_dispose(GObject *object)
 	G_FREE_UNLESS_NULL(channel->identifier);
 
 	G_OBJECT_UNREF_UNLESS_NULL(channel->account);
+
+	debug_puts("the channel is disposed.");
 
         if (G_OBJECT_CLASS(parent_class)->dispose)
                 (* G_OBJECT_CLASS(parent_class)->dispose)(object);
