@@ -893,6 +893,7 @@ void
 account_start_private_talk(Account *account, const gchar *target)
 {
 	LoquiChannel *channel;
+	LoquiMember *member;
 
         g_return_if_fail(account != NULL);
         g_return_if_fail(IS_ACCOUNT(account));
@@ -909,6 +910,12 @@ account_start_private_talk(Account *account, const gchar *target)
 
 	if ((channel = account_get_channel_by_name(account, target)) == NULL) {
 		channel = loqui_channel_new(account, target, TRUE, TRUE);
+		loqui_channel_add_member_by_nick(channel, target, FALSE, FALSE, FALSE);
+
+		member = loqui_member_new(account_get_user_self(account));
+		loqui_channel_entry_add_member(LOQUI_CHANNEL_ENTRY(channel), member);
+		g_object_unref(member);
+
 		account_add_channel(account, channel);
 		g_object_unref(channel);
 	}

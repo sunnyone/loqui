@@ -293,7 +293,13 @@ irc_handle_command_privmsg_notice(IRCHandle *handle, IRCMessage *msg)
 		if(channel == NULL) {
 			is_priv = !LOQUI_UTILS_IRC_STRING_IS_CHANNEL(channel_name);
 			channel = loqui_channel_new(priv->account, channel_name, FALSE, is_priv);
+			if (is_priv) {
+				member = loqui_member_new(account_get_user_self(priv->account));
+				loqui_channel_entry_add_member(LOQUI_CHANNEL_ENTRY(channel), member);
+				g_object_unref(member);
 
+				loqui_channel_add_member_by_nick(channel, receiver_name, FALSE, FALSE, FALSE);
+			}
 			account_add_channel(priv->account, channel);
 			g_object_unref(channel);
 		}
@@ -420,6 +426,7 @@ irc_handle_command_nick(IRCHandle *handle, IRCMessage *msg)
 {
 	gchar *nick_new;
 	LoquiUser *user;
+	LoquiChannel *channel;
 
         g_return_if_fail(handle != NULL);
         g_return_if_fail(IS_IRC_HANDLE(handle));
@@ -442,6 +449,13 @@ irc_handle_command_nick(IRCHandle *handle, IRCMessage *msg)
 
 	if(account_is_current_nick(handle->priv->account, msg->nick))
 		loqui_user_set_nick(account_get_user_self(handle->priv->account), nick_new);
+
+	if (!LOQUI_UTILS_IRC_STRING_IS_CHANNEL(msg->nick)) {
+		channel = account_get_channel_by_name(handle->priv->account, msg->nick);
+		if (channel) {
+			loqui_channel_entry_set_name(LOQUI_CHANNEL_ENTRY(channel), nick_new);
+		}
+	}
 }
 
 static void
