@@ -75,19 +75,6 @@ class Loqui:Account:Dialog from Gtk:Dialog {
         private GtkWidget *textview_nicklist;
 
         private void
-        destroy(GtkObject *object) {
-                LoquiAccountDialog *account_dialog;
-        
-                g_return_if_fail(object != NULL);
-                g_return_if_fail(IS_SELF(object));
-        
-                account_dialog = SELF(object);
-        
-                if (GTK_OBJECT_CLASS(parent_class)->destroy)
-                        (* GTK_OBJECT_CLASS(parent_class)->destroy) (object);
-        }
-
-        private void
         set_codeconv_mode(self, LoquiCodeConvMode mode) {
         	switch (mode) {
         	case LOQUI_CODECONV_MODE_AUTOMATIC:
