@@ -128,6 +128,10 @@ gboolean account_get_away_status(Account *account);
 void account_set_away(Account *account, gboolean is_away);
 void account_set_away_message(Account *account, const gchar *away_message);
 
+void account_whois(Account *account, const gchar *target);
+void account_change_channel_user_mode(Account *account, Channel *channel, 
+				      gboolean is_give, IRCModeFlag flag, GList *str_list);
+				      
 G_END_DECLS
 
 #endif /* __ACCOUNT_H__ */

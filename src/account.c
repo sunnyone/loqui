@@ -563,3 +563,67 @@ account_search_joined_channel(Account *account, gchar *nick)
 
 	return list;
 }
+
+void account_whois(Account *account, const gchar *target)
+{
+	IRCMessage *msg;
+	AccountPrivate *priv;
+
+        g_return_if_fail(account != NULL);
+        g_return_if_fail(IS_ACCOUNT(account));
+
+	priv = account->priv;
+
+	msg = irc_message_create(IRCCommandWhois, target, NULL);
+	irc_handle_push_message(priv->handle, msg);
+}
+void account_change_channel_user_mode(Account *account, Channel *channel, 
+				      gboolean is_give, IRCModeFlag flag, GList *str_list)
+{
+	IRCMessage *msg;
+	GList *cur;
+	guint i, p, list_num;
+	gchar flag_str[IRC_MESSAGE_PARAMETER_MAX + 10];
+	gchar *param_array[IRC_MESSAGE_PARAMETER_MAX + 10];
+	AccountPrivate *priv;
+
+        g_return_if_fail(account != NULL);
+        g_return_if_fail(IS_ACCOUNT(account));
+
+	priv = account->priv;
+
+	list_num = g_list_length(str_list);
+	if(list_num > IRC_MESSAGE_PARAMETER_MAX) {
+		g_warning(_("Too many users in change mode request!"));
+		return;
+	}
+	
+	p = 0;
+	/* MODE #Channel +? user1 user2 user3 */
+	param_array[p] = channel->name;
+	p++;
+
+	if(is_give)
+		flag_str[0] = '+';
+	else
+		flag_str[0] = '-';
+
+	for(i = 0; i < list_num; i++)
+		flag_str[i+1] = (gchar) flag;
+	flag_str[i+1] = '\0';
+
+	param_array[p] = flag_str;
+	p++;
+
+	for(cur = str_list; cur != NULL; cur = cur->next) {
+		param_array[p] = cur->data;
+		p++;
+	}
+	param_array[p] = NULL;
+
+	msg = irc_message_createv(IRCCommandMode, param_array);
+	debug_puts("Sending MODE command.\n");
+	if(show_msg_mode)
+		irc_message_print(msg);
+	irc_handle_push_message(priv->handle, msg);
+}
