@@ -91,16 +91,9 @@ gboolean utils_return_true_if_data_of_list_equals_data(gpointer key, gpointer va
 
 G_CONST_RETURN gchar* utils_remove_ipv6_prefix_ffff(const gchar *str);
 
+gboolean loqui_utils_mkdir_and_chmod(const gchar *path);
+
 gchar *utils_url_encode(const gchar *str);
 gchar *utils_url_decode(const gchar *str);
-
-/* copied from Sylpheed. (c) 2002, Hiroyuki Yamamoto. */
-gint make_dir(const gchar *dir);
-
-#define FILE_OP_ERROR(file, func) \
-{ \
-        fprintf(stderr, "%s: ", file); \
-        perror(func); \
-}
 
 #endif /* __UTILS_H__ */

@@ -27,6 +27,8 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <ctype.h>
+#include <errno.h>
+
 #include "intl.h"
 
 const gchar* uri_prefix_list[] = { "http://", "https://", "ftp://", "mailto:", "ttp://", NULL };
@@ -425,6 +427,21 @@ utils_remove_ipv6_prefix_ffff(const gchar *str)
 	}
 	return str;
 }
+gboolean
+loqui_utils_mkdir_and_chmod(const gchar *path)
+{
+	if (mkdir(path, S_IRWXU) < 0) {
+		g_warning("Failed to mkdir (%s)", g_strerror(errno));
+		return FALSE;
+	}
+
+	if (chmod(path, S_IRWXU) < 0) {
+		g_warning("Failed to chmod (%s)", g_strerror(errno));
+		return FALSE;
+	}
+
+	return TRUE;
+}
 
 gchar *
 utils_url_encode(const gchar *str)
@@ -477,17 +494,4 @@ utils_url_decode(const gchar *str)
 		ptr++;
 	}
 	return g_string_free(string, FALSE);
-}
-
-/* copied from Sylpheed. (c) 2002, Hiroyuki Yamamoto. */
-gint make_dir(const gchar *dir)
-{
-        if (mkdir(dir, S_IRWXU) < 0) {
-                FILE_OP_ERROR(dir, "mkdir");
-                return -1;
-        }
-        if (chmod(dir, S_IRWXU) < 0)
-                FILE_OP_ERROR(dir, "chmod");
-
-        return 0;
 }

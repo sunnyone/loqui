@@ -53,7 +53,7 @@ static void make_program_dir(void)
 	
 	dirname = g_build_filename(g_get_home_dir(), PREFS_DIR, NULL);
 	if(!g_file_test(dirname, G_FILE_TEST_EXISTS)) {
-		make_dir(dirname);
+		loqui_utils_mkdir_and_chmod(dirname);
 	}
 	
 	if(!g_file_test(dirname, G_FILE_TEST_IS_DIR)) {
@@ -63,7 +63,7 @@ static void make_program_dir(void)
 
 	log_dirname = g_build_filename(g_get_home_dir(), PREFS_DIR, LOG_DIR, NULL);
 	if(!g_file_test(log_dirname, G_FILE_TEST_EXISTS))
-		make_dir(log_dirname);
+		loqui_utils_mkdir_and_chmod(log_dirname);
 	
 	g_free(log_dirname);
 }
