@@ -49,6 +49,9 @@ GtkWidget *gtkutils_create_framed_textview(GtkWidget **textview_ptr, const gchar
 gboolean gtk_tree_model_find_by_column_data(GtkTreeModel * model, GtkTreeIter * iter,
 					    GtkTreeIter * start, gint col,
 					    gpointer data);
+
+void gtkutils_get_current_font_pixel_size(GtkWidget *widget, gint *width, gint *height);
+
 void gtkutils_menu_position_under_widget(GtkMenu   *menu,
 					 gint      *x,
 					 gint      *y,

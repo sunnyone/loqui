@@ -268,6 +268,16 @@ gtkutils_create_framed_textview(GtkWidget **textview_ptr, const gchar *frame_lab
 	return frame;
 }
 void
+gtkutils_get_current_font_pixel_size(GtkWidget *widget, gint *width, gint *height)
+{
+	PangoLayout *layout;
+
+	layout = gtk_widget_create_pango_layout(widget, NULL);
+	pango_layout_get_pixel_size(layout, width, height);
+	g_object_unref(layout);
+}
+
+void
 gtkutils_menu_position_under_widget(GtkMenu   *menu,
 				    gint      *x,
 				    gint      *y,

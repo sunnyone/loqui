@@ -190,8 +190,6 @@ static void
 nick_list_create_icons(NickList *list)
 {
 	NickListPrivate *priv;
-	PangoContext *pcon;
-	PangoLayout *layout;
 	gint height;
 	
         g_return_if_fail(list != NULL);
@@ -199,11 +197,7 @@ nick_list_create_icons(NickList *list)
 
 	priv = list->priv;
 
-	pcon = gtk_widget_get_pango_context(GTK_WIDGET(list));
-	layout = pango_layout_new(pcon);
-	pango_layout_get_size(layout, NULL, &height);
-	g_object_unref(layout);
-	height = PANGO_PIXELS(height);
+	gtkutils_get_current_font_pixel_size(GTK_WIDGET(list), NULL, &height);
 
 #define CREATE_ICON(pixbuf_scaled, size, data) { \
 	GdkPixbuf *pixbuf; \
