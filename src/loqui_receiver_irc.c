@@ -1344,6 +1344,9 @@ loqui_receiver_irc_reply(LoquiReceiverIRC *receiver, IRCMessage *msg)
 		return TRUE;
 	case IRC_RPL_NONE:
 		return TRUE;
+	case IRC_RPL_ISON:
+		loqui_receiver_irc_account_console_append(receiver, msg, TEXT_TYPE_INFO, _("Ison: %*2"));
+		return TRUE;
 	default:
 		break;
 	}
