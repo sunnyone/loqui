@@ -260,13 +260,14 @@ message_text_new(void)
 	return message_text;
 }
 
-ATTR_ACCESSOR_STRING(MessageText, message_text, text);
-ATTR_ACCESSOR_STRING(MessageText, message_text, nick);
-ATTR_ACCESSOR_STRING(MessageText, message_text, account_name);
-ATTR_ACCESSOR_STRING(MessageText, message_text, channel_name);
-ATTR_ACCESSOR_BOOLEAN(MessageText, message_text, is_priv);
-ATTR_ACCESSOR_BOOLEAN(MessageText, message_text, is_self);
-ATTR_ACCESSOR_BOOLEAN(MessageText, message_text, is_remark);
+MESSAGE_TEXT_ACCESSOR_STRING(text);
+MESSAGE_TEXT_ACCESSOR_STRING(nick);
+MESSAGE_TEXT_ACCESSOR_STRING(account_name);
+MESSAGE_TEXT_ACCESSOR_STRING(channel_name);
+
+ATTR_ACCESSOR_GENERIC(gboolean, FALSE, MessageText, message_text, is_priv);
+ATTR_ACCESSOR_GENERIC(gboolean, FALSE, MessageText, message_text, is_self);
+ATTR_ACCESSOR_GENERIC(gboolean, FALSE, MessageText, message_text, is_remark);
 
 void
 message_text_set_text_type(MessageText *msgtext, TextType type)

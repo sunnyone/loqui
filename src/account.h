@@ -94,9 +94,9 @@ Account* account_new(void);
 void account_print(Account *account);
 
 #define ACCOUNT_ACCESSOR_STRING(attr_name) \
-  ATTR_ACCESSOR_STRING(Account, account, attr_name)
+  ATTR_ACCESSOR_POINTER(g_strdup, g_free, const gchar *, G_CONST_RETURN gchar *, Account, account, attr_name)
 #define ACCOUNT_ACCESSOR_STRING_PROTOTYPE(attr_name) \
-  ATTR_ACCESSOR_STRING_PROTOTYPE(Account, account, attr_name)
+  ATTR_ACCESSOR_POINTER_PROTOTYPE(const gchar *, G_CONST_RETURN gchar *, Account, account, attr_name)
 
 ACCOUNT_ACCESSOR_STRING_PROTOTYPE(name);
 ACCOUNT_ACCESSOR_STRING_PROTOTYPE(nick);

@@ -74,13 +74,19 @@ struct _MessageTextClass
 
 GType message_text_get_type (void) G_GNUC_CONST;
 
-ATTR_ACCESSOR_STRING_PROTOTYPE(MessageText, message_text, text);
-ATTR_ACCESSOR_STRING_PROTOTYPE(MessageText, message_text, nick);
-ATTR_ACCESSOR_STRING_PROTOTYPE(MessageText, message_text, account_name);
-ATTR_ACCESSOR_STRING_PROTOTYPE(MessageText, message_text, channel_name);
-ATTR_ACCESSOR_BOOLEAN_PROTOTYPE(MessageText, message_text, is_self);
-ATTR_ACCESSOR_BOOLEAN_PROTOTYPE(MessageText, message_text, is_priv);
-ATTR_ACCESSOR_BOOLEAN_PROTOTYPE(MessageText, message_text, is_remark);
+#define MESSAGE_TEXT_ACCESSOR_STRING(attr_name) \
+  ATTR_ACCESSOR_POINTER(g_strdup, g_free, const gchar *, G_CONST_RETURN gchar *, MessageText, message_text, attr_name)
+#define MESSAGE_TEXT_ACCESSOR_STRING_PROTOTYPE(attr_name) \
+  ATTR_ACCESSOR_POINTER_PROTOTYPE(const gchar *, G_CONST_RETURN gchar *, MessageText, message_text, attr_name)
+
+MESSAGE_TEXT_ACCESSOR_STRING_PROTOTYPE(text);
+MESSAGE_TEXT_ACCESSOR_STRING_PROTOTYPE(nick);
+MESSAGE_TEXT_ACCESSOR_STRING_PROTOTYPE(account_name);
+MESSAGE_TEXT_ACCESSOR_STRING_PROTOTYPE(channel_name);
+
+ATTR_ACCESSOR_GENERIC_PROTOTYPE(gboolean, MessageText, message_text, is_self);
+ATTR_ACCESSOR_GENERIC_PROTOTYPE(gboolean, MessageText, message_text, is_priv);
+ATTR_ACCESSOR_GENERIC_PROTOTYPE(gboolean, MessageText, message_text, is_remark);
 
 void message_text_set_text_type(MessageText *msgtext, TextType type);
 TextType message_text_get_text_type(MessageText *msgtext);
