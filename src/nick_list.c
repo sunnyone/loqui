@@ -64,6 +64,8 @@ static void nick_list_cell_data_func_away(GtkTreeViewColumn *tree_column,
 					  gpointer data);
 static gint nick_list_button_press_event_cb(GtkWidget *widget, GdkEventButton *event, gpointer data);
 static void nick_list_row_activated_cb(NickList *list, GtkTreePath *path, GtkTreeViewColumn *col, gpointer data);
+static gboolean nick_list_key_press_event(GtkWidget *widget, GdkEventKey *event);
+
 static GSList *nick_list_menu_get_selected_nicks(NickList *nick_list);
 
 GType
@@ -97,11 +99,14 @@ nick_list_class_init (NickListClass *klass)
 {
         GObjectClass *object_class = G_OBJECT_CLASS(klass);
         GtkObjectClass *gtk_object_class = GTK_OBJECT_CLASS(klass);
+	GtkWidgetClass *widget_class = GTK_WIDGET_CLASS(klass);
 
         parent_class = g_type_class_peek_parent(klass);
         
         object_class->finalize = nick_list_finalize;
         gtk_object_class->destroy = nick_list_destroy;
+
+	widget_class->key_press_event = nick_list_key_press_event;
 }
 static void 
 nick_list_init (NickList *nick_list)
@@ -401,6 +406,20 @@ static void nick_list_row_activated_cb(NickList *list, GtkTreePath *path, GtkTre
 		return;
 
 	account_start_private_talk(account, nick);
+}
+static gboolean
+nick_list_key_press_event(GtkWidget *widget,
+			  GdkEventKey *event)
+{
+	loqui_app_grab_focus_if_key_unused(NICK_LIST(widget)->priv->app,
+					   "GtkTreeView",
+					   event->state,
+					   event->keyval);
+
+	if (* GTK_WIDGET_CLASS(parent_class)->key_press_event)
+		return (* GTK_WIDGET_CLASS(parent_class)->key_press_event)(widget, event);
+
+	return FALSE;	
 }
 GtkWidget*
 nick_list_new(LoquiApp *app, GtkWidget *menu)

@@ -295,7 +295,6 @@ gtkutils_bindings_has_matched_entry(const gchar *class_name, guint modifiers, gu
 	}
 	return found;
 }
-
 void
 gtkutils_menu_position_under_widget(GtkMenu   *menu,
 				    gint      *x,

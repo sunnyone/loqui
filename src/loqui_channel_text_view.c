@@ -22,10 +22,7 @@
 #include "loqui_channel_text_view.h"
 #include "gtkutils.h"
 
-#include <gdk/gdkkeysyms.h>
-
 enum {
-	SIGNAL_NEEDLESS_KEY_PRESS,
         LAST_SIGNAL
 };
 
@@ -35,6 +32,7 @@ enum {
 
 struct _LoquiChannelTextViewPrivate
 {
+	LoquiApp *app;
 };
 
 static GtkTextViewClass *parent_class = NULL;
@@ -150,14 +148,6 @@ loqui_channel_text_view_class_init(LoquiChannelTextViewClass *klass)
         GTK_OBJECT_CLASS(klass)->destroy = loqui_channel_text_view_destroy;
 
 	widget_class->key_press_event = loqui_channel_text_view_key_press_event;
-
-        channel_text_view_signals[SIGNAL_NEEDLESS_KEY_PRESS] = g_signal_new("needless_key_press",
-									    G_OBJECT_CLASS_TYPE(object_class),
-									    G_SIGNAL_RUN_FIRST,
-									    G_STRUCT_OFFSET(LoquiChannelTextViewClass, needless_key_press),
-									    NULL, NULL,
-									    g_cclosure_marshal_VOID__VOID,
-									    G_TYPE_NONE, 0);
 }
 static void 
 loqui_channel_text_view_init(LoquiChannelTextView *view)
@@ -185,32 +175,10 @@ static gboolean
 loqui_channel_text_view_key_press_event(GtkWidget *widget,
 					GdkEventKey *event)
 {
-	gboolean found = FALSE;
-
-	switch (event->keyval) {
-	case GDK_Shift_L:
-	case GDK_Shift_R:
-	case GDK_Control_L:
-	case GDK_Control_R:
-	case GDK_Caps_Lock:
-	case GDK_Shift_Lock:
-	case GDK_Meta_L:
-	case GDK_Meta_R:
-	case GDK_Alt_L:
-	case GDK_Alt_R:
-	case GDK_Super_L:
-	case GDK_Super_R:
-	case GDK_Hyper_L:
-	case GDK_Hyper_R: /* FIXME: modifiers, enough? */
-	case GDK_ISO_Left_Tab: /* FIXME: if this doesn't exist, shift + tab does not work... */
-	case GDK_Tab:
-		found = TRUE;
-		break;
-	default:
-		found = gtkutils_bindings_has_matched_entry("GtkTextView", event->state, event->keyval);
-	}
-	if (!found)
-		g_signal_emit(widget, channel_text_view_signals[SIGNAL_NEEDLESS_KEY_PRESS], 0);
+	loqui_app_grab_focus_if_key_unused(LOQUI_CHANNEL_TEXT_VIEW(widget)->priv->app,
+					   "GtkTextView",
+					   event->state,
+					   event->keyval);
 
 	if (* GTK_WIDGET_CLASS(parent_class)->key_press_event)
 		return (* GTK_WIDGET_CLASS(parent_class)->key_press_event)(widget, event);
@@ -218,7 +186,7 @@ loqui_channel_text_view_key_press_event(GtkWidget *widget,
 	return FALSE;
 }
 GtkWidget *
-loqui_channel_text_view_new(void)
+loqui_channel_text_view_new(LoquiApp *app)
 {
         LoquiChannelTextView *view;
 	LoquiChannelTextViewPrivate *priv;
@@ -229,6 +197,7 @@ loqui_channel_text_view_new(void)
 			    NULL);
 	
         priv = view->priv;
+	priv->app = app;
 
         return GTK_WIDGET(view);
 }

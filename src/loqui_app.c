@@ -49,6 +49,7 @@
 #include <time.h>
 
 #include <gtk24backports.h>
+#include <gdk/gdkkeysyms.h>
 
 #define CHANNEL_ENTRY_STORE_KEY "channel-entry-store"
 
@@ -367,10 +368,35 @@ loqui_app_textview_scroll_value_changed_cb(GtkAdjustment *adj, gpointer data)
 	if(channel && reached_to_end && loqui_channel_entry_get_is_updated(LOQUI_CHANNEL_ENTRY(channel)))
 		loqui_channel_entry_set_is_updated(LOQUI_CHANNEL_ENTRY(channel), FALSE);
 }
-static void
-loqui_app_channel_text_view_needless_key_press_cb(LoquiChannelTextView *view, LoquiApp *app)
+void
+loqui_app_grab_focus_if_key_unused(LoquiApp *app, const gchar *class_name, guint modifiers, guint keyval)
 {
-	gtk_widget_grab_focus(app->remark_entry);
+	gboolean found = FALSE;
+
+	switch (keyval) {
+	case GDK_Shift_L:
+	case GDK_Shift_R:
+	case GDK_Control_L:
+	case GDK_Control_R:
+	case GDK_Caps_Lock:
+	case GDK_Shift_Lock:
+	case GDK_Meta_L:
+	case GDK_Meta_R:
+	case GDK_Alt_L:
+	case GDK_Alt_R:
+	case GDK_Super_L:
+	case GDK_Super_R:
+	case GDK_Hyper_L:
+	case GDK_Hyper_R: /* FIXME: modifiers, enough? */
+	case GDK_ISO_Left_Tab: /* FIXME: if this doesn't exist, shift + tab does not work... */
+	case GDK_Tab:
+		found = TRUE;
+		break;
+	default:
+		found = gtkutils_bindings_has_matched_entry(class_name, modifiers, keyval);
+	}
+	if (!found)
+		gtk_widget_grab_focus(app->remark_entry);
 }
 void
 loqui_app_update_info(LoquiApp *app, 
@@ -517,9 +543,7 @@ loqui_app_new(AccountManager *account_manager)
 	vbox = gtk_vbox_new(FALSE, 0);
 	gtk_paned_pack1(GTK_PANED(vpaned), vbox, TRUE, TRUE);
 
-	app->channel_textview = loqui_channel_text_view_new();
-	g_signal_connect(G_OBJECT(app->channel_textview), "needless_key_press",
-			 G_CALLBACK(loqui_app_channel_text_view_needless_key_press_cb), app);
+	app->channel_textview = loqui_channel_text_view_new(app);
 	SET_SCROLLED_WINDOW(scrolled_win, app->channel_textview, 
 			    GTK_POLICY_NEVER, GTK_POLICY_ALWAYS);
 	gtk_box_pack_start_defaults(GTK_BOX(vbox), scrolled_win);
@@ -531,9 +555,7 @@ loqui_app_new(AccountManager *account_manager)
 	g_signal_connect(G_OBJECT(app->remark_entry), "activate",
 			 G_CALLBACK(loqui_app_entry_activate_cb), app);
 
-	priv->common_textview = loqui_channel_text_view_new();
-	g_signal_connect(G_OBJECT(priv->common_textview), "needless_key_press",
-			 G_CALLBACK(loqui_app_channel_text_view_needless_key_press_cb), app);
+	priv->common_textview = loqui_channel_text_view_new(app);
 	SET_SCROLLED_WINDOW(scrolled_win, priv->common_textview, 
 			    GTK_POLICY_NEVER, GTK_POLICY_ALWAYS);
 	gtk_paned_pack2(GTK_PANED(vpaned), scrolled_win, FALSE, TRUE);

@@ -36,6 +36,8 @@ typedef struct _LoquiChannelTextViewClass       LoquiChannelTextViewClass;
 
 typedef struct _LoquiChannelTextViewPrivate     LoquiChannelTextViewPrivate;
 
+#include "loqui_app.h"
+
 struct _LoquiChannelTextView
 {
         GtkTextView parent;
@@ -46,14 +48,12 @@ struct _LoquiChannelTextView
 struct _LoquiChannelTextViewClass
 {
         GtkTextViewClass parent_class;
-
-	void (* needless_key_press) (LoquiChannelTextView *view);
 };
 
 
 GType loqui_channel_text_view_get_type(void) G_GNUC_CONST;
 
-GtkWidget* loqui_channel_text_view_new(void);
+GtkWidget* loqui_channel_text_view_new(LoquiApp *app);
 G_END_DECLS
 
 #endif /* __LOQUI_CHANNEL_TEXT_VIEW_H__ */

@@ -43,6 +43,8 @@ static void channel_tree_destroy(GtkObject *object);
 
 static void channel_tree_row_activated_cb(ChannelTree *tree, GtkTreePath *path, GtkTreeViewColumn *col, gpointer data);
 static void channel_tree_row_selected_cb(GtkTreeSelection *selection, gpointer data);
+static gboolean channel_tree_key_press_event(GtkWidget *widget,
+					     GdkEventKey *event);
 
 static void channel_tree_update_buffer_number(ChannelTree *tree);
 
@@ -88,11 +90,14 @@ channel_tree_class_init(ChannelTreeClass *klass)
 {
         GObjectClass *object_class = G_OBJECT_CLASS(klass);
         GtkObjectClass *gtk_object_class = GTK_OBJECT_CLASS(klass);
+	GtkWidgetClass *widget_class = GTK_WIDGET_CLASS(klass);
 
         parent_class = g_type_class_peek_parent(klass);
         
         object_class->finalize = channel_tree_finalize;
         gtk_object_class->destroy = channel_tree_destroy;
+
+	widget_class->key_press_event = channel_tree_key_press_event;
 }
 static void 
 channel_tree_init(ChannelTree *channel_tree)
@@ -165,6 +170,20 @@ channel_tree_row_selected_cb(GtkTreeSelection *selection, gpointer data)
 		loqui_app_set_current_channel(priv->app, channel);
 
 	gtk_widget_grab_focus(priv->app->remark_entry);
+}
+static gboolean
+channel_tree_key_press_event(GtkWidget *widget,
+			     GdkEventKey *event)
+{
+	loqui_app_grab_focus_if_key_unused(CHANNEL_TREE(widget)->priv->app,
+					   "GtkTreeView",
+					   event->state,
+					   event->keyval);
+
+	if (* GTK_WIDGET_CLASS(parent_class)->key_press_event)
+		return (* GTK_WIDGET_CLASS(parent_class)->key_press_event)(widget, event);
+
+	return FALSE;
 }
 GtkWidget*
 channel_tree_new(LoquiApp *app)
