@@ -32,7 +32,7 @@
 struct _ChannelBufferPrivate
 {
 	GtkTextTag *emphasis_area_tag;
-	GtkTextTag *adviser_area_tag;
+	GtkTextTag *notification_area_tag;
 };
 
 static GtkTextBufferClass *parent_class = NULL;
@@ -44,7 +44,7 @@ static void channel_buffer_finalize(GObject *object);
 
 static void channel_buffer_append_current_time(ChannelBuffer *channel_buffer);
 static void channel_buffer_append(ChannelBuffer *buffer, TextType type, gchar *str,
-				  gboolean enable_emphasis, gboolean exec_adviser);
+				  gboolean enable_emphasis, gboolean exec_notification);
 
 static void channel_buffer_text_inserted_cb(GtkTextBuffer *buffer,
 					    GtkTextIter *pos,
@@ -146,7 +146,7 @@ static void channel_buffer_apply_tag_cb(GtkTextBuffer *buffer,
 	channel_buffer = CHANNEL_BUFFER(buffer);
 	priv = channel_buffer->priv;
 
-	if(!(tag == priv->emphasis_area_tag || tag == priv->adviser_area_tag))
+	if(!(tag == priv->emphasis_area_tag || tag == priv->notification_area_tag))
 		return;
 
 	tmp_end = *end;
@@ -169,7 +169,7 @@ static void channel_buffer_apply_tag_cb(GtkTextBuffer *buffer,
 		}
 	}
 
-	if(tag == priv->adviser_area_tag && 
+	if(tag == priv->notification_area_tag && 
 	   matched &&
 	   prefs_general.use_notification &&
 	   prefs_general.notification_command &&
@@ -311,7 +311,7 @@ channel_buffer_new(void)
 				   NULL);
 	priv->emphasis_area_tag = gtk_text_buffer_create_tag(textbuf, "emphasis-area",
 							 NULL);
-	priv->adviser_area_tag = gtk_text_buffer_create_tag(textbuf, "adviser-area",
+	priv->notification_area_tag = gtk_text_buffer_create_tag(textbuf, "notification-area",
 								 NULL);
 
 	g_signal_connect(G_OBJECT(tag), "event",
@@ -343,7 +343,7 @@ channel_buffer_append_current_time(ChannelBuffer *buffer)
 static void
 channel_buffer_append(ChannelBuffer *buffer, TextType type, gchar *str, 
 		      gboolean enable_emphasis,
-		      gboolean exec_adviser)
+		      gboolean exec_notification)
 {
 	GtkTextIter iter;
 	gchar *style;
@@ -371,8 +371,8 @@ channel_buffer_append(ChannelBuffer *buffer, TextType type, gchar *str,
 		style = "normal";
 	}
 	if(enable_emphasis) {
-		if(exec_adviser)
-			emphasis = "adviser-area";
+		if(exec_notification)
+			emphasis = "notification-area";
 		else
 			emphasis = "emphasis-area";
 	} else {
@@ -398,7 +398,7 @@ channel_buffer_append_line(ChannelBuffer *buffer, TextType type, gchar *str)
 }
 
 void
-channel_buffer_append_remark(ChannelBuffer *buffer, TextType type, gboolean exec_adviser,
+channel_buffer_append_remark(ChannelBuffer *buffer, TextType type, gboolean exec_notification,
 			     gboolean is_self, gboolean is_priv, 
 			     const gchar *channel_name, const gchar *nick, const gchar *remark)
 {
@@ -432,7 +432,7 @@ channel_buffer_append_remark(ChannelBuffer *buffer, TextType type, gboolean exec
 	channel_buffer_append(buffer, type, nick_str, FALSE, FALSE);
 	
 	buf = g_strconcat(remark, "\n", NULL);
-	channel_buffer_append(buffer, type, buf, TRUE, exec_adviser);
+	channel_buffer_append(buffer, type, buf, TRUE, exec_notification);
 
 	g_free(buf);
 	g_free(nick_str);
