@@ -5,9 +5,6 @@ ChangeLog:
 	svn log -v > $@
 
 EXTRA_DIST= autogen.sh \
-        intltool-merge.in \
-        intltool-update.in \
-        intltool-extract.in \
 	README \
 	NEWS \
 	ChangeLog \
