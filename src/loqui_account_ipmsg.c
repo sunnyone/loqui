@@ -109,13 +109,15 @@ static void
 loqui_account_ipmsg_dispose(GObject *object)
 {
 	LoquiAccountIPMsg *account;
+	LoquiAccountIPMsgPrivate *priv;
 
         g_return_if_fail(object != NULL);
         g_return_if_fail(LOQUI_IS_ACCOUNT_IPMSG(object));
 
         account = LOQUI_ACCOUNT_IPMSG(object);
+	priv = account->priv;
 
-	loqui_account_disconnect(LOQUI_ACCOUNT(account));
+	G_OBJECT_UNREF_UNLESS_NULL(priv->sock);
 
         if (G_OBJECT_CLASS(parent_class)->dispose)
                 (* G_OBJECT_CLASS(parent_class)->dispose)(object);
@@ -201,6 +203,7 @@ static void
 loqui_account_ipmsg_connect(LoquiAccount *account)
 {
 	LoquiAccountIPMsgPrivate *priv;
+	LoquiUser *user_self;
 	gchar *str;
 
         g_return_if_fail(account != NULL);
@@ -232,9 +235,11 @@ loqui_account_ipmsg_connect(LoquiAccount *account)
 	loqui_account_console_buffer_append(account, LOQUI_TEXT_TYPE_INFO, str);
 	g_free(str);
 
-	loqui_user_set_away(loqui_account_get_user_self(LOQUI_ACCOUNT(account)), LOQUI_AWAY_TYPE_ONLINE);
-	loqui_user_set_nick(loqui_account_get_user_self(LOQUI_ACCOUNT(account)),
-			    loqui_profile_account_get_nick(loqui_account_get_profile(LOQUI_ACCOUNT(account))));
+	user_self = loqui_account_get_user_self(LOQUI_ACCOUNT(account));
+	loqui_user_set_away(user_self, LOQUI_AWAY_TYPE_ONLINE);
+	loqui_user_set_nick(user_self, loqui_profile_account_get_nick(loqui_account_get_profile(LOQUI_ACCOUNT(account))));
+	loqui_user_set_hostname(user_self,
+				gnet_inetaddr_get_host_name());
 	/* TODO: set hostname */
 
 	loqui_sender_ipmsg_br_entry(LOQUI_SENDER_IPMSG(LOQUI_ACCOUNT(account)->sender));

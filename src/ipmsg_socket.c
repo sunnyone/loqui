@@ -25,6 +25,8 @@
 #include "ipmsg.h"
 #include <stdlib.h>
 #include "main.h"
+#include <locale.h>
+#include "intl.h"
 
 enum {
 	SIGNAL_WARN,
@@ -40,6 +42,8 @@ struct _IPMsgSocketPrivate
 {
 	GUdpSocket *udpsock;
 	GInetAddr *inetaddr;
+
+	GIConv iconv;
 
 	guint in_watch;
 	guint out_watch;
@@ -182,10 +186,19 @@ static void
 ipmsg_socket_init(IPMsgSocket *sock)
 {
 	IPMsgSocketPrivate *priv;
+	gchar *ctype;
 
 	priv = g_new0(IPMsgSocketPrivate, 1);
 
 	sock->priv = priv;
+
+	ctype = setlocale(LC_CTYPE, NULL);
+	
+	if (ctype != NULL && g_str_has_prefix(ctype, "ja")) {
+		priv->iconv = g_iconv_open("UTF-8", "Shift_JIS");
+	} else {
+		priv->iconv = NULL;
+	}
 }
 static gboolean
 ipmsg_socket_watch_in_cb(GIOChannel *ioch, GIOCondition condition, gpointer data)
@@ -198,6 +211,8 @@ ipmsg_socket_watch_in_cb(GIOChannel *ioch, GIOCondition condition, gpointer data
 	IPMsgPacket *packet;
 	GInetAddr *addr;
 	gchar *str;
+	gchar *local;
+	gsize local_len;
 
 	sock = IPMSG_SOCKET(data);
 
@@ -212,16 +227,31 @@ ipmsg_socket_watch_in_cb(GIOChannel *ioch, GIOCondition condition, gpointer data
 		ipmsg_socket_warning(sock, "No characters is arrived.");
 		return TRUE;
 	}
-
 	buf[len] = '\0';
-
-	packet = ipmsg_packet_parse(buf, len);
-	if (!packet) {
-		str = g_strdup_printf("Invalid packet: '%s'", buf);
+	
+	if (priv->iconv) {
+		local = g_convert_with_iconv(buf, len+1, priv->iconv, NULL, &local_len, NULL);
+	} else {
+		local = g_memdup(buf, len+1);
+	}
+	
+	if (local == NULL) {
+		str = g_strdup_printf(_("Failed to convert codeset"));
 		ipmsg_socket_warning(sock, str);
 		g_free(str);
 		return TRUE;
 	}
+
+	packet = ipmsg_packet_parse(buf, len);
+	if (!packet) {
+		str = g_strdup_printf(_("Invalid packet: '%s'"), local);
+		ipmsg_socket_warning(sock, str);
+		g_free(str);
+		g_free(local);
+		return TRUE;
+	}
+	g_free(local);
+
 	ipmsg_packet_set_inetaddr(packet, addr);
 	gnet_inetaddr_unref(addr);
 	if (show_msg_mode)
