@@ -254,6 +254,7 @@ irc_message_parse_line(const gchar *line)
 		array[i++] = cur;
 		cur = tmp;
 
+		/* FIXME: if the message has prefix, this can parse IRC_MESSAGE_PARAMETER_MAX - 1 */
 		if(i >= IRC_MESSAGE_PARAMETER_MAX)
 			break;
 
@@ -262,8 +263,7 @@ irc_message_parse_line(const gchar *line)
 			break;
 		}
 	}
-	if(*cur != '\0')
-		array[i++] = cur;
+	array[i++] = cur;
 	num = i;
 
 	if(num < 1) {
