@@ -30,12 +30,6 @@ struct _ChannelBufferPrivate
 {
 };
 
-typedef struct _URIChunk {
-	gboolean is_uri;
-
-	gchar *str;
-} URIChunk;
-
 static GtkTextBufferClass *parent_class = NULL;
 #define PARENT_TYPE GTK_TYPE_TEXT_BUFFER
 
@@ -55,6 +49,12 @@ static void channel_buffer_text_inserted_cb(GtkTextBuffer *buffer,
 static void channel_buffer_tag_uri(GtkTextBuffer *buffer,
 				   GtkTextIter *iter,
 				   const gchar *text);
+
+static gboolean channel_buffer_link_tag_event_cb(GtkTextTag *texttag,
+						 GObject *arg1,
+						 GdkEvent *event,
+						 GtkTextIter *arg2,
+						 gpointer user_data);
 
 #define TIME_LEN 11
 
@@ -117,6 +117,34 @@ channel_buffer_finalize (GObject *object)
 
 	g_free(channel_buffer->priv);
 }
+static gboolean channel_buffer_link_tag_event_cb(GtkTextTag *texttag,
+						 GObject *arg1,
+						 GdkEvent *event,
+						 GtkTextIter *arg2,
+						 gpointer user_data)
+{
+	gchar *str;
+	GtkTextIter start_iter, end_iter;
+
+	if(event->type == GDK_2BUTTON_PRESS && ((GdkEventButton *) event)->button == 1) {
+		start_iter = *arg2;
+
+		if(!gtk_text_iter_backward_to_tag_toggle(&start_iter, texttag)) {
+			debug_puts("Can't find start.");
+			return FALSE;
+		}
+		end_iter = *arg2;
+		if(!gtk_text_iter_forward_to_tag_toggle(&end_iter, texttag)) {
+			debug_puts("Can't find end");
+			return FALSE;
+		}
+
+		str = gtk_text_iter_get_text(&start_iter, &end_iter);
+		g_print("uri: %s\n", str);
+		return TRUE;
+	}
+	return FALSE;
+}
 static void channel_buffer_tag_uri(GtkTextBuffer *buffer,
 				   GtkTextIter *iter,
 				   const gchar *text)
@@ -138,7 +166,7 @@ static void channel_buffer_tag_uri(GtkTextBuffer *buffer,
 	      (tmp = strstr(cur, "ftp://")) != NULL)) {
 		*tmp = '\0';
 		len = g_utf8_strlen(cur, -1);
-		if(!gtk_text_iter_forward_chars(iter, len)) {
+		if(len > 0 && !gtk_text_iter_forward_chars(iter, len)) {
 			debug_puts("Can't forward chars");
 			break;
 		}
@@ -184,7 +212,8 @@ channel_buffer_new(void)
 	ChannelBufferPrivate *priv;
 	GtkTextBuffer *textbuf;
 	GtkTextIter iter;
-	
+	GtkTextTag *tag;
+
 	channel_buffer = g_object_new(channel_buffer_get_type(), NULL);
 	priv = channel_buffer->priv;
 
@@ -208,10 +237,16 @@ channel_buffer_new(void)
         gtk_text_buffer_create_tag(textbuf, "notice", 
 				   "foreground", "#555555", 
 				   NULL);
-	gtk_text_buffer_create_tag(textbuf, "link",
-				   "foreground", "blue",
-				   "underline", PANGO_UNDERLINE_SINGLE,
+	tag = gtk_text_buffer_create_tag(textbuf, "link",
+					 "foreground", "blue",
+					 "underline", PANGO_UNDERLINE_SINGLE,
+					 NULL);
+	gtk_text_buffer_create_tag(textbuf, "emphasis",
+				   "weight", PANGO_WEIGHT_BOLD,
 				   NULL);
+
+	g_signal_connect(G_OBJECT(tag), "event",
+			 G_CALLBACK(channel_buffer_link_tag_event_cb), NULL);
 	g_signal_connect_after(G_OBJECT(textbuf), "insert-text",
 			       G_CALLBACK(channel_buffer_text_inserted_cb), NULL);
 	
