@@ -201,7 +201,7 @@ static gboolean channel_buffer_link_tag_event_cb(GtkTextTag *texttag,
 		}
 
 		str = gtk_text_iter_get_text(&start_iter, &end_iter);
-		g_print("uri: %s\n", str);
+		gtkutils_exec_command_argument_with_error_dialog(prefs_general.browser_command, str);
 		return TRUE;
 	}
 	return FALSE;

@@ -24,6 +24,7 @@
 #include "config.h"
 #include "gtkutils.h"
 #include <stdarg.h>
+#include <string.h>
 #include "intl.h"
 
 void
@@ -122,6 +123,26 @@ gtkutils_menu_translate(const gchar *path, gpointer data)
 	return gettext(path);
 }
 
+void
+gtkutils_exec_command_argument_with_error_dialog(const gchar *command, const gchar *argument)
+{
+	gchar *buf, *p;
+	gchar *quoted;
+
+	g_return_if_fail(command != NULL);
+	g_return_if_fail(argument != NULL);
+
+	if(!( (p = strchr(command, '%')) && *(p + 1) == 's' && 
+	      !strchr(p + 2, '%') ))
+                gtkutils_msgbox_info(GTK_MESSAGE_ERROR, _("Illegal command"));
+
+	quoted = g_shell_quote(argument);
+	buf = g_strdup_printf(command, quoted);
+	g_free(quoted);
+
+	gtkutils_exec_command_with_error_dialog(buf);
+	g_free(buf);
+}
 void
 gtkutils_exec_command_with_error_dialog(const gchar *command)
 {
