@@ -7,6 +7,7 @@ INCLUDES = $(GTK_CFLAGS) $(EXTRA_WARNING_CFLAGS) -g -I$(includedir) -I../gtk24ba
 
 loqui_SOURCES = \
 	intl.h \
+	loqui_gtk.c loqui_gtk.h \
 	main.c main.h \
 	gobject_utils.c gobject_utils.h \
 	prefs_general.c prefs_general.h \

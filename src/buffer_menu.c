@@ -24,7 +24,7 @@
 #include "buffer_menu.h"
 #include "loqui_stock.h"
 #include "gtkutils.h"
-#include "main.h"
+#include "loqui_gtk.h"
 #include "intl.h"
 
 GtkWidget *

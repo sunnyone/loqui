@@ -87,7 +87,9 @@ command_table_init(void)
 IRCResponse
 command_table_make_command_numeric(const gchar *command)
 {
-	g_return_val_if_fail(command_hash != NULL, 0);
+	if (!command_hash)
+		command_table_init();
+
 	return GPOINTER_TO_INT(g_hash_table_lookup(command_hash, command));
 }
 

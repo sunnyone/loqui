@@ -27,8 +27,7 @@
 #include "utils.h"
 #include "loqui_stock.h"
 
-#include <gtk/gtk.h>
-#include <gdk/gdkkeysyms.h>
+#include "loqui_gtk.h"
 
 #include <string.h>
 #include <stdlib.h>
@@ -42,7 +41,6 @@ int show_msg_mode;
 int send_status_commands_mode;
 
 static void make_program_dir(void);
-static void make_accel_map_entries_for_channel_shortcutkeys(void);
 
 static void make_program_dir(void)
 {
@@ -66,37 +64,11 @@ static void make_program_dir(void)
 	g_free(log_dirname);
 }
 
-/* temporary implementation */
-static void
-make_accel_map_entries_for_channel_shortcutkeys(void)
-{
-	int i;
-	gchar *path;
-	guint key = 0;
-	GdkModifierType mods = 0;
-	
-	for (i = 0; i <= MAX_SHORTCUT_CHANNEL_NUMBER; i++) {
-		if (i < 10) {
-			key = GDK_0 + i;
-			mods = GDK_CONTROL_MASK;
-		} else if (i < 20) {
-			key = GDK_0 + i - 10;
-			mods = GDK_MOD1_MASK;
-		} else {
-			g_assert_not_reached();
-		}
-		path = g_strdup_printf(SHORTCUT_CHANNEL_ACCEL_MAP_PREFIX "%d", i);
-		gtk_accel_map_add_entry(path, key, mods);
-		g_free(path);
-	}
-}
-
 int
 main(int argc, char *argv[])
 {
 	AccountManager *account_manager;
 	int i;
-	gchar *path;
 
         bindtextdomain(GETTEXT_PACKAGE, PACKAGE_LOCALE_DIR);
 #ifdef HAVE_BIND_TEXTDOMAIN_CODESET
@@ -104,21 +76,15 @@ main(int argc, char *argv[])
 #endif
         textdomain(GETTEXT_PACKAGE);
 
+	make_program_dir();
+
 	if(!g_threads_got_initialized)
 		g_thread_init (NULL);
-	gdk_threads_init();
 
-	make_program_dir();
-	
 	gnet_init();
-	gtk_init(&argc, &argv);
-	gtk24backports_init();
 
-	loqui_stock_init();
-
-	path = g_build_filename(g_get_home_dir(), PREFS_DIR, "gtkrc-2.0", NULL);
-	gtk_rc_parse(path);
-	g_free(path);
+	command_table_init();
+	loqui_gtk_init(&argc, &argv);
 
 	send_status_commands_mode = 1;
 	
@@ -148,9 +114,6 @@ main(int argc, char *argv[])
 		}
 	}
 	prefs_general_load();
-
-	command_table_init();
-	make_accel_map_entries_for_channel_shortcutkeys();
 	
 	account_manager = account_manager_get();
 	account_manager_load_accounts(account_manager);
@@ -158,7 +121,7 @@ main(int argc, char *argv[])
 	if(prefs_general.connect_startup)
 		account_manager_connect_all_default(account_manager);
 
-	gtk_main();
+	loqui_gtk_start_main_loop();
 	prefs_general_save();
 
 	return 0;

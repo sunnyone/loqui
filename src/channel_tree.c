@@ -19,7 +19,7 @@
  */
 #include "config.h"
 
-#include "main.h"
+#include "loqui_gtk.h"
 #include "channel_tree.h"
 #include "gtkutils.h"
 #include "utils.h"
