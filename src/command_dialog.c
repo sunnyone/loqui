@@ -19,7 +19,6 @@
  */
 #include "config.h"
 #include "command_dialog.h"
-#include "channel_input_dialog.h"
 #include "gtkutils.h"
 #include "intl.h"
 #include <string.h>
