@@ -64,9 +64,9 @@ void loqui_menu_buffers_add_account(LoquiMenu *menu, Account *account);
 void loqui_menu_buffers_remove_account(LoquiMenu *menu, Account *account);
 void loqui_menu_buffers_update_account(LoquiMenu *menu, Account *account);
 
-void loqui_menu_buffers_add_channel(LoquiMenu *menu, Account *account, Channel *channel);
-void loqui_menu_buffers_remove_channel(LoquiMenu *menu, Account *account, Channel *channel);
-void loqui_menu_buffers_update_channel(LoquiMenu *menu, Account *account, Channel *channel);
+void loqui_menu_buffers_add_channel(LoquiMenu *menu, Channel *channel);
+void loqui_menu_buffers_remove_channel(LoquiMenu *menu, Channel *channel);
+void loqui_menu_buffers_update_channel(LoquiMenu *menu, Channel *channel);
 
 G_END_DECLS
 

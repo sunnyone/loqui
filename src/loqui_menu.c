@@ -28,6 +28,7 @@
 #include "gtkutils.h"
 #include "channel_input_dialog.h"
 #include "command_dialog.h"
+#include "buffer_menu.h"
 
 struct _LoquiMenuPrivate
 {
@@ -122,9 +123,6 @@ static GtkItemFactoryEntry menu_items[] = {
 
 static GObjectClass *parent_class = NULL;
 #define PARENT_TYPE G_TYPE_OBJECT
-
-#define FRESH_COLOR "red"
-#define NONFRESH_COLOR "black"
 
 GType
 loqui_menu_get_type(void)
@@ -585,156 +583,62 @@ void
 loqui_menu_buffers_add_account(LoquiMenu *menu, Account *account)
 {
 	GtkWidget *menuitem;
-	GtkWidget *submenu;
-	GtkWidget *image;
 
 	g_return_if_fail(menu != NULL);
         g_return_if_fail(LOQUI_IS_MENU(menu));
 
-	submenu = loqui_menu_get_buffers_menu(menu);
-
-	menuitem = gtk_image_menu_item_new_with_label(account_get_name(account));
-	image = gtk_image_new_from_stock("loqui-console", GTK_ICON_SIZE_MENU);
-	gtk_widget_show(image);
-	gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(menuitem), image);
-
-	g_object_ref(account);
-	g_object_set_data_full(G_OBJECT(menuitem), "account", account, g_object_unref);
+	menuitem = buffer_menu_add_account(GTK_MENU_SHELL(loqui_menu_get_buffers_menu(menu)),
+					   account);
 	g_signal_connect(G_OBJECT(menuitem), "activate",
 			 G_CALLBACK(loqui_menu_account_activate_cb), menuitem);
-	gtk_widget_show(menuitem);
-
-	gtk_menu_shell_append(GTK_MENU_SHELL(submenu), menuitem);
 }
 void
 loqui_menu_buffers_update_account(LoquiMenu *menu, Account *account)
 {
-	GtkWidget *menuitem;
-	GtkWidget *submenu;
-	Account *tmp_ac;
-	GList *cur;
-	GList *children;
-
 	g_return_if_fail(menu != NULL);
         g_return_if_fail(LOQUI_IS_MENU(menu));
 
-	submenu = loqui_menu_get_buffers_menu(menu);
-	for(cur = GTK_MENU_SHELL(submenu)->children; cur != NULL; cur = cur->next) {
-		menuitem = GTK_WIDGET(cur->data);
-		tmp_ac = g_object_get_data(G_OBJECT(menuitem), "account");
-		if(tmp_ac != account)
-			continue;
-		children = gtk_container_get_children(GTK_CONTAINER(menuitem));
-		/* FIXME: dirty way */
-		gtk_label_set_text(GTK_LABEL(children->data), account_get_name(account));
-	}
+	buffer_menu_update_account(GTK_MENU_SHELL(loqui_menu_get_buffers_menu(menu)),
+				   account);
 }
 
 void
 loqui_menu_buffers_remove_account(LoquiMenu *menu, Account *account)
 {
-	GtkWidget *submenu;
-	Account *tmp_ac;
-	GList *cur;
-	GList *removing_items = NULL;
-
 	g_return_if_fail(menu != NULL);
         g_return_if_fail(LOQUI_IS_MENU(menu));
 
-	submenu = loqui_menu_get_buffers_menu(menu);
-	for(cur = GTK_MENU_SHELL(submenu)->children; cur != NULL; cur = cur->next) {
-		tmp_ac = ACCOUNT(g_object_get_data(G_OBJECT(cur->data), "account"));
-		if(tmp_ac == account)
-			removing_items = g_list_append(removing_items, cur->data);
-	}
-	for(cur = removing_items; cur != NULL; cur = cur->next) {
-		gtk_container_remove(GTK_CONTAINER(submenu), GTK_WIDGET(cur->data));
-	}
-	g_list_free(removing_items);
+	buffer_menu_remove_account(GTK_MENU_SHELL(loqui_menu_get_buffers_menu(menu)),
+				   account);
 }
 void
-loqui_menu_buffers_add_channel(LoquiMenu *menu, Account *account, Channel *channel)
+loqui_menu_buffers_add_channel(LoquiMenu *menu, Channel *channel)
 {
 	GtkWidget *menuitem;
-	GtkWidget *submenu;
-	Account *tmp_ac;
-	GList *cur;
-	GList *children;
-	guint i;
 
 	g_return_if_fail(menu != NULL);
         g_return_if_fail(LOQUI_IS_MENU(menu));
 
-	submenu = loqui_menu_get_buffers_menu(menu);
-	children = GTK_MENU_SHELL(submenu)->children;
-	i = g_list_length(children);
-	for(cur = g_list_last(children); cur != NULL; cur = cur->prev) {
-		tmp_ac = g_object_get_data(G_OBJECT(cur->data), "account");
-		if(tmp_ac == account)
-			break;
-		i--;
-	}
-
-	menuitem = gtk_menu_item_new_with_label(channel_get_name(channel));
-	g_object_ref(account);
-	g_object_set_data_full(G_OBJECT(menuitem), "account", account, g_object_unref);
-	g_object_ref(channel);
-	g_object_set_data_full(G_OBJECT(menuitem), "channel", channel, g_object_unref);
+	menuitem = buffer_menu_add_channel(GTK_MENU_SHELL(loqui_menu_get_buffers_menu(menu)), channel);
 	g_signal_connect(G_OBJECT(menuitem), "activate",
 			 G_CALLBACK(loqui_menu_channel_activate_cb), menuitem);
-	gtk_widget_show(menuitem);
-
-	gtk_menu_shell_insert(GTK_MENU_SHELL(submenu), menuitem, i);
 }
 void
-loqui_menu_buffers_remove_channel(LoquiMenu *menu, Account *account, Channel *channel)
+loqui_menu_buffers_remove_channel(LoquiMenu *menu, Channel *channel)
 {
-	GtkWidget *submenu;
-	Channel *tmp_ch;
-	GList *cur;
-	GList *removing_items = NULL;
-
 	g_return_if_fail(menu != NULL);
         g_return_if_fail(LOQUI_IS_MENU(menu));
 
-	submenu = loqui_menu_get_buffers_menu(menu);
-	for(cur = GTK_MENU_SHELL(submenu)->children; cur != NULL; cur = cur->next) {
-		tmp_ch = CHANNEL(g_object_get_data(G_OBJECT(cur->data), "channel"));
-		if(tmp_ch == channel)
-			removing_items = g_list_append(removing_items, cur->data);
-	}
-	for(cur = removing_items; cur != NULL; cur = cur->next) {
-		gtk_widget_destroy(cur->data);
-	}
-	g_list_free(removing_items);
+	buffer_menu_remove_channel(GTK_MENU_SHELL(loqui_menu_get_buffers_menu(menu)),
+				   channel);
 }
 void
-loqui_menu_buffers_update_channel(LoquiMenu *menu, Account *account, Channel *channel)
+loqui_menu_buffers_update_channel(LoquiMenu *menu, Channel *channel)
 {
-	GtkWidget *menuitem;
-	GtkWidget *submenu;
-	Channel *tmp_ch;
-	GList *cur;
-	GList *children;
-	GtkWidget *label;
-	
 	g_return_if_fail(menu != NULL);
         g_return_if_fail(LOQUI_IS_MENU(menu));
 
-	submenu = loqui_menu_get_buffers_menu(menu);
-	for(cur = GTK_MENU_SHELL(submenu)->children; cur != NULL; cur = cur->next) {
-		menuitem = GTK_WIDGET(cur->data);
-		tmp_ch = g_object_get_data(G_OBJECT(menuitem), "channel");
-		if(tmp_ch != channel)
-			continue;
-		children = gtk_container_get_children(GTK_CONTAINER(menuitem));
+	buffer_menu_update_channel(GTK_MENU_SHELL(loqui_menu_get_buffers_menu(menu)),
+				   channel);
 
-		/* FIXME: dirty way */
-		label = children->data;
-
-		if(channel_get_updated(channel))
-			gtkutils_set_label_color(GTK_LABEL(label), FRESH_COLOR);
-		else
-			gtkutils_set_label_color(GTK_LABEL(label), NONFRESH_COLOR);
-	}
 }
