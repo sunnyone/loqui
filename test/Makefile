@@ -3,7 +3,7 @@ LDFLAGS = `pkg-config --libs gtk+-2.0 gnet-2.0` ../gtk24backports/libgtk24backpo
 CFLAGS = -I../ -I../src/ -I../gtk24backports `pkg-config --cflags gtk+-2.0 gnet-2.0` -g -Wall -DUSE_GTK_2_2
 FLAGS = $(LDFLAGS) $(CFLAGS) $(ORIG_OBJS)
 
-TARGET := test_utils test_profile_account test_profile_handle test_user test_title_format
+TARGET := test_utils test_profile_account test_profile_handle test_user test_title_format test_message
 
 %: %.c
 	libtool --mode=link gcc -o $@ $(FLAGS) $(OBJS) $@.c
