@@ -310,8 +310,8 @@ irc_handle_command_privmsg_notice(IRCHandle *handle, IRCMessage *msg)
 			ctcp_handle_message(priv->ctcp_handle, ctcp_msg,
 					    (msg->response == IRC_COMMAND_PRIVMSG) ? TRUE : FALSE);
 			g_object_unref(ctcp_msg);
-		}
-		return;
+		        return;
+                }
 	}
 
 	if(receiver_name != NULL && msg->nick != NULL) {
