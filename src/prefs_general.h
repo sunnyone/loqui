@@ -70,6 +70,8 @@ typedef struct _PrefsGeneral {
 	gboolean parse_plum_recent;
 
 	GList *highlight_list;
+
+	guint remark_history_number;
 } PrefsGeneral;
 
 void prefs_general_load(void);

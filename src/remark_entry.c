@@ -20,6 +20,8 @@
 #include "config.h"
 
 #include "remark_entry.h"
+#include "prefs_general.h"
+
 enum {
 	ACTIVATE,
         LAST_SIGNAL
@@ -27,6 +29,8 @@ enum {
 
 struct _RemarkEntryPrivate
 {
+	GList *string_list;
+
 	GtkWidget *label_nick;
 	GtkWidget *vbox;
 	GtkWidget *combo;
@@ -173,6 +177,8 @@ remark_entry_new(void)
 	gtk_box_pack_start(GTK_BOX(hbox), priv->toggle_palette, FALSE, FALSE, 0);
 	gtk_widget_set_sensitive(priv->toggle_palette, FALSE);
 
+	priv->string_list = g_list_append(priv->string_list, NULL);
+
 	return GTK_WIDGET(remark_entry);
 }
 
@@ -231,12 +237,34 @@ static void
 remark_entry_combo_activated_cb(GtkWidget *widget, gpointer data)
 {
         RemarkEntry *remark_entry;
+	RemarkEntryPrivate *priv;
+	GList *cur, *prev;
+	gint diff;
+	gchar *str;
 
         g_return_if_fail(data != NULL);
         g_return_if_fail(IS_REMARK_ENTRY(data));
 
 	remark_entry = REMARK_ENTRY(data);
+	priv = remark_entry->priv;
+
+	str = g_strdup(gtk_entry_get_text(GTK_ENTRY(GTK_COMBO(priv->combo)->entry)));
 
 	g_signal_emit(remark_entry, remark_entry_signals[ACTIVATE], 0);
+
+	priv->string_list = g_list_insert(priv->string_list, 
+					  str, 1);
+	diff = (gint) g_list_length(priv->string_list) - (gint) prefs_general.remark_history_number - 1;
+	if(diff > 0) {
+		cur = g_list_last(priv->string_list);
+		while(cur && diff > 0) {
+			prev = cur->prev;
+			g_free((gchar *) cur->data);
+			priv->string_list = g_list_delete_link(priv->string_list, cur);
+			diff--;
+			cur = prev;
+		}
+	}
+	gtk_combo_set_popdown_strings(GTK_COMBO(priv->combo), priv->string_list);
 }
 

@@ -58,6 +58,8 @@ PrefElement prefs_general_defs[] = {
 	
 	{"highlight_list", "", PREF_TYPE_STRING_LIST, &prefs_general.highlight_list },
 
+	{"remark_history_number", "10", PREF_TYPE_UINT, &prefs_general.remark_history_number },
+
 	{NULL, NULL, 0, NULL}
 };
 
