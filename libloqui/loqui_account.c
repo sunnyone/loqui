@@ -953,7 +953,7 @@ loqui_account_open_private_talk(LoquiAccount *account, const gchar *identifier, 
 	}
 	
 	if (user_self != user &&
-	    !loqui_channel_entry_get_member_by_user(LOQUI_CHANNEL_ENTRY(channel), user_self)) {
+	    !loqui_channel_entry_get_member_by_user(LOQUI_CHANNEL_ENTRY(channel), user)) {
 		member = loqui_member_new(user);
 		loqui_channel_entry_add_member(LOQUI_CHANNEL_ENTRY(channel), member);
 		g_object_unref(member);
