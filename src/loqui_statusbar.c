@@ -349,6 +349,7 @@ loqui_statusbar_new(LoquiApp *app, GtkToggleAction *toggle_scroll_action)
 	GtkWidget *hsep;
 	GtkWidget *label;
 	GtkWidget *hbox_away;
+	GtkWidget *image;
 
 	statusbar = g_object_new(loqui_statusbar_get_type(), NULL);
 	priv = statusbar->priv;
@@ -410,8 +411,8 @@ loqui_statusbar_new(LoquiApp *app, GtkToggleAction *toggle_scroll_action)
 	priv->toggle_scroll = gtk_toggle_button_new();
 	gtk_action_connect_proxy(GTK_ACTION(toggle_scroll_action), priv->toggle_scroll);
 	gtk_container_remove(GTK_CONTAINER(priv->toggle_scroll), gtk_bin_get_child(GTK_BIN(priv->toggle_scroll)));
-	label = gtk_label_new("Scroll");
-	gtk_container_add(GTK_CONTAINER(priv->toggle_scroll), label);
+	image = gtk_image_new_from_stock(LOQUI_STOCK_WHETHER_SCROLL, LOQUI_ICON_SIZE_FONT);
+	gtk_container_add(GTK_CONTAINER(priv->toggle_scroll), image);
 
 	WIDGET_MINIMIZE_HEIGHT(priv->toggle_scroll);
 	gtk_box_pack_start(GTK_BOX(statusbar), priv->toggle_scroll, FALSE, FALSE, 0);
