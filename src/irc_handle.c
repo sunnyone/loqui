@@ -36,14 +36,11 @@ struct _IRCHandlePrivate
 	Account *account;
 	Server *server;
 	gchar *current_nick;
-	gboolean end_motd;
 
 	GThread *thread;
 	GThread *send_thread;
 
 	GAsyncQueue *msg_queue;
-
-	gboolean passed_motd;
 };
 
 static GObjectClass *parent_class = NULL;
@@ -824,7 +821,6 @@ irc_handle_reply(IRCHandle *handle, IRCMessage *msg)
 		return TRUE;
 	case IRC_RPL_ENDOFMOTD:
 		irc_handle_account_console_append(handle, msg, TEXT_TYPE_INFO, "*** %t");
-		priv->end_motd = TRUE;
 		return TRUE;
 	case IRC_RPL_NAMREPLY: /* <nick> = <channel> :... */
 		irc_handle_reply_names(handle, msg);
