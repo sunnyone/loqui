@@ -1239,7 +1239,7 @@ msgstr "エラー: スペースが含まれています"
 
 #: src/loqui_sender_irc.c:367
 msgid "This is a private talk"
-msgstr "
+msgstr ""
 
 #: src/loqui_sender_irc.c:477
 msgid "This name seems not to be a channel."
@@ -1469,7 +1469,7 @@ msgstr "タイトル"
 
 #: src/prefs_dialog.c:267
 msgid "statusbar"
-msgstr "ステータスバー
+msgstr "ステータスバー"
 
 #: src/prefs_dialog.c:296
 msgid "Common Preferences"
