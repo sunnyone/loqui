@@ -41,6 +41,7 @@ typedef struct _LoquiAppPrivate     LoquiAppPrivate;
 #include "nick_list.h"
 #include "channel_tree.h"
 #include "account_manager.h"
+#include "prefs_general.h"
 
 struct _LoquiApp
 {
@@ -124,6 +125,8 @@ void loqui_app_set_current_account(LoquiApp *app, Account *account);
 gboolean loqui_app_is_current_account(LoquiApp *app, Account *account);
 gboolean loqui_app_is_current_channel(LoquiApp *app, LoquiChannel *channel);
 gboolean loqui_app_is_current_channel_buffer(LoquiApp *app, ChannelBuffer *buffer);
+
+void loqui_app_set_nick_list_sort_type(LoquiApp *app, PrefSortType sort_type);
 
 G_END_DECLS
 

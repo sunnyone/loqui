@@ -83,6 +83,8 @@ struct _LoquiAppPrivate
 
 	guint updated_channel_number;
 	guint updated_private_talk_number;
+
+	GCompareFunc sort_func;
 };
 
 static GtkWindowClass *parent_class = NULL;
@@ -601,6 +603,7 @@ loqui_app_new(AccountManager *account_manager)
 
 	loqui_app_actions_toggle_action_set_active(app, "ToggleStatusbar", prefs_general.show_statusbar);
 	loqui_app_actions_toggle_action_set_active(app, "ToggleChannelbar", prefs_general.show_channelbar);
+	loqui_app_set_nick_list_sort_type(app, prefs_general.nick_list_sort_type);
 
 	g_signal_connect_after(G_OBJECT(account_manager), "add-account",
 			       G_CALLBACK(loqui_app_add_account_after_cb), app);
@@ -984,6 +987,7 @@ loqui_app_add_account_after_cb(AccountManager *manager, Account *account, LoquiA
 	g_signal_connect(G_OBJECT(buffer), "append",
 			 G_CALLBACK(loqui_app_channel_buffer_append_cb), app);
 
+	loqui_channel_entry_set_sort_func(LOQUI_CHANNEL_ENTRY(account), priv->sort_func);
 	loqui_app_update_channel_entry_accel_key(app);
 }
 static void
@@ -1059,6 +1063,8 @@ loqui_app_add_channel_after_cb(Account *account, LoquiChannel *channel, LoquiApp
 	buffer = loqui_channel_entry_get_buffer(LOQUI_CHANNEL_ENTRY(channel));
 	g_signal_connect(G_OBJECT(buffer), "append",
 			 G_CALLBACK(loqui_app_channel_buffer_append_cb), app);
+
+	loqui_channel_entry_set_sort_func(LOQUI_CHANNEL_ENTRY(channel), priv->sort_func);
 
 	loqui_app_update_channel_entry_accel_key(app);
 	loqui_app_set_current_channel_lazy(app, channel);
@@ -1356,4 +1362,56 @@ loqui_app_update_channel_entry_accel_key(LoquiApp *app)
 	loqui_account_manager_iter_set_first_channel_entry(&iter);
 	while ((chent = loqui_account_manager_iter_channel_entry_next(&iter)))
 		loqui_app_set_channel_entry_accel_key(app, chent);
+}
+void
+loqui_app_set_nick_list_sort_type(LoquiApp *app, PrefSortType sort_type)
+{
+	LoquiAppPrivate *priv;
+	LoquiAccountManagerIter iter;
+	LoquiChannelEntry *chent;
+
+        g_return_if_fail(app != NULL);
+        g_return_if_fail(LOQUI_IS_APP(app));
+        
+	priv = app->priv;
+
+	switch (sort_type) {
+	case PREF_SORT_NONE:
+		priv->sort_func = NULL;
+		break;
+	case PREF_SORT_NICK:
+		priv->sort_func = (GCompareFunc) loqui_member_sort_funcs_nick;
+		break;
+	case PREF_SORT_POWER_NICK:
+		priv->sort_func = (GCompareFunc) loqui_member_sort_funcs_power_nick;
+		break;
+	case PREF_SORT_AWAY_NICK:
+		priv->sort_func = (GCompareFunc) loqui_member_sort_funcs_away_nick;
+		break;
+	case PREF_SORT_POWER_AWAY_NICK:
+		priv->sort_func = (GCompareFunc) loqui_member_sort_funcs_power_away_nick;
+		break;
+	case PREF_SORT_AWAY_POWER_NICK:
+		priv->sort_func = (GCompareFunc) loqui_member_sort_funcs_away_power_nick;
+		break;
+	case PREF_SORT_TIME_NICK:
+		priv->sort_func = (GCompareFunc) loqui_member_sort_funcs_time_nick;
+		break;
+	case PREF_SORT_TIME_AWAY_POWER_NICK:
+		priv->sort_func = (GCompareFunc) loqui_member_sort_funcs_time_away_power_nick;
+		break;
+	case PREF_SORT_TIME_POWER_AWAY_NICK:
+		priv->sort_func = (GCompareFunc) loqui_member_sort_funcs_time_power_away_nick;
+		break;
+	default:
+		g_print("Invalid sort type: %d", sort_type);
+		priv->sort_func = NULL;
+	}
+	
+	loqui_account_manager_iter_init(loqui_app_get_account_manager(app), &iter);
+	loqui_account_manager_iter_set_first_channel_entry(&iter);
+	while ((chent = loqui_account_manager_iter_channel_entry_next(&iter)))
+		loqui_channel_entry_set_sort_func(chent, priv->sort_func);
+
+	prefs_general.nick_list_sort_type = sort_type;
 }

@@ -74,6 +74,8 @@ PrefElement prefs_general_defs[] = {
 	
 	{"save_log", "false", PREF_TYPE_BOOLEAN, &prefs_general.save_log },
 	
+	{"nick_list_sort_type", "7", PREF_TYPE_UINT, &prefs_general.nick_list_sort_type},
+
 	{NULL, NULL, 0, NULL}
 };
 

@@ -25,6 +25,18 @@
 typedef struct _PrefElement PrefElement;
 
 typedef enum {
+	PREF_SORT_NONE,
+	PREF_SORT_NICK,
+	PREF_SORT_POWER_NICK,
+	PREF_SORT_AWAY_NICK,
+	PREF_SORT_POWER_AWAY_NICK,
+	PREF_SORT_AWAY_POWER_NICK,
+	PREF_SORT_TIME_NICK,
+	PREF_SORT_TIME_AWAY_POWER_NICK,
+	PREF_SORT_TIME_POWER_AWAY_NICK,
+} PrefSortType;
+
+typedef enum {
 	PREF_TYPE_NONE,
 	PREF_TYPE_BOOLEAN,
 	PREF_TYPE_INT,
@@ -86,6 +98,8 @@ typedef struct _PrefsGeneral {
 	gchar *command_prefix;
 	
 	gboolean save_log;
+
+	guint nick_list_sort_type;
 } PrefsGeneral;
 
 void prefs_general_load(void);

@@ -77,6 +77,8 @@ static void loqui_app_actions_ctcp_ping_selected_cb(GtkAction *action, LoquiApp 
 static void loqui_app_actions_ctcp_finger_selected_cb(GtkAction *action, LoquiApp *app);
 static void loqui_app_actions_ctcp_time_selected_cb(GtkAction *action, LoquiApp *app);
 
+static void loqui_app_actions_nick_list_sort_radio_cb(GtkAction *action, GtkRadioAction *current_action, LoquiApp *app);
+
 static GtkActionEntry loqui_action_entries[] =
 {
 	/* name, stock_id, label, accelerator, tooltip, callback */
@@ -93,6 +95,7 @@ static GtkActionEntry loqui_action_entries[] =
 	
 	{"StockModeMenu",        NULL, N_("Change user mode [Mode]"), NULL, NULL},
 	{"StockCTCPMenu",        NULL, N_("CTCP"),        NULL, NULL},
+	{"StockNickListSortTypeMenu",  NULL, N_("Sort type of NickList"),        NULL, NULL},
 	{"StockChannelEntry",    NULL, "",                NULL, NULL},
 
 	{"FakeToplevel",         NULL, (""),               NULL, NULL, NULL},
@@ -146,6 +149,17 @@ static GtkToggleActionEntry loqui_toggle_action_entries[] = {
         {"ToggleStatusbar",   NULL, N_("_Statusbar"), NULL, NULL, G_CALLBACK(loqui_app_actions_toggle_statusbar_cb), TRUE},
 	{LOQUI_ACTION_TOGGLE_SCROLL, NULL, N_("_Scroll buffer"), NULL, N_("Whether scrolling the channel buffer to the end when new message arrived."),G_CALLBACK(loqui_app_actions_toggle_scroll_cb) , TRUE},
 };
+static GtkRadioActionEntry loqui_nick_list_sort_radio_action_entries[] = {
+	{"RadioNickListSortNone", NULL, "None", NULL, NULL, PREF_SORT_NONE},
+	{"RadioNickListSortNick", NULL, "Nick", NULL, NULL, PREF_SORT_NICK},
+	{"RadioNickListSortPowerNick", NULL, "Power > Nick", NULL, NULL, PREF_SORT_POWER_NICK},
+	{"RadioNickListSortAwayNick", NULL, "Away > Nick", NULL, NULL, PREF_SORT_AWAY_NICK},
+	{"RadioNickListSortPowerAwayNick", NULL, "Power > Away > Nick", NULL, NULL, PREF_SORT_POWER_AWAY_NICK},
+	{"RadioNickListSortAwayPowerNick", NULL, "Away > Power > Nick", NULL, NULL, PREF_SORT_AWAY_POWER_NICK},
+	{"RadioNickListSortTimeNick", NULL, "Time > Nick", NULL, NULL, PREF_SORT_TIME_NICK},
+	{"RadioNickListSortTimeAwayPowerNick", NULL, "Time > Away > Power > Nick", NULL, NULL, PREF_SORT_TIME_AWAY_POWER_NICK},
+	{"RadioNickListSortTimePowerAwayNick", NULL, "Time > Power > Away > Nick", NULL, NULL, PREF_SORT_TIME_POWER_AWAY_NICK},
+};
 
 GtkActionGroup *
 loqui_app_actions_create_group(LoquiApp *app)
@@ -163,7 +177,12 @@ loqui_app_actions_create_group(LoquiApp *app)
 					    loqui_toggle_action_entries,
 					    G_N_ELEMENTS(loqui_toggle_action_entries),
 					    app);
-
+	gtk_action_group_add_radio_actions(action_group,
+					   loqui_nick_list_sort_radio_action_entries,
+					   G_N_ELEMENTS(loqui_nick_list_sort_radio_action_entries),
+					   prefs_general.nick_list_sort_type,
+					   G_CALLBACK(loqui_app_actions_nick_list_sort_radio_cb),
+					   app);
 	ACTION_GROUP_ACTION_SET_SENSITIVE(action_group, "PasteWithLinefeedsCut", FALSE);
 	ACTION_GROUP_ACTION_SET_SENSITIVE(action_group, "Find", FALSE);
 	ACTION_GROUP_ACTION_SET_SENSITIVE(action_group, "FindAgain", FALSE);
@@ -470,4 +489,12 @@ static void
 loqui_app_actions_ctcp_time_selected_cb(GtkAction *action, LoquiApp *app)
 {
 	nick_list_ctcp_selected(app->nick_list, IRCCTCPTime);
+}
+static void
+loqui_app_actions_nick_list_sort_radio_cb(GtkAction *action, GtkRadioAction *current_action, LoquiApp *app)
+{
+	gint value;
+
+	value = gtk_radio_action_get_current_value(GTK_RADIO_ACTION(current_action));
+	loqui_app_set_nick_list_sort_type(app, value);
 }
