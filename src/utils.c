@@ -110,6 +110,58 @@ gchar *utils_line_separated_text_from_slist(GSList *slist)
 
 	return str;
 }
+
+gchar *utils_format(const gchar *format, ...)
+{
+	va_list args;
+	GString *string;
+	const gchar *cur, *tmp;
+	gchar *str;
+	gint i;
+	const gchar *str_cache[CHAR_MAX];
+
+	g_return_val_if_fail(format != NULL, NULL);
+
+	memset(str_cache, 0, CHAR_MAX);
+
+	va_start(args, format);
+	while((i = va_arg(args, gint)) != -1) {
+		g_return_val_if_fail(i <= CHAR_MAX, NULL);
+
+		str = va_arg(args, gchar *);
+		
+		str_cache[i] = str;
+	}
+	va_end(args);
+
+	string = g_string_new_len(NULL, strlen(format));
+
+	cur = format;
+	while((tmp = strchr(cur, '%')) != NULL) {
+		if(tmp > cur) {
+			string = g_string_append_len(string, cur, tmp - cur);
+			cur = tmp;
+		}
+		cur++;
+
+		if(*cur == '\0') {
+			break;
+		} else if(*cur == '%') {
+			string = g_string_append_c(string, '%');
+			continue;
+		}
+
+		i = *tmp;
+		if(str_cache[i] != NULL)
+			string = g_string_append(string, str_cache[i]);
+	}
+
+	str = string->str;
+	g_string_free(string, FALSE);
+
+	return str;
+}
+
 /* copied from Sylpheed. (c) 2002, Hiroyuki Yamamoto. */
 gint make_dir(const gchar *dir)
 {

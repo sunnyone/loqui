@@ -46,6 +46,9 @@ gchar *utils_remove_return_code(gchar *str);
 GSList *utils_line_separated_text_to_slist(gchar *str);
 gchar *utils_line_separated_text_from_slist(GSList *slist);
 
+/* pairs of flag and characters, terminated with -1 */
+gchar *utils_format(const gchar *format, ...);
+
 /* copied from Sylpheed. (c) 2002, Hiroyuki Yamamoto. */
 gint make_dir(const gchar *dir);
 
