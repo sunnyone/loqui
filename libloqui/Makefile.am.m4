@@ -24,6 +24,7 @@ SRC_PROTOCOL_BASE_BASE = \
 	loqui_channel_buffer.c loqui_channel_buffer.h \
 	loqui_channel_entry_utils.c loqui_channel_entry_utils.h
 
+define(`M4_SRC_PROTOCOL_BASE_GOB',`loqui-mode-item.gob loqui-mode-manager.gob')
 SRC_PROTOCOL_BASE = \
 	loqui_protocol.c loqui_protocol.h \
 	loqui_user.c loqui_user.h \
@@ -34,7 +35,8 @@ SRC_PROTOCOL_BASE = \
 	loqui_account.c loqui_account.h \
 	loqui_message.c loqui_message.h \
 	loqui_member.c loqui_member.h \
-	loqui_transfer_item.c loqui_transfer_item.h
+	loqui_transfer_item.c loqui_transfer_item.h \
+	M4_SRC_PROTOCOL_BASE_GOB gob_to_built_sources(M4_SRC_PROTOCOL_BASE_GOB)
 
 SRC_PROTOCOL_IRC = \
 	loqui_protocol_irc.c loqui_protocol_irc.h \

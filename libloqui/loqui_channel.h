@@ -23,6 +23,7 @@
 #include <glib-object.h>
 #include "loqui_channel_entry.h"
 #include "irc_constants.h"
+#include <loqui-mode-manager.h>
 
 G_BEGIN_DECLS
 
@@ -53,14 +54,14 @@ struct _LoquiChannel
 
 	gboolean end_names;
 
+	LoquiModeManager *channel_mode_manager;
+
         LoquiChannelPrivate *priv;
 };
 
 struct _LoquiChannelClass
 {
         LoquiChannelEntryClass parent_class;
-
-	void (* mode_changed)        (LoquiChannel *channel);
 };
 
 GType loqui_channel_get_type(void) G_GNUC_CONST;
@@ -86,10 +87,6 @@ gboolean loqui_channel_get_is_joined(LoquiChannel *channel);
   ATTR_ACCESSOR_POINTER_PROTOTYPE(const gchar *, G_CONST_RETURN gchar *, LoquiChannel, loqui_channel, attr_name)
 
 LOQUI_CHANNEL_ACCESSOR_STRING_PROTOTYPE(identifier);
-
-void loqui_channel_change_mode(LoquiChannel *channel, gboolean is_add, IRCModeFlag flag, gchar *argument);
-void loqui_channel_clear_mode(LoquiChannel *channel);
-gchar *loqui_channel_get_mode(LoquiChannel *channel);
 
 void loqui_channel_push_user_mode_queue(LoquiChannel *channel, gboolean is_give, IRCModeFlag flag, const gchar *nick);
 void loqui_channel_flush_user_mode_queue(LoquiChannel *channel);

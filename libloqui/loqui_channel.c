@@ -32,7 +32,6 @@
 #include "loqui-static-core.h"
 
 enum {
-	MODE_CHANGED,
         LAST_SIGNAL
 };
 
@@ -47,16 +46,10 @@ enum {
 
 struct _LoquiChannelPrivate
 {
-	GSList *mode_list;
 	GList *mode_change_queue;
 };
 
 #define MODE_CHANGE_MAX 3
-
-typedef struct {
-	IRCModeFlag flag;
-	gchar *argument;
-} LoquiChannelMode;
 
 typedef struct {
 	gboolean is_give;
@@ -66,7 +59,7 @@ typedef struct {
 
 static LoquiChannelEntryClass *parent_class = NULL;
 
-static guint loqui_channel_signals[LAST_SIGNAL] = { 0 };
+/* static guint loqui_channel_signals[LAST_SIGNAL] = { 0 }; */
 
 static void loqui_channel_class_init(LoquiChannelClass *klass);
 static void loqui_channel_init(LoquiChannel *channel);
@@ -223,14 +216,6 @@ loqui_channel_class_init(LoquiChannelClass *klass)
 							    _("Account"),
 							    _("Parent account"),
 							    LOQUI_TYPE_ACCOUNT, G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
-
-        loqui_channel_signals[MODE_CHANGED] = g_signal_new("mode-changed",
-							   G_OBJECT_CLASS_TYPE(object_class),
-							   G_SIGNAL_RUN_FIRST,
-							   G_STRUCT_OFFSET(LoquiChannelClass, mode_changed),
-							   NULL, NULL,
-							   g_cclosure_marshal_VOID__VOID,
-							   G_TYPE_NONE, 0);
 }
 static void 
 loqui_channel_init(LoquiChannel *channel)
@@ -242,6 +227,7 @@ loqui_channel_init(LoquiChannel *channel)
 	channel->priv = priv;
 
 	channel->end_names = TRUE;
+	channel->channel_mode_manager = loqui_mode_manager_new(NULL);
 }
 LoquiChannel*
 loqui_channel_new(LoquiAccount *account, const gchar *name, const gchar *identifier, gboolean is_joined, gboolean is_private_talk)
@@ -366,15 +352,6 @@ loqui_channel_mode_change_free(ModeChange *mode_change)
 	g_free(mode_change->nick);
 	g_free(mode_change);
 }
-static void
-loqui_channel_mode_free(LoquiChannelMode *mode)
-{
-	g_return_if_fail(mode);
-
-	if(mode->argument)
-		g_free(mode->argument);
-	g_free(mode);
-}
 void
 loqui_channel_flush_user_mode_queue(LoquiChannel *channel)
 {
@@ -401,107 +378,6 @@ loqui_channel_flush_user_mode_queue(LoquiChannel *channel)
 	g_list_foreach(priv->mode_change_queue, (GFunc) loqui_channel_mode_change_free, NULL);
 	g_list_free(priv->mode_change_queue);
 	priv->mode_change_queue = NULL;
-}
-void
-loqui_channel_change_mode(LoquiChannel *channel, gboolean is_add, IRCModeFlag flag, gchar *argument)
-{
-	LoquiChannelPrivate *priv;
-	GSList *cur;
-	LoquiChannelMode *matched = NULL;
-	LoquiChannelMode *mode;
-
-	g_return_if_fail(channel != NULL);
-	g_return_if_fail(LOQUI_IS_CHANNEL(channel));
-	
-	priv = channel->priv;
-
-	for(cur = priv->mode_list; cur != NULL; cur = cur->next) {
-		mode = (LoquiChannelMode *) cur->data;
-		if(mode->flag == flag) {
-			matched = mode;
-			break;
-		}
-	}
-
-	if(is_add) {
-		if(matched)
-			return;
-		
-		mode = g_new0(LoquiChannelMode, 1);
-		mode->flag = flag;
-		mode->argument = g_strdup(argument);
-		priv->mode_list = g_slist_append(priv->mode_list, mode);
-	} else {
-		if(!matched)
-			return;
-
-		priv->mode_list = g_slist_remove(priv->mode_list, matched);
-		loqui_channel_mode_free(matched);
-	}
-
-	debug_puts("LoquiChannel mode changed: %s %c%c %s", loqui_channel_get_identifier(channel), is_add ? '+' : '-', flag, argument ? argument : "");
-
-	g_signal_emit(channel, loqui_channel_signals[MODE_CHANGED], 0);
-}
-void
-loqui_channel_clear_mode(LoquiChannel *channel)
-{
-	LoquiChannelPrivate *priv;
-
-	g_return_if_fail(channel != NULL);
-	g_return_if_fail(LOQUI_IS_CHANNEL(channel));
-	
-	priv = channel->priv;
-
-	if(!priv->mode_list)
-		return;
-
-	g_slist_foreach(priv->mode_list, (GFunc) loqui_channel_mode_free, NULL);
-	g_slist_free(priv->mode_list);
-
-	priv->mode_list = NULL;
-
-	g_signal_emit(channel, loqui_channel_signals[MODE_CHANGED], 0);
-}
-gchar *
-loqui_channel_get_mode(LoquiChannel *channel)
-{
-	LoquiChannelPrivate *priv;
-	GString *flag_string;
-	GString *argument_string;
-	gchar *str;
-	GSList *cur;
-	LoquiChannelMode *mode;
-
-	g_return_val_if_fail(channel != NULL, NULL);
-	g_return_val_if_fail(LOQUI_IS_CHANNEL(channel), NULL);
-	
-	priv = channel->priv;
-
-	if(!priv->mode_list)
-		return g_strdup("");
-
-	flag_string = g_string_sized_new(20);
-	argument_string = g_string_new(NULL);
-
-	flag_string = g_string_append_c(flag_string, '+');
-
-	for(cur = priv->mode_list; cur != NULL; cur = cur->next) {
-		mode = (LoquiChannelMode *) cur->data;
-
-		flag_string = g_string_append_c(flag_string, mode->flag);
-		if(mode->argument)
-			g_string_append_printf(argument_string, " %s", mode->argument);
-	}
-	if(argument_string->len > 1) {
-		g_string_append(flag_string, argument_string->str);
-	}
-	g_string_free(argument_string, TRUE);
-
-	str = flag_string->str;
-	g_string_free(flag_string, FALSE);
-
-	return str;
 }
 
 void

@@ -44,11 +44,40 @@
 #include "loqui-general-pref-default.h"
 #include "loqui-general-pref-groups.h"
 
+#include "loqui-mode-manager.h"
+
 struct _LoquiReceiverIRCPrivate
 {
 	CTCPHandle *ctcp_handle;
 
 	gboolean end_motd;
+
+	/* just parser */
+	LoquiModeManager *channel_mode_manager;
+};
+
+LoquiModeTableItem channel_mode_table[] = {
+	{ IRC_CHANNEL_MODE_CREATOR, 'O', TRUE, TRUE, "CHANNEL_MODE_CREATOR", NULL, NULL },
+	{ IRC_CHANNEL_MODE_OPERATOR, 'o', TRUE, FALSE, "CHANNEL_MODE_OPERATOR", NULL, NULL },
+	{ IRC_CHANNEL_MODE_VOICE, 'v', TRUE, FALSE, "CHANNEL_MODE_VOICE", NULL, NULL },
+	    
+	{ IRC_CHANNEL_MODE_ANONYMOUS, 'a', FALSE,  FALSE, "CHANNEL_MODE_ANONYMOUS", NULL, NULL },
+	{ IRC_CHANNEL_MODE_INVITE_ONLY, 'i', FALSE,  FALSE, "CHANNEL_MODE_INVITE_ONLY", NULL, NULL },
+	{ IRC_CHANNEL_MODE_MODERATED, 'm', FALSE,  FALSE, "CHANNEL_MODE_MODERATED", NULL, NULL },
+	{ IRC_CHANNEL_MODE_NO_MESSAGES_FROM_CLIENT, 'n', FALSE,  FALSE, "CHANNEL_MODE_NO_MESSAGES_FROM_CLIENT", NULL, NULL },
+	{ IRC_CHANNEL_MODE_QUIET, 'q', FALSE,  FALSE, "CHANNEL_MODE_QUIET", NULL, NULL },
+	{ IRC_CHANNEL_MODE_SECRET, 's', FALSE,  FALSE, "CHANNEL_MODE_SECRET", NULL, NULL },
+	{ IRC_CHANNEL_MODE_SERVER_REOP, 'r', FALSE,  FALSE, "CHANNEL_MODE_SERVER_REOP", NULL, NULL },
+	{ IRC_CHANNEL_MODE_TOPIC_SETTABLE_BY_CHANNEL_OPERATOR_ONLY, 't', FALSE,  FALSE, "CHANNEL_MODE_TOPIC_SETTABLE_BY_CHANNEL_OPERATOR_ONLY", NULL, NULL },
+	
+	{ IRC_CHANNEL_MODE_CHANNEL_KEY, 'k', TRUE, FALSE, "CHANNEL_MODE_CHANNEL_KEY", NULL, NULL },
+	{ IRC_CHANNEL_MODE_USER_LIMIT, 'l', TRUE, FALSE, "CHANNEL_MODE_USER_LIMIT", NULL, NULL },
+
+	{ IRC_CHANNEL_MODE_BAN_MASK, 'b', TRUE, TRUE, "CHANNEL_MODE_BAN_MASK", NULL, NULL },
+	{ IRC_CHANNEL_MODE_EXCEPTION_TO_OVERIDE_BAN_MASK, 'e', TRUE, TRUE, "CHANNEL_MODE_EXCEPTION_TO_OVERIDE_BAN_MASK", NULL, NULL },
+	{ IRC_CHANNEL_MODE_INVITATION_MASK, 'I', TRUE, TRUE, "CHANNEL_MODE_INVITATION_MASK", NULL, NULL },
+	
+	{ IRC_CHANNEL_MODE_PRIVATE, 'p', FALSE, FALSE, "CHANNEL_MODE_PRIVATE", NULL, NULL },
 };
 
 static LoquiReceiverClass *parent_class = NULL;
@@ -135,6 +164,8 @@ loqui_receiver_irc_init(LoquiReceiverIRC *receiver)
 	priv = g_new0(LoquiReceiverIRCPrivate, 1);
 
 	receiver->priv = priv;
+
+	priv->channel_mode_manager = loqui_mode_manager_new(channel_mode_table);
 
 	loqui_receiver_irc_reset(receiver);
 }
@@ -513,109 +544,67 @@ loqui_receiver_irc_command_nick(LoquiReceiverIRC *receiver, IRCMessage *msg)
 static void
 loqui_receiver_irc_parse_mode_arguments(LoquiReceiverIRC *receiver, IRCMessage *msg, LoquiChannel *channel, gint mode_start)
 {
-	gint cur;
+	gint i;
 	gint param_num;
-	gchar *flags, *target;
-	gint is_add = -1; /* -1: uninitialized, 0: false, 1: true */
+	GList *param_list = NULL;
+	GList *mode_item_list = NULL, *mode_item_list_used = NULL;
 	LoquiMember *member;
 	LoquiReceiverIRCPrivate *priv;
 	LoquiAccount *account;
+	LoquiModeItem *mode_item;
+	GError *error = NULL;
+	GList *l;
+	LoquiUser *user;
 
 	priv = receiver->priv;
 	account = loqui_receiver_get_account(LOQUI_RECEIVER(receiver));
 
-	cur = mode_start;
 	param_num = irc_message_count_parameters(msg);
+	for (i = mode_start; i <= param_num; i++)
+		param_list = g_list_append(param_list, irc_message_get_param(msg, i));
 
-	flags = irc_message_get_param(msg, cur);
-	if(flags == NULL) {
-		loqui_account_warning(account, _("Flags are not found in MODE command"));
-		return;
-	}
-	cur++;
+	if (channel) {
+		mode_item_list = loqui_mode_manager_parse(priv->channel_mode_manager, param_list, &error);
+		if (error) {
+			loqui_account_warning(account, "Channel mode parse error: %s", error->message);
+			return;
+		}
 
-#define GET_TARGET_OR_RETURN(msg, i, str_ptr) { \
-  *str_ptr = irc_message_get_param(msg, i); \
-  if(*str_ptr == NULL) { \
-        loqui_account_warning(account, _("Can't find a target to change mode")); \
-        return; \
-  } \
-  i++; \
-}
-
-#define GET_MEMBER_OR_RETURN(msg, i, channel, member_ptr) { \
-  gchar *target; \
-  LoquiUser *user; \
-  GET_TARGET_OR_RETURN(msg, i, &target); \
-  user = loqui_account_peek_user(channel->account, target); \
-  if (!user) { \
-        loqui_account_warning(account, "User not found."); \
-        return; \
-  } \
-  *member_ptr = loqui_channel_entry_get_member_by_user(LOQUI_CHANNEL_ENTRY(channel), user); \
-  if (*member_ptr == NULL) { \
-       loqui_account_warning(account, "Member not found."); \
-       return; \
-  } \
-}
-	if(channel) {
-		for (; *flags; flags++) {
-			if (*flags == '+') {
-				is_add = 1;
-				continue;
-			} else if (*flags == '-') {
-				is_add = 0;
-				continue;
-			}
-			
-			if (is_add < 0) {
-				loqui_account_warning(account, _("Flags don't have + or -"));
-				break;
-			}
-			
-			switch(*flags) {
-			case IRC_CHANNEL_MODE_OPERATOR:
-				GET_MEMBER_OR_RETURN(msg, cur, channel, &member);
-				loqui_member_set_is_channel_operator(member, is_add);
-				break;
-			case IRC_CHANNEL_MODE_VOICE:
-				GET_MEMBER_OR_RETURN(msg, cur, channel, &member);
-				loqui_member_set_speakable(member, is_add);
-				break;
-			case IRC_CHANNEL_MODE_CREATOR:
-				break;
-			case IRC_CHANNEL_MODE_ANONYMOUS:
-			case IRC_CHANNEL_MODE_INVITE_ONLY:
-			case IRC_CHANNEL_MODE_MODERATED:
-			case IRC_CHANNEL_MODE_NO_MESSAGES_FROM_CLIENT:
-			case IRC_CHANNEL_MODE_QUIET:
-			case IRC_CHANNEL_MODE_SECRET:
-			case IRC_CHANNEL_MODE_SERVER_REOP:
-			case IRC_CHANNEL_MODE_TOPIC_SETTABLE_BY_CHANNEL_OPERATOR_ONLY:
-			case IRC_CHANNEL_MODE_PRIVATE:
-				loqui_channel_change_mode(channel, (gboolean) is_add, *flags, NULL);
-				break;
-			case IRC_CHANNEL_MODE_CHANNEL_KEY:
-			case IRC_CHANNEL_MODE_USER_LIMIT:
-				if (is_add) {
-					GET_TARGET_OR_RETURN(msg, cur, &target);
-					loqui_channel_change_mode(channel, TRUE, *flags, target);
-				} else {
-					loqui_channel_change_mode(channel, FALSE, *flags, NULL);
+		for (l = mode_item_list; l != NULL; l = l->next) {
+			mode_item = LOQUI_MODE_ITEM(l->data);
+			gint mode_id = mode_item->table_item->mode_id;
+			if (mode_id == IRC_CHANNEL_MODE_OPERATOR ||
+			    mode_id == IRC_CHANNEL_MODE_VOICE) {
+				user = loqui_account_peek_user(channel->account, mode_item->data_str);
+				if (!user) {
+					loqui_account_warning(account, "User not found.");
+					return;
 				}
-				break;
-			case IRC_CHANNEL_MODE_BAN_MASK:
-			case IRC_CHANNEL_MODE_EXCEPTION_TO_OVERIDE_BAN_MASK:
-			case IRC_CHANNEL_MODE_INVITATION_MASK:
-				break;
-			default:
-				loqui_account_warning(account, _("Unknown mode flag: '%c'"), *flags);
-				break;
+				member = loqui_channel_entry_get_member_by_user(LOQUI_CHANNEL_ENTRY(channel), user);
+				if (member == NULL) {
+					loqui_account_warning(account, "Member not found.");
+					return;
+				}
+
+				if (mode_id == IRC_CHANNEL_MODE_OPERATOR) {
+					loqui_member_set_is_channel_operator(member, mode_item->is_set);
+				} else {
+					loqui_member_set_speakable(member, mode_item->is_set);
+				}
+			} else if (mode_id == IRC_CHANNEL_MODE_CREATOR) {
+			} else {
+				mode_item_list_used = g_list_append(mode_item_list_used, l->data);
 			}
 		}
+		
+		if (channel->channel_mode_manager)
+			loqui_mode_manager_apply(channel->channel_mode_manager, mode_item_list_used);
+		g_list_foreach(mode_item_list, (GFunc) g_object_unref, NULL);
+		g_list_free(mode_item_list);
+		g_list_free(mode_item_list_used);
 	} else {
 		/* FIXME: handle user modes */
-		switch(*flags) {
+		/* switch(*flags) {
 		case IRC_USER_MODE_FLAGGED_AS_AWAY:
 		case IRC_USER_MODE_INVISIBLE:
 		case IRC_USER_MODE_RECEIVES_WALLOPS:
@@ -623,10 +612,10 @@ loqui_receiver_irc_parse_mode_arguments(LoquiReceiverIRC *receiver, IRCMessage *
 		case IRC_USER_MODE_OPERATOR:
 		case IRC_USER_MODE_LOCAL_OPERATOR:
 		case IRC_USER_MODE_RECEIVES_SERVER_NOTICES:
-		default:
+		default: */
 			loqui_account_warning(account, _("User mode is not implemented."));
-			break;
-		}
+			/* break;
+			   } */
 	}
 #undef GET_TARGET_OR_RETURN	
 }
@@ -659,7 +648,7 @@ loqui_receiver_irc_reply_channelmodeis(LoquiReceiverIRC *receiver, IRCMessage *m
 		loqui_account_warning(account, _("RPL_CHANNELMODEIS didn't return a channel name: %s"), name);
 		return;
 	}
-	loqui_channel_clear_mode(channel);
+	loqui_mode_manager_clear(channel->channel_mode_manager);
 
 	loqui_receiver_irc_parse_mode_arguments(receiver, msg, channel, 3);
 	loqui_receiver_irc_channel_append(receiver, msg, FALSE, 2, LOQUI_TEXT_TYPE_INFO, _("*** Mode for %2: %*3"));

@@ -1,0 +1,227 @@
+requires 2.0.0
+
+%alltop{
+/*
+ * libloqui -- Chat/IM client library for GLib <http://loqui.good-day.net/>
+ * Copyright (C) 2004 Yoichi Imai <yoichi@silver-forest.com>
+ *
+ * This Library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Library General Public License as
+ * published by the Free Software Foundation; either version 2 of the
+ * License, or (at your option) any later version.
+ *
+ * This Library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Library General Public License for more details.
+ *
+ * You should have received a copy of the GNU Library General Public
+ * License along with the Gnome Library; see the file COPYING.LIB.  If not,
+ * write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+ * Boston, MA 02111-1307, USA.
+ */
+%}
+
+%h{
+#include "loqui-mode-item.h"
+%}
+
+%{
+#include <libloqui-intl.h>
+#include "utils.h"
+%}
+
+error LOQUI_MODE_MANAGER_ERROR {
+	PARSE_LACK_ARGUMENT,
+	PARSE_INVALID_MODE_CHAR,
+} Loqui:Mode:Manager:Error;
+
+class Loqui:Mode:Manager from G:Object
+{
+	public LoquiModeTableItem *table;
+	public GList *mode_item_list unref {
+		g_list_foreach(VAR, (GFunc) g_object_unref, NULL);
+		g_list_free(VAR);
+	};
+
+	init(self) {
+		self->mode_item_list = NULL;
+	}
+
+	signal NONE (NONE) void changed (self);
+
+	public GList *
+	parse(self, GList *argument_list, GError **error) {
+		GList *cur, *arg_ptr, *mode_item_list = NULL;
+		gchar *first_arg_str, *p, *data_str;
+		LoquiModeTableItem *t;
+		LoquiModeItem *item;
+		gboolean set_flag_set;
+		gboolean is_set = TRUE;
+
+		cur = argument_list;
+		if (argument_list == NULL) {
+			g_set_error(error,
+				    LOQUI_TYPE_MODE_MANAGER_ERROR,
+				    LOQUI_MODE_MANAGER_ERROR_PARSE_LACK_ARGUMENT,
+				    "Lacks first argument");
+			return NULL;
+		}
+
+		arg_ptr = cur->next;
+		first_arg_str = cur->data;
+
+		set_flag_set = FALSE;
+		for (p = first_arg_str; *p != '\0'; p++) {
+			if (*p == '+') {
+				is_set = TRUE;
+				set_flag_set = TRUE;
+				continue;
+			}
+			if (*p == '-') {
+				is_set = FALSE;
+				set_flag_set = TRUE;
+				continue;
+			}
+
+			if (!set_flag_set) {
+				g_set_error(error,
+					    LOQUI_TYPE_MODE_MANAGER_ERROR,
+					    LOQUI_MODE_MANAGER_ERROR_PARSE_INVALID_MODE_CHAR,
+					    "Don't have + or -: '%s'", first_arg_str);
+				goto aftererror;
+			}
+
+			for (t = self->table; t->mode_id >= 0; t++) {
+				if (*p == t->mode_char)
+					break;
+			}
+			if (t->mode_id < 0) {
+				g_set_error(error,
+					    LOQUI_TYPE_MODE_MANAGER_ERROR,
+					    LOQUI_MODE_MANAGER_ERROR_PARSE_INVALID_MODE_CHAR,
+					    "Invalid mode char: '%c'", *p);
+				goto aftererror;
+			}
+
+			if ((is_set && t->require_data_str_to_set) ||
+			    (!is_set && t->require_data_str_to_unset)) {
+				if (arg_ptr == NULL) {
+					g_set_error(error,
+						    LOQUI_TYPE_MODE_MANAGER_ERROR,
+						    LOQUI_MODE_MANAGER_ERROR_PARSE_LACK_ARGUMENT,
+						    "Lacks data_str for %c%c (%s)", is_set ? '+' : '-', *p, t->name);
+					goto aftererror;
+				}
+			} else {
+				data_str = NULL;
+			}
+			item = loqui_mode_item_new(TRUE, is_set, t, data_str);
+			mode_item_list = g_list_prepend(mode_item_list, item);
+		}
+		return g_list_reverse(mode_item_list);
+
+	aftererror:
+		g_list_foreach(mode_item_list, (GFunc) g_object_unref, NULL);
+		g_list_free(mode_item_list);
+		return NULL;
+	}
+	
+	public void
+	add(self, Loqui:Mode:Item *mode_item (check null type)) {
+		self->mode_item_list = g_list_append(self->mode_item_list, mode_item);
+		g_object_ref(mode_item);
+	}
+
+	public void
+	clear(self) {
+		g_list_foreach(self->mode_item_list, (GFunc) g_object_unref, NULL);
+		g_list_free(self->mode_item_list);
+		self->mode_item_list = NULL;
+	}
+
+	public void
+	apply(self, GList *mode_item_list) {
+		GList *cur, *cur_c;
+		LoquiModeItem *changer, *changee;
+		gboolean changed = FALSE;
+
+		for (cur = mode_item_list; cur != NULL; cur = cur->next) {
+			g_return_if_fail(cur->data);
+			g_return_if_fail(LOQUI_IS_MODE_ITEM(cur->data));
+			
+			changer = cur->data;
+			changee = NULL;
+			for (cur_c = self->mode_item_list; cur_c != NULL; cur_c = cur_c->next) {
+				changee = cur_c->data;
+				if (changee->table_item->mode_id == changer->table_item->mode_id)
+					break;
+				changee = NULL;
+			}
+			if (changee) {
+				changee->is_set = changer->is_set;
+				loqui_mode_item_set_data_str(changee, changer->data_str);
+				changed = TRUE;
+			} else if (changer->is_set) {
+				changee = loqui_mode_item_new(FALSE, changer->is_set, changer->table_item, changer->data_str);
+				self->mode_item_list = g_list_append(self->mode_item_list, changee);
+				changed = TRUE;
+			}
+		}
+		if (changed)
+			self_changed(self);
+	}
+
+	public gchar *
+	to_string(self) {
+		GString *flag_string;
+		GString *data_str_string;
+		gchar *str;
+		GList *cur;
+		LoquiModeItem *item;
+		gboolean is_flag_added;
+		gboolean is_set = FALSE;
+
+		if(!self->mode_item_list)
+			return g_strdup("");
+
+		flag_string = g_string_sized_new(20);
+		data_str_string = g_string_new(NULL);
+
+		is_flag_added = FALSE;
+		for (cur = self->mode_item_list; cur != NULL; cur = cur->next) {
+			item = LOQUI_MODE_ITEM(cur->data);
+
+			if (!is_flag_added ||
+			    is_set != item->is_set) {
+				is_set = item->is_set;
+				g_string_append_c(flag_string, item->is_set ? '+' : '-');
+				is_flag_added = TRUE;
+			} 
+
+			flag_string = g_string_append_c(flag_string, item->table_item->mode_char);
+			if (item->data_str)
+				g_string_append_printf(data_str_string, " %s", item->data_str);
+		}
+
+		if (data_str_string->len > 0) {
+			g_string_append(flag_string, data_str_string->str);
+		}
+		g_string_free(data_str_string, TRUE);
+
+		str = flag_string->str;
+		g_string_free(flag_string, FALSE);
+
+		return str;
+	}
+
+	public Loqui:Mode:Manager *
+	new(LoquiModeTableItem *table) {
+		Self *self;
+
+		self = GET_NEW;
+		self->table = table;
+
+		return self;
+	}
+}

@@ -379,8 +379,8 @@ void
 loqui_app_info_update_channel_mode(LoquiAppInfo *appinfo, LoquiChannel *channel)
 {
 	G_FREE_UNLESS_NULL(appinfo->cache_channel_mode);
-	if (channel)
-		appinfo->cache_channel_mode = loqui_channel_get_mode(channel);
+	if (channel && channel->channel_mode_manager)
+		appinfo->cache_channel_mode = loqui_mode_manager_to_string(channel->channel_mode_manager);
 
 	loqui_channelbar_update_channel_mode(LOQUI_CHANNELBAR(appinfo->priv->app->channelbar), channel);
 }
@@ -552,8 +552,10 @@ loqui_app_info_current_channel_entry_changed(LoquiAppInfo *appinfo, LoquiChannel
 	if (channel) {
 		g_signal_connect(G_OBJECT(channel), "notify::name",
 				 G_CALLBACK(loqui_app_info_channel_notify_name_cb), appinfo);
-		g_signal_connect(G_OBJECT(channel), "mode_changed",
-				 G_CALLBACK(loqui_app_info_channel_mode_changed_cb), appinfo);
+		if (channel->channel_mode_manager) {
+			g_signal_connect(G_OBJECT(channel->channel_mode_manager), "changed",
+					 G_CALLBACK(loqui_app_info_channel_mode_changed_cb), appinfo);
+		}
 	}
 	loqui_app_info_update_string_idle(appinfo);
 }

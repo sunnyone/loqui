@@ -1,0 +1,67 @@
+requires 2.0.0
+
+%alltop{
+/*
+ * libloqui -- Chat/IM client library for GLib <http://loqui.good-day.net/>
+ * Copyright (C) 2004 Yoichi Imai <yoichi@silver-forest.com>
+ *
+ * This Library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Library General Public License as
+ * published by the Free Software Foundation; either version 2 of the
+ * License, or (at your option) any later version.
+ *
+ * This Library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Library General Public License for more details.
+ *
+ * You should have received a copy of the GNU Library General Public
+ * License along with the Gnome Library; see the file COPYING.LIB.  If not,
+ * write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+ * Boston, MA 02111-1307, USA.
+ */
+%}
+
+%{
+#include <libloqui-intl.h>
+#include "utils.h"
+%}
+
+%h{
+typedef struct _LoquiModeTableItem {
+	gint mode_id;
+	gchar mode_char;
+	gboolean require_data_str_to_set;
+	gboolean require_data_str_to_unset;
+	gchar *name;
+	gchar *nick;
+	gchar *description;
+} LoquiModeTableItem;
+%}
+
+class Loqui:Mode:Item from G:Object
+{
+	public gboolean is_change;
+	public gboolean is_set;
+	public gchar* data_str unrefwith g_free;
+	public LoquiModeTableItem *table_item;
+
+	public Loqui:Mode:Item *
+	new(gboolean is_change, gboolean is_set, LoquiModeTableItem *table_item, gchar *data_str) {
+		Self *self;
+
+		self = GET_NEW;
+		self->is_change = is_change;
+		self->is_set = is_set;
+		self->table_item = table_item;
+		self->data_str = g_strdup(data_str);
+
+		return self;
+	}
+
+	public void
+	set_data_str(self, gchar *str) {
+		G_FREE_UNLESS_NULL(self->data_str);
+		self->data_str = g_strdup(self->data_str);
+	}
+}
