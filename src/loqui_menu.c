@@ -58,7 +58,6 @@ static void loqui_menu_part_channel_cb(gpointer data, guint callback_action, Gtk
 static void loqui_menu_topic_cb(gpointer data, guint callback_action, GtkWidget *widget);
 static void loqui_menu_nick_cb(gpointer data, guint callback_action, GtkWidget *widget);
 
-static void loqui_menu_view_toolbar_cb(gpointer data, guint callback_action, GtkWidget *widget);
 static void loqui_menu_view_channelbar_cb(gpointer data, guint callback_action, GtkWidget *widget);
 static void loqui_menu_view_statusbar_cb(gpointer data, guint callback_action, GtkWidget *widget);
 static void loqui_menu_view_move_cb(gpointer data, guint callback_action, GtkWidget *widget);
@@ -100,12 +99,6 @@ static GtkItemFactoryEntry menu_items[] = {
 	{ N_("/Command/_Set channel topic"), "<Alt>T", loqui_menu_topic_cb, 0, },
 	{ N_("/Command/_Change nickname"), "<Alt><Control>N", loqui_menu_nick_cb, 0, },
 	{ N_("/_View"), NULL, 0, 0, "<Branch>" },
-	{ N_("/View/Toolbar"), NULL, 0, 0, "<Branch>" },
-	{ N_("/View/Toolbar/Icon"), NULL, loqui_menu_view_toolbar_cb, GTK_TOOLBAR_ICONS, "<RadioItem>" },
-	{ N_("/View/Toolbar/Text"), NULL, loqui_menu_view_toolbar_cb, GTK_TOOLBAR_TEXT, "/View/Toolbar/Icon" },
-	{ N_("/View/Toolbar/Both icons and text"), NULL, loqui_menu_view_toolbar_cb, GTK_TOOLBAR_BOTH, "/View/Toolbar/Icon" },
-	{ N_("/View/Toolbar/Both icons and text horizontally"), NULL, loqui_menu_view_toolbar_cb, GTK_TOOLBAR_BOTH_HORIZ, "/View/Toolbar/Icon"},
-	{ N_("/View/Toolbar/Hide"), NULL, loqui_menu_view_toolbar_cb, 100, "/View/Toolbar/Icon" },
 	{ N_("/View/Channelbar"), NULL, loqui_menu_view_channelbar_cb, 0, "<ToggleItem>" },
 	{ N_("/View/Status bar"), NULL, loqui_menu_view_statusbar_cb, 0, "<ToggleItem>" },
 	{ "/View/sep",        NULL,         0,       0, "<Separator>" },
@@ -383,22 +376,6 @@ loqui_menu_connect_cb(gpointer data, guint callback_action, GtkWidget *widget)
 }
 
 static void
-loqui_menu_view_toolbar_cb(gpointer data, guint callback_action, GtkWidget *widget)
-{
-	LoquiMenu *menu;
-	LoquiMenuPrivate *priv;
-
-	menu = LOQUI_MENU(data);
-
-	g_return_if_fail(menu != NULL);
-        g_return_if_fail(LOQUI_IS_MENU(menu));
-
-	priv = menu->priv;
-
-	loqui_app_set_toolbar_style(priv->app, callback_action);
-}
-
-static void
 loqui_menu_view_channelbar_cb(gpointer data, guint callback_action, GtkWidget *widget)
 {
 	LoquiMenu *menu;
@@ -552,36 +529,6 @@ loqui_menu_nick_cb(gpointer data, guint callback_action, GtkWidget *widget)
 			    account_manager_get_current_account(manager));
 }
 
-void
-loqui_menu_set_view_toolbar(LoquiMenu *menu, guint style)
-{
-	LoquiMenuPrivate *priv;
-	GtkWidget *item;
-
-	g_return_if_fail(menu != NULL);
-        g_return_if_fail(LOQUI_IS_MENU(menu));
-
-	priv = menu->priv;
-
-	switch(style) {
-	case GTK_TOOLBAR_ICONS:
-		item = gtk_item_factory_get_item(priv->item_factory, "/View/Toolbar/Icon");
-		break;
-	case GTK_TOOLBAR_TEXT:
-		item = gtk_item_factory_get_item(priv->item_factory, "/View/Toolbar/Text");
-		break;
-	case GTK_TOOLBAR_BOTH:
-		item = gtk_item_factory_get_item(priv->item_factory, "/View/Toolbar/Both icons and text");
-		break;
-	case GTK_TOOLBAR_BOTH_HORIZ:
-		item = gtk_item_factory_get_item(priv->item_factory, "/View/Toolbar/Both icons and text horizontally");
-		break;
-	default:
-		item = gtk_item_factory_get_item(priv->item_factory, "/View/Toolbar/Hide");
-		break;
-	}
-	gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(item), TRUE);
-}
 void
 loqui_menu_set_view_statusbar(LoquiMenu *menu, gboolean show)
 {

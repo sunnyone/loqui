@@ -57,7 +57,6 @@ LoquiMenu* loqui_menu_new(LoquiApp *app);
 
 GtkWidget* loqui_menu_get_widget(LoquiMenu *menu);
 
-void loqui_menu_set_view_toolbar(LoquiMenu *menu, guint style);
 void loqui_menu_set_view_statusbar(LoquiMenu *menu, gboolean show);
 void loqui_menu_set_view_channelbar(LoquiMenu *menu, gboolean show);
 

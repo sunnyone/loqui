@@ -39,7 +39,6 @@ PrefElement prefs_general_defs[] = {
 	{"channel_tree_width",  "100", PREF_TYPE_UINT, &prefs_general.channel_tree_width},
 	{"common_buffer_height", "150", PREF_TYPE_UINT, &prefs_general.common_buffer_height},
 
-	{"toolbar_style", "2", PREF_TYPE_UINT, &prefs_general.toolbar_style},
 	{"show_statusbar", "true", PREF_TYPE_BOOLEAN, &prefs_general.show_statusbar},
 	{"show_channelbar", "true", PREF_TYPE_BOOLEAN, &prefs_general.show_channelbar},
 

@@ -25,7 +25,6 @@
 #include "nick_list.h"
 #include "account_manager.h"
 #include "prefs_general.h"
-#include "loqui_toolbar.h"
 #include "loqui_channelbar.h"
 #include "loqui_statusbar.h"
 #include "gtkutils.h"
@@ -41,7 +40,6 @@ struct _LoquiAppPrivate
 {
 	GtkWidget *common_textview;
 	GtkWidget *entry;
-	GtkWidget *handlebox_toolbar;
 	GtkWidget *handlebox_channelbar;
 
 	guint channel_buffer_inserted_signal_id;
@@ -388,10 +386,6 @@ loqui_app_update_info(LoquiApp *app,
 	}
 	
 	if(is_account_changed) {
-		if(account) {
-			loqui_toolbar_toggle_away_with_signal_handler_blocked(LOQUI_TOOLBAR(app->toolbar),
-									      account_get_away_status(account));
-		}
 		loqui_statusbar_set_current_account(LOQUI_STATUSBAR(app->statusbar), account);
 	}
 
@@ -451,12 +445,6 @@ loqui_app_new(void)
 	app->menu = loqui_menu_new(app);
 	gtk_box_pack_start(GTK_BOX(vbox), loqui_menu_get_widget(app->menu),
 			   FALSE, FALSE, 0);
-
-	priv->handlebox_toolbar = gtk_handle_box_new();
-	gtk_box_pack_start(GTK_BOX(vbox), priv->handlebox_toolbar, FALSE, FALSE, 0);
-
-	app->toolbar = loqui_toolbar_new(app);
-	gtk_container_add(GTK_CONTAINER(priv->handlebox_toolbar), app->toolbar);
 
 	priv->handlebox_channelbar = gtk_handle_box_new();
 	gtk_box_pack_start(GTK_BOX(vbox), priv->handlebox_channelbar, FALSE, FALSE, 0);
@@ -533,11 +521,9 @@ loqui_app_new(void)
 
 	gtk_widget_show_all(GTK_WIDGET(app));
 
-	loqui_app_set_toolbar_style(app, prefs_general.toolbar_style);
 	loqui_app_set_show_statusbar(app, prefs_general.show_statusbar);
 	loqui_app_set_show_channelbar(app, prefs_general.show_channelbar);
 
-	loqui_menu_set_view_toolbar(app->menu, prefs_general.toolbar_style);
 	loqui_menu_set_view_statusbar(app->menu, prefs_general.show_statusbar);
 	loqui_menu_set_view_channelbar(app->menu, prefs_general.show_channelbar);
 
@@ -628,25 +614,6 @@ void loqui_app_set_common_buffer(LoquiApp *app, ChannelBuffer *buffer)
 
 	set_channel_buffer(app, app->priv->common_textview, buffer, &app->priv->common_buffer_inserted_signal_id,
 			   G_CALLBACK(loqui_app_common_textview_inserted_cb));
-}
-void
-loqui_app_set_toolbar_style(LoquiApp *app, guint style)
-{
-	LoquiAppPrivate *priv;
-
-        g_return_if_fail(app != NULL);
-        g_return_if_fail(LOQUI_IS_APP(app));
-
-	priv = app->priv;
-
-	if(style > 10) {
-		gtk_widget_hide(priv->handlebox_toolbar);
-	} else {
-		gtk_toolbar_set_style(GTK_TOOLBAR(app->toolbar), style);
-		gtk_widget_show(priv->handlebox_toolbar);
-	}
-	
-	prefs_general.toolbar_style = style;
 }
 void
 loqui_app_set_show_statusbar(LoquiApp *app, gboolean show)

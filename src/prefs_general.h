@@ -53,7 +53,6 @@ typedef struct _PrefsGeneral {
 	guint channel_tree_width;
 	guint channel_tree_height;
 
-	guint toolbar_style;
 	gboolean show_statusbar;
 	gboolean show_channelbar;
 
