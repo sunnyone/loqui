@@ -265,7 +265,7 @@ static void channel_input_dialog_update_combo(ChannelInputDialog *dialog)
 
 		for(cur = priv->account->channel_list; cur != NULL; cur = cur->next) {
 			channel = CHANNEL(cur->data);
-			items = g_list_append(items, channel->name);
+			items = g_list_append(items, channel_get_name(channel));
 		}
 		if(items) {
 			gtk_combo_set_popdown_strings(GTK_COMBO(dialog->combo), items);

@@ -60,7 +60,6 @@ struct _Channel
 
 	Account *account;
 
-	gchar *name;
 	GtkListStore *user_list;
 	ChannelBuffer *buffer;
 
@@ -81,6 +80,9 @@ GType channel_get_type(void) G_GNUC_CONST;
 Channel* channel_new(Account *account, const gchar *name);
 void channel_append_text(Channel *channel, gboolean with_common_buffer, TextType type, gchar *str);
 void channel_append_remark(Channel *channel, TextType type, gboolean is_self, const gchar *nick, const gchar *remark);
+
+/* return value must not be freed. */
+gchar *channel_get_name(Channel *channel);
 
 void channel_set_topic(Channel *channel, const gchar *topic);
 gchar *channel_get_topic(Channel *channel);

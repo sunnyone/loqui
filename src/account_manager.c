@@ -434,7 +434,7 @@ void account_manager_update_current_info(AccountManager *manager)
 
 	account_name = account_get_name(account);
 	if(channel) {
-		channel_name = channel->name;
+		channel_name = channel_get_name(channel);
 		topic = channel_get_topic(channel);
 		channel_get_user_number(channel, (guint *) &user_number, (guint *) & op_number);
 		channel_mode = channel_get_mode(channel);

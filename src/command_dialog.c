@@ -103,34 +103,23 @@ void command_dialog_join(GtkWindow *parent_window, Account *account)
 }
 void command_dialog_part(GtkWindow *parent_window, Account *account, Channel *channel)
 {
-	gchar *channel_name = NULL;
-
-	if(channel)
-		channel_name = channel->name;
-
 	channel_input_dialog_open(parent_window, 
 				  _("Part channel"),
 				  _("Type channel name to part and the part message."),
 				  CHANNEL_HISTORY_JOINED,
 				  command_dialog_part_cb, NULL,
-				  TRUE, account, TRUE, channel_name, TRUE, NULL);
+				  TRUE, account, TRUE, channel ? channel_get_name(channel) : NULL, TRUE, NULL);
 }
 void command_dialog_topic(GtkWindow *parent_window, Account *account, Channel *channel)
 {
-	gchar *channel_name = NULL;
-	gchar *topic = NULL;
-
-	if(channel) {
-		channel_name = channel->name;
-		topic = channel_get_topic(channel);
-	}
-
 	channel_input_dialog_open(parent_window, 
 				  _("Set the topic of the channel"),
 				  _("Type channel name and its topic."),
 				  CHANNEL_HISTORY_JOINED,
 				  command_dialog_topic_cb, NULL,
-				  TRUE, account, TRUE, channel_name, TRUE, topic);
+				  TRUE, account,
+				  TRUE, channel ? channel_get_name(channel) : NULL,
+				  TRUE, channel ? channel_get_topic(channel) : NULL);
 }
 void command_dialog_nick(GtkWindow *parent_window, Account *account)
 {

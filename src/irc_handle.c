@@ -670,7 +670,7 @@ irc_handle_my_command_join(IRCHandle *handle, IRCMessage *msg)
 	}
 	account_manager_set_current_channel(account_manager_get(), channel);
 
-	mode_msg = irc_message_create(IRCCommandMode, channel->name, NULL);
+	mode_msg = irc_message_create(IRCCommandMode, channel_get_name(channel), NULL);
 	irc_handle_push_message(handle, mode_msg);
 }
 

@@ -36,6 +36,7 @@ struct _ChannelPrivate
 	gchar *topic;
 	gboolean updated;
 
+	gchar *name;
 	guint user_number;
 	guint op_number;
 
@@ -138,7 +139,7 @@ channel_finalize (GObject *object)
         channel = CHANNEL(object);
 	priv = channel->priv;
 
-	G_FREE_UNLESS_NULL(channel->name);
+	G_FREE_UNLESS_NULL(priv->name);
 	G_FREE_UNLESS_NULL(priv->topic);
 
         if (G_OBJECT_CLASS(parent_class)->finalize)
@@ -151,10 +152,12 @@ Channel*
 channel_new(Account *account, const gchar *name)
 {
         Channel *channel;
+	ChannelPrivate *priv;
 
 	channel = g_object_new(channel_get_type(), NULL);
+	priv = channel->priv;
 
-	channel->name = g_strdup(name);
+	priv->name = g_strdup(name);
 	channel->buffer = channel_buffer_new();
 	channel->user_list = gtk_list_store_new(USERLIST_COLUMN_NUMBER, 
 						G_TYPE_INT,
@@ -165,20 +168,30 @@ channel_new(Account *account, const gchar *name)
 
 	return channel;
 }
+gchar *channel_get_name(Channel *channel)
+{
+	g_return_val_if_fail(channel != NULL, NULL);
+	g_return_val_if_fail(IS_CHANNEL(channel), NULL);
+
+	return channel->priv->name;
+}
 
 void
 channel_append_remark(Channel *channel, TextType type, gboolean is_self, const gchar *nick, const gchar *remark)
 {
 	ChannelBuffer *buffer;
+	ChannelPrivate *priv;
+
 	gboolean is_priv = FALSE;
 	gboolean exec_notification = TRUE;
 
 	g_return_if_fail(channel != NULL);
 	g_return_if_fail(IS_CHANNEL(channel));
 
+	priv = channel->priv;
 	buffer = channel->buffer;
 
-	if(!STRING_IS_CHANNEL(channel->name))
+	if(!STRING_IS_CHANNEL(priv->name))
 		is_priv = TRUE;
 	if(is_self)
 		exec_notification = FALSE;
@@ -188,7 +201,7 @@ channel_append_remark(Channel *channel, TextType type, gboolean is_self, const g
 	if(!account_manager_is_current_channel_buffer(account_manager_get(), buffer) ||
 	   !account_manager_get_whether_scrolling(account_manager_get())) {
 		account_manager_common_buffer_append_remark(account_manager_get(), type, 
-							    is_self, is_priv, channel->name, nick, remark);
+							    is_self, is_priv, priv->name, nick, remark);
 		channel_set_updated(channel, TRUE);
 	}
 }
@@ -565,7 +578,7 @@ channel_change_mode(Channel *channel, gboolean is_add, IRCModeFlag flag, gchar *
 		channel_mode_free(matched);
 	}
 
-	debug_puts("Channel mode changed: %s %c%c %s", channel->name, is_add ? '+' : '-', flag, argument ? argument : "");
+	debug_puts("Channel mode changed: %s %c%c %s", priv->name, is_add ? '+' : '-', flag, argument ? argument : "");
 
 	if(account_manager_is_current_channel(account_manager_get(), channel)) {
 		account_manager_update_current_info(account_manager_get());

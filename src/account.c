@@ -404,7 +404,7 @@ account_search_channel_by_name(Account *account, gchar *name)
 
 	for(cur = account->channel_list; cur != NULL; cur = cur->next) {
 		channel = CHANNEL(cur->data);
-		if(g_ascii_strcasecmp(channel->name, name) == 0)
+		if(g_ascii_strcasecmp(channel_get_name(channel), name) == 0)
 			return channel;
 	}
 	return NULL;
@@ -478,7 +478,7 @@ account_speak(Account *account, Channel *channel, const gchar *str)
 					     _("No channel is selected"));
 			return;
 		}
-		msg = irc_message_create(IRCCommandPrivmsg, channel->name, str, NULL);
+		msg = irc_message_create(IRCCommandPrivmsg, channel_get_name(channel), str, NULL);
 		irc_handle_push_message(priv->handle, msg);
 		channel_append_remark(channel, TEXT_TYPE_NORMAL, TRUE, irc_handle_get_current_nick(priv->handle), str);
 	}
@@ -695,7 +695,7 @@ void account_change_channel_user_mode(Account *account, Channel *channel,
 	
 	p = 0;
 	/* MODE #Channel +? user1 user2 user3 */
-	param_array[p] = channel->name;
+	param_array[p] = channel_get_name(channel);
 	p++;
 
 	if(is_give)

@@ -299,8 +299,8 @@ channel_tree_add_channel(ChannelTree *tree, Account *account, Channel *channel)
 		return;
 	}
 	gtk_tree_store_append(GTK_TREE_STORE(model), &iter, &parent);
-	gtk_tree_store_set(GTK_TREE_STORE (model), &iter,
-			   COLUMN_TEXT, channel->name,
+	gtk_tree_store_set(GTK_TREE_STORE(model), &iter,
+			   COLUMN_TEXT, channel_get_name(channel),
 			   COLUMN_ACCOUNT, NULL,
 			   COLUMN_CHANNEL, channel, -1);
 
