@@ -87,7 +87,6 @@ static void irc_handle_inspect_message(IRCHandle *handle, IRCMessage *msg);
 static void irc_handle_my_command_nick(IRCHandle *handle, IRCMessage *msg);
 static void irc_handle_my_command_join(IRCHandle *handle, IRCMessage *msg);
 static void irc_handle_my_command_part(IRCHandle *handle, IRCMessage *msg);
-static void irc_handle_my_command_kick(IRCHandle *handle, IRCMessage *msg);
 
 static void irc_handle_command_privmsg_notice(IRCHandle *handle, IRCMessage *msg);
 static void irc_handle_command_ping(IRCHandle *handle, IRCMessage *msg);
@@ -402,8 +401,11 @@ irc_handle_command_kick(IRCHandle *handle, IRCMessage *msg)
 {
 	Channel *channel;
 	gchar *name;
+	gchar *sender, *receiver;
+	const gchar *current_nick;
 
-	if(msg->nick == NULL) {
+	sender = msg->nick;
+	if(sender == NULL) {
 		g_warning(_("The message does not contain nick"));
 		return;
 	}
@@ -414,13 +416,27 @@ irc_handle_command_kick(IRCHandle *handle, IRCMessage *msg)
 		return;
 	}
 
-	channel = account_get_channel(handle->priv->account, name);
-	if(channel) {
-		channel_remove_user(channel, msg->nick);
+	receiver = irc_message_get_param(msg, 2);
+	if(!receiver) {
+		g_warning(_("The KICK message doesn't contain the user to bekicked."));
+		return;
 	}
+	
+	current_nick = account_get_current_nick(handle->priv->account);
+	channel = account_get_channel(handle->priv->account, name);
 
-	irc_handle_channel_append(handle, msg, FALSE, 1, TEXT_TYPE_INFO, _("*** %2 was kicked from %1 by %n(%3)"));
+	/* is the message for me? */
+	if(receiver && current_nick && strcmp(receiver,current_nick) == 0) { /* me */
+		irc_handle_account_console_append(handle, msg, TEXT_TYPE_INFO, "*** You were kicked from %1 by %n (%3)");
+		account_remove_channel(handle->priv->account, channel);
+	} else {
+		if(channel) {
+			channel_remove_user(channel, msg->nick);
+		}
+		irc_handle_channel_append(handle, msg, FALSE, 1, TEXT_TYPE_INFO, _("*** %2 was kicked from %1 by %n(%3)"));
+	}
 }
+
 static void
 irc_handle_command_nick(IRCHandle *handle, IRCMessage *msg)
 {
@@ -709,29 +725,6 @@ irc_handle_my_command_part(IRCHandle *handle, IRCMessage *msg)
 
 	account_remove_channel(handle->priv->account, channel);
 }
-static void
-irc_handle_my_command_kick(IRCHandle *handle, IRCMessage *msg)
-{
-	Channel *channel;
-	gchar *name;
-
-        g_return_if_fail(handle != NULL);
-        g_return_if_fail(IS_IRC_HANDLE(handle));
-	g_return_if_fail(msg != NULL);
-	
-	name = irc_message_get_param(msg, 1);
-	if(name == NULL) {
-		g_warning(_("Can't get channel name"));
-		return;
-	}
-	channel = account_get_channel(handle->priv->account, name);
-	if(channel == NULL)
-		return;
-
-	irc_handle_account_console_append(handle, msg, TEXT_TYPE_INFO, "*** You were kicked from %1 by %n (%3)");
-	account_remove_channel(handle->priv->account, channel);
-}
-
 static void
 irc_handle_my_command_nick(IRCHandle *handle, IRCMessage *msg)
 {
@@ -1129,9 +1122,6 @@ irc_handle_command(IRCHandle *handle, IRCMessage *msg)
 			return TRUE;
 		case IRC_COMMAND_PART:
 			irc_handle_my_command_part(handle, msg);
-			return TRUE;
-		case IRC_COMMAND_KICK:
-			irc_handle_my_command_kick(handle, msg);
 			return TRUE;
 		default:
 			break;
