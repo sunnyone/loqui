@@ -519,7 +519,7 @@ void account_manager_open_account_list_dialog(AccountManager *manager)
 	g_return_if_fail(manager != NULL);
         g_return_if_fail(IS_ACCOUNT_MANAGER(manager));	
 
-	account_list_dialog_open();
+	account_list_dialog_open(GTK_WINDOW(manager->priv->app));
 }
 void
 account_manager_add_account_with_dialog(AccountManager *manager)

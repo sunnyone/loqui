@@ -286,11 +286,12 @@ account_list_dialog_new (void)
 }
 
 void 
-account_list_dialog_open(void)
+account_list_dialog_open(GtkWindow *parent)
 {
 	GtkWidget *dialog;
 
 	dialog = account_list_dialog_new();
+	gtk_window_set_transient_for(GTK_WINDOW(dialog), parent);
 	gtk_dialog_run(GTK_DIALOG(dialog));
 	gtk_widget_destroy(dialog);
 }
