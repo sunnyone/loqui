@@ -44,6 +44,8 @@ struct _LoquiStatusbarPrivate
 	GtkWidget *label_account;
 
 	GtkWidget *image_away;
+	GtkWidget *label_away;
+	GtkWidget *button_away;
 	GtkWidget *dbox_away;
 
 	GtkWidget *button_nick;
@@ -161,24 +163,13 @@ loqui_statusbar_set_basic_away(LoquiStatusbar *statusbar, LoquiBasicAwayType bas
         g_return_if_fail(LOQUI_IS_STATUSBAR(statusbar));
         
         priv = statusbar->priv;	
-		
-	switch (basic_away) {
-	case LOQUI_BASIC_AWAY_TYPE_ONLINE:
-		stock_id = LOQUI_STOCK_ONLINE;
-		break;
-	case LOQUI_BASIC_AWAY_TYPE_AWAY:
-		stock_id = LOQUI_STOCK_AWAY;
-		break;
-	case LOQUI_BASIC_AWAY_TYPE_BUSY:
-		stock_id = LOQUI_STOCK_BUSY;
-		break;		
-	case LOQUI_BASIC_AWAY_TYPE_OFFLINE:
-		stock_id = LOQUI_STOCK_OFFLINE;
-		break;
-	default:
+	
+	stock_id = loqui_stock_get_id_from_basic_away_type(basic_away);
+	if (stock_id == NULL) {
 		g_warning("Invalid AwayState.");
 		return;
 	}
+
 	gtk_image_set_from_stock(GTK_IMAGE(priv->image_away), stock_id, LOQUI_ICON_SIZE_FONT);
 }
 static void
@@ -279,8 +270,8 @@ loqui_statusbar_set_away_menu(LoquiStatusbar *statusbar)
         g_return_if_fail(statusbar != NULL);
         g_return_if_fail(LOQUI_IS_STATUSBAR(statusbar));
         
-        priv = statusbar->priv;	
-     
+        priv = statusbar->priv;
+
 	for (cur = GTK_MENU_SHELL(priv->menu_preset)->children; cur != NULL; cur = cur->next) {
 		tmp_list = g_list_append(tmp_list, cur->data);
 	}
