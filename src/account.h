@@ -21,6 +21,7 @@
 #define __ACCOUNT_H__
 
 #include <glib.h>
+#include "gobject_utils.h"
 
 G_BEGIN_DECLS
 
@@ -96,23 +97,17 @@ void account_set(Account *account,
 		 const gchar *autojoin);
 void account_print(Account *account);
 
-void account_set_name(Account *account, const gchar *name);
-gchar *account_get_name(Account *account);
+#define ACCOUNT_ACCESSOR_STRING(attr_name) \
+  ATTR_ACCESSOR_STRING(Account, account, attr_name)
+#define ACCOUNT_ACCESSOR_STRING_PROTOTYPE(attr_name) \
+  ATTR_ACCESSOR_STRING_PROTOTYPE(Account, account, attr_name)
 
-void account_set_nick(Account *account, const gchar *nick);
-gchar *account_get_nick(Account *account);
-
-void account_set_username(Account *account, const gchar *username);
-gchar *account_get_username(Account *account);
-
-void account_set_realname(Account *account, const gchar *realname);
-gchar *account_get_realname(Account *account);
-
-void account_set_userinfo(Account *account, const gchar *userinfo);
-gchar *account_get_userinfo(Account *account);
-
-void account_set_autojoin(Account *account, const gchar *autojoin);
-gchar *account_get_autojoin(Account *account);
+ACCOUNT_ACCESSOR_STRING_PROTOTYPE(name);
+ACCOUNT_ACCESSOR_STRING_PROTOTYPE(nick);
+ACCOUNT_ACCESSOR_STRING_PROTOTYPE(username);
+ACCOUNT_ACCESSOR_STRING_PROTOTYPE(realname);
+ACCOUNT_ACCESSOR_STRING_PROTOTYPE(userinfo);
+ACCOUNT_ACCESSOR_STRING_PROTOTYPE(autojoin);
 
 void account_add_server(Account *account, const gchar *hostname,
 			gint port, const gchar *password,

@@ -132,7 +132,6 @@ account_list_dialog_construct_list(AccountListDialog *dialog)
 	GSList *account_list, *cur;
 	GtkTreeIter iter;
 	Account *account;
-	gchar *name;
 
         g_return_if_fail(dialog != NULL);
         g_return_if_fail(IS_ACCOUNT_LIST_DIALOG(dialog));
@@ -151,10 +150,9 @@ account_list_dialog_construct_list(AccountListDialog *dialog)
 	for(cur = account_list; cur != NULL; cur = cur->next) {
 		account = ACCOUNT(cur->data);
 
-		name = account_get_name(account);
 		gtk_list_store_append(priv->list_store, &iter);
 		gtk_list_store_set(priv->list_store, &iter,
-				   COLUMN_NAME, name, 
+				   COLUMN_NAME, account_get_name(account), 
 				   COLUMN_POINTER, account,
 				   -1);
 	}

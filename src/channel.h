@@ -22,6 +22,7 @@
 
 #include "channel_buffer.h"
 #include <glib.h>
+#include "gobject_utils.h"
 
 G_BEGIN_DECLS
 

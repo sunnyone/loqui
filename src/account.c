@@ -225,30 +225,12 @@ account_new (void)
 	return account;
 }
 
-#define DEFINE_STRING_ACCESSOR(n) \
-void account_set_##n(Account *account, const gchar *str) \
-{ \
- 	g_return_if_fail(account != NULL); \
-        g_return_if_fail(IS_ACCOUNT(account)); \
-\
-	G_FREE_UNLESS_NULL(account->n); \
-	if(str) \
-		account->n = g_strdup(str); \
-} \
-gchar *account_get_##n(Account *account) \
-{ \
-	g_return_val_if_fail(account != NULL, NULL); \
-        g_return_val_if_fail(IS_ACCOUNT(account), NULL); \
-\
-        return account->n; \
-}
-
-DEFINE_STRING_ACCESSOR(name);
-DEFINE_STRING_ACCESSOR(nick);
-DEFINE_STRING_ACCESSOR(username);
-DEFINE_STRING_ACCESSOR(realname);
-DEFINE_STRING_ACCESSOR(userinfo);
-DEFINE_STRING_ACCESSOR(autojoin);
+ACCOUNT_ACCESSOR_STRING(name);
+ACCOUNT_ACCESSOR_STRING(nick);
+ACCOUNT_ACCESSOR_STRING(username);
+ACCOUNT_ACCESSOR_STRING(realname);
+ACCOUNT_ACCESSOR_STRING(userinfo);
+ACCOUNT_ACCESSOR_STRING(autojoin);
 
 void
 account_set(Account *account,
