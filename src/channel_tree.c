@@ -345,8 +345,7 @@ channel_tree_remove_channels_of_account(ChannelTree *tree, Account *account)
 			/* TODO: channel_remove */
 			g_object_unref(channel);
 		}
-		gtk_tree_store_remove(GTK_TREE_STORE(model), &iter);
-	} while(iter.user_data); /* it should be tree_store_remove, but gtk 2.0's doesn't return boolean value */
+	} while(gtk_tree_store_remove(GTK_TREE_STORE(model), &iter));
 }
 void
 channel_tree_select_channel(ChannelTree *tree, Channel *channel)
