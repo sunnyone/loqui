@@ -132,16 +132,16 @@ remark_entry_class_init(RemarkEntryClass *klass)
 
         remark_entry_signals[ACTIVATE] = g_signal_new("activate",
 						      G_OBJECT_CLASS_TYPE(object_class),
-						      G_SIGNAL_RUN_FIRST,
-						      0,
+						      G_SIGNAL_RUN_LAST,
+						      G_STRUCT_OFFSET(RemarkEntryClass, activate),
 						      NULL, NULL,
 						      g_cclosure_marshal_VOID__VOID,
 						      G_TYPE_NONE, 0);
 
         remark_entry_signals[TOGGLE_COMMAND_MODE] = g_signal_new("toggle_command_mode",
 							         G_OBJECT_CLASS_TYPE(object_class),
-						      	         G_SIGNAL_RUN_FIRST,
-						                 0,
+						      	         G_SIGNAL_RUN_LAST,
+						                 G_STRUCT_OFFSET(RemarkEntryClass, toggle_command_mode), 
 						                 NULL, NULL,
 						                 g_cclosure_marshal_VOID__VOID,
 						                 G_TYPE_NONE, 0);

@@ -48,6 +48,8 @@ struct _RemarkEntryClass
 {
         GtkHBoxClass parent_class;
 
+	void (* activate)(RemarkEntry *entry);
+	void (* toggle_command_mode)(RemarkEntry *entry);
 	void (* call_history)(RemarkEntry *entry,
 			      gint count);
 	void (* scroll_channel_textview)(RemarkEntry *entry,
