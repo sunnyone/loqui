@@ -10,95 +10,95 @@ msgstr ""
 "Last-Translator: Yoichi Imai <yoichi@silver-forest.com>\n"
 "Language-Team: Japanese <ja@li.org>\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=euc-jp\n"
+"Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
 #: src/account.c:337
 #, c-format
 msgid "Account '%s' has already connected."
-msgstr "¥¢¥«¥¦¥ó¥È '%s'¤Ï¤¹¤Ç¤ËÀÜÂ³¤µ¤ì¤Æ¤¤¤Ş¤¹"
+msgstr "ã‚¢ã‚«ã‚¦ãƒ³ãƒˆ '%s'ã¯ã™ã§ã«æ¥ç¶šã•ã‚Œã¦ã„ã¾ã™"
 
 #: src/account.c:459
 msgid "Not connected with this account"
-msgstr "¤³¤Î¥¢¥«¥¦¥ó¥È¤Ç¤ÏÀÜÂ³¤µ¤ì¤Æ¤¤¤Ş¤»¤ó"
+msgstr "ã“ã®ã‚¢ã‚«ã‚¦ãƒ³ãƒˆã§ã¯æ¥ç¶šã•ã‚Œã¦ã„ã¾ã›ã‚“"
 
 #: src/account.c:476
 msgid "No channel is selected"
-msgstr "¥Á¥ã¥ó¥Í¥ë¤¬ÁªÂò¤µ¤ì¤Æ¤¤¤Ş¤»¤ó"
+msgstr "ãƒãƒ£ãƒ³ãƒãƒ«ãŒé¸æŠã•ã‚Œã¦ã„ã¾ã›ã‚“"
 
 #: src/account_dialog.c:358
 msgid "Account:"
-msgstr "¥¢¥«¥¦¥ó¥È:"
+msgstr "ã‚¢ã‚«ã‚¦ãƒ³ãƒˆ:"
 
 #: src/account_dialog.c:363
 msgid "Nickname:"
-msgstr "¥Ë¥Ã¥¯¥Í¡¼¥à:"
+msgstr "ãƒ‹ãƒƒã‚¯ãƒãƒ¼ãƒ :"
 
 #: src/account_dialog.c:364
 msgid "Username:"
-msgstr "¥æ¡¼¥¶Ì¾:"
+msgstr "ãƒ¦ãƒ¼ã‚¶å:"
 
 #: src/account_dialog.c:365
 msgid "Realname:"
-msgstr "ËÜÌ¾:"
+msgstr "æœ¬å:"
 
 #: src/account_dialog.c:366
 msgid "User information:"
-msgstr "¥æ¡¼¥¶¾ğÊó:"
+msgstr "ãƒ¦ãƒ¼ã‚¶æƒ…å ±:"
 
 #: src/account_dialog.c:367
 msgid "Auto join channels:"
-msgstr "¼«Æ°join¥Á¥ã¥ó¥Í¥ë:"
+msgstr "è‡ªå‹•joinãƒãƒ£ãƒ³ãƒãƒ«:"
 
 #: src/account_dialog.c:373
 msgid "Servers (Cells are editable.)"
-msgstr "¥µ¡¼¥Ğ(¥»¥ë¤ÏÊÔ½¸²ÄÇ½¤Ç¤¹)"
+msgstr "ã‚µãƒ¼ãƒ(ã‚»ãƒ«ã¯ç·¨é›†å¯èƒ½ã§ã™)"
 
 #: src/account_list_dialog.c:238
 msgid "Account List"
-msgstr "¥¢¥«¥¦¥ó¥È¥ê¥¹¥È"
+msgstr "ã‚¢ã‚«ã‚¦ãƒ³ãƒˆãƒªã‚¹ãƒˆ"
 
 #: src/account_list_dialog.c:256 src/channel_tree.c:183
 msgid "Name"
-msgstr "Ì¾Á°"
+msgstr "åå‰"
 
 #: src/account_manager.c:579
 msgid ""
 "This account's configuration and connection will be removed.\n"
 "Do you really want to remove this account?"
 msgstr ""
-"¤³¤Î¥¢¥«¥¦¥ó¥È¤ÎÀßÄê¤ÈÀÜÂ³¤Ï¼è¤ê½ü¤«¤ì¤Ş¤¹¡£\n"
-"ËÜÅö¤Ë¥¢¥«¥¦¥ó¥È¤ò¾Ã¤·¤Ş¤¹¤«¡©"
+"ã“ã®ã‚¢ã‚«ã‚¦ãƒ³ãƒˆã®è¨­å®šã¨æ¥ç¶šã¯å–ã‚Šé™¤ã‹ã‚Œã¾ã™ã€‚\n"
+"æœ¬å½“ã«ã‚¢ã‚«ã‚¦ãƒ³ãƒˆã‚’æ¶ˆã—ã¾ã™ã‹ï¼Ÿ"
 
 #: src/channel_tree.c:294
 msgid "Failed to add channel"
-msgstr "¥Á¥ã¥ó¥Í¥ë¤òÄÉ²Ã¤¹¤ë¤Î¤Ë¼ºÇÔ¤·¤Ş¤·¤¿"
+msgstr "ãƒãƒ£ãƒ³ãƒãƒ«ã‚’è¿½åŠ ã™ã‚‹ã®ã«å¤±æ•—ã—ã¾ã—ãŸ"
 
 #: src/codeconv.c:52
 msgid "the setting of codeconv was invalid; now 'Auto Detection' is selected."
-msgstr "codeconv¤ÎÀßÄê¤¬ÉÔÀµ¤Ç¤¹¡£¼«Æ°ÁªÂò¤¬ÁªÂò¤µ¤ì¤Ş¤¹¡£"
+msgstr "codeconvã®è¨­å®šãŒä¸æ­£ã§ã™ã€‚è‡ªå‹•é¸æŠãŒé¸æŠã•ã‚Œã¾ã™ã€‚"
 
 #: src/codeconv.c:95
 #, c-format
 msgid "Code convartion error: %s"
-msgstr "¥³¡¼¥ÉÊÑ´¹¥¨¥é¡¼: %s"
+msgstr "ã‚³ãƒ¼ãƒ‰å¤‰æ›ã‚¨ãƒ©ãƒ¼: %s"
 
 #: src/codeconv.c:157
 msgid "Unknown error occurs in code convertion."
-msgstr ""
+msgstr "ã‚³ãƒ¼ãƒ‰å¤‰æ›ã§ä¸æ˜ãªã‚¨ãƒ©ãƒ¼ãŒç™ºç”Ÿã™ã‚‹"
 
 #: src/connection.c:254
 msgid "Connection error"
-msgstr "ÀÜÂ³¥¨¥é¡¼"
+msgstr "æ¥ç¶šã‚¨ãƒ©ãƒ¼"
 
 #: src/irc_handle.c:176
 msgid "This PRIVMSG/NOTICE message doesn't contain a remark."
-msgstr "¤³¤ÎPRIVMSG/NOTICE¥á¥Ã¥»¡¼¥¸¤Ë¤ÏÈ¯¸À¤¬´Ş¤Ş¤ì¤Æ¤¤¤Ş¤»¤ó¡£"
+msgstr "ã“ã®PRIVMSG/NOTICEãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ã«ã¯ç™ºè¨€ãŒå«ã¾ã‚Œã¦ã„ã¾ã›ã‚“ã€‚"
 
 #: src/irc_handle.c:233 src/irc_handle.c:260 src/irc_handle.c:286
 #: src/irc_handle.c:312
 msgid "The message does not contain nick"
-msgstr "¥á¥Ã¥»¡¼¥¸¤Ënick¤¬´Ş¤Ş¤ì¤Æ¤¤¤Ş¤»¤ó"
+msgstr "ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ã«nickãŒå«ã¾ã‚Œã¦ã„ã¾ã›ã‚“"
 
 #: src/irc_handle.c:249
 msgid "*** %n has quit IRC(%t)"
@@ -106,7 +106,7 @@ msgstr ""
 
 #: src/irc_handle.c:266 src/irc_handle.c:292
 msgid "The message does not contain the channal name"
-msgstr "¥á¥Ã¥»¡¼¥¸¤Ë¥Á¥ã¥ó¥Í¥ëÌ¾¤¬´Ş¤Ş¤ì¤Æ¤¤¤Ş¤»¤ó¡£"
+msgstr "ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ã«ãƒãƒ£ãƒ³ãƒãƒ«åãŒå«ã¾ã‚Œã¦ã„ã¾ã›ã‚“ã€‚"
 
 #: src/irc_handle.c:277
 msgid "*** %n has just part %1(%t)"
@@ -118,7 +118,7 @@ msgstr ""
 
 #: src/irc_handle.c:318
 msgid "The NICK message does not contain new nick"
-msgstr "NICK¥á¥Ã¥»¡¼¥¸¤Ë¿·¤·¤¤nick¤¬´Ş¤Ş¤ì¤Æ¤¤¤Ş¤»¤ó"
+msgstr "NICKãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ã«æ–°ã—ã„nickãŒå«ã¾ã‚Œã¦ã„ã¾ã›ã‚“"
 
 #: src/irc_handle.c:329
 msgid "*** %n is known as %1"
@@ -126,24 +126,24 @@ msgstr ""
 
 #: src/irc_handle.c:350
 msgid "Who can change mode?"
-msgstr "Ã¯¤¬¥â¡¼¥É¤òÊÑ¤¨¤é¤ì¤ë¤Î¤Ç¤¹¡©"
+msgstr "èª°ãŒãƒ¢ãƒ¼ãƒ‰ã‚’å¤‰ãˆã‚‰ã‚Œã‚‹ã®ã§ã™ï¼Ÿ"
 
 #: src/irc_handle.c:354
 #, c-format
 msgid "Nick should not contain '%%'"
-msgstr "Nick¤Ï'%%'¤ò´Ş¤à¤Ù¤­¤Ç¤Ï¤¢¤ê¤Ş¤»¤ó"
+msgstr "Nickã¯'%%'ã‚’å«ã‚€ã¹ãã§ã¯ã‚ã‚Šã¾ã›ã‚“"
 
 #: src/irc_handle.c:360
 msgid "The target is not found in MODE command"
-msgstr "MODE¥³¥Ş¥ó¥É¤ËÂĞ¾İ¤¬È¯¸«¤Ç¤­¤Ş¤»¤ó"
+msgstr "MODEã‚³ãƒãƒ³ãƒ‰ã«å¯¾è±¡ãŒç™ºè¦‹ã§ãã¾ã›ã‚“"
 
 #: src/irc_handle.c:366
 msgid "Flags are not found in MODE command"
-msgstr "MODE¥³¥Ş¥ó¥É¤Ë¥Õ¥é¥°¤¬¸«¤Ä¤«¤ê¤Ş¤»¤ó"
+msgstr "MODEã‚³ãƒãƒ³ãƒ‰ã«ãƒ•ãƒ©ã‚°ãŒè¦‹ã¤ã‹ã‚Šã¾ã›ã‚“"
 
 #: src/irc_handle.c:380
 msgid "Flags don't have + or -"
-msgstr "¥Õ¥é¥°¤Ë+¤«-¤Ë¤¢¤ê¤Ş¤»¤ó"
+msgstr "ãƒ•ãƒ©ã‚°ã«+ã‹-ã«ã‚ã‚Šã¾ã›ã‚“"
 
 #: src/irc_handle.c:390
 msgid "Why can you know the change of his mode?"
@@ -245,31 +245,31 @@ msgstr ""
 #: src/irc_handle.c:976
 #, c-format
 msgid "Connecting to %s:%d"
-msgstr "%s:%d¤ËÀÜÂ³¤·¤Æ¤¤¤Ş¤¹"
+msgstr "%s:%dã«æ¥ç¶šã—ã¦ã„ã¾ã™"
 
 #: src/irc_handle.c:984
 msgid "Connected. Sending Initial command..."
-msgstr "ÀÜÂ³¤·¤Ş¤·¤¿¡£½é´ü¥³¥Ş¥ó¥É¤òÁ÷¿®¤·¤Æ¤¤¤Ş¤¹..."
+msgstr "æ¥ç¶šã—ã¾ã—ãŸã€‚åˆæœŸã‚³ãƒãƒ³ãƒ‰ã‚’é€ä¿¡ã—ã¦ã„ã¾ã™..."
 
 #: src/irc_handle.c:1021
 msgid "Done."
-msgstr "´°Î»¡£"
+msgstr "å®Œäº†ã€‚"
 
 #: src/irc_handle.c:1040
 msgid "Connection terminated."
-msgstr "ÀÜÂ³¤ÏÀÚÃÇ¤µ¤ì¤Ş¤·¤¿¡£"
+msgstr "æ¥ç¶šã¯åˆ‡æ–­ã•ã‚Œã¾ã—ãŸã€‚"
 
 #: src/irc_handle.c:1139
 msgid "Connection thread is not created."
-msgstr "ÀÜÂ³¥¹¥ì¥Ã¥É¤¬ºî¤é¤ì¤Æ¤¤¤Ş¤»¤ó"
+msgstr "æ¥ç¶šã‚¹ãƒ¬ãƒƒãƒ‰ãŒä½œã‚‰ã‚Œã¦ã„ã¾ã›ã‚“"
 
 #: src/irc_handle.c:1143
 msgid "Thread sending message is not created."
-msgstr "¥á¥Ã¥»¡¼¥¸¤òÁ÷¤ë¥¹¥ì¥Ã¥É¤¬ºî¤é¤ì¤Æ¤¤¤Ş¤»¤ó"
+msgstr "ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ã‚’é€ã‚‹ã‚¹ãƒ¬ãƒƒãƒ‰ãŒä½œã‚‰ã‚Œã¦ã„ã¾ã›ã‚“"
 
 #: src/irc_handle.c:1147
 msgid "Message queue is not created."
-msgstr "¥á¥Ã¥»¡¼¥¸¥­¥å¡¼¤¬ºî¤é¤ì¤Æ¤¤¤Ş¤»¤ó"
+msgstr "ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ã‚­ãƒ¥ãƒ¼ãŒä½œã‚‰ã‚Œã¦ã„ã¾ã›ã‚“"
 
 #: src/irc_message.c:404
 msgid "Invalid parameter number"
@@ -277,35 +277,35 @@ msgstr ""
 
 #: src/loqui_menu.c:51
 msgid "/_File"
-msgstr "/¥Õ¥¡¥¤¥ë(_F)"
+msgstr "/ãƒ•ã‚¡ã‚¤ãƒ«(_F)"
 
 #: src/loqui_menu.c:52
 msgid "/File/_Connect"
-msgstr "/File/ÀÜÂ³(_C)"
+msgstr "/File/æ¥ç¶š(_C)"
 
 #: src/loqui_menu.c:53
 msgid "/File/_Quit"
-msgstr "/File/½ªÎ»(_Q)"
+msgstr "/File/çµ‚äº†(_Q)"
 
 #: src/loqui_menu.c:54
 msgid "/_Edit"
-msgstr "/ÊÔ½¸(_E)"
+msgstr "/ç·¨é›†(_E)"
 
 #: src/loqui_menu.c:55
 msgid "/Edit/Cut"
-msgstr "/Edit/ÀÚ¤ê¼è¤ê"
+msgstr "/Edit/åˆ‡ã‚Šå–ã‚Š"
 
 #: src/loqui_menu.c:56
 msgid "/Edit/_Copy"
-msgstr "/Edit/¥³¥Ô¡¼(_C)"
+msgstr "/Edit/ã‚³ãƒ”ãƒ¼(_C)"
 
 #: src/loqui_menu.c:57
 msgid "/Edit/_Paste"
-msgstr "/Edit/¥Ú¡¼¥¹¥È(_P)"
+msgstr "/Edit/ãƒšãƒ¼ã‚¹ãƒˆ(_P)"
 
 #: src/loqui_menu.c:58
 msgid "/Edit/Paste with linefeeds cut"
-msgstr "/Edit/²ş¹Ô¤òºï½ü¤·¤Æ¥Ú¡¼¥¹¥È"
+msgstr "/Edit/æ”¹è¡Œã‚’å‰Šé™¤ã—ã¦ãƒšãƒ¼ã‚¹ãƒˆ"
 
 #: src/loqui_menu.c:59
 msgid "/Edit/_Find"
@@ -325,43 +325,43 @@ msgstr ""
 
 #: src/loqui_menu.c:64
 msgid "/_Server"
-msgstr "/¥µ¡¼¥Ğ(_S)"
+msgstr "/ã‚µãƒ¼ãƒ(_S)"
 
 #: src/loqui_menu.c:65
 msgid "/_Channel"
-msgstr "/¥Á¥ã¥ó¥Í¥ë(_C)"
+msgstr "/ãƒãƒ£ãƒ³ãƒãƒ«(_C)"
 
 #: src/loqui_menu.c:66
 msgid "/_User"
-msgstr "/¥æ¡¼¥¶(_U)"
+msgstr "/ãƒ¦ãƒ¼ã‚¶(_U)"
 
 #: src/loqui_menu.c:67
 msgid "/_View"
-msgstr "/É½¼¨(_V)"
+msgstr "/è¡¨ç¤º(_V)"
 
 #: src/loqui_menu.c:68
 msgid "/_Settings"
-msgstr "/ÀßÄê(_S)"
+msgstr "/è¨­å®š(_S)"
 
 #: src/loqui_menu.c:69
 msgid "/Settings/Account Settings..."
-msgstr "/Settings/¥¢¥«¥¦¥ó¥ÈÀßÄê..."
+msgstr "/Settings/ã‚¢ã‚«ã‚¦ãƒ³ãƒˆè¨­å®š..."
 
 #: src/loqui_menu.c:70
 msgid "/_Help"
-msgstr "/¥Ø¥ë¥×(_H)"
+msgstr "/ãƒ˜ãƒ«ãƒ—(_H)"
 
 #: src/loqui_menu.c:71
 msgid "/Help/_About"
-msgstr "/Help/¤³¤Î¥×¥í¥°¥é¥à¤Ë¤Ä¤¤¤Æ(_A)"
+msgstr "/Help/ã“ã®ãƒ—ãƒ­ã‚°ãƒ©ãƒ ã«ã¤ã„ã¦(_A)"
 
 #: src/loqui_toolbar.c:158
 msgid "Connect"
-msgstr "ÀÜÂ³"
+msgstr "æ¥ç¶š"
 
 #: src/loqui_toolbar.c:159
 msgid "Connect to IRC server"
-msgstr "IRC¥µ¡¼¥Ğ¤ËÀÜÂ³"
+msgstr "IRCã‚µãƒ¼ãƒã«æ¥ç¶š"
 
 #: src/loqui_toolbar.c:167
 msgid "Away"
@@ -369,15 +369,15 @@ msgstr "Away"
 
 #: src/loqui_toolbar.c:168
 msgid "Toggle home/away"
-msgstr "Home/Away¤òÀÚ¤êÂØ¤¨"
+msgstr "Home/Awayã‚’åˆ‡ã‚Šæ›¿ãˆ"
 
 #: src/loqui_toolbar.c:179
 msgid "Scroll"
-msgstr "¥¹¥¯¥í¡¼¥ë"
+msgstr "ã‚¹ã‚¯ãƒ­ãƒ¼ãƒ«"
 
 #: src/loqui_toolbar.c:180
 msgid "Toggle whether scrolling"
-msgstr "¥¹¥¯¥í¡¼¥ë¤¹¤ë¤«¤É¤¦¤«¤òÀÚ¤êÂØ¤¨"
+msgstr "ã‚¹ã‚¯ãƒ­ãƒ¼ãƒ«ã™ã‚‹ã‹ã©ã†ã‹ã‚’åˆ‡ã‚Šæ›¿ãˆ"
 
 #: src/main.c:50
 #, c-format
@@ -427,13 +427,13 @@ msgstr ""
 #: src/prefs_account.c:244
 #, fuzzy, c-format
 msgid "Accountrc parse error: %s"
-msgstr "Accountrc¥Ñ¡¼¥¹¥¨¥é¡¼: %s"
+msgstr "Accountrcãƒ‘ãƒ¼ã‚¹ã‚¨ãƒ©ãƒ¼: %s"
 
 #: src/prefs_account.c:264 src/prefs_account.c:302 src/prefs_general.c:170
 #: src/prefs_general.c:200
 #, c-format
 msgid "Can't open %s: %s"
-msgstr "%s¤¬³«¤±¤Ş¤»¤ó¤Ç¤·¤¿: %s"
+msgstr "%sãŒé–‹ã‘ã¾ã›ã‚“ã§ã—ãŸ: %s"
 
 #: src/prefs_account.c:274 src/prefs_general.c:180
 #, c-format
