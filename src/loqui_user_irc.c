@@ -167,7 +167,6 @@ loqui_user_irc_class_init(LoquiUserIRCClass *klass)
         object_class->dispose = loqui_user_irc_dispose;
         object_class->get_property = loqui_user_irc_get_property;
         object_class->set_property = loqui_user_irc_set_property;
-
 	g_object_class_install_property(object_class,
 					PROP_SERVER_INFO,
 					g_param_spec_string("server_info",
@@ -178,7 +177,7 @@ loqui_user_irc_class_init(LoquiUserIRCClass *klass)
 					PROP_JOINED_CHANNELS_STRING,
 					g_param_spec_string("joined_channels_string",
 							    _("Joined channels string"),
-							    _("String of channels the user joined (from whois)"),
+							    _("Joined channels string"),
 							    NULL, G_PARAM_READWRITE));
 	g_object_class_install_property(object_class,
 					PROP_HOP_COUNT,
@@ -187,6 +186,13 @@ loqui_user_irc_class_init(LoquiUserIRCClass *klass)
 							  _("Hop count"),
 							  0, G_MAXUINT,
 							  0, G_PARAM_READWRITE));
+	g_object_class_install_property(object_class,
+					PROP_IS_IRC_OPERATOR,
+					g_param_spec_boolean("is_irc_operator",
+							     _("IsIRCOperator"),
+							     _("Is IRC Operator"),
+							     FALSE, G_PARAM_READWRITE));
+	
 }
 static void 
 loqui_user_irc_init(LoquiUserIRC *user)
