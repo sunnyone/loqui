@@ -143,7 +143,7 @@ channel_append_remark(Channel *channel, TextType type, gboolean is_self, const g
 	buffer = channel->buffer;
 
 	if(!STRING_IS_CHANNEL(channel->name))
-		is_priv = FALSE;
+		is_priv = TRUE;
 	if(is_self)
 		exec_noticer = FALSE;
 
