@@ -592,8 +592,6 @@ irc_handle_reply_names(IRCHandle *handle, IRCMessage *msg)
 	if(channel == NULL)
 		return;
 
-	irc_message_print(msg);
-
 	if(channel->end_names == TRUE) {
 		gdk_threads_enter();
 		channel_clear_user(channel);
