@@ -146,6 +146,7 @@ account_manager_new (void)
 	priv = account_manager->priv;
 	priv->app = LOQUI_APP(loqui_app_new());
 	priv->common_buffer = channel_buffer_new();
+	channel_buffer_set_whether_common_buffer(priv->common_buffer, TRUE);
 	loqui_app_set_common_buffer(priv->app, priv->common_buffer);
 
 	return account_manager;

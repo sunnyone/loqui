@@ -59,6 +59,8 @@ ChannelBuffer* channel_buffer_new (void);
 
 void channel_buffer_append_message_text(ChannelBuffer *buffer, MessageText *msgtext, 
 					gboolean verbose, gboolean exec_notification);
+void channel_buffer_set_max_line_number(ChannelBuffer *buffer, guint max_line_number);
+void channel_buffer_set_whether_common_buffer(ChannelBuffer *buffer, gboolean is_common_buffer);
 
 G_END_DECLS
 

@@ -36,6 +36,8 @@ struct _ChannelBufferPrivate
 {
 	GtkTextTag *highlight_area_tag;
 	GtkTextTag *notification_area_tag;
+	
+	gboolean is_common_buffer;
 };
 
 static GtkTextBufferClass *parent_class = NULL;
@@ -72,6 +74,7 @@ static void channel_buffer_apply_tag_cb(GtkTextBuffer *buffer,
 					GtkTextIter *start,
 					GtkTextIter *end,
 					gpointer user_data);
+static gboolean channel_buffer_delete_old_lines(ChannelBuffer *buffer);
 
 #define TIME_LEN 11
 
@@ -127,6 +130,8 @@ channel_buffer_init (ChannelBuffer *channel_buffer)
 	priv = g_new0(ChannelBufferPrivate, 1);
 
 	channel_buffer->priv = priv;
+
+	priv->is_common_buffer = FALSE;
 }
 static void 
 channel_buffer_finalize (GObject *object)
@@ -263,17 +268,62 @@ channel_buffer_tag_uri(GtkTextBuffer *buffer,
 	}
 }
 
-static void channel_buffer_text_inserted_cb(GtkTextBuffer *buffer,
-					    GtkTextIter *pos,
-					    const gchar *text,
-					    gint length,
-					    gpointer data)
+static gboolean
+channel_buffer_delete_old_lines(ChannelBuffer *buffer)
 {
-	GtkTextIter tmp_iter;
-	g_return_if_fail(g_utf8_validate(text, -1, NULL));
+	ChannelBufferPrivate *priv;
+	GtkTextIter cut_iter_start, cut_iter_end;
+	gint line_num;
+	gint max_line_number;
+		
+	g_return_val_if_fail(buffer != NULL, FALSE);
+	g_return_val_if_fail(IS_CHANNEL_BUFFER(buffer), FALSE);
 
+	priv = buffer->priv;
+	
+	max_line_number = priv->is_common_buffer ?
+			  prefs_general.common_buffer_max_line_number :
+			  prefs_general.channel_buffer_max_line_number;
+			  
+	line_num = gtk_text_buffer_get_line_count(GTK_TEXT_BUFFER(buffer)) - 1; // except last return code
+	if (0 < max_line_number && line_num > max_line_number) {
+		gtk_text_buffer_get_start_iter(GTK_TEXT_BUFFER(buffer), &cut_iter_start);
+		cut_iter_end = cut_iter_start;
+		
+		if(gtk_text_iter_forward_lines(&cut_iter_end, line_num - max_line_number))
+			gtk_text_buffer_delete(GTK_TEXT_BUFFER(buffer), &cut_iter_start, &cut_iter_end);
+		else {
+			g_warning("Can't delete buffer.");
+		}
+	}
+	
+	return FALSE;
+}
+
+static void
+channel_buffer_text_inserted_cb(GtkTextBuffer *buffer,
+  			        GtkTextIter *pos,
+				const gchar *text,
+				gint length,
+				gpointer data)
+{
+	ChannelBuffer *channel_buffer;
+	ChannelBufferPrivate *priv;	
+	GtkTextIter tmp_iter;
+	
+	g_return_if_fail(buffer != NULL);
+	g_return_if_fail(IS_CHANNEL_BUFFER(buffer));
+	g_return_if_fail(g_utf8_validate(text, -1, NULL));
+	
+	channel_buffer = CHANNEL_BUFFER(buffer);
+	priv = channel_buffer->priv;
+	
 	tmp_iter = *pos;
 	channel_buffer_tag_uri(buffer, &tmp_iter, text);
+	
+	/* FIXME: In reality, this should not be done in this function,
+	 *        but I can't find any reasonable ways... */
+	g_idle_add_full(G_PRIORITY_LOW, (GSourceFunc) channel_buffer_delete_old_lines, buffer, NULL);
 }
 ChannelBuffer*
 channel_buffer_new(void)
@@ -434,4 +484,17 @@ channel_buffer_append_message_text(ChannelBuffer *buffer, MessageText *msgtext,
 	g_free(buf);
 
 	g_signal_emit(buffer, channel_buffer_signals[APPEND], 0, msgtext);
+}
+/* FIXME: this should do with max_line_number */
+void
+channel_buffer_set_whether_common_buffer(ChannelBuffer *buffer, gboolean is_common_buffer)
+{
+	ChannelBufferPrivate *priv;
+	
+        g_return_if_fail(buffer != NULL);
+        g_return_if_fail(IS_CHANNEL_BUFFER(buffer));
+
+	priv = buffer->priv;
+	
+	priv->is_common_buffer = TRUE;
 }
