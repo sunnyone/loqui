@@ -20,6 +20,8 @@
 #ifndef __LOQUI_GTK_H__
 #define __LOQUI_GTK_H__
 
+#include "loqui_protocol_manager.h"
+
 #define FRESH_COLOR "red"
 #define FRESH_WEAK_COLOR "blue"
 #define NONFRESH_COLOR "black"
@@ -29,6 +31,6 @@
 #define SHORTCUT_CHANNEL_ENTRY_ACCEL_MAP_PREFIX "<ChannelEntries>/ChannelEntry "
 
 void loqui_gtk_init(int *argc, char ***argv);
-void loqui_gtk_start_main_loop(void);
+void loqui_gtk_start_main_loop(LoquiProtocolManager *pmanag);
 
 #endif /* __LOQUI_GTK_H__ */

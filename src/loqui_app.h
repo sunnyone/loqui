@@ -43,6 +43,7 @@ typedef struct _LoquiAppPrivate     LoquiAppPrivate;
 #include "account_manager.h"
 #include "prefs_general.h"
 #include "loqui_tray_icon.h"
+#include "loqui_protocol_manager.h"
 
 struct _LoquiApp
 {
@@ -51,6 +52,7 @@ struct _LoquiApp
         LoquiAppPrivate *priv;
 
 	AccountManager *account_manager;
+	LoquiProtocolManager *protocol_manager;
 
 	LoquiAccount *current_account;
 	LoquiChannel *current_channel;
@@ -91,7 +93,7 @@ struct _LoquiAppClass
 
 GType        loqui_app_get_type             (void) G_GNUC_CONST;
 
-GtkWidget* loqui_app_new(AccountManager *manager);
+GtkWidget* loqui_app_new(LoquiProtocolManager *protocol_manager, AccountManager *manager);
 
 gboolean loqui_app_has_toplevel_focus(LoquiApp *app);
 gboolean loqui_app_is_obscured(LoquiApp *app);
@@ -113,6 +115,7 @@ void loqui_app_get_current_widget_editing_status(LoquiApp *app, gboolean *cutabl
 						 gboolean *clearable, gboolean *findable);
 
 AccountManager *loqui_app_get_account_manager(LoquiApp *app);
+LoquiProtocolManager *loqui_app_get_protocol_manager(LoquiApp *app);
 
 LoquiChannelEntry *loqui_app_get_current_channel_entry(LoquiApp *app);
 void loqui_app_set_current_channel_entry(LoquiApp *app, LoquiChannelEntry *chent);

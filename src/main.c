@@ -28,6 +28,9 @@
 
 #include "loqui_gtk.h"
 
+#include "loqui_protocol_manager.h"
+#include "loqui_protocol_irc.h"
+
 #include <string.h>
 #include <stdlib.h>
 
@@ -67,6 +70,7 @@ int
 main(int argc, char *argv[])
 {
 	int i;
+	LoquiProtocolManager *pmanag;
 
         bindtextdomain(GETTEXT_PACKAGE, PACKAGE_LOCALE_DIR);
 #ifdef HAVE_BIND_TEXTDOMAIN_CODESET
@@ -111,9 +115,14 @@ main(int argc, char *argv[])
 			exit(0);
 		}
 	}
+
+	pmanag = loqui_protocol_manager_new();
+	
 	prefs_general_load();
-	loqui_gtk_start_main_loop();
+	loqui_gtk_start_main_loop(pmanag);
 	prefs_general_save();
+
+	g_object_unref(pmanag);
 
 	return 0;
 }
