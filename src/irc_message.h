@@ -82,7 +82,7 @@ void irc_message_print(IRCMessage *msg);
 IRCMessage* irc_message_create(gchar *command, gchar *param, ...);
 IRCMessage* irc_message_createv(gchar *command, gchar *param_array[]);
 gchar* irc_message_to_string(IRCMessage *msg);
-gchar* irc_message_format(IRCMessage *msg, gchar *format);
+gchar* irc_message_format(IRCMessage *msg, const gchar *format);
 
 G_END_DECLS
 

@@ -355,7 +355,49 @@ irc_message_get_param(IRCMessage *msg, guint i)
 	
 	return msg->parameter[i];
 }
+
 gchar *
 irc_message_format(IRCMessage *msg, const gchar *format)
 {
+	GString *string;
+	const gchar *cur;
+	gchar *tmp, *buf;
+	gsize read;
+	guint64 i;
+
+        g_return_val_if_fail(msg != NULL, NULL);
+        g_return_val_if_fail(IS_IRC_MESSAGE(msg), NULL);
+	g_return_val_if_fail(format != NULL, NULL);
+
+	string = g_string_new_len(NULL, strlen(format));
+	cur = format;
+	while((tmp = strchr(cur, '%')) != NULL) {
+		string = g_string_append_len(string, cur, tmp - cur);
+		cur = tmp;
+		cur++;
+
+		if(*cur == '\0')
+			break;
+
+		if((i = g_ascii_strtoull(cur, &tmp, 10)) != 0) {
+			buf = irc_message_get_param(msg, i);
+			string = g_string_append(string, buf);
+			cur = tmp;
+			continue;
+		}
+
+		switch(*cur) {
+		case '%': /* %% */
+			string = g_string_append_c(string, '%');
+		default:
+			break;
+		}
+		cur++;
+	}
+	string = g_string_append(string, cur);
+
+	tmp = string->str;
+	g_string_free(string, FALSE);
+
+	return tmp;
 }
