@@ -34,7 +34,13 @@ enum {
 struct _LoquiTrayIconPrivate
 {
 	GtkMenu *menu;
+
+	gint blink_count_remains;
+	gboolean blinking;
 };
+
+#define LOQUI_TRAY_ICON_BLINK_COUNT 20
+#define LOQUI_TRAY_ICON_BLINK_INTERVAL 750
 
 static EggTrayIconClass *parent_class = NULL;
 
@@ -49,6 +55,11 @@ static void loqui_tray_icon_get_property(GObject *object, guint param_id, GValue
 static void loqui_tray_icon_set_property(GObject *object, guint param_id, const GValue *value, GParamSpec *pspec);
 
 static void loqui_tray_icon_destroy(GtkObject *object);
+
+static void loqui_tray_icon_set_icon(LoquiTrayIcon *tray_icon, gboolean is_hilighted);
+static gboolean loqui_tray_icon_blink_for_idle_cb(LoquiTrayIcon *tray_icon);
+static gboolean loqui_tray_icon_blink_cb(LoquiTrayIcon *tray_icon);
+
 GType
 loqui_tray_icon_get_type(void)
 {
@@ -151,6 +162,7 @@ loqui_tray_icon_init(LoquiTrayIcon *tray_icon)
 	priv = g_new0(LoquiTrayIconPrivate, 1);
 
 	tray_icon->priv = priv;
+	priv->blinking = FALSE;
 }
 static void 
 loqui_tray_icon_destroy(GtkObject *object)
@@ -196,6 +208,41 @@ loqui_tray_icon_button_press_event_cb(GtkWidget *widget, GdkEventButton *event, 
 	}
 	return FALSE;
 }
+static void
+loqui_tray_icon_set_icon(LoquiTrayIcon *tray_icon, gboolean is_hilighted)
+{
+	gtk_image_set_from_stock(GTK_IMAGE(tray_icon->image),
+				 is_hilighted ? LOQUI_STOCK_LOQUI_HILIGHTED : LOQUI_STOCK_LOQUI,
+				 GTK_ICON_SIZE_LARGE_TOOLBAR);
+}
+static gboolean
+loqui_tray_icon_blink_for_idle_cb(LoquiTrayIcon *tray_icon)
+{
+	LoquiTrayIconPrivate *priv;
+
+	priv = tray_icon->priv;
+
+	g_timeout_add(LOQUI_TRAY_ICON_BLINK_INTERVAL, (GSourceFunc) loqui_tray_icon_blink_cb, tray_icon);
+
+	return FALSE;
+}
+static gboolean
+loqui_tray_icon_blink_cb(LoquiTrayIcon *tray_icon)
+{
+	LoquiTrayIconPrivate *priv;
+
+	priv = tray_icon->priv;
+
+	if (priv->blink_count_remains > 0) {
+		loqui_tray_icon_set_icon(tray_icon, (priv->blink_count_remains % 2 != 0) ? TRUE : FALSE);
+		priv->blink_count_remains--;
+		return TRUE;
+	} else {
+		loqui_tray_icon_set_icon(tray_icon, tray_icon->is_hilighted);
+		priv->blinking = FALSE;
+		return FALSE;
+	}
+}
 GtkWidget *
 loqui_tray_icon_new(LoquiApp *app, GtkMenu *menu)
 {
@@ -238,8 +285,21 @@ loqui_tray_icon_set_hilighted(LoquiTrayIcon *tray_icon, gboolean is_hilighted)
 		return;
 
 	tray_icon->is_hilighted = is_hilighted;
+	loqui_tray_icon_set_icon(tray_icon, is_hilighted);
+}
+void
+loqui_tray_icon_blink(LoquiTrayIcon *tray_icon)
+{
+	LoquiTrayIconPrivate *priv;
 
-	gtk_image_set_from_stock(GTK_IMAGE(tray_icon->image),
-				 is_hilighted ? LOQUI_STOCK_LOQUI_HILIGHTED : LOQUI_STOCK_LOQUI,
-				 GTK_ICON_SIZE_LARGE_TOOLBAR);
+        g_return_if_fail(tray_icon != NULL);
+        g_return_if_fail(LOQUI_IS_TRAY_ICON(tray_icon));
+
+	priv = tray_icon->priv;
+
+	priv->blink_count_remains = LOQUI_TRAY_ICON_BLINK_COUNT;
+	if (!priv->blinking) {
+		priv->blinking = TRUE;
+		g_idle_add((GSourceFunc) loqui_tray_icon_blink_for_idle_cb, tray_icon);
+	}
 }

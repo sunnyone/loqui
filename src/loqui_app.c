@@ -1251,10 +1251,11 @@ loqui_app_channel_entry_notify_has_unread_keyword_cb(LoquiChannelEntry *chent, G
 
 	if (!loqui_channel_entry_get_has_unread_keyword(chent))
 		return;
-	if (loqui_app_has_toplevel_focus(app))
-		return;
 
-	loqui_tray_icon_set_hilighted(app->tray_icon, TRUE);
+	loqui_tray_icon_blink(app->tray_icon);
+
+	if (!loqui_app_has_toplevel_focus(app))
+		loqui_tray_icon_set_hilighted(app->tray_icon, TRUE);
 }
 static void
 loqui_app_channel_changed_cb(GObject *object, gpointer data)

@@ -62,6 +62,7 @@ GType loqui_tray_icon_get_type(void) G_GNUC_CONST;
 GtkWidget* loqui_tray_icon_new(LoquiApp *app, GtkMenu *menu);
 
 void loqui_tray_icon_set_hilighted(LoquiTrayIcon *tray_icon, gboolean is_hilighted);
+void loqui_tray_icon_blink(LoquiTrayIcon *tray_icon);
 
 G_END_DECLS
 
