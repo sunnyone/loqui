@@ -264,12 +264,14 @@ remark_entry_new(void)
 					    G_CALLBACK(remark_entry_entry_multiline_toggled_cb), remark_entry);
 	gtk_box_pack_start(GTK_BOX(hbox), priv->toggle_multiline, FALSE, FALSE, 0);
 
+	/* TODO: color palette
 	image = gtk_image_new_from_stock(GTK_STOCK_SELECT_COLOR, GTK_ICON_SIZE_BUTTON);
 	priv->toggle_palette = gtk_toggle_button_new();
 	gtk_container_add(GTK_CONTAINER(priv->toggle_palette), image);
 	gtk_box_pack_start(GTK_BOX(hbox), priv->toggle_palette, FALSE, FALSE, 0);
 	gtk_widget_set_sensitive(priv->toggle_palette, FALSE);
-
+	*/
+	
 	priv->menu_nick = gtk_menu_new();
 	g_signal_connect(priv->menu_nick, "deactivate",
 			 G_CALLBACK(remark_entry_nick_menu_deactivated_cb), remark_entry);
