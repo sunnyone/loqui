@@ -922,3 +922,14 @@ loqui_account_set_all_channel_unjoined(LoquiAccount *account)
 		loqui_channel_set_is_joined(LOQUI_CHANNEL(cur->data), FALSE);
 	}
 }
+void
+loqui_account_print_communication(LoquiAccount *account, gboolean receive, gchar *str)
+{
+	const gchar *receive_mark = "<<";
+	const gchar *send_mark = ">>";
+
+	g_print("[%s] %s %s\n",
+		loqui_channel_entry_get_name(LOQUI_CHANNEL_ENTRY(account)),
+		receive ? receive_mark : send_mark,
+		str);
+}

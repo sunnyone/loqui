@@ -474,7 +474,7 @@ loqui_account_irc_conn_readline_cb(GConn *conn, const gchar *buffer, LoquiAccoun
 		gchar *tmp;
 
 		tmp = irc_message_inspect(msg);
-		g_print("[%s] << %s\n", loqui_channel_entry_get_name(LOQUI_CHANNEL_ENTRY(account)), tmp);
+		loqui_account_print_communication(LOQUI_ACCOUNT(account), TRUE, tmp);
 		g_free(tmp);
 	}
 
@@ -527,7 +527,7 @@ loqui_account_irc_conn_writable_cb(GConn *conn, LoquiAccountIRC *account)
 		gchar *tmp;
 
 		tmp = irc_message_inspect(msg);
-		g_print("[%s] >> %s\n", loqui_channel_entry_get_name(LOQUI_CHANNEL_ENTRY(account)), tmp);
+		loqui_account_print_communication(LOQUI_ACCOUNT(account), FALSE, tmp);
 		g_free(tmp);
 	}
 

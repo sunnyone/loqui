@@ -302,15 +302,15 @@ ipmsg_packet_inspect(IPMsgPacket *packet)
 	addr = ipmsg_packet_get_inetaddr(packet);
 	if (addr) {
 		addr_str = gnet_inetaddr_get_canonical_name(addr);
-		g_string_append_printf(string, "From: %s:%d, ", utils_remove_ipv6_prefix_ffff(addr_str), gnet_inetaddr_get_port(addr));
+		g_string_append_printf(string, "from: %s:%d, ", utils_remove_ipv6_prefix_ffff(addr_str), gnet_inetaddr_get_port(addr));
 		g_free(addr_str);
 	}
 
-	g_string_append_printf(string, "Version: %d, PacketNumber: %d,", packet->version, packet->packet_num);
-	g_string_append_printf(string, " Username: %s, Hostname: %s, Group: %s,",
+	g_string_append_printf(string, "version: %d, packet number: %d,", packet->version, packet->packet_num);
+	g_string_append_printf(string, " username: %s, host: %s, group: %s,",
 		packet->username, packet->hostname, packet->group_name ? packet->group_name : "(not set)");
-	g_string_append_printf(string, " Command Number: 0x%x (MODE: 0x%x),", packet->command_num, IPMSG_GET_MODE(packet->command_num));
-	g_string_append_printf(string, " Extra: %s", packet->extra);
+	g_string_append_printf(string, " command: 0x%x (MODE: 0x%x),", packet->command_num, (int) IPMSG_GET_MODE(packet->command_num));
+	g_string_append_printf(string, " extra: %s", packet->extra);
 
 	return g_string_free(string, FALSE);
 }
@@ -319,7 +319,6 @@ ipmsg_packet_print(IPMsgPacket *packet)
 {
 	gchar *str;
 	
-	g_print("-- \n");
 	str = ipmsg_packet_inspect(packet);
 	g_print("%s\n", str);
 	g_free(str);

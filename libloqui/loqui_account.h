@@ -155,6 +155,8 @@ gboolean loqui_account_get_is_pending_reconnecting(LoquiAccount *account);
 
 void loqui_account_set_all_channel_unjoined(LoquiAccount *account);
 
+void loqui_account_print_communication(LoquiAccount *account, gboolean receive, gchar *str);
+
 G_END_DECLS
 
 #endif /* __LOQUI_ACCOUNT_H__ */

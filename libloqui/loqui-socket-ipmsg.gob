@@ -120,8 +120,11 @@ class Loqui:Socket:IPMsg from G:Object
 
 		ipmsg_packet_set_inetaddr(packet, addr);
 		gnet_inetaddr_unref(addr);
-		if (loqui_core_get_show_msg_mode(loqui_get_core()))
-			ipmsg_packet_print(packet);
+		if (loqui_core_get_show_msg_mode(loqui_get_core())) {
+			gchar *tmp = ipmsg_packet_inspect(packet);
+			loqui_account_print_communication(SELF_GET_ACCOUNT(self), TRUE, tmp);
+			g_free(tmp);
+		}
 
 		loqui_receiver_ipmsg_handle(LOQUI_RECEIVER_IPMSG(SELF_GET_ACCOUNT(self)->receiver), packet);
 		g_object_unref(packet);
@@ -176,8 +179,9 @@ class Loqui:Socket:IPMsg from G:Object
 		gnet_udp_socket_send(selfp->udpsock, buf, len, selfp->inetaddr);
 
 		if (loqui_core_get_show_msg_mode(loqui_get_core())) {
-			g_print("Sent:");
-			ipmsg_packet_print(packet);
+			gchar *tmp = ipmsg_packet_inspect(packet);
+			loqui_account_print_communication(SELF_GET_ACCOUNT(self), FALSE, tmp);
+			g_free(tmp);
 		}
 
 		g_free(buf);
