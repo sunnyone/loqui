@@ -261,7 +261,8 @@ GSList *prefs_account_load(void)
 	path = g_build_filename(g_get_home_dir(), PREFS_DIR, RC_FILENAME, NULL);
 
 	if(!g_file_get_contents(path, &contents, &len, &error)) {
-		g_warning(_("Can't open %s: %s"), RC_FILENAME, error->message);
+		if(error->code != G_FILE_ERROR_NOENT)
+			g_warning("%s", error->message);
 		g_error_free(error);
 		return NULL;
 	}

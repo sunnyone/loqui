@@ -22,10 +22,12 @@
 #include "prefs_dialog.h"
 #include "intl.h"
 #include "prefs_general.h"
-#include "prefs_emphasis_words.h"
+#include "prefs_highlight.h"
 #include "utils.h"
 #include "gtkutils.h"
 #include "codeconv.h"
+
+#include <string.h>
 
 struct _PrefsDialogPrivate
 {
@@ -35,7 +37,7 @@ struct _PrefsDialogPrivate
 	GtkWidget *entry_codeset;
 
 	GtkWidget *check_use_notification;
-	GtkWidget *textview_emphasis_allow;
+	GtkWidget *textview_highlight_allow;
 
 	GtkWidget *entry_browser_command;
 	GtkWidget *entry_notification_command;
@@ -154,10 +156,12 @@ prefs_dialog_load_settings(PrefsDialog *dialog)
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(priv->check_save_size), prefs_general.save_size);
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(priv->check_use_notification), prefs_general.use_notification);
 
-	buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(priv->textview_emphasis_allow));
-	buf = utils_line_separated_text_from_slist(prefs_emphasis_words.allow_list);
-	gtk_text_buffer_set_text(GTK_TEXT_BUFFER(buffer), buf, -1);
-	g_free(buf);
+	buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(priv->textview_highlight_allow));
+	if(prefs_highlight.allow_list) {
+		buf = utils_line_separated_text_from_slist(prefs_highlight.allow_list);
+		gtk_text_buffer_set_text(GTK_TEXT_BUFFER(buffer), buf, -1);
+		g_free(buf);
+	}
 
 	gtk_entry_set_text(GTK_ENTRY(priv->entry_away_message), prefs_general.away_message);
 	gtk_entry_set_text(GTK_ENTRY(priv->entry_browser_command), prefs_general.browser_command);
@@ -180,14 +184,13 @@ prefs_dialog_save_settings(PrefsDialog *dialog)
 	prefs_general.use_notification = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(priv->check_use_notification));
 	prefs_general.codeconv = gtk_option_menu_get_history(GTK_OPTION_MENU(priv->option_codeconv));
 
-	buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(priv->textview_emphasis_allow));
+	buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(priv->textview_highlight_allow));
 	gtk_text_buffer_get_start_iter(GTK_TEXT_BUFFER(buffer), &start);
 	gtk_text_buffer_get_end_iter(GTK_TEXT_BUFFER(buffer), &end);
 	buf = gtk_text_buffer_get_text(GTK_TEXT_BUFFER(buffer), &start, &end, FALSE);
-	prefs_emphasis_words_init();
-	prefs_emphasis_words.allow_list = utils_line_separated_text_to_slist(buf);
-	g_free(buf);
-	
+	prefs_highlight_init();
+	prefs_highlight.allow_list = utils_line_separated_text_to_slist(buf);
+
 	G_FREE_UNLESS_NULL(prefs_general.codeset);
 	prefs_general.codeset = g_strdup(gtk_entry_get_text(GTK_ENTRY(priv->entry_codeset)));
 
@@ -200,6 +203,8 @@ prefs_dialog_save_settings(PrefsDialog *dialog)
 	G_FREE_UNLESS_NULL(prefs_general.notification_command);
 	prefs_general.notification_command = g_strdup(gtk_entry_get_text(GTK_ENTRY(priv->entry_notification_command)));
 
+	prefs_general_save();
+	prefs_highlight_save();
 	codeconv_init();
 }
 
@@ -294,20 +299,20 @@ prefs_dialog_new(void)
 	gtkutils_add_label_entry(vbox, _("Away message: "), &priv->entry_away_message, "");
 
 	vbox = gtk_vbox_new(FALSE, 0);
-	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), vbox, gtk_label_new(_("Emphasis")));
+	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), vbox, gtk_label_new(_("Highlight")));
 
 	priv->check_use_notification = gtk_check_button_new_with_label(_("Use notification"));
 	gtk_box_pack_start(GTK_BOX(vbox), priv->check_use_notification, FALSE, FALSE, 0);
 
-	frame = gtk_frame_new(_("Emphasizing keywords(Separate each words with linefeeds)"));
+	frame = gtk_frame_new(_("Highlighting keywords(Separate each words with linefeeds)"));
 	gtk_box_pack_start(GTK_BOX(vbox), frame, TRUE, TRUE, 0);
 
 	scrolled_win = gtk_scrolled_window_new(NULL, NULL);
 	gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled_win), GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
 	gtk_container_add(GTK_CONTAINER(frame), scrolled_win);
 
-	priv->textview_emphasis_allow = gtk_text_view_new();
-	gtk_container_add(GTK_CONTAINER(scrolled_win), priv->textview_emphasis_allow);
+	priv->textview_highlight_allow = gtk_text_view_new();
+	gtk_container_add(GTK_CONTAINER(scrolled_win), priv->textview_highlight_allow);
 	vbox = gtk_vbox_new(FALSE, 0);
 	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), vbox, gtk_label_new(_("Command")));
 

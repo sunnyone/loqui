@@ -27,11 +27,11 @@
 #include "prefs_general.h"
 #include "utils.h"
 #include "gtkutils.h"
-#include "prefs_emphasis_words.h"
+#include "prefs_highlight.h"
 
 struct _ChannelBufferPrivate
 {
-	GtkTextTag *emphasis_area_tag;
+	GtkTextTag *highlight_area_tag;
 	GtkTextTag *notification_area_tag;
 };
 
@@ -44,7 +44,7 @@ static void channel_buffer_finalize(GObject *object);
 
 static void channel_buffer_append_current_time(ChannelBuffer *channel_buffer);
 static void channel_buffer_append(ChannelBuffer *buffer, TextType type, gchar *str,
-				  gboolean enable_emphasis, gboolean exec_notification);
+				  gboolean enable_highlight, gboolean exec_notification);
 
 static void channel_buffer_text_inserted_cb(GtkTextBuffer *buffer,
 					    GtkTextIter *pos,
@@ -146,12 +146,12 @@ static void channel_buffer_apply_tag_cb(GtkTextBuffer *buffer,
 	channel_buffer = CHANNEL_BUFFER(buffer);
 	priv = channel_buffer->priv;
 
-	if(!(tag == priv->emphasis_area_tag || tag == priv->notification_area_tag))
+	if(!(tag == priv->highlight_area_tag || tag == priv->notification_area_tag))
 		return;
 
 	tmp_end = *end;
 
-	for(cur = prefs_emphasis_words.allow_list; cur != NULL; cur = cur->next) {
+	for(cur = prefs_highlight.allow_list; cur != NULL; cur = cur->next) {
 		tmp_start = *start;
 		word = (gchar *) cur->data;
 		while(gtk_text_iter_forward_search(&tmp_start,
@@ -161,7 +161,7 @@ static void channel_buffer_apply_tag_cb(GtkTextBuffer *buffer,
 						   &region_end,
 						   &tmp_end)) {
 			gtk_text_buffer_apply_tag_by_name(buffer,
-							  "emphasis",
+							  "highlight",
 							  &region_start,
 							  &region_end);
 			tmp_start = region_end;
@@ -305,11 +305,11 @@ channel_buffer_new(void)
 					 "foreground", "blue",
 					 "underline", PANGO_UNDERLINE_SINGLE,
 					 NULL);
-	gtk_text_buffer_create_tag(textbuf, "emphasis",
+	gtk_text_buffer_create_tag(textbuf, "highlight",
 				   "weight", PANGO_WEIGHT_BOLD,
 				   "foreground", "purple",
 				   NULL);
-	priv->emphasis_area_tag = gtk_text_buffer_create_tag(textbuf, "emphasis-area",
+	priv->highlight_area_tag = gtk_text_buffer_create_tag(textbuf, "highlight-area",
 							 NULL);
 	priv->notification_area_tag = gtk_text_buffer_create_tag(textbuf, "notification-area",
 								 NULL);
@@ -342,12 +342,12 @@ channel_buffer_append_current_time(ChannelBuffer *buffer)
 
 static void
 channel_buffer_append(ChannelBuffer *buffer, TextType type, gchar *str, 
-		      gboolean enable_emphasis,
+		      gboolean enable_highlight,
 		      gboolean exec_notification)
 {
 	GtkTextIter iter;
 	gchar *style;
-	gchar *emphasis;
+	gchar *highlight;
 
         g_return_if_fail(buffer != NULL);
         g_return_if_fail(IS_CHANNEL_BUFFER(buffer));
@@ -370,17 +370,17 @@ channel_buffer_append(ChannelBuffer *buffer, TextType type, gchar *str,
 	default:
 		style = "normal";
 	}
-	if(enable_emphasis) {
+	if(enable_highlight) {
 		if(exec_notification)
-			emphasis = "notification-area";
+			highlight = "notification-area";
 		else
-			emphasis = "emphasis-area";
+			highlight = "highlight-area";
 	} else {
-		emphasis = NULL;
+		highlight = NULL;
 	}
 
 	gtk_text_buffer_insert_with_tags_by_name(GTK_TEXT_BUFFER(buffer), &iter, str, -1, 
-						 style, emphasis, NULL);
+						 style, highlight, NULL);
 }
 void
 channel_buffer_append_line(ChannelBuffer *buffer, TextType type, gchar *str)

@@ -17,8 +17,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
-#ifndef __PREFS_EMPHASIS_WORDS_H__
-#define __PREFS_EMPHASIS_WORDS_H__
+#ifndef __PREFS_HIGHLIGHT_H__
+#define __PREFS_HIGHLIGHT_H__
 
 #include <glib.h>
 
@@ -26,12 +26,12 @@ typedef struct _PrefsEmphaisWords {
 	GSList *allow_list;
 	/* GSList *deny_list; */
 
-} PrefsEmphasisWords;
+} PrefsHighlightWords;
 
-void prefs_emphasis_words_init(void);
-void prefs_emphasis_words_load(void);
-void prefs_emphasis_words_save(void);
+void prefs_highlight_init(void);
+void prefs_highlight_load(void);
+void prefs_highlight_save(void);
 
-extern PrefsEmphasisWords prefs_emphasis_words;
+extern PrefsHighlightWords prefs_highlight;
 
-#endif /* __PREFS_EMPHASIS_WORDS_H__ */
+#endif /* __PREFS_HIGHLIGHT_H__ */

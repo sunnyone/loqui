@@ -18,82 +18,83 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 #include "config.h"
-#include "prefs_emphasis_words.h"
+#include "prefs_highlight.h"
 #include "main.h"
 #include "intl.h"
 #include "utils.h"
 
 #include <string.h>
 
-PrefsEmphasisWords prefs_emphasis_words;
-gboolean prefs_emphasis_words_initialized = FALSE;
+PrefsHighlightWords prefs_highlight;
+gboolean prefs_highlight_initialized = FALSE;
 
-#define EMPHASIS_WORDS_ALLOW_FILENAME "emphasis_words.allow.txt"
+#define HIGHLIGHT_ALLOW_FILENAME "highlight.allow.txt"
 
-void prefs_emphasis_words_init(void)
+void prefs_highlight_init(void)
 {
-	if(!prefs_emphasis_words_initialized) {
-		prefs_emphasis_words.allow_list = NULL;
+	if(!prefs_highlight_initialized) {
+		prefs_highlight.allow_list = NULL;
 	}
 
-	if(prefs_emphasis_words.allow_list) {
-		g_slist_foreach(prefs_emphasis_words.allow_list, (GFunc) g_free, NULL);
-		g_slist_free(prefs_emphasis_words.allow_list);
-		prefs_emphasis_words.allow_list = NULL;
+	if(prefs_highlight.allow_list) {
+		g_slist_foreach(prefs_highlight.allow_list, (GFunc) g_free, NULL);
+		g_slist_free(prefs_highlight.allow_list);
+		prefs_highlight.allow_list = NULL;
 	}
 
-	prefs_emphasis_words_initialized = TRUE;
+	prefs_highlight_initialized = TRUE;
 }
-void prefs_emphasis_words_load(void)
+void prefs_highlight_load(void)
 {
 	gchar *path;
 	GError *error = NULL;
 	gchar *contents;
 
-	debug_puts("Loading emphasis words...");
+	debug_puts("Loading highlighting words...");
 
-	prefs_emphasis_words_init();
+	prefs_highlight_init();
 	
-        path = g_build_filename(g_get_home_dir(), PREFS_DIR, EMPHASIS_WORDS_ALLOW_FILENAME, NULL);
+        path = g_build_filename(g_get_home_dir(), PREFS_DIR, HIGHLIGHT_ALLOW_FILENAME, NULL);
 	if(!g_file_get_contents(path, &contents, NULL, &error)) {
-		g_warning(_("Can't open %s: %s"), path, error->message);
+		if(error->code != G_FILE_ERROR_NOENT)
+			g_warning("%s", error->message);
 		g_error_free(error);
 		return;
 	}
 	
-	prefs_emphasis_words.allow_list = utils_line_separated_text_to_slist(contents);
+	prefs_highlight.allow_list = utils_line_separated_text_to_slist(contents);
 
 	debug_puts("Done.");
 }
-void prefs_emphasis_words_save(void)
+void prefs_highlight_save(void)
 {
 	gchar *path;
 	GError *error = NULL;
 	gchar *buf;
 	GIOChannel *ioch;
+	gsize len;
 
-	debug_puts("Saving emphasis words...");
+	if(prefs_highlight.allow_list == NULL)
+		return;
+
+	debug_puts("Saving highlighting words...");
 	
-	if(prefs_emphasis_words.allow_list == NULL)
-		return;
-
-	path = g_build_filename(g_get_home_dir(), PREFS_DIR, EMPHASIS_WORDS_ALLOW_FILENAME, NULL);
+	path = g_build_filename(g_get_home_dir(), PREFS_DIR, HIGHLIGHT_ALLOW_FILENAME, NULL);
 	if((ioch = g_io_channel_new_file(path, "w", &error)) == NULL) {
-		g_warning(_("Can't open %s: %s"), path, error->message);
+		g_warning("%s", error->message);
 		g_error_free(error);
 		return;
 	}
 
-	buf = utils_line_separated_text_from_slist(prefs_emphasis_words.allow_list);
+	buf = utils_line_separated_text_from_slist(prefs_highlight.allow_list);
 
-	if(g_io_channel_write_chars(ioch, buf, -1, NULL, &error) == G_IO_STATUS_ERROR) {
-		g_warning(_("Can't write %s: %s"), path, error->message);
+	if(g_io_channel_write_chars(ioch, buf, -1, &len, &error) == G_IO_STATUS_ERROR) {
+		g_warning("%s", error->message);
 		g_error_free(error);
 		return;
 	}
-
+	g_io_channel_unref(ioch);
 	g_free(buf);
 
 	debug_puts("Done.");
-	
 }
