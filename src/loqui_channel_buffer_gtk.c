@@ -486,7 +486,7 @@ loqui_channel_buffer_gtk_append_message_text(LoquiChannelBuffer *buffer_p, Loqui
 
 	if (loqui_channel_buffer_gtk_get_show_account_name(buffer) &&
 	    loqui_message_text_get_account_name(msgtext)) {
-		buf = g_strdup_printf("[%s]", loqui_message_text_get_account_name(msgtext));
+		buf = g_strdup_printf("[%s] ", loqui_message_text_get_account_name(msgtext));
 		loqui_channel_buffer_gtk_append(buffer, type, buf, FALSE);
 		g_free(buf);
 	}
