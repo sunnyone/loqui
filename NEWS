@@ -203,3 +203,9 @@
 * Feature: Jump to next/previous keyword.
 * Set different color when the channel has normal message / notice message / keyword.
 
+2004-05-13   0.3.4
+* Sends NOTICE with Ctrl+Enter.
+* Fixed the context menu of the channel tree.
+* Added an option: "Select a new channel automatically"
+* Don't execute notification when a message came from server.
+
