@@ -74,6 +74,9 @@ LoquiMember *loqui_channel_entry_get_member(LoquiChannelEntry *entry, LoquiUser 
 void loqui_channel_entry_set_sort_func(LoquiChannelEntry *chent, GCompareFunc func);
 void loqui_channel_entry_sort(LoquiChannelEntry *chent);
 
+LoquiMember *loqui_channel_entry_get_nth_member(LoquiChannelEntry *chent, gint n);
+gint loqui_channel_entry_get_member_number(LoquiChannelEntry *chent);
+
 G_END_DECLS
 
 #endif /* __LOQUI_CHANNEL_ENTRY_H__ */

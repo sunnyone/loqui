@@ -310,3 +310,22 @@ loqui_channel_entry_set_sort_func(LoquiChannelEntry *chent, GCompareFunc func)
 	chent->sort_func = func;
 	loqui_channel_entry_sort(chent);
 }
+LoquiMember *
+loqui_channel_entry_get_nth_member(LoquiChannelEntry *chent, gint n)
+{
+        g_return_val_if_fail(chent != NULL, NULL);
+        g_return_val_if_fail(LOQUI_IS_CHANNEL_ENTRY(chent), NULL);
+	
+	if (n < 0 || chent->member_array->len >= n)
+		return NULL;
+
+	return g_array_index(chent->member_array, LoquiMember *, n);
+}
+gint
+loqui_channel_entry_get_member_number(LoquiChannelEntry *chent)
+{
+        g_return_val_if_fail(chent != NULL, NULL);
+        g_return_val_if_fail(LOQUI_IS_CHANNEL_ENTRY(chent), NULL);
+	
+	return chent->member_array->len;
+}
