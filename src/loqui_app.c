@@ -261,8 +261,8 @@ loqui_app_new (void)
                          G_CALLBACK(loqui_app_entry_activate_cb), NULL);
 
 	priv->common_textview = gtk_text_view_new();
-	gtk_text_view_set_editable(GTK_TEXT_VIEW(priv->channel_textview), FALSE);
-	gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(priv->channel_textview), GTK_WRAP_CHAR);
+	gtk_text_view_set_editable(GTK_TEXT_VIEW(priv->common_textview), FALSE);
+	gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(priv->common_textview), GTK_WRAP_CHAR);
 	SET_SCROLLED_WINDOW(scrolled_win, priv->common_textview, 
 			    GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
 	gtk_paned_pack2(GTK_PANED(vpaned), scrolled_win, FALSE, TRUE);
