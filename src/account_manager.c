@@ -173,11 +173,12 @@ void account_manager_set_current(AccountManager *manager, Account *account, Chan
         g_return_if_fail(manager != NULL);
         g_return_if_fail(IS_ACCOUNT_MANAGER(manager));
 
+	manager->priv->current_channel = channel;
+	manager->priv->current_account = account;
+
 	if(channel) {
-		manager->priv->current_channel = channel;
 		channel_book_change_current(manager->priv->app->channel_book, channel->text);
 	} else if(account) {
-		manager->priv->current_account = account;
 		channel_book_change_current(manager->priv->app->channel_book, account->console_text);
 	}
 }

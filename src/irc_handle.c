@@ -61,6 +61,11 @@ static void irc_handle_my_command_join(IRCHandle *handle, IRCMessage *msg);
 static void irc_handle_command_privmsg_notice(IRCHandle *handle, IRCMessage *msg);
 static void irc_handle_command_ping(IRCHandle *handle, IRCMessage *msg);
 
+static void irc_handle_account_console_append(IRCHandle *handle, IRCMessage *msg, TextType type, gchar *format);
+static void irc_handle_channel_append(IRCHandle *handle, IRCMessage *msg, gint receiver_num, TextType type, gchar *format);
+
+static void irc_handle_reply_names(IRCHandle *handle, IRCMessage *msg);
+
 GType
 irc_handle_get_type(void)
 {
@@ -123,7 +128,6 @@ irc_handle_finalize(GObject *object)
 static void
 irc_handle_command_privmsg_notice(IRCHandle *handle, IRCMessage *msg)
 {
-	gchar *line;
 	gchar *receiver_name;
 	gchar *remark;
 	Channel *channel = NULL;
@@ -240,39 +244,80 @@ irc_handle_inspect_message(IRCHandle *handle, IRCMessage *msg)
 	
 	g_free(str);
 }
+static void
+irc_handle_reply_names(IRCHandle *handle, IRCMessage *msg)
+{
+	irc_handle_channel_append(handle, msg, 3, TEXT_TYPE_NORMAL, "%3: %t");
+}
+static void /* utility function for threading*/
+irc_handle_account_console_append(IRCHandle *handle, IRCMessage *msg, TextType type, gchar *format)
+{
+	gchar *str;
+
+	str = irc_message_format(msg, format);
+
+	gdk_threads_enter();
+	account_console_text_append(handle->priv->account, type, str);
+	gdk_threads_leave();
+
+	g_free(str);
+}
+
+static void /* utility function for threading */
+irc_handle_channel_append(IRCHandle *handle, IRCMessage *msg, gint receiver_num, TextType type, gchar *format)
+{
+	Channel *channel;
+	gchar *str;
+	gchar *receiver_name;
+
+	receiver_name = irc_message_get_param(msg, receiver_num);
+	if(receiver_name == NULL) {
+		g_warning(_("Can't find the channel from the message"));
+		return;
+	}
+
+	channel = account_search_channel_by_name(handle->priv->account, receiver_name);
+	if(channel == NULL) { /* FIXME as well as privmsg_notice */
+		gdk_threads_enter();
+		channel = channel_new(receiver_name);
+		account_add_channel(handle->priv->account, channel);
+		gdk_threads_leave();
+	}
+
+	str = irc_message_format(msg, format);
+
+	gdk_threads_enter();
+	channel_append_text(channel, type, str);
+	gdk_threads_leave();
+
+	g_free(str);
+}
 
 static gboolean 
 irc_handle_reply(IRCHandle *handle, IRCMessage *msg)
 {
-	gchar *str;
-	gboolean proceeded = FALSE;
-
 	g_return_val_if_fail(handle != NULL, FALSE);
         g_return_val_if_fail(IS_IRC_HANDLE(handle), FALSE);
 
-#define ACCOUNT_CONSOLE_APPEND(format) \
-{ \
-   str = irc_message_format(msg, format); \
-   gdk_threads_enter(); \
-   account_console_text_append(handle->priv->account, TEXT_TYPE_INFO, str); \
-   gdk_threads_leave(); \
-   g_free(str); \
-   proceeded = TRUE; \
-}
 	switch(msg->response) {
 	case IRC_RPL_LUSERCLIENT:
 	case IRC_RPL_LUSERME:
-		ACCOUNT_CONSOLE_APPEND("%2");
-		break;
+		irc_handle_account_console_append(handle, msg, TEXT_TYPE_INFO, "%2");
+		return TRUE;
 	case IRC_RPL_LUSEROP:
 	case IRC_RPL_LUSERUNKNOWN:
 	case IRC_RPL_LUSERCHANNELS:
-		ACCOUNT_CONSOLE_APPEND("%2 %3");
-		break;
+		irc_handle_account_console_append(handle, msg, TEXT_TYPE_INFO, "%2 %3");
+		return TRUE;
+	case IRC_RPL_NAMREPLY: /* <nick> = <channel> :... */
+		irc_handle_reply_names(handle, msg);
+		return TRUE;
+	case IRC_RPL_ENDOFNAMES:
+		return TRUE;
 	default:
 		break;
 	}
-	return proceeded;
+	return FALSE;
 }
 
 static gboolean 
@@ -293,27 +338,27 @@ irc_handle_command(IRCHandle *handle, IRCMessage *msg)
 		switch(msg->response) {
 		case IRC_COMMAND_NICK:
 			irc_handle_my_command_nick(handle, msg);
-			break;
+			return TRUE;
 		case IRC_COMMAND_JOIN:
 			irc_handle_my_command_join(handle, msg);
-			break;
+			return TRUE;
 		default:
 			break;
 		}
-	}
+	} 
 	switch (msg->response) {
 	case IRC_COMMAND_NOTICE:
 	case IRC_COMMAND_PRIVMSG:
 		irc_handle_command_privmsg_notice(handle, msg);
-		break;
+		return TRUE;
 	case IRC_COMMAND_PING:
 		irc_handle_command_ping(handle, msg);
-		break;
+		return TRUE;
 	default:
-		return FALSE;
+		break;
 	}
 
-	return TRUE;
+	return FALSE;
 }
 static void
 irc_handle_response(IRCHandle *handle, IRCMessage *msg)

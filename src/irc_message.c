@@ -349,7 +349,7 @@ irc_message_get_trailing(IRCMessage *msg)
 	int num;
 	for(num = 0; msg->parameter[num] != NULL; num++); /* count the number of parameters */
 
-	return msg->parameter[num];
+	return msg->parameter[num-1];
 }
 gchar *
 irc_message_get_param(IRCMessage *msg, guint i)
@@ -395,8 +395,13 @@ irc_message_format(IRCMessage *msg, const gchar *format)
 		}
 
 		switch(*cur) {
+		case 't':
+			buf = irc_message_get_trailing(msg);
+			string = g_string_append(string, buf);
+			break;
 		case '%': /* %% */
 			string = g_string_append_c(string, '%');
+			break;
 		default:
 			break;
 		}
