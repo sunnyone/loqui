@@ -114,6 +114,7 @@ gboolean channel_find_user(Channel *channel, const gchar *nick, GtkTreeIter *ite
 void channel_get_user_number(Channel *channel, guint *user_number, guint *op_number);
 
 gboolean channel_name_equal(gconstpointer a, gconstpointer b);
+guint channel_name_hash(gconstpointer v);
 
 G_END_DECLS
 

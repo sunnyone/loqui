@@ -656,3 +656,8 @@ channel_name_equal(gconstpointer a, gconstpointer b)
 {
 	return (g_ascii_strcasecmp(a, b) == 0);
 }
+guint
+channel_name_hash(gconstpointer v)
+{
+       return g_str_hash(g_ascii_strdown(v, -1));
+}

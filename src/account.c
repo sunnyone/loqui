@@ -221,7 +221,7 @@ account_init (Account *account)
 
 	account->priv = priv;
 	priv->is_away = FALSE;
-	account->channel_hash = g_hash_table_new_full(g_str_hash, channel_name_equal, g_free, g_object_unref);
+	account->channel_hash = g_hash_table_new_full(channel_name_hash, channel_name_equal, g_free, g_object_unref);
 }
 static void 
 account_finalize (GObject *object)
