@@ -1,13 +1,18 @@
-#include "test_main.h"
+#include "test_helper.h"
 
-static int test_utils_format(void);
-
-static int test_utils_format(void)
+static int
+test_utils_format(void)
 {
    return FALSE;
 }
 
-void test_utils(void)
+int
+main()
 {
-   DO_TEST(test_utils_format);
+	int all=0, failed=0;
+
+	DO_TEST(all, failed, test_utils_format);
+
+	SHOW_RESULT_AND_EXIT(all, failed, utils);
 }
+
