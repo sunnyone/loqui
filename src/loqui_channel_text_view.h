@@ -69,6 +69,8 @@ gboolean loqui_channel_text_view_get_is_scroll(LoquiChannelTextView *textview);
 void loqui_channel_text_view_scroll_to_end(LoquiChannelTextView *chview);
 void loqui_channel_text_view_scroll_to_end_if_enabled(LoquiChannelTextView *chview);
 
+void loqui_channel_text_view_scroll(LoquiChannelTextView *chview, GtkMovementStep step, gint count);
+
 G_END_DECLS
 
 #endif /* __LOQUI_CHANNEL_TEXT_VIEW_H__ */

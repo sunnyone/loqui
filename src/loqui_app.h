@@ -98,9 +98,6 @@ void loqui_app_set_common_buffer(LoquiApp *app, ChannelBuffer *buffer);
 void loqui_app_set_show_statusbar(LoquiApp *app, gboolean show);
 void loqui_app_set_show_channelbar(LoquiApp *app, gboolean show);
 
-void loqui_app_scroll_page_channel_buffer(LoquiApp *app, gint pages);
-void loqui_app_scroll_page_common_buffer(LoquiApp *app, gint pages);
-
 void loqui_app_get_current_widget_editing_status(LoquiApp *app, gboolean *cutable, gboolean *copiable, gboolean *pastable,
 						 gboolean *clearable, gboolean *findable);
 
@@ -111,6 +108,8 @@ void loqui_app_set_current_channel_entry(LoquiApp *app, LoquiChannelEntry *chent
 
 LoquiChannel *loqui_app_get_current_channel(LoquiApp *app);
 Account *loqui_app_get_current_account(LoquiApp *app);
+
+GtkWidget *loqui_app_get_current_channel_text_view(LoquiApp *app);
 
 gboolean loqui_app_is_current_account(LoquiApp *app, Account *account);
 gboolean loqui_app_is_current_channel(LoquiApp *app, LoquiChannel *channel);

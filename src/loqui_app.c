@@ -555,22 +555,6 @@ loqui_app_new(AccountManager *account_manager)
 	return GTK_WIDGET(app);
 }
 void
-loqui_app_scroll_page_channel_buffer(LoquiApp *app, gint pages)
-{
-        g_return_if_fail(app != NULL);
-        g_return_if_fail(LOQUI_IS_APP(app));
-
-	g_signal_emit_by_name(app->channel_textview, "move_cursor", GTK_MOVEMENT_PAGES, pages, FALSE);
-}
-void
-loqui_app_scroll_page_common_buffer(LoquiApp *app, gint pages)
-{
-        g_return_if_fail(app != NULL);
-        g_return_if_fail(LOQUI_IS_APP(app));
-
-	g_signal_emit_by_name(app->common_textview, "move_cursor", GTK_MOVEMENT_PAGES, pages, FALSE);
-}
-void
 loqui_app_set_show_statusbar(LoquiApp *app, gboolean show)
 {
 	LoquiAppPrivate *priv;
@@ -666,6 +650,11 @@ loqui_app_get_account_manager(LoquiApp *app)
 	return app->account_manager;
 }
 
+GtkWidget *
+loqui_app_get_current_channel_text_view(LoquiApp *app)
+{
+	return app->channel_textview;
+}
 LoquiChannelEntry *
 loqui_app_get_current_channel_entry(LoquiApp *app)
 {

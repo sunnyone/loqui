@@ -26,6 +26,7 @@
 #include "gtkutils.h"
 
 #include "loqui_stock.h"
+#include "loqui_channel_text_view.h"
 
 #include "main.h"
 
@@ -506,13 +507,16 @@ static void
 remark_entry_scroll_channel_textview(RemarkEntry *entry, gint pages)
 {
 	RemarkEntryPrivate *priv;
+	GtkWidget *chview;
 
         g_return_if_fail(entry != NULL);
         g_return_if_fail(IS_REMARK_ENTRY(entry));
 
 	priv = entry->priv;
-	
-	loqui_app_scroll_page_channel_buffer(priv->app, pages);
+	chview = loqui_app_get_current_channel_text_view(priv->app);
+
+	if (chview)
+		loqui_channel_text_view_scroll(LOQUI_CHANNEL_TEXT_VIEW(chview), GTK_MOVEMENT_PAGES, pages);
 }
 static void
 remark_entry_scroll_common_textview(RemarkEntry *entry, gint pages)
@@ -524,7 +528,7 @@ remark_entry_scroll_common_textview(RemarkEntry *entry, gint pages)
 
 	priv = entry->priv;
 	
-	loqui_app_scroll_page_common_buffer(priv->app, pages);
+	loqui_channel_text_view_scroll(LOQUI_CHANNEL_TEXT_VIEW(priv->app->common_textview), GTK_MOVEMENT_PAGES, pages);
 }
 static void
 remark_entry_activated_cb(GtkWidget *widget, gpointer data)

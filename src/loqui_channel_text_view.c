@@ -367,3 +367,9 @@ loqui_channel_text_view_get_is_scroll(LoquiChannelTextView *chview)
 
 	return chview->is_scroll;
 }
+void
+loqui_channel_text_view_scroll(LoquiChannelTextView *chview, GtkMovementStep step, gint count)
+{
+	g_signal_emit_by_name(chview, "move_cursor", step, count, FALSE);
+}
+
