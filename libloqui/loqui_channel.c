@@ -228,6 +228,7 @@ loqui_channel_init(LoquiChannel *channel)
 
 	channel->end_names = TRUE;
 	channel->channel_mode_manager = loqui_mode_manager_new(NULL);
+	g_object_set_data(G_OBJECT(channel->channel_mode_manager), "channel", channel);			  
 }
 LoquiChannel*
 loqui_channel_new(LoquiAccount *account, const gchar *name, const gchar *identifier, gboolean is_joined, gboolean is_private_talk)

@@ -285,8 +285,14 @@ loqui_app_info_channel_notify_name_cb(LoquiChannel *channel, GParamSpec *pspec, 
 	loqui_app_info_update_string_idle(appinfo);
 }
 static void
-loqui_app_info_channel_mode_changed_cb(LoquiChannel *channel, LoquiAppInfo *appinfo)
+loqui_app_info_channel_mode_changed_cb(LoquiModeManager *mode_manager, LoquiAppInfo *appinfo)
 {
+	LoquiChannel *channel;
+
+	g_return_if_fail(LOQUI_IS_MODE_MANAGER(mode_manager));
+
+	channel = LOQUI_CHANNEL(g_object_get_data(G_OBJECT(mode_manager), "channel"));
+
 	loqui_app_info_update_channel_mode(appinfo, channel);
 	loqui_app_info_update_string_idle(appinfo);
 }
@@ -378,6 +384,9 @@ loqui_app_info_update_op_number(LoquiAppInfo *appinfo, LoquiChannelEntry *chent)
 void
 loqui_app_info_update_channel_mode(LoquiAppInfo *appinfo, LoquiChannel *channel)
 {
+	if (channel)
+		g_return_if_fail(LOQUI_IS_CHANNEL(channel));
+
 	G_FREE_UNLESS_NULL(appinfo->cache_channel_mode);
 	if (channel && channel->channel_mode_manager)
 		appinfo->cache_channel_mode = loqui_mode_manager_to_string(channel->channel_mode_manager);
@@ -507,7 +516,9 @@ loqui_app_info_current_channel_entry_changed(LoquiAppInfo *appinfo, LoquiChannel
 	}
 	if (old_channel) {
 		g_signal_handlers_disconnect_by_func(old_channel, loqui_app_info_channel_notify_name_cb, appinfo);
-		g_signal_handlers_disconnect_by_func(old_channel, loqui_app_info_channel_mode_changed_cb, appinfo);
+		if (old_channel->channel_mode_manager) {
+			g_signal_handlers_disconnect_by_func(old_channel->channel_mode_manager, loqui_app_info_channel_mode_changed_cb, appinfo);
+		}
 	}
 
 	/* TODO: check difference between old and new */
