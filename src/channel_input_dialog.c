@@ -245,16 +245,18 @@ static void channel_input_dialog_update_combo(ChannelInputDialog *dialog)
 	GList *items = NULL;
 	GSList *cur;
 	Channel *channel;
-	GtkList *list;
-
+	
         g_return_if_fail(dialog != NULL);
         g_return_if_fail(IS_CHANNEL_INPUT_DIALOG(dialog));
 	
 	priv = dialog->priv;
 
 	gtk_entry_set_text(GTK_ENTRY(GTK_COMBO(dialog->combo)->entry), "");
-	list = GTK_LIST(GTK_COMBO(dialog->combo)->list);
-	gtk_list_clear_items(list, 0, -1);
+
+	items = g_list_alloc();
+	gtk_combo_set_popdown_strings(GTK_COMBO(dialog->combo), items);
+	g_list_free(items);
+	items = NULL;
 
 	switch(priv->history_type) {
 	case CHANNEL_HISTORY_NONE:
