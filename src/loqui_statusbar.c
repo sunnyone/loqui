@@ -35,9 +35,6 @@ typedef enum {
 
 struct _LoquiStatusbarPrivate
 {
-	GtkWidget *label_user_number;
-	GtkWidget *label_channel;
-	GtkWidget *label_channel_mode;
 	GtkWidget *label_account;
 	
 	GtkWidget *image_online;
@@ -199,15 +196,6 @@ loqui_statusbar_new (void)
 	gtk_widget_show(priv->image_online);
 	g_object_unref(pixbuf);
 	g_object_unref(pixbuf_scaled);
-			
-	priv->label_channel = gtk_label_new("");
-	gtk_box_pack_start(GTK_BOX(statusbar), priv->label_channel, FALSE, FALSE, 0);
-
-	priv->label_channel_mode = gtk_label_new("");
-	gtk_box_pack_start(GTK_BOX(statusbar), priv->label_channel_mode, FALSE, FALSE, 0);
-
-	priv->label_user_number = gtk_label_new("");
-	gtk_box_pack_start(GTK_BOX(statusbar), priv->label_user_number, FALSE, FALSE, 0);
 
 /* FIXME: why statusbar becomes taller when button widget is on it? */
 #define WIDGET_MINIMIZE_HEIGHT(widget) gtk_widget_set_usize(widget, -1, 1);
@@ -254,35 +242,11 @@ void
 loqui_statusbar_set_current_channel(LoquiStatusbar *statusbar, Channel *channel)
 {
 	LoquiStatusbarPrivate *priv;
-	gchar *buf;
-	gchar *channel_mode;
-	guint user_number, op_number;
 	
         g_return_if_fail(statusbar != NULL);
         g_return_if_fail(LOQUI_IS_STATUSBAR(statusbar));
     
     	priv = statusbar->priv;
-        
-	gtk_label_set(GTK_LABEL(priv->label_channel), "");
-	gtk_label_set(GTK_LABEL(priv->label_channel_mode), "");
-	gtk_label_set(GTK_LABEL(priv->label_user_number), "");
-	
-	if(channel) {
-		channel_mode = channel_get_mode(channel);
-		channel_get_user_number(channel, &user_number, &op_number);
-		
-		gtk_label_set(GTK_LABEL(priv->label_channel), channel_get_name(channel));
-		
-		buf = g_strdup_printf("[%s]", channel_mode);
-		gtk_label_set(GTK_LABEL(priv->label_channel_mode), buf);
-		g_free(buf);
-		
-		if(user_number > 0) {
-			buf = g_strdup_printf("(%d/%d)", op_number, user_number);
-			gtk_label_set(GTK_LABEL(priv->label_user_number), buf);
-			g_free(buf);
-		}
-	}
 }
 void
 loqui_statusbar_set_current_account(LoquiStatusbar *statusbar, Account *account)
