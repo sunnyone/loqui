@@ -157,6 +157,10 @@ loqui_menu_new(GtkWindow *window)
 	gtk_item_factory_create_items(priv->item_factory, G_N_ELEMENTS(menu_items),
 				      menu_items, window);
 	gtk_widget_set_sensitive(gtk_item_factory_get_item(priv->item_factory, "/Edit"), FALSE);
+	gtk_widget_set_sensitive(gtk_item_factory_get_item(priv->item_factory, "/User"), FALSE);
+	gtk_widget_set_sensitive(gtk_item_factory_get_item(priv->item_factory, "/Channel"), FALSE);
+	gtk_widget_set_sensitive(gtk_item_factory_get_item(priv->item_factory, "/Server"), FALSE);
+	gtk_widget_set_sensitive(gtk_item_factory_get_item(priv->item_factory, "/View"), FALSE);
 
 	priv->connect_menu = gtk_item_factory_get_item(priv->item_factory, "/File/Connect");
 
