@@ -67,12 +67,6 @@ static void loqui_channel_buffer_gtk_tag_uri(GtkTextBuffer *buffer,
 				   GtkTextIter *iter_in,
 				   const gchar *text);
 
-static gboolean loqui_channel_buffer_gtk_link_tag_event_cb(GtkTextTag *texttag,
-						 GObject *arg1,
-						 GdkEvent *event,
-						 GtkTextIter *arg2,
-						 gpointer user_data);
-
 static void loqui_channel_buffer_gtk_apply_tag_cb(GtkTextBuffer *buffer,
 					GtkTextTag *tag,
 					GtkTextIter *start,
@@ -154,8 +148,6 @@ loqui_channel_buffer_gtk_init_tags(void)
 
 	tag = gtk_text_tag_new("link");
 	g_object_set(tag, "foreground", "blue", "underline", PANGO_UNDERLINE_SINGLE, NULL);
-	g_signal_connect(G_OBJECT(tag), "event",
-			 G_CALLBACK(loqui_channel_buffer_gtk_link_tag_event_cb), NULL);
 	gtk_text_tag_table_add(default_tag_table, tag);
 	
 	tag = gtk_text_tag_new("transparent");
@@ -255,35 +247,6 @@ loqui_channel_buffer_gtk_apply_tag_cb(GtkTextBuffer *buffer,
 				   start, end);
 }
 
-static gboolean
-loqui_channel_buffer_gtk_link_tag_event_cb(GtkTextTag *texttag,
-					   GObject *arg1,
-					   GdkEvent *event,
-					   GtkTextIter *arg2,
-					   gpointer user_data)
-{
-	gchar *str;
-	GtkTextIter start_iter, end_iter;
-
-	if(event->type == GDK_2BUTTON_PRESS && ((GdkEventButton *) event)->button == 1) {
-		start_iter = *arg2;
-
-		if(!gtk_text_iter_backward_to_tag_toggle(&start_iter, texttag)) {
-			debug_puts("Can't find start.");
-			return FALSE;
-		}
-		end_iter = *arg2;
-		if(!gtk_text_iter_forward_to_tag_toggle(&end_iter, texttag)) {
-			debug_puts("Can't find end");
-			return FALSE;
-		}
-
-		str = gtk_text_iter_get_text(&start_iter, &end_iter);
-		gtkutils_exec_command_argument_with_error_dialog(prefs_general.browser_command, str);
-		return TRUE;
-	}
-	return FALSE;
-}
 static void
 loqui_channel_buffer_gtk_tag_uri(GtkTextBuffer *buffer,
 				 GtkTextIter *iter_in,
