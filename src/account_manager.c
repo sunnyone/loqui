@@ -42,6 +42,8 @@ struct _AccountManagerPrivate
 	ChannelBuffer *common_buffer;
 	LoquiApp *app;
 
+	gboolean is_pending_update_account_info;
+	gboolean is_pending_update_channel_info;
 	gboolean is_scroll;
 };
 
@@ -59,6 +61,9 @@ static void account_manager_channel_updated_cb(Channel *channel, gpointer data);
 static void account_manager_add_channel_cb(Account *account, Channel *channel, AccountManager *manager);
 static void account_manager_remove_channel_cb(Account *account, Channel *channel, AccountManager *manager);
 static void account_manager_channel_buffer_append_cb(ChannelBuffer *buffer, MessageText *msgtext, AccountManager *manager);
+
+static gboolean account_manager_update_account_info(AccountManager *manager);
+static gboolean account_manager_update_channel_info(AccountManager *manager);
 
 static AccountManager *main_account_manager = NULL;
 
@@ -266,25 +271,43 @@ account_manager_remove_channel_cb(Account *account, Channel *channel, AccountMan
 
 	channel_tree_remove_channel(manager->priv->app->channel_tree, channel);
 }
-static void account_manager_account_changed_cb(GObject *object, gpointer data)
+static gboolean
+account_manager_update_account_info(AccountManager *manager)
 {
-	AccountManager *manager;
-	AccountManagerPrivate *priv;
-
-        g_return_if_fail(data != NULL);
-        g_return_if_fail(IS_ACCOUNT_MANAGER(data));
+        g_return_val_if_fail(manager != NULL, FALSE);
+        g_return_val_if_fail(IS_ACCOUNT_MANAGER(manager), FALSE);
 	
-	manager = ACCOUNT_MANAGER(data);
+	AccountManagerPrivate *priv;
 
 	priv = manager->priv;
 
 	loqui_app_update_info(priv->app, 
 			      TRUE, account_manager_get_current_account(manager),
 			      FALSE, account_manager_get_current_channel(manager));
-}
-static void account_manager_channel_changed_cb(GObject *object, gpointer data)
-{
 
+	priv->is_pending_update_account_info = FALSE;
+	return FALSE;
+}
+static gboolean
+account_manager_update_channel_info(AccountManager *manager)
+{
+        g_return_val_if_fail(manager != NULL, FALSE);
+        g_return_val_if_fail(IS_ACCOUNT_MANAGER(manager), FALSE);
+	
+	AccountManagerPrivate *priv;
+
+	priv = manager->priv;
+
+	loqui_app_update_info(priv->app, 
+			      FALSE, account_manager_get_current_account(manager),
+			      TRUE, account_manager_get_current_channel(manager));
+
+	priv->is_pending_update_channel_info = FALSE;
+	return FALSE;
+}
+static void
+account_manager_account_changed_cb(GObject *object, gpointer data)
+{
 	AccountManager *manager;
 	AccountManagerPrivate *priv;
 
@@ -295,9 +318,27 @@ static void account_manager_channel_changed_cb(GObject *object, gpointer data)
 
 	priv = manager->priv;
 	
-	loqui_app_update_info(priv->app, 
-			      FALSE, account_manager_get_current_account(manager),
-			      TRUE, account_manager_get_current_channel(manager));
+	if(!priv->is_pending_update_account_info) {
+		priv->is_pending_update_account_info = TRUE;
+		g_idle_add((GSourceFunc) account_manager_update_account_info, manager);
+	}
+}
+static void account_manager_channel_changed_cb(GObject *object, gpointer data)
+{
+	AccountManager *manager;
+	AccountManagerPrivate *priv;
+
+        g_return_if_fail(data != NULL);
+        g_return_if_fail(IS_ACCOUNT_MANAGER(data));
+	
+	manager = ACCOUNT_MANAGER(data);
+
+	priv = manager->priv;
+	
+	if(!priv->is_pending_update_channel_info) {
+		priv->is_pending_update_channel_info = TRUE;
+		g_idle_add((GSourceFunc) account_manager_update_channel_info, manager);
+	}
 }
 static void
 account_manager_channel_updated_cb(Channel *channel, gpointer data)
