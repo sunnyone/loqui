@@ -283,13 +283,13 @@ msgstr ""
 #: src/prefs_account.c:244
 #, fuzzy, c-format
 msgid "Accountrc parse error: %s"
-msgstr "コード変換エラー: %s"
+msgstr "Accountrcパースエラー: %s"
 
 #: src/prefs_account.c:264 src/prefs_account.c:302 src/prefs_general.c:168
 #: src/prefs_general.c:198
 #, c-format
 msgid "Can't open %s: %s"
-msgstr ""
+msgstr "%sが開けませんでした: %s"
 
 #: src/prefs_account.c:274 src/prefs_general.c:178
 #, c-format
@@ -304,26 +304,3 @@ msgstr ""
 #: src/prefs_general.c:92
 msgid "The entry lacks name or value"
 msgstr ""
-
-#~ msgid "Account '%s': Nick is empty"
-#~ msgstr "アカウント '%s': Nickが空です"
-
-#~ msgid "Account '%s': Username is empty"
-#~ msgstr "アカウント '%s': Usernameが空です"
-
-#~ msgid "Account '%s': Realname is empty"
-#~ msgstr "アカウント '%s': Realnameが空です"
-
-#, fuzzy
-#~ msgid "Account '%s': No servers found."
-#~ msgstr "アカウント '%s': サーバが見つかりません"
-
-#~ msgid ""
-#~ "Cannot find a schema for loqui preferences. \n"
-#~ "Check your gconf setup"
-#~ msgstr ""
-#~ "loqui設定のschemaを見つけられませんでした。GConfのセットアップを確認してく"
-#~ "ださい。"
-
-#~ msgid "Loqui IRC client"
-#~ msgstr "Loqui IRC クライアント"
