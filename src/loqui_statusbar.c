@@ -21,6 +21,7 @@
 
 #include "loqui_statusbar.h"
 #include "intl.h"
+#include "loqui_stock.h"
 #include "icons/pixbufs.h"
 #include "gtkutils.h"
 #include "account_manager.h"

@@ -22,6 +22,7 @@
 
 #include "config.h"
 #include "buffer_menu.h"
+#include "loqui_stock.h"
 #include "gtkutils.h"
 #include "main.h"
 #include "intl.h"

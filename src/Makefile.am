@@ -15,6 +15,7 @@ loqui_SOURCES = \
 	loqui_profile_account_irc.c loqui_profile_account_irc.h \
 	loqui_menu.c loqui_menu.h \
 	account_manager.c account_manager.h \
+	loqui_stock.c loqui_stock.h \
 	loqui_app.c loqui_app.h \
 	account.c account.h \
 	codeconv.c codeconv.h \

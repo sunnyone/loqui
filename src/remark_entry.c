@@ -25,9 +25,12 @@
 #include "utils.h"
 #include "gtkutils.h"
 
+#include "loqui_stock.h"
+
 #include "main.h"
 
 #include <string.h>
+
 
 enum {
 	ACTIVATE,
