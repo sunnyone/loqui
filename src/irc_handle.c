@@ -51,8 +51,15 @@ struct _IRCHandlePrivate
 	GQueue *msg_queue;
 };
 
+enum {
+	DISCONNECTED,
+	TERMINATED,
+	LAST_SIGNAL
+};
+
 static GObjectClass *parent_class = NULL;
 #define PARENT_TYPE G_TYPE_OBJECT
+static guint signals[LAST_SIGNAL] = { 0 };
 
 static void irc_handle_class_init(IRCHandleClass *klass);
 static void irc_handle_init(IRCHandle *irc_handle);
@@ -138,6 +145,22 @@ irc_handle_class_init(IRCHandleClass *klass)
         parent_class = g_type_class_peek_parent(klass);
         
         object_class->finalize = irc_handle_finalize;
+
+	signals[DISCONNECTED] = g_signal_new("disconnected",
+					     G_OBJECT_CLASS_TYPE(object_class),
+					     G_SIGNAL_RUN_FIRST,
+					     G_STRUCT_OFFSET(IRCHandleClass, disconnected),
+					     NULL, NULL,
+					     g_cclosure_marshal_VOID__VOID,
+					     G_TYPE_NONE, 0);
+
+	signals[TERMINATED] = g_signal_new("terminated",
+					   G_OBJECT_CLASS_TYPE(object_class),
+					   G_SIGNAL_RUN_FIRST,
+					   G_STRUCT_OFFSET(IRCHandleClass, terminated),
+					   NULL, NULL,
+					   g_cclosure_marshal_VOID__VOID,
+					   G_TYPE_NONE, 0);
 }
 static void 
 irc_handle_init(IRCHandle *irc_handle)
@@ -1218,22 +1241,30 @@ irc_handle_watch_in_cb(GIOChannel *ioch, GIOCondition condition, gpointer data)
 
 	priv = handle->priv;
 
-	if(condition == G_IO_HUP) {
-		account_console_buffer_append(priv->account, TRUE, TEXT_TYPE_INFO,
-					      _("Connection terminated."));
+	if(condition == G_IO_HUP || condition == G_IO_ERR) {
 		priv->in_watch = 0;
+		irc_handle_disconnect(handle);
+		g_signal_emit(handle, signals[TERMINATED], 0);
 		return FALSE;
 	}
 
 	io_error = gnet_io_channel_readline_strdup(ioch, &buf, &len);
 
 	if(io_error != G_IO_ERROR_NONE) {
-		account_console_buffer_append(priv->account, TRUE, TEXT_TYPE_INFO,
-					      _("Error occured when reading IOChannel."));
 		priv->in_watch = 0;
+		irc_handle_disconnect(handle);
+		g_signal_emit(handle, signals[TERMINATED], 0);
 		return FALSE;
 	}
 	
+	if(len == 0) {
+		if(buf)
+			g_free(buf);
+		priv->in_watch = 0;
+		irc_handle_disconnect(handle);
+		return FALSE;
+	}
+
 	local = codeconv_to_local(buf);
 	g_free(buf);
 	if(len > 0 && local == NULL) {
@@ -1247,13 +1278,6 @@ irc_handle_watch_in_cb(GIOChannel *ioch, GIOCondition condition, gpointer data)
 
 	irc_handle_response(handle, msg);
 	g_object_unref(msg);
-
-	if(len == 0) {
-		account_console_buffer_append(priv->account, TRUE, TEXT_TYPE_INFO,
-					      _("Connection terminated."));
-		priv->in_watch = 0;
-		return FALSE;
-	}
 
 	return TRUE;
 }	
@@ -1430,7 +1454,7 @@ irc_handle_disconnect(IRCHandle *handle)
 		priv->socket = NULL;
 	}
 
-	account_console_buffer_append(priv->account, TRUE, TEXT_TYPE_INFO, _("Disconnected."));
+	g_signal_emit(handle, signals[DISCONNECTED], 0);
 }
 
 void

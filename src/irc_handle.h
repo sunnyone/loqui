@@ -52,6 +52,12 @@ struct _IRCHandle
 struct _IRCHandleClass
 {
         GObjectClass parent_class;
+
+	void (* disconnected) (IRCHandle *handle);
+
+	/* connection was terminated by force, 
+	   "terminated" signal emitted in addition to "disconnected" signal */
+	void (* terminated) (IRCHandle *handle);
 };
 
 GType irc_handle_get_type(void) G_GNUC_CONST;
