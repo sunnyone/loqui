@@ -13,7 +13,7 @@ loqui_SOURCES = \
 	loqui_profile_handle.c loqui_profile_handle.h \
 	loqui_profile_account.c loqui_profile_account.h \
 	loqui_profile_account_irc.c loqui_profile_account_irc.h \
-	loqui_actions.c loqui_actions.h \
+	loqui_app_actions.c loqui_app_actions.h \
 	account_manager.c account_manager.h \
 	loqui_stock.c loqui_stock.h \
 	loqui_app.c loqui_app.h \

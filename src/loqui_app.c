@@ -32,7 +32,7 @@
 #include "command_dialog.h"
 #include "loqui_profile_account.h"
 #include "account.h"
-#include "loqui_actions.h"
+#include "loqui_app_actions.h"
 #include "buffer_menu.h"
 
 #include "embedtxt/loqui_app_ui.h"
@@ -464,7 +464,7 @@ loqui_app_new(void)
 	menu_box = gtk_vbox_new(FALSE, 0);
 	gtk_box_pack_start(GTK_BOX(vbox), menu_box, FALSE, FALSE, 0);
 
-	app->action_group = loqui_actions_create_group(app);
+	app->action_group = loqui_app_actions_create_group(app);
 	toggle_command_action = gtk_action_group_get_action(app->action_group, "ToggleCommandMode");
 
 	app->ui_manager = gtk_ui_manager_new();

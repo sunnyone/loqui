@@ -21,8 +21,8 @@
 #include "loqui_app.h"
 #include <gtk24backports.h>
 
-#ifndef __LOQUI_ACTIONS_H__
-#define __LOQUI_ACTIONS_H__
+#ifndef __LOQUI_APP_ACTIONS_H__
+#define __LOQUI_APP_ACTIONS_H__
 
 #define ACTION_GROUP_ACTION_SET_SENSITIVE(action_group, name, bool) { \
   GtkAction *a; \
@@ -31,6 +31,6 @@
     g_object_set(a, "sensitive", bool, NULL); \
 }
 
-GtkActionGroup* loqui_actions_create_group(LoquiApp *app);
+GtkActionGroup* loqui_app_actions_create_group(LoquiApp *app);
 
-#endif /* __LOQUI_ACTIONS_H__ */
+#endif /* __LOQUI_APP_ACTIONS_H__ */
