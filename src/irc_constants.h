@@ -11,23 +11,33 @@
 #define IRC_MESSAGE_PARAMETER_MAX 15
 
 typedef enum {
-  /* user mode */
-  MODE_IRC_UserInvisible             = 'i',
-  MODE_IRC_UserReceivesServerNotices = 's',
-  MODE_IRC_UserReceivesWallops       = 'w',
-  MODE_IRC_UserOperatorPrivs         = 'o',
-  /* channel mode */
-  MODE_IRC_ChannelOperatorPrivs         = 'o',
-  MODE_IRC_ChannelPrivateChannel        = 'p',
-  MODE_IRC_ChannelSecretChannel         = 's',
-  MODE_IRC_ChannelInviteOnly            = 'i',
-  MODE_IRC_ChannelTopicSettable         = 't',
-  MODE_IRC_ChannelNoMessagesFromOutside = 'n',
-  MODE_IRC_ChannelModerated             = 'm',
-  MODE_IRC_ChannelUserLimit             = 'l',
-  MODE_IRC_ChannelBanMask               = 'b',
-  MODE_IRC_ChannelSpeakAbility          = 'v',
-  MODE_IRC_ChannelChannelKey            = 'k'
+	IRC_CHANNEL_MODE_CREATOR = 'O',
+	IRC_CHANNEL_MODE_OPERATOR = 'o',
+	IRC_CHANNEL_MODE_VOICE = 'v',
+	
+	IRC_CHANNEL_MODE_ANONYMOUS = 'a',
+	IRC_CHANNEL_MODE_INVITE_ONLY = 'i',
+	IRC_CHANNEL_MODE_MODERATED = 'm',
+	IRC_CHANNEL_MODE_NO_MESSAGES_FROM_CLIENT = 'n',
+	IRC_CHANNEL_MODE_QUIET = 'q',
+	IRC_CHANNEL_MODE_SECRET = 's',
+	IRC_CHANNEL_MODE_SERVER_REOP = 'r',
+	IRC_CHANNEL_MODE_TOPIC_SETTABLE_BY_CHANNEL_OPERATOR_ONLY = 't',
+
+	IRC_CHANNEL_MODE_CHANNEL_KEY = 'k',
+	IRC_CHANNEL_MODE_USER_LIMIT = 'l',
+
+	IRC_CHANNEL_MODE_BAN_MASK = 'b',
+	IRC_CHANNEL_MODE_EXCEPTION_TO_OVERIDE_BAN_MASK = 'e',
+	IRC_CHANNEL_MODE_INVITATION_MASK = 'I',
+
+	IRC_USER_MODE_FLAGGED_AS_AWAY = 'a',
+	IRC_USER_MODE_INVISIBLE = 'i',
+	IRC_USER_MODE_RECEIVES_WALLOPS = 'w',
+	IRC_USER_MODE_RESTRICTED_CONNECTION = 'r',
+	IRC_USER_MODE_OPERATOR = 'o',
+	IRC_USER_MODE_LOCAL_OPERATOR = 'O',
+	IRC_USER_MODE_RECEIVES_SERVER_NOTICES = 's'
 } IRCModeFlag;
 
 typedef enum {

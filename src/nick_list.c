@@ -70,15 +70,15 @@ static GtkItemFactoryEntry popup_menu_items[] = {
 	{ N_("/Whois"), NULL, nick_list_menu_whois_cb, 0 },
 	{ N_("/Mode"), NULL, 0, 0, "<Branch>"},
 	{ N_("/Mode/Give channel operator privilege (+o)"), NULL, 
-	     nick_list_menu_mode_give_cb, MODE_IRC_ChannelOperatorPrivs },
+	     nick_list_menu_mode_give_cb, IRC_CHANNEL_MODE_OPERATOR },
 	{ N_("/Mode/Give speak ability (+v)"), NULL,
-             nick_list_menu_mode_give_cb, MODE_IRC_ChannelSpeakAbility },
+             nick_list_menu_mode_give_cb, IRC_CHANNEL_MODE_VOICE },
 	{    "/Mode/sep1", NULL, 0, 0, "<Separator>" },
 
 	{ N_("/Mode/Deprive channel operator privilege (-o)"), NULL, 
-	     nick_list_menu_mode_deprive_cb, MODE_IRC_ChannelOperatorPrivs },
+	  nick_list_menu_mode_deprive_cb, IRC_CHANNEL_MODE_OPERATOR },
 	{ N_("/Mode/Deprive speak ability (-v)"), NULL,
-	     nick_list_menu_mode_deprive_cb, MODE_IRC_ChannelSpeakAbility }
+	     nick_list_menu_mode_deprive_cb, IRC_CHANNEL_MODE_VOICE }
 };
 
 GType

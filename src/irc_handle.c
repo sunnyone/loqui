@@ -83,6 +83,9 @@ static void irc_handle_joined_channel_append(IRCHandle *handle, IRCMessage *msg,
 static void irc_handle_reply_names(IRCHandle *handle, IRCMessage *msg);
 static void irc_handle_reply_topic(IRCHandle *handle, IRCMessage *msg);
 static void irc_handle_reply_endofnames(IRCHandle *handle, IRCMessage *msg);
+static void irc_handle_reply_channelmodeis(IRCHandle *handle, IRCMessage *msg);
+
+static void irc_handle_parse_mode_arguments(IRCHandle *handle, IRCMessage *msg, Channel *channel, gint mode_start);
 
 GType
 irc_handle_get_type(void)
@@ -329,42 +332,24 @@ irc_handle_command_nick(IRCHandle *handle, IRCMessage *msg)
 		g_slist_free(slist);
 }
 
-/* FIXME: this function current handles user's op and speak ability only. */
 static void
-irc_handle_command_mode(IRCHandle *handle, IRCMessage *msg)
+irc_handle_parse_mode_arguments(IRCHandle *handle, IRCMessage *msg, Channel *channel, gint mode_start)
 {
-	gchar *changer = NULL;
-	gchar *name, *flags, *format, *changee;
+	gint cur;
+	gint param_num;
+	gchar *flags, *target;
 	gboolean is_add = TRUE;
-	gint i = 0, param_num;
-	Channel *channel = NULL;
 
-	if(msg->nick)
-		changer = msg->nick;
-	else if(msg->prefix)
-		changer = msg->prefix;
-	else {
-		g_warning(_("Who can change mode?"));
-		return;
-	}
-	if(strchr(changer, '%')) {
-		g_warning(_("Nick should not contain '%%'"));
-		return;
-	}
+	cur = mode_start;
+	param_num = irc_message_count_parameters(msg);
 
-	name = irc_message_get_param(msg, 1);
-	if(name == NULL) {
-		g_warning(_("The target is not found in MODE command"));
-		return;
-	}
 
-	flags = irc_message_get_param(msg, 2);
-	if(flags == NULL || *flags == '\0') {
+	flags = irc_message_get_param(msg, cur);
+	if(flags == NULL) {
 		g_warning(_("Flags are not found in MODE command"));
 		return;
 	}
-
-	i = 3;
+	cur++;
 
 	switch (*flags) {
 	case '+':
@@ -379,76 +364,163 @@ irc_handle_command_mode(IRCHandle *handle, IRCMessage *msg)
 	}
 	flags++;
 
-	param_num = irc_message_count_parameters(msg);
-	
+#define CHANGE_USER_POWER(channel, nick, power) { \
+  gdk_threads_enter(); \
+  channel_change_user_power(channel, nick, power); \
+  gdk_threads_leave(); \
+}
+
+#define GET_TARGET_OR_RETURN(msg, i, str_ptr) { \
+  *str_ptr = irc_message_get_param(msg, i); \
+  if(*str_ptr == NULL) { \
+	g_warning(_("Can't find a nick to change mode")); \
+	return; \
+  } \
+  i++; \
+}
+
+	if(channel) {
+		while (*flags) {
+			switch(*flags) {
+			case IRC_CHANNEL_MODE_OPERATOR:
+				GET_TARGET_OR_RETURN(msg, cur, &target);
+				CHANGE_USER_POWER(channel, target, is_add ? USER_POWER_OP : USER_POWER_NOTHING); /* FIXME */
+				break;
+			case IRC_CHANNEL_MODE_VOICE:
+				GET_TARGET_OR_RETURN(msg, cur, &target);
+				CHANGE_USER_POWER(channel, target, is_add ? USER_POWER_V : USER_POWER_NOTHING); /* FIXME */
+				break;
+			case IRC_CHANNEL_MODE_CREATOR:
+				break;
+			case IRC_CHANNEL_MODE_ANONYMOUS:
+			case IRC_CHANNEL_MODE_INVITE_ONLY:
+			case IRC_CHANNEL_MODE_MODERATED:
+			case IRC_CHANNEL_MODE_NO_MESSAGES_FROM_CLIENT:
+			case IRC_CHANNEL_MODE_QUIET:
+			case IRC_CHANNEL_MODE_SECRET:
+			case IRC_CHANNEL_MODE_SERVER_REOP:
+			case IRC_CHANNEL_MODE_TOPIC_SETTABLE_BY_CHANNEL_OPERATOR_ONLY:
+				gdk_threads_enter();
+				channel_change_mode(channel, is_add, *flags, NULL);
+				gdk_threads_leave();
+				break;
+			case IRC_CHANNEL_MODE_CHANNEL_KEY:
+			case IRC_CHANNEL_MODE_USER_LIMIT:
+				GET_TARGET_OR_RETURN(msg, cur, &target);
+				gdk_threads_enter();
+				channel_change_mode(channel, is_add, *flags, NULL);
+				gdk_threads_leave();
+				break;
+			case IRC_CHANNEL_MODE_BAN_MASK:
+			case IRC_CHANNEL_MODE_EXCEPTION_TO_OVERIDE_BAN_MASK:
+			case IRC_CHANNEL_MODE_INVITATION_MASK:
+			default:
+				g_warning(_("Unknown mode flag"));
+				break;
+			}
+			flags++;
+		}
+	} else {
+		/* FIXME: handle user modes */
+		switch(*flags) {
+		case IRC_USER_MODE_FLAGGED_AS_AWAY:
+		case IRC_USER_MODE_INVISIBLE:
+		case IRC_USER_MODE_RECEIVES_WALLOPS:
+		case IRC_USER_MODE_RESTRICTED_CONNECTION:
+		case IRC_USER_MODE_OPERATOR:
+		case IRC_USER_MODE_LOCAL_OPERATOR:
+		case IRC_USER_MODE_RECEIVES_SERVER_NOTICES:
+		default:
+			g_warning(_("User mode is not implemented."));
+			break;
+		}
+	}
+}
+static void
+irc_handle_reply_channelmodeis(IRCHandle *handle, IRCMessage *msg)
+{
+	Channel *channel;
+	gint cur;
+	gchar *name;
+
+	cur = 2;
+
+	name = irc_message_get_param(msg, cur);
+	if(name == NULL) {
+		g_warning(_("The target is not found in MODE command"));
+		return;
+	}
+	cur++;
+
+	if(STRING_IS_CHANNEL(name)) {
+		channel = account_search_channel_by_name(handle->priv->account, name);
+		if(!channel)
+			return;
+	} else {
+		g_warning(_("RPL_CHANNELMODEIS didn't return a channel name: %s"), name);
+		return;
+	}
+	gdk_threads_enter();
+	channel_clear_mode(channel);
+	gdk_threads_leave();
+
+	irc_handle_parse_mode_arguments(handle, msg, channel, 3);
+
+	irc_handle_channel_append(handle, msg, FALSE, 2, TEXT_TYPE_INFO, _("*** Mode for %2: %*3"));
+}
+static void
+irc_handle_command_mode(IRCHandle *handle, IRCMessage *msg)
+{
+	gchar *changer = NULL;
+	gchar *format, *name;
+	Channel *channel = NULL;
+	gint cur;
+
+	if(msg->nick)
+		changer = msg->nick;
+	else if(msg->prefix)
+		changer = msg->prefix;
+	else {
+		g_warning(_("Who can change mode?"));
+		return;
+	}
+
+	if(strchr(changer, '%')) {
+		g_warning(_("Nick must not contain '%%'"));
+		return;
+	}
+
+	cur = 1;
+
+	name = irc_message_get_param(msg, cur);
+	if(name == NULL) {
+		g_warning(_("The target is not found in MODE command"));
+		return;
+	}
+	cur++;
+
 	if(STRING_IS_CHANNEL(name)) {
 		channel = account_search_channel_by_name(handle->priv->account, name);
 		if(!channel) {
 			g_warning(_("Why can you know the change of his mode?"));
 			return;
 		}
-
-		while (*flags) {
-			if(param_num < i) {
-				g_warning(_("Invalid MODE command"));
-				return;
-			}
-			changee = irc_message_get_param(msg, i);
-			if(!changee) {
-				g_warning(_("Can't find a nick to change mode"));
-				return;
-			}
-
-#define CHANGE_USER_POWER(nick, power) { \
-  gdk_threads_enter(); \
-  channel_change_user_power(channel, nick, power); \
-  gdk_threads_leave(); \
-}
-			switch(*flags) {
-			case MODE_IRC_ChannelOperatorPrivs:
-				if(is_add) {
-					CHANGE_USER_POWER(changee, USER_POWER_OP);
-				} else {
-					CHANGE_USER_POWER(changee, USER_POWER_NOTHING); /* FIXME */
-				}
-				break;
-			case MODE_IRC_ChannelSpeakAbility:
-				if(is_add) {
-					CHANGE_USER_POWER(changee, USER_POWER_V);
-				} else {
-					CHANGE_USER_POWER(changee, USER_POWER_NOTHING); /* FIXME */
-				}
-				break;
-			case MODE_IRC_ChannelPrivateChannel:
-			case MODE_IRC_ChannelSecretChannel:
-			case MODE_IRC_ChannelInviteOnly:
-			case MODE_IRC_ChannelTopicSettable:
-			case MODE_IRC_ChannelNoMessagesFromOutside:
-			case MODE_IRC_ChannelModerated:
-			case MODE_IRC_ChannelUserLimit:
-			case MODE_IRC_ChannelBanMask:
-			case MODE_IRC_ChannelChannelKey:
-				break;
-			default:
-				g_warning(_("Unknown mode flag"));
-				break;
-			}
-			flags++;
-			i++;
-		}
 	} else {
+		channel = NULL;
 	}
 
-#undef CHANGE_USER_POWER
+	irc_handle_parse_mode_arguments(handle, msg, channel, cur);
 
 	format = g_strdup_printf(_("*** New mode for %%1 by %s: %%*2"), changer);
-	if(channel) {
+
+	if(channel)
 		irc_handle_channel_append(handle, msg, FALSE, 1, TEXT_TYPE_INFO, format);
-	} else {
+	else
 		irc_handle_account_console_append(handle, msg, TEXT_TYPE_INFO, format);
-	}
 
 	g_free(format);
+#undef GET_TARGET_OR_RETURN
+#undef CHANGE_USER_POWER
 }
 static void
 irc_handle_command_join(IRCHandle *handle, IRCMessage *msg)
@@ -484,6 +556,7 @@ irc_handle_my_command_join(IRCHandle *handle, IRCMessage *msg)
 	IRCHandlePrivate *priv;
 	Channel *channel;
 	gchar *name;
+	IRCMessage *mode_msg;
 
         g_return_if_fail(handle != NULL);
         g_return_if_fail(IS_IRC_HANDLE(handle));
@@ -502,6 +575,10 @@ irc_handle_my_command_join(IRCHandle *handle, IRCMessage *msg)
 	account_add_channel(priv->account, channel);
 	account_manager_select_channel(account_manager_get(), channel);
 	gdk_threads_leave();
+
+	mode_msg = irc_message_create(IRCCommandMode, channel->name, NULL);
+	irc_message_print(mode_msg);
+	irc_handle_push_message(handle, mode_msg);
 }
 
 static void
@@ -667,6 +744,7 @@ irc_handle_reply_topic(IRCHandle *handle, IRCMessage *msg)
 
 	irc_handle_channel_append(handle, msg, FALSE, 2, TEXT_TYPE_INFO, _("Topic for %2: %t"));
 }
+
 static void
 irc_handle_command_topic(IRCHandle *handle, IRCMessage *msg)
 {
@@ -851,6 +929,9 @@ irc_handle_reply(IRCHandle *handle, IRCMessage *msg)
 		return TRUE;
 	case IRC_RPL_ENDOFNAMES:
 		irc_handle_reply_endofnames(handle, msg);
+		return TRUE;
+	case IRC_RPL_CHANNELMODEIS:
+		irc_handle_reply_channelmodeis(handle, msg);
 		return TRUE;
 	case IRC_RPL_ENDOFWHOIS:
 	case IRC_RPL_ENDOFWHO:

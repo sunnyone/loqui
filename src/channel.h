@@ -66,8 +66,6 @@ struct _Channel
 
 	gboolean end_names;
 
-	gchar *mode;
-	
         ChannelPrivate *priv;
 };
 
@@ -89,6 +87,10 @@ gchar *channel_get_topic(Channel *channel);
 
 void channel_set_fresh(Channel *channel, gboolean fresh);
 gboolean channel_get_fresh(Channel *channel);
+
+void channel_change_mode(Channel *channel, gboolean is_add, IRCModeFlag flag, gchar *argument);
+void channel_clear_mode(Channel *channel);
+gchar *channel_get_mode(Channel *channel);
 
 void channel_push_user_mode_queue(Channel *channel, gboolean is_give, IRCModeFlag flag, const gchar *nick);
 void channel_flush_user_mode_queue(Channel *channel);

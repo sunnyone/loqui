@@ -447,12 +447,15 @@ void account_manager_update_current_info(AccountManager *manager)
 		channel_name = channel->name;
 		topic = channel_get_topic(channel);
 		channel_get_user_number(channel, (guint *) &user_number, (guint *) & op_number);
-		/* TODO: mode */
+		channel_mode = channel_get_mode(channel);
 	}
 
 	loqui_app_set_current_info(manager->priv->app, account_name, 
 				   channel_name, channel_mode,
 				   topic, user_number, op_number);
+
+	g_free(topic);
+	g_free(channel_mode);
 }
 void account_manager_update_channel_user_number(AccountManager *manager, Channel *channel)
 {

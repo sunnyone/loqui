@@ -34,8 +34,15 @@ struct _ChannelPrivate
 
 	gboolean user_number_update_function_added;
 
+	GSList *mode_list;
+
 	GList *mode_change_queue;
 };
+
+typedef struct {
+	IRCModeFlag flag;
+	gchar *argument;
+} ChannelMode;
 
 typedef struct {
 	gboolean is_give;
@@ -56,6 +63,7 @@ static void channel_update_user_number(Channel *channel);
 static gboolean channel_update_user_number_actually(Channel *channel);
 
 static void channel_mode_change_free(ModeChange *mode_change);
+static void channel_mode_free(ChannelMode *mode);
 
 GType
 channel_get_type(void)
@@ -100,7 +108,6 @@ channel_init (Channel *channel)
 	priv = g_new0(ChannelPrivate, 1);
 
 	channel->priv = priv;
-	channel->mode = NULL;
 	priv->topic = NULL;
 }
 static void 
@@ -219,9 +226,7 @@ void channel_set_topic(Channel *channel, const gchar *topic)
 
 	priv = channel->priv;
 
-	if(priv->topic)
-		g_free(priv->topic);
-
+	G_FREE_UNLESS_NULL(priv->topic);
 	priv->topic = g_strdup(topic);
 
 	if(account_manager_is_current_channel(account_manager_get(), channel)) {
@@ -233,7 +238,7 @@ gchar *channel_get_topic(Channel *channel)
 	g_return_val_if_fail(channel != NULL, NULL);
 	g_return_val_if_fail(IS_CHANNEL(channel), NULL);
 
-	return channel->priv->topic;
+	return g_strdup(channel->priv->topic);
 }
 void channel_append_user(Channel *channel, const gchar *nick, UserPower power, UserExistence exist)
 {
@@ -472,6 +477,15 @@ channel_mode_change_free(ModeChange *mode_change)
 	g_free(mode_change->nick);
 	g_free(mode_change);
 }
+static void
+channel_mode_free(ChannelMode *mode)
+{
+	g_return_if_fail(mode);
+
+	if(mode->argument)
+		g_free(mode->argument);
+	g_free(mode);
+}
 
 void channel_flush_user_mode_queue(Channel *channel)
 {
@@ -498,4 +512,108 @@ void channel_flush_user_mode_queue(Channel *channel)
 	g_list_foreach(priv->mode_change_queue, (GFunc) channel_mode_change_free, NULL);
 	g_list_free(priv->mode_change_queue);
 	priv->mode_change_queue = NULL;
+}
+void
+channel_change_mode(Channel *channel, gboolean is_add, IRCModeFlag flag, gchar *argument)
+{
+	ChannelPrivate *priv;
+	GSList *cur;
+	ChannelMode *matched = NULL;
+	ChannelMode *mode;
+
+	g_return_if_fail(channel != NULL);
+	g_return_if_fail(IS_CHANNEL(channel));
+	
+	priv = channel->priv;
+
+	for(cur = priv->mode_list; cur != NULL; cur = cur->next) {
+		mode = (ChannelMode *) cur->data;
+		if(mode->flag == flag) {
+			matched = mode;
+			break;
+		}
+	}
+
+	if(is_add) {
+		if(matched)
+			return;
+		
+		mode = g_new0(ChannelMode, 1);
+		mode->flag = flag;
+		mode->argument = g_strdup(mode->argument);
+		priv->mode_list = g_slist_append(priv->mode_list, mode);
+	} else {
+		if(!matched)
+			return;
+
+		priv->mode_list = g_slist_remove(priv->mode_list, matched);
+		channel_mode_free(matched);
+	}
+
+	debug_puts("Channel mode changed: %s %c%c %s", channel->name, is_add ? '+' : '-', flag, argument ? argument : "");
+
+	if(account_manager_is_current_channel(account_manager_get(), channel)) {
+		account_manager_update_current_info(account_manager_get());
+	}
+}
+void channel_clear_mode(Channel *channel)
+{
+	ChannelPrivate *priv;
+
+	g_return_if_fail(channel != NULL);
+	g_return_if_fail(IS_CHANNEL(channel));
+	
+	priv = channel->priv;
+
+	if(!priv->mode_list)
+		return;
+
+	g_slist_foreach(priv->mode_list, (GFunc) channel_mode_free, NULL);
+	g_slist_free(priv->mode_list);
+
+	priv->mode_list = NULL;
+
+	if(account_manager_is_current_channel(account_manager_get(), channel)) {
+		account_manager_update_current_info(account_manager_get());
+	}
+}
+gchar *
+channel_get_mode(Channel *channel)
+{
+	ChannelPrivate *priv;
+	GString *flag_string;
+	GString *argument_string;
+	gchar *str;
+	GSList *cur;
+	ChannelMode *mode;
+
+	g_return_val_if_fail(channel != NULL, NULL);
+	g_return_val_if_fail(IS_CHANNEL(channel), NULL);
+	
+	priv = channel->priv;
+
+	if(!priv->mode_list)
+		return g_strdup("");
+
+	flag_string = g_string_sized_new(20);
+	argument_string = g_string_new(NULL);
+
+	flag_string = g_string_append_c(flag_string, '+');
+
+	for(cur = priv->mode_list; cur != NULL; cur = cur->next) {
+		mode = (ChannelMode *) cur->data;
+
+		flag_string = g_string_append_c(flag_string, mode->flag);
+		if(mode->argument)
+			g_string_append_printf(argument_string, "%s ", mode->argument);
+	}
+	if(argument_string->len > 1) {
+		g_string_append_len(flag_string, argument_string->str, argument_string->len-1);
+	}
+	g_string_free(argument_string, TRUE);
+
+	str = flag_string->str;
+	g_string_free(flag_string, FALSE);
+
+	return str;
 }
