@@ -316,7 +316,7 @@ loqui_receiver_irc_command_privmsg_notice(LoquiReceiverIRC *receiver, IRCMessage
 				loqui_channel_entry_add_member(LOQUI_CHANNEL_ENTRY(channel), member);
 				g_object_unref(member);
 
-				loqui_channel_add_member_by_nick(channel, is_self ? receiver_name : msg->nick, FALSE, FALSE, FALSE);
+				loqui_channel_irc_add_member_by_nick(LOQUI_CHANNEL_IRC(channel), is_self ? receiver_name : msg->nick, FALSE, FALSE, FALSE);
 			}
 			loqui_account_add_channel(account, channel);
 			g_object_unref(channel);
@@ -742,7 +742,7 @@ loqui_receiver_irc_command_join(LoquiReceiverIRC *receiver, IRCMessage *msg)
 			loqui_account_warning(account, _("Why do you know that the user join the channel?"));
 			return;
 		}
-		loqui_channel_add_member_by_nick(channel, msg->nick, FALSE, FALSE, FALSE);
+		loqui_channel_irc_add_member_by_nick(LOQUI_CHANNEL_IRC(channel), msg->nick, FALSE, FALSE, FALSE);
 		loqui_receiver_irc_channel_append(receiver, msg, FALSE, 1, TEXT_TYPE_INFO, _("*** %n (%u@%h) joined channel %t"));
 	}
 }
@@ -808,8 +808,8 @@ loqui_receiver_irc_reply_names(LoquiReceiverIRC *receiver, IRCMessage *msg)
 	}
 
 	nick_array = g_strsplit(irc_message_get_trailing(msg), " ", 0);
-	for(i = 0; nick_array[i] != NULL; i++) {
-		loqui_channel_add_member_by_nick(channel, nick_array[i], TRUE, FALSE, FALSE);
+	for (i = 0; nick_array[i] != NULL; i++) {
+		loqui_channel_irc_add_member_by_nick(LOQUI_CHANNEL_IRC(channel), nick_array[i], TRUE, FALSE, FALSE);
 	}
 	g_strfreev(nick_array);
 
@@ -998,7 +998,7 @@ loqui_receiver_irc_reply_who(LoquiReceiverIRC *receiver, IRCMessage *msg)
 	if (channel && user) {
 		member = loqui_channel_entry_get_member_by_user(LOQUI_CHANNEL_ENTRY(channel), user);
 		if (!member)
-			member = loqui_channel_add_member_by_nick(channel, nick, FALSE, FALSE, FALSE);
+			member = loqui_channel_irc_add_member_by_nick(LOQUI_CHANNEL_IRC(channel), nick, FALSE, FALSE, FALSE);
 	}
 	if (user) {
 		loqui_user_set_username(user, username);

@@ -20,6 +20,8 @@
 #include "config.h"
 
 #include "loqui_channel_irc.h"
+#include "loqui_utils_irc.h"
+#include "loqui_account_irc.h"
 
 enum {
         LAST_SIGNAL
@@ -29,7 +31,7 @@ enum {
         LAST_PROP
 };
 
-struct _LoquichannelIRCPrivate
+struct _LoquiChannelIRCPrivate
 {
 };
 
@@ -37,8 +39,8 @@ static LoquiChannelClass *parent_class = NULL;
 
 /* static guint loqui_channel_irc_signals[LAST_SIGNAL] = { 0 }; */
 
-static void loqui_channel_irc_class_init(LoquichannelIRCClass *klass);
-static void loqui_channel_irc_init(LoquichannelIRC *channel);
+static void loqui_channel_irc_class_init(LoquiChannelIRCClass *klass);
+static void loqui_channel_irc_init(LoquiChannelIRC *channel);
 static void loqui_channel_irc_finalize(GObject *object);
 static void loqui_channel_irc_dispose(GObject *object);
 
@@ -52,19 +54,19 @@ loqui_channel_irc_get_type(void)
 	if (type == 0) {
 		static const GTypeInfo our_info =
 			{
-				sizeof(LoquichannelIRCClass),
+				sizeof(LoquiChannelIRCClass),
 				NULL,           /* base_init */
 				NULL,           /* base_finalize */
 				(GClassInitFunc) loqui_channel_irc_class_init,
 				NULL,           /* class_finalize */
 				NULL,           /* class_data */
-				sizeof(LoquichannelIRC),
+				sizeof(LoquiChannelIRC),
 				0,              /* n_preallocs */
 				(GInstanceInitFunc) loqui_channel_irc_init
 			};
 		
 		type = g_type_register_static(LOQUI_TYPE_CHANNEL,
-					      "LoquichannelIRC",
+					      "LoquiChannelIRC",
 					      &our_info,
 					      0);
 	}
@@ -74,7 +76,7 @@ loqui_channel_irc_get_type(void)
 static void 
 loqui_channel_irc_finalize(GObject *object)
 {
-	LoquichannelIRC *channel;
+	LoquiChannelIRC *channel;
 
         g_return_if_fail(object != NULL);
         g_return_if_fail(LOQUI_IS_CHANNEL_IRC(object));
@@ -89,7 +91,7 @@ loqui_channel_irc_finalize(GObject *object)
 static void 
 loqui_channel_irc_dispose(GObject *object)
 {
-	LoquichannelIRC *channel;
+	LoquiChannelIRC *channel;
 
         g_return_if_fail(object != NULL);
         g_return_if_fail(LOQUI_IS_CHANNEL_IRC(object));
@@ -102,7 +104,7 @@ loqui_channel_irc_dispose(GObject *object)
 static void
 loqui_channel_irc_get_property(GObject *object, guint param_id, GValue *value, GParamSpec *pspec)
 {
-        LoquichannelIRC *channel;        
+        LoquiChannelIRC *channel;        
 
         channel = LOQUI_CHANNEL_IRC(object);
 
@@ -115,7 +117,7 @@ loqui_channel_irc_get_property(GObject *object, guint param_id, GValue *value, G
 static void
 loqui_channel_irc_set_property(GObject *object, guint param_id, const GValue *value, GParamSpec *pspec)
 {
-        LoquichannelIRC *channel;        
+        LoquiChannelIRC *channel;        
 
         channel = LOQUI_CHANNEL_IRC(object);
 
@@ -127,7 +129,7 @@ loqui_channel_irc_set_property(GObject *object, guint param_id, const GValue *va
 }
 
 static void
-loqui_channel_irc_class_init(LoquichannelIRCClass *klass)
+loqui_channel_irc_class_init(LoquiChannelIRCClass *klass)
 {
         GObjectClass *object_class = G_OBJECT_CLASS(klass);
 
@@ -139,19 +141,19 @@ loqui_channel_irc_class_init(LoquichannelIRCClass *klass)
         object_class->set_property = loqui_channel_irc_set_property;
 }
 static void 
-loqui_channel_irc_init(LoquichannelIRC *channel)
+loqui_channel_irc_init(LoquiChannelIRC *channel)
 {
-	LoquichannelIRCPrivate *priv;
+	LoquiChannelIRCPrivate *priv;
 
-	priv = g_new0(LoquichannelIRCPrivate, 1);
+	priv = g_new0(LoquiChannelIRCPrivate, 1);
 
 	channel->priv = priv;
 }
-LoquichannelIRC*
+LoquiChannelIRC*
 loqui_channel_irc_new(LoquiAccount *account, const gchar *name, gboolean is_joined, gboolean is_private_talk)
 {
-        LoquichannelIRC *channel;
-	LoquichannelIRCPrivate *priv;
+        LoquiChannelIRC *channel;
+	LoquiChannelIRCPrivate *priv;
 
 	channel = g_object_new(loqui_channel_irc_get_type(), 
 			       "account", account,
@@ -165,4 +167,39 @@ loqui_channel_irc_new(LoquiAccount *account, const gchar *name, gboolean is_join
         priv = channel->priv;
 
         return channel;
+}
+LoquiMember *
+loqui_channel_irc_add_member_by_nick(LoquiChannelIRC *channel_irc, const gchar *nick, gboolean parse_power, gboolean is_channel_operator, gboolean speakable)
+{
+	gchar *tmp_nick;
+	LoquiMember *member;
+	LoquiUser *user;
+	gboolean is_o, is_v;
+	LoquiChannel *channel;
+
+        g_return_val_if_fail(channel_irc != NULL, NULL);
+        g_return_val_if_fail(LOQUI_IS_CHANNEL_IRC(channel_irc), NULL);
+        g_return_val_if_fail(nick != NULL, NULL);
+        g_return_val_if_fail(*nick != '\0', NULL);
+
+	channel = LOQUI_CHANNEL(channel_irc);
+
+	if (parse_power) {
+		loqui_utils_irc_parse_nick(nick, &is_o, &is_v, &tmp_nick);
+		nick = tmp_nick;
+		is_channel_operator = is_o;
+		speakable = is_v;
+	}
+
+	user = LOQUI_USER(loqui_account_irc_fetch_user(LOQUI_ACCOUNT_IRC(channel->account), nick));
+	member = loqui_member_new(user);
+	g_object_unref(user); /* member has reference count */
+	if (is_channel_operator)
+		loqui_member_set_is_channel_operator(member, TRUE);
+	else if (speakable)
+		loqui_member_set_speakable(member, TRUE);
+	loqui_channel_entry_add_member(LOQUI_CHANNEL_ENTRY(channel), member);
+	g_object_unref(member); /* channel entry has reference count */
+
+	return member;
 }

@@ -23,29 +23,30 @@
 #include <gtk/gtk.h>
 
 #include "loqui_channel.h"
+#include "loqui_member.h"
 
 G_BEGIN_DECLS
 
 #define LOQUI_TYPE_CHANNEL_IRC                 (loqui_channel_irc_get_type ())
-#define LOQUI_CHANNEL_IRC(obj)                 (G_TYPE_CHECK_INSTANCE_CAST ((obj), LOQUI_TYPE_CHANNEL_IRC, LoquichannelIRC))
-#define LOQUI_CHANNEL_IRC_CLASS(klass)         (G_TYPE_CHECK_CLASS_CAST ((klass), LOQUI_TYPE_CHANNEL_IRC, LoquichannelIRCClass))
+#define LOQUI_CHANNEL_IRC(obj)                 (G_TYPE_CHECK_INSTANCE_CAST ((obj), LOQUI_TYPE_CHANNEL_IRC, LoquiChannelIRC))
+#define LOQUI_CHANNEL_IRC_CLASS(klass)         (G_TYPE_CHECK_CLASS_CAST ((klass), LOQUI_TYPE_CHANNEL_IRC, LoquiChannelIRCClass))
 #define LOQUI_IS_CHANNEL_IRC(obj)              (G_TYPE_CHECK_INSTANCE_TYPE ((obj), LOQUI_TYPE_CHANNEL_IRC))
 #define LOQUI_IS_CHANNEL_IRC_CLASS(klass)      (G_TYPE_CHECK_CLASS_TYPE ((klass), LOQUI_TYPE_CHANNEL_IRC))
-#define LOQUI_CHANNEL_IRC_GET_CLASS(obj)       (G_TYPE_INSTANCE_GET_CLASS ((obj), LOQUI_TYPE_CHANNEL_IRC, LoquichannelIRCClass))
+#define LOQUI_CHANNEL_IRC_GET_CLASS(obj)       (G_TYPE_INSTANCE_GET_CLASS ((obj), LOQUI_TYPE_CHANNEL_IRC, LoquiChannelIRCClass))
 
-typedef struct _LoquichannelIRC            LoquichannelIRC;
-typedef struct _LoquichannelIRCClass       LoquichannelIRCClass;
+typedef struct _LoquiChannelIRC            LoquiChannelIRC;
+typedef struct _LoquiChannelIRCClass       LoquiChannelIRCClass;
 
-typedef struct _LoquichannelIRCPrivate     LoquichannelIRCPrivate;
+typedef struct _LoquiChannelIRCPrivate     LoquiChannelIRCPrivate;
 
-struct _LoquichannelIRC
+struct _LoquiChannelIRC
 {
         LoquiChannel parent;
         
-        LoquichannelIRCPrivate *priv;
+        LoquiChannelIRCPrivate *priv;
 };
 
-struct _LoquichannelIRCClass
+struct _LoquiChannelIRCClass
 {
         LoquiChannelClass parent_class;
 };
@@ -53,7 +54,13 @@ struct _LoquichannelIRCClass
 
 GType loqui_channel_irc_get_type(void) G_GNUC_CONST;
 
-LoquichannelIRC* loqui_channel_irc_new(LoquiAccount *account, const gchar *name, gboolean is_joined, gboolean is_private_talk);
+LoquiChannelIRC* loqui_channel_irc_new(LoquiAccount *account, const gchar *name, gboolean is_joined, gboolean is_private_talk);
+
+LoquiMember* loqui_channel_irc_add_member_by_nick(LoquiChannelIRC *channel_irc,
+						  const gchar *nick,
+						  gboolean parse_power,
+						  gboolean is_channel_operator,
+						  gboolean speakable);
 
 G_END_DECLS
 
