@@ -36,6 +36,7 @@
 #include "gtkintl.h"
 #include "gtk24toolbar.h"
 #include <gtk/gtkiconfactory.h>
+#include "gtk24ext.h"
 
 #include <string.h>
 

@@ -4,6 +4,10 @@
 
 #ifdef USE_GTK_2_2
 
+#include <gtk/gtkwidget.h>
+#include <gtk/gtkbutton.h>
+#include <gtk/gtkcheckmenuitem.h>
+
 #define GTK_NO_SHOW_ALL 4194304 /* 1 << 22 */
 
 gboolean gtk_button_get_focus_on_click (GtkButton *button);

@@ -35,6 +35,7 @@
 #include <gtk/gtkstock.h>
 #include "gtkintl.h"
 #include "gtkradiotoolbutton.h"
+#include "gtk24ext.h"
 
 #define MENU_ID "gtk-toggle-tool-button-menu-id"
 
@@ -52,6 +53,7 @@ struct _GtkToggleToolButtonPrivate
   
 static void gtk_toggle_tool_button_init       (GtkToggleToolButton      *button);
 static void gtk_toggle_tool_button_class_init (GtkToggleToolButtonClass *klass);
+static void gtk_toggle_tool_button_finalize (GObject *object);
 
 static gboolean gtk_toggle_tool_button_create_menu_proxy (GtkToolItem *button);
 
@@ -102,6 +104,8 @@ gtk_toggle_tool_button_class_init (GtkToggleToolButtonClass *klass)
   object_class = (GObjectClass *)klass;
   toolitem_class = (GtkToolItemClass *)klass;
   toolbutton_class = (GtkToolButtonClass *)klass;
+
+  object_class->finalize = gtk_toggle_tool_button_finalize;
 
   toolitem_class->create_menu_proxy = gtk_toggle_tool_button_create_menu_proxy;
   toolbutton_class->button_type = GTK_TYPE_TOGGLE_BUTTON;

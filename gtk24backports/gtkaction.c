@@ -52,7 +52,7 @@
 #include <gtk/gtktearoffmenuitem.h>
 #include "gtktoolbutton.h"
 #include "gtk24toolbar.h"
-
+#include "gtk24ext.h"
 
 #define GTK_ACTION_GET_PRIVATE(obj) (GTK_ACTION(obj)->private_data)
 

@@ -48,6 +48,7 @@
 #include <gtk/gtktearoffmenuitem.h>
 #include "gtk24toolbar.h"
 #include "gtkuimanager.h"
+#include "gtk24ext.h"
 
 #undef DEBUG_UI_MANAGER
 

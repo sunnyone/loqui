@@ -148,7 +148,7 @@ static void gtk_separator_tool_item_finalize     (GObject *object)
 {
 	GtkSeparatorToolItem *item;
 
-	item = GTK_SEPARATOR_TOOL_ITEM(item);
+	item = GTK_SEPARATOR_TOOL_ITEM(object);
 	g_free(item->priv);
 
 	G_OBJECT_CLASS (parent_class)->finalize (object);  

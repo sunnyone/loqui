@@ -58,6 +58,7 @@
 #include <gtk/gtkhbox.h>
 #include <gtk/gtkvbox.h>
 #include <gtk/gtkimage.h>
+#include "gtk24ext.h"
 
 typedef struct _ToolbarContent ToolbarContent;
 
