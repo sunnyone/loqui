@@ -924,8 +924,10 @@ static gpointer irc_handle_thread_func(IRCHandle *handle)
 					   TRUE,
 					   NULL);
 
-	msg = irc_message_create(IRCCommandPass, priv->server->password, NULL);
-	irc_handle_push_message(handle, msg);
+	if(priv->server->password) {
+		msg = irc_message_create(IRCCommandPass, priv->server->password, NULL);
+		irc_handle_push_message(handle, msg);
+	}
 
 	msg = irc_message_create(IRCCommandNick, priv->account->nick, NULL);
 	irc_handle_push_message(handle, msg);
