@@ -39,10 +39,10 @@ static void loqui_menu_class_init(LoquiMenuClass *klass);
 static void loqui_menu_init(LoquiMenu *loqui_menu);
 static void loqui_menu_finalize(GObject *object);
 
-static void loqui_menu_about_cb(GtkWidget *widget, guint callback_action, gpointer data);
-static void loqui_menu_quit_cb(GtkWidget *widget, guint callback_action, gpointer data);
+static void loqui_menu_about_cb(gpointer data, guint callback_action, GtkWidget *widget);
+static void loqui_menu_quit_cb(gpointer data, guint callback_action, GtkWidget *widget);
 static void loqui_menu_connect_cb(GtkWidget *widget, gpointer data);
-static void loqui_menu_account_settings_cb(GtkWidget *widget, guint callback_action, gpointer data);
+static void loqui_menu_account_settings_cb(gpointer data, guint callback_action, GtkWidget *widget);
 
 static GtkItemFactoryEntry menu_items[] = {
 	{ N_("/_File"),     NULL, 0, 0, "<Branch>" },
@@ -208,19 +208,19 @@ void loqui_menu_update_connect_submenu(LoquiMenu *menu, GSList *account_list)
 }
 
 static void
-loqui_menu_about_cb(GtkWidget *widget, guint callback_action, gpointer data)
+loqui_menu_about_cb(gpointer data, guint callback_action, GtkWidget *widget)
 {
 	about_open();
 }
 
 static void
-loqui_menu_account_settings_cb(GtkWidget *widget, guint callback_action, gpointer data)
+loqui_menu_account_settings_cb(gpointer data, guint callback_action, GtkWidget *widget)
 {
 	account_manager_open_account_list_dialog(account_manager_get());
 }
 
 static void
-loqui_menu_quit_cb(GtkWidget *widget, guint callback_action, gpointer data)
+loqui_menu_quit_cb(gpointer data, guint callback_action, GtkWidget *widget)
 {
 	gtk_main_quit();
 }
