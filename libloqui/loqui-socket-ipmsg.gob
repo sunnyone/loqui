@@ -98,8 +98,8 @@ class Loqui:Socket:IPMsg from G:Object
 		g_free(local);
 
 		len2zero = strlen(buf);
-		if (len2zero < len) {
-			if ((local_group = loqui_codeconv_to_local(selfp->codeconv, buf + len2zero, &error)) == NULL) {
+		if (len2zero + 1 < len) {
+			if ((local_group = loqui_codeconv_to_local(selfp->codeconv, buf + len2zero + 1, &error)) == NULL) {
 				loqui_account_warning(account, _("Failed to convert codeset of group: %s"), error->message);
 				g_error_free(error);
 				g_string_free(string, TRUE);
@@ -109,7 +109,7 @@ class Loqui:Socket:IPMsg from G:Object
 			g_string_append(string, local_group);
 			g_free(local_group);
 		}
-		
+
 		packet = ipmsg_packet_parse(string->str, string->len);
 		if (!packet) {
 			loqui_account_warning(account, _("Invalid packet: '%s'"), local);

@@ -205,11 +205,17 @@ ipmsg_packet_parse(const gchar *str, gint len)
 	for (i = 0; i < IPMSG_COMMAND_NUMBER; i++)
 		array[i] = NULL;
 
-	buf = g_memdup(str, real_len + 1);
+	buf = g_malloc(real_len + 1);
+	memmove(buf, str, real_len);
+	buf[real_len] = '\0';
+
 	pos = 0;
 	array[0] = buf;
 	cur = buf;
 	while (cur < buf + real_len && pos < IPMSG_COMMAND_NUMBER) {
+		if (*cur == '\0')
+			break;
+
 		if (*cur == ':') {
 			*cur = '\0';
 			array[++pos] = ++cur;
