@@ -296,6 +296,36 @@ gtkutils_bindings_has_matched_entry(const gchar *class_name, guint modifiers, gu
 	return found;
 }
 void
+gtkutils_tree_view_popup(GtkTreeView *tree, GdkEventButton *event, GtkMenu *menu)
+{
+	GtkTreePath *clicked_path;
+	GtkTreeSelection *selection;
+	GList *row_list = NULL, *search_list;
+
+	if (!gtk_tree_view_get_path_at_pos(tree, event->x, event->y,
+					   &clicked_path, NULL, NULL, NULL)) {
+		return;
+	}
+	
+	selection = gtk_tree_view_get_selection(tree);
+	row_list = gtk_tree_selection_get_selected_rows(selection, NULL);
+	
+	search_list = g_list_find_custom(row_list,
+					 clicked_path,
+					 (GCompareFunc) gtk_tree_path_compare);
+	if (!search_list) {
+		gtk_tree_selection_unselect_all(selection);
+		gtk_tree_selection_select_path(selection, clicked_path);
+	}
+	g_list_foreach(row_list, (GFunc) gtk_tree_path_free, NULL);
+	g_list_free(row_list);
+	
+	gtk_tree_path_free(clicked_path);
+
+	gtk_menu_popup(menu, NULL, NULL, NULL,
+		       tree, event->button, event->time);
+}
+void
 gtkutils_menu_position_under_widget(GtkMenu   *menu,
 				    gint      *x,
 				    gint      *y,
