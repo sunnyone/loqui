@@ -57,9 +57,15 @@ GtkType loqui_statusbar_get_type (void) G_GNUC_CONST;
 
 GtkWidget* loqui_statusbar_new(LoquiApp *app, GtkToggleAction *toggle_scroll_action_common_buffer);
 
-void loqui_statusbar_set_current_channel(LoquiStatusbar *statusbar, LoquiChannel *channel);
-void loqui_statusbar_set_current_account(LoquiStatusbar *statusbar, LoquiAccount *account);
+void loqui_statusbar_update_current_account(LoquiStatusbar *statusbar, LoquiAccount *account);
+
 void loqui_statusbar_set_default(LoquiStatusbar *statusbar, const gchar *str);
+
+void loqui_statusbar_update_account_name(LoquiStatusbar *statusbar, LoquiAccount *account);
+void loqui_statusbar_update_nick(LoquiStatusbar *statusbar, LoquiAccount *account);
+void loqui_statusbar_update_preset_menu(LoquiStatusbar *statusbar, LoquiAccount *account);
+void loqui_statusbar_update_away_menu(LoquiStatusbar *statusbar, LoquiAccount *account);
+void loqui_statusbar_update_away_icon(LoquiStatusbar *statusbar, LoquiAccount *account);
 
 G_END_DECLS
 

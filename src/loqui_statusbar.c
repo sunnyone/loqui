@@ -417,32 +417,29 @@ loqui_statusbar_new(LoquiApp *app, GtkToggleAction *toggle_scroll_common_buffer_
 
 	return GTK_WIDGET(statusbar);
 }
+void
+loqui_statusbar_update_account_name(LoquiStatusbar *statusbar, LoquiAccount *account)
+{
+	LoquiStatusbarPrivate *priv;
 
-void
-loqui_statusbar_set_current_channel(LoquiStatusbar *statusbar, LoquiChannel *channel)
-{
-	LoquiStatusbarPrivate *priv;
-	
         g_return_if_fail(statusbar != NULL);
         g_return_if_fail(LOQUI_IS_STATUSBAR(statusbar));
-    
-    	priv = statusbar->priv;
-}
-void
-loqui_statusbar_set_current_account(LoquiStatusbar *statusbar, LoquiAccount *account)
-{
-	LoquiStatusbarPrivate *priv;
-	LoquiAwayType away;
-        g_return_if_fail(statusbar != NULL);
-        g_return_if_fail(LOQUI_IS_STATUSBAR(statusbar));
-        
+
         priv = statusbar->priv;
         
-        // set account label
-        gtk_label_set(GTK_LABEL(priv->label_account),
-        	       account ? loqui_profile_account_get_name(loqui_account_get_profile(account)) : STRING_UNSELECTED);
+	gtk_label_set(GTK_LABEL(priv->label_account),
+		      account ? loqui_profile_account_get_name(loqui_account_get_profile(account)) : STRING_UNSELECTED);
+}
+void
+loqui_statusbar_update_nick(LoquiStatusbar *statusbar, LoquiAccount *account)
+{
+	LoquiStatusbarPrivate *priv;
 
-	// set nick        
+        g_return_if_fail(statusbar != NULL);
+        g_return_if_fail(LOQUI_IS_STATUSBAR(statusbar));
+
+        priv = statusbar->priv;
+        
         if (account == NULL) {
         	gtk_widget_set_sensitive(priv->dbox_preset, FALSE);
         	gtk_widget_set_sensitive(priv->dbox_away, FALSE);        	
@@ -457,13 +454,24 @@ loqui_statusbar_set_current_account(LoquiStatusbar *statusbar, LoquiAccount *acc
         	gtk_widget_set_sensitive(priv->dbox_away, TRUE);
         	gtk_label_set(GTK_LABEL(priv->label_nick), loqui_user_get_nick(loqui_account_get_user_self(account)));
         }
-        
+}
+void
+loqui_statusbar_update_preset_menu(LoquiStatusbar *statusbar, LoquiAccount *account)
+{
         if (account) 
         	loqui_statusbar_set_preset_menu(statusbar, loqui_profile_account_get_nick_list(loqui_account_get_profile(account)));
+}
+void
+loqui_statusbar_update_away_menu(LoquiStatusbar *statusbar, LoquiAccount *account)
+{
         if (account)
 		loqui_statusbar_set_away_menu(statusbar, LOQUI_USER_GET_CLASS(loqui_account_get_user_self(account)));
-	
-        // set icon
+}
+void
+loqui_statusbar_update_away_icon(LoquiStatusbar *statusbar, LoquiAccount *account)
+{
+	LoquiAwayType away;
+
         if (account == NULL) {
         	away = LOQUI_AWAY_TYPE_OFFLINE;
 	} else {
@@ -472,6 +480,23 @@ loqui_statusbar_set_current_account(LoquiStatusbar *statusbar, LoquiAccount *acc
         
 	if (account)
 		loqui_statusbar_set_away(statusbar, LOQUI_USER_GET_CLASS(loqui_account_get_user_self(account)), away);
+}
+void
+loqui_statusbar_update_current_account(LoquiStatusbar *statusbar, LoquiAccount *account)
+{
+	LoquiStatusbarPrivate *priv;
+        g_return_if_fail(statusbar != NULL);
+        g_return_if_fail(LOQUI_IS_STATUSBAR(statusbar));
+        
+        priv = statusbar->priv;
+        
+	loqui_statusbar_update_account_name(statusbar, account);
+	loqui_statusbar_update_nick(statusbar, account);
+
+        loqui_statusbar_update_preset_menu(statusbar, account);
+	loqui_statusbar_update_away_menu(statusbar, account);
+
+	loqui_statusbar_update_away_icon(statusbar, account);
 }
 void
 loqui_statusbar_set_default(LoquiStatusbar *statusbar, const gchar *str)

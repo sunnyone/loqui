@@ -501,11 +501,7 @@ loqui_app_update_info(LoquiApp *app,
 	}
 	
 	if(is_account_changed) {
-		loqui_statusbar_set_current_account(LOQUI_STATUSBAR(app->statusbar), account);
-	}
-
-	if(is_channel_changed) {
-		loqui_statusbar_set_current_channel(LOQUI_STATUSBAR(app->statusbar), channel);
+		loqui_statusbar_update_current_account(LOQUI_STATUSBAR(app->statusbar), account);
 	}
 	
 	if(!channel) {
@@ -513,8 +509,6 @@ loqui_app_update_info(LoquiApp *app,
 	} else if (is_channel_changed) {
 		loqui_channelbar_set_current_channel(LOQUI_CHANNELBAR(app->channelbar), channel);
 	}
-	loqui_app_actions_update_sensitivity_related_channel(app);
-
 #define FORMAT_INFO(format) \
  utils_format(format, 'c', channel_name, 'a', account_name, \
 	              't', topic, 'm', channel_mode, \
@@ -924,10 +918,15 @@ loqui_app_set_current_channel_entry(LoquiApp *app, LoquiChannelEntry *chent)
 
 	channel_tree_select_channel_entry(app->channel_tree, chent);
 
+	loqui_channelbar_update_channel_entry_label(LOQUI_CHANNELBAR(app->channelbar), chent);
+
+	loqui_app_actions_update_sensitivity_related_channel(app);
+
 	gtk_widget_grab_focus(app->remark_entry);
 
 	if (prefs_general.auto_switch_scrolling)
 		loqui_app_actions_toggle_action_set_active(app, LOQUI_ACTION_TOGGLE_SCROLL, TRUE);
+
 }
 
 LoquiChannel *
