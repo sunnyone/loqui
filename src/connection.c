@@ -36,6 +36,7 @@ struct _ConnectionPrivate
 	Server *server;
 
 	GTcpSocket *sock;
+	GMutex *mutex;
 	GIOChannel *io;
 };
 
@@ -140,8 +141,13 @@ connection_new (Server *server)
 
 	flags = g_io_channel_get_flags(priv->io);
 	g_io_channel_set_flags(priv->io, flags | G_IO_FLAG_NONBLOCK, NULL);
-	g_io_channel_set_buffered(priv->io, FALSE); /* for old gnet (new gnet do this internally) */
 
+	/* for old gnet (new gnet do this internally) */
+	g_io_channel_set_buffered(priv->io, TRUE);
+	g_io_channel_set_encoding(priv->io, NULL, NULL);
+	g_io_channel_set_buffered(priv->io, FALSE);
+
+	priv->mutex = g_mutex_new();
 	return connection;
 }
 
@@ -163,7 +169,11 @@ gchar *connection_gets(Connection *connection, GError **error)
 
 	string = g_string_sized_new(512);
 	while(priv->io) {
+		g_mutex_lock(priv->mutex);
+		if(!priv->io) { g_mutex_unlock(priv->mutex); break; }
 		status = g_io_channel_read_chars(priv->io, &c, 1, &len, error);
+		g_mutex_unlock(priv->mutex);
+
 		if(status == G_IO_STATUS_EOF) {
 			break;
 		} else if(status == G_IO_STATUS_ERROR) {
@@ -223,7 +233,10 @@ gboolean connection_puts(Connection *connection, gchar *in_str, GError **error)
 	str = g_strdup_printf("%s\r\n", serv_str);
 	g_free(serv_str);
 
+	g_mutex_lock(priv->mutex);
+	if(!priv->mutex) { g_mutex_unlock(priv->mutex); return FALSE; }
 	status = g_io_channel_write_chars(priv->io, str, -1, &len, error);
+	g_mutex_unlock(priv->mutex);
 	g_free(str);
 
 	if(status == G_IO_STATUS_ERROR)
@@ -246,12 +259,17 @@ gboolean connection_put_irc_message(Connection *connection, IRCMessage *msg, GEr
 }
 void connection_disconnect(Connection *connection)
 {
+	ConnectionPrivate *priv;
         g_return_if_fail(connection != NULL);
         g_return_if_fail(IS_CONNECTION(connection));
 
+	priv = connection->priv;
+
+	g_mutex_lock(priv->mutex);
 	debug_puts("Disconnecting...");
 	g_io_channel_shutdown(connection->priv->io, TRUE, NULL);
 	connection->priv->io = NULL;
 	gnet_tcp_socket_delete(connection->priv->sock);
 	debug_puts("Done.");
+	g_mutex_unlock(priv->mutex);
 }
