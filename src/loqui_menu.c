@@ -23,6 +23,8 @@
 #include "loqui_app.h"
 #include "account.h"
 #include "about.h"
+#include "account_manager.h"
+#include "intl.h"
 
 struct _LoquiMenuPrivate
 {
@@ -39,26 +41,28 @@ static void loqui_menu_finalize(GObject *object);
 static void loqui_menu_about_cb(GtkWidget *widget, guint callback_action, gpointer data);
 static void loqui_menu_quit_cb(GtkWidget *widget, guint callback_action, gpointer data);
 static void loqui_menu_connect_cb(GtkWidget *widget, gpointer data);
+static void loqui_menu_account_settings_cb(GtkWidget *widget, guint callback_action, gpointer data);
 
 #define MENU_NUMBER_CONNECT 1
 
 static GtkItemFactoryEntry menu_items[] = {
-	{ "/_File",     NULL, 0, 0, "<Branch>" },
-	{ "/File/_Connect", NULL, 0, 0, "<Branch>" },
-	{ "/File/_Quit", "<control>Q", loqui_menu_quit_cb, 0, "<StockItem>", GTK_STOCK_QUIT },
-	{ "/_Edit",     NULL, 0, 0, "<Branch>" },
-	{ "/Edit/Cut",      "<control>X", 0, 0, "<StockItem>", GTK_STOCK_CUT },
-	{ "/Edit/_Copy",    "<control>C", 0, 0, "<StockItem>", GTK_STOCK_COPY },
-	{ "/Edit/_Paste",   "<control>P", 0, 0, "<StockItem>", GTK_STOCK_PASTE },
-	{ "/Edit/Paste with linefeeds cut", NULL, 0, 0, "<StockItem>", GTK_STOCK_PASTE },
-	{ "/Edit/_Find",    "<control>F", 0, 0, "<StockItem>", GTK_STOCK_FIND },
-	{ "/Edit/_Find again", "<control>N", 0, 0, "<StockItem>", GTK_STOCK_FIND },
+	{ N_("/_File"),     NULL, 0, 0, "<Branch>" },
+	{ N_("/File/_Connect"), NULL, 0, 0, "<Branch>" },
+	{ N_("/File/_Quit"), "<control>Q", loqui_menu_quit_cb, 0, "<StockItem>", GTK_STOCK_QUIT },
+	{ N_("/_Edit"),     NULL, 0, 0, "<Branch>" },
+	{ N_("/Edit/Cut"),      "<control>X", 0, 0, "<StockItem>", GTK_STOCK_CUT },
+	{ N_("/Edit/_Copy"),    "<control>C", 0, 0, "<StockItem>", GTK_STOCK_COPY },
+	{ N_("/Edit/_Paste"),   "<control>P", 0, 0, "<StockItem>", GTK_STOCK_PASTE },
+	{ N_("/Edit/Paste with linefeeds cut"), NULL, 0, 0, "<StockItem>", GTK_STOCK_PASTE },
+	{ N_("/Edit/_Find"),    "<control>F", 0, 0, "<StockItem>", GTK_STOCK_FIND },
+	{ N_("/Edit/_Find again"), "<control>N", 0, 0, "<StockItem>", GTK_STOCK_FIND },
 	{ "/Edit/sep2",        NULL,         0,       0, "<Separator>" },
-	{ "/Edit/Clear _buffer", NULL,      0,   0, "<StockItem>", GTK_STOCK_CLEAR },
-	{ "/Edit/Clear co_mmon buffer", NULL, 0, 0, "<StockItem>" , GTK_STOCK_CLEAR },
-	{ "/_Settings", NULL, 0, 0, "<Branch>" },
-	{ "/_Help", NULL, 0, 0, "<Branch>" },
-	{ "/Help/_About", NULL, loqui_menu_about_cb, 0 },
+	{ N_("/Edit/Clear _buffer"), NULL,      0,   0, "<StockItem>", GTK_STOCK_CLEAR },
+	{ N_("/Edit/Clear co_mmon buffer"), NULL, 0, 0, "<StockItem>" , GTK_STOCK_CLEAR },
+	{ N_("/_Settings"), NULL, 0, 0, "<Branch>" },
+	{ N_("/Settings/Account Settings..."), NULL, loqui_menu_account_settings_cb, 0 },
+	{ N_("/_Help"), NULL, 0, 0, "<Branch>" },
+	{ N_("/Help/_About"), NULL, loqui_menu_about_cb, 0 },
 };
 
 static GObjectClass *parent_class = NULL;
@@ -149,7 +153,6 @@ loqui_menu_new(GtkWindow *window)
 	gtk_item_factory_create_items(priv->item_factory, G_N_ELEMENTS(menu_items),
 				      menu_items, window);
 	gtk_widget_set_sensitive(gtk_item_factory_get_item(priv->item_factory, "/Edit"), FALSE);
-	gtk_widget_set_sensitive(gtk_item_factory_get_item(priv->item_factory, "/Settings"), FALSE);
 
 	priv->connect_menu = gtk_item_factory_get_item(priv->item_factory, "/File/Connect");
 
@@ -199,6 +202,12 @@ static void
 loqui_menu_about_cb(GtkWidget *widget, guint callback_action, gpointer data)
 {
 	about_open();
+}
+
+static void
+loqui_menu_account_settings_cb(GtkWidget *widget, guint callback_action, gpointer data)
+{
+	account_manager_open_account_list_dialog(account_manager_get());
 }
 
 static void

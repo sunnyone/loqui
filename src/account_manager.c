@@ -24,6 +24,7 @@
 #include "utils.h"
 #include "loqui_app.h"
 #include "prefs_account.h"
+#include "account_list_dialog.h"
 
 struct _AccountManagerPrivate
 {
@@ -349,4 +350,18 @@ void account_manager_remove_channels_of_account(AccountManager *manager, Account
 
 	channel_tree_remove_channels_of_account(manager->priv->app->channel_tree, 
 						account);
+}
+GSList *account_manager_get_account_list(AccountManager *manager)
+{
+	g_return_val_if_fail(manager != NULL, NULL);
+        g_return_val_if_fail(IS_ACCOUNT_MANAGER(manager), NULL);
+
+	return manager->priv->account_list;
+}
+void account_manager_open_account_list_dialog(AccountManager *manager)
+{
+	g_return_if_fail(manager != NULL);
+        g_return_if_fail(IS_ACCOUNT_MANAGER(manager));	
+
+	account_list_dialog_open();
 }

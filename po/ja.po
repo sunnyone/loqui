@@ -5,7 +5,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: loqui 0.0.6\n"
-"POT-Creation-Date: 2003-01-18 23:54+0900\n"
+"POT-Creation-Date: 2003-01-23 20:37+0900\n"
 "PO-Revision-Date: 2002-11-10 13:17+0900\n"
 "Last-Translator: Yoichi Imai <yoichi@silver-forest.com>\n"
 "Language-Team: Japanese <ja@li.org>\n"
@@ -13,20 +13,24 @@ msgstr ""
 "Content-Type: text/plain; charset=euc-jp\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: src/account.c:391
+#: src/account.c:386
 #, c-format
 msgid "Account '%s' has already connected."
 msgstr "アカウント '%s'はすでに接続されています"
 
-#: src/account.c:503
+#: src/account.c:501
 msgid "Not connected with this account"
 msgstr "このアカウントでは接続されていません"
 
-#: src/account.c:520
+#: src/account.c:518
 msgid "No channel is selected"
 msgstr "チャンネルが選択されていません"
 
-#: src/channel_tree.c:236
+#: src/channel_tree.c:183
+msgid "Name"
+msgstr ""
+
+#: src/channel_tree.c:253
 msgid "Failed to add channel"
 msgstr "チャンネルを追加するのに失敗しました"
 
@@ -39,7 +43,7 @@ msgstr "codeconvの設定が不正です。自動選択が選択されます。"
 msgid "Code convartion error: %s"
 msgstr "コード変換エラー: %s"
 
-#: src/connection.c:132
+#: src/connection.c:133
 msgid "Connection error"
 msgstr "接続エラー"
 
@@ -194,44 +198,44 @@ msgstr ""
 msgid "Time: %3(%2)"
 msgstr ""
 
-#: src/irc_handle.c:949
+#: src/irc_handle.c:953
 #, c-format
 msgid "Connecting to %s:%d"
 msgstr ""
 
-#: src/irc_handle.c:957
+#: src/irc_handle.c:961
 msgid "Connected. Sending Initial command..."
 msgstr ""
 
-#: src/irc_handle.c:994
+#: src/irc_handle.c:998
 msgid "Done."
 msgstr ""
 
-#: src/irc_handle.c:1013
+#: src/irc_handle.c:1017
 msgid "Connection terminated."
 msgstr ""
 
-#: src/irc_handle.c:1114
+#: src/irc_handle.c:1118
 msgid "Connection thread is not created."
 msgstr ""
 
-#: src/irc_handle.c:1118
+#: src/irc_handle.c:1122
 msgid "Thread sending message is not created."
 msgstr ""
 
-#: src/irc_handle.c:1122
+#: src/irc_handle.c:1126
 msgid "Message queue is not created."
 msgstr ""
 
-#: src/loqui_app.c:218
+#: src/loqui_app.c:241
 msgid "Sc_roll"
 msgstr ""
 
-#: src/loqui_app.c:222
+#: src/loqui_app.c:245
 msgid "Topic"
 msgstr ""
 
-#: src/loqui_app.c:289
+#: src/loqui_app.c:319
 msgid "No topic"
 msgstr ""
 
@@ -252,7 +256,7 @@ msgstr ""
 msgid "  --help       show this help\n"
 msgstr ""
 
-#: src/nick_list.c:218
+#: src/nick_list.c:265
 msgid "Nick"
 msgstr ""
 

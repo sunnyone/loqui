@@ -79,6 +79,10 @@ void account_manager_select_account(AccountManager *manager, Account *account);
 void account_manager_remove_channels_of_account(AccountManager *manager, Account *account);
 
 void account_manager_disconnect_all(AccountManager *manager);
+
+void account_manager_open_account_list_dialog(AccountManager *manager);
+
+GSList *account_manager_get_account_list(AccountManager *manager);
 G_END_DECLS
 
 #endif /* __ACCOUNT_MANAGER_H__ */

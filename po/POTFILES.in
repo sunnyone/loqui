@@ -6,10 +6,8 @@ src/account_manager.c
 src/account_manager.h
 src/channel.c
 src/channel.h
-src/channel_book.c
-src/channel_book.h
-src/channel_text.c
-src/channel_text.h
+src/channel_buffer.c
+src/channel_buffer.h
 src/channel_tree.c
 src/channel_tree.h
 src/codeconv.c
