@@ -139,7 +139,7 @@ loqui_channelbar_entry_topic_activated_cb(GtkWidget *widget, gpointer data)
 	if(!priv->entry_changed)
 		return;
 	
-	channel = account_manager_get_current_channel(loqui_app_get_account_manager(priv->app));
+	channel = loqui_app_get_current_channel(priv->app);
 	str = gtk_entry_get_text(GTK_ENTRY(priv->entry_topic));
 	account_set_topic(channel->account, channel_get_name(channel), str);
 }
@@ -180,12 +180,12 @@ loqui_channelbar_option_changed_cb(GtkWidget *widget, gpointer data)
 		return;
 	channel = g_object_get_data(G_OBJECT(menuitem), "channel");
 	if(channel) {
-		account_manager_set_current_channel(loqui_app_get_account_manager(priv->app), channel);
+		loqui_app_set_current_channel(priv->app, channel);
 		return;
 	}
 	account = g_object_get_data(G_OBJECT(menuitem), "account");
 	if(account) {
-		account_manager_set_current_account(loqui_app_get_account_manager(priv->app), account);
+		loqui_app_set_current_account(priv->app, account);
 		return;
 	}	
 }

@@ -240,7 +240,6 @@ loqui_app_entry_activate_cb(GtkWidget *widget, gpointer data)
 	RemarkEntry *remark_entry;
 	const gchar *str;
 	LoquiApp *app;
-	AccountManager *manager;
 
 	app = LOQUI_APP(data);
 	remark_entry = REMARK_ENTRY(widget);
@@ -249,10 +248,9 @@ loqui_app_entry_activate_cb(GtkWidget *widget, gpointer data)
 	if (str == NULL || strlen(str) == 0)
 		return;
 	
-	manager = loqui_app_get_account_manager(app);
-	account = account_manager_get_current_account(manager);
+	account = loqui_app_get_current_account(app);
 	if (account)
-		account_speak(account, account_manager_get_current_channel(manager), str,
+		account_speak(account, loqui_app_get_current_channel(app), str,
 			      remark_entry_get_command_mode(remark_entry));
 	else
 		gtkutils_msgbox_info(GTK_MESSAGE_ERROR, _("No accounts are selected!"));
@@ -313,7 +311,7 @@ loqui_app_textview_scroll_value_changed_cb(GtkAdjustment *adj, gpointer data)
 		loqui_app_actions_toggle_action_set_active(app, LOQUI_ACTION_TOGGLE_SCROLL, FALSE);
 	}
 
-	channel = account_manager_get_current_channel(manager);
+	channel = loqui_app_get_current_channel(app);
 	if(channel && reached_to_end && channel_get_updated(channel))
 		channel_set_updated(channel, FALSE);
 }
@@ -729,7 +727,7 @@ loqui_app_menu_account_activate_cb(GtkWidget *widget, gpointer data)
 	account = g_object_get_data(G_OBJECT(widget), "account");
 	g_return_if_fail(account != NULL);
 
-	account_manager_set_current_account(loqui_app_get_account_manager(app), account);
+	loqui_app_set_current_account(app, account);
 }
 static void
 loqui_app_menu_channel_activate_cb(GtkWidget *widget, gpointer data)
@@ -748,7 +746,7 @@ loqui_app_menu_channel_activate_cb(GtkWidget *widget, gpointer data)
 	channel = g_object_get_data(G_OBJECT(widget), "channel");
 	g_return_if_fail(channel != NULL);
 
-	account_manager_set_current_channel(loqui_app_get_account_manager(app), channel);
+	loqui_app_set_current_channel(app, channel);
 }
 void
 loqui_app_menu_buffers_add_account(LoquiApp *app, Account *account)
@@ -805,4 +803,25 @@ loqui_app_get_account_manager(LoquiApp *app)
         g_return_val_if_fail(LOQUI_IS_APP(app), NULL);
 
 	return account_manager_get();
+}
+
+Channel *
+loqui_app_get_current_channel(LoquiApp *app)
+{
+	return account_manager_get_current_channel(loqui_app_get_account_manager(app));
+}
+Account *
+loqui_app_get_current_account(LoquiApp *app)
+{
+	return account_manager_get_current_account(loqui_app_get_account_manager(app));
+}
+void
+loqui_app_set_current_channel(LoquiApp *app, Channel *channel)
+{
+	account_manager_set_current_channel(loqui_app_get_account_manager(app), channel);
+}
+void
+loqui_app_set_current_account(LoquiApp *app, Account *account)
+{
+	account_manager_set_current_account(loqui_app_get_account_manager(app), account);
 }

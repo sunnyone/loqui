@@ -48,6 +48,15 @@ struct _LoquiApp
 
 	AccountManager *account_manager;
 
+	Account *current_account;
+	Channel *current_channel;
+
+	gboolean is_pending_update_account_info;
+	gboolean is_pending_update_channel_info;
+	
+	guint updated_channel_number;
+	guint updated_private_talk_number;
+
 	/* cache, use action to set */
 	gboolean is_scroll;
 
@@ -97,6 +106,11 @@ void loqui_app_get_current_widget_editing_status(LoquiApp *app, gboolean *cutabl
 						 gboolean *clearable, gboolean *findable);
 
 AccountManager *loqui_app_get_account_manager(LoquiApp *app);
+
+Channel *loqui_app_get_current_channel(LoquiApp *app);
+Account *loqui_app_get_current_account(LoquiApp *app);
+void loqui_app_set_current_channel(LoquiApp *app, Channel *channel);
+void loqui_app_set_current_account(LoquiApp *app, Account *account);
 
 G_END_DECLS
 

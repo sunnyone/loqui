@@ -313,7 +313,7 @@ nick_list_menu_start_private_talk_cb(gpointer data, guint action, GtkWidget *wid
 
 	priv = nick_list->priv;
 
-	account = account_manager_get_current_account(loqui_app_get_account_manager(priv->app));
+	account = loqui_app_get_current_account(priv->app);
 	if(!account)
 		return;
 
@@ -335,7 +335,7 @@ nick_list_menu_whois_cb(gpointer data, guint action, GtkWidget *widget)
 	nick_list = NICK_LIST(data);
 	priv = nick_list->priv;
 
-	account = account_manager_get_current_account(loqui_app_get_account_manager(priv->app));
+	account = loqui_app_get_current_account(priv->app);
 	if(!account)
 		return;
 
@@ -357,7 +357,7 @@ nick_list_menu_mode_give_cb(gpointer data, guint action, GtkWidget *widget)
 	nick_list = NICK_LIST(data);
 	priv = nick_list->priv;
 
-	channel = account_manager_get_current_channel(loqui_app_get_account_manager(priv->app));
+	channel = loqui_app_get_current_channel(priv->app);
 	if(!channel)
 		return;
 
@@ -381,7 +381,7 @@ nick_list_menu_mode_deprive_cb(gpointer data, guint action, GtkWidget *widget)
 	nick_list = NICK_LIST(data);
 	priv = nick_list->priv;
 
-	channel = account_manager_get_current_channel(loqui_app_get_account_manager(priv->app));
+	channel = loqui_app_get_current_channel(priv->app);
 	if(!channel)
 		return;
 
@@ -405,7 +405,7 @@ nick_list_menu_ctcp_cb(gpointer data, guint action, GtkWidget *widget)
 	nick_list = NICK_LIST(data);
 	priv = nick_list->priv;
 
-	account = account_manager_get_current_account(loqui_app_get_account_manager(priv->app));
+	account = loqui_app_get_current_account(priv->app);
 	if(!account)
 		return;
 
@@ -499,7 +499,7 @@ static void nick_list_row_activated_cb(NickList *list, GtkTreePath *path, GtkTre
 	}
 	gtk_tree_model_get(model, &iter, USERLIST_COLUMN_NICK, &nick, -1);
 
-	account = account_manager_get_current_account(loqui_app_get_account_manager(priv->app));
+	account = loqui_app_get_current_account(priv->app);
 	if(!account)
 		return;
 

@@ -160,9 +160,9 @@ channel_tree_row_selected_cb(GtkTreeSelection *selection, gpointer data)
 			   -1);
 
 	if(account)
-		account_manager_set_current_account(loqui_app_get_account_manager(priv->app), account);
+		loqui_app_set_current_account(priv->app, account);
 	else if(channel)
-		account_manager_set_current_channel(loqui_app_get_account_manager(priv->app), channel);
+		loqui_app_set_current_channel(priv->app, channel);
 
 	gtk_widget_grab_focus(priv->app->remark_entry);
 }

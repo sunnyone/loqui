@@ -196,7 +196,7 @@ loqui_statusbar_preset_menuitem_activated_cb(GtkWidget *widget, LoquiStatusbar *
 
 	nick = g_object_get_data(G_OBJECT(widget), "nick");
 
-	account = account_manager_get_current_account(loqui_app_get_account_manager(priv->app));
+	account = loqui_app_get_current_account(priv->app);
 	if (account)
 		account_change_nick(account, nick);
 	else
@@ -217,7 +217,7 @@ loqui_statusbar_away_menuitem_activated_cb(GtkWidget *widget, LoquiStatusbar *st
 
 	away_state = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(widget), "away-state"));
 
-	account = account_manager_get_current_account(loqui_app_get_account_manager(priv->app));
+	account = loqui_app_get_current_account(priv->app);
 	if (account) {
 		if (account_is_connected(account)) {
 			switch (away_state) {
@@ -333,7 +333,7 @@ loqui_statusbar_nick_button_clicked_cb(GtkWidget *widget, LoquiStatusbar *status
 
 	priv = statusbar->priv;
 	
-	account = account_manager_get_current_account(loqui_app_get_account_manager(priv->app));
+	account = loqui_app_get_current_account(priv->app);
 	if (account)
 		command_dialog_nick(priv->app, account);
 	else

@@ -330,45 +330,34 @@ static void
 loqui_app_actions_join_cb(GtkAction *action, LoquiApp *app)
 {
 	command_dialog_join(app,
-			    account_manager_get_current_account(loqui_app_get_account_manager(app)));
+			    loqui_app_get_current_account(app));
 }
 static void
 loqui_app_actions_part_cb(GtkAction *action, LoquiApp *app)
 {
-	AccountManager *manager;
-
-	manager = loqui_app_get_account_manager(app);
 	command_dialog_part(app,
-			    account_manager_get_current_account(manager),
-			    account_manager_get_current_channel(manager));
+			    loqui_app_get_current_account(app),
+			    loqui_app_get_current_channel(app));
 }
 static void
 loqui_app_actions_set_topic_cb(GtkAction *action, LoquiApp *app)
 {
-	AccountManager *manager;
-
-	manager = loqui_app_get_account_manager(app);
 	command_dialog_topic(app,
-			     account_manager_get_current_account(manager),
-			     account_manager_get_current_channel(manager));
+			     loqui_app_get_current_account(app),
+			     loqui_app_get_current_channel(app));
 }
 static void
 loqui_app_actions_nick_cb(GtkAction *action, LoquiApp *app)
 {
-	AccountManager *manager;
-
-	manager = loqui_app_get_account_manager(app);
 	command_dialog_nick(app,
-			    account_manager_get_current_account(manager));
+			    loqui_app_get_current_account(app));
 }
 static void
 loqui_app_actions_away_info_cb(GtkAction *action, LoquiApp *app)
 {
-	AccountManager *manager;
 	Channel *channel;
 
-	manager = loqui_app_get_account_manager(app);	
-	channel = account_manager_get_current_channel(manager);
+	channel = loqui_app_get_current_channel(app);
 	if (channel)
 		account_fetch_away_information(channel->account, channel);
 	else
@@ -378,5 +367,5 @@ static void
 loqui_app_actions_start_private_talk_cb(GtkAction *action, LoquiApp *app)
 {
 	command_dialog_private_talk(app,
-				    account_manager_get_current_account(loqui_app_get_account_manager(app)));
+				    loqui_app_get_current_account(app));
 }
