@@ -41,7 +41,9 @@ typedef struct _LoquiChannelTextViewPrivate     LoquiChannelTextViewPrivate;
 struct _LoquiChannelTextView
 {
         GtkTextView parent;
-        
+
+        gboolean is_scroll;
+
         LoquiChannelTextViewPrivate *priv;
 };
 
@@ -54,6 +56,13 @@ struct _LoquiChannelTextViewClass
 GType loqui_channel_text_view_get_type(void) G_GNUC_CONST;
 
 GtkWidget* loqui_channel_text_view_new(LoquiApp *app);
+
+void loqui_channel_text_view_set_is_scroll(LoquiChannelTextView *textview, gboolean is_scroll);
+gboolean loqui_channel_text_view_get_is_scroll(LoquiChannelTextView *textview);
+
+void loqui_channel_text_view_scroll_to_end(LoquiChannelTextView *chview);
+void loqui_channel_text_view_scroll_to_end_if_enabled(LoquiChannelTextView *chview);
+
 G_END_DECLS
 
 #endif /* __LOQUI_CHANNEL_TEXT_VIEW_H__ */

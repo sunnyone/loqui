@@ -32,6 +32,8 @@
 #include "prefs_dialog.h"
 #include "account_list_dialog.h"
 
+#include "loqui_channel_text_view.h"
+
 #include <gtk24backports.h>
 
 #define CTRL "<control>"
@@ -385,7 +387,7 @@ loqui_app_actions_toggle_scroll_cb(GtkAction *action, LoquiApp *app)
 
 	is_active = gtk_toggle_action_get_active(GTK_TOGGLE_ACTION(action));
 	if(is_active)
-		loqui_app_scroll_channel_buffer(app);
+		loqui_channel_text_view_scroll_to_end(LOQUI_CHANNEL_TEXT_VIEW(app->channel_textview));
 
 	app->is_scroll = is_active;
 }

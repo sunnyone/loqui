@@ -139,7 +139,6 @@ static void loqui_app_set_current_channel_lazy(LoquiApp *app, LoquiChannel *chan
 static void loqui_app_update_channel_entry_accel_key(LoquiApp *app);
 
 /* utilities */
-static void scroll_channel_buffer(GtkWidget *textview);
 static void set_channel_buffer(LoquiApp *app, GtkWidget *textview, ChannelBuffer *buffer, guint *signal_id_ptr,
 			       GCallback func);
 static void loqui_app_set_channel_entry_accel_key(LoquiApp *app, LoquiChannelEntry *chent);
@@ -335,7 +334,7 @@ static void loqui_app_channel_textview_inserted_cb(GtkTextBuffer *textbuf,
 	if (!app->is_scroll)
 		return;
 
-	loqui_app_scroll_channel_buffer(app);
+	loqui_channel_text_view_scroll_to_end(LOQUI_CHANNEL_TEXT_VIEW(app->channel_textview));
 }
 static void loqui_app_common_textview_inserted_cb(GtkTextBuffer *textbuf,
 						  GtkTextIter *pos,
@@ -347,7 +346,7 @@ static void loqui_app_common_textview_inserted_cb(GtkTextBuffer *textbuf,
 
 	app = LOQUI_APP(data);
 
-	loqui_app_scroll_common_buffer(app);
+	loqui_channel_text_view_scroll_to_end(LOQUI_CHANNEL_TEXT_VIEW(app->common_textview));
 }
 static void
 loqui_app_textview_scroll_value_changed_cb(GtkAdjustment *adj, gpointer data)
@@ -625,30 +624,6 @@ loqui_app_new(AccountManager *account_manager)
 
 	return GTK_WIDGET(app);
 }
-static void
-scroll_channel_buffer(GtkWidget *textview)
-{
-	GtkTextBuffer *buffer = NULL;
-
-	buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(textview));
-	if(buffer && IS_CHANNEL_BUFFER(buffer))
-		gtk_text_view_scroll_mark_onscreen(GTK_TEXT_VIEW(textview),
-						   gtk_text_buffer_get_mark(buffer, "end"));
-}
-void loqui_app_scroll_channel_buffer(LoquiApp *app)
-{
-        g_return_if_fail(app != NULL);
-        g_return_if_fail(LOQUI_IS_APP(app));
-
-	scroll_channel_buffer(app->channel_textview);
-}
-void loqui_app_scroll_common_buffer(LoquiApp *app)
-{
-        g_return_if_fail(app != NULL);
-        g_return_if_fail(LOQUI_IS_APP(app));
-
-	scroll_channel_buffer(app->common_textview);
-}
 void
 loqui_app_scroll_page_channel_buffer(LoquiApp *app, gint pages)
 {
@@ -688,7 +663,8 @@ set_channel_buffer(LoquiApp *app, GtkWidget *textview, ChannelBuffer *buffer, gu
 		g_object_set(G_OBJECT(transparent_tag), "foreground-gdk", transparent_color, NULL);
 	gtk_text_view_set_buffer(GTK_TEXT_VIEW(textview), GTK_TEXT_BUFFER(buffer));
 	*signal_id_ptr = g_signal_connect(G_OBJECT(buffer), "insert-text", func, app);
-	scroll_channel_buffer(textview);
+
+	loqui_channel_text_view_scroll_to_end(LOQUI_CHANNEL_TEXT_VIEW(textview));
 }
 void loqui_app_set_channel_buffer(LoquiApp *app, ChannelBuffer *buffer)
 {

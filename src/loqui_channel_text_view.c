@@ -201,3 +201,42 @@ loqui_channel_text_view_new(LoquiApp *app)
 
         return GTK_WIDGET(view);
 }
+void
+loqui_channel_text_view_scroll_to_end(LoquiChannelTextView *chview)
+{
+	GtkTextBuffer *buffer;
+
+        g_return_if_fail(chview != NULL);
+        g_return_if_fail(LOQUI_IS_CHANNEL_TEXT_VIEW(chview));
+
+	buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(chview));
+	if(buffer && IS_CHANNEL_BUFFER(buffer))
+		gtk_text_view_scroll_mark_onscreen(GTK_TEXT_VIEW(chview),
+						   gtk_text_buffer_get_mark(buffer, "end"));
+}
+void
+loqui_channel_text_view_scroll_to_end_if_enabled(LoquiChannelTextView *chview)
+{
+        g_return_if_fail(chview != NULL);
+        g_return_if_fail(LOQUI_IS_CHANNEL_TEXT_VIEW(chview));
+
+	if (chview->is_scroll)
+		loqui_channel_text_view_scroll_to_end(chview);	
+}
+void
+loqui_channel_text_view_set_is_scroll(LoquiChannelTextView *chview, gboolean is_scroll)
+{
+        g_return_if_fail(chview != NULL);
+        g_return_if_fail(LOQUI_IS_CHANNEL_TEXT_VIEW(chview));
+
+	chview->is_scroll = is_scroll;
+	loqui_channel_text_view_scroll_to_end_if_enabled(chview);
+}
+gboolean
+loqui_channel_text_view_get_is_scroll(LoquiChannelTextView *chview)
+{
+        g_return_val_if_fail(chview != NULL, FALSE);
+        g_return_val_if_fail(LOQUI_IS_CHANNEL_TEXT_VIEW(chview), FALSE);
+
+	return chview->is_scroll;
+}
