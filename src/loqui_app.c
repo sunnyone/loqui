@@ -1236,6 +1236,9 @@ loqui_app_add_channel_after_cb(LoquiAccount *account, LoquiChannel *channel, Loq
 						LOQUI_GENERAL_PREF_GTK_GROUP_GENERAL, "SelectChannelJoined",
 						LOQUI_GENERAL_PREF_GTK_DEFAULT_GENERAL_SELECT_CHANNEL_JOINED, NULL))
 		loqui_app_set_current_channel_lazy(app, channel);
+	else
+		channel_tree_expand_to_channel_entry(app->channel_tree, LOQUI_CHANNEL_ENTRY(channel));
+
 }
 static void
 loqui_app_remove_channel_cb(LoquiAccount *account, LoquiChannel *channel, LoquiApp *app)

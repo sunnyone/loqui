@@ -60,6 +60,7 @@ GtkType channel_tree_get_type(void) G_GNUC_CONST;
 GtkWidget* channel_tree_new(LoquiApp *app, GtkMenu *menu_account, GtkMenu *menu_channel, GtkMenu *menu_private_talk);
 
 void channel_tree_select_channel_entry(ChannelTree *tree, LoquiChannelEntry *chent);
+void channel_tree_expand_to_channel_entry(ChannelTree *tree, LoquiChannelEntry *chent);
 
 G_END_DECLS
 
