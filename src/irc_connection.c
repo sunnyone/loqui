@@ -461,21 +461,6 @@ irc_connection_disconnect(IRCConnection *connection)
 	g_signal_emit(connection, signals[DISCONNECTED], 0);
 }
 void
-irc_connection_disconnect_after_send(IRCConnection *connection, IRCMessage *msg)
-{
-	IRCConnectionPrivate *priv;
-	GIOChannel *ioch;
-
-        g_return_if_fail(connection != NULL);
-        g_return_if_fail(IS_IRC_CONNECTION(connection));
-
-	priv = connection->priv;
-
-	ioch = gnet_tcp_socket_get_io_channel(priv->socket);
-	irc_connection_send_message(connection, ioch, msg);
-	irc_connection_disconnect(connection);
-}
-void
 irc_connection_push_message(IRCConnection *connection, IRCMessage *msg)
 {
 	IRCConnectionPrivate *priv;

@@ -389,18 +389,14 @@ static void
 loqui_account_irc_disconnect(LoquiAccount *account)
 {
 	LoquiAccountIRCPrivate *priv;
-	IRCMessage *msg;
 
         g_return_if_fail(account != NULL);
         g_return_if_fail(LOQUI_IS_ACCOUNT_IRC(account));
 	
 	priv = LOQUI_ACCOUNT_IRC(account)->priv;
 
-	if (priv->connection) {
-		msg = irc_message_create(IRCCommandQuit, "Loqui", NULL);
-		irc_connection_disconnect_after_send(priv->connection, msg);
-		g_object_unref(msg);
-	}
+	if (priv->connection)
+		irc_connection_disconnect(priv->connection);
 }
 IRCHandle *
 loqui_account_irc_get_handle(LoquiAccountIRC *account)
