@@ -781,8 +781,14 @@ irc_handle_reply(IRCHandle *handle, IRCMessage *msg)
 		return TRUE;
 	case IRC_RPL_LUSERCLIENT:
 	case IRC_RPL_LUSERME:
+		irc_handle_account_console_append(handle, msg, TEXT_TYPE_INFO, _("*** %t"));
+		return TRUE;
 	case IRC_RPL_UNAWAY:
+		account_set_is_away(handle->priv->account, FALSE);
+		irc_handle_account_console_append(handle, msg, TEXT_TYPE_INFO, _("*** %t"));
+		return TRUE;
 	case IRC_RPL_NOWAWAY:
+		account_set_is_away(handle->priv->account, TRUE);
 		irc_handle_account_console_append(handle, msg, TEXT_TYPE_INFO, _("*** %t"));
 		return TRUE;
 	case IRC_RPL_INVITING:

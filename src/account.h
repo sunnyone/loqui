@@ -120,6 +120,10 @@ GSList *account_search_joined_channel(Account *account, gchar *nick);
 void account_console_buffer_append(Account *account, gboolean with_common_buffer, TextType type, gchar *str);
 void account_speak(Account *account, Channel *channel, const gchar *str);
 
+void account_set_is_away(Account *account, gboolean is_away);
+gboolean account_get_is_away(Account *account);
+void account_change_away_mode(Account *account, const gchar *away_message);
+
 G_END_DECLS
 
 #endif /* __ACCOUNT_H__ */

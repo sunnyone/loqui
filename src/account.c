@@ -34,6 +34,8 @@
 struct _AccountPrivate
 {
 	IRCHandle *handle;
+
+	gboolean is_away;
 };
 
 static GObjectClass *parent_class = NULL;
@@ -87,6 +89,7 @@ account_init (Account *account)
 	priv = g_new0(AccountPrivate, 1);
 
 	account->priv = priv;
+	priv->is_away = FALSE;
 }
 static void 
 account_finalize (GObject *object)
@@ -470,6 +473,48 @@ account_speak(Account *account, Channel *channel, const gchar *str)
 		irc_handle_push_message(priv->handle, msg);
 		channel_append_remark(channel, TEXT_TYPE_NORMAL, TRUE, irc_handle_get_current_nick(priv->handle), str);
 	}
+}
+
+void
+account_set_is_away(Account *account, gboolean is_away)
+{
+        g_return_if_fail(account != NULL);
+        g_return_if_fail(IS_ACCOUNT(account));
+
+	account->priv->is_away = is_away;
+	/* it should be handled with signal */
+	if(is_away)
+		debug_puts("Now away.");
+	else
+		debug_puts("Now unaway.");
+
+}
+gboolean
+account_get_is_away(Account *account)
+{
+        g_return_val_if_fail(account != NULL, FALSE);
+        g_return_val_if_fail(IS_ACCOUNT(account), FALSE);
+
+	return account->priv->is_away;
+}
+
+void
+account_change_away_mode(Account *account, const gchar *away_message)
+{
+	IRCMessage *msg;
+	AccountPrivate *priv;
+
+        g_return_if_fail(account != NULL);
+        g_return_if_fail(IS_ACCOUNT(account));
+
+	priv = account->priv;
+
+	if(away_message == NULL)
+		msg = irc_message_create(IRCCommandAway, NULL);
+	else
+		msg = irc_message_create(IRCCommandAway, away_message, NULL);
+	
+	irc_handle_push_message(priv->handle, msg);
 }
 
 GSList *
