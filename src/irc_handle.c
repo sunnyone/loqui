@@ -1023,7 +1023,6 @@ static gpointer irc_handle_thread_func(IRCHandle *handle)
 
 	debug_puts("Putting IRCMessageEnd message...");
 	msg = irc_message_create(IRCMessageEnd, NULL);
-	irc_message_print(msg);
 	irc_handle_push_message(handle, msg);
 	debug_puts("Done.");
 
