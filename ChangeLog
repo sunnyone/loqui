@@ -1,3 +1,80 @@
+2003-03-24 14:27  y-imai
+
+	* src/: account.c, account.h, ctcp_handle.c, ctcp_handle.h,
+	ctcp_message.c, irc_handle.c, nick_list.c: Feature to send CTCP
+	request
+
+2003-03-24 13:52  y-imai
+
+	* src/account_dialog.c: enabled userinfo
+
+2003-03-24 13:50  y-imai
+
+	* src/: account.c, ctcp_handle.c, irc_handle.c: use GObject
+	reference counter with irc_handle_push_message()
+
+2003-03-24 13:33  y-imai
+
+	* src/: Makefile.am, ctcp_handle.c, ctcp_handle.h, ctcp_message.c,
+	ctcp_message.h, irc_constants.h, irc_handle.c: Handle CTCP messages
+
+2003-03-24 09:39  y-imai
+
+	* src/channel_buffer.c: removed dependency to account_manager
+
+2003-03-24 00:00  y-imai
+
+	* src/: account_manager.c, account_manager.h, channel_tree.c,
+	channel_tree.h: removed needless
+	functions(remove_channels_of_account).
+
+2003-03-23 23:57  y-imai
+
+	* src/: account.c, account.h, account_manager.c, account_manager.h,
+	channel.c, channel.h, channel_buffer.c, channel_buffer.h,
+	irc_handle.c, loqui_app.c, loqui_app.h, message_text.c,
+	message_text.h: handling common buffer with signal
+
+2003-03-23 21:41  y-imai
+
+	* src/: channel_buffer.h, message_text.c, message_text.h: added
+	some attributes to MessageText
+
+2003-03-23 20:55  y-imai
+
+	* src/: Makefile.am, message_text.c, message_text.h: created
+	MessageText class
+
+2003-03-23 20:55  y-imai
+
+	* src/gobject_utils.h: ATTR utilities for gboolean
+
+2003-03-23 18:50  y-imai
+
+	* src/: account.c, account.h, account_dialog.c, prefs_account.c:
+	disabled debug_puts at loading accountrc.xml. use GOBject-property
+	framework with account
+
+2003-03-23 18:49  y-imai
+
+	* src/utils.h: G_OBJECT_UNREF_UNLESS_NULL macro: created
+
+2003-03-23 16:29  y-imai
+
+	* src/: Makefile.am, account.c, account.h, account_list_dialog.c,
+	channel.h, gobject_utils.c, gobject_utils.h:
+	ATTR_{ACCESSOR,READER,WRITER}_STRING{,_PROTOTYPE} macros: created.
+
+2003-03-18 01:24  y-imai
+
+	* ChangeLog, NEWS, NEWS.ja, configure.in, po/POTFILES.in, po/ja.po,
+	po/loqui.pot, src/account.c, src/prefs_dialog.c,
+	src/prefs_general.c, src/prefs_general.h: 0.1.11
+
+2003-03-18 01:13  y-imai
+
+	* debian/changelog: updated debian changelog
+
 2003-03-18 00:57  y-imai
 
 	* src/: account.c, account.h, irc_handle.c:

@@ -78,3 +78,7 @@
 * Enable reconnecting.
 * Auto-reconnect feature.
 
+2003-03-24     0.1.12
+* Changed method to manage Account/Channel.
+* Supports CTCP.
+
