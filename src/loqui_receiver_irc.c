@@ -534,7 +534,7 @@ loqui_receiver_irc_parse_mode_arguments(LoquiReceiverIRC *receiver, IRCMessage *
 #define GET_TARGET_OR_RETURN(msg, i, str_ptr) { \
   *str_ptr = irc_message_get_param(msg, i); \
   if(*str_ptr == NULL) { \
-        loqui_account_warning(account, _("Can't find a nick to change mode")); \
+        loqui_account_warning(account, _("Can't find a target to change mode")); \
         return; \
   } \
   i++; \
@@ -594,8 +594,12 @@ loqui_receiver_irc_parse_mode_arguments(LoquiReceiverIRC *receiver, IRCMessage *
 				break;
 			case IRC_CHANNEL_MODE_CHANNEL_KEY:
 			case IRC_CHANNEL_MODE_USER_LIMIT:
-				GET_TARGET_OR_RETURN(msg, cur, &target);
-				loqui_channel_change_mode(channel, (gboolean) is_add, *flags, target);
+				if (is_add) {
+					GET_TARGET_OR_RETURN(msg, cur, &target);
+					loqui_channel_change_mode(channel, TRUE, *flags, target);
+				} else {
+					loqui_channel_change_mode(channel, FALSE, *flags, NULL);
+				}
 				break;
 			case IRC_CHANNEL_MODE_BAN_MASK:
 			case IRC_CHANNEL_MODE_EXCEPTION_TO_OVERIDE_BAN_MASK:
