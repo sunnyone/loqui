@@ -458,6 +458,19 @@ void channel_change_user_nick(Channel *channel, const gchar *nick_orig, const gc
 	
 	gtk_list_store_set(channel->user_list, &iter, USERLIST_COLUMN_NICK, nick_new, -1);
 }
+void channel_change_user_away_state(Channel *channel, const gchar *nick, AwayState away_state)
+{
+	GtkTreeIter iter;
+
+	g_return_if_fail(channel != NULL);
+	g_return_if_fail(IS_CHANNEL(channel));
+	g_return_if_fail(nick != NULL);
+
+	if(!channel_find_user(channel, nick, &iter))
+		return;
+	
+	gtk_list_store_set(channel->user_list, &iter, USERLIST_COLUMN_HOMEAWAY, away_state, -1);
+}
 void channel_clear_user(Channel *channel)
 {
 	g_return_if_fail(channel != NULL);

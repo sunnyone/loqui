@@ -32,9 +32,11 @@ struct _NickListPrivate
 	GdkPixbuf *nonop_icon;
 	GdkPixbuf *speak_ability_icon;
 
-	GdkPixbuf *home_icon;
+	GdkPixbuf *busy_icon;
 	GdkPixbuf *away_icon;
-
+	GdkPixbuf *online_icon;
+	GdkPixbuf *offline_icon;
+	
 	GtkItemFactory *item_factory;
 	GtkWidget *popup_menu;
 };
@@ -163,7 +165,7 @@ nick_list_finalize (GObject *object)
 	g_free(nick_list->priv);
 }
 static void 
-nick_list_destroy (GtkObject *object)
+nick_list_destroy(GtkObject *object)
 {
         NickList *nick_list;
 	NickListPrivate *priv;
@@ -173,30 +175,14 @@ nick_list_destroy (GtkObject *object)
         nick_list = NICK_LIST(object);
 	priv = nick_list->priv;
 
-	if(priv->op_icon) {
-		gdk_pixbuf_unref(priv->op_icon);
-		priv->op_icon = NULL;
-	}
-	if(priv->nonop_icon) {
-		gdk_pixbuf_unref(priv->nonop_icon);
-		priv->nonop_icon = NULL;
-	}
-	if(priv->speak_ability_icon) {
-		gdk_pixbuf_unref(priv->speak_ability_icon);
-		priv->speak_ability_icon = NULL;
-	}
-	if(priv->home_icon) {
-		gdk_pixbuf_unref(priv->home_icon);
-		priv->home_icon = NULL;
-	}
-	if(priv->away_icon) {
-		gdk_pixbuf_unref(priv->away_icon);
-		priv->away_icon = NULL;
-	}
-	if(priv->item_factory) {
-		g_object_unref(priv->item_factory);
-                priv->item_factory = NULL;
-	}
+	G_OBJECT_UNREF_UNLESS_NULL(priv->op_icon);
+	G_OBJECT_UNREF_UNLESS_NULL(priv->nonop_icon);
+	G_OBJECT_UNREF_UNLESS_NULL(priv->speak_ability_icon);	
+	G_OBJECT_UNREF_UNLESS_NULL(priv->away_icon);
+	G_OBJECT_UNREF_UNLESS_NULL(priv->busy_icon);
+	G_OBJECT_UNREF_UNLESS_NULL(priv->online_icon);
+	G_OBJECT_UNREF_UNLESS_NULL(priv->offline_icon);
+	G_OBJECT_UNREF_UNLESS_NULL(priv->item_factory);
 
         if (GTK_OBJECT_CLASS(parent_class)->destroy)
                 (* GTK_OBJECT_CLASS(parent_class)->destroy) (object);
@@ -217,10 +203,15 @@ nick_list_create_icons(NickList *list)
 						  GTK_ICON_SIZE_MENU, NULL);
 	priv->speak_ability_icon = gtk_widget_render_icon(GTK_WIDGET(list), GTK_STOCK_OK,
 							  GTK_ICON_SIZE_MENU, NULL);
-	priv->home_icon = gtk_widget_render_icon(GTK_WIDGET(list), GTK_STOCK_HOME,
+	priv->busy_icon = gtk_widget_render_icon(GTK_WIDGET(list), "loqui-busy",
 						 GTK_ICON_SIZE_MENU, NULL);
-	priv->away_icon = gtk_widget_render_icon(GTK_WIDGET(list), GTK_STOCK_QUIT,
+	priv->away_icon = gtk_widget_render_icon(GTK_WIDGET(list), "loqui-away",
 						 GTK_ICON_SIZE_MENU, NULL);
+	priv->online_icon = gtk_widget_render_icon(GTK_WIDGET(list), "loqui-online",
+						   GTK_ICON_SIZE_MENU, NULL);
+	priv->offline_icon = gtk_widget_render_icon(GTK_WIDGET(list), "loqui-offline",
+						    GTK_ICON_SIZE_MENU, NULL);
+
 }
 static void nick_list_cell_data_func_op(GtkTreeViewColumn *tree_column,
 					GtkCellRenderer *cell,
@@ -254,21 +245,30 @@ static void nick_list_cell_data_func_away(GtkTreeViewColumn *tree_column,
 					  GtkTreeIter *iter,
 					  gpointer data)
 {
+	AwayState away_state;
 	NickList *nick_list;
 	NickListPrivate *priv;
-	UserExistence exist;
-
+	
 	nick_list = NICK_LIST(data);
+	gtk_tree_model_get(tree_model, iter, USERLIST_COLUMN_HOMEAWAY, &away_state, -1);
+
 	priv = nick_list->priv;
-
-	gtk_tree_model_get(tree_model, iter, USERLIST_COLUMN_HOMEAWAY, &exist, -1);
-
-	switch(exist) {
-	case USER_EXISTENCE_HOME:
-		g_object_set(G_OBJECT(cell), "pixbuf", priv->home_icon, NULL);
+	
+	switch(away_state) {
+	case AWAY_STATE_NONE:
+		g_object_set(G_OBJECT(cell), "pixbuf", NULL, NULL);
 		return;
-	case USER_EXISTENCE_AWAY:
+	case AWAY_STATE_AWAY:
 		g_object_set(G_OBJECT(cell), "pixbuf", priv->away_icon, NULL);
+		return;
+	case AWAY_STATE_BUSY:
+		g_object_set(G_OBJECT(cell), "pixbuf", priv->busy_icon, NULL);
+		return;
+	case AWAY_STATE_ONLINE:
+		g_object_set(G_OBJECT(cell), "pixbuf", priv->online_icon, NULL);
+		return;
+	case AWAY_STATE_OFFLINE:
+		g_object_set(G_OBJECT(cell), "pixbuf", priv->offline_icon, NULL);
 		return;
 	default:
 		break;

@@ -812,6 +812,7 @@ irc_handle_reply_who(IRCHandle *handle, IRCMessage *msg)
 	gchar *buf, *buf2, *tmp;
 	gchar op_char;
 	Channel *channel = NULL;
+	AwayState away_state = AWAY_STATE_NONE;
 	
 	priv = handle->priv;
 
@@ -829,8 +830,10 @@ irc_handle_reply_who(IRCHandle *handle, IRCMessage *msg)
 	
 	if (flags[0] == 'H') {
 		away_str = "Home";
+		away_state = AWAY_STATE_ONLINE;
 	} else if (flags[0] == 'G') {
 		away_str = "Gone";
+		away_state = AWAY_STATE_AWAY;
 	}
 	
 	op_char = ' ';
@@ -869,7 +872,7 @@ irc_handle_reply_who(IRCHandle *handle, IRCMessage *msg)
 	g_free(buf2);
 	
 	if (channel != NULL) {
-		
+		channel_change_user_away_state(channel, nick, away_state);
 	}
 	
 	g_free(buf);

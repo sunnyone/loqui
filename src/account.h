@@ -88,18 +88,6 @@ struct _Server
 	gboolean use;
 };
 
-typedef enum {
-	AWAY_STATE_NONE,
-	AWAY_STATE_ONLINE,
-	AWAY_STATE_AWAY,
-	AWAY_STATE_BUSY,
-	AWAY_STATE_AWAY_WITH_MESSAGE,
-	AWAY_STATE_CONFIGURE,
-	AWAY_STATE_QUIT,
-	AWAY_STATE_OFFLINE,
-	AWAY_STATE_DISCONNECT
-} AwayState;
-
 GType account_get_type(void) G_GNUC_CONST;
 
 Account* account_new(void);

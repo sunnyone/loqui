@@ -56,6 +56,18 @@ typedef enum {
 	USER_EXISTENCE_AWAY
 } UserExistence;
 
+typedef enum {
+	AWAY_STATE_NONE,
+	AWAY_STATE_ONLINE,
+	AWAY_STATE_AWAY,
+	AWAY_STATE_BUSY,
+	AWAY_STATE_AWAY_WITH_MESSAGE,
+	AWAY_STATE_CONFIGURE,
+	AWAY_STATE_QUIT,
+	AWAY_STATE_OFFLINE,
+	AWAY_STATE_DISCONNECT
+} AwayState;
+
 struct _Channel
 {
         GObject parent;
@@ -113,6 +125,7 @@ void channel_change_user_power(Channel *channel,
 			       const gchar *nick, UserPower power);
 void channel_change_user_nick(Channel *channel, 
 			      const gchar *nick_orig, const gchar *nick_new);
+void channel_change_user_away_state(Channel *channel, const gchar *nick, AwayState away_state);
 gboolean channel_find_user(Channel *channel, const gchar *nick, GtkTreeIter *iter);
 void channel_get_user_number(Channel *channel, guint *user_number, guint *op_number);
 
