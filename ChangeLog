@@ -1,3 +1,43 @@
+2003-06-07 19:53  y-imai
+
+	* src/icons/: Makefile.am, console.png: added icons
+
+2003-06-07 19:37  y-imai
+
+	* src/loqui_menu.c: sorted.
+
+2003-06-07 19:31  y-imai
+
+	* ChangeLog, configure.in, src/Makefile.am, src/account_manager.c,
+	src/loqui_menu.c, src/loqui_menu.h, src/main.c: created icons/ and
+	loqui's icon factory. created buffers submenu.
+
+2003-06-05 18:57  y-imai
+
+	* src/: account.c, account.h, irc_handle.c: abolished my_command_*
+	handlers
+
+2003-06-05 17:48  y-imai
+
+	* src/irc_handle.c: removed my_command_kick
+
+2003-06-05 17:47  y-imai
+
+	* src/irc_message.c: use IRC_MESSAGE_PARAMETER_MAX. check empty
+	line
+
+2003-06-05 17:03  y-imai
+
+	* src/irc_message.c: show line that has errors when parsing
+
+2003-06-05 16:51  y-imai
+
+	* src/irc_handle.c: check whether msg is null or not
+
+2003-05-29 20:17  y-imai
+
+	* debian/changelog: updated debian changelog
+
 2003-05-29 19:48  y-imai
 
 	* ChangeLog, NEWS, NEWS.ja, configure.in, po/ja.po, po/loqui.pot:

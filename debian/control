@@ -9,5 +9,4 @@ Package: loqui
 Architecture: any
 Depends: ${shlibs:Depends}
 Description: IRC client for Gtk2
- Loqui is a 4-paned IRC client, supported multiserver.
- This software is still experimental.
+ Loqui is a 4-paned IRC client, which supports multiple-servers.

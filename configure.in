@@ -59,4 +59,5 @@ src/icons/Makefile
 po/Makefile.in
 intl/Makefile
 m4/Makefile
+loqui.spec
 )

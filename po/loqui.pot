@@ -7,7 +7,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2003-05-29 19:46+0900\n"
+"POT-Creation-Date: 2003-06-07 21:12+0900\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -88,22 +88,22 @@ msgstr ""
 msgid "No channel is selected"
 msgstr ""
 
-#: src/account.c:824 src/account.c:845 src/account.c:872 src/account.c:892
-#: src/account.c:911 src/account.c:932 src/account.c:954
+#: src/account.c:842 src/account.c:863 src/account.c:890 src/account.c:910
+#: src/account.c:929 src/account.c:950 src/account.c:972
 #: src/command_dialog.c:44
 msgid "Account is not connected."
 msgstr ""
 
-#: src/account.c:859
+#: src/account.c:877
 #, c-format
 msgid "Sent CTCP request to %s: %s"
 msgstr ""
 
-#: src/account.c:917
+#: src/account.c:935
 msgid "This nick seems to be channel."
 msgstr ""
 
-#: src/account.c:983
+#: src/account.c:1001
 msgid "Too many users in change mode request!"
 msgstr ""
 
@@ -149,7 +149,7 @@ msgstr ""
 msgid "Account List"
 msgstr ""
 
-#: src/account_manager.c:529
+#: src/account_manager.c:542
 msgid ""
 "main_account_manager should be created. account_manager_get() may be called "
 "recursively."
@@ -276,239 +276,235 @@ msgstr ""
 msgid "Error occured when executing command: %s"
 msgstr ""
 
-#: src/irc_handle.c:289
+#: src/irc_handle.c:283
 msgid "This PRIVMSG/NOTICE message doesn't contain a remark."
 msgstr ""
 
-#: src/irc_handle.c:358 src/irc_handle.c:383 src/irc_handle.c:407
-#: src/irc_handle.c:431
+#: src/irc_handle.c:352 src/irc_handle.c:377 src/irc_handle.c:409
+#: src/irc_handle.c:446
 msgid "The message does not contain nick"
 msgstr ""
 
-#: src/irc_handle.c:372
+#: src/irc_handle.c:366
 msgid "*** %n has quit IRC(%t)"
 msgstr ""
 
-#: src/irc_handle.c:389 src/irc_handle.c:413
+#: src/irc_handle.c:383 src/irc_handle.c:415
 msgid "The message does not contain the channal name"
 msgstr ""
 
-#: src/irc_handle.c:398
+#: src/irc_handle.c:397
 msgid "*** %n has just part %1(%t)"
 msgstr ""
 
-#: src/irc_handle.c:422
+#: src/irc_handle.c:421
+msgid "The KICK message doesn't contain the user to be kicked."
+msgstr ""
+
+#: src/irc_handle.c:433
 msgid "*** %2 was kicked from %1 by %n(%3)"
 msgstr ""
 
-#: src/irc_handle.c:437
+#: src/irc_handle.c:452
 msgid "The NICK message does not contain new nick"
 msgstr ""
 
-#: src/irc_handle.c:446
+#: src/irc_handle.c:461
 msgid "*** %n is known as %1"
 msgstr ""
 
-#: src/irc_handle.c:466
+#: src/irc_handle.c:484
 msgid "Flags are not found in MODE command"
 msgstr ""
 
-#: src/irc_handle.c:474
+#: src/irc_handle.c:492
 msgid "Can't find a nick to change mode"
 msgstr ""
 
-#: src/irc_handle.c:479
+#: src/irc_handle.c:497
 msgid "Flags don't have + or -"
 msgstr ""
 
-#: src/irc_handle.c:528
+#: src/irc_handle.c:546
 msgid "Unknown mode flag"
 msgstr ""
 
-#: src/irc_handle.c:544
+#: src/irc_handle.c:562
 msgid "User mode is not implemented."
 msgstr ""
 
-#: src/irc_handle.c:560 src/irc_handle.c:604
+#: src/irc_handle.c:578 src/irc_handle.c:622
 msgid "The target is not found in MODE command"
 msgstr ""
 
-#: src/irc_handle.c:570
+#: src/irc_handle.c:588
 #, c-format
 msgid "RPL_CHANNELMODEIS didn't return a channel name: %s"
 msgstr ""
 
-#: src/irc_handle.c:576
+#: src/irc_handle.c:594
 msgid "*** Mode for %2: %*3"
 msgstr ""
 
-#: src/irc_handle.c:591
+#: src/irc_handle.c:609
 msgid "Who can change mode?"
 msgstr ""
 
-#: src/irc_handle.c:596
+#: src/irc_handle.c:614
 #, c-format
 msgid "Nick must not contain '%%'"
 msgstr ""
 
-#: src/irc_handle.c:612
+#: src/irc_handle.c:630
 msgid "Why can you know the change of his mode?"
 msgstr ""
 
-#: src/irc_handle.c:621
+#: src/irc_handle.c:639
 #, c-format
 msgid "*** New mode for %%1 by %s: %%*2"
 msgstr ""
 
-#: src/irc_handle.c:638
+#: src/irc_handle.c:664
 msgid "The message does not contain nick."
 msgstr ""
 
-#: src/irc_handle.c:643
+#: src/irc_handle.c:669
 msgid "Invalid JOIN command"
 msgstr ""
 
-#: src/irc_handle.c:649
+#: src/irc_handle.c:686
 msgid "Why do you know that the user join the channel?"
 msgstr ""
 
-#: src/irc_handle.c:655
+#: src/irc_handle.c:690
 msgid "*** %n (%u@%h) joined channel %t"
 msgstr ""
 
-#: src/irc_handle.c:673 src/irc_handle.c:701 src/irc_handle.c:724
-msgid "Can't get channel name"
-msgstr ""
-
-#: src/irc_handle.c:756
-msgid "Nick is null"
-msgstr ""
-
-#: src/irc_handle.c:830
+#: src/irc_handle.c:758
 msgid "Invalid CREATIONTIME reply."
 msgstr ""
 
-#: src/irc_handle.c:835 src/irc_handle.c:868
+#: src/irc_handle.c:763 src/irc_handle.c:796
 msgid "Invalid time string"
 msgstr ""
 
-#: src/irc_handle.c:841 src/irc_handle.c:874
+#: src/irc_handle.c:769 src/irc_handle.c:802
 msgid "Invalid time"
 msgstr ""
 
-#: src/irc_handle.c:845
+#: src/irc_handle.c:773
 #, c-format
 msgid "%%2 was created at %s"
 msgstr ""
 
-#: src/irc_handle.c:862
+#: src/irc_handle.c:790
 msgid "Invalid TOPICWHOTIME reply."
 msgstr ""
 
-#: src/irc_handle.c:878
+#: src/irc_handle.c:806
 #, c-format
 msgid "Topic for %%2 was set by %%3 at %s"
 msgstr ""
 
-#: src/irc_handle.c:900
+#: src/irc_handle.c:828
 msgid "Topic for %2: %t"
 msgstr ""
 
-#: src/irc_handle.c:918
+#: src/irc_handle.c:846
 msgid "*** New topic on %1 by %n: %t"
 msgstr ""
 
-#: src/irc_handle.c:982
+#: src/irc_handle.c:910
 msgid "Can't find the channel from the message"
 msgstr ""
 
-#: src/irc_handle.c:1016
+#: src/irc_handle.c:944
 msgid "*** %2 is marked as begin AWAY, but left the message: %3"
 msgstr ""
 
-#: src/irc_handle.c:1023 src/irc_handle.c:1027 src/irc_handle.c:1031
+#: src/irc_handle.c:951 src/irc_handle.c:955 src/irc_handle.c:959
 msgid "*** %t"
 msgstr ""
 
-#: src/irc_handle.c:1034
+#: src/irc_handle.c:962
 msgid "*** You are inviting %2 to %3"
 msgstr ""
 
-#: src/irc_handle.c:1037
+#: src/irc_handle.c:965
 msgid "*** %3 is running IRC version %2 (%4)"
 msgstr ""
 
-#: src/irc_handle.c:1068
+#: src/irc_handle.c:996
 msgid "%2 is %3@%4: %t"
 msgstr ""
 
-#: src/irc_handle.c:1071
+#: src/irc_handle.c:999
 msgid "%2 was %3@%4: %t"
 msgstr ""
 
-#: src/irc_handle.c:1074
+#: src/irc_handle.c:1002
 msgid "%2: %t"
 msgstr ""
 
-#: src/irc_handle.c:1077
+#: src/irc_handle.c:1005
 msgid "on via server %3(%t)"
 msgstr ""
 
-#: src/irc_handle.c:1080
+#: src/irc_handle.c:1008
 msgid "%3 %t"
 msgstr ""
 
-#: src/irc_handle.c:1083
+#: src/irc_handle.c:1011
 msgid "Banned on %2 : %3"
 msgstr ""
 
-#: src/irc_handle.c:1086
+#: src/irc_handle.c:1014
 msgid "Time: %3(%2)"
 msgstr ""
 
-#: src/irc_handle.c:1236
+#: src/irc_handle.c:1145
 #, c-format
 msgid "IOChannel write error: %s"
 msgstr ""
 
-#: src/irc_handle.c:1291
+#: src/irc_handle.c:1200
 msgid "*** Failed to convert codeset."
 msgstr ""
 
-#: src/irc_handle.c:1325
+#: src/irc_handle.c:1239
 msgid "Failed to connect"
 msgstr ""
 
-#: src/irc_handle.c:1332
+#: src/irc_handle.c:1246
 msgid "Connected. Sending Initial command..."
 msgstr ""
 
-#: src/irc_handle.c:1378
+#: src/irc_handle.c:1292
 msgid "Sent join command for autojoin."
 msgstr ""
 
-#: src/irc_handle.c:1381
+#: src/irc_handle.c:1295
 msgid "Done."
 msgstr ""
 
-#: src/irc_handle.c:1409 src/irc_handle.c:1419
+#: src/irc_handle.c:1323 src/irc_handle.c:1333
 msgid "No valid servers left."
 msgstr ""
 
-#: src/irc_handle.c:1425
+#: src/irc_handle.c:1339
 #, c-format
 msgid "Connecting to %s:%d"
 msgstr ""
 
-#: src/irc_handle.c:1495
+#: src/irc_handle.c:1409
 msgid "Message queue is not created."
 msgstr ""
 
-#: src/irc_handle.c:1499
+#: src/irc_handle.c:1413
 msgid "Not connected."
 msgstr ""
 
-#: src/irc_message.c:386
+#: src/irc_message.c:391
 msgid "Invalid parameter number"
 msgstr ""
 
@@ -516,140 +512,152 @@ msgstr ""
 msgid "No accounts are selected!"
 msgstr ""
 
-#: src/loqui_menu.c:76
+#: src/loqui_menu.c:80
 msgid "/_File"
 msgstr ""
 
-#: src/loqui_menu.c:77
+#: src/loqui_menu.c:81
 msgid "/File/_Connect"
 msgstr ""
 
-#: src/loqui_menu.c:78
+#: src/loqui_menu.c:82
 msgid "/File/_Quit"
 msgstr ""
 
-#: src/loqui_menu.c:79
+#: src/loqui_menu.c:83
 msgid "/_Edit"
 msgstr ""
 
-#: src/loqui_menu.c:80
+#: src/loqui_menu.c:84
 msgid "/Edit/Cut"
 msgstr ""
 
-#: src/loqui_menu.c:81
+#: src/loqui_menu.c:85
 msgid "/Edit/_Copy"
 msgstr ""
 
-#: src/loqui_menu.c:82
+#: src/loqui_menu.c:86
 msgid "/Edit/_Paste"
 msgstr ""
 
-#: src/loqui_menu.c:83
+#: src/loqui_menu.c:87
 msgid "/Edit/Paste with linefeeds cut"
 msgstr ""
 
-#: src/loqui_menu.c:85
+#: src/loqui_menu.c:89
 msgid "/Edit/Clear"
 msgstr ""
 
-#: src/loqui_menu.c:87
+#: src/loqui_menu.c:91
 msgid "/Edit/_Find"
 msgstr ""
 
-#: src/loqui_menu.c:88
+#: src/loqui_menu.c:92
 msgid "/Edit/_Find again"
 msgstr ""
 
-#: src/loqui_menu.c:89
+#: src/loqui_menu.c:93
 msgid "/_Command"
 msgstr ""
 
-#: src/loqui_menu.c:90
+#: src/loqui_menu.c:94
 msgid "/Command/_Join channel"
 msgstr ""
 
-#: src/loqui_menu.c:91
+#: src/loqui_menu.c:95
 msgid "/Command/Start private talk"
 msgstr ""
 
-#: src/loqui_menu.c:92
+#: src/loqui_menu.c:96
 msgid "/Command/_Part channel"
 msgstr ""
 
-#: src/loqui_menu.c:94
+#: src/loqui_menu.c:98
 msgid "/Command/_Set channel topic"
 msgstr ""
 
-#: src/loqui_menu.c:95
+#: src/loqui_menu.c:99
 msgid "/Command/_Change nickname"
 msgstr ""
 
-#: src/loqui_menu.c:96
+#: src/loqui_menu.c:100
 msgid "/_View"
 msgstr ""
 
-#: src/loqui_menu.c:97
+#: src/loqui_menu.c:101
 msgid "/View/Toolbar"
 msgstr ""
 
-#: src/loqui_menu.c:98
+#: src/loqui_menu.c:102
 msgid "/View/Toolbar/Icon"
 msgstr ""
 
-#: src/loqui_menu.c:99
+#: src/loqui_menu.c:103
 msgid "/View/Toolbar/Text"
 msgstr ""
 
-#: src/loqui_menu.c:100
+#: src/loqui_menu.c:104
 msgid "/View/Toolbar/Both icons and text"
 msgstr ""
 
-#: src/loqui_menu.c:101
+#: src/loqui_menu.c:105
 msgid "/View/Toolbar/Both icons and text horizontally"
 msgstr ""
 
-#: src/loqui_menu.c:102
+#: src/loqui_menu.c:106
 msgid "/View/Toolbar/Hide"
 msgstr ""
 
-#: src/loqui_menu.c:103
+#: src/loqui_menu.c:107
 msgid "/View/Status bar"
 msgstr ""
 
-#: src/loqui_menu.c:105
+#: src/loqui_menu.c:109
 msgid "/View/Previous updated channel"
 msgstr ""
 
-#: src/loqui_menu.c:106
+#: src/loqui_menu.c:110
 msgid "/View/Next updated channel"
 msgstr ""
 
-#: src/loqui_menu.c:108
+#: src/loqui_menu.c:112
 msgid "/View/Previous channel"
 msgstr ""
 
-#: src/loqui_menu.c:109
+#: src/loqui_menu.c:113
 msgid "/View/Next channel"
 msgstr ""
 
-#: src/loqui_menu.c:110
+#: src/loqui_menu.c:114
+msgid "/_Buffers"
+msgstr ""
+
+#: src/loqui_menu.c:116
 msgid "/_Settings"
 msgstr ""
 
-#: src/loqui_menu.c:111
+#: src/loqui_menu.c:117
 msgid "/Settings/Common preferences..."
 msgstr ""
 
-#: src/loqui_menu.c:112
+#: src/loqui_menu.c:118
 msgid "/Settings/Account settings..."
 msgstr ""
 
-#: src/loqui_menu.c:113
+#: src/loqui_menu.c:119
 msgid "/_Help"
 msgstr ""
 
-#: src/loqui_menu.c:114
+#: src/loqui_menu.c:120
 msgid "/Help/_About"
+msgstr ""
+
+#: src/loqui_menu.c:728
+msgid "Unable to determine color of fresh"
+msgstr ""
+
+#: src/loqui_menu.c:732
+msgid "Unable to determine color of nonfresh"
 msgstr ""
 
 #: src/loqui_toolbar.c:228
@@ -692,20 +700,20 @@ msgstr ""
 msgid "Toggle whether scrolling the channel buffer"
 msgstr ""
 
-#: src/main.c:52
+#: src/main.c:62
 #, c-format
 msgid "Invalid \"%s\""
 msgstr ""
 
-#: src/main.c:96
+#: src/main.c:131
 msgid "  --debug      debug mode\n"
 msgstr ""
 
-#: src/main.c:97
+#: src/main.c:132
 msgid "  --show-msg   show message mode\n"
 msgstr ""
 
-#: src/main.c:98
+#: src/main.c:133
 msgid "  --help       show this help\n"
 msgstr ""
 
