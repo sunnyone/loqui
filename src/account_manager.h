@@ -53,11 +53,11 @@ struct _AccountManagerClass
 GType account_manager_get_type(void) G_GNUC_CONST;
 
 AccountManager* account_manager_new(void);
+AccountManager *account_manager_get(void);
 
 void account_manager_load_accounts(AccountManager *account_manager);
 void account_manager_save_accounts(AccountManager *account_manager);
 
-AccountManager *account_manager_get(void);
 void account_manager_add_channel(AccountManager *manager, Account *account, Channel *channel);
 void account_manager_remove_channel(AccountManager *manager, Account *account, Channel *channel);
 
@@ -81,6 +81,10 @@ void account_manager_remove_channels_of_account(AccountManager *manager, Account
 void account_manager_disconnect_all(AccountManager *manager);
 
 void account_manager_open_account_list_dialog(AccountManager *manager);
+
+void account_manager_add_account_with_dialog(AccountManager *manager);
+void account_manager_configure_account_with_dialog(AccountManager *manager, Account *account);
+void account_manager_remove_account_with_dialog(AccountManager *manager, Account *account);
 
 GSList *account_manager_get_account_list(AccountManager *manager);
 G_END_DECLS

@@ -25,6 +25,8 @@
 #include "loqui_app.h"
 #include "prefs_account.h"
 #include "account_list_dialog.h"
+#include "account_dialog.h"
+#include "intl.h"
 
 struct _AccountManagerPrivate
 {
@@ -44,6 +46,10 @@ static void account_manager_init(AccountManager *account_manager);
 static void account_manager_finalize(GObject *object);
 static Account* account_manager_search_account(AccountManager *manager, Channel *channel);
 static gboolean account_manager_whether_scroll(AccountManager *account_manager);
+
+static void account_manager_add_account(AccountManager *manager, Account *account);
+static void account_manager_update_account(AccountManager *manager, Account *account);
+static void account_manager_remove_account(AccountManager *manager, Account *account);
 
 static AccountManager *main_account_manager = NULL;
 
@@ -130,10 +136,65 @@ account_manager_new (void)
 
 	return account_manager;
 }
+
+static void
+account_manager_add_account(AccountManager *manager, Account *account)
+{
+	AccountManagerPrivate *priv;
+
+        g_return_if_fail(manager != NULL);
+        g_return_if_fail(IS_ACCOUNT_MANAGER(manager));
+	g_return_if_fail(account != NULL);
+	g_return_if_fail(IS_ACCOUNT(account));
+
+	priv = manager->priv;
+
+	priv->account_list = g_slist_append(priv->account_list, account);
+	channel_tree_add_account(priv->app->channel_tree, account);
+
+	loqui_menu_update_connect_submenu(priv->app->menu, priv->account_list);
+}
+static void
+account_manager_remove_account(AccountManager *manager, Account *account)
+{
+	AccountManagerPrivate *priv;
+
+        g_return_if_fail(manager != NULL);
+        g_return_if_fail(IS_ACCOUNT_MANAGER(manager));
+	g_return_if_fail(account != NULL);
+	g_return_if_fail(IS_ACCOUNT(account));
+
+	priv = manager->priv;
+
+	priv->account_list = g_slist_remove(priv->account_list, account);
+	channel_tree_remove_account(priv->app->channel_tree, account);
+	g_object_unref(account);
+
+	loqui_menu_update_connect_submenu(priv->app->menu, priv->account_list);
+}
+static void
+account_manager_update_account(AccountManager *manager, Account *account)
+{
+	AccountManagerPrivate *priv;
+	GSList *cur;
+
+        g_return_if_fail(manager != NULL);
+        g_return_if_fail(IS_ACCOUNT_MANAGER(manager));
+	g_return_if_fail(account != NULL);
+	g_return_if_fail(IS_ACCOUNT(account));
+
+	priv = manager->priv;
+	
+	for(cur = priv->account_list; cur != NULL; cur = cur->next) {
+		channel_tree_update_account(priv->app->channel_tree, account);
+	}
+
+	loqui_menu_update_connect_submenu(priv->app->menu, priv->account_list);
+}
 void
 account_manager_load_accounts(AccountManager *account_manager)
 {
-        GSList *cur;
+        GSList *cur, *slist;
 	AccountManagerPrivate *priv;
 
         g_return_if_fail(account_manager != NULL);
@@ -141,13 +202,13 @@ account_manager_load_accounts(AccountManager *account_manager)
 
         priv = account_manager->priv;
 
-	priv->account_list = prefs_account_load();
-	for(cur = priv->account_list; cur != NULL; cur = cur->next) {
-		channel_tree_add_account(CHANNEL_TREE(priv->app->channel_tree), ACCOUNT(cur->data));
+	slist = prefs_account_load();
+	for(cur = slist; cur != NULL; cur = cur->next) {
+		account_manager_add_account(account_manager, cur->data);
 	}
-
-	loqui_menu_create_connect_submenu(priv->app->menu, priv->account_list);
+	g_slist_free(slist);
 }
+
 void
 account_manager_save_accounts(AccountManager *account_manager)
 {
@@ -364,4 +425,77 @@ void account_manager_open_account_list_dialog(AccountManager *manager)
         g_return_if_fail(IS_ACCOUNT_MANAGER(manager));	
 
 	account_list_dialog_open();
+}
+void
+account_manager_add_account_with_dialog(AccountManager *manager)
+{
+	AccountDialog *dialog;
+	Account *account;
+	gint response;
+
+	g_return_if_fail(manager != NULL);
+        g_return_if_fail(IS_ACCOUNT_MANAGER(manager));
+
+	account = account_new();
+	dialog = ACCOUNT_DIALOG(account_dialog_new(account));
+	response = gtk_dialog_run(GTK_DIALOG(dialog));
+	gtk_widget_destroy(GTK_WIDGET(dialog));
+
+	switch(response) {
+	case GTK_RESPONSE_OK:
+		account_manager_add_account(manager, account);
+		break;
+	default:
+		g_object_unref(account);
+		break;
+	}
+	account_manager_save_accounts(manager);
+}
+
+void
+account_manager_configure_account_with_dialog(AccountManager *manager, Account *account)
+{
+	GtkWidget *dialog;
+	g_return_if_fail(manager != NULL);
+        g_return_if_fail(IS_ACCOUNT_MANAGER(manager));
+	
+	dialog = account_dialog_new(account);
+	gtk_dialog_run(GTK_DIALOG(dialog));
+	gtk_widget_destroy(dialog);
+
+	account_manager_update_account(manager, account);
+
+	account_manager_save_accounts(manager);
+}
+
+void
+account_manager_remove_account_with_dialog(AccountManager *manager, Account *account)
+{
+	GtkWidget *dialog;
+	gint response;
+
+	g_return_if_fail(manager != NULL);
+        g_return_if_fail(IS_ACCOUNT_MANAGER(manager));
+	
+	dialog = gtk_message_dialog_new(GTK_WINDOW(manager->priv->app),
+					GTK_DIALOG_DESTROY_WITH_PARENT,
+					GTK_MESSAGE_WARNING,
+					GTK_BUTTONS_YES_NO,
+					_("This account's configuration and connection will be removed.\n"
+					  "Do you really want to remove this account?"));
+
+	response = gtk_dialog_run(GTK_DIALOG(dialog));
+	gtk_widget_destroy(dialog);
+	switch(response) {
+
+	case GTK_RESPONSE_YES:
+		account_manager_remove_account(manager, account);
+		account_manager_save_accounts(manager);
+		debug_puts("Removed account.");
+		break;
+	default:
+		break;
+	}
+	account_manager_save_accounts(manager);
+
 }
