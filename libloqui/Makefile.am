@@ -79,7 +79,8 @@ SRC_LIBRARY_CORE = \
 	loqui-static-core.c loqui-static-core.h \
 	loqui.h
 
-BUILT_SOURCES := loqui-core.c loqui-core.h loqui-core-private.h \
+BUILT_SOURCES := loqui_marshalers.c loqui_marshalers.h \
+	loqui-core.c loqui-core.h loqui-core-private.h \
 	loqui-pref.c loqui-pref.h loqui-pref-private.h
 
 lib_LTLIBRARIES = libloqui.la
@@ -94,9 +95,6 @@ libloqui_la_SOURCES =  \
 	$(SRC_LIBRARY_CORE)
 
 libloqui_la_LIBADD = $(GLIB_LIBS) $(GNET_LIBS)
-
-BUILT_SOURCES = \
-	loqui_marshalers.c loqui_marshalers.h
 
 loqui_marshalers.h : loqui_marshalers.list $(GLIB_GENMARSHAL)
 	$(GLIB_GENMARSHAL) $< --header --prefix=_loqui_marshal > $@
