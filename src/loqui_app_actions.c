@@ -220,6 +220,7 @@ loqui_app_actions_update_sensitivity_related_channel(LoquiApp *app)
 	LoquiChannelEntry *chent;
 	Account *account;
 	LoquiChannel *channel;
+	gboolean is_connected, is_joined, is_private_talk;
 
 	chent = loqui_app_get_current_channel_entry(app);
 
@@ -238,40 +239,26 @@ loqui_app_actions_update_sensitivity_related_channel(LoquiApp *app)
 	}
 
 	account = loqui_app_get_current_account(app);
-	if (account == NULL || !account_is_connected(account)) {
-		ACTION_GROUP_ACTION_SET_SENSITIVE(app->action_group, LOQUI_ACTION_JOIN, FALSE);
-		ACTION_GROUP_ACTION_SET_SENSITIVE(app->action_group, LOQUI_ACTION_CHANGE_NICK, FALSE);
-		ACTION_GROUP_ACTION_SET_SENSITIVE(app->action_group, LOQUI_ACTION_START_PRIVATE_TALK, FALSE);
+	is_connected = (account != NULL && account_is_connected(account));
 
-		ACTION_GROUP_ACTION_SET_SENSITIVE(app->action_group, LOQUI_ACTION_CONNECT_CURRENT_ACCOUNT, TRUE);
-		ACTION_GROUP_ACTION_SET_SENSITIVE(app->action_group, LOQUI_ACTION_RECONNECT_CURRENT_ACCOUNT, FALSE);
-		ACTION_GROUP_ACTION_SET_SENSITIVE(app->action_group, LOQUI_ACTION_DISCONNECT_CURRENT_ACCOUNT, FALSE);
-	} else {
-		ACTION_GROUP_ACTION_SET_SENSITIVE(app->action_group, LOQUI_ACTION_JOIN, TRUE);
-		ACTION_GROUP_ACTION_SET_SENSITIVE(app->action_group, LOQUI_ACTION_CHANGE_NICK, TRUE);
-		ACTION_GROUP_ACTION_SET_SENSITIVE(app->action_group, LOQUI_ACTION_START_PRIVATE_TALK, TRUE);
+	ACTION_GROUP_ACTION_SET_SENSITIVE(app->action_group, LOQUI_ACTION_JOIN, is_connected);
+	ACTION_GROUP_ACTION_SET_SENSITIVE(app->action_group, LOQUI_ACTION_CHANGE_NICK, is_connected);
+	ACTION_GROUP_ACTION_SET_SENSITIVE(app->action_group, LOQUI_ACTION_START_PRIVATE_TALK, is_connected);
+	
+	ACTION_GROUP_ACTION_SET_SENSITIVE(app->action_group, LOQUI_ACTION_CONNECT_CURRENT_ACCOUNT, !is_connected);
+	ACTION_GROUP_ACTION_SET_SENSITIVE(app->action_group, LOQUI_ACTION_RECONNECT_CURRENT_ACCOUNT, is_connected);
+	ACTION_GROUP_ACTION_SET_SENSITIVE(app->action_group, LOQUI_ACTION_DISCONNECT_CURRENT_ACCOUNT, is_connected);
 
-		ACTION_GROUP_ACTION_SET_SENSITIVE(app->action_group, LOQUI_ACTION_CONNECT_CURRENT_ACCOUNT, FALSE);
-		ACTION_GROUP_ACTION_SET_SENSITIVE(app->action_group, LOQUI_ACTION_RECONNECT_CURRENT_ACCOUNT, TRUE);
-		ACTION_GROUP_ACTION_SET_SENSITIVE(app->action_group, LOQUI_ACTION_DISCONNECT_CURRENT_ACCOUNT, TRUE);
-	}
 
 	channel = loqui_app_get_current_channel(app);
-	if (channel == NULL || !loqui_channel_get_is_joined(channel) || loqui_channel_get_is_private_talk(channel)) {
-		ACTION_GROUP_ACTION_SET_SENSITIVE(app->action_group, LOQUI_ACTION_SET_TOPIC, FALSE);
- 		ACTION_GROUP_ACTION_SET_SENSITIVE(app->action_group, LOQUI_ACTION_PART, FALSE);
-		ACTION_GROUP_ACTION_SET_SENSITIVE(app->action_group, LOQUI_ACTION_REFRESH_AWAY, FALSE);
-	} else {
-		ACTION_GROUP_ACTION_SET_SENSITIVE(app->action_group, LOQUI_ACTION_SET_TOPIC, TRUE);
- 		ACTION_GROUP_ACTION_SET_SENSITIVE(app->action_group, LOQUI_ACTION_PART, TRUE);
-		ACTION_GROUP_ACTION_SET_SENSITIVE(app->action_group, LOQUI_ACTION_REFRESH_AWAY, TRUE);
-	}
+	is_joined = (channel != NULL && !loqui_channel_get_is_private_talk(channel) && loqui_channel_get_is_joined(channel));
 
-	if (channel == NULL || !loqui_channel_get_is_private_talk(channel)) {
-		ACTION_GROUP_ACTION_SET_SENSITIVE(app->action_group, LOQUI_ACTION_END_PRIVATE_TALK, FALSE);
-	} else {
-		ACTION_GROUP_ACTION_SET_SENSITIVE(app->action_group, LOQUI_ACTION_END_PRIVATE_TALK, TRUE);
-	}
+	ACTION_GROUP_ACTION_SET_SENSITIVE(app->action_group, LOQUI_ACTION_SET_TOPIC, is_joined);
+	ACTION_GROUP_ACTION_SET_SENSITIVE(app->action_group, LOQUI_ACTION_PART, is_joined);
+	ACTION_GROUP_ACTION_SET_SENSITIVE(app->action_group, LOQUI_ACTION_REFRESH_AWAY, is_joined);
+
+	is_private_talk = (channel != NULL && loqui_channel_get_is_private_talk(channel));
+	ACTION_GROUP_ACTION_SET_SENSITIVE(app->action_group, LOQUI_ACTION_END_PRIVATE_TALK, is_private_talk);
 }
 
 /* callbacks */
