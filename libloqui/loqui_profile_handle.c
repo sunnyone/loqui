@@ -309,7 +309,7 @@ start_element_handler(GMarkupParseContext *context,
 			g_set_error(error,
            			    G_MARKUP_ERROR,
            			    G_MARKUP_ERROR_INVALID_CONTENT,
-           			    _("Invalid param: doesn't have a key'"));
+           			    _("Invalid param: doesn't have a key: '%s'"), key);
            		return;
 		}
 		if ((pspec = g_object_class_find_property(G_OBJECT_GET_CLASS(obj), key)) == NULL) {
@@ -318,7 +318,7 @@ start_element_handler(GMarkupParseContext *context,
            			    G_MARKUP_ERROR_INVALID_CONTENT,
            			    _("Invalid param key")); */
 			priv->skip_param_count++;
-			g_warning(_("Invalid param key'"));
+			g_warning(_("Invalid param key: '%s'"), key);
            		return;
 		}
 		g_queue_push_tail(priv->pspec_queue, pspec);
