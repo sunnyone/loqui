@@ -269,12 +269,13 @@ static void
 irc_handle_command_privmsg_notice(IRCHandle *handle, IRCMessage *msg)
 {
 	IRCHandlePrivate *priv;
-	gchar *receiver_name;
+	gchar *receiver_name, *sender_nick;
 	gchar *channel_name;
 	gchar *remark;
 	Channel *channel = NULL;
 	TextType type;
 	CTCPMessage *ctcp_msg;
+	gboolean is_self;
 
         g_return_if_fail(handle != NULL);
         g_return_if_fail(IS_IRC_HANDLE(handle));
@@ -282,12 +283,18 @@ irc_handle_command_privmsg_notice(IRCHandle *handle, IRCMessage *msg)
 	priv = handle->priv;
 
 	receiver_name = irc_message_get_param(msg, 1);
+	sender_nick = msg->nick; /* null if message was sent by a server */
 	remark = irc_message_get_param(msg, 2);
 
 	if(remark == NULL) {
 		g_warning(_("This PRIVMSG/NOTICE message doesn't contain a remark."));
 		return;
 	}
+
+	if(sender_nick)
+		is_self = account_is_current_nick(handle->priv->account, sender_nick);
+	else
+		is_self = FALSE;
 
 	if(priv->end_motd == FALSE &&
 	   msg->response == IRC_COMMAND_NOTICE &&
@@ -302,7 +309,7 @@ irc_handle_command_privmsg_notice(IRCHandle *handle, IRCMessage *msg)
 		type = TEXT_TYPE_NORMAL;
 	}
 
-	if(msg->nick != NULL) {
+	if(sender_nick) {
 		if(ctcp_message_parse_line(remark, &ctcp_msg)) {
 			g_object_set_data(G_OBJECT(ctcp_msg), "sender", msg->nick);
 			g_object_set_data(G_OBJECT(ctcp_msg), "receiver", receiver_name);
@@ -313,11 +320,15 @@ irc_handle_command_privmsg_notice(IRCHandle *handle, IRCMessage *msg)
                 }
 	}
 
-	if(receiver_name != NULL && msg->nick != NULL) {
-		if(STRING_IS_CHANNEL(receiver_name))
+	if(receiver_name != NULL && sender_nick != NULL) {
+		if(STRING_IS_CHANNEL(receiver_name)) {
 			channel_name = receiver_name;
-		else
-			channel_name = msg->nick;
+		} else {
+			if(is_self)
+				channel_name = receiver_name;
+			else
+				channel_name = sender_nick;
+		}
 
 		channel = account_get_channel(priv->account, channel_name);
 		if(channel == NULL) {
@@ -327,7 +338,7 @@ irc_handle_command_privmsg_notice(IRCHandle *handle, IRCMessage *msg)
 	}
 	
 	if(channel != NULL) {
-		channel_append_remark(channel, type, FALSE, msg->nick, remark);
+		channel_append_remark(channel, type, is_self, sender_nick, remark);
 	} else {
 		account_console_buffer_append(priv->account, type, remark);
 	}
