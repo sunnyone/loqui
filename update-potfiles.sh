@@ -1,2 +1,1 @@
-ls -1 src/*.[ch] > po/POTFILES.in
-
+ls -1 libloqui/*.[ch] src/*.[ch] > po/POTFILES.in
