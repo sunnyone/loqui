@@ -48,13 +48,12 @@
 	<menuitem name="RadioNickListSortTimeAwayPowerNick" action="RadioNickListSortTimeAwayPowerNick" />
 	<menuitem name="RadioNickListSortTimePowerAwayNick" action="RadioNickListSortTimePowerAwayNick" />
       </menu>
+    </menu>
+    <menu name="Buffers" action="StockBuffersMenu">
       <menuitem name="PreviousUpdatedChannel" action="PreviousUpdatedChannel"/>
       <menuitem name="NextUpdatedChannel" action="NextUpdatedChannel"/>
       <menuitem name="PreviousChannel" action="PreviousChannel"/>
       <menuitem name="NextChannel" action="NextChannel"/>
-      <separator/>
-    </menu>
-    <menu name="Buffers" action="StockBuffersMenu">
     </menu>
     <menu name="SettingsMenu" action="StockSettingsMenu">
       <menuitem name="GeneralSettings" action="GeneralSettings"/>
