@@ -425,6 +425,18 @@ loqui_channel_entry_get_member_number(LoquiChannelEntry *chent)
 	
 	return chent->member_array->len;
 }
+gint
+loqui_channel_entry_get_member_pos(LoquiChannelEntry *chent, LoquiMember *member)
+{
+	gint pos;
+
+        g_return_val_if_fail(chent != NULL, -1);
+        g_return_val_if_fail(LOQUI_IS_CHANNEL_ENTRY(chent), -1);
+	g_return_val_if_fail(LOQUI_IS_MEMBER(member), -1);
+
+	pos = GPOINTER_TO_INT(g_hash_table_lookup(chent->user_hash, member->user)) - 1;
+	return pos;
+}
 void
 loqui_channel_entry_set_buffer(LoquiChannelEntry *chent, ChannelBuffer *buffer)
 {

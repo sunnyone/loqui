@@ -79,6 +79,7 @@ void loqui_channel_entry_add_member(LoquiChannelEntry *chent, LoquiMember *membe
 void loqui_channel_entry_remove_member_by_user(LoquiChannelEntry *chent, LoquiUser *user);
 void loqui_channel_entry_clear_member(LoquiChannelEntry *chent);
 LoquiMember *loqui_channel_entry_get_member_by_user(LoquiChannelEntry *entry, LoquiUser *user);
+gint loqui_channel_entry_get_member_pos(LoquiChannelEntry *chent, LoquiMember *member);
 
 void loqui_channel_entry_set_sort_func(LoquiChannelEntry *chent, GCompareFunc func);
 void loqui_channel_entry_sort(LoquiChannelEntry *chent);

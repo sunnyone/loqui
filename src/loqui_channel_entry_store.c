@@ -462,7 +462,25 @@ loqui_channel_entry_store_inserted_cb(LoquiChannelEntry *entry,
 	gtk_tree_model_row_inserted(GTK_TREE_MODEL(store), path, &iter);
 	gtk_tree_path_free(path);
 }
+static void
+loqui_channel_entry_store_remove_cb(LoquiChannelEntry *chent,
+				    LoquiMember *member,
+				    LoquiChannelEntryStore *store)
+{
+	gint pos;
+	GtkTreePath *path;
+	GtkTreeIter iter;
 
+	pos = loqui_channel_entry_get_member_pos(chent, member);
+	g_return_if_fail(pos >= 0);
+
+	iter.user_data = member;
+	iter.user_data2 = GINT_TO_POINTER(pos + 1);
+
+	path = loqui_channel_entry_store_get_path(GTK_TREE_MODEL(store), &iter);
+	gtk_tree_model_row_deleted(GTK_TREE_MODEL(store), path);
+	gtk_tree_path_free(path);
+}
 LoquiChannelEntryStore*
 loqui_channel_entry_store_new(LoquiChannelEntry *chent)
 {
@@ -490,6 +508,7 @@ loqui_channel_entry_store_new(LoquiChannelEntry *chent)
 	
 	g_signal_connect(G_OBJECT(chent), "inserted",
 			 G_CALLBACK(loqui_channel_entry_store_inserted_cb), store);
-
+	g_signal_connect(G_OBJECT(chent), "remove",
+			 G_CALLBACK(loqui_channel_entry_store_remove_cb), store);
         return store;
 }
