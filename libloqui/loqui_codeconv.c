@@ -50,7 +50,7 @@ static void loqui_codeconv_finalize(GObject *object);
 	*cd_p = (GIConv) -1; \
 }
 
-#define LOQUI_CODECONV_G_ICONV_IS_VALID(cd) (((int) cd) >= 0)
+#define LOQUI_CODECONV_G_ICONV_IS_VALID(cd) (cd >= 0)
 
 GType
 loqui_codeconv_get_type(void)
