@@ -276,7 +276,7 @@ nick_list_start_private_talk_selected(NickList *nick_list)
 	member_list = nick_list_menu_get_selected_members(nick_list);
 	for(cur = member_list; cur != NULL; cur = cur->next) {
 		member = cur->data;
-		account_start_private_talk(account, loqui_user_get_nick(member->user));
+		loqui_sender_start_private_talk(account_get_sender(account), member->user);
 	}
 	g_slist_free(member_list);
 }
@@ -368,7 +368,7 @@ static void nick_list_row_activated_cb(NickList *list, GtkTreePath *path, GtkTre
 {
 	GtkTreeIter iter;
 	GtkTreeModel *model;
-	const gchar *nick;
+	LoquiMember *member;
 	Account *account;
 	NickListPrivate *priv;
 
@@ -378,13 +378,13 @@ static void nick_list_row_activated_cb(NickList *list, GtkTreePath *path, GtkTre
 	if(!gtk_tree_model_get_iter(model, &iter, path)) {
 		return;
 	}
-	gtk_tree_model_get(model, &iter, LOQUI_CHANNEL_ENTRY_STORE_COLUMN_NICK, &nick, -1);
+	gtk_tree_model_get(model, &iter, LOQUI_CHANNEL_ENTRY_STORE_COLUMN_MEMBER, &member, -1);
 
 	account = loqui_app_get_current_account(priv->app);
 	if(!account)
 		return;
 
-	account_start_private_talk(account, nick);
+	loqui_sender_start_private_talk(account_get_sender(account), member->user);
 }
 static gboolean
 nick_list_key_press_event(GtkWidget *widget,

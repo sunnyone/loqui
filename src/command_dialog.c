@@ -130,6 +130,7 @@ command_dialog_private_talk(LoquiApp *app, Account *account)
 	gchar *buf;
 	const gchar *text_name;
 	gint result;
+	LoquiUser *user;
 
 	if(!check_account_connected(account))
 		return;
@@ -159,7 +160,14 @@ command_dialog_private_talk(LoquiApp *app, Account *account)
 			gtk_widget_destroy(dialog);
 			return;
 		}
-		account_start_private_talk(account, text_name);
+
+		user = account_fetch_user(account, text_name);
+		if (!user) {
+			g_warning("Can't fetch user for private talk");
+			return;
+		}
+		loqui_sender_start_private_talk(account_get_sender(account), user);
+		g_object_unref(user);
 	}
 	gtk_widget_destroy(dialog);
 }

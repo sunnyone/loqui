@@ -58,7 +58,7 @@ static void loqui_sender_irc_whois(LoquiSender *sender, LoquiUser *user);
 static void loqui_sender_irc_join(LoquiSender *sender, LoquiChannel *channel);
 static void loqui_sender_irc_part(LoquiSender *sender, LoquiChannel *channel);
 static void loqui_sender_irc_topic(LoquiSender *sender, LoquiChannel *channel, const gchar *topic);
-static void loqui_sender_irc_start_private_talk(LoquiSender *sender, LoquiChannel *channel);
+static void loqui_sender_irc_start_private_talk(LoquiSender *sender, LoquiUser *user);
 static void loqui_sender_irc_refresh(LoquiSender *sender, LoquiChannel *channel);
 
 /* helper */
@@ -354,11 +354,38 @@ loqui_sender_irc_topic(LoquiSender *sender, LoquiChannel *channel, const gchar *
 	g_object_unref(msg);
 }
 static void
-loqui_sender_irc_start_private_talk(LoquiSender *sender, LoquiChannel *channel)
+loqui_sender_irc_start_private_talk(LoquiSender *sender, LoquiUser *user)
 {
+	LoquiMember *member;
+	LoquiChannel *channel;
+	LoquiUser *user_self;
+
         g_return_if_fail(sender != NULL);
         g_return_if_fail(LOQUI_IS_SENDER_IRC(sender));
 
+	if (!account_is_connected(sender->account)) {
+		g_warning("Not connected");
+		return;
+	}
+
+	if ((channel = account_get_channel_by_name(sender->account, loqui_user_get_nick(user))) == NULL) {
+		channel = loqui_channel_new(sender->account, loqui_user_get_nick(user), TRUE, TRUE);
+		
+		user_self = account_get_user_self(sender->account);
+		
+		if (user_self != user) {
+			member = loqui_member_new(user);
+			loqui_channel_entry_add_member(LOQUI_CHANNEL_ENTRY(channel), member);
+			g_object_unref(member);
+		}
+
+		member = loqui_member_new(user_self);
+		loqui_channel_entry_add_member(LOQUI_CHANNEL_ENTRY(channel), member);
+		g_object_unref(member);
+
+		account_add_channel(sender->account, channel);
+		g_object_unref(channel);
+	}
 }
 static void
 loqui_sender_irc_refresh(LoquiSender *sender, LoquiChannel *channel)

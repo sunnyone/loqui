@@ -249,14 +249,14 @@ loqui_sender_topic(LoquiSender *sender, LoquiChannel *channel, const gchar *topi
 	(* LOQUI_SENDER_GET_CLASS(sender)->topic) (sender, channel, topic);
 }
 void
-loqui_sender_start_private_talk(LoquiSender *sender, LoquiChannel *channel)
+loqui_sender_start_private_talk(LoquiSender *sender, LoquiUser *user)
 {
         g_return_if_fail(sender != NULL);
         g_return_if_fail(LOQUI_IS_SENDER(sender));
 
 	CHECK_FUNCTION_IS_DEFINED_AND_RETURN_IF_FAIL(sender, start_private_talk);
 
-	(* LOQUI_SENDER_GET_CLASS(sender)->start_private_talk) (sender, channel);
+	(* LOQUI_SENDER_GET_CLASS(sender)->start_private_talk) (sender, user);
 }
 void
 loqui_sender_refresh(LoquiSender *sender, LoquiChannel *channel)
