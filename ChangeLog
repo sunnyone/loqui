@@ -1,3 +1,141 @@
+2003-03-16 14:29  y-imai
+
+	* src/irc_handle.c: fixed parser of plum recent
+
+2003-03-16 14:10  y-imai
+
+	* src/: account.c, account.h, account_manager.c, account_manager.h,
+	irc_handle.c, irc_handle.h, loqui_app.c, remark_entry.c: handle
+	nick changing in Account. changes of away/nick are handled with
+	signal.
+
+2003-03-16 13:22  y-imai
+
+	* src/remark_entry.c: remark_entry_history_add(): added
+
+2003-03-16 13:15  y-imai
+
+	* src/account.c: handle multiline remark
+
+2003-03-16 12:57  y-imai
+
+	* src/account_manager.c: changed timing to update user number
+
+2003-03-16 02:39  y-imai
+
+	* src/: prefs_general.c, prefs_general.h, remark_entry.c: remark
+	entry supports history
+
+2003-03-16 01:34  y-imai
+
+	* src/channel_input_dialog.c: use gtk2's to remove combo entries
+
+2003-03-16 01:05  y-imai
+
+	* src/: loqui_app.c, remark_entry.c, remark_entry.h: fixed focus
+
+2003-03-16 00:46  y-imai
+
+	* src/: account_manager.c, account_manager.h, channel.c: handle
+	channel update with signal
+
+2003-03-16 00:21  y-imai
+
+	* src/account_manager.c: removed search_account()
+
+2003-03-16 00:13  y-imai
+
+	* src/: account_manager.c, account_manager.h, channel.c,
+	loqui_app.c, loqui_app.h: handle channel changes with signal
+
+2003-03-15 22:09  y-imai
+
+	* src/account_manager.c: check if account_manager_get isn't called
+	recursively.
+
+2003-03-15 20:00  y-imai
+
+	* src/: Makefile.am, loqui_app.c, remark_entry.c, remark_entry.h:
+	implemented RemarkEntry temporalily
+
+2003-03-12 00:33  y-imai
+
+	* src/irc_handle.c: added required gdk_threads_enter/leave
+
+2003-03-11 22:43  y-imai
+
+	* src/: account.c, account_manager.c, channel.c, channel.h,
+	channel_input_dialog.c, channel_tree.c, command_dialog.c,
+	irc_handle.c: channel_get_name(): created.
+
+2003-03-11 22:27  y-imai
+
+	* src/: account.c, account.h, command_dialog.c, command_dialog.h,
+	loqui_menu.c: implemented changing nick feature
+
+2003-03-11 22:04  y-imai
+
+	* src/: Makefile.am, channel_buffer.c, main.c, prefs_dialog.c,
+	prefs_highlight.c, prefs_highlight.h, utils.c, utils.h: removed
+	prefs_highlight
+
+2003-03-11 21:54  y-imai
+
+	* src/: prefs_general.c, prefs_general.h: highlight_allow_list to
+	highlight_list
+
+2003-03-11 21:20  y-imai
+
+	* src/: prefs_general.c, prefs_general.h, utils.h: supported GList
+	as PrefType
+
+2003-03-11 15:56  y-imai
+
+	* src/: irc_constants.h, irc_handle.c: handling topicwhotime
+
+2003-03-11 15:37  y-imai
+
+	* src/: irc_handle.c, prefs_dialog.c, prefs_general.c,
+	prefs_general.h: parsing plum recent
+
+2003-03-11 13:15  y-imai
+
+	* src/irc_handle.c: re-enabled end_motd
+
+2003-03-09 20:54  y-imai
+
+	* README: fixed README
+
+2003-03-09 18:56  y-imai
+
+	* src/: account_manager.c, account_manager.h, channel.c, channel.h,
+	channel_tree.c, channel_tree.h, loqui_app.c, loqui_menu.c,
+	loqui_toolbar.c: use 'updated' instead of 'fresh'
+
+2003-03-09 00:51  y-imai
+
+	* src/: irc_handle.c, utils.c, utils.h: handling RPL_CREATIONTIME
+
+2003-03-04 18:54  y-imai
+
+	* src/: loqui_app.c, utils.c: utils_format supports \?x
+
+2003-03-01 22:50  y-imai
+
+	* src/: utils.c, utils.h: implemented utils_format() temporarily
+
+2003-03-01 22:50  y-imai
+
+	* src/connect_dialog.c: set default response
+
+2003-02-25 00:37  y-imai
+
+	* debian/changelog: updated debian changelog
+
+2003-02-25 00:36  y-imai
+
+	* ChangeLog, NEWS, NEWS.ja, configure.in: 0.1.8
+
 2003-02-25 00:33  y-imai
 
 	* src/: loqui_menu.c, loqui_toolbar.c: next/prev button

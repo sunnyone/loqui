@@ -63,3 +63,9 @@
 * Join/Part/Topicダイアログ
 * Next/Prevボタン
 
+2003-03-16     0.1.9
+* CREATIONTIME/TOPICWHOTIMEリプライに対応。
+* plum-recentを読むことが可能になった。
+* 反応単語の保存方法を変更(今までの設定は失われます)。
+* 発言の履歴。
+

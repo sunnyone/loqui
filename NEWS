@@ -63,3 +63,9 @@
 * Join/Part/Topic command with dialog.
 * Added new toolbar button.
 
+2003-03-16     0.1.9
+* Support CREATIONTIME/TOPICWHOTIME reply.
+* Feature to parse plum-recent.
+* Changed saving method of highlighting words(old settings will be lost!).
+* History of remarks.
+ 
