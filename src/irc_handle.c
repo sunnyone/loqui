@@ -1034,11 +1034,15 @@ irc_handle_reply(IRCHandle *handle, IRCMessage *msg)
 		irc_handle_account_console_append(handle, msg, TEXT_TYPE_INFO, _("*** %t"));
 		return TRUE;
 	case IRC_RPL_UNAWAY:
+		gdk_threads_enter();
 		account_set_away_status(priv->account, FALSE);
+		gdk_threads_leave();
 		irc_handle_account_console_append(handle, msg, TEXT_TYPE_INFO, _("*** %t"));
 		return TRUE;
 	case IRC_RPL_NOWAWAY:
+		gdk_threads_enter();
 		account_set_away_status(priv->account, TRUE);
+		gdk_threads_leave();
 		irc_handle_account_console_append(handle, msg, TEXT_TYPE_INFO, _("*** %t"));
 		return TRUE;
 	case IRC_RPL_INVITING:
