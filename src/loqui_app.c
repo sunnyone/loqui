@@ -1012,7 +1012,9 @@ loqui_app_remove_channel_cb(Account *account, LoquiChannel *channel, LoquiApp *a
 	loqui_channel_entry_ui_remove_channel(app, channel, "menubar");
 	loqui_channel_entry_ui_remove_channel(app, channel, "channelbar");
 
-	loqui_app_set_current_channel_entry(app, LOQUI_CHANNEL_ENTRY(account));
+	if (loqui_app_get_current_channel(app) == channel)
+		loqui_app_set_current_channel_entry(app, LOQUI_CHANNEL_ENTRY(account));
+
 	g_signal_handlers_disconnect_by_func(channel, loqui_app_channel_entry_notify_is_updated_cb, app);
 	g_signal_handlers_disconnect_by_func(channel, loqui_app_channel_entry_notify_number_cb, app);
 	
