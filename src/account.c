@@ -339,6 +339,7 @@ account_connect(Account *account, gint server_num, gboolean fallback)
 				     account->name);
 		return;
 	}
+	account_manager_set_current(account_manager_get(), account, NULL); /* FIXME: one of channel_tree's row should be selected */
 	priv->handle = irc_handle_new(account, server_num, fallback);
 }
 void
@@ -387,18 +388,26 @@ account_has_channel(Account *account, Channel *channel)
 }
 
 void
-account_console_text_append(Account *account, TextType type, gchar *str)
+account_console_text_append(Account *account, gboolean with_common_text, TextType type, gchar *str)
 {
+	gchar *buf;
+
 	g_return_if_fail(account != NULL);
 	g_return_if_fail(str != NULL);
 
 	channel_text_append(account->console_text, type, str);
+	if(with_common_text &&
+	   !account_manager_is_current_account(account_manager_get(), account)) {
+		buf = g_strdup_printf("[%s] %s", account->name, str);
+		account_manager_common_text_append(account_manager_get(), type, buf);
+		g_free(buf);
+	}
 }
 void
-account_speak(Account *account, Channel *channel, gchar *str)
+account_speak(Account *account, Channel *channel, const gchar *str)
 {
 	AccountPrivate *priv;
-	gchar *cur;
+	const gchar *cur;
 	IRCMessage *msg;
 
         g_return_if_fail(account != NULL);

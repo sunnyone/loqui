@@ -20,6 +20,7 @@
 #include "config.h"
 
 #include "channel.h"
+#include "account_manager.h"
 
 struct _ChannelPrivate
 {
@@ -128,6 +129,7 @@ void
 channel_append_remark(Channel *channel, TextType type, gchar *name, gchar *remark)
 {
 	gchar *line_with_nick;
+	gchar *line_with_channel;
 
 	g_return_if_fail(channel != NULL);
 	g_return_if_fail(IS_CHANNEL(channel));
@@ -135,15 +137,25 @@ channel_append_remark(Channel *channel, TextType type, gchar *name, gchar *remar
 	line_with_nick = g_strdup_printf("<%s> %s", name, remark);
 	channel_text_append(CHANNEL_TEXT(channel->text), type, line_with_nick);
 	g_free(line_with_nick);
+
+	if(!account_manager_is_current_channel(account_manager_get(), channel)) {
+		line_with_channel = g_strdup_printf("<%s:%s> %s", channel->name, name, remark);
+		account_manager_common_text_append(account_manager_get(), TEXT_TYPE_NORMAL, line_with_channel);
+		g_free(line_with_channel);
+	}
 }
 
 void
-channel_append_text(Channel *channel, TextType type, gchar *str)
+channel_append_text(Channel *channel, gboolean with_common_text, TextType type, gchar *str)
 {
 	g_return_if_fail(channel != NULL);
 	g_return_if_fail(IS_CHANNEL(channel));
 
 	channel_text_append(CHANNEL_TEXT(channel->text), type, str);
+	if(with_common_text &&
+	   !account_manager_is_current_channel(account_manager_get(), channel)) {
+		account_manager_common_text_append(account_manager_get(), type, str);
+	}
 }
 /* TODO: reflect the main window */
 void channel_set_topic(Channel *channel, const gchar *topic)

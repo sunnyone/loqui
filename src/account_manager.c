@@ -210,7 +210,7 @@ account_manager_search_account(AccountManager *manager, Channel *channel)
 	}
 	return NULL;
 }
-void account_manager_speak(AccountManager *manager, gchar *str)
+void account_manager_speak(AccountManager *manager, const gchar *str)
 {
 	AccountManagerPrivate *priv;
 	Account *account;
@@ -241,4 +241,28 @@ gboolean
 account_manager_whether_scroll(AccountManager *account_manager)
 {
 	return loqui_app_is_scroll(account_manager->priv->app);
+}
+gboolean
+account_manager_is_current_account(AccountManager *manager, Account *account)
+{
+        g_return_val_if_fail(manager != NULL, FALSE);
+        g_return_val_if_fail(IS_ACCOUNT_MANAGER(manager), FALSE);
+
+	return (manager->priv->current_account == account);
+}
+gboolean
+account_manager_is_current_channel(AccountManager *manager, Channel *channel)
+{
+        g_return_val_if_fail(manager != NULL, FALSE);
+        g_return_val_if_fail(IS_ACCOUNT_MANAGER(manager), FALSE);
+
+	return (manager->priv->current_channel == channel);
+}
+void
+account_manager_common_text_append(AccountManager *manager, TextType type, gchar *str)
+{
+        g_return_if_fail(manager != NULL);
+        g_return_if_fail(IS_ACCOUNT_MANAGER(manager));
+
+	channel_text_append(manager->priv->app->common_text, type, str);
 }

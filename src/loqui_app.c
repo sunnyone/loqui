@@ -165,7 +165,7 @@ static void loqui_app_restore_size(LoquiApp *app)
 static void
 loqui_app_entry_activate_cb(GtkWidget *widget, gpointer data)
 {
-	gchar *str;
+	const gchar *str;
 
 	str = gtk_entry_get_text(GTK_ENTRY(widget));
 	if(str == NULL || strlen(str) == 0)

@@ -23,6 +23,7 @@
 #include "connection.h"
 #include "utils.h"
 #include "account.h"
+#include "account_manager.h"
 
 struct _IRCHandlePrivate
 {
@@ -42,13 +43,6 @@ struct _IRCHandlePrivate
 
 static GObjectClass *parent_class = NULL;
 #define PARENT_TYPE G_TYPE_OBJECT
-
-typedef enum {
-	MESSAGE_TYPE_CHANNEL,
-	MESSAGE_TYPE_CHANNEL_NEGATIVE,
-	MESSAGE_TYPE_ACCOUNT,
-	MESSAGE_TYPE_COMMON
-} MessageType;
 
 static void irc_handle_class_init(IRCHandleClass *klass);
 static void irc_handle_init(IRCHandle *irc_handle);
@@ -73,7 +67,8 @@ static void irc_handle_command_ping(IRCHandle *handle, IRCMessage *msg);
 static void irc_handle_command_quit(IRCHandle *handle, IRCMessage *msg);
 
 static void irc_handle_account_console_append(IRCHandle *handle, IRCMessage *msg, TextType type, gchar *format);
-static void irc_handle_channel_append(IRCHandle *handle, IRCMessage *msg, gint receiver_num, TextType type, gchar *format);
+static void irc_handle_channel_append(IRCHandle *handle, IRCMessage *msg, gboolean make_channel,
+				      gint receiver_num, TextType type, gchar *format);
 
 static void irc_handle_reply_names(IRCHandle *handle, IRCMessage *msg);
 static void irc_handle_reply_topic(IRCHandle *handle, IRCMessage *msg);
@@ -176,7 +171,7 @@ irc_handle_command_privmsg_notice(IRCHandle *handle, IRCMessage *msg)
 	if(channel != NULL) {
 		channel_append_remark(channel, type, msg->nick, remark);
 	} else {
-		account_console_text_append(handle->priv->account, type, remark);
+		account_console_text_append(handle->priv->account, TRUE, type, remark);
 	}
 	gdk_threads_leave();
 
@@ -220,6 +215,7 @@ irc_handle_my_command_join(IRCHandle *handle, IRCMessage *msg)
 	gdk_threads_enter();
 	channel = channel_new(name);
 	account_add_channel(handle->priv->account, channel);
+	account_manager_set_current(account_manager_get(), NULL, channel);
 	gdk_threads_leave();
 }
 
@@ -261,9 +257,9 @@ irc_handle_inspect_message(IRCHandle *handle, IRCMessage *msg)
         g_return_if_fail(IS_IRC_HANDLE(handle));
 
 	str = irc_message_inspect(msg);
-			
+	
 	gdk_threads_enter();
-	account_console_text_append(handle->priv->account, TEXT_TYPE_NORMAL, str);
+	account_console_text_append(handle->priv->account, TRUE, TEXT_TYPE_NORMAL, str);
 	gdk_threads_leave();
 	
 	g_free(str);
@@ -272,7 +268,7 @@ irc_handle_inspect_message(IRCHandle *handle, IRCMessage *msg)
 static void
 irc_handle_reply_names(IRCHandle *handle, IRCMessage *msg)
 {
-	irc_handle_channel_append(handle, msg, 3, TEXT_TYPE_NORMAL, "%3: %t");
+	irc_handle_channel_append(handle, msg, FALSE, 3, TEXT_TYPE_NORMAL, "%3: %t");
 }
 static void
 irc_handle_reply_topic(IRCHandle *handle, IRCMessage *msg)
@@ -280,7 +276,6 @@ irc_handle_reply_topic(IRCHandle *handle, IRCMessage *msg)
 	Channel *channel;
 	gchar *topic;
 	gchar *name;
-	gchar *str;
 
 	name = irc_message_get_param(msg, 2);
 	channel = account_search_channel_by_name(handle->priv->account, name);
@@ -290,13 +285,7 @@ irc_handle_reply_topic(IRCHandle *handle, IRCMessage *msg)
 	topic = irc_message_get_trailing(msg);
 	channel_set_topic(channel, topic);
 
-	str = irc_message_format(msg, _("Topic for %2: %t"));
-
-	gdk_threads_enter();
-	channel_append_text(channel, TEXT_TYPE_NORMAL, str);
-	gdk_threads_leave();
-
-	g_free(str);
+	irc_handle_channel_append(handle, msg, FALSE, 2, TEXT_TYPE_INFO, _("Topic for %2: %t"));
 }
 static void /* utility function for threading*/
 irc_handle_account_console_append(IRCHandle *handle, IRCMessage *msg, TextType type, gchar *format)
@@ -306,14 +295,15 @@ irc_handle_account_console_append(IRCHandle *handle, IRCMessage *msg, TextType t
 	str = irc_message_format(msg, format);
 
 	gdk_threads_enter();
-	account_console_text_append(handle->priv->account, type, str);
+	account_console_text_append(handle->priv->account, TRUE, type, str);
 	gdk_threads_leave();
 
 	g_free(str);
 }
 
 static void /* utility function for threading */
-irc_handle_channel_append(IRCHandle *handle, IRCMessage *msg, gint receiver_num, TextType type, gchar *format)
+irc_handle_channel_append(IRCHandle *handle, IRCMessage *msg, gboolean make_channel,
+			  gint receiver_num, TextType type, gchar *format)
 {
 	Channel *channel;
 	gchar *str;
@@ -326,7 +316,7 @@ irc_handle_channel_append(IRCHandle *handle, IRCMessage *msg, gint receiver_num,
 	}
 
 	channel = account_search_channel_by_name(handle->priv->account, receiver_name);
-	if(channel == NULL) { /* FIXME as well as privmsg_notice */
+	if(make_channel == TRUE && channel == NULL) { /* FIXME as well as privmsg_notice */
 		gdk_threads_enter();
 		channel = channel_new(receiver_name);
 		account_add_channel(handle->priv->account, channel);
@@ -336,7 +326,12 @@ irc_handle_channel_append(IRCHandle *handle, IRCMessage *msg, gint receiver_num,
 	str = irc_message_format(msg, format);
 
 	gdk_threads_enter();
-	channel_append_text(channel, type, str);
+	if(channel == NULL) {
+		account_console_text_append(handle->priv->account, TRUE, type, str);
+	} else {
+		channel_append_text(channel, TRUE, type, str);
+
+	}
 	gdk_threads_leave();
 
 	g_free(str);
@@ -351,19 +346,19 @@ irc_handle_reply(IRCHandle *handle, IRCMessage *msg)
 	switch(msg->response) {
 	case IRC_RPL_LUSERCLIENT:
 	case IRC_RPL_LUSERME:
-		irc_handle_account_console_append(handle, msg, TEXT_TYPE_INFO, "%2");
+		irc_handle_account_console_append(handle, msg, TEXT_TYPE_INFO, "*** %t");
 		return TRUE;
 	case IRC_RPL_LUSEROP:
 	case IRC_RPL_LUSERUNKNOWN:
 	case IRC_RPL_LUSERCHANNELS:
-		irc_handle_account_console_append(handle, msg, TEXT_TYPE_INFO, "%2 %3");
+		irc_handle_account_console_append(handle, msg, TEXT_TYPE_INFO, "*** %2 %3");
 		return TRUE;
 	case IRC_RPL_MOTDSTART:
 	case IRC_RPL_MOTD:
-		irc_handle_account_console_append(handle, msg, TEXT_TYPE_INFO, "%t");
+		irc_handle_account_console_append(handle, msg, TEXT_TYPE_INFO, "*** %t");
 		return TRUE;
 	case IRC_RPL_ENDOFMOTD:
-		irc_handle_account_console_append(handle, msg, TEXT_TYPE_INFO, "%t");
+		irc_handle_account_console_append(handle, msg, TEXT_TYPE_INFO, "*** %t");
 		handle->priv->end_motd = TRUE;
 		return TRUE;
 	case IRC_RPL_NAMREPLY: /* <nick> = <channel> :... */
@@ -438,7 +433,7 @@ irc_handle_response(IRCHandle *handle, IRCMessage *msg)
 	if(IRC_MESSAGE_IS_ERROR(msg))
 		proceeded = irc_handle_error(handle, msg);
 	if(msg->response < 10) { /* FIXME: what's this? */
-		irc_handle_account_console_append(handle, msg, TEXT_TYPE_INFO, "%*2");
+		irc_handle_account_console_append(handle, msg, TEXT_TYPE_INFO, "*** %*2");
 		proceeded = TRUE;
 	}
 
@@ -456,17 +451,16 @@ static gpointer irc_handle_thread_func(IRCHandle *handle)
 	account = priv->account;
 
 	gdk_threads_enter();
-	str = g_strdup_printf(_("%s: Connecting to %s:%d"), 
-			      priv->account->name, priv->server->hostname, priv->server->port);
-	account_console_text_append(account, TEXT_TYPE_INFO, str);
+	str = g_strdup_printf(_("Connecting to %s:%d"), priv->server->hostname, priv->server->port);
+	account_console_text_append(account, TRUE, TEXT_TYPE_INFO, str);
 	g_free(str);
 	gdk_threads_leave();
 
 	priv->connection = connection_new(priv->server);
 
 	gdk_threads_enter();
-	str = g_strdup_printf(_("%s: Connected. Sending Initial command..."), priv->account->name);
-	account_console_text_append(account, TEXT_TYPE_INFO, str);
+	str = g_strdup(_("Connected. Sending Initial command..."));
+	account_console_text_append(account, TRUE, TEXT_TYPE_INFO, str);
 	g_free(str);
 	gdk_threads_leave();
 
@@ -486,7 +480,7 @@ static gpointer irc_handle_thread_func(IRCHandle *handle)
 	irc_handle_push_message(handle, msg);
 
 	gdk_threads_enter();
-	account_console_text_append(account, TEXT_TYPE_INFO, _("Done."));
+	account_console_text_append(account, TRUE, TEXT_TYPE_INFO, _("Done."));
 	gdk_threads_leave();
 
         while((msg = connection_get_irc_message(priv->connection, NULL)) != NULL) {
@@ -496,7 +490,7 @@ static gpointer irc_handle_thread_func(IRCHandle *handle)
 	}
 
 	gdk_threads_enter();
-	account_console_text_append(account, TEXT_TYPE_INFO, _("Connection terminated."));
+	account_console_text_append(account, TRUE, TEXT_TYPE_INFO, _("Connection terminated."));
 	gdk_threads_leave();
 
 	msg = irc_message_create(IRCMessageEnd, NULL);
