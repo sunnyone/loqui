@@ -533,6 +533,7 @@ loqui_channel_append_remark(LoquiChannel *channel, LoquiTextType type, gboolean 
 		     "is_self", is_self,
 		     "text", remark,
 		     "nick", nick,
+		     "account_name", loqui_channel_entry_get_name(LOQUI_CHANNEL_ENTRY(channel->account)),
 		     "channel_name", loqui_channel_entry_get_name(LOQUI_CHANNEL_ENTRY(channel)),
 		     "exec_notification", exec_notification,
 		     NULL);
@@ -567,6 +568,8 @@ loqui_channel_append_text(LoquiChannel *channel, LoquiTextType type, gchar *str)
 		     "is_remark", FALSE,
 		     "text_type", type,
 		     "text", str,
+		     "account_name", loqui_channel_entry_get_name(LOQUI_CHANNEL_ENTRY(channel->account)),
+		     "channel_name", loqui_channel_entry_get_name(LOQUI_CHANNEL_ENTRY(channel)),
 		     NULL);
 
 	loqui_channel_entry_append_message_text(LOQUI_CHANNEL_ENTRY(channel), msgtext);
