@@ -38,6 +38,7 @@ loqui_SOURCES = \
 	loqui_channel_entry_action.c loqui_channel_entry_action.h \
 	loqui_channel_entry_ui.c loqui_channel_entry_ui.h \
 	loqui_account.c loqui_account.h \
+	loqui_account_irc.c loqui_account_irc.h \
 	codeconv_ja.c codeconv_ja.h \
 	codeconv.c codeconv.h \
 	loqui_dropdown_box.c loqui_dropdown_box.h \

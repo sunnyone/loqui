@@ -29,6 +29,8 @@
 #include "loqui_app_actions.h"
 #include "loqui_account_manager_iter.h"
 
+#include "loqui_account_irc.h"
+
 struct _AccountManagerPrivate
 {
 	GList *account_list;
@@ -303,7 +305,7 @@ account_manager_load_accounts(AccountManager *account_manager)
 	loqui_profile_handle_read_from_file(handle, &list, path);
 
 	for(cur = list; cur != NULL; cur = cur->next) {
-		account = loqui_account_new(cur->data);
+		account = LOQUI_ACCOUNT(loqui_account_irc_new(cur->data));
 		account_manager_add_account(account_manager, account);
 		g_object_unref(account);
 	}

@@ -25,6 +25,7 @@
 #include "prefs_general.h"
 #include <string.h>
 #include "loqui_sender_irc.h"
+#include "loqui_account_irc.h"
 
 enum {
 	MODE_CHANGED,
@@ -517,7 +518,7 @@ loqui_channel_add_member_by_nick(LoquiChannel *channel, const gchar *nick, gbool
 		speakable = is_v;
 	}
 
-	user = loqui_account_fetch_user(channel->account, nick);
+	user = LOQUI_USER(loqui_account_irc_fetch_user(LOQUI_ACCOUNT_IRC(channel->account), nick));
 	member = loqui_member_new(user);
 	g_object_unref(user); /* member has reference count */
 	if (is_channel_operator)

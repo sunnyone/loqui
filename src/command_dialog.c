@@ -158,7 +158,9 @@ command_dialog_private_talk(LoquiApp *app, LoquiAccount *account)
 			return;
 		}
 
-		user = loqui_account_fetch_user(account, text_name);
+		/* FIXME */
+#include "loqui_account_irc.h"
+		user = LOQUI_USER(loqui_account_irc_fetch_user(LOQUI_ACCOUNT_IRC(account), text_name));
 		if (!user) {
 			g_warning("Can't fetch user for private talk");
 			return;

@@ -109,7 +109,7 @@ gboolean loqui_account_is_current_nick(LoquiAccount *account, const gchar *str);
 
 void loqui_account_get_updated_number(LoquiAccount *account, gint *updated_private_talk_number, gint *updated_channel_number); 
 
-LoquiUser* loqui_account_fetch_user(LoquiAccount *account, const gchar *identifier);
+void loqui_account_add_user(LoquiAccount *account, LoquiUser *user);
 LoquiUser* loqui_account_peek_user(LoquiAccount *account, const gchar *identifier);
 
 G_END_DECLS

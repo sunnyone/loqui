@@ -30,7 +30,7 @@
 #include "prefs_general.h"
 #include "ctcp_message.h"
 #include "loqui_profile_account_irc.h"
-#include "loqui_user_irc.h"
+#include "loqui_user.h"
 #include "loqui_utils_irc.h"
 #include "loqui_sender_irc.h"
 
@@ -81,8 +81,6 @@ static void loqui_account_set_property(GObject *object,
 
 static void loqui_account_set_profile(LoquiAccount *account, LoquiProfileAccount *profile);
 static void loqui_account_set_user_self(LoquiAccount *account, LoquiUser *user_self);
-
-static void loqui_account_add_user(LoquiAccount *account, LoquiUser *user);
 
 static void loqui_account_connection_connected_cb(GObject *object, gboolean is_succes, LoquiAccount *account);
 static void loqui_account_connection_disconnected_cb(GObject *object, LoquiAccount *account);
@@ -282,14 +280,12 @@ static void loqui_account_get_property(GObject  *object,
 	}
 }
 LoquiAccount*
-loqui_account_new (LoquiProfileAccount *profile)
+loqui_account_new(LoquiProfileAccount *profile)
 {
         LoquiAccount *account;
 	LoquiUser *user;
 
-	user = LOQUI_USER(loqui_user_irc_new());
-	loqui_user_set_nick(user, loqui_profile_account_get_nick(profile));
-	loqui_user_set_away(user, LOQUI_AWAY_TYPE_OFFLINE);
+	user = loqui_user_new();
 
 	account = g_object_new(loqui_account_get_type(), 
 			       "buffer", channel_buffer_new(),
@@ -791,7 +787,7 @@ loqui_account_user_notify_identifier_cb(LoquiUser *user, GParamSpec *pspec, Loqu
 	g_hash_table_insert(account->identifier_user_table, g_strdup(identifier_new), user);
 	g_hash_table_replace(account->user_identifier_table, user, g_strdup(identifier_new));
 }
-static void
+void
 loqui_account_add_user(LoquiAccount *account, LoquiUser *user)
 {
 	g_return_if_fail(account != NULL);
@@ -802,25 +798,6 @@ loqui_account_add_user(LoquiAccount *account, LoquiUser *user)
 	g_object_weak_ref(G_OBJECT(user), (GWeakNotify) loqui_account_user_disposed_cb, account);
 	g_hash_table_insert(account->identifier_user_table, g_strdup(loqui_user_get_identifier(user)), user);
 	g_hash_table_insert(account->user_identifier_table, user, g_strdup(loqui_user_get_identifier(user)));	
-}
-/* FIXME: this should be on _irc */
-LoquiUser *
-loqui_account_fetch_user(LoquiAccount *account, const gchar *identifier)
-{
-	LoquiUser *user;
-		
-        g_return_val_if_fail(account != NULL, NULL);
-        g_return_val_if_fail(LOQUI_IS_ACCOUNT(account), NULL);
-
-	if((user = loqui_account_peek_user(account, identifier)) == NULL) {
-		user = LOQUI_USER(loqui_user_irc_new());
-		loqui_user_set_nick(user, identifier); /* FIXME */
-		loqui_account_add_user(account, user);
-	} else {
-		g_object_ref(user);
-	}
-
-	return user;
 }
 LoquiUser *
 loqui_account_peek_user(LoquiAccount *account, const gchar *identifier)
