@@ -135,6 +135,7 @@ void account_set_away_message(Account *account, const gchar *away_message);
 void account_whois(Account *account, const gchar *target);
 void account_join(Account *account, const gchar *target);
 void account_part(Account *account, const gchar *target, const gchar *part_message);
+void account_set_topic(Account *account, const gchar *target, const gchar *topic);
 
 void account_change_channel_user_mode(Account *account, Channel *channel, 
 				      gboolean is_give, IRCModeFlag flag, GList *str_list);

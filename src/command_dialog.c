@@ -1,0 +1,125 @@
+/* -*- Mode: C; tab-width: 8; indent-tabs-mode: t; c-basic-offset: 8 -*- */
+/*
+ * Loqui -- IRC client for Gtk2 <http://loqui.good-day.net/>
+ * Copyright (C) 2003 Yoichi Imai <yoichi@silver-forest.com>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+ */
+#include "config.h"
+#include "command_dialog.h"
+#include "channel_input_dialog.h"
+#include "gtkutils.h"
+#include "intl.h"
+#include <string.h>
+
+static void command_dialog_join_cb(Account *account, const gchar *channel_text, const gchar *text, gpointer data);
+static void command_dialog_part_cb(Account *account, const gchar *channel_text, const gchar *text, gpointer data);
+static void command_dialog_topic_cb(Account *account, const gchar *channel_text, const gchar *text, gpointer data);
+
+static gboolean check_account_connected(Account *account);
+static gboolean check_target_valid(const gchar *str);
+
+static gboolean check_account_connected(Account *account)
+{
+	if(account == NULL) {
+		gtkutils_msgbox_info(GTK_MESSAGE_ERROR, _("Account is not selected."));
+		return FALSE;
+	}
+	if(!account_is_connected(account)) {
+		gtkutils_msgbox_info(GTK_MESSAGE_ERROR, _("Account is not connected."));
+		return FALSE;
+	}
+	return TRUE;
+}
+static gboolean check_target_valid(const gchar *str)
+{
+	if(str == NULL || strlen(str) == 0) {
+		gtkutils_msgbox_info(GTK_MESSAGE_ERROR, _("Input some characters."));
+		return FALSE;
+	}
+
+	if(strchr(str, ' ') != NULL) {
+		gtkutils_msgbox_info(GTK_MESSAGE_ERROR, _("Error: space contains"));
+		return FALSE;
+	}
+	return TRUE;
+}
+
+static void command_dialog_join_cb(Account *account, const gchar *channel_text, const gchar *text, gpointer data)
+{
+	if(!check_account_connected(account) ||
+	   !check_target_valid(channel_text))
+		return;
+	
+	account_join(account, channel_text);
+}
+
+static void command_dialog_part_cb(Account *account, const gchar *channel_text, const gchar *text, gpointer data)
+{
+	if(!check_account_connected(account) ||
+	   !check_target_valid(channel_text))
+		return;
+	
+	account_part(account, channel_text, text);
+}
+static void command_dialog_topic_cb(Account *account, const gchar *channel_text, const gchar *text, gpointer data)
+{
+	if(!check_account_connected(account) ||
+	   !check_target_valid(channel_text))
+		return;
+	
+	account_set_topic(account, channel_text, text);
+}
+
+void command_dialog_join(GtkWindow *parent_window, Account *account)
+{
+	channel_input_dialog_open(parent_window, 
+				  _("Join channel/private message"),
+				  _("Type channel name to join or nick to send private message."),
+				  CHANNEL_HISTORY_SAVED,
+				  command_dialog_join_cb, NULL,
+				  TRUE, account, TRUE, NULL, FALSE, NULL);
+}
+void command_dialog_part(GtkWindow *parent_window, Account *account, Channel *channel)
+{
+	gchar *channel_name = NULL;
+
+	if(channel)
+		channel_name = channel->name;
+
+	channel_input_dialog_open(parent_window, 
+				  _("Part channel"),
+				  _("Type channel name to part and the part message."),
+				  CHANNEL_HISTORY_JOINED,
+				  command_dialog_part_cb, NULL,
+				  TRUE, account, TRUE, channel_name, TRUE, NULL);
+}
+void command_dialog_topic(GtkWindow *parent_window, Account *account, Channel *channel)
+{
+	gchar *channel_name = NULL;
+	gchar *topic = NULL;
+
+	if(channel) {
+		channel_name = channel->name;
+		topic = channel_get_topic(channel);
+	}
+
+	channel_input_dialog_open(parent_window, 
+				  _("Set the topic of the channel"),
+				  _("Type channel name and its topic."),
+				  CHANNEL_HISTORY_JOINED,
+				  command_dialog_topic_cb, NULL,
+				  TRUE, account, TRUE, channel_name, TRUE, topic);
+}

@@ -633,6 +633,26 @@ void account_part(Account *account, const gchar *target, const gchar *part_messa
 		/* FIXME: close private message page? */
 	}	
 }
+void account_set_topic(Account *account, const gchar *target, const gchar *topic)
+{
+	IRCMessage *msg;
+	AccountPrivate *priv;
+
+        g_return_if_fail(account != NULL);
+        g_return_if_fail(IS_ACCOUNT(account));
+		
+	if(!account_is_connected(account)) {
+		g_warning(_("Account is not connected."));
+		return;
+	}
+
+	priv = account->priv;
+
+	if(STRING_IS_CHANNEL(target)) {
+		msg = irc_message_create(IRCCommandTopic, target, topic, NULL);
+		irc_handle_push_message(priv->handle, msg);
+	}
+}
 void account_change_channel_user_mode(Account *account, Channel *channel, 
 				      gboolean is_give, IRCModeFlag flag, GList *str_list)
 {
