@@ -201,7 +201,9 @@ loqui_app_destroy(GtkObject *object)
         g_return_if_fail(LOQUI_IS_APP(object));
 
 	app = LOQUI_APP(object);
-		
+
+	g_signal_handlers_disconnect_by_func(app->tray_icon, loqui_app_tray_icon_destroy_after_cb, app);
+
 	if (GTK_OBJECT_CLASS(parent_class)->destroy)
                 (* GTK_OBJECT_CLASS(parent_class)->destroy) (object);
 
