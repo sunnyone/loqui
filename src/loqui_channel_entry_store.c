@@ -76,6 +76,18 @@ static gboolean loqui_channel_entry_store_iter_nth_child(GtkTreeModel *tree_mode
 static gboolean loqui_channel_entry_store_iter_parent(GtkTreeModel *tree_model,
 						      GtkTreeIter *iter,
 						      GtkTreeIter *child);
+
+
+static void loqui_channel_entry_store_inserted_cb(LoquiChannelEntry *entry,
+						  LoquiMember *member,
+						  gint pos,
+						  LoquiChannelEntryStore *store);
+static void loqui_channel_entry_store_remove_cb(LoquiChannelEntry *chent,
+						LoquiMember *member,
+						LoquiChannelEntryStore *store);
+static void loqui_channel_entry_store_member_notify_cb(LoquiMember *member, GParamSpec *pspec, LoquiChannelEntryStore *store);
+static void loqui_channel_entry_store_user_notify_cb(LoquiUser *user, GParamSpec *pspec, LoquiChannelEntryStore *store);
+
 GType
 loqui_channel_entry_store_get_type(void)
 {
@@ -461,6 +473,13 @@ loqui_channel_entry_store_inserted_cb(LoquiChannelEntry *entry,
 	path = loqui_channel_entry_store_get_path(GTK_TREE_MODEL(store), &iter);
 	gtk_tree_model_row_inserted(GTK_TREE_MODEL(store), path, &iter);
 	gtk_tree_path_free(path);
+
+	g_signal_connect(G_OBJECT(member), "notify::power", 
+			 G_CALLBACK(loqui_channel_entry_store_member_notify_cb), store);
+	g_signal_connect(G_OBJECT(member->user), "notify::nick",
+			 G_CALLBACK(loqui_channel_entry_store_user_notify_cb), store);
+	g_signal_connect(G_OBJECT(member->user), "notify::away",
+			 G_CALLBACK(loqui_channel_entry_store_user_notify_cb), store);
 }
 static void
 loqui_channel_entry_store_remove_cb(LoquiChannelEntry *chent,
@@ -477,9 +496,55 @@ loqui_channel_entry_store_remove_cb(LoquiChannelEntry *chent,
 	iter.user_data = member;
 	iter.user_data2 = GINT_TO_POINTER(pos + 1);
 
+	g_signal_handlers_disconnect_by_func(G_OBJECT(member), loqui_channel_entry_store_member_notify_cb, store);
+	g_signal_handlers_disconnect_by_func(G_OBJECT(member->user), loqui_channel_entry_store_user_notify_cb, store);
+	
 	path = loqui_channel_entry_store_get_path(GTK_TREE_MODEL(store), &iter);
 	gtk_tree_model_row_deleted(GTK_TREE_MODEL(store), path);
 	gtk_tree_path_free(path);
+}
+static void
+loqui_channel_entry_store_user_notify_cb(LoquiUser *user, GParamSpec *pspec, LoquiChannelEntryStore *store)
+{
+	gint pos;
+	GtkTreePath *path;
+	GtkTreeIter iter;
+	LoquiMember *member;
+
+	g_return_if_fail(user != NULL);
+	g_return_if_fail(LOQUI_IS_USER(user));
+
+	member = loqui_channel_entry_get_member_by_user(store->chent, user);
+
+	pos = loqui_channel_entry_get_member_pos(store->chent, member);
+	g_return_if_fail(pos >= 0);
+
+	iter.user_data = member;
+	iter.user_data2 = GINT_TO_POINTER(pos + 1);
+
+	path = loqui_channel_entry_store_get_path(GTK_TREE_MODEL(store), &iter);
+	gtk_tree_model_row_changed(GTK_TREE_MODEL(store), path, &iter);
+	gtk_tree_path_free(path);
+}
+static void
+loqui_channel_entry_store_member_notify_cb(LoquiMember *member, GParamSpec *pspec, LoquiChannelEntryStore *store)
+{
+	gint pos;
+	GtkTreePath *path;
+	GtkTreeIter iter;
+
+	g_return_if_fail(member != NULL);
+	g_return_if_fail(LOQUI_IS_MEMBER(member));
+
+	pos = loqui_channel_entry_get_member_pos(store->chent, member);
+	g_return_if_fail(pos >= 0);
+
+	iter.user_data = member;
+	iter.user_data2 = GINT_TO_POINTER(pos + 1);
+
+	path = loqui_channel_entry_store_get_path(GTK_TREE_MODEL(store), &iter);
+	gtk_tree_model_row_changed(GTK_TREE_MODEL(store), path, &iter);
+	gtk_tree_path_free(path);	
 }
 LoquiChannelEntryStore*
 loqui_channel_entry_store_new(LoquiChannelEntry *chent)
@@ -487,8 +552,7 @@ loqui_channel_entry_store_new(LoquiChannelEntry *chent)
         LoquiChannelEntryStore *store;
 	LoquiChannelEntryStorePrivate *priv;
 	int i, num;
-	GtkTreeIter iter;
-	GtkTreePath *path;
+	LoquiMember *member;
 
 	g_return_val_if_fail(chent != NULL, NULL);
 
@@ -499,13 +563,10 @@ loqui_channel_entry_store_new(LoquiChannelEntry *chent)
 	num = loqui_channel_entry_get_member_number(chent);
 
 	for(i = 0; i < num; i++) {
-		iter.user_data = loqui_channel_entry_get_nth_member(chent, i);
-		iter.user_data2 = GINT_TO_POINTER(i + 1);
-		path = loqui_channel_entry_store_get_path(GTK_TREE_MODEL(store), &iter);
-		gtk_tree_model_row_inserted(GTK_TREE_MODEL(store), path, &iter);
-		gtk_tree_path_free(path);
+		member = loqui_channel_entry_get_nth_member(chent, i);
+		loqui_channel_entry_store_inserted_cb(chent, member, i, store);
 	}
-	
+
 	g_signal_connect(G_OBJECT(chent), "inserted",
 			 G_CALLBACK(loqui_channel_entry_store_inserted_cb), store);
 	g_signal_connect(G_OBJECT(chent), "remove",
