@@ -21,6 +21,7 @@
 
 #include "loqui_account_manager_store.h"
 #include "loqui_gtk.h"
+#include "loqui_stock.h"
 
 enum {
         LAST_SIGNAL
@@ -92,7 +93,9 @@ static void loqui_account_manager_store_remove_account_cb(AccountManager *manage
 							  LoquiAccountManagerStore *store);
 static void loqui_account_manager_store_channel_notify_cb(LoquiChannel *channel, GParamSpec *pspec, LoquiAccountManagerStore *store);
 static void loqui_account_manager_store_account_notify_cb(Account *account, GParamSpec *pspec, LoquiAccountManagerStore *store);
+static void loqui_account_manager_store_user_self_changed_cb(Account *account, LoquiAccountManagerStore *store);
 
+static void loqui_account_manager_store_account_row_changed(LoquiAccountManagerStore *store, Account *account);
 GType
 loqui_account_manager_store_get_type(void)
 {
@@ -206,6 +209,8 @@ loqui_account_manager_store_init(LoquiAccountManagerStore *store)
 	store->column_types[LOQUI_ACCOUNT_MANAGER_STORE_COLUMN_USERS] = G_TYPE_INT;
 	store->column_types[LOQUI_ACCOUNT_MANAGER_STORE_COLUMN_OP_USERS] = G_TYPE_INT;
 	store->column_types[LOQUI_ACCOUNT_MANAGER_STORE_COLUMN_COLOR] = G_TYPE_STRING;
+	store->column_types[LOQUI_ACCOUNT_MANAGER_STORE_COLUMN_BASIC_AWAY] = G_TYPE_INT;
+	store->column_types[LOQUI_ACCOUNT_MANAGER_STORE_COLUMN_BASIC_AWAY_STOCK_ID] = G_TYPE_STRING;
 
 	store->stamp = g_random_int();
 
@@ -368,6 +373,7 @@ loqui_account_manager_store_get_value(GtkTreeModel *tree_model,
 	LoquiAccountManagerStore *store;
 	LoquiAccountManagerStorePrivate *priv;
 	LoquiChannelEntry *chent;
+	LoquiUser *user_self;
 
 	g_return_if_fail(tree_model != NULL);
 	g_return_if_fail(LOQUI_IS_ACCOUNT_MANAGER_STORE(tree_model));
@@ -407,6 +413,33 @@ loqui_account_manager_store_get_value(GtkTreeModel *tree_model,
 		return;
 	default:
 		break;
+	}
+
+	if (IS_ACCOUNT(chent)) {
+		user_self = account_get_user_self(ACCOUNT(chent));
+
+		switch (column) {
+		case LOQUI_ACCOUNT_MANAGER_STORE_COLUMN_BASIC_AWAY:
+			g_value_set_int(value, loqui_user_get_basic_away(user_self));
+			break;
+		case LOQUI_ACCOUNT_MANAGER_STORE_COLUMN_BASIC_AWAY_STOCK_ID:
+			g_value_set_string(value, 
+					   loqui_stock_get_id_from_basic_away_type(loqui_user_get_basic_away(user_self)));
+			break;
+		default:
+			break;
+		}
+	} else {
+		switch (column) {
+		case LOQUI_ACCOUNT_MANAGER_STORE_COLUMN_BASIC_AWAY:
+			g_value_set_int(value, LOQUI_BASIC_AWAY_TYPE_UNKNOWN);
+			break;
+		case LOQUI_ACCOUNT_MANAGER_STORE_COLUMN_BASIC_AWAY_STOCK_ID:
+			g_value_set_string(value, NULL);
+			break;
+		default:
+			break;
+		}
 	}
 }
 
@@ -609,6 +642,8 @@ loqui_account_manager_store_add_account_after_cb(AccountManager *manager,
 			       G_CALLBACK(loqui_account_manager_store_add_channel_after_cb), store);
 	g_signal_connect(G_OBJECT(account), "remove-channel",
 			 G_CALLBACK(loqui_account_manager_store_remove_channel_cb), store);
+	g_signal_connect(G_OBJECT(account), "user-self-changed",
+			 G_CALLBACK(loqui_account_manager_store_user_self_changed_cb), store);
 }
 
 static void
@@ -676,7 +711,7 @@ loqui_account_manager_store_channel_notify_cb(LoquiChannel *channel, GParamSpec 
 	gtk_tree_path_free(path);
 }
 static void
-loqui_account_manager_store_account_notify_cb(Account *account, GParamSpec *pspec, LoquiAccountManagerStore *store)
+loqui_account_manager_store_account_row_changed(LoquiAccountManagerStore *store, Account *account)
 {
 	GtkTreePath *path;
 	GtkTreeIter iter;
@@ -688,6 +723,16 @@ loqui_account_manager_store_account_notify_cb(Account *account, GParamSpec *pspe
 	path = loqui_account_manager_store_get_path(GTK_TREE_MODEL(store), &iter);
 	gtk_tree_model_row_changed(GTK_TREE_MODEL(store), path, &iter);
 	gtk_tree_path_free(path);
+}
+static void
+loqui_account_manager_store_user_self_changed_cb(Account *account, LoquiAccountManagerStore *store)
+{
+	loqui_account_manager_store_account_row_changed(store, account);	
+}
+static void
+loqui_account_manager_store_account_notify_cb(Account *account, GParamSpec *pspec, LoquiAccountManagerStore *store)
+{
+	loqui_account_manager_store_account_row_changed(store, account);
 }
 LoquiAccountManagerStore*
 loqui_account_manager_store_new(AccountManager *manager)

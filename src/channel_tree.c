@@ -26,6 +26,7 @@
 #include "account_manager.h"
 #include "intl.h"
 #include "loqui_account_manager_store.h"
+#include "loqui_stock.h"
 
 struct _ChannelTreePrivate
 {
@@ -46,7 +47,11 @@ static void channel_tree_row_activated_cb(ChannelTree *tree, GtkTreePath *path, 
 static void channel_tree_row_selected_cb(GtkTreeSelection *selection, gpointer data);
 static gboolean channel_tree_key_press_event(GtkWidget *widget,
 					     GdkEventKey *event);
-
+static void channel_tree_cell_data_func_basic_away(GtkTreeViewColumn *tree_column,
+						   GtkCellRenderer *cell,
+						   GtkTreeModel *tree_model,
+						   GtkTreeIter *iter,
+						   gpointer data);
 GType
 channel_tree_get_type(void)
 {
@@ -168,6 +173,31 @@ channel_tree_key_press_event(GtkWidget *widget,
 
 	return FALSE;
 }
+static void channel_tree_cell_data_func_basic_away(GtkTreeViewColumn *tree_column,
+						   GtkCellRenderer *cell,
+						   GtkTreeModel *tree_model,
+						   GtkTreeIter *iter,
+						   gpointer data)
+{
+	const gchar *stock_id;
+	ChannelTree *tree;
+	ChannelTreePrivate *priv;
+	GdkPixbuf *pixbuf;
+
+	tree = CHANNEL_TREE(data);
+	priv = tree->priv;
+	
+	gtk_tree_model_get(tree_model, iter, LOQUI_ACCOUNT_MANAGER_STORE_COLUMN_BASIC_AWAY_STOCK_ID, &stock_id, -1);
+
+	if (stock_id == NULL)
+		g_object_set(G_OBJECT(cell), "pixbuf", NULL, NULL);
+	else {
+		pixbuf = gtk_widget_render_icon(GTK_WIDGET(tree), stock_id, LOQUI_ICON_SIZE_FONT, NULL);
+		g_object_set(G_OBJECT(cell), "pixbuf", pixbuf, NULL);
+		g_object_unref(pixbuf);
+	}
+}
+	
 GtkWidget*
 channel_tree_new(LoquiApp *app)
 {
@@ -175,6 +205,7 @@ channel_tree_new(LoquiApp *app)
 	ChannelTreePrivate *priv;
 	GtkTreeViewColumn *column;
 	GtkCellRenderer *renderer;
+	GtkCellRenderer *renderer_pb;
 	GtkTreeSelection *selection;
 
 	tree = g_object_new(channel_tree_get_type(), NULL);
@@ -185,8 +216,8 @@ channel_tree_new(LoquiApp *app)
         gtk_tree_view_set_headers_visible(GTK_TREE_VIEW(tree), FALSE);
 	selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(tree));
 
-        renderer = gtk_cell_renderer_text_new();
-	g_object_set(renderer, "ypad", 0, NULL);	
+	renderer = gtk_cell_renderer_text_new();
+	g_object_set(renderer, "ypad", 0, NULL);
 	column = gtk_tree_view_column_new_with_attributes (_("E"), renderer, NULL);
 	gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
 	gtk_tree_view_column_set_fixed_width(column, 15);
@@ -203,12 +234,19 @@ channel_tree_new(LoquiApp *app)
         gtk_tree_view_append_column(GTK_TREE_VIEW(tree), column);
 
         renderer = gtk_cell_renderer_text_new();
-	g_object_set(renderer, "ypad", 0, NULL);
-	column = gtk_tree_view_column_new_with_attributes (_("Name"),
-							   renderer,
-							   "text", LOQUI_ACCOUNT_MANAGER_STORE_COLUMN_NAME,
-							   "foreground", LOQUI_ACCOUNT_MANAGER_STORE_COLUMN_COLOR,
-							   NULL);
+	g_object_set(G_OBJECT(renderer),  "ypad", 0, NULL);
+	renderer_pb = gtk_cell_renderer_pixbuf_new();
+	g_object_set(G_OBJECT(renderer_pb), "stock-size", GTK_ICON_SIZE_MENU,
+		     NULL);
+	column = gtk_tree_view_column_new();
+	gtk_tree_view_column_set_title(column, _("Name"));
+	gtk_tree_view_column_pack_start(column, renderer_pb, FALSE);
+	gtk_tree_view_column_pack_start(column, renderer, FALSE);
+	gtk_tree_view_column_add_attribute(column, renderer, "text", LOQUI_ACCOUNT_MANAGER_STORE_COLUMN_NAME);
+	gtk_tree_view_column_add_attribute(column, renderer, "foreground", LOQUI_ACCOUNT_MANAGER_STORE_COLUMN_COLOR);
+	gtk_tree_view_column_set_cell_data_func(column, renderer_pb,
+						channel_tree_cell_data_func_basic_away,
+						tree, NULL);
 	gtk_tree_view_column_set_resizable(column, TRUE);
 	gtk_tree_view_append_column (GTK_TREE_VIEW (tree), column);
 
