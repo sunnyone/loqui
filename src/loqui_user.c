@@ -38,6 +38,7 @@ enum {
 	PROP_AWAY,
 	PROP_AWAY_MESSAGE,
 	PROP_IDLE_TIME,
+	PROP_IS_IGNORED,
         LAST_PROP
 };
 
@@ -145,6 +146,9 @@ loqui_user_get_property(GObject *object, guint param_id, GValue *value, GParamSp
 	case PROP_IDLE_TIME:
 		g_value_set_int(value, user->idle_time);
 		break;
+	case PROP_IS_IGNORED:
+		g_value_set_boolean(value, user->is_ignored);
+		break;
         default:
                 G_OBJECT_WARN_INVALID_PROPERTY_ID(object, param_id, pspec);
                 break;
@@ -181,6 +185,9 @@ loqui_user_set_property(GObject *object, guint param_id, const GValue *value, GP
 		break;
 	case PROP_IDLE_TIME:
 		loqui_user_set_idle_time(user, g_value_get_int(value));
+		break;
+	case PROP_IS_IGNORED:
+		loqui_user_set_is_ignored(user, g_value_get_boolean(value));
 		break;
         default:
                 G_OBJECT_WARN_INVALID_PROPERTY_ID(object, param_id, pspec);
@@ -252,6 +259,12 @@ loqui_user_class_init(LoquiUserClass *klass)
 							 _("Idle time (from epoch seconds)"),
 							 G_MININT, G_MAXINT,
 							 0, G_PARAM_READWRITE));
+	g_object_class_install_property(object_class,
+					PROP_IS_IGNORED,
+					g_param_spec_boolean("is_ignored",
+							     _("Ignored"),
+							     _("Ignored or not"),
+							     FALSE, G_PARAM_READWRITE));
 
 	klass->away_type_array = g_ptr_array_sized_new(AWAY_TYPE_ARRAY_DEFAULT_SIZE);
 	g_ptr_array_add(klass->away_type_array, null_ptr);
@@ -349,6 +362,7 @@ loqui_user_class_away_type_get_info(LoquiUserClass *user_class, LoquiAwayType aw
 }
 
 LOQUI_USER_ACCESSOR_GENERIC(gint, idle_time);
+LOQUI_USER_ACCESSOR_GENERIC(gboolean, is_ignored);
 LOQUI_USER_ACCESSOR_GENERIC(LoquiAwayType, away);
 LOQUI_USER_ACCESSOR_STRING(nick);
 LOQUI_USER_ACCESSOR_STRING(username);
