@@ -874,13 +874,14 @@ irc_handle_reply_who(IRCHandle *handle, IRCMessage *msg)
 
 	op_char = ' ';
 	if (flags[0] != '\0') {
-		op_char = flags[1];
 		switch(flags[1]) {
 		case '@':
 			power = LOQUI_MEMBER_POWER_OPERATOR;
+			op_char = flags[1];
 			break;
 		case '+':
 			power = LOQUI_MEMBER_POWER_VOICE;
+			op_char = flags[1];
 			break;
 		default:
 			break;
