@@ -1136,7 +1136,7 @@ loqui_receiver_irc_error_nick_unusable(LoquiReceiverIRC *receiver, IRCMessage *m
 	priv = receiver->priv;
 	account = loqui_receiver_get_account(LOQUI_RECEIVER(receiver));
 
-	loqui_receiver_irc_account_console_append(receiver, msg, LOQUI_TEXT_TYPE_ERROR, "%t");
+	loqui_receiver_irc_account_console_append(receiver, msg, LOQUI_TEXT_TYPE_ERROR, "%1: %t");
 
 	if(!receiver->passed_welcome)
 		loqui_account_disconnect(account);
