@@ -30,4 +30,7 @@
 void loqui_init(LoquiCore *core);
 LoquiCore *loqui_get_core(void);
 
+/* wrapper */
+LoquiPref *loqui_get_general_pref(void);
+
 #endif /* __LOQUI_H__ */

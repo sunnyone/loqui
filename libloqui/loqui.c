@@ -38,3 +38,8 @@ loqui_get_core(void)
 {
 	return loqui_core;
 }
+LoquiPref *
+loqui_get_general_pref(void)
+{
+	return loqui_core_get_general_pref(loqui_get_core());
+}
