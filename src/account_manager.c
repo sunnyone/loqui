@@ -480,6 +480,9 @@ void account_manager_set_current_account(AccountManager *manager, Account *accou
 
 	if(priv->current_channel) {
 		g_signal_handlers_disconnect_by_func(priv->current_channel, account_manager_channel_changed_cb, manager);
+		g_signal_handlers_disconnect_by_func(priv->current_channel,
+						     loqui_channelbar_set_current_channel, 
+						     priv->app->channelbar);
 	}
 	if(priv->current_account) {
 		g_signal_handlers_disconnect_by_func(priv->current_account, account_manager_account_changed_cb, manager);
