@@ -20,7 +20,7 @@
 #ifndef __ACCOUNT_MANAGER_H__
 #define __ACCOUNT_MANAGER_H__
 
-#include "account.h"
+#include "loqui_account.h"
 #include "loqui_channel.h"
 
 G_BEGIN_DECLS

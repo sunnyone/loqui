@@ -21,7 +21,7 @@
 
 #include "irc_handle.h"
 #include "utils.h"
-#include "account.h"
+#include "loqui_account.h"
 #include "account_manager.h"
 #include "irc_constants.h"
 #include "main.h"

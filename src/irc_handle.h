@@ -36,7 +36,7 @@ typedef struct _IRCHandleClass       IRCHandleClass;
 
 typedef struct _IRCHandlePrivate     IRCHandlePrivate;
 
-#include "account.h"
+#include "loqui_account.h"
 
 struct _IRCHandle
 {

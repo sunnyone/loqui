@@ -25,7 +25,7 @@
 
 G_BEGIN_DECLS
 
-#include "account.h"
+#include "loqui_account.h"
 #include "loqui_channel.h"
 
 #define TYPE_CHANNEL_TREE                 (channel_tree_get_type ())

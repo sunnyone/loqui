@@ -31,7 +31,7 @@
 #include "remark_entry.h"
 #include "command_dialog.h"
 #include "loqui_profile_account.h"
-#include "account.h"
+#include "loqui_account.h"
 #include "loqui_app_actions.h"
 #include "main.h"
 #include "loqui_channel_entry.h"

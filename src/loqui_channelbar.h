@@ -22,7 +22,7 @@
 
 #include <gtk/gtk.h>
 
-#include "account.h"
+#include "loqui_account.h"
 #include "loqui_channel.h"
 #include "loqui_app.h"
 

@@ -19,7 +19,7 @@
  */
 #include "config.h"
 
-#include "account.h"
+#include "loqui_account.h"
 #include "loqui_app.h"
 #include "irc_handle.h"
 #include "gtkutils.h"

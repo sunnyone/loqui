@@ -21,7 +21,7 @@
 #define __CTCP_HANDLE_H__
 
 #include <glib-object.h>
-#include "account.h"
+#include "loqui_account.h"
 #include "irc_handle.h"
 #include "ctcp_message.h"
 

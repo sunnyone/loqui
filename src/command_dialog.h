@@ -20,7 +20,7 @@
 #ifndef __COMMAND_DIALOG_H__
 #define __COMMAND_DIALOG_H__
 
-#include "account.h"
+#include "loqui_account.h"
 #include "loqui_app.h"
 
 void command_dialog_join(LoquiApp *app, LoquiAccount *account);

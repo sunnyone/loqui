@@ -36,7 +36,7 @@ typedef struct _LoquiSenderClass       LoquiSenderClass;
 
 typedef struct _LoquiSenderPrivate     LoquiSenderPrivate;
 
-#include "account.h"
+#include "loqui_account.h"
 #include "loqui_channel.h"
 
 struct _LoquiSender

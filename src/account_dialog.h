@@ -21,7 +21,7 @@
 #define __ACCOUNT_DIALOG_H__
 
 #include <gtk/gtk.h>
-#include "account.h"
+#include "loqui_account.h"
 #include "account_manager.h"
 
 G_BEGIN_DECLS

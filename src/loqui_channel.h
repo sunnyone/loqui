@@ -38,7 +38,7 @@ typedef struct _LoquiChannelClass       LoquiChannelClass;
 
 typedef struct _LoquiChannelPrivate     LoquiChannelPrivate;
 
-#include "account.h"
+#include "loqui_account.h"
 
 struct _LoquiChannel
 {
