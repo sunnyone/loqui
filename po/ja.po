@@ -27,9 +27,8 @@ msgid "Profile"
 msgstr "プロファイル"
 
 #: src/account.c:149
-#, fuzzy
 msgid "Profile of this account"
-msgstr "親アカウント"
+msgstr "このアカウントのプロファイル"
 
 #: src/account.c:376
 msgid "Already connected."
@@ -248,14 +247,12 @@ msgid "Error: space contains"
 msgstr "エラー: スペースが含まれています"
 
 #: src/command_dialog.c:109
-#, fuzzy
 msgid "Join channel"
-msgstr "自動joinチャンネル"
+msgstr "チャンネルにjoinする"
 
 #: src/command_dialog.c:110
-#, fuzzy
 msgid "Type channel name to join (and channel key, if any)."
-msgstr "入りたいチャンネル名を入力してください"
+msgstr "入りたいチャンネル名(とあればチャンネルキー)を入力してください"
 
 #: src/command_dialog.c:118 src/loqui_app_actions.c:132
 msgid "Start private talk"
@@ -684,24 +681,20 @@ msgid "_Refresh users' away information of current channel"
 msgstr "現在のチャンネルのユーザの離席情報の更新(_R)"
 
 #: src/loqui_app_actions.c:123
-#, fuzzy
 msgid "_Previous updated channel buffer"
-msgstr "前の更新されたチャンネル"
+msgstr "前の更新されたチャンネルバッファ"
 
 #: src/loqui_app_actions.c:124
-#, fuzzy
 msgid "_Next updated channel buffer"
-msgstr "次の更新されたチャンネル"
+msgstr "次の更新されたチャンネルバッファ"
 
 #: src/loqui_app_actions.c:125
-#, fuzzy
 msgid "Previous channel buffer"
-msgstr "前のチャンネル"
+msgstr "前のチャンネルバッファ"
 
 #: src/loqui_app_actions.c:126
-#, fuzzy
 msgid "Next channel buffer"
-msgstr "チャンネルバッファ"
+msgstr "次のチャンネルバッファ"
 
 #: src/loqui_app_actions.c:127
 msgid "_General Settings"
@@ -857,14 +850,12 @@ msgid "Position of all channel entries"
 msgstr ""
 
 #: src/loqui_channel_entry.c:282
-#, fuzzy
 msgid "ChannelEntryID"
-msgstr "チャンネルエントリ"
+msgstr "チャンネルエントリID"
 
 #: src/loqui_channel_entry.c:283
-#, fuzzy
 msgid "ID of channel entry."
-msgstr "チャンネルエントリ"
+msgstr "チャンネルエントリのID"
 
 #: src/loqui_channel_entry.c:289
 msgid "Do sort"
@@ -884,9 +875,8 @@ msgid "Not selected an account!"
 msgstr ""
 
 #: src/loqui_member.c:175 src/loqui_member.c:176
-#, fuzzy
 msgid "ChannelOperator"
-msgstr "チャンネルバー"
+msgstr "チャンネルオペレータ"
 
 #: src/loqui_member.c:181
 msgid "Speakable or not"
@@ -897,9 +887,8 @@ msgid "Has voice privillege or not"
 msgstr ""
 
 #: src/loqui_member.c:187 src/loqui_member.c:188
-#, fuzzy
 msgid "Last message time"
-msgstr "離席メッセージ: "
+msgstr "最終メッセージ時刻"
 
 #: src/loqui_profile_account.c:238 src/message_text.c:109
 #: src/message_text.c:110
