@@ -119,11 +119,24 @@ channel_book_new (void)
 
 	return GTK_WIDGET(channel_book);
 }
-void channel_book_add_channel_text(ChannelBook *book, ChannelText *text)
+void
+channel_book_add_channel_text(ChannelBook *book, ChannelText *text)
 {
         g_return_if_fail(book != NULL);
         g_return_if_fail(IS_CHANNEL_BOOK(book));
 	g_return_if_fail(text != NULL);
 
 	gtk_notebook_append_page(GTK_NOTEBOOK(book), GTK_WIDGET(text), NULL);
+}
+void
+channel_book_change_current(ChannelBook *book, ChannelText *text)
+{
+	gint page_num;
+
+	g_return_if_fail(book != NULL);
+        g_return_if_fail(IS_CHANNEL_BOOK(book));
+	g_return_if_fail(text != NULL);
+
+	page_num = gtk_notebook_page_num(GTK_NOTEBOOK(book), GTK_WIDGET(text));
+	gtk_notebook_set_current_page(GTK_NOTEBOOK(book), page_num);
 }

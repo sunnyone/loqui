@@ -54,6 +54,7 @@ GtkType channel_book_get_type(void) G_GNUC_CONST;
 
 GtkWidget* channel_book_new(void);
 void channel_book_add_channel_text(ChannelBook *book, ChannelText *text);
+void channel_book_change_current(ChannelBook *book, ChannelText *text);
 
 G_END_DECLS
 
