@@ -24,7 +24,9 @@
 #include <time.h>
 #include <string.h>
 #include <ctype.h>
+#include "prefs_general.h"
 #include "utils.h"
+#include "gtkutils.h"
 
 struct _ChannelBufferPrivate
 {
@@ -164,8 +166,12 @@ static void channel_buffer_apply_tag_cb(GtkTextBuffer *buffer,
 	}
 /*  } */
 
-	if(tag == priv->adviser_area_tag && matched) {
-		g_print("Sound.\n");
+	if(tag == priv->adviser_area_tag && 
+	   matched &&
+	   prefs_general.use_notification &&
+	   prefs_general.notification_command &&
+	   strlen(prefs_general.notification_command) > 0) {
+		gtkutils_exec_command_with_error_dialog(prefs_general.notification_command);
 	}
 
 	gtk_text_buffer_remove_tag(buffer, tag,

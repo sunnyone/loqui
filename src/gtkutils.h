@@ -37,4 +37,6 @@ gboolean gtk_tree_model_find_by_column_data(GtkTreeModel * model, GtkTreeIter * 
 					    gpointer data);
 gchar *gtkutils_menu_translate(const gchar *path, gpointer data);
 
+void gtkutils_exec_command_with_error_dialog(const gchar *command);
+
 #endif /* __GTKUTILS_H__ */

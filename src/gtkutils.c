@@ -121,3 +121,18 @@ gtkutils_menu_translate(const gchar *path, gpointer data)
 {
 	return gettext(path);
 }
+
+void
+gtkutils_exec_command_with_error_dialog(const gchar *command)
+{
+	GError *error = NULL;
+
+	g_return_if_fail(command != NULL);
+
+	g_spawn_command_line_async(command, &error);
+	if(error != NULL) {
+		gtkutils_msgbox_info(GTK_MESSAGE_ERROR, _("Error occured when executing command: %s"),
+				     error->message);
+		g_error_free(error);
+	}
+}
