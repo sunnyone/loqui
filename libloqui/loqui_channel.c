@@ -529,7 +529,7 @@ loqui_channel_append_remark(LoquiChannel *channel, LoquiTextType type, gboolean 
 		gchar **ignore_list;
 
 		ignore_list = loqui_pref_get_string_list(loqui_get_general_pref(),
-							 LOQUI_GENERAL_PREF_GROUP_IGNORE, "IgnorePatterns",
+							 LOQUI_GENERAL_PREF_GROUP_IGNORE, "TransparentIgnoreList",
 							 NULL, NULL);
 
 		if (ignore_list) {
