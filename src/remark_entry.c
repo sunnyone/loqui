@@ -254,6 +254,7 @@ remark_entry_new(LoquiApp *app, GtkToggleAction *toggle_command_action)
 	RemarkEntryPrivate *priv;
 	GtkWidget *hbox;
 	GtkWidget *image;
+	gchar *text;
 
 	GtkWidget *scwin;
 
@@ -271,7 +272,9 @@ remark_entry_new(LoquiApp *app, GtkToggleAction *toggle_command_action)
 	gtk_action_connect_proxy(GTK_ACTION(toggle_command_action), priv->toggle_command);
 	gtk_container_remove(GTK_CONTAINER(priv->toggle_command), gtk_bin_get_child(GTK_BIN(priv->toggle_command)));
 	gtk_button_set_focus_on_click(GTK_BUTTON(priv->toggle_command), FALSE);
-
+	g_object_get(G_OBJECT(toggle_command_action), "tooltip", &text, NULL);
+	gtk_tooltips_set_tip(app->tooltips, priv->toggle_command, text, NULL);
+			     
 	image = gtk_image_new_from_stock(LOQUI_STOCK_COMMAND, GTK_ICON_SIZE_BUTTON);
 	gtk_container_add(GTK_CONTAINER(priv->toggle_command), image);
 

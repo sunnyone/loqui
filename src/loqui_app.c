@@ -468,7 +468,9 @@ loqui_app_new(AccountManager *account_manager)
 
 	gtk_ui_manager_ensure_update(app->ui_manager);
 	gtk_box_pack_start(GTK_BOX(vbox), gtk_ui_manager_get_widget(app->ui_manager, "/menubar"), FALSE, FALSE, 0);
-	
+
+	app->tooltips = gtk_tooltips_new();
+
 	priv->handlebox_channelbar = gtk_handle_box_new();
 	gtk_box_pack_start(GTK_BOX(vbox), priv->handlebox_channelbar, FALSE, FALSE, 0);
 

@@ -68,6 +68,8 @@ struct _LoquiApp
 	GtkUIManager *ui_manager;
 	GtkActionGroup *channel_entry_group;
 
+	GtkTooltips *tooltips;
+
 	GtkWidget *channelbar;
 	GtkWidget *statusbar;
 	
