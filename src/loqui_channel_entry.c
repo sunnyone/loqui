@@ -434,6 +434,7 @@ loqui_channel_entry_member_notify_cb(LoquiMember *member, GParamSpec *pspec, Loq
 		g_ptr_array_add(chent->member_ptr_array, member);
 		utils_g_ptr_array_insert_sort(chent->member_ptr_array, chent->member_ptr_array->len - 1, chent->sort_func);
 		loqui_channel_entry_update_user_hash(chent);
+		g_signal_emit(chent, loqui_channel_entry_signals[SIGNAL_REORDERED], 0);
 	}
 }
 static void
@@ -450,6 +451,7 @@ loqui_channel_entry_user_notify_cb(LoquiUser *user, GParamSpec *pspec, LoquiChan
 		g_ptr_array_add(chent->member_ptr_array, member);
 		utils_g_ptr_array_insert_sort(chent->member_ptr_array, chent->member_ptr_array->len - 1, chent->sort_func);
 		loqui_channel_entry_update_user_hash(chent);
+		g_signal_emit(chent, loqui_channel_entry_signals[SIGNAL_REORDERED], 0);
 	}
 }
 void
