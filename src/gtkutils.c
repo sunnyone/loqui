@@ -250,7 +250,7 @@ gtkutils_get_text_from_textview(GtkTextView *textview)
 	GtkTextBuffer *buffer;
 	GtkTextIter start, end;
 
-	g_return_if_fail(textview != NULL);
+	g_return_val_if_fail(textview != NULL, NULL);
 
 	buffer = gtk_text_view_get_buffer(textview);
 	gtk_text_buffer_get_start_iter(GTK_TEXT_BUFFER(buffer), &start);
