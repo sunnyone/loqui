@@ -179,10 +179,10 @@ channel_tree_key_press_event(GtkWidget *widget,
 }
 static void
 channel_tree_cell_data_func_basic_away(GtkTreeViewColumn *tree_column,
-						   GtkCellRenderer *cell,
-						   GtkTreeModel *tree_model,
-						   GtkTreeIter *iter,
-						   gpointer data)
+				       GtkCellRenderer *cell,
+				       GtkTreeModel *tree_model,
+				       GtkTreeIter *iter,
+				       gpointer data)
 {
 	const gchar *stock_id;
 	ChannelTree *tree;
