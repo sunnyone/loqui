@@ -73,6 +73,9 @@ void loqui_app_set_focus(LoquiApp *app);
 void loqui_app_set_channel_buffer(LoquiApp *app, GtkTextBuffer *textbuf);
 void loqui_app_set_common_buffer(LoquiApp *app, GtkTextBuffer *textbuf);
 
+void loqui_app_scroll_channel_buffer(LoquiApp *app);
+void loqui_app_scroll_common_buffer(LoquiApp *app);
+
 void loqui_app_get_current_widget_editing_status(LoquiApp *app, gboolean *cutable, gboolean *copiable, gboolean *pastable,
 						 gboolean *clearable, gboolean *findable);
 

@@ -122,8 +122,24 @@ loqui_toolbar_destroy (GtkObject *object)
 static void
 loqui_toolbar_toggle_scrolling_cb(GtkWidget *widget, gpointer data)
 {
+	gboolean is_active;
+	LoquiToolbar *toolbar;
+	LoquiToolbarPrivate *priv;
+
+        g_return_if_fail(data != NULL);
+        g_return_if_fail(LOQUI_IS_TOOLBAR(data));
+
+	toolbar = LOQUI_TOOLBAR(data);
+	
+	priv = toolbar->priv;
+
+	is_active = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget));
 	account_manager_set_whether_scrolling(account_manager_get(), 
-					      gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget)));
+					      is_active);
+
+	if(is_active)
+		loqui_app_scroll_channel_buffer(priv->app);
+	
 }
 static void
 loqui_toolbar_toggle_away_cb(GtkWidget *widget, gpointer data)
