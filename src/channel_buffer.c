@@ -304,7 +304,7 @@ channel_buffer_new(void)
 				   "foreground", "blue", 
 				   NULL);
         gtk_text_buffer_create_tag(textbuf, "info", 
-				   "foreground", "green", 
+				   "foreground", "green3", 
 				   NULL);
         gtk_text_buffer_create_tag(textbuf, "normal", 
 				   "foreground", "black", 
