@@ -356,11 +356,7 @@ loqui_statusbar_new(LoquiApp *app, GtkToggleAction *toggle_scroll_common_buffer_
 	gtk_statusbar_set_has_resize_grip(GTK_STATUSBAR(statusbar), FALSE);
 	gtk_label_set_selectable(GTK_LABEL(GTK_STATUSBAR(statusbar)->label), TRUE);
 	
-/* FIXME: why statusbar becomes taller when button widget is on it? */
-#define WIDGET_MINIMIZE_HEIGHT(widget) gtk_widget_set_usize(widget, -1, 1);
-
 	priv->dbox_away = loqui_dropdown_box_new(NULL);
-	WIDGET_MINIMIZE_HEIGHT(priv->dbox_away);
 	gtk_box_pack_start(GTK_BOX(statusbar), priv->dbox_away, FALSE, FALSE, 0);
 	gtk_button_set_relief(GTK_BUTTON(LOQUI_DROPDOWN_BOX(priv->dbox_away)->drop_button), GTK_RELIEF_NONE);
 
@@ -381,12 +377,10 @@ loqui_statusbar_new(LoquiApp *app, GtkToggleAction *toggle_scroll_common_buffer_
 	gtk_box_pack_start(GTK_BOX(statusbar), hsep, FALSE, FALSE, 2);
 
 	priv->dbox_preset = loqui_dropdown_box_new(NULL);
-	WIDGET_MINIMIZE_HEIGHT(priv->dbox_preset);
 	gtk_button_set_relief(GTK_BUTTON(LOQUI_DROPDOWN_BOX(priv->dbox_preset)->drop_button), GTK_RELIEF_NONE);
 	gtk_box_pack_start(GTK_BOX(statusbar), priv->dbox_preset, FALSE, FALSE, 0);
 
 	priv->button_nick = gtk_button_new();
-	WIDGET_MINIMIZE_HEIGHT(priv->button_nick);
 	g_signal_connect(G_OBJECT(priv->button_nick), "clicked",
 			 G_CALLBACK(loqui_statusbar_nick_button_clicked_cb), statusbar);
 	gtk_button_set_relief(GTK_BUTTON(priv->button_nick), GTK_RELIEF_NONE);
@@ -415,7 +409,6 @@ loqui_statusbar_new(LoquiApp *app, GtkToggleAction *toggle_scroll_common_buffer_
 	g_object_get(G_OBJECT(toggle_scroll_common_buffer_action), "tooltip", &text, NULL);
 	gtk_tooltips_set_tip(app->tooltips, priv->toggle_scroll_common_buffer, text, NULL);
 
-	WIDGET_MINIMIZE_HEIGHT(priv->toggle_scroll_common_buffer);
 	gtk_box_pack_start(GTK_BOX(statusbar), priv->toggle_scroll_common_buffer, FALSE, FALSE, 0);
 	
 	priv->menu_preset = gtk_menu_new();
