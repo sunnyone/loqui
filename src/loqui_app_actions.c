@@ -114,7 +114,7 @@ static GtkActionEntry loqui_action_entries[] =
         {"PasteWithLinefeedsCut", GTK_STOCK_PASTE, N_("_Paste with Linefeeds Cut"), NULL, NULL, NULL},
         {"Clear",                 GTK_STOCK_CLEAR, N_("_Clear"), NULL, NULL, G_CALLBACK(loqui_app_actions_clear_cb)},
 
-        {"Find",                  GTK_STOCK_FIND, N_("_Find"), CTRL"F", NULL, NULL},
+        {"Find",                  GTK_STOCK_FIND, N_("_Find"), NULL, NULL, NULL},
         {"FindAgain",             GTK_STOCK_FIND, N_("_Find Again"), NULL, NULL, NULL},
 
 	{LOQUI_ACTION_JOIN,       GTK_STOCK_ADD, N_("_Join a Channel"), ALT "J", NULL, G_CALLBACK(loqui_app_actions_join_cb)},
