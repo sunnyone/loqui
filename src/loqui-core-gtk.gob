@@ -57,6 +57,7 @@ requires 2.0.0
 
 #define ACCEL_MAP_FILE "accelmaprc"
 #define STYLERC_FILE "stylerc"
+#define GENERAL_PREF_FILENAME "loquirc"
 
 #include "loqui_stock.h"
 
@@ -120,6 +121,10 @@ class Loqui:Core:Gtk from Loqui:Core
 		return g_build_filename(loqui_core_get_user_dir(LOQUI_CORE(self)),
 					STYLERC_FILE, NULL);
 	}
+	private gchar *get_general_pref_path(self) {
+		return g_build_filename(loqui_core_get_user_dir(LOQUI_CORE(self)),
+					GENERAL_PREF_FILENAME, NULL);
+	}
 
 	private void make_program_dir(self) {
 		const gchar *dirname;
@@ -177,8 +182,26 @@ class Loqui:Core:Gtk from Loqui:Core
 		g_free(path);
 	}
 
+	private void load_general_pref(self) {
+		gchar *path;
+
+		path = self_get_general_pref_path(self);
+		loqui_pref_load_from_file(loqui_core_get_general_pref(LOQUI_CORE(self)), path, 0, NULL);
+		g_free(path);
+	}
+
+	private void save_general_pref(self) {
+		gchar *path;
+
+		path = self_get_general_pref_path(self);
+		loqui_pref_save_to_file(loqui_core_get_general_pref(LOQUI_CORE(self)), path, NULL);
+		g_free(path);
+	}
+
 	public void run(self) {
 		prefs_general_load();
+
+		self_load_general_pref(self);
 
 		self->app = LOQUI_APP(loqui_app_new(self->account_manager));
 		self_load_stylerc(self);
@@ -196,6 +219,7 @@ class Loqui:Core:Gtk from Loqui:Core
 		self_save_stylerc(self);
 		self_save_accelmap(self);
 
+		self_save_general_pref(self);
 		prefs_general_save();
 	}
 }
