@@ -23,10 +23,10 @@
 #include "gtkutils.h"
 #include "intl.h"
 #include "main.h"
-#include "irc_constants.h"
-#include "loqui_account_manager.h"
+#include <irc_constants.h>
+#include <loqui_account_manager.h>
 #include "loqui_stock.h"
-#include "loqui_sender_irc.h"
+#include <loqui_sender_irc.h>
 
 struct _NickListPrivate
 {

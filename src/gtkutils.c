@@ -28,7 +28,7 @@
 #include <stdarg.h>
 #include <string.h>
 #include "intl.h"
-#include "utils.h"
+#include <utils.h>
 
 void
 gtkutils_msgbox_info(GtkMessageType icon, const gchar *format, ...)

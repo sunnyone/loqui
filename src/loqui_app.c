@@ -19,19 +19,22 @@
  */
 #include "config.h"
 
+#include <loqui_account.h>
+#include <loqui_account_manager.h>
+#include <prefs_general.h>
+#include <loqui_channel_entry_utils.h>
+#include <utils.h>
+
 #include "loqui_app.h"
 #include "channel_tree.h"
-#include "utils.h"
+#include <utils.h>
 #include "nick_list.h"
-#include "loqui_account_manager.h"
-#include "prefs_general.h"
 #include "loqui_channelbar.h"
 #include "loqui_statusbar.h"
 #include "gtkutils.h"
 #include "remark_entry.h"
 #include "command_dialog.h"
 #include "loqui_profile_account.h"
-#include "loqui_account.h"
 #include "loqui_app_actions.h"
 #include "main.h"
 #include "loqui_channel_entry.h"
@@ -44,14 +47,12 @@
 #include "loqui_member_sort_funcs.h"
 #include "loqui_account_manager_iter.h"
 #include "loqui_tray_icon.h"
-#include "loqui_channel_entry_utils.h"
 
 #include "embedtxt/loqui_app_ui.h"
 #include "icons/pixbufs.h"
 #include "loqui_stock.h"
 
 #include "intl.h"
-#include "utils.h"
 
 #include <string.h>
 #include <time.h>

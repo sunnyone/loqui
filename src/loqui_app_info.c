@@ -19,8 +19,9 @@
  */
 #include "config.h"
 
+#include <loqui_channel_entry_utils.h>
+
 #include "loqui_app_info.h"
-#include "loqui_channel_entry_utils.h"
 #include "loqui_statusbar.h"
 #include "loqui_channelbar.h"
 #include "intl.h"

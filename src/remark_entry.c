@@ -27,8 +27,8 @@
 
 #include "loqui_stock.h"
 #include "loqui_channel_text_view.h"
-#include "loqui_sender.h"
-#include "loqui_sender_irc.h"
+#include <loqui_sender.h>
+#include <loqui_sender_irc.h>
 
 #include "main.h"
 #include "intl.h"

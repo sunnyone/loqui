@@ -19,12 +19,13 @@
  */
 #include "config.h"
 
+#include <prefs_general.h>
+#include <utils.h>
+#include <codeconv.h>
+
 #include "prefs_dialog.h"
 #include "intl.h"
-#include "prefs_general.h"
-#include "utils.h"
 #include "gtkutils.h"
-#include "codeconv.h"
 #include "loqui_app.h"
 
 #include <string.h>

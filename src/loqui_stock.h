@@ -20,7 +20,7 @@
 #ifndef __LOQUI_STOCK_H__
 #define __LOQUI_STOCK_H__
 
-#include "loqui_user.h"
+#include <loqui_user.h>
 
 #define LOQUI_STOCK_CONSOLE      "loqui-console"
 #define LOQUI_STOCK_ONLINE       "loqui-online"

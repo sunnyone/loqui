@@ -19,11 +19,12 @@
  */
 #include "config.h"
 
+#include <prefs_general.h>
+#include <utils.h>
+
 #include "loqui_channel_buffer_gtk.h"
 #include <time.h>
 #include <string.h>
-#include "prefs_general.h"
-#include "utils.h"
 #include "gtkutils.h"
 #include "loqui_gtk.h"
 

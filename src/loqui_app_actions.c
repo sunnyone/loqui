@@ -18,12 +18,14 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 #include "config.h"
+
+#include <loqui_account_manager.h>
+#include <loqui_account_manager_iter.h>
+
 #include "loqui_app_actions.h"
 #include "loqui_stock.h"
 #include "intl.h"
 
-#include "loqui_account_manager.h"
-#include "loqui_account_manager_iter.h"
 #include "about.h"
 #include "remark_entry.h"
 #include "command_dialog.h"

@@ -21,7 +21,7 @@
 #define __LOQUI_CHANNEL_ENTRY_ACTION_H__
 
 #include <gtk/gtk.h>
-#include "loqui_channel_entry.h"
+#include <loqui_channel_entry.h>
 
 G_BEGIN_DECLS
 

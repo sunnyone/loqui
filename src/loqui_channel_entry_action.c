@@ -23,7 +23,7 @@
 #include "gobject_utils.h"
 #include "intl.h"
 
-#include "loqui_account.h"
+#include <loqui_account.h>
 #include "loqui_stock.h"
 #include "loqui_gtk.h"
 #include "gtkutils.h"

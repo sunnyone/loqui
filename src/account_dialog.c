@@ -22,11 +22,12 @@
 #include "account_dialog.h"
 #include "intl.h"
 #include "gtkutils.h"
-#include "loqui_account_manager.h"
-#include "utils.h"
-#include "loqui_profile_account.h"
-#include "loqui_profile_account_irc.h"
-#include "codeconv.h"
+
+#include <loqui_account_manager.h>
+#include <utils.h>
+#include <loqui_profile_account.h>
+#include <loqui_profile_account_irc.h>
+#include <codeconv.h>
 
 #include "loqui_account_irc.h"
 

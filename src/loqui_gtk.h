@@ -20,7 +20,7 @@
 #ifndef __LOQUI_GTK_H__
 #define __LOQUI_GTK_H__
 
-#include "loqui_protocol_manager.h"
+#include <loqui_protocol_manager.h>
 
 #define FRESH_COLOR "red"
 #define FRESH_WEAK_COLOR "blue"

@@ -25,8 +25,8 @@
 
 G_BEGIN_DECLS
 
-#include "loqui_account.h"
-#include "loqui_channel.h"
+#include <loqui_account.h>
+#include <loqui_channel.h>
 
 #define TYPE_CHANNEL_TREE                 (channel_tree_get_type ())
 #define CHANNEL_TREE(obj)                 (G_TYPE_CHECK_INSTANCE_CAST ((obj), TYPE_CHANNEL_TREE, ChannelTree))

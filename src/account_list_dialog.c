@@ -21,9 +21,9 @@
 
 #include "account_list_dialog.h"
 #include "account_dialog.h"
-#include "loqui_account_manager.h"
+#include <loqui_account_manager.h>
 #include "intl.h"
-#include "utils.h"
+#include <utils.h>
 
 struct _AccountListDialogPrivate
 {

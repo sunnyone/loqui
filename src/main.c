@@ -19,19 +19,20 @@
  */
 #include "config.h"
 #include "main.h"
-#include "codeconv.h"
-#include "command_table.h"
-#include "loqui_account_manager.h"
-#include "prefs_general.h"
-#include "utils.h"
+#include <codeconv.h>
+#include <command_table.h>
+#include <loqui_account_manager.h>
+#include <prefs_general.h>
+#include <utils.h>
+#include <loqui_protocol_manager.h>
+#include <loqui_protocol_irc.h>
+#include <loqui_protocol_ipmsg.h>
+#include <loqui_protocol_msn.h>
+
 #include "loqui_stock.h"
 
 #include "loqui_gtk.h"
 
-#include "loqui_protocol_manager.h"
-#include "loqui_protocol_irc.h"
-#include "loqui_protocol_ipmsg.h"
-#include "loqui_protocol_msn.h"
 
 #include <string.h>
 #include <stdlib.h>

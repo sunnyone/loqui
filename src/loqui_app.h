@@ -22,6 +22,7 @@
 #define __LOQUI_APP_H__
 
 #include <gtk/gtk.h>
+#include <prefs_general.h>
 
 G_BEGIN_DECLS
 
@@ -40,7 +41,6 @@ typedef struct _LoquiAppPrivate     LoquiAppPrivate;
 #include "nick_list.h"
 #include "channel_tree.h"
 #include "loqui_account_manager.h"
-#include "prefs_general.h"
 #include "loqui_tray_icon.h"
 #include "loqui_app_info.h"
 #include "loqui_channel_buffer_gtk.h"
