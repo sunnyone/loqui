@@ -21,6 +21,7 @@
 
 #include "channel.h"
 #include "account_manager.h"
+#include "utils.h"
 
 struct _ChannelPrivate
 {
