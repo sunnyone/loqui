@@ -282,7 +282,7 @@ loqui_channelbar_update_channel_mode(LoquiChannelbar *channelbar, LoquiChannel *
 	priv = channelbar->priv;
 
 	if (channel && !loqui_channel_get_is_private_talk(channel)) {
-		channel_mode = loqui_mode_manager_to_string(channel->channel_mode_manager, TRUE);
+		channel_mode = loqui_mode_manager_to_string(channel->channel_mode_manager);
 		buf = g_strdup_printf("[%s]", channel_mode);
 		g_free(channel_mode);
 
