@@ -226,7 +226,10 @@ loqui_profile_account_irc_init(LoquiProfileAccountIRC *profile)
 	priv = g_new0(LoquiProfileAccountIRCPrivate, 1);
 
 	profile->priv = priv;
-	g_object_set(profile, "port", 6667, NULL);
+	g_object_set(profile,
+		     "port", 6667,
+		     "username", "loqui",
+		     NULL);
 }
 LoquiProfileAccountIRC*
 loqui_profile_account_irc_new(void)
