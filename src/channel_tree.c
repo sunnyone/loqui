@@ -421,12 +421,8 @@ channel_tree_update_user_number(ChannelTree *tree, LoquiChannel *channel)
 	if(!gtk_tree_model_find_by_column_data(model, &iter, NULL, COLUMN_CHANNEL, channel))
 		return;
 
-	/* FIXME: number 
-	channel_get_user_number(channel, &users, &op_users);
-	*/
-
-	users = 0;
-	op_users = 0;
+	users = loqui_channel_entry_get_member_number(LOQUI_CHANNEL_ENTRY(channel));
+	op_users = loqui_channel_entry_get_op_number(LOQUI_CHANNEL_ENTRY(channel));
 
 	gtk_tree_store_set(GTK_TREE_STORE(model), &iter,
 			   COLUMN_USERS, users,

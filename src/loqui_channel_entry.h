@@ -56,6 +56,8 @@ struct _LoquiChannelEntry
 
 	GCompareFunc sort_func;
 
+	gint op_number; /* cache */
+
         LoquiChannelEntryPrivate *priv;
 };
 
@@ -105,6 +107,7 @@ gboolean loqui_channel_entry_get_is_updated(LoquiChannelEntry *chent);
 
 LOQUI_CHANNEL_ENTRY_ACCESSOR_STRING_PROTOTYPE(name);
 LOQUI_CHANNEL_ENTRY_ACCESSOR_STRING_PROTOTYPE(topic);
+LOQUI_CHANNEL_ENTRY_ACCESSOR_GENERIC_PROTOTYPE(gint, op_number);
 
 G_END_DECLS
 

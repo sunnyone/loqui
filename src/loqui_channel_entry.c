@@ -38,6 +38,8 @@ enum {
 	PROP_TOPIC,
 	PROP_IS_UPDATED,
 	PROP_BUFFER,
+	PROP_MEMBER_NUMBER,
+	PROP_OP_NUMBER,
         LAST_PROP
 };
 
@@ -60,6 +62,7 @@ static void loqui_channel_entry_get_property(GObject *object, guint param_id, GV
 static void loqui_channel_entry_set_property(GObject *object, guint param_id, const GValue *value, GParamSpec *pspec);
 
 static void loqui_channel_entry_real_remove(LoquiChannelEntry *chent, LoquiMember *member);
+static void loqui_channel_entry_user_notify_is_channel_operator_cb(LoquiMember *member, GParamSpec *pspec, LoquiChannelEntry *chent);
 
 GType
 loqui_channel_entry_get_type(void)
@@ -154,6 +157,12 @@ loqui_channel_entry_get_property(GObject *object, guint param_id, GValue *value,
 	case PROP_BUFFER:
 		g_value_set_object(value, chent->buffer);
 		break;
+	case PROP_OP_NUMBER:
+		g_value_set_int(value, chent->op_number);
+		break;
+	case PROP_MEMBER_NUMBER:
+		g_value_set_int(value, loqui_channel_entry_get_member_number(chent));
+		break;
         default:
                 G_OBJECT_WARN_INVALID_PROPERTY_ID(object, param_id, pspec);
                 break;
@@ -224,6 +233,20 @@ loqui_channel_entry_class_init(LoquiChannelEntryClass *klass)
 							    _("Buffer"),
 							    _("Channel buffer"),
 							    TYPE_CHANNEL_BUFFER, G_PARAM_READWRITE));
+	g_object_class_install_property(object_class,
+					PROP_OP_NUMBER,
+					g_param_spec_int("op_number",
+							 _("Op Number"),
+							 _("the number of channel operators"),
+							 0, G_MAXINT,
+							 0, G_PARAM_READABLE));
+	g_object_class_install_property(object_class,
+					PROP_MEMBER_NUMBER,
+					g_param_spec_int("member_number",
+							 _("Member Number"),
+							 _("the number of members"),
+							 0, G_MAXINT,
+							 0, G_PARAM_READABLE));
 
 	loqui_channel_entry_signals[SIGNAL_REMOVE] = g_signal_new("remove",
 								  G_OBJECT_CLASS_TYPE(object_class),
@@ -262,6 +285,8 @@ loqui_channel_entry_init(LoquiChannelEntry *chent)
 	chent->member_array = g_array_sized_new(FALSE, FALSE, sizeof(gpointer),
 						LOQUI_CHANNEL_ENTRY_DEFAULT_MEMBER_NUMBER);
 	chent->user_hash = g_hash_table_new(g_direct_hash, g_direct_equal);
+	
+	chent->op_number = 0;
 }
 LoquiChannelEntry*
 loqui_channel_entry_new(void)
@@ -298,7 +323,21 @@ loqui_channel_entry_real_remove(LoquiChannelEntry *chent, LoquiMember *member)
 		mcur = loqui_channel_entry_get_nth_member(chent, i);
 		g_hash_table_replace(chent->user_hash, mcur->user, GINT_TO_POINTER(i + 1));
 	}
+	g_signal_handlers_disconnect_by_func(G_OBJECT(member),
+					     loqui_channel_entry_user_notify_is_channel_operator_cb, chent);
+
+	g_object_notify(G_OBJECT(chent), "member-number");
 	g_object_unref(member);
+}
+static void
+loqui_channel_entry_user_notify_is_channel_operator_cb(LoquiMember *member, GParamSpec *pspec, LoquiChannelEntry *chent)
+{
+	if (loqui_member_get_is_channel_operator(member)) {
+		chent->op_number++;
+	} else {
+		chent->op_number--;
+	}
+	g_object_notify(G_OBJECT(chent), "op-number");
 }
 void
 loqui_channel_entry_add_member(LoquiChannelEntry *chent, LoquiMember *member)
@@ -328,6 +367,14 @@ loqui_channel_entry_add_member(LoquiChannelEntry *chent, LoquiMember *member)
 		pos = chent->member_array->len - 1;
 	}
 	g_hash_table_insert(chent->user_hash, member->user, GINT_TO_POINTER(pos + 1));
+
+	if (loqui_member_get_is_channel_operator(member)) {
+		chent->op_number++;
+		g_object_notify(G_OBJECT(chent), "op_number");
+	}
+	g_signal_connect(G_OBJECT(member), "notify::is-channel-operator",
+			 G_CALLBACK(loqui_channel_entry_user_notify_is_channel_operator_cb), chent);
+	g_object_notify(G_OBJECT(chent), "member-number");
 
 	g_signal_emit(chent, loqui_channel_entry_signals[SIGNAL_INSERTED], 0, member, pos);
 }
@@ -424,6 +471,14 @@ loqui_channel_entry_get_member_number(LoquiChannelEntry *chent)
         g_return_val_if_fail(LOQUI_IS_CHANNEL_ENTRY(chent), 0);
 	
 	return chent->member_array->len;
+}
+gint
+loqui_channel_entry_get_op_number(LoquiChannelEntry *chent)
+{
+        g_return_val_if_fail(chent != NULL, 0);
+        g_return_val_if_fail(LOQUI_IS_CHANNEL_ENTRY(chent), 0);
+	
+	return chent->op_number;
 }
 gint
 loqui_channel_entry_get_member_pos(LoquiChannelEntry *chent, LoquiMember *member)

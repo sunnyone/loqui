@@ -114,6 +114,7 @@ static void loqui_app_account_changed_cb(GObject *object, gpointer data);
 static void loqui_app_channel_changed_cb(GObject *object, gpointer data);
 static void loqui_app_channel_entry_notify_topic_cb(LoquiChannelEntry *chent, GParamSpec *pspec, gpointer data);
 static void loqui_app_channel_entry_notify_is_updated_cb(LoquiChannelEntry *chent, GParamSpec *pspec, LoquiApp *app);
+static void loqui_app_channel_entry_notify_number_cb(LoquiChannelEntry *chent, GParamSpec *pspec, LoquiApp *app);
 
 static void loqui_app_channel_buffer_append_cb(ChannelBuffer *buffer, MessageText *msgtext, LoquiApp *app);
 static void loqui_app_append_log(LoquiApp *app, MessageText *msgtext);
@@ -370,7 +371,7 @@ loqui_app_update_info(LoquiApp *app,
 	gchar *buf;
 	
 	const gchar *account_name = NULL, *channel_name = NULL, *topic = NULL;
-/*	guint user_number, op_number; */
+	guint user_number, op_number;
 	gchar *channel_mode = NULL, *user_number_str = NULL, *op_number_str = NULL;
 
         g_return_if_fail(app != NULL);
@@ -384,14 +385,15 @@ loqui_app_update_info(LoquiApp *app,
 	if(channel) {
 		channel_name = loqui_channel_entry_get_name(LOQUI_CHANNEL_ENTRY(channel));
 		topic = loqui_channel_entry_get_topic(LOQUI_CHANNEL_ENTRY(channel));
+		
+		user_number = loqui_channel_entry_get_member_number(LOQUI_CHANNEL_ENTRY(channel));
+		user_number_str = g_strdup_printf("%d", user_number);
 
-		/* FIXME: Get user number 
 		if(!loqui_channel_get_is_private_talk(channel)) {
-			channel_mode = loqui_channel_get_mode(channel);			
-			channel_get_user_number(channel, &user_number, &op_number);
-			user_number_str = g_strdup_printf("%d", user_number);
+			channel_mode = loqui_channel_get_mode(channel);	
+			op_number = loqui_channel_entry_get_op_number(LOQUI_CHANNEL_ENTRY(channel));
 			op_number_str = g_strdup_printf("%d", op_number);
-		} */
+		}
 	}
 	
 	if(is_account_changed) {
@@ -771,6 +773,15 @@ loqui_app_get_current_account(LoquiApp *app)
 	
 	return NULL;
 }
+static void
+loqui_app_channel_entry_notify_number_cb(LoquiChannelEntry *chent, GParamSpec *pspec, LoquiApp *app)
+{
+	if (LOQUI_IS_CHANNEL(chent)) {
+		if (loqui_app_is_current_channel(app, LOQUI_CHANNEL(chent)))
+			loqui_app_channel_changed_cb(NULL, app);
+		channel_tree_update_user_number(app->channel_tree, LOQUI_CHANNEL(chent));
+	}
+}
 void
 loqui_app_set_current_channel(LoquiApp *app, LoquiChannel *channel)
 {
@@ -811,8 +822,7 @@ loqui_app_set_current_channel(LoquiApp *app, LoquiChannel *channel)
 
 	g_signal_connect(G_OBJECT(channel), "notify::topic",
 			 G_CALLBACK(loqui_app_channel_entry_notify_topic_cb), app);
-/*	FIXME: g_signal_connect(G_OBJECT(channel), "user-number-changed",
-	G_CALLBACK(loqui_app_channel_changed_cb), app); */
+
 	g_signal_connect(G_OBJECT(channel), "mode-changed",
 	G_CALLBACK(loqui_app_channel_changed_cb), app);
 	g_signal_connect(G_OBJECT(channel->account), "nick-changed",
@@ -1002,8 +1012,10 @@ loqui_app_add_channel_cb(Account *account, LoquiChannel *channel, LoquiApp *app)
 
 	g_signal_connect(G_OBJECT(channel), "notify::is-updated",
 			 G_CALLBACK(loqui_app_channel_entry_notify_is_updated_cb), app);
-        /* FIXME:	g_signal_connect_swapped(G_OBJECT(channel), "user-number-changed",
-	G_CALLBACK(channel_tree_update_user_number), app->channel_tree); */
+	g_signal_connect(G_OBJECT(channel), "notify::op-number",
+			 G_CALLBACK(loqui_app_channel_entry_notify_number_cb), app);
+	g_signal_connect(G_OBJECT(channel), "notify::member-number",
+			 G_CALLBACK(loqui_app_channel_entry_notify_number_cb), app);
 
 	buffer = loqui_channel_entry_get_buffer(LOQUI_CHANNEL_ENTRY(channel));
 	g_signal_connect(G_OBJECT(buffer), "append",
@@ -1033,6 +1045,7 @@ loqui_app_remove_channel_cb(Account *account, LoquiChannel *channel, LoquiApp *a
 
 	loqui_app_set_current_account(app, account);
 	g_signal_handlers_disconnect_by_func(channel, loqui_app_channel_entry_notify_is_updated_cb, app);
+	g_signal_handlers_disconnect_by_func(channel, loqui_app_channel_entry_notify_number_cb, app);
 	g_signal_handlers_disconnect_by_func(channel, channel_tree_update_user_number, app->channel_tree);
 	
 	buffer = loqui_channel_entry_get_buffer(LOQUI_CHANNEL_ENTRY(channel));

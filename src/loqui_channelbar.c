@@ -242,11 +242,11 @@ loqui_channelbar_set_current_channel(LoquiChannelbar *channelbar, LoquiChannel *
 		gtk_label_set(GTK_LABEL(priv->label_channel_mode), buf);
 		g_free(buf);
 		
-/* FIXME: user number setting
-                channel_get_user_number(channel, &user_num_all, &user_num_op);
+                user_num_all = loqui_channel_entry_get_member_number(LOQUI_CHANNEL_ENTRY(channel));
+		user_num_op = loqui_channel_entry_get_op_number(LOQUI_CHANNEL_ENTRY(channel));
                 buf = g_strdup_printf("(%d/%d)", user_num_op, user_num_all);
 		gtk_label_set(GTK_LABEL(priv->label_user_number), buf);
-		g_free(buf); */
+		g_free(buf);
 	} else {
 		gtk_widget_set_sensitive(priv->entry_topic, FALSE);
 	}
