@@ -5,7 +5,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: loqui 0.1.9\n"
-"POT-Creation-Date: 2003-03-24 14:32+0900\n"
+"POT-Creation-Date: 2003-03-26 12:41+0900\n"
 "PO-Revision-Date: 2002-11-10 13:17+0900\n"
 "Last-Translator: Yoichi Imai <yoichi@silver-forest.com>\n"
 "Language-Team: Japanese <ja@li.org>\n"
@@ -145,7 +145,7 @@ msgstr ""
 msgid "Account List"
 msgstr "アカウントリスト"
 
-#: src/account_manager.c:489
+#: src/account_manager.c:488
 msgid ""
 "main_account_manager should be created. account_manager_get() may be called "
 "recursively."
@@ -406,93 +406,93 @@ msgstr ""
 msgid "*** New topic on %1 by %n: %t"
 msgstr ""
 
-#: src/irc_handle.c:975
+#: src/irc_handle.c:983
 msgid "Can't find the channel from the message"
 msgstr ""
 
-#: src/irc_handle.c:1009
+#: src/irc_handle.c:1017
 msgid "*** %2 is marked as begin AWAY, but left the message: %3"
 msgstr ""
 
-#: src/irc_handle.c:1016 src/irc_handle.c:1020 src/irc_handle.c:1024
+#: src/irc_handle.c:1024 src/irc_handle.c:1028 src/irc_handle.c:1032
 msgid "*** %t"
 msgstr ""
 
-#: src/irc_handle.c:1027
+#: src/irc_handle.c:1035
 msgid "*** You are inviting %2 to %3"
 msgstr ""
 
-#: src/irc_handle.c:1030
+#: src/irc_handle.c:1038
 msgid "*** %3 is running IRC version %2 (%4)"
 msgstr ""
 
-#: src/irc_handle.c:1061
+#: src/irc_handle.c:1069
 msgid "%2 is %3@%4: %t"
 msgstr ""
 
-#: src/irc_handle.c:1064
+#: src/irc_handle.c:1072
 msgid "%2 was %3@%4: %t"
 msgstr ""
 
-#: src/irc_handle.c:1067
+#: src/irc_handle.c:1075
 msgid "%2: %t"
 msgstr ""
 
-#: src/irc_handle.c:1070
+#: src/irc_handle.c:1078
 msgid "on via server %3(%t)"
 msgstr ""
 
-#: src/irc_handle.c:1073
+#: src/irc_handle.c:1081
 msgid "%3 %t"
 msgstr ""
 
-#: src/irc_handle.c:1076
+#: src/irc_handle.c:1084
 msgid "Banned on %2 : %3"
 msgstr ""
 
-#: src/irc_handle.c:1079
+#: src/irc_handle.c:1087
 msgid "Time: %3(%2)"
 msgstr ""
 
-#: src/irc_handle.c:1229
+#: src/irc_handle.c:1237
 #, c-format
 msgid "IOChannel write error: %s"
 msgstr "IOChannel書き込みエラー: %s"
 
-#: src/irc_handle.c:1284
+#: src/irc_handle.c:1292
 msgid "*** Failed to convert codeset."
 msgstr "*** コードセットの変換に失敗しました。"
 
-#: src/irc_handle.c:1319
+#: src/irc_handle.c:1327
 msgid "Failed to connect"
 msgstr "接続に失敗しました。"
 
-#: src/irc_handle.c:1326
+#: src/irc_handle.c:1334
 msgid "Connected. Sending Initial command..."
 msgstr "接続しました。初期コマンドを送信しています..."
 
-#: src/irc_handle.c:1378
+#: src/irc_handle.c:1386
 msgid "Sent join command for autojoin."
 msgstr "自動joinのためのjoinコマンドを送信しました。"
 
-#: src/irc_handle.c:1381
+#: src/irc_handle.c:1389
 msgid "Done."
 msgstr "完了。"
 
-#: src/irc_handle.c:1409 src/irc_handle.c:1419
+#: src/irc_handle.c:1417 src/irc_handle.c:1427
 msgid "No valid servers left."
 msgstr ""
 
-#: src/irc_handle.c:1425
+#: src/irc_handle.c:1433
 #, c-format
 msgid "Connecting to %s:%d"
 msgstr "%s:%dに接続しています"
 
-#: src/irc_handle.c:1495
+#: src/irc_handle.c:1503
 msgid "Message queue is not created."
 msgstr "メッセージキューが作られていません"
 
-#: src/irc_handle.c:1499
+#: src/irc_handle.c:1507
 msgid "Not connected."
 msgstr "接続されていません"
 
