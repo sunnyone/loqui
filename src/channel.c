@@ -266,13 +266,14 @@ void channel_remove_user(Channel *channel, const gchar *nick)
 	if(!channel_find_user(channel, nick, &user))
 		return;
 
+	if(account_manager_is_current_channel(account_manager_get(), channel)) {
+		account_manager_nick_list_remove(account_manager_get(), user);
+	}
+
 	g_slist_remove(channel->user_list, user);
 	g_free(user->nick);
 	g_free(user);
 
-	if(account_manager_is_current_channel(account_manager_get(), channel)) {
-		account_manager_nick_list_remove(account_manager_get(), user);
-	}
 }
 void channel_change_user_power(Channel *channel, const gchar *nick, UserPower power)
 {
