@@ -71,6 +71,8 @@ static gboolean irc_handle_watch_in_cb(GIOChannel *ioch,
 static gboolean irc_handle_watch_out_cb(GIOChannel *ioch, 
 					GIOCondition condition, gpointer data);
 
+static void irc_handle_disconnect_internal(IRCHandle *handle);
+
 static void irc_handle_response(IRCHandle *handle, IRCMessage *msg);
 static gboolean irc_handle_command(IRCHandle *handle, IRCMessage *msg);
 static gboolean irc_handle_reply(IRCHandle *handle, IRCMessage *msg);
@@ -181,23 +183,8 @@ irc_handle_finalize(GObject *object)
 
         handle = IRC_HANDLE(object);
 	priv = handle->priv;
-
-	if(priv->connect_id != 0) {
-		gnet_tcp_socket_connect_async_cancel(priv->connect_id);
-		priv->connect_id = 0;
-	}
-	if(priv->in_watch != 0) {
-		g_source_remove(priv->in_watch);
-		priv->in_watch = 0;
-	}
-	if(priv->out_watch != 0) {
-		g_source_remove(priv->out_watch);
-		priv->out_watch = 0;
-	}
-	if(priv->socket) {
-		gnet_tcp_socket_delete(priv->socket);
-		priv->socket = NULL;
-	}
+	
+	irc_handle_disconnect_internal(handle);
 
         if (G_OBJECT_CLASS(parent_class)->finalize)
                 (* G_OBJECT_CLASS(parent_class)->finalize) (object);
@@ -1253,7 +1240,7 @@ irc_handle_watch_in_cb(GIOChannel *ioch, GIOCondition condition, gpointer data)
 
 	if(condition == G_IO_HUP || condition == G_IO_ERR) {
 		priv->in_watch = 0;
-		irc_handle_disconnect(handle);
+		irc_handle_disconnect_internal(handle);
 		g_signal_emit(handle, signals[TERMINATED], 0);
 		return FALSE;
 	}
@@ -1262,7 +1249,7 @@ irc_handle_watch_in_cb(GIOChannel *ioch, GIOCondition condition, gpointer data)
 
 	if(io_error != G_IO_ERROR_NONE) {
 		priv->in_watch = 0;
-		irc_handle_disconnect(handle);
+		irc_handle_disconnect_internal(handle);
 		g_signal_emit(handle, signals[TERMINATED], 0);
 		return FALSE;
 	}
@@ -1440,10 +1427,13 @@ irc_handle_new(Account *account)
 
 	return handle;
 }
-void
-irc_handle_disconnect(IRCHandle *handle)
+static void
+irc_handle_disconnect_internal(IRCHandle *handle)
 {
 	IRCHandlePrivate *priv;	
+
+        g_return_if_fail(handle != NULL);
+        g_return_if_fail(IS_IRC_HANDLE(handle));
 
 	priv = handle->priv;
 
@@ -1464,6 +1454,11 @@ irc_handle_disconnect(IRCHandle *handle)
 		priv->socket = NULL;
 	}
 
+}
+void
+irc_handle_disconnect(IRCHandle *handle)
+{
+	irc_handle_disconnect_internal(handle);
 	g_signal_emit(handle, signals[DISCONNECTED], 0);
 }
 

@@ -72,6 +72,8 @@ typedef struct _PrefsGeneral {
 	GList *highlight_list;
 
 	guint remark_history_number;
+
+	gboolean reconnect_when_terminated;
 } PrefsGeneral;
 
 void prefs_general_load(void);

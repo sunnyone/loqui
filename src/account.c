@@ -46,6 +46,8 @@ struct _AccountPrivate
 {
 	IRCHandle *handle;
 
+	Server *server_on_connecting;
+
 	gchar *current_nick;
 	gboolean is_away;
 };
@@ -61,6 +63,7 @@ static void account_init(Account *account);
 static void account_finalize(GObject *object);
 
 static void account_handle_disconnected_cb(GObject *object, Account *account);
+static void account_handle_terminated_cb(GObject *object, Account *account);
 
 GType
 account_get_type(void)
@@ -406,9 +409,37 @@ account_connect(Account *account, Server *server)
 	priv->handle = irc_handle_new(account);
 	g_signal_connect(G_OBJECT(priv->handle), "disconnected",
 			 G_CALLBACK(account_handle_disconnected_cb), account);
+	g_signal_connect(G_OBJECT(priv->handle), "terminated",
+			 G_CALLBACK(account_handle_terminated_cb), account);
+
+	priv->server_on_connecting = server;
 	irc_handle_connect(priv->handle, (server == NULL) ? TRUE : FALSE, server);
 
 	g_signal_emit(account, account_signals[CONNECTED], 0);
+}
+
+static void
+account_handle_terminated_cb(GObject *object, Account *account)
+{
+	AccountPrivate *priv;
+
+        g_return_if_fail(account != NULL);
+        g_return_if_fail(IS_ACCOUNT(account));
+
+	priv = account->priv;
+
+	if(priv->handle)
+		g_object_unref(priv->handle);
+	priv->handle = NULL;
+
+	account_console_buffer_append(account, TRUE, TEXT_TYPE_INFO, _("Connection terminated."));
+
+	if(prefs_general.reconnect_when_terminated) {
+		account_console_buffer_append(account, TRUE, TEXT_TYPE_INFO, _("Trying to reconnect..."));
+		priv->handle = irc_handle_new(account);
+		irc_handle_connect(priv->handle, (priv->server_on_connecting == NULL) ? TRUE : FALSE,
+				   priv->server_on_connecting);
+	}
 }
 static void
 account_handle_disconnected_cb(GObject *object, Account *account)

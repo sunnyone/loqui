@@ -54,9 +54,8 @@ struct _IRCHandleClass
         GObjectClass parent_class;
 
 	void (* disconnected) (IRCHandle *handle);
-
-	/* connection was terminated by force, 
-	   "terminated" signal emitted in addition to "disconnected" signal */
+	/* when connection is terminated by force, 
+	   "terminated" signal is called instead of "disconnected". */
 	void (* terminated) (IRCHandle *handle);
 };
 
