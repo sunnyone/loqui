@@ -90,6 +90,9 @@ gboolean utils_return_true_if_data_of_list_equals_data(gpointer key, gpointer va
 
 G_CONST_RETURN gchar* utils_remove_ipv6_prefix_ffff(const gchar *str);
 
+gchar *utils_url_encode(const gchar *str);
+gchar *utils_url_decode(const gchar *str);
+
 /* copied from Sylpheed. (c) 2002, Hiroyuki Yamamoto. */
 gint make_dir(const gchar *dir);
 

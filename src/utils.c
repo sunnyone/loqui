@@ -425,6 +425,59 @@ utils_remove_ipv6_prefix_ffff(const gchar *str)
 	return str;
 }
 
+gchar *
+utils_url_encode(const gchar *str)
+{
+	GString *string;
+	const unsigned char *c;
+	
+	string = g_string_sized_new(strlen(str));
+
+	for (c = str; *c != '\0'; c++) {
+		if (*c == ' ') {
+			g_string_append_c(string, '+');
+		} else if (g_ascii_isalnum(*c) ||
+			   strchr("-._", *c) != NULL) {
+			g_string_append_c(string, *c);
+		} else {
+			g_string_append_printf(string, "%%%X", *c);
+		}
+	}
+	return g_string_free(string, FALSE);
+}
+gchar *
+utils_url_decode(const gchar *str)
+{
+	GString *string;
+	const gchar *ptr;
+	unsigned char c, c1, c2;
+	
+	string = g_string_sized_new(strlen(str));
+
+	ptr = str;
+	while (*ptr != '\0') {
+		if (*ptr == '+') {
+			g_string_append_c(string, ' ');
+		} else if (*ptr == '%') {
+			c1 = *(ptr+1);
+			c2 = *(ptr+2);
+			if (c1 == '\0' || c2 == '\0' ||
+			    !g_ascii_isxdigit(c1) || !g_ascii_isxdigit(c2)) {
+				debug_puts("Failed to decode url: %s", str);
+				break;
+			} else {
+				c = (g_ascii_xdigit_value(c1) << 4) + g_ascii_xdigit_value(c2);
+				g_string_append_c(string, c);
+				ptr += 2;
+			}
+		} else {
+			g_string_append_c(string, *ptr);
+		}
+		ptr++;
+	}
+	return g_string_free(string, FALSE);
+}
+
 /* copied from Sylpheed. (c) 2002, Hiroyuki Yamamoto. */
 gint make_dir(const gchar *dir)
 {
