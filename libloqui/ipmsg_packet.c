@@ -212,7 +212,7 @@ ipmsg_packet_parse(const gchar *str, gint len)
 	pos = 0;
 	array[0] = buf;
 	cur = buf;
-	while (cur < buf + real_len && pos < IPMSG_COMMAND_NUMBER) {
+	while (cur < buf + real_len && pos < IPMSG_COMMAND_NUMBER - 1) {
 		if (*cur == '\0')
 			break;
 
@@ -225,7 +225,7 @@ ipmsg_packet_parse(const gchar *str, gint len)
 		cur++;
 	}
 
-	if (pos != IPMSG_COMMAND_POSITION_EXTRA) {
+	if (pos < IPMSG_COMMAND_NUMBER - 1) {
 		g_free(buf);
 		return NULL;
 	}
