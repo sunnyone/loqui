@@ -22,9 +22,11 @@
 #include "account_list_dialog.h"
 #include "account_manager.h"
 #include "intl.h"
+#include "utils.h"
 
 struct _AccountListDialogPrivate
 {
+	GtkWidget *treeview;
 	GtkListStore *list_store;
 };
 
@@ -41,7 +43,12 @@ static void account_list_dialog_init(AccountListDialog *account_list_dialog);
 static void account_list_dialog_finalize(GObject *object);
 static void account_list_dialog_destroy(GtkObject *object);
 
-static void account_list_dialog_construct_list(AccountListDialog *dialog, GtkTreeView *treeview);
+static void account_list_dialog_construct_list(AccountListDialog *dialog);
+static Account* account_list_dialog_get_selected_account(AccountListDialog *dialog);
+
+static void account_list_dialog_add_cb(GtkWidget *widget, AccountListDialog *dialog);
+static void account_list_dialog_remove_cb(GtkWidget *widget, AccountListDialog *dialog);
+static void account_list_dialog_properties_cb(GtkWidget *widget, AccountListDialog *dialog);
 
 GType
 account_list_dialog_get_type(void)
@@ -118,13 +125,16 @@ account_list_dialog_destroy (GtkObject *object)
                 (* GTK_OBJECT_CLASS(parent_class)->destroy) (object);
 }
 static void
-account_list_dialog_construct_list(AccountListDialog *dialog, GtkTreeView *treeview)
+account_list_dialog_construct_list(AccountListDialog *dialog)
 {
 	AccountListDialogPrivate *priv;
 	GSList *account_list, *cur;
 	GtkTreeIter iter;
 	Account *account;
 	gchar *name;
+
+        g_return_if_fail(dialog != NULL);
+        g_return_if_fail(IS_ACCOUNT_LIST_DIALOG(dialog));
 
 	priv = dialog->priv;
 	
@@ -148,15 +158,73 @@ account_list_dialog_construct_list(AccountListDialog *dialog, GtkTreeView *treev
 				   -1);
 	}
 
-	gtk_tree_view_set_model(treeview, GTK_TREE_MODEL(priv->list_store));
+	gtk_tree_view_set_model(GTK_TREE_VIEW(priv->treeview), GTK_TREE_MODEL(priv->list_store));
 }
+static Account*
+account_list_dialog_get_selected_account(AccountListDialog *dialog)
+{
+	GtkTreeSelection *selection;
+	GtkTreeIter iter;
+	Account *account = NULL;
+
+        g_return_val_if_fail(dialog != NULL, NULL);
+        g_return_val_if_fail(IS_ACCOUNT_LIST_DIALOG(dialog), NULL);
+
+	selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(dialog->priv->treeview));
+	if(!gtk_tree_selection_get_selected(selection, NULL, &iter))
+		return NULL;
+	
+	gtk_tree_model_get(GTK_TREE_MODEL(dialog->priv->list_store), &iter,
+			   COLUMN_POINTER, &account, -1);
+
+	return account;
+}
+static void
+account_list_dialog_add_cb(GtkWidget *widget, AccountListDialog *dialog)
+{
+        g_return_if_fail(dialog != NULL);
+        g_return_if_fail(IS_ACCOUNT_LIST_DIALOG(dialog));
+
+	account_manager_add_account_with_dialog(account_manager_get());
+	account_list_dialog_construct_list(dialog);
+}
+static void
+account_list_dialog_remove_cb(GtkWidget *widget, AccountListDialog *dialog)
+{
+	Account *account;
+
+        g_return_if_fail(dialog != NULL);
+        g_return_if_fail(IS_ACCOUNT_LIST_DIALOG(dialog));
+
+	account = account_list_dialog_get_selected_account(dialog);
+	if(!account)
+		return;
+
+	account_manager_remove_account_with_dialog(account_manager_get(), account);
+	account_list_dialog_construct_list(dialog);
+}
+static void
+account_list_dialog_properties_cb(GtkWidget *widget, AccountListDialog *dialog)
+{
+	Account *account;
+
+        g_return_if_fail(dialog != NULL);
+        g_return_if_fail(IS_ACCOUNT_LIST_DIALOG(dialog));
+
+	account = account_list_dialog_get_selected_account(dialog);
+	if(!account)
+		return;
+
+	account_manager_configure_account_with_dialog(account_manager_get(), account); 
+	account_list_dialog_construct_list(dialog);
+}
+
 GtkWidget*
 account_list_dialog_new (void)
 {
         AccountListDialog *dialog;
 	AccountListDialogPrivate *priv;
 	GtkWidget *scrolled_win;
-	GtkWidget *treeview;
 	GtkWidget *hbox;
 	GtkWidget *vbox;
 	GtkWidget *button;
@@ -172,11 +240,6 @@ account_list_dialog_new (void)
 	gtk_dialog_add_buttons(GTK_DIALOG(dialog), 
 			       GTK_STOCK_OK, GTK_RESPONSE_NONE, 
 			       NULL);
-	
-	g_signal_connect_swapped(G_OBJECT(dialog),
-				 "response",
-				 G_CALLBACK(gtk_widget_destroy),
-				 GTK_OBJECT(dialog));
 
 	hbox = gtk_hbox_new(FALSE, 0);
 	gtk_box_pack_start(GTK_BOX(GTK_DIALOG(dialog)->vbox), hbox, TRUE, TRUE, 5);
@@ -186,29 +249,35 @@ account_list_dialog_new (void)
 				       GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
 	gtk_box_pack_start(GTK_BOX(hbox), scrolled_win, TRUE, TRUE, 0);
 
-	treeview = gtk_tree_view_new();
-	account_list_dialog_construct_list(dialog, GTK_TREE_VIEW(treeview));
+	priv->treeview = gtk_tree_view_new();
+	account_list_dialog_construct_list(dialog);
 
         renderer = gtk_cell_renderer_text_new();
         column = gtk_tree_view_column_new_with_attributes(_("Name"),
 							  renderer,
 							  "text", COLUMN_NAME,
 							  NULL);
-        gtk_tree_view_append_column(GTK_TREE_VIEW(treeview), column);
+        gtk_tree_view_append_column(GTK_TREE_VIEW(priv->treeview), column);
 
-	gtk_widget_set_usize(treeview, 200, 100);
-	gtk_container_add(GTK_CONTAINER(scrolled_win), treeview);
+	gtk_widget_set_usize(priv->treeview, 200, 100);
+	gtk_container_add(GTK_CONTAINER(scrolled_win), priv->treeview);
 
 	vbox = gtk_vbox_new(TRUE, 0);
 	gtk_box_pack_start(GTK_BOX(hbox), vbox, FALSE, FALSE, 0);
 
 	button = gtk_button_new_from_stock(GTK_STOCK_ADD);
+	g_signal_connect(G_OBJECT(button), "clicked", 
+			 G_CALLBACK(account_list_dialog_add_cb), dialog);
 	gtk_box_pack_start(GTK_BOX(vbox), button, FALSE, FALSE, 5);
 
 	button = gtk_button_new_from_stock(GTK_STOCK_REMOVE);
+	g_signal_connect(G_OBJECT(button), "clicked", 
+			 G_CALLBACK(account_list_dialog_remove_cb), dialog);
 	gtk_box_pack_start(GTK_BOX(vbox), button, FALSE, FALSE, 5);
 
 	button = gtk_button_new_from_stock(GTK_STOCK_PROPERTIES);
+	g_signal_connect(G_OBJECT(button), "clicked", 
+			 G_CALLBACK(account_list_dialog_properties_cb), dialog);
 	gtk_box_pack_start(GTK_BOX(vbox), button, FALSE, FALSE, 5);
 
 	gtk_widget_show_all(GTK_WIDGET(GTK_DIALOG(dialog)->vbox));
@@ -219,5 +288,9 @@ account_list_dialog_new (void)
 void 
 account_list_dialog_open(void)
 {
-	gtk_dialog_run(GTK_DIALOG(account_list_dialog_new()));
+	GtkWidget *dialog;
+
+	dialog = account_list_dialog_new();
+	gtk_dialog_run(GTK_DIALOG(dialog));
+	gtk_widget_destroy(dialog);
 }
