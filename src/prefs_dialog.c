@@ -43,7 +43,9 @@ struct _PrefsDialogPrivate
 
 	GtkWidget *check_auto_command_mode;
 	GtkWidget *entry_command_prefix;
-		
+	
+	GtkWidget *check_save_log;
+	
 	GtkWidget *check_use_notification;
 	GtkWidget *textview_highlight;
 
@@ -159,6 +161,7 @@ prefs_dialog_load_settings(PrefsDialog *dialog)
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(priv->check_auto_reconnect), prefs_general.auto_reconnect);
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(priv->check_connect_startup), prefs_general.connect_startup);
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(priv->check_auto_command_mode), prefs_general.auto_command_mode);
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(priv->check_save_log), prefs_general.save_log);
 
 	gtkutils_set_textview_from_string_list(GTK_TEXT_VIEW(priv->textview_highlight), prefs_general.highlight_list);
 	gtkutils_set_textview_from_string_list(GTK_TEXT_VIEW(priv->textview_transparent_ignore),
@@ -193,6 +196,7 @@ prefs_dialog_save_settings(PrefsDialog *dialog)
 	prefs_general.auto_reconnect = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(priv->check_auto_reconnect));
 	prefs_general.connect_startup = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(priv->check_connect_startup));
 	prefs_general.auto_command_mode = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(priv->check_auto_command_mode));
+	prefs_general.save_log = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(priv->check_save_log));
 
 	gtkutils_set_string_list_from_textview(&prefs_general.highlight_list, GTK_TEXT_VIEW(priv->textview_highlight));
 	gtkutils_set_string_list_from_textview(&prefs_general.transparent_ignore_list,
@@ -288,6 +292,9 @@ prefs_dialog_new(void)
 	gtk_box_pack_start(GTK_BOX(vbox), priv->check_auto_command_mode, FALSE, FALSE, 0);
 	
 	gtkutils_add_label_entry(vbox, _("Prefix for commands: "), &priv->entry_command_prefix, "");
+
+	priv->check_save_log = gtk_check_button_new_with_label(_("Save logs (Experimental)"));
+	gtk_box_pack_start(GTK_BOX(vbox), priv->check_save_log, FALSE, FALSE, 0);
 	
 	vbox = gtk_vbox_new(FALSE, 0);
 	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), vbox, gtk_label_new(_("Highlight")));

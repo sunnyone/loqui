@@ -63,16 +63,23 @@ static void make_accel_map_entries_for_channel_shortcutkeys(void);
 static void make_program_dir(void)
 {
 	gchar *dirname;
-
+	gchar *log_dirname;
+	
 	dirname = g_build_filename(g_get_home_dir(), PREFS_DIR, NULL);
 	if(!g_file_test(dirname, G_FILE_TEST_EXISTS)) {
 		make_dir(dirname);
 	}
-
+	
 	if(!g_file_test(dirname, G_FILE_TEST_IS_DIR)) {
 		g_error(_("Invalid \"%s\""), dirname);
 	}
 	g_free(dirname);
+
+	log_dirname = g_build_filename(g_get_home_dir(), PREFS_DIR, LOG_DIR, NULL);
+	if(!g_file_test(log_dirname, G_FILE_TEST_EXISTS))
+		make_dir(log_dirname);
+	
+	g_free(log_dirname);
 }
 
 static void

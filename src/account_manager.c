@@ -32,6 +32,9 @@
 #include "loqui_statusbar.h"
 #include "prefs_dialog.h"
 #include "connect_dialog.h"
+#include "main.h"
+
+#include <time.h>
 
 struct _AccountManagerPrivate
 {
@@ -65,6 +68,7 @@ static void account_manager_channel_updated_cb(AccountManager *manager, gboolean
 static void account_manager_add_channel_cb(Account *account, Channel *channel, AccountManager *manager);
 static void account_manager_remove_channel_cb(Account *account, Channel *channel, AccountManager *manager);
 static void account_manager_channel_buffer_append_cb(ChannelBuffer *buffer, MessageText *msgtext, AccountManager *manager);
+static void account_manager_append_log(AccountManager *manager, MessageText *msgtext);
 
 static gboolean account_manager_update_account_info(AccountManager *manager);
 static gboolean account_manager_update_channel_info(AccountManager *manager);
@@ -420,6 +424,55 @@ account_manager_channel_updated_cb(AccountManager *manager, gboolean is_updated_
 		
 }
 static void
+account_manager_append_log(AccountManager *manager, MessageText *msgtext)
+{
+	gchar *path;
+	gchar *filename;
+	gchar *buf;
+	gchar *time_str;
+	gchar *nick;
+	const gchar *account_name;
+	GIOChannel *io;
+	time_t t;
+	
+        g_return_if_fail(manager != NULL);
+        g_return_if_fail(IS_ACCOUNT_MANAGER(manager));
+        
+        t = time(NULL);
+        
+        filename = utils_strftime_epoch("log-%Y%m%d.txt", t);
+	path = g_build_filename(g_get_home_dir(), PREFS_DIR, LOG_DIR, filename, NULL);
+	g_free(filename);
+	
+	if((io = g_io_channel_new_file(path, "a", NULL)) == NULL) {
+		g_warning("Can't open log file(%s)", path);
+		g_free(path);
+		return;
+	}
+	
+	time_str = utils_strftime_epoch(prefs_general.time_format, t);
+	if (message_text_get_nick(msgtext))
+		nick = message_text_get_nick_string(msgtext, TRUE);
+	else
+		nick = g_strdup("");
+	
+	account_name = message_text_get_account_name(msgtext);
+	
+	if (account_name)
+		buf = g_strdup_printf("%s[%s] %s\n", time_str, account_name, message_text_get_text(msgtext));
+	else
+		buf = g_strdup_printf("%s%s%s\n", time_str, nick, message_text_get_text(msgtext));
+	g_free(time_str);
+	g_free(nick);
+		
+	if(g_io_channel_write_chars(io, buf, -1, NULL, NULL) == 0)
+		g_warning("Can't write log(%s)", path);
+	
+	g_free(path);
+	g_free(buf);
+	g_io_channel_unref(io);
+}
+static void
 account_manager_channel_buffer_append_cb(ChannelBuffer *buffer, MessageText *msgtext, AccountManager *manager)
 {
 	AccountManagerPrivate *priv;
@@ -429,6 +482,12 @@ account_manager_channel_buffer_append_cb(ChannelBuffer *buffer, MessageText *msg
 
 	priv = manager->priv;
 
+	if(priv->last_msgtext == msgtext)
+		return;
+		
+	if (prefs_general.save_log)
+		account_manager_append_log(manager, msgtext);
+	
 	if(!account_manager_get_whether_scrolling(manager)) {
 	} else if(priv->current_channel) {
 		if(buffer == priv->current_channel->buffer)
@@ -437,9 +496,6 @@ account_manager_channel_buffer_append_cb(ChannelBuffer *buffer, MessageText *msg
 		if(buffer == priv->current_account->console_buffer)
 			return;
 	}
-
-	if(priv->last_msgtext == msgtext)
-		return;
 	
 	channel_buffer_append_message_text(priv->common_buffer, msgtext, TRUE, FALSE);
 

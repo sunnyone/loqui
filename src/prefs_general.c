@@ -72,6 +72,8 @@ PrefElement prefs_general_defs[] = {
 	{"auto_command_mode", "true", PREF_TYPE_BOOLEAN, &prefs_general.auto_command_mode },
 	{"command_prefix", "/", PREF_TYPE_STRING, &prefs_general.command_prefix },
 	
+	{"save_log", "false", PREF_TYPE_BOOLEAN, &prefs_general.save_log },
+	
 	{NULL, NULL, 0, NULL}
 };
 

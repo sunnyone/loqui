@@ -85,6 +85,7 @@ typedef struct _PrefsGeneral {
 	gboolean auto_command_mode;
 	gchar *command_prefix;
 	
+	gboolean save_log;
 } PrefsGeneral;
 
 void prefs_general_load(void);

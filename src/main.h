@@ -30,6 +30,7 @@ extern int show_msg_mode;
 extern int send_status_commands_mode;
 
 #define PREFS_DIR ".loqui"
+#define LOG_DIR "logs"
 
 enum {
 	USERLIST_COLUMN_HOMEAWAY,
