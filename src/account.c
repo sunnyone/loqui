@@ -147,110 +147,30 @@ account_new (void)
 	return account;
 }
 
-void account_set_name(Account *account, const gchar *name)
-{
-	g_return_if_fail(account != NULL);
-        g_return_if_fail(IS_ACCOUNT(account));
-
-	G_FREE_UNLESS_NULL(account->name);
-	if(name)
-		account->name = g_strdup(name);
-}
-gchar *account_get_name(Account *account)
-{
-	g_return_val_if_fail(account != NULL, NULL);
-        g_return_val_if_fail(IS_ACCOUNT(account), NULL);
-
-	return account->name;
-}
-
-void account_set_nick(Account *account, const gchar *nick)
-{
-	g_return_if_fail(account != NULL);
-        g_return_if_fail(IS_ACCOUNT(account));
-
-	G_FREE_UNLESS_NULL(account->nick);
-	if(nick)
-		account->nick = g_strdup(nick);
-}
-gchar *account_get_nick(Account *account)
-{
-	g_return_val_if_fail(account != NULL, NULL);
-        g_return_val_if_fail(IS_ACCOUNT(account), NULL);
-
-	g_return_val_if_fail(account != NULL, NULL);
-        g_return_val_if_fail(IS_ACCOUNT(account), NULL);
-
-	return account->nick;
+#define DEFINE_STRING_ACCESSOR(n) \
+void account_set_##n(Account *account, const gchar *str) \
+{ \
+ 	g_return_if_fail(account != NULL); \
+        g_return_if_fail(IS_ACCOUNT(account)); \
+\
+	G_FREE_UNLESS_NULL(account->n); \
+	if(str) \
+		account->n = g_strdup(str); \
+} \
+gchar *account_get_##n(Account *account) \
+{ \
+	g_return_val_if_fail(account != NULL, NULL); \
+        g_return_val_if_fail(IS_ACCOUNT(account), NULL); \
+\
+        return account->n; \
 }
 
-void account_set_username(Account *account, const gchar *username)
-{
-	g_return_if_fail(account != NULL);
-        g_return_if_fail(IS_ACCOUNT(account));
-
-	G_FREE_UNLESS_NULL(account->username);
-	if(username)
-		account->username = g_strdup(username);
-}
-gchar *account_get_username(Account *account)
-{
-	g_return_val_if_fail(account != NULL, NULL);
-        g_return_val_if_fail(IS_ACCOUNT(account), NULL);
-
-	return account->username;
-}
-
-void account_set_realname(Account *account, const gchar *realname)
-{
-	g_return_if_fail(account != NULL);
-        g_return_if_fail(IS_ACCOUNT(account));
-
-	G_FREE_UNLESS_NULL(account->realname);
-	if(realname)
-		account->realname = g_strdup(realname);
-}
-gchar *account_get_realname(Account *account)
-{
-	g_return_val_if_fail(account != NULL, NULL);
-        g_return_val_if_fail(IS_ACCOUNT(account), NULL);
-
-	return account->realname;
-}
-
-void account_set_userinfo(Account *account, const gchar *userinfo)
-{
-	g_return_if_fail(account != NULL);
-        g_return_if_fail(IS_ACCOUNT(account));
-
-	G_FREE_UNLESS_NULL(account->userinfo);
-	if(userinfo)
-		account->userinfo = g_strdup(userinfo);
-}
-gchar *account_get_userinfo(Account *account)
-{
-	g_return_val_if_fail(account != NULL, NULL);
-        g_return_val_if_fail(IS_ACCOUNT(account), NULL);
-
-	return account->userinfo;
-}
-
-void account_set_autojoin(Account *account, const gchar *autojoin)
-{
-	g_return_if_fail(account != NULL);
-        g_return_if_fail(IS_ACCOUNT(account));
-
-	G_FREE_UNLESS_NULL(account->autojoin);
-	if(autojoin)
-		account->autojoin = g_strdup(autojoin);
-}
-gchar *account_get_autojoin(Account *account)
-{
-	g_return_val_if_fail(account != NULL, NULL);
-        g_return_val_if_fail(IS_ACCOUNT(account), NULL);
-
-	return account->autojoin;
-}
+DEFINE_STRING_ACCESSOR(name);
+DEFINE_STRING_ACCESSOR(nick);
+DEFINE_STRING_ACCESSOR(username);
+DEFINE_STRING_ACCESSOR(realname);
+DEFINE_STRING_ACCESSOR(userinfo);
+DEFINE_STRING_ACCESSOR(autojoin);
 
 void
 account_set(Account *account,
