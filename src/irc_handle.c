@@ -152,6 +152,7 @@ static void
 irc_handle_command_privmsg_notice(IRCHandle *handle, IRCMessage *msg)
 {
 	gchar *receiver_name;
+	gchar *channel_name;
 	gchar *remark;
 	Channel *channel = NULL;
 	TextType type;
@@ -162,6 +163,11 @@ irc_handle_command_privmsg_notice(IRCHandle *handle, IRCMessage *msg)
 	receiver_name = irc_message_get_param(msg, 1);
 	remark = irc_message_get_param(msg, 2);
 
+	if(remark == NULL) {
+		g_warning(_("This PRIVMSG/NOTICE message doesn't contain a remark."));
+		return;
+	}
+
 	if(msg->response == IRC_COMMAND_NOTICE) {
 		type = TEXT_TYPE_NOTICE;
 	} else {
@@ -169,13 +175,15 @@ irc_handle_command_privmsg_notice(IRCHandle *handle, IRCMessage *msg)
 	}
 
 	if(receiver_name != NULL && msg->nick != NULL) {
-		channel = account_search_channel_by_name(handle->priv->account, receiver_name);
+		if(STRING_IS_CHANNEL(receiver_name))
+			channel_name = receiver_name;
+		else
+			channel_name = msg->nick;
+
+		channel = account_search_channel_by_name(handle->priv->account, channel_name);
 		if(channel == NULL) {
 			gdk_threads_enter();
-			if(STRING_IS_CHANNEL(receiver_name))
-				channel = channel_new(receiver_name);
-			else
-				channel = channel_new(msg->nick);
+			channel = channel_new(channel_name);
 			account_add_channel(handle->priv->account, channel);
 			gdk_threads_leave();
 		}
@@ -437,7 +445,7 @@ irc_handle_command_join(IRCHandle *handle, IRCMessage *msg)
 	Channel *channel;
 
 	if(msg->nick == NULL) {
-		g_warning(_("The message does not contain nick"));
+		g_warning(_("The message does not contain nick."));
 		return;
 	}
 	name = irc_message_get_param(msg, 1);
