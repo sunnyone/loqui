@@ -102,6 +102,11 @@ static void loqui_app_save_size(LoquiApp *app);
 
 static void loqui_app_create_tray_icon(LoquiApp *app);
 
+
+static void loqui_app_channel_entry_added_after(LoquiApp *app, LoquiChannelEntry *chent);
+static void loqui_app_channel_entry_removed(LoquiApp *app, LoquiChannelEntry *chent);
+static void loqui_app_channel_entry_removed_after(LoquiApp *app, gpointer was_channel_entry);
+
 static void loqui_app_add_account_after_cb(LoquiAccountManager *manager, LoquiAccount *account, LoquiApp *app);
 static void loqui_app_remove_account_cb(LoquiAccountManager *manager, LoquiAccount *account, LoquiApp *app);
 static void loqui_app_remove_account_after_cb(LoquiAccountManager *manager, LoquiAccount *account, LoquiApp *app);
@@ -109,6 +114,7 @@ static void loqui_app_remove_account_after_cb(LoquiAccountManager *manager, Loqu
 static void loqui_app_add_channel_after_cb(LoquiAccount *account, LoquiChannel *channel, LoquiApp *app);
 static void loqui_app_remove_channel_cb(LoquiAccount *account, LoquiChannel *channel, LoquiApp *app);
 static void loqui_app_remove_channel_after_cb(LoquiAccount *account, LoquiChannel *channel, LoquiApp *app);
+
 
 static void loqui_app_account_connect_after_cb(LoquiAccount *account, LoquiApp *app);
 
@@ -982,8 +988,41 @@ loqui_app_account_connect_after_cb(LoquiAccount *account, LoquiApp *app)
 	loqui_app_set_current_channel_entry(app, LOQUI_CHANNEL_ENTRY(account));
 }
 static void
-loqui_app_channel_entry_added(LoquiApp *app, LoquiChannelEntry *chent)
+loqui_app_channel_entry_added_after(LoquiApp *app, LoquiChannelEntry *chent)
 {
+	LoquiAppPrivate *priv;
+	LoquiChannelEntryStore *store;
+	ChannelBuffer *buffer;
+	GtkWidget *chview;
+
+        g_return_if_fail(app != NULL);
+        g_return_if_fail(LOQUI_IS_APP(app));
+	g_return_if_fail(chent != NULL);
+	g_return_if_fail(LOQUI_IS_CHANNEL_ENTRY(chent));
+
+	priv = app->priv;
+
+	store = loqui_channel_entry_store_new(chent);
+	g_object_set_data(G_OBJECT(chent), CHANNEL_ENTRY_STORE_KEY, store);
+
+	buffer = loqui_channel_entry_get_buffer(chent);
+	g_signal_connect(G_OBJECT(buffer), "append",
+			 G_CALLBACK(loqui_app_channel_buffer_append_cb), app);
+	
+	chview = loqui_channel_text_view_new(app);
+	g_object_set_data(G_OBJECT(chent), CHANNEL_TEXT_VIEW_KEY, chview);
+	loqui_channel_text_view_set_channel_buffer(LOQUI_CHANNEL_TEXT_VIEW(chview), buffer);
+	loqui_channel_text_view_set_auto_switch_scrolling(LOQUI_CHANNEL_TEXT_VIEW(chview),
+							  prefs_general.auto_switch_scrolling);
+
+	gtk_widget_show_all(LOQUI_CHANNEL_TEXT_VIEW(chview)->scrolled_window);
+	gtk_notebook_append_page(GTK_NOTEBOOK(app->channel_notebook),
+				 LOQUI_CHANNEL_TEXT_VIEW(chview)->scrolled_window,
+				 NULL);
+
+	loqui_channel_entry_set_sort_func(LOQUI_CHANNEL_ENTRY(chent), priv->sort_func);
+	loqui_app_update_channel_entry_accel_key(app);
+
 	loqui_app_info_channel_entry_added(app->appinfo, chent);
 
 	g_signal_connect(G_OBJECT(chent), "notify::has-unread-keyword",
@@ -992,17 +1031,41 @@ loqui_app_channel_entry_added(LoquiApp *app, LoquiChannelEntry *chent)
 static void
 loqui_app_channel_entry_removed(LoquiApp *app, LoquiChannelEntry *chent)
 {
+	ChannelBuffer *buffer;
+	LoquiChannelEntryStore *store;
+	GtkWidget *chview;
+
+        g_return_if_fail(app != NULL);
+        g_return_if_fail(LOQUI_IS_APP(app));
+	g_return_if_fail(chent != NULL);
+	g_return_if_fail(LOQUI_IS_CHANNEL_ENTRY(chent));
+
 	loqui_app_info_channel_entry_removed(app->appinfo, chent);
 
+	buffer = loqui_channel_entry_get_buffer(chent);
+	g_signal_handlers_disconnect_by_func(buffer, loqui_app_channel_buffer_append_cb, app);
+
+	chview = g_object_get_data(G_OBJECT(chent), CHANNEL_TEXT_VIEW_KEY);
+	gtk_notebook_remove_page(GTK_NOTEBOOK(app->channel_notebook),
+				 gtk_notebook_page_num(GTK_NOTEBOOK(app->channel_notebook), LOQUI_CHANNEL_TEXT_VIEW(chview)->scrolled_window));
+
+	store = g_object_get_data(G_OBJECT(chent), CHANNEL_ENTRY_STORE_KEY);
+	g_object_unref(store);
+
 	g_signal_handlers_disconnect_by_func(chent, loqui_app_channel_entry_notify_has_unread_keyword_cb, app);
+}
+static void
+loqui_app_channel_entry_removed_after(LoquiApp *app, gpointer was_channel_entry)
+{
+        g_return_if_fail(app != NULL);
+        g_return_if_fail(LOQUI_IS_APP(app));
+	
+	loqui_app_update_channel_entry_accel_key(app);
 }
 static void
 loqui_app_add_account_after_cb(LoquiAccountManager *manager, LoquiAccount *account, LoquiApp *app)
 {
 	LoquiAppPrivate *priv;
-	LoquiChannelEntryStore *store;
-	ChannelBuffer *buffer;
-	GtkWidget *chview;
 
         g_return_if_fail(manager != NULL);
         g_return_if_fail(LOQUI_IS_ACCOUNT_MANAGER(manager));
@@ -1012,9 +1075,6 @@ loqui_app_add_account_after_cb(LoquiAccountManager *manager, LoquiAccount *accou
         g_return_if_fail(LOQUI_IS_APP(app));
 
 	priv = app->priv;
-
-	store = loqui_channel_entry_store_new(LOQUI_CHANNEL_ENTRY(account));
-	g_object_set_data(G_OBJECT(account), CHANNEL_ENTRY_STORE_KEY, store);
 
 	loqui_channel_entry_ui_attach_channel_entry_action(app, LOQUI_CHANNEL_ENTRY(account));
 	loqui_channel_entry_ui_add_account(app, account, "/menubar/Buffers", "menubar");
@@ -1029,35 +1089,14 @@ loqui_app_add_account_after_cb(LoquiAccountManager *manager, LoquiAccount *accou
 			 G_CALLBACK(loqui_app_remove_channel_cb), app);
 	g_signal_connect_after(G_OBJECT(account), "remove-channel",
 			       G_CALLBACK(loqui_app_remove_channel_after_cb), app);
-	
-	buffer = loqui_channel_entry_get_buffer(LOQUI_CHANNEL_ENTRY(account));
-	g_signal_connect(G_OBJECT(buffer), "append",
-			 G_CALLBACK(loqui_app_channel_buffer_append_cb), app);
 
-	chview = loqui_channel_text_view_new(app);
-	g_object_set_data(G_OBJECT(account), CHANNEL_TEXT_VIEW_KEY, chview);
-	loqui_channel_text_view_set_channel_buffer(LOQUI_CHANNEL_TEXT_VIEW(chview), buffer);
-	loqui_channel_text_view_set_auto_switch_scrolling(LOQUI_CHANNEL_TEXT_VIEW(chview),
-							  prefs_general.auto_switch_scrolling);
-
-	gtk_widget_show_all(LOQUI_CHANNEL_TEXT_VIEW(chview)->scrolled_window);
-	gtk_notebook_append_page(GTK_NOTEBOOK(app->channel_notebook),
-				 LOQUI_CHANNEL_TEXT_VIEW(chview)->scrolled_window,
-				 NULL);
-
-	loqui_channel_entry_set_sort_func(LOQUI_CHANNEL_ENTRY(account), priv->sort_func);
-	loqui_app_update_channel_entry_accel_key(app);
-
-	loqui_app_channel_entry_added(app, LOQUI_CHANNEL_ENTRY(account));
+	loqui_app_channel_entry_added_after(app, LOQUI_CHANNEL_ENTRY(account));
 	loqui_app_info_account_added(app->appinfo, account);
 }
 static void
 loqui_app_remove_account_cb(LoquiAccountManager *manager, LoquiAccount *account, LoquiApp *app)
 {
 	LoquiAppPrivate *priv;
-	ChannelBuffer *buffer;
-	LoquiChannelEntryStore *store;
-	GtkWidget *chview;
 
         g_return_if_fail(manager != NULL);
         g_return_if_fail(LOQUI_IS_ACCOUNT_MANAGER(manager));
@@ -1068,26 +1107,16 @@ loqui_app_remove_account_cb(LoquiAccountManager *manager, LoquiAccount *account,
 
 	priv = app->priv;
 
-	loqui_app_channel_entry_removed(app, LOQUI_CHANNEL_ENTRY(account));
-	loqui_app_info_account_removed(app->appinfo, account);
-
 	loqui_channel_entry_ui_remove_account(app, account, "/menubar/Buffers", "menubar");
 	loqui_channel_entry_ui_remove_account(app, account, "/ChannelListPopup", "channelbar");
 	loqui_channel_entry_ui_remove_account(app, account, "/TrayIconPopup/BuffersMenu", "trayicon");
 
+	loqui_app_channel_entry_removed(app, LOQUI_CHANNEL_ENTRY(account));
+	loqui_app_info_account_removed(app->appinfo, account);
+
 	g_signal_handlers_disconnect_by_func(G_OBJECT(account), loqui_app_add_channel_after_cb, app);
 	g_signal_handlers_disconnect_by_func(G_OBJECT(account), loqui_app_remove_channel_cb, app);
 	g_signal_handlers_disconnect_by_func(G_OBJECT(account), loqui_app_remove_channel_after_cb, app);
-
-	buffer = loqui_channel_entry_get_buffer(LOQUI_CHANNEL_ENTRY(account));
-	g_signal_handlers_disconnect_by_func(buffer, loqui_app_channel_buffer_append_cb, app);
-
-	chview = g_object_get_data(G_OBJECT(account), CHANNEL_TEXT_VIEW_KEY);
-	gtk_notebook_remove_page(GTK_NOTEBOOK(app->channel_notebook),
-				 gtk_notebook_page_num(GTK_NOTEBOOK(app->channel_notebook), LOQUI_CHANNEL_TEXT_VIEW(chview)->scrolled_window));
-
-	store = g_object_get_data(G_OBJECT(account), CHANNEL_ENTRY_STORE_KEY);
-	g_object_unref(store);
 }
 static void
 loqui_app_remove_account_after_cb(LoquiAccountManager *manager, LoquiAccount *was_account, LoquiApp *app)
@@ -1097,15 +1126,12 @@ loqui_app_remove_account_after_cb(LoquiAccountManager *manager, LoquiAccount *wa
         g_return_if_fail(app != NULL);
         g_return_if_fail(LOQUI_IS_APP(app));
 
-	loqui_app_update_channel_entry_accel_key(app);
+	loqui_app_channel_entry_removed_after(app, was_account);
 }
 static void
 loqui_app_add_channel_after_cb(LoquiAccount *account, LoquiChannel *channel, LoquiApp *app)
 {
 	LoquiAppPrivate *priv;
-	LoquiChannelEntryStore *store;
-	ChannelBuffer *buffer;
-	GtkWidget *chview;
 
         g_return_if_fail(app != NULL);
         g_return_if_fail(LOQUI_IS_APP(app));
@@ -1116,33 +1142,12 @@ loqui_app_add_channel_after_cb(LoquiAccount *account, LoquiChannel *channel, Loq
 
 	priv = app->priv;
 
-	store = loqui_channel_entry_store_new(LOQUI_CHANNEL_ENTRY(channel));
-	g_object_set_data(G_OBJECT(channel), CHANNEL_ENTRY_STORE_KEY, store);
-
 	loqui_channel_entry_ui_attach_channel_entry_action(app, LOQUI_CHANNEL_ENTRY(channel));
 	loqui_channel_entry_ui_add_channel(app, channel, "/menubar/Buffers", "menubar");
 	loqui_channel_entry_ui_add_channel(app, channel, "/ChannelListPopup", "channelbar");
 	loqui_channel_entry_ui_add_channel(app, channel, "/TrayIconPopup/BuffersMenu", "trayicon");
 
-	buffer = loqui_channel_entry_get_buffer(LOQUI_CHANNEL_ENTRY(channel));
-	g_signal_connect(G_OBJECT(buffer), "append",
-			 G_CALLBACK(loqui_app_channel_buffer_append_cb), app);
-
-	chview = loqui_channel_text_view_new(app);
-	g_object_set_data(G_OBJECT(channel), CHANNEL_TEXT_VIEW_KEY, chview);
-	loqui_channel_text_view_set_channel_buffer(LOQUI_CHANNEL_TEXT_VIEW(chview), buffer);
-	gtk_notebook_append_page(GTK_NOTEBOOK(app->channel_notebook),
-				 LOQUI_CHANNEL_TEXT_VIEW(chview)->scrolled_window,
-				 NULL);
-	loqui_channel_text_view_set_auto_switch_scrolling(LOQUI_CHANNEL_TEXT_VIEW(chview),
-							  prefs_general.auto_switch_scrolling);
-	gtk_widget_show_all(LOQUI_CHANNEL_TEXT_VIEW(chview)->scrolled_window);
-
-	loqui_channel_entry_set_sort_func(LOQUI_CHANNEL_ENTRY(channel), priv->sort_func);
-
-	loqui_app_update_channel_entry_accel_key(app);
-
-	loqui_app_channel_entry_added(app, LOQUI_CHANNEL_ENTRY(channel));
+	loqui_app_channel_entry_added_after(app, LOQUI_CHANNEL_ENTRY(channel));
 	loqui_app_info_channel_added(app->appinfo, channel);
 
 	if (prefs_general.select_channel_joined)
@@ -1152,9 +1157,6 @@ static void
 loqui_app_remove_channel_cb(LoquiAccount *account, LoquiChannel *channel, LoquiApp *app)
 {
 	LoquiAppPrivate *priv;
-	ChannelBuffer *buffer;
-	LoquiChannelEntryStore *store;
-	GtkWidget *chview;
 
         g_return_if_fail(app != NULL);
         g_return_if_fail(LOQUI_IS_APP(app));
@@ -1174,16 +1176,6 @@ loqui_app_remove_channel_cb(LoquiAccount *account, LoquiChannel *channel, LoquiA
 
 	if (loqui_app_get_current_channel(app) == channel)
 		loqui_app_set_current_channel_entry(app, LOQUI_CHANNEL_ENTRY(account));
-	
-	buffer = loqui_channel_entry_get_buffer(LOQUI_CHANNEL_ENTRY(channel));
-	g_signal_handlers_disconnect_by_func(buffer, loqui_app_channel_buffer_append_cb, app);
-
-	chview = g_object_get_data(G_OBJECT(channel), CHANNEL_TEXT_VIEW_KEY);
-	gtk_notebook_remove_page(GTK_NOTEBOOK(app->channel_notebook),
-				 gtk_notebook_page_num(GTK_NOTEBOOK(app->channel_notebook), LOQUI_CHANNEL_TEXT_VIEW(chview)->scrolled_window));
-
-	store = g_object_get_data(G_OBJECT(channel), CHANNEL_ENTRY_STORE_KEY);
-	g_object_unref(store);
 }
 static void
 loqui_app_remove_channel_after_cb(LoquiAccount *account, LoquiChannel *was_channel, LoquiApp *app)
@@ -1197,7 +1189,7 @@ loqui_app_remove_channel_after_cb(LoquiAccount *account, LoquiChannel *was_chann
 
 	priv = app->priv;
 
-	loqui_app_update_channel_entry_accel_key(app);
+	loqui_app_channel_entry_removed_after(app, was_channel);
 }
 static void
 loqui_app_channel_entry_notify_has_unread_keyword_cb(LoquiChannelEntry *chent, GParamSpec *pspec, gpointer data)
