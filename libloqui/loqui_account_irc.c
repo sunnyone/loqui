@@ -496,6 +496,11 @@ loqui_account_irc_conn_writable_cb(GConn *conn, LoquiAccountIRC *account)
 	
 	priv = LOQUI_ACCOUNT_IRC(account)->priv;
 
+	if (!priv->conn || !gnet_conn_is_connected(priv->conn)) {
+		loqui_account_warning(LOQUI_ACCOUNT(account), "conn is closed.");
+		return;
+	}
+
 	if ((msg = g_queue_pop_head(priv->msg_queue)) == NULL) {
 		gnet_conn_set_watch_writable(conn, FALSE);
 		return;
