@@ -40,6 +40,7 @@
 #define LOQUI_TITLE_FORMAT_ERROR loqui_title_format_error_quark()
 
 typedef enum {
+	LOQUI_TITLE_FORMAT_ERROR_INVALID_INTERNAL_STRUCTURE,
 	LOQUI_TITLE_FORMAT_ERROR_UNTERMINATED_FUNCTION_NAME,
 	LOQUI_TITLE_FORMAT_ERROR_INVALID_FUNCTION_NAME,
 	LOQUI_TITLE_FORMAT_ERROR_UNTERMINATED_FUNCTION_ARGUMENT,
@@ -47,6 +48,7 @@ typedef enum {
 	LOQUI_TITLE_FORMAT_ERROR_UNTERMINATED_VARIABLE,
 	LOQUI_TITLE_FORMAT_ERROR_INVALID_VARIABLE_NAME,
 	LOQUI_TITLE_FORMAT_ERROR_UNTERMINATED_QUOTATION,
+	LOQUI_TITLE_FORMAT_ERROR_UNTERMINATED_VARIABLE_AREA,
 } LoquiTitleFormatError;
 
 typedef struct _LoquiTitleFormat LoquiTitleFormat;
@@ -54,6 +56,8 @@ typedef struct _LoquiTitleFormat LoquiTitleFormat;
 struct _LoquiTitleFormat {
 	GHashTable *variable_table;
 	GHashTable *function_table;
+
+	GNode *root;
 };
 
 typedef gchar* (* LoquiTitleFormatFunction) (GList *arg_list);
@@ -61,7 +65,8 @@ typedef gchar* (* LoquiTitleFormatFunction) (GList *arg_list);
 GQuark loqui_title_format_error_quark(void);
 
 LoquiTitleFormat *loqui_title_format_new(void);
-gchar *loqui_title_format_parse(LoquiTitleFormat *ltf, const gchar *str, GError **error);
+gboolean loqui_title_format_parse(LoquiTitleFormat *ltf, const gchar *str, GError **error);
+gchar *loqui_title_format_fetch(LoquiTitleFormat *ltf);
 void loqui_title_format_register_function(LoquiTitleFormat *ltf, const gchar *name, LoquiTitleFormatFunction *func);
 void loqui_title_format_register_variable(LoquiTitleFormat *ltf, const gchar *name, const gchar *value);
 void loqui_title_format_free(LoquiTitleFormat *ltf);

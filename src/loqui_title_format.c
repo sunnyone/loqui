@@ -39,11 +39,59 @@
 
 #include "config.h"
 #include "loqui_title_format.h"
+#include "loqui_string_tokenizer.h"
 #include <string.h>
 
-static gchar * loqui_title_format_parse_internal(LoquiTitleFormat *ltf, const gchar *start, const gchar *end_chars, gchar **end_pos_ptr, gboolean is_braced, GError **error);
-static gchar * loqui_title_format_parse_function(LoquiTitleFormat *ltf, const gchar *start, gchar **end_pos_ptr, GError **error);
+typedef union _TFItem TFItem;
+typedef struct _TFItemText TFItemText;
+typedef struct _TFItemVariable TFItemVariable;
+typedef struct _TFItemVariableArea TFItemVariableArea;
+typedef struct _TFItemFunction TFItemFunction;
+
+typedef enum {
+	LOQUI_TITLE_FORMAT_NODE_INVALID = 0,
+	LOQUI_TITLE_FORMAT_NODE_ROOT,
+	LOQUI_TITLE_FORMAT_NODE_VARIABLE_AREA,
+	LOQUI_TITLE_FORMAT_NODE_ARGUMENT_HOLDER,
+	LOQUI_TITLE_FORMAT_NODE_TEXT,
+	LOQUI_TITLE_FORMAT_NODE_VARIABLE,
+	LOQUI_TITLE_FORMAT_NODE_FUNCTION,
+} TFItemType;
+
+struct _TFItemText {
+	TFItemType type;
+	gchar *text;
+};
+
+struct _TFItemVariable {
+	TFItemType type;
+	gchar *name;
+};
+
+struct _TFItemVariableArea {
+	TFItemType type;
+};
+
+struct _TFItemFunction {
+	TFItemType type;
+	gchar *name;
+};
+
+union _TFItem {
+	TFItemType type;
+	TFItemText v_text;
+	TFItemVariable v_variable;
+	TFItemFunction v_function;
+};
+
+
 static gboolean loqui_title_format_validate_symbol_name(const gchar *name);
+static gboolean loqui_title_format_parse_internal(LoquiTitleFormat *ltf, LoquiStringTokenizer *st, gchar *end_chars, gchar *delim_ptr, GNode *parent, GNode *sibling, GError **error);
+static gboolean loqui_title_format_parse_function(LoquiTitleFormat *ltf, LoquiStringTokenizer *st, GNode *parent, GNode *sibling, GError **error);
+static GNode *tf_item_node_new(TFItemType type, const gchar *name, const gchar *text);
+
+static void loqui_title_format_fetch_variable_area(LoquiTitleFormat *ltf, GNode *node, GString *string);
+static void loqui_title_format_fetch_internal(LoquiTitleFormat *ltf, GNode *node, GString *string, gboolean *var_set);
 
 static gboolean
 loqui_title_format_validate_symbol_name(const gchar *name)
@@ -52,189 +100,310 @@ loqui_title_format_validate_symbol_name(const gchar *name)
 	
 	s = name;
 	while(*s != '\0') {
-		if(!strchr("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_", *s))
+		if(!strchr(G_CSET_A_2_Z G_CSET_a_2_z G_CSET_DIGITS "-_", *s))
 			return FALSE;
 		s++;
 	}
 	return TRUE;
 }
-
-static gchar *
-loqui_title_format_parse_function(LoquiTitleFormat *ltf, const gchar *start, gchar **end_pos_ptr, GError **error)
+/* called at v   (after $)
+            $func()
+*/
+static gboolean
+loqui_title_format_parse_function(LoquiTitleFormat *ltf, LoquiStringTokenizer *st, GNode *parent, GNode *sibling, GError **error)
 {
-	const gchar *cur, *tmp;
-	gchar *name = NULL;
-	gchar *buf = NULL;
-	gchar *child_end;
-	GList *arg_list = NULL;
-	LoquiTitleFormatFunction func;
+	gchar delim;
+	const gchar *func_name;
+	GNode *node;
+	TFItem *tfitem;
 
-	g_return_val_if_fail(ltf != NULL, NULL);
-	g_return_val_if_fail(*start != '$', NULL);
+	loqui_string_tokenizer_set_delimiters(st, "(");
+	func_name = loqui_string_tokenizer_next_token(st, &delim);
+	if (!func_name || delim != '(') {
+		g_set_error(error,
+                            LOQUI_TITLE_FORMAT_ERROR,
+                            LOQUI_TITLE_FORMAT_ERROR_UNTERMINATED_FUNCTION_NAME,
+                            "Unterminated function name");
+		return FALSE;
+	}
+	if (!loqui_title_format_validate_symbol_name(func_name)) {
+                g_set_error(error,
+                            LOQUI_TITLE_FORMAT_ERROR,
+                            LOQUI_TITLE_FORMAT_ERROR_INVALID_FUNCTION_NAME,
+                            "Invalid function name: %s", func_name);
+		return FALSE;
+	}
+
 	
-	cur = start; /* "$name(arg1, arg2)" */
-	cur++;       /* "name(arg1, arg2)" */
+	node = tf_item_node_new(LOQUI_TITLE_FORMAT_NODE_FUNCTION, func_name, NULL);
+	g_node_insert_after(parent, sibling, node);
 
-	tmp = cur;
-	if ((cur = strchr(tmp, '(')) == NULL) {
-		g_set_error(error,
-			    LOQUI_TITLE_FORMAT_ERROR,
-			    LOQUI_TITLE_FORMAT_ERROR_UNTERMINATED_FUNCTION_NAME,
-			    "Unterminated function name: %s", tmp);
-		return NULL;
-	}
-	name = g_strndup(tmp, cur - tmp);
-	if (!loqui_title_format_validate_symbol_name(name)) {
-		g_set_error(error,
-			    LOQUI_TITLE_FORMAT_ERROR,
-			    LOQUI_TITLE_FORMAT_ERROR_INVALID_FUNCTION_NAME,
-			    "Invalid function name: %s", name);
-		goto error;
-	}
-	/* cur = "(arg1, arg2)" */
-	while (*cur != ')') {
-		cur++; /* skip ',' (after 2nd loop) or '(' (1st loop) */
-		if(!(buf = loqui_title_format_parse_internal(ltf, cur, ",)", &child_end, TRUE, error))) {
-			goto error;
-		}
-		
-		if (*child_end == '\0') {
+	parent = node;
+	sibling = NULL;
+
+	node = tf_item_node_new(LOQUI_TITLE_FORMAT_NODE_ARGUMENT_HOLDER, NULL, NULL);
+	g_node_insert_after(parent, sibling, node);
+
+	parent = node;
+	sibling = NULL;
+
+	while (TRUE) {
+		if (!loqui_title_format_parse_internal(ltf, st, ",)", &delim, parent, sibling, error))
+			return FALSE;
+
+		if (delim == '\0') {
 			g_set_error(error,
 				    LOQUI_TITLE_FORMAT_ERROR,
 				    LOQUI_TITLE_FORMAT_ERROR_UNTERMINATED_FUNCTION_ARGUMENT,
-				    "Unterminated function argument: %s", cur);
-			goto error;
+				    "Unterminated function argument");
+			return FALSE;
 		}
-		cur = child_end;
-		arg_list = g_list_append(arg_list, buf);
-	}
-	buf = NULL;
-	if (end_pos_ptr != NULL)
-		*end_pos_ptr = (gchar *) cur;
-	
-	func = g_hash_table_lookup(ltf->function_table, name);
-	if (!func) {
-			g_set_error(error,
-				    LOQUI_TITLE_FORMAT_ERROR,
-				    LOQUI_TITLE_FORMAT_ERROR_UNDEFINED_FUNCTION,
-				    "Undefined function: %s", name);
-			goto error;
-	}
-	buf = func(arg_list);
-	return buf;
 
- error:
-	if (name)
-		g_free(name);
-	if (buf)
-		g_free(buf);
-	g_list_foreach(arg_list, (GFunc) g_free, NULL);
-	g_list_free(arg_list);
-	return NULL;
+		if (delim == ',') {
+			tfitem = parent->data;
+			if (tfitem->type != LOQUI_TITLE_FORMAT_NODE_ARGUMENT_HOLDER) {
+				g_set_error(error,
+					    LOQUI_TITLE_FORMAT_ERROR,
+					    LOQUI_TITLE_FORMAT_ERROR_INVALID_INTERNAL_STRUCTURE,
+					    "Parent type is not argument holder");
+				return FALSE;
+			}
+
+			node = tf_item_node_new(LOQUI_TITLE_FORMAT_NODE_ARGUMENT_HOLDER, NULL, NULL);
+			g_node_insert_after(parent->parent, parent, node);
+
+			parent = node;
+			sibling = NULL;
+			continue;
+		}
+
+		if (delim == ')') {
+			tfitem = parent->data;
+			if (tfitem->type != LOQUI_TITLE_FORMAT_NODE_ARGUMENT_HOLDER) {
+				g_set_error(error,
+					    LOQUI_TITLE_FORMAT_ERROR,
+					    LOQUI_TITLE_FORMAT_ERROR_INVALID_INTERNAL_STRUCTURE,
+					    "Parent type is not argument holder");
+				return FALSE;
+			}
+			g_assert(parent->parent != NULL);
+
+			tfitem = parent->parent->data;
+			if (tfitem->type != LOQUI_TITLE_FORMAT_NODE_FUNCTION) {
+				g_set_error(error,
+					    LOQUI_TITLE_FORMAT_ERROR,
+					    LOQUI_TITLE_FORMAT_ERROR_INVALID_INTERNAL_STRUCTURE,
+					    "Grandparent type is not function");
+				return FALSE;
+			}
+			sibling = parent->parent; /* arg->func */
+			parent = parent->parent->parent; /* arg->func->(parent) */
+		}
+		break;
+	}
+
+	return TRUE;
 }
-static gchar *
-loqui_title_format_parse_internal(LoquiTitleFormat *ltf, const gchar *start, const gchar *end_chars, gchar **end_pos_ptr, gboolean is_braced, GError **error)
+/* called at v   (after [)
+            [hogehoge
+*/
+static gboolean
+loqui_title_format_parse_variable_area(LoquiTitleFormat *ltf, LoquiStringTokenizer *st, GNode *parent, GNode *sibling, GError **error)
 {
-	GString *buffer;
-	const gchar *cur, *s;
-	gchar *child_end;
-	gint matched_count = 0;
-	gchar *buf, *name;
+	gchar delim;
+	GNode *node;
 
-	g_return_val_if_fail(ltf != NULL, NULL);
-	g_return_val_if_fail(start != NULL, NULL);
-	g_return_val_if_fail(end_chars != NULL, NULL);
+	node = tf_item_node_new(LOQUI_TITLE_FORMAT_NODE_VARIABLE_AREA, NULL, NULL);
+	g_node_insert_after(parent, sibling, node);
 
-	buffer = g_string_new("");
+	parent = node;
+	sibling = NULL;
 
-	cur = start;
-	while (*cur != '\0') {
-		if (strchr(end_chars, *cur))
+	if (!loqui_title_format_parse_internal(ltf, st, "]", &delim, parent, sibling, error))
+		return FALSE;
+
+	if (delim == '\0') {
+		g_set_error(error,
+			    LOQUI_TITLE_FORMAT_ERROR,
+			    LOQUI_TITLE_FORMAT_ERROR_UNTERMINATED_FUNCTION_ARGUMENT,
+			    "Unterminated variable area");
+		return FALSE;
+	}
+	return TRUE;
+}
+static gboolean
+loqui_title_format_parse_internal(LoquiTitleFormat *ltf, LoquiStringTokenizer *st, gchar *end_chars, gchar *delim_ptr, GNode *parent, GNode *sibling, GError **error)
+{
+	GNode *node;
+	gchar *delimiters;
+	const gchar *token, *text, *var_name;
+	gchar delim, d;
+	
+	/* end_chars is NULL or not */
+	delimiters = g_strconcat("$[%'", end_chars, NULL);
+	loqui_string_tokenizer_set_delimiters(st, delimiters);
+
+	while ((token = loqui_string_tokenizer_next_token(st, &delim)) != NULL) {
+		node = tf_item_node_new(LOQUI_TITLE_FORMAT_NODE_TEXT, NULL, token);
+		g_node_insert_after(parent, sibling, node);
+		sibling = node;
+
+		if (delim == '\0')
 			break;
 
-		switch (*cur) {
+		// when ended with end_chars
+		if (end_chars != NULL &&
+		    strchr(end_chars, delim) != NULL) {
+			if (delim_ptr)
+				*delim_ptr = delim;
+			g_free(delimiters);
+			return TRUE;
+		}
+
+		switch (delim) {
 		case '$':
-			if(!(buf = loqui_title_format_parse_function(ltf, cur, &child_end, error))) {
-				g_string_free(buffer, TRUE);
-				return NULL;
-			}
-			g_string_append(buffer, buf);
-			cur = child_end;
+			if (!loqui_title_format_parse_function(ltf, st, parent, sibling, error))
+				return FALSE;
+
+			loqui_string_tokenizer_set_delimiters(st, delimiters);
 			break;
 		case '[':
-			cur++;
-			if(!(buf = loqui_title_format_parse_internal(ltf, cur, "]", &child_end, TRUE, error))) {
-				g_string_free(buffer, TRUE);
-				return NULL;
-			}
-			g_string_append(buffer, buf);
-			cur = child_end;
+			if (!loqui_title_format_parse_variable_area(ltf, st, parent, sibling, error))
+				return FALSE;
+
+			loqui_string_tokenizer_set_delimiters(st, delimiters);
 			break;
 		case '%':
-			cur++;
-			s = cur;
-			if ((cur = strchr(s, '%')) == NULL) {
+			loqui_string_tokenizer_set_delimiters(st, "%");
+			var_name = loqui_string_tokenizer_next_token(st, &d);
+			if (!var_name || d != '%') {
+				loqui_string_tokenizer_set_delimiters(st, delimiters);
 				g_set_error(error,
-					    LOQUI_TITLE_FORMAT_ERROR,
-					    LOQUI_TITLE_FORMAT_ERROR_UNTERMINATED_VARIABLE,
-					    "Unterminated variable: %%%s", s);
-				g_string_free(buffer, TRUE);
-				return NULL;
+                                            LOQUI_TITLE_FORMAT_ERROR,
+                                            LOQUI_TITLE_FORMAT_ERROR_INVALID_VARIABLE_NAME,
+                                            "Invalid variable name");
+				return FALSE;
 			}
-			name = g_strndup(s, cur - s);
-			if (!loqui_title_format_validate_symbol_name(name)) {
+			if (!loqui_title_format_validate_symbol_name(var_name)) {
+				loqui_string_tokenizer_set_delimiters(st, delimiters);
 				g_set_error(error,
-					    LOQUI_TITLE_FORMAT_ERROR,
-					    LOQUI_TITLE_FORMAT_ERROR_INVALID_VARIABLE_NAME,
-					    "Invalid variable name: %s", name);
-				g_string_free(buffer, TRUE);
-				g_free(name);
-				return NULL;
+                                            LOQUI_TITLE_FORMAT_ERROR,
+                                            LOQUI_TITLE_FORMAT_ERROR_INVALID_VARIABLE_NAME,
+                                            "Invalid variable name: %s", var_name);
+				return FALSE;
 			}
-			buf = g_hash_table_lookup(ltf->variable_table, name);
-			g_free(name);
-			if (buf) {
-				g_string_append(buffer, buf);
-				matched_count++;
-			}
+
+			node = tf_item_node_new(LOQUI_TITLE_FORMAT_NODE_VARIABLE, var_name, NULL);
+			g_node_insert_after(parent, sibling, node);
+
+			sibling = node;
+			loqui_string_tokenizer_set_delimiters(st, delimiters);
 			break;
 		case '\'':
-			s = cur;
-			cur++;
-			if ((cur = strchr(cur, '\'')) == NULL) {
+			loqui_string_tokenizer_set_delimiters(st, "'");
+			text = loqui_string_tokenizer_next_token(st, &d);
+			if (!text || d != '\'') {
+				loqui_string_tokenizer_set_delimiters(st, delimiters);
 				g_set_error(error,
-					    LOQUI_TITLE_FORMAT_ERROR,
-					    LOQUI_TITLE_FORMAT_ERROR_UNTERMINATED_QUOTATION,
-					    "Unterminated quotation %s", s);
-				g_string_free(buffer, TRUE);
-				return NULL;
+                                            LOQUI_TITLE_FORMAT_ERROR,
+                                            LOQUI_TITLE_FORMAT_ERROR_UNTERMINATED_QUOTATION,
+                                            "Unterminated quotation");
+				return FALSE;
 			}
+			
+			
+			node = tf_item_node_new(LOQUI_TITLE_FORMAT_NODE_TEXT, NULL, text);
+			g_node_insert_after(parent, sibling, node);
+			sibling = node;
+
+			loqui_string_tokenizer_set_delimiters(st, delimiters);
 			break;
 		default:
-			g_string_append_c(buffer, *cur);
+			g_assert_not_reached();
 		}
-		cur++;
 	}
 
-	if (end_pos_ptr)
-		*end_pos_ptr = (gchar *) cur;
+	if (delim_ptr)
+		*delim_ptr = delim;
+	g_free(delimiters);
+	return TRUE;
+}
+static void
+tf_free_item(TFItem *item)
+{
+	if (item == NULL)
+		return;
 
-	if (is_braced && matched_count == 0) {
-		g_string_free(buffer, TRUE);
-		return g_strdup("");
+	switch (item->type) {
+	case LOQUI_TITLE_FORMAT_NODE_ROOT:
+	case LOQUI_TITLE_FORMAT_NODE_VARIABLE_AREA:
+	case LOQUI_TITLE_FORMAT_NODE_ARGUMENT_HOLDER:
+		break;
+	case LOQUI_TITLE_FORMAT_NODE_TEXT:
+		g_free(((TFItemText *) item)->text);
+		break;
+	case LOQUI_TITLE_FORMAT_NODE_VARIABLE:
+		g_free(((TFItemVariable *) item)->name);
+		break;
+	case LOQUI_TITLE_FORMAT_NODE_FUNCTION:
+		g_free(((TFItemFunction *) item)->name);
+		break;
+	default:
+		g_assert_not_reached();
 	}
-	return g_string_free(buffer, FALSE);
+	g_free(item);
+}
+static gboolean
+tf_free_node_func(GNode *node, gpointer data)
+{
+	tf_free_item(node->data);
+	return FALSE;
+}
+static void
+tf_free_tree(GNode *node)
+{
+	g_node_traverse(node, G_TRAVERSE_ALL, G_IN_ORDER, -1, tf_free_node_func, NULL);
+	g_node_destroy(node);
+}
+static GNode *
+tf_item_node_new(TFItemType type, const gchar *name, const gchar *text)
+{
+	TFItem *tfitem = NULL;
+
+	switch (type) {
+	case LOQUI_TITLE_FORMAT_NODE_ROOT:
+	case LOQUI_TITLE_FORMAT_NODE_VARIABLE_AREA:
+	case LOQUI_TITLE_FORMAT_NODE_ARGUMENT_HOLDER:
+		tfitem = (TFItem *) g_new0(TFItemType, 1);
+		break;
+	case LOQUI_TITLE_FORMAT_NODE_TEXT:
+		tfitem = (TFItem *) g_new0(TFItemText, 1);
+		((TFItemText *) tfitem)->text = g_strdup(text);
+		break;
+	case LOQUI_TITLE_FORMAT_NODE_VARIABLE:
+		tfitem = (TFItem *) g_new0(TFItemVariable, 1);
+		((TFItemVariable *) tfitem)->name = g_strdup(name);
+		break;
+	case LOQUI_TITLE_FORMAT_NODE_FUNCTION:
+		tfitem = (TFItem *) g_new0(TFItemFunction, 1);
+		((TFItemFunction *) tfitem)->name = g_strdup(name);
+		break;
+	default:
+		g_assert_not_reached();
+	}
+
+	tfitem->type = type;
+	return g_node_new(tfitem);
 }
 GQuark
 loqui_title_format_error_quark(void)
 {
-	static GQuark quark = 0;
-	if (!quark)
-		quark = g_quark_from_static_string("loqui-title-format-error-quark");
+        static GQuark quark = 0;
+        if (!quark)
+                quark = g_quark_from_static_string("loqui-title-format-error-quark");
 
-	return quark;
+        return quark;
 }
-
 LoquiTitleFormat *
 loqui_title_format_new(void)
 {
@@ -244,6 +413,102 @@ loqui_title_format_new(void)
 	ltf->function_table = g_hash_table_new_full(g_str_hash, g_str_equal, (GDestroyNotify) g_free, NULL);
 	ltf->variable_table = g_hash_table_new_full(g_str_hash, g_str_equal, (GDestroyNotify) g_free, (GDestroyNotify) g_free);
 	return ltf;
+}
+gboolean
+loqui_title_format_parse(LoquiTitleFormat *ltf, const gchar *str, GError **error)
+{
+	GNode *parent, *sibling;
+	LoquiStringTokenizer *st;
+	gboolean result;
+
+	g_return_val_if_fail(ltf != NULL, FALSE);
+
+	if (ltf->root)
+		tf_free_tree(ltf->root);
+
+	parent = tf_item_node_new(LOQUI_TITLE_FORMAT_NODE_ROOT, NULL, NULL);
+	sibling = NULL;
+
+	ltf->root = parent;
+
+	st = loqui_string_tokenizer_new(str, "");
+	result = loqui_title_format_parse_internal(ltf, st, NULL, NULL, parent, sibling, error);
+	loqui_string_tokenizer_free(st);
+	if (!result && ltf->root)
+		tf_free_tree(ltf->root);
+
+	return result;
+}
+static void
+loqui_title_format_fetch_variable_area(LoquiTitleFormat *ltf, GNode *node, GString *string)
+{
+	GString *string_child;
+	gboolean var_set = FALSE;
+
+	string_child = g_string_new(NULL);
+	loqui_title_format_fetch_internal(ltf, node->children, string_child, &var_set);
+	if (var_set && string_child->str != NULL)
+		g_string_append(string, string_child->str);
+	g_string_free(string_child, TRUE);
+}
+static void
+loqui_title_format_fetch_internal(LoquiTitleFormat *ltf, GNode *node, GString *string, gboolean *var_set)
+{
+	GNode *cur;
+	TFItem *tfitem;
+	gchar *buf;
+	
+	for (cur = node; cur != NULL; cur = cur->next) {
+		tfitem = cur->data;
+
+		switch (tfitem->type) {
+		case LOQUI_TITLE_FORMAT_NODE_ROOT:
+			/* g_print("Parse: Node\n"); */
+			loqui_title_format_fetch_internal(ltf, cur->children, string, NULL);
+			break;
+		case LOQUI_TITLE_FORMAT_NODE_VARIABLE_AREA:
+			/* g_print("Parse: VariableArea\n"); */
+			loqui_title_format_fetch_variable_area(ltf, cur, string);
+			break;
+		case LOQUI_TITLE_FORMAT_NODE_ARGUMENT_HOLDER:
+			/* g_print("Parse: ArgumentHolder\n"); */
+			g_assert(FALSE);
+			break;
+		case LOQUI_TITLE_FORMAT_NODE_TEXT:
+			/* g_print("Parse: Text: %s\n", ((TFItemText *) tfitem)->text); */
+			g_string_append(string, ((TFItemText *) tfitem)->text);
+			break;
+		case LOQUI_TITLE_FORMAT_NODE_VARIABLE:
+			/* g_print("Parse: Variable: %s\n", ((TFItemVariable *) tfitem)->name); */
+			buf = g_hash_table_lookup(ltf->variable_table, ((TFItemVariable *) tfitem)->name);
+			if (buf) {
+				if (var_set)
+					*var_set = TRUE;
+				g_string_append(string, buf);
+			}
+			break;
+		case LOQUI_TITLE_FORMAT_NODE_FUNCTION:
+			/* g_print("Parse: Function: %s\n", ((TFItemFunction *) tfitem)->name); */
+			g_assert(FALSE);
+			break;
+		default:
+			/* g_print("Parse: Unknown (%d)\n", tfitem->type); */
+			g_assert_not_reached();
+		}
+	}
+}
+gchar *
+loqui_title_format_fetch(LoquiTitleFormat *ltf)
+{
+	GString *string;
+	g_return_val_if_fail(ltf != NULL, NULL);
+
+	if (!ltf->root)
+		return NULL;
+
+	string = g_string_new(NULL);
+	loqui_title_format_fetch_internal(ltf, ltf->root, string, NULL);
+	return g_string_free(string, FALSE);
 }
 void
 loqui_title_format_register_function(LoquiTitleFormat *ltf, const gchar *name, LoquiTitleFormatFunction *func)
@@ -265,15 +530,12 @@ loqui_title_format_register_variable(LoquiTitleFormat *ltf, const gchar *name, c
 	else
 		g_hash_table_remove(ltf->variable_table, name);
 }
-gchar *
-loqui_title_format_parse(LoquiTitleFormat *ltf, const gchar *str, GError **error)
-{
-	return loqui_title_format_parse_internal(ltf, str, "", NULL, FALSE, error);
-}
 void
 loqui_title_format_free(LoquiTitleFormat *ltf)
 {
 	g_hash_table_destroy(ltf->variable_table);
 	g_hash_table_destroy(ltf->function_table);
+	if (ltf->root)
+		tf_free_tree(ltf->root);
 	g_free(ltf);
 }
