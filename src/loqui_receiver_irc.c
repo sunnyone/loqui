@@ -1359,6 +1359,15 @@ loqui_receiver_irc_reply(LoquiReceiverIRC *receiver, IRCMessage *msg)
 	case IRC_RPL_ISON:
 		loqui_receiver_irc_account_console_append(receiver, msg, TEXT_TYPE_INFO, _("Ison: %*2"));
 		return TRUE;
+	case IRC_RPL_LISTSTART:
+		loqui_receiver_irc_account_console_append(receiver, msg, TEXT_TYPE_INFO, _("Channel List: Name(Users) Topic"));
+		return TRUE;
+	case IRC_RPL_LIST:
+		loqui_receiver_irc_account_console_append(receiver, msg, TEXT_TYPE_NORMAL, _("%2(%3)\t%4"));
+		return TRUE;
+	case IRC_RPL_LISTEND:
+		loqui_receiver_irc_account_console_append(receiver, msg, TEXT_TYPE_INFO, _("%t"));
+		return TRUE;
 	default:
 		break;
 	}
