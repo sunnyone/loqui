@@ -23,6 +23,7 @@
 #include "intl.h"
 #include "gtkutils.h"
 #include "account_manager.h"
+#include "utils.h"
 
 struct _AccountDialogPrivate
 {
@@ -475,4 +476,61 @@ account_dialog_new(Account *account)
 	priv->account = account;
 
 	return GTK_WIDGET(dialog);
+}
+
+void
+account_dialog_open_add_dialog(GtkWindow *parent)
+{
+	AccountDialog *dialog;
+	Account *account;
+	gint response;
+
+	account = account_new();
+	dialog = ACCOUNT_DIALOG(account_dialog_new(account));
+	gtk_window_set_transient_for(GTK_WINDOW(dialog), parent);
+	response = gtk_dialog_run(GTK_DIALOG(dialog));
+	gtk_widget_destroy(GTK_WIDGET(dialog));
+
+	if(response == GTK_RESPONSE_OK) {
+		account_manager_add_account(account_manager_get(), account);
+		account_manager_save_accounts(account_manager_get());
+	} else {
+		g_object_unref(account);
+	}
+}
+
+void
+account_dialog_open_configure_dialog(GtkWindow *parent, Account *account)
+{
+	GtkWidget *dialog;
+
+	dialog = account_dialog_new(account);
+	gtk_window_set_transient_for(GTK_WINDOW(dialog), parent);
+	gtk_dialog_run(GTK_DIALOG(dialog));
+	gtk_widget_destroy(dialog);
+
+	account_manager_update_account(account_manager_get(), account);
+	account_manager_save_accounts(account_manager_get());
+}
+
+void
+account_dialog_open_remove_dialog(GtkWindow *parent, Account *account)
+{
+	GtkWidget *dialog;
+	gint response;
+
+	dialog = gtk_message_dialog_new(parent,
+					GTK_DIALOG_DESTROY_WITH_PARENT,
+					GTK_MESSAGE_WARNING,
+					GTK_BUTTONS_YES_NO,
+					_("This account's configuration and connection will be removed.\n"
+					  "Do you really want to remove this account?"));
+	response = gtk_dialog_run(GTK_DIALOG(dialog));
+	gtk_widget_destroy(dialog);
+
+	if(response == GTK_RESPONSE_YES) {
+		account_manager_remove_account(account_manager_get(), account);
+		account_manager_save_accounts(account_manager_get());
+		debug_puts("Removed account.");
+	}
 }

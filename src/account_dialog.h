@@ -54,6 +54,10 @@ GtkType account_dialog_get_type (void) G_GNUC_CONST;
 
 GtkWidget* account_dialog_new(Account *account);
 
+void account_dialog_open_add_dialog(GtkWindow *parent);
+void account_dialog_open_configure_dialog(GtkWindow *parent, Account *account);
+void account_dialog_open_remove_dialog(GtkWindow *parent, Account *account);
+
 G_END_DECLS
 
 #endif /* __ACCOUNT_DIALOG_H__ */

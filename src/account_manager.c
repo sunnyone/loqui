@@ -50,10 +50,6 @@ static void account_manager_init(AccountManager *account_manager);
 static void account_manager_finalize(GObject *object);
 /* static Account* account_manager_search_account(AccountManager *manager, Channel *channel); */
 
-static void account_manager_add_account(AccountManager *manager, Account *account);
-static void account_manager_update_account(AccountManager *manager, Account *account);
-static void account_manager_remove_account(AccountManager *manager, Account *account);
-
 static AccountManager *main_account_manager = NULL;
 
 GType
@@ -140,7 +136,7 @@ account_manager_new (void)
 	return account_manager;
 }
 
-static void
+void
 account_manager_add_account(AccountManager *manager, Account *account)
 {
 	AccountManagerPrivate *priv;
@@ -157,7 +153,7 @@ account_manager_add_account(AccountManager *manager, Account *account)
 
 	loqui_menu_update_connect_submenu(priv->app->menu, priv->account_list);
 }
-static void
+void
 account_manager_remove_account(AccountManager *manager, Account *account)
 {
 	AccountManagerPrivate *priv;
@@ -175,7 +171,7 @@ account_manager_remove_account(AccountManager *manager, Account *account)
 
 	loqui_menu_update_connect_submenu(priv->app->menu, priv->account_list);
 }
-static void
+void
 account_manager_update_account(AccountManager *manager, Account *account)
 {
 	AccountManagerPrivate *priv;
@@ -505,79 +501,7 @@ void account_manager_open_account_list_dialog(AccountManager *manager)
 
 	account_list_dialog_open(GTK_WINDOW(manager->priv->app));
 }
-void
-account_manager_add_account_with_dialog(AccountManager *manager)
-{
-	AccountDialog *dialog;
-	Account *account;
-	gint response;
 
-	g_return_if_fail(manager != NULL);
-        g_return_if_fail(IS_ACCOUNT_MANAGER(manager));
-
-	account = account_new();
-	dialog = ACCOUNT_DIALOG(account_dialog_new(account));
-	response = gtk_dialog_run(GTK_DIALOG(dialog));
-	gtk_widget_destroy(GTK_WIDGET(dialog));
-
-	switch(response) {
-	case GTK_RESPONSE_OK:
-		account_manager_add_account(manager, account);
-		break;
-	default:
-		g_object_unref(account);
-		break;
-	}
-	account_manager_save_accounts(manager);
-}
-
-void
-account_manager_configure_account_with_dialog(AccountManager *manager, Account *account)
-{
-	GtkWidget *dialog;
-	g_return_if_fail(manager != NULL);
-        g_return_if_fail(IS_ACCOUNT_MANAGER(manager));
-	
-	dialog = account_dialog_new(account);
-	gtk_dialog_run(GTK_DIALOG(dialog));
-	gtk_widget_destroy(dialog);
-
-	account_manager_update_account(manager, account);
-
-	account_manager_save_accounts(manager);
-}
-
-void
-account_manager_remove_account_with_dialog(AccountManager *manager, Account *account)
-{
-	GtkWidget *dialog;
-	gint response;
-
-	g_return_if_fail(manager != NULL);
-        g_return_if_fail(IS_ACCOUNT_MANAGER(manager));
-	
-	dialog = gtk_message_dialog_new(GTK_WINDOW(manager->priv->app),
-					GTK_DIALOG_DESTROY_WITH_PARENT,
-					GTK_MESSAGE_WARNING,
-					GTK_BUTTONS_YES_NO,
-					_("This account's configuration and connection will be removed.\n"
-					  "Do you really want to remove this account?"));
-
-	response = gtk_dialog_run(GTK_DIALOG(dialog));
-	gtk_widget_destroy(dialog);
-	switch(response) {
-
-	case GTK_RESPONSE_YES:
-		account_manager_remove_account(manager, account);
-		account_manager_save_accounts(manager);
-		debug_puts("Removed account.");
-		break;
-	default:
-		break;
-	}
-	account_manager_save_accounts(manager);
-
-}
 void
 account_manager_set_whether_scrolling(AccountManager *manager, gboolean is_scroll)
 {

@@ -20,6 +20,7 @@
 #include "config.h"
 
 #include "account_list_dialog.h"
+#include "account_dialog.h"
 #include "account_manager.h"
 #include "intl.h"
 #include "utils.h"
@@ -185,7 +186,7 @@ account_list_dialog_add_cb(GtkWidget *widget, AccountListDialog *dialog)
         g_return_if_fail(dialog != NULL);
         g_return_if_fail(IS_ACCOUNT_LIST_DIALOG(dialog));
 
-	account_manager_add_account_with_dialog(account_manager_get());
+	account_dialog_open_add_dialog(GTK_WINDOW(dialog));
 	account_list_dialog_construct_list(dialog);
 }
 static void
@@ -200,7 +201,7 @@ account_list_dialog_remove_cb(GtkWidget *widget, AccountListDialog *dialog)
 	if(!account)
 		return;
 
-	account_manager_remove_account_with_dialog(account_manager_get(), account);
+	account_dialog_open_remove_dialog(GTK_WINDOW(dialog), account);
 	account_list_dialog_construct_list(dialog);
 }
 static void
@@ -215,7 +216,7 @@ account_list_dialog_properties_cb(GtkWidget *widget, AccountListDialog *dialog)
 	if(!account)
 		return;
 
-	account_manager_configure_account_with_dialog(account_manager_get(), account); 
+	account_dialog_open_remove_dialog(GTK_WINDOW(dialog), account);
 	account_list_dialog_construct_list(dialog);
 }
 

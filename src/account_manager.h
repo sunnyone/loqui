@@ -58,6 +58,10 @@ AccountManager *account_manager_get(void);
 void account_manager_load_accounts(AccountManager *account_manager);
 void account_manager_save_accounts(AccountManager *account_manager);
 
+void account_manager_add_account(AccountManager *manager, Account *account);
+void account_manager_update_account(AccountManager *manager, Account *account);
+void account_manager_remove_account(AccountManager *manager, Account *account);
+
 void account_manager_add_channel(AccountManager *manager, Account *account, Channel *channel);
 void account_manager_remove_channel(AccountManager *manager, Account *account, Channel *channel);
 
@@ -83,10 +87,6 @@ void account_manager_remove_channels_of_account(AccountManager *manager, Account
 void account_manager_disconnect_all(AccountManager *manager);
 
 void account_manager_open_account_list_dialog(AccountManager *manager);
-
-void account_manager_add_account_with_dialog(AccountManager *manager);
-void account_manager_configure_account_with_dialog(AccountManager *manager, Account *account);
-void account_manager_remove_account_with_dialog(AccountManager *manager, Account *account);
 
 GSList *account_manager_get_account_list(AccountManager *manager);
 
