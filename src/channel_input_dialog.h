@@ -23,6 +23,7 @@
 #include <gtk/gtk.h>
 
 #include "account.h"
+#include "account_manager.h"
 
 G_BEGIN_DECLS
 
@@ -37,6 +38,8 @@ typedef struct _ChannelInputDialog            ChannelInputDialog;
 typedef struct _ChannelInputDialogClass       ChannelInputDialogClass;
 
 typedef struct _ChannelInputDialogPrivate     ChannelInputDialogPrivate;
+
+#include "loqui_app.h"
 
 typedef enum {
 	CHANNEL_HISTORY_NONE,
@@ -67,7 +70,7 @@ struct _ChannelInputDialogClass
 
 GtkType channel_input_dialog_get_type (void) G_GNUC_CONST;
 
-GtkWidget* channel_input_dialog_new (void);
+GtkWidget* channel_input_dialog_new(AccountManager *manager);
 
 void channel_input_dialog_set_account(ChannelInputDialog *dialog, Account *account);
 Account *channel_input_dialog_get_account(ChannelInputDialog *dialog);
@@ -75,7 +78,7 @@ Account *channel_input_dialog_get_account(ChannelInputDialog *dialog);
 void channel_input_dialog_set_channel_history_type(ChannelInputDialog *dialog,
 						   ChannelHistoryType history_type);
 ChannelHistoryType channel_input_dialog_get_channel_history_type(ChannelInputDialog *dialog);
-void channel_input_dialog_open(GtkWindow *parent_window, 
+void channel_input_dialog_open(LoquiApp *app,
 			       const gchar *title, const gchar *info_label,
 			       ChannelHistoryType history_type, 
 			       ChannelInputFunc func, gpointer data,

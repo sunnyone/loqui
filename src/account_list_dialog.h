@@ -21,6 +21,7 @@
 #define __ACCOUNT_LIST_DIALOG_H__
 
 #include <gtk/gtk.h>
+#include "account_manager.h"
 
 G_BEGIN_DECLS
 
@@ -51,10 +52,10 @@ struct _AccountListDialogClass
 
 GtkType account_list_dialog_get_type (void) G_GNUC_CONST;
 
-GtkWidget* account_list_dialog_new (void);
+GtkWidget* account_list_dialog_new(AccountManager *manager);
 
-void account_list_dialog_open(GtkWindow *parent);
-void account_list_dialog_open_for_connect(GtkWindow *parent);
+void account_list_dialog_open(GtkWindow *parent, AccountManager *manager);
+void account_list_dialog_open_for_connect(GtkWindow *parent, AccountManager *manager);
 
 G_END_DECLS
 

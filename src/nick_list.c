@@ -29,6 +29,8 @@
 
 struct _NickListPrivate
 {
+	LoquiApp *app;
+
 	GdkPixbuf *op_icon;
 	GdkPixbuf *speak_ability_icon;
 
@@ -303,12 +305,15 @@ static void
 nick_list_menu_start_private_talk_cb(gpointer data, guint action, GtkWidget *widget)
 {
 	NickList *nick_list;
+	NickListPrivate *priv;
 	GSList *str_list, *cur;
 	Account *account;
 
 	nick_list = NICK_LIST(data);
 
-	account = account_manager_get_current_account(account_manager_get());
+	priv = nick_list->priv;
+
+	account = account_manager_get_current_account(loqui_app_get_account_manager(priv->app));
 	if(!account)
 		return;
 
@@ -323,12 +328,14 @@ static void
 nick_list_menu_whois_cb(gpointer data, guint action, GtkWidget *widget)
 {
 	NickList *nick_list;
+	NickListPrivate *priv;
 	GSList *str_list, *cur;
 	Account *account;
 
 	nick_list = NICK_LIST(data);
+	priv = nick_list->priv;
 
-	account = account_manager_get_current_account(account_manager_get());
+	account = account_manager_get_current_account(loqui_app_get_account_manager(priv->app));
 	if(!account)
 		return;
 
@@ -343,11 +350,14 @@ static void
 nick_list_menu_mode_give_cb(gpointer data, guint action, GtkWidget *widget)
 {
 	NickList *nick_list;
+	NickListPrivate *priv;
 	GSList *str_list, *cur;
 	Channel *channel;
 
 	nick_list = NICK_LIST(data);
-	channel = account_manager_get_current_channel(account_manager_get());
+	priv = nick_list->priv;
+
+	channel = account_manager_get_current_channel(loqui_app_get_account_manager(priv->app));
 	if(!channel)
 		return;
 
@@ -364,11 +374,14 @@ static void
 nick_list_menu_mode_deprive_cb(gpointer data, guint action, GtkWidget *widget)
 {
 	NickList *nick_list;
+	NickListPrivate *priv;
 	GSList *str_list, *cur;
 	Channel *channel;
 
 	nick_list = NICK_LIST(data);
-	channel = account_manager_get_current_channel(account_manager_get());
+	priv = nick_list->priv;
+
+	channel = account_manager_get_current_channel(loqui_app_get_account_manager(priv->app));
 	if(!channel)
 		return;
 
@@ -384,13 +397,15 @@ static void
 nick_list_menu_ctcp_cb(gpointer data, guint action, GtkWidget *widget)
 {
 	NickList *nick_list;
+	NickListPrivate *priv;
 	GSList *str_list, *cur;
 	gchar *command = NULL;
 	Account *account;
 
 	nick_list = NICK_LIST(data);
+	priv = nick_list->priv;
 
-	account = account_manager_get_current_account(account_manager_get());
+	account = account_manager_get_current_account(loqui_app_get_account_manager(priv->app));
 	if(!account)
 		return;
 
@@ -474,6 +489,9 @@ static void nick_list_row_activated_cb(NickList *list, GtkTreePath *path, GtkTre
 	GtkTreeModel *model;
 	const gchar *nick;
 	Account *account;
+	NickListPrivate *priv;
+
+	priv = list->priv;
 
 	model = gtk_tree_view_get_model(GTK_TREE_VIEW(list));
 	if(!gtk_tree_model_get_iter(model, &iter, path)) {
@@ -481,14 +499,14 @@ static void nick_list_row_activated_cb(NickList *list, GtkTreePath *path, GtkTre
 	}
 	gtk_tree_model_get(model, &iter, USERLIST_COLUMN_NICK, &nick, -1);
 
-	account = account_manager_get_current_account(account_manager_get());
+	account = account_manager_get_current_account(loqui_app_get_account_manager(priv->app));
 	if(!account)
 		return;
 
 	account_start_private_talk(account, nick);
 }
 GtkWidget*
-nick_list_new(void)
+nick_list_new(LoquiApp *app)
 {
         NickList *list;
 	NickListPrivate *priv;
@@ -499,6 +517,7 @@ nick_list_new(void)
 	list = g_object_new(nick_list_get_type(), NULL);
 
 	priv = list->priv;
+	priv->app = app;
 
 	nick_list_create_icons(list);
 /*	gtk_tree_view_set_headers_clickable(GTK_TREE_VIEW(list), TRUE); */

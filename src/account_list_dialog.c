@@ -27,6 +27,8 @@
 
 struct _AccountListDialogPrivate
 {
+	AccountManager *manager;
+
 	GtkWidget *treeview;
 	GtkWidget *add_button;
 	GtkWidget *property_button;
@@ -153,7 +155,7 @@ account_list_dialog_construct_list(AccountListDialog *dialog)
 						      TYPE_ACCOUNT);
 	}
 
-	account_list = account_manager_get_account_list(account_manager_get());
+	account_list = account_manager_get_account_list(priv->manager);
 	for(cur = account_list; cur != NULL; cur = cur->next) {
 		account = ACCOUNT(cur->data);
 
@@ -220,7 +222,7 @@ account_list_dialog_add_cb(GtkWidget *widget, AccountListDialog *dialog)
         g_return_if_fail(dialog != NULL);
         g_return_if_fail(IS_ACCOUNT_LIST_DIALOG(dialog));
 
-	account_dialog_open_add_dialog(GTK_WINDOW(dialog));
+	account_dialog_open_add_dialog(GTK_WINDOW(dialog), dialog->priv->manager);
 	account_list_dialog_construct_list(dialog);
 }
 static void
@@ -235,7 +237,7 @@ account_list_dialog_remove_cb(GtkWidget *widget, AccountListDialog *dialog)
 	if(!account)
 		return;
 
-	account_dialog_open_remove_dialog(GTK_WINDOW(dialog), account);
+	account_dialog_open_remove_dialog(GTK_WINDOW(dialog), dialog->priv->manager, account);
 	account_list_dialog_construct_list(dialog);
 }
 static void
@@ -250,7 +252,7 @@ account_list_dialog_properties_cb(GtkWidget *widget, AccountListDialog *dialog)
 	if(!account)
 		return;
 
-	account_dialog_open_configure_dialog(GTK_WINDOW(dialog), account);
+	account_dialog_open_configure_dialog(GTK_WINDOW(dialog), dialog->priv->manager, account);
 	account_list_dialog_construct_list(dialog);
 }
 static void
@@ -270,7 +272,7 @@ account_list_update_button_status(AccountListDialog *dialog, GtkTreeSelection *s
 	gtk_widget_set_sensitive(priv->remove_button, account_editable);
 }
 GtkWidget*
-account_list_dialog_new(void)
+account_list_dialog_new(AccountManager *manager)
 {
         AccountListDialog *dialog;
 	AccountListDialogPrivate *priv;
@@ -284,6 +286,7 @@ account_list_dialog_new(void)
 	dialog = g_object_new(account_list_dialog_get_type(), NULL);
 	
 	priv = dialog->priv;
+	priv->manager = manager;
 
 	gtk_window_set_title(GTK_WINDOW(dialog), _("Account List"));
 	/* TODO: destroy with parent window */
@@ -341,17 +344,17 @@ account_list_dialog_new(void)
 }
 
 void 
-account_list_dialog_open(GtkWindow *parent)
+account_list_dialog_open(GtkWindow *parent, AccountManager *manager)
 {
 	GtkWidget *dialog;
 
-	dialog = account_list_dialog_new();
+	dialog = account_list_dialog_new(manager);
 	gtk_window_set_transient_for(GTK_WINDOW(dialog), parent);
 	gtk_dialog_run(GTK_DIALOG(dialog));
 	gtk_widget_destroy(dialog);
 }
 void
-account_list_dialog_open_for_connect(GtkWindow *parent)
+account_list_dialog_open_for_connect(GtkWindow *parent, AccountManager *manager)
 {
 	GtkWidget *dialog;
 	GList *ac_list;
@@ -360,7 +363,7 @@ account_list_dialog_open_for_connect(GtkWindow *parent)
 	GtkTreeModel *model;
 	Account *account;
 	
-	dialog = account_list_dialog_new();
+	dialog = account_list_dialog_new(manager);
 	gtk_window_set_transient_for(GTK_WINDOW(dialog), parent);
 
 	gtk_dialog_add_button(GTK_DIALOG(dialog), 

@@ -17,13 +17,11 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
+
 #ifndef __LOQUI_APP_H__
 #define __LOQUI_APP_H__
 
 #include <gtk24backports.h>
-#include "channel_tree.h"
-#include "nick_list.h"
-
 G_BEGIN_DECLS
 
 #define LOQUI_TYPE_APP                 (loqui_app_get_type ())
@@ -38,11 +36,17 @@ typedef struct _LoquiAppClass       LoquiAppClass;
 
 typedef struct _LoquiAppPrivate     LoquiAppPrivate;
 
+#include "nick_list.h"
+#include "channel_tree.h"
+#include "account_manager.h"
+
 struct _LoquiApp
 {
         GtkWindow parent;
 
         LoquiAppPrivate *priv;
+
+	AccountManager *account_manager;
 
 	/* cache, use action to set */
 	gboolean is_scroll;
@@ -91,6 +95,8 @@ void loqui_app_scroll_page_common_buffer(LoquiApp *app, gint pages);
 
 void loqui_app_get_current_widget_editing_status(LoquiApp *app, gboolean *cutable, gboolean *copiable, gboolean *pastable,
 						 gboolean *clearable, gboolean *findable);
+
+AccountManager *loqui_app_get_account_manager(LoquiApp *app);
 
 G_END_DECLS
 

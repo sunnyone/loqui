@@ -341,7 +341,7 @@ account_dialog_new(LoquiProfileAccount *profile)
 }
 
 void
-account_dialog_open_add_dialog(GtkWindow *parent)
+account_dialog_open_add_dialog(GtkWindow *parent, AccountManager *manager)
 {
 	AccountDialog *dialog;
 	LoquiProfileAccount *profile;
@@ -357,15 +357,15 @@ account_dialog_open_add_dialog(GtkWindow *parent)
 	if (response == GTK_RESPONSE_OK) {
 		account = account_new();
 		account_set_profile(account, profile);
-		account_manager_add_account(account_manager_get(), account);
-		account_manager_save_accounts(account_manager_get());
+		account_manager_add_account(manager, account);
+		account_manager_save_accounts(manager);
 	} else {
 		g_object_unref(profile);
 	}
 }
 
 void
-account_dialog_open_configure_dialog(GtkWindow *parent, Account *account)
+account_dialog_open_configure_dialog(GtkWindow *parent, AccountManager *manager, Account *account)
 {
 	GtkWidget *dialog;
 	
@@ -374,12 +374,12 @@ account_dialog_open_configure_dialog(GtkWindow *parent, Account *account)
 	gtk_dialog_run(GTK_DIALOG(dialog));
 	gtk_widget_destroy(dialog);
 
-	account_manager_update_account(account_manager_get(), account);
-	account_manager_save_accounts(account_manager_get());
+	account_manager_update_account(manager, account);
+	account_manager_save_accounts(manager);
 }
 
 void
-account_dialog_open_remove_dialog(GtkWindow *parent, Account *account)
+account_dialog_open_remove_dialog(GtkWindow *parent, AccountManager *manager, Account *account)
 {
 	GtkWidget *dialog;
 	gint response;
@@ -394,8 +394,8 @@ account_dialog_open_remove_dialog(GtkWindow *parent, Account *account)
 	gtk_widget_destroy(dialog);
 
 	if (response == GTK_RESPONSE_YES) {
-		account_manager_remove_account(account_manager_get(), account);
-		account_manager_save_accounts(account_manager_get());
+		account_manager_remove_account(manager, account);
+		account_manager_save_accounts(manager);
 		debug_puts("Removed account.");
 	}
 }

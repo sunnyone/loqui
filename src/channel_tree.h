@@ -17,10 +17,11 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
-#ifndef __CHANNEL_TREE_H__
-#define __CHANNEL_TREE_H__
 
 #include <gtk/gtk.h>
+
+#ifndef __CHANNEL_TREE_H__
+#define __CHANNEL_TREE_H__
 
 #include "account.h"
 #include "channel.h"
@@ -39,6 +40,8 @@ typedef struct _ChannelTreeClass       ChannelTreeClass;
 
 typedef struct _ChannelTreePrivate     ChannelTreePrivate;
 
+#include "loqui_app.h"
+
 struct _ChannelTree
 {
         GtkTreeView parent;
@@ -54,7 +57,7 @@ struct _ChannelTreeClass
 
 GtkType channel_tree_get_type(void) G_GNUC_CONST;
 
-GtkWidget* channel_tree_new(void);
+GtkWidget* channel_tree_new(LoquiApp *app);
 
 void channel_tree_add_account(ChannelTree *tree, Account *account);
 void channel_tree_update_account(ChannelTree *tree, Account *account);

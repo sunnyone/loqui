@@ -27,6 +27,8 @@
 
 struct _LoquiChannelbarPrivate
 {
+	LoquiApp *app;
+
 	GtkWidget *option_menu;
 	GtkWidget *label_channel_mode;
 	GtkWidget *label_user_number;
@@ -137,7 +139,7 @@ loqui_channelbar_entry_topic_activated_cb(GtkWidget *widget, gpointer data)
 	if(!priv->entry_changed)
 		return;
 	
-	channel = account_manager_get_current_channel(account_manager_get());
+	channel = account_manager_get_current_channel(loqui_app_get_account_manager(priv->app));
 	str = gtk_entry_get_text(GTK_ENTRY(priv->entry_topic));
 	account_set_topic(channel->account, channel_get_name(channel), str);
 }
@@ -178,17 +180,17 @@ loqui_channelbar_option_changed_cb(GtkWidget *widget, gpointer data)
 		return;
 	channel = g_object_get_data(G_OBJECT(menuitem), "channel");
 	if(channel) {
-		account_manager_set_current_channel(account_manager_get(), channel);
+		account_manager_set_current_channel(loqui_app_get_account_manager(priv->app), channel);
 		return;
 	}
 	account = g_object_get_data(G_OBJECT(menuitem), "account");
 	if(account) {
-		account_manager_set_current_account(account_manager_get(), account);
+		account_manager_set_current_account(loqui_app_get_account_manager(priv->app), account);
 		return;
 	}	
 }
 GtkWidget*
-loqui_channelbar_new (void)
+loqui_channelbar_new(LoquiApp *app)
 {
         LoquiChannelbar *channelbar;
 	LoquiChannelbarPrivate *priv;
@@ -198,6 +200,7 @@ loqui_channelbar_new (void)
 	channelbar = g_object_new(loqui_channelbar_get_type(), NULL);
 	
 	priv = channelbar->priv;
+	priv->app = app;
 
 	priv->option_menu = gtk_option_menu_new();
 

@@ -28,6 +28,8 @@
 
 struct _ChannelTreePrivate
 {
+	LoquiApp *app;
+
 	guint selection_changed_signal_id;
 };
 
@@ -136,11 +138,19 @@ channel_tree_row_activated_cb(ChannelTree *tree, GtkTreePath *path, GtkTreeViewC
 static void
 channel_tree_row_selected_cb(GtkTreeSelection *selection, gpointer data)
 {
+	ChannelTree *tree;
+	ChannelTreePrivate *priv;
 	GtkTreeIter iter;
 	GtkTreeModel *model;
 	Account *account;
 	Channel *channel;
 	
+        g_return_if_fail(data != NULL);
+        g_return_if_fail(IS_CHANNEL_TREE(data));
+
+	tree = CHANNEL_TREE(data);
+	priv = tree->priv;
+
 	if(!gtk_tree_selection_get_selected(selection, &model, &iter))
 		return;
 
@@ -150,12 +160,14 @@ channel_tree_row_selected_cb(GtkTreeSelection *selection, gpointer data)
 			   -1);
 
 	if(account)
-		account_manager_set_current_account(account_manager_get(), account);
+		account_manager_set_current_account(loqui_app_get_account_manager(priv->app), account);
 	else if(channel)
-		account_manager_set_current_channel(account_manager_get(), channel);
+		account_manager_set_current_channel(loqui_app_get_account_manager(priv->app), channel);
+
+	gtk_widget_grab_focus(priv->app->remark_entry);
 }
 GtkWidget*
-channel_tree_new(void)
+channel_tree_new(LoquiApp *app)
 {
         ChannelTree *tree;
 	ChannelTreePrivate *priv;
@@ -167,6 +179,7 @@ channel_tree_new(void)
 	tree = g_object_new(channel_tree_get_type(), NULL);
 
 	priv = tree->priv;
+	priv->app = app;
 
         gtk_tree_view_set_headers_visible(GTK_TREE_VIEW(tree), FALSE);
 	selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(tree));

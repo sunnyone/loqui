@@ -21,11 +21,12 @@
 #define __COMMAND_DIALOG_H__
 
 #include "account.h"
+#include "loqui_app.h"
 
-void command_dialog_join(GtkWindow *parent_window, Account *account);
-void command_dialog_part(GtkWindow *parent_window, Account *account, Channel *channel);
-void command_dialog_topic(GtkWindow *parent_window, Account *account, Channel *channel);
-void command_dialog_nick(GtkWindow *parent_window, Account *account);
-void command_dialog_private_talk(GtkWindow *parent_window, Account *account);
+void command_dialog_join(LoquiApp *app, Account *account);
+void command_dialog_part(LoquiApp *app, Account *account, Channel *channel);
+void command_dialog_topic(LoquiApp *app, Account *account, Channel *channel);
+void command_dialog_nick(LoquiApp *app, Account *account);
+void command_dialog_private_talk(LoquiApp *app, Account *account);
 
 #endif /* __COMMAND_DIALOG_H__ */

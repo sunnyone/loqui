@@ -166,7 +166,7 @@ channel_input_dialog_entry_activated_cb(GtkWidget *widget, gpointer data)
 }
 
 GtkWidget*
-channel_input_dialog_new(void)
+channel_input_dialog_new(AccountManager *manager)
 {
         ChannelInputDialog *dialog;
 	ChannelInputDialogPrivate *priv;
@@ -209,7 +209,7 @@ channel_input_dialog_new(void)
 	menu = gtk_menu_new();
 	gtk_option_menu_set_menu(GTK_OPTION_MENU(dialog->option_menu), menu);
 
-	account_list = account_manager_get_account_list(account_manager_get());
+	account_list = account_manager_get_account_list(manager);
 	for(cur = account_list; cur != NULL; cur = cur->next) {
 		account = ACCOUNT(cur->data);
 		
@@ -339,7 +339,7 @@ Account *channel_input_dialog_get_account(ChannelInputDialog *dialog)
 	return priv->account;
 }
 
-void channel_input_dialog_open(GtkWindow *parent_window, 
+void channel_input_dialog_open(LoquiApp *app,
 			       const gchar *title, const gchar *info_label,
 			       ChannelHistoryType history_type, 
 			       ChannelInputFunc func, gpointer data,
@@ -350,10 +350,10 @@ void channel_input_dialog_open(GtkWindow *parent_window,
 	ChannelInputDialog *dialog;
 	ChannelInputDialogPrivate *priv;
 
-	dialog = CHANNEL_INPUT_DIALOG(channel_input_dialog_new());
+	dialog = CHANNEL_INPUT_DIALOG(channel_input_dialog_new(loqui_app_get_account_manager(app)));
 	priv = dialog->priv;
 
-	gtk_window_set_transient_for(GTK_WINDOW(dialog), parent_window);
+	gtk_window_set_transient_for(GTK_WINDOW(dialog), GTK_WINDOW(app));
 	if(title)
 		gtk_window_set_title(GTK_WINDOW(dialog), title);
 

@@ -19,7 +19,6 @@
  */
 #include "config.h"
 #include "main.h"
-#include "loqui_app.h"
 #include "codeconv.h"
 #include "command_table.h"
 #include "account_manager.h"

@@ -181,12 +181,12 @@ loqui_app_actions_about_cb(GtkAction *action, LoquiApp *app)
 static void
 loqui_app_actions_common_settings_cb(GtkAction *action, LoquiApp *app)
 {
-	account_manager_open_prefs_dialog(account_manager_get());
+	account_manager_open_prefs_dialog(loqui_app_get_account_manager(app));
 }
 static void
 loqui_app_actions_account_settings_cb(GtkAction *action, LoquiApp *app)
 {
-	account_manager_open_account_list_dialog(account_manager_get());
+	account_manager_open_account_list_dialog(loqui_app_get_account_manager(app));
 }
 static void
 loqui_app_actions_quit_cb(GtkAction *action, LoquiApp *app)
@@ -196,7 +196,7 @@ loqui_app_actions_quit_cb(GtkAction *action, LoquiApp *app)
 static void
 loqui_app_actions_connect_cb(GtkAction *action, LoquiApp *app)
 {
-	account_manager_open_connect_dialog(account_manager_get());
+	account_manager_open_connect_dialog(loqui_app_get_account_manager(app));
 }
 static void
 loqui_app_actions_cut_cb(GtkAction *action, LoquiApp *app)
@@ -327,16 +327,16 @@ loqui_app_actions_next_channel_cb(GtkAction *action, LoquiApp *app)
 static void
 loqui_app_actions_join_cb(GtkAction *action, LoquiApp *app)
 {
-	command_dialog_join(GTK_WINDOW(app),
-			    account_manager_get_current_account(account_manager_get()));
+	command_dialog_join(app,
+			    account_manager_get_current_account(loqui_app_get_account_manager(app)));
 }
 static void
 loqui_app_actions_part_cb(GtkAction *action, LoquiApp *app)
 {
 	AccountManager *manager;
 
-	manager = account_manager_get();
-	command_dialog_part(GTK_WINDOW(app),
+	manager = loqui_app_get_account_manager(app);
+	command_dialog_part(app,
 			    account_manager_get_current_account(manager),
 			    account_manager_get_current_channel(manager));
 }
@@ -345,8 +345,8 @@ loqui_app_actions_set_topic_cb(GtkAction *action, LoquiApp *app)
 {
 	AccountManager *manager;
 
-	manager = account_manager_get();
-	command_dialog_topic(GTK_WINDOW(app),
+	manager = loqui_app_get_account_manager(app);
+	command_dialog_topic(app,
 			     account_manager_get_current_account(manager),
 			     account_manager_get_current_channel(manager));
 }
@@ -355,8 +355,8 @@ loqui_app_actions_nick_cb(GtkAction *action, LoquiApp *app)
 {
 	AccountManager *manager;
 
-	manager = account_manager_get();
-	command_dialog_nick(GTK_WINDOW(app),
+	manager = loqui_app_get_account_manager(app);
+	command_dialog_nick(app,
 			    account_manager_get_current_account(manager));
 }
 static void
@@ -365,7 +365,7 @@ loqui_app_actions_away_info_cb(GtkAction *action, LoquiApp *app)
 	AccountManager *manager;
 	Channel *channel;
 
-	manager = account_manager_get();	
+	manager = loqui_app_get_account_manager(app);	
 	channel = account_manager_get_current_channel(manager);
 	if (channel)
 		account_fetch_away_information(channel->account, channel);
@@ -375,6 +375,6 @@ loqui_app_actions_away_info_cb(GtkAction *action, LoquiApp *app)
 static void
 loqui_app_actions_start_private_talk_cb(GtkAction *action, LoquiApp *app)
 {
-	command_dialog_private_talk(GTK_WINDOW(app),
-				    account_manager_get_current_account(account_manager_get()));
+	command_dialog_private_talk(app,
+				    account_manager_get_current_account(loqui_app_get_account_manager(app)));
 }

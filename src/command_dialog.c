@@ -103,36 +103,36 @@ static void command_dialog_nick_cb(Account *account, const gchar *channel_text, 
 	account_change_nick(account, text);
 }
 
-void command_dialog_join(GtkWindow *parent_window, Account *account)
+void command_dialog_join(LoquiApp *app, Account *account)
 {
-	channel_input_dialog_open(parent_window, 
+	channel_input_dialog_open(app, 
 				  _("Join channel/private message"),
 				  _("Type channel name to join."),
 				  CHANNEL_HISTORY_SAVED,
 				  command_dialog_join_cb, NULL,
 				  TRUE, account, TRUE, NULL, FALSE, NULL);
 }
-void command_dialog_private_talk(GtkWindow *parent_window, Account *account)
+void command_dialog_private_talk(LoquiApp *app, Account *account)
 {
-	channel_input_dialog_open(parent_window, 
+	channel_input_dialog_open(app, 
 				  _("Start private talk"),
 				  _("Type nick to start private talk."),
 				  CHANNEL_HISTORY_NONE,
 				  command_dialog_private_talk_cb, NULL,
 				  TRUE, account, FALSE, NULL, TRUE, NULL);
 }
-void command_dialog_part(GtkWindow *parent_window, Account *account, Channel *channel)
+void command_dialog_part(LoquiApp *app, Account *account, Channel *channel)
 {
-	channel_input_dialog_open(parent_window, 
+	channel_input_dialog_open(app, 
 				  _("Part channel"),
 				  _("Type channel name to part and the part message."),
 				  CHANNEL_HISTORY_JOINED,
 				  command_dialog_part_cb, NULL,
 				  TRUE, account, TRUE, channel ? channel_get_name(channel) : NULL, TRUE, NULL);
 }
-void command_dialog_topic(GtkWindow *parent_window, Account *account, Channel *channel)
+void command_dialog_topic(LoquiApp *app, Account *account, Channel *channel)
 {
-	channel_input_dialog_open(parent_window, 
+	channel_input_dialog_open(app, 
 				  _("Set the topic of the channel"),
 				  _("Type channel name and its topic."),
 				  CHANNEL_HISTORY_JOINED,
@@ -141,9 +141,9 @@ void command_dialog_topic(GtkWindow *parent_window, Account *account, Channel *c
 				  TRUE, channel ? channel_get_name(channel) : NULL,
 				  TRUE, channel ? channel_get_topic(channel) : NULL);
 }
-void command_dialog_nick(GtkWindow *parent_window, Account *account)
+void command_dialog_nick(LoquiApp *app, Account *account)
 {
-	channel_input_dialog_open(parent_window, 
+	channel_input_dialog_open(app, 
 				  _("Change nickname"),
 				  _("Type nickname."),
 				  CHANNEL_HISTORY_NONE,

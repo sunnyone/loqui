@@ -24,6 +24,7 @@
 
 #include "account.h"
 #include "channel.h"
+#include "loqui_app.h"
 
 G_BEGIN_DECLS
 
@@ -54,7 +55,7 @@ struct _LoquiChannelbarClass
 
 GtkType loqui_channelbar_get_type (void) G_GNUC_CONST;
 
-GtkWidget* loqui_channelbar_new (void);
+GtkWidget* loqui_channelbar_new(LoquiApp *app);
 
 void loqui_channelbar_add_account(LoquiChannelbar *channelbar, Account *account);
 void loqui_channelbar_update_account(LoquiChannelbar *channelbar, Account *account);

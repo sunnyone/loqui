@@ -36,6 +36,8 @@ typedef struct _NickListClass       NickListClass;
 
 typedef struct _NickListPrivate     NickListPrivate;
 
+#include "loqui_app.h"
+
 struct _NickList
 {
         GtkTreeView parent;
@@ -51,7 +53,7 @@ struct _NickListClass
 
 GtkType nick_list_get_type(void) G_GNUC_CONST;
 
-GtkWidget* nick_list_new(void);
+GtkWidget* nick_list_new(LoquiApp *app);
 void nick_list_set_store(NickList *list, GtkListStore *store);
 
 G_END_DECLS
