@@ -34,6 +34,7 @@
 #include "loqui_sender_irc.h"
 #include "loqui_account_irc.h"
 #include "loqui_channel_irc.h"
+#include "loqui_profile_account_irc.h"
 
 #include "codeconv.h"
 #include <string.h>
@@ -77,6 +78,7 @@ static void irc_handle_channel_append(IRCHandle *handle, IRCMessage *msg, gboole
 				      gint receiver_num, TextType type, gchar *format);
 static void irc_handle_joined_channel_append(IRCHandle *handle, IRCMessage *msg, GSList *channel_slist, TextType type, gchar *format);
 
+static void irc_handle_reply_welcome(IRCHandle *handle, IRCMessage *msg);
 static void irc_handle_reply_names(IRCHandle *handle, IRCMessage *msg);
 static void irc_handle_reply_topic(IRCHandle *handle, IRCMessage *msg);
 static void irc_handle_reply_endofnames(IRCHandle *handle, IRCMessage *msg);
@@ -738,6 +740,26 @@ irc_handle_inspect_message(IRCHandle *handle, IRCMessage *msg)
 	g_free(str);
 }
 static void
+irc_handle_reply_welcome(IRCHandle *handle, IRCMessage *msg)
+{
+	IRCHandlePrivate *priv;
+	const gchar *autojoin;
+	LoquiAccount *account;
+
+	priv = handle->priv;
+	account = priv->account;
+
+	priv->passed_welcome = TRUE;
+
+	autojoin = loqui_profile_account_irc_get_autojoin(LOQUI_PROFILE_ACCOUNT_IRC(loqui_account_get_profile(account)));
+	if (autojoin && strlen(autojoin) > 0) {
+		loqui_sender_join_raw(loqui_account_get_sender(account), autojoin, NULL);
+		loqui_account_console_buffer_append(account, TEXT_TYPE_INFO, _("Sent join command for autojoin."));
+	}
+
+	irc_handle_account_console_append(handle, msg, TEXT_TYPE_INFO, "*** %*2");
+}
+static void
 irc_handle_reply_names(IRCHandle *handle, IRCMessage *msg)
 {
 	LoquiChannel *channel;
@@ -1128,8 +1150,7 @@ irc_handle_reply(IRCHandle *handle, IRCMessage *msg)
 
 	switch(msg->response) {
 	case IRC_RPL_WELCOME:
-		priv->passed_welcome = TRUE;
-		irc_handle_account_console_append(handle, msg, TEXT_TYPE_INFO, "*** %*2");
+		irc_handle_reply_welcome(handle, msg);
 		return TRUE;
 	case IRC_RPL_YOURHOST:
 	case IRC_RPL_CREATED:

@@ -65,6 +65,8 @@ void loqui_sender_irc_get_channel_mode(LoquiSender *sender, LoquiChannel *channe
 void loqui_sender_irc_send_raw(LoquiSenderIRC *sender, const gchar *str);
 void loqui_sender_irc_change_member_mode(LoquiSenderIRC *sender, LoquiChannel *channel,
 					 gboolean is_give, IRCModeFlag flag, GList *str_list);
+void loqui_sender_irc_user_raw(LoquiSenderIRC *sender, const gchar *username, const gchar *realname);
+void loqui_sender_irc_pass(LoquiSenderIRC *sender, const gchar *password);
 
 G_END_DECLS
 

@@ -497,8 +497,8 @@ loqui_sender_irc_notice_raw(LoquiSenderIRC *sender, const gchar *target, const g
 	loqui_sender_irc_send_irc_message(LOQUI_SENDER_IRC(sender), msg);
 	g_object_unref(msg);
 }
-
-void loqui_sender_irc_send_raw(LoquiSenderIRC *sender, const gchar *str)
+void
+loqui_sender_irc_send_raw(LoquiSenderIRC *sender, const gchar *str)
 {
 	IRCMessage *msg;
 	gchar *buf;
@@ -605,6 +605,64 @@ loqui_sender_irc_change_member_mode(LoquiSenderIRC *sender, LoquiChannel *channe
 	debug_puts("Sending MODE command.\n");
 	if (show_msg_mode)
 		irc_message_print(msg);
+	loqui_sender_irc_send_irc_message(LOQUI_SENDER_IRC(sender), msg);
+	g_object_unref(msg);
+}
+void
+loqui_sender_irc_user_raw(LoquiSenderIRC *sender, const gchar *username, const gchar *realname)
+{
+	IRCMessage *msg;
+	LoquiAccount *account;
+
+        g_return_if_fail(sender != NULL);
+        g_return_if_fail(LOQUI_IS_SENDER_IRC(sender));
+
+	WARN_AND_RETURN_UNLESS_CONNECTED(sender);
+
+	account = LOQUI_SENDER(sender)->account;
+
+	if (username == NULL || strlen(username) == 0) {
+		loqui_account_warning(account, _("Username is not specified."));
+		return;
+	}
+	if (strchr(username, ' ')) {
+		loqui_account_warning(account, _("Username must not include space(s)."));
+		return;
+	}
+	if (realname == NULL || strlen(realname) == 0) {
+		loqui_account_warning(account, _("Realname is not specified."));
+		return;
+	}
+
+	msg = irc_message_create(IRCCommandUser,
+				 username, "0", "*", realname, NULL);
+	loqui_sender_irc_send_irc_message(LOQUI_SENDER_IRC(sender), msg);
+	g_object_unref(msg);
+}
+void
+loqui_sender_irc_pass(LoquiSenderIRC *sender, const gchar *password)
+{
+	IRCMessage *msg;
+	LoquiAccount *account;
+
+        g_return_if_fail(sender != NULL);
+        g_return_if_fail(LOQUI_IS_SENDER_IRC(sender));
+
+	WARN_AND_RETURN_UNLESS_CONNECTED(sender);
+
+	account = LOQUI_SENDER(sender)->account;
+
+	if (password == NULL || strlen(password) == 0) {
+		loqui_account_warning(account, _("Password is not specified."));
+		return;
+	}
+	if (strchr(password, ' ')) {
+		loqui_account_warning(account, _("Password must not contain space(s)."));
+		return;
+	}
+
+	msg = irc_message_create(IRCCommandPass,
+				 password, NULL);
 	loqui_sender_irc_send_irc_message(LOQUI_SENDER_IRC(sender), msg);
 	g_object_unref(msg);
 }

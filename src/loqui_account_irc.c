@@ -281,8 +281,8 @@ static void
 loqui_account_irc_connection_connected_cb(GObject *object, gboolean is_success, LoquiAccountIRC *account)
 {
 	LoquiAccountIRCPrivate *priv;
-	IRCMessage *msg;
-	const gchar *password, *nick, *username, *realname, *autojoin;
+	LoquiSenderIRC *sender;
+	const gchar *password, *nick, *username, *realname;
 
         g_return_if_fail(account != NULL);
         g_return_if_fail(LOQUI_IS_ACCOUNT_IRC(account));
@@ -301,49 +301,20 @@ loqui_account_irc_connection_connected_cb(GObject *object, gboolean is_success, 
 	nick = loqui_profile_account_get_nick(loqui_account_get_profile(LOQUI_ACCOUNT(account)));	
 	username = loqui_profile_account_get_username(loqui_account_get_profile(LOQUI_ACCOUNT(account)));
 	realname = loqui_profile_account_irc_get_realname(LOQUI_PROFILE_ACCOUNT_IRC(loqui_account_get_profile(LOQUI_ACCOUNT(account))));	
-	autojoin = loqui_profile_account_irc_get_autojoin(LOQUI_PROFILE_ACCOUNT_IRC(loqui_account_get_profile(LOQUI_ACCOUNT(account))));
 	
+	sender = LOQUI_SENDER_IRC(loqui_account_get_sender(LOQUI_ACCOUNT(account)));
+
 	if(password && strlen(password) > 0) {
-		msg = irc_message_create(IRCCommandPass, password, NULL);
-		if(debug_mode) {
-			debug_puts("Sending PASS...");
-			irc_message_print(msg);
-		}
-		irc_connection_push_message(priv->connection, msg);
-		g_object_unref(msg);
+		loqui_sender_irc_pass(sender, password);
+		debug_puts("Sending PASS...");
 	}
 
-	msg = irc_message_create(IRCCommandNick, nick, NULL);
-	if(debug_mode) {
-		debug_puts("Sending NICK...");
-		irc_message_print(msg);
-	}
-	irc_connection_push_message(priv->connection, msg);
-	g_object_unref(msg);
-
+	loqui_sender_nick(LOQUI_SENDER(sender), nick);
+	debug_puts("Sending NICK...");
 	loqui_user_set_nick(LOQUI_ACCOUNT(account)->user_self, nick);
-	
-	msg = irc_message_create(IRCCommandUser, 
-				 username, "*", "*", 
-				 realname, NULL);
-	if(debug_mode) {
-		debug_puts("Sending USER...");
-		irc_message_print(msg);
-	}
-	irc_connection_push_message(priv->connection, msg);
-	g_object_unref(msg);
 
-	if(autojoin && strlen(autojoin) > 0) {
-		msg = irc_message_create(IRCCommandJoin, autojoin, NULL);
-		if(debug_mode) {
-			debug_puts("Sending JOIN for autojoin...");
-			irc_message_print(msg);
-		}
-		irc_connection_push_message(priv->connection, msg);
-		g_object_unref(msg);
-
-		loqui_account_console_buffer_append(LOQUI_ACCOUNT(account), TEXT_TYPE_INFO, _("Sent join command for autojoin."));
-	}
+	loqui_sender_irc_user_raw(sender, username, realname);
+	debug_puts("Sending USER...");
 
 	loqui_account_console_buffer_append(LOQUI_ACCOUNT(account), TEXT_TYPE_INFO, _("Done."));
 
