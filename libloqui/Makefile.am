@@ -70,7 +70,6 @@ SRC_LIBRARY_CORE = \
 	loqui_protocol_manager.c loqui_protocol_manager.h \
 	loqui_member_sort_funcs.c loqui_member_sort_funcs.h \
 	loqui_profile_handle.c loqui_profile_handle.h \
-	prefs_general.c prefs_general.h \
 	loqui-general-pref-groups.h loqui-general-pref-default.h \
 	loqui_account_manager.c loqui_account_manager.h \
 	loqui_account_manager_iter.c loqui_account_manager_iter.h \
