@@ -63,6 +63,9 @@ void loqui_sender_irc_ctcp_request_raw(LoquiSenderIRC *sender, const gchar *targ
 void loqui_sender_irc_get_channel_mode(LoquiSender *sender, LoquiChannel *channel);
 
 void loqui_sender_irc_send_raw(LoquiSenderIRC *sender, const gchar *str);
+void loqui_sender_irc_change_member_mode(LoquiSenderIRC *sender, LoquiChannel *channel,
+					 gboolean is_give, IRCModeFlag flag, GList *str_list);
+
 G_END_DECLS
 
 #endif /* __LOQUI_SENDER_IRC_H__ */

@@ -24,6 +24,7 @@
 #include "loqui_utils_irc.h"
 #include "prefs_general.h"
 #include <string.h>
+#include "loqui_sender_irc.h"
 
 enum {
 	MODE_CHANGED,
@@ -368,8 +369,8 @@ loqui_channel_flush_user_mode_queue(LoquiChannel *channel)
 		tmp_list = g_list_append(tmp_list, mode_change->nick);
 	}
 	if(mode_change)
-		account_change_channel_user_mode(channel->account, channel, mode_change->is_give,
-						 mode_change->flag, tmp_list);
+		loqui_sender_irc_change_member_mode(LOQUI_SENDER_IRC(account_get_sender(channel->account)), channel, mode_change->is_give,
+						    mode_change->flag, tmp_list);
 
 	g_list_free(tmp_list);
 

@@ -626,3 +626,61 @@ loqui_sender_irc_ctcp_request_raw(LoquiSenderIRC *sender, const gchar *target, c
 	account_console_buffer_append(LOQUI_SENDER(sender)->account, TEXT_TYPE_INFO, buf);
 	g_free(buf);
 }
+void
+loqui_sender_irc_change_member_mode(LoquiSenderIRC *sender, LoquiChannel *channel,
+				    gboolean is_give, IRCModeFlag flag, GList *str_list)
+{
+	IRCMessage *msg;
+	IRCConnection *conn;
+	guint i, p, list_num;
+	gchar flag_str[IRC_MESSAGE_PARAMETER_MAX + 10];
+	gchar *param_array[IRC_MESSAGE_PARAMETER_MAX + 10];
+	GList *cur;
+
+        g_return_if_fail(sender != NULL);
+        g_return_if_fail(LOQUI_IS_SENDER_IRC(sender));
+
+	if (!account_is_connected(LOQUI_SENDER(sender)->account)) {
+		g_warning("Not connected");
+		return;
+	}
+
+	conn = account_get_connection(LOQUI_SENDER(sender)->account);
+	g_return_if_fail(conn != NULL);
+	
+	list_num = g_list_length(str_list);
+	if (list_num > IRC_MESSAGE_PARAMETER_MAX) {
+		g_warning(_("Too many users in change mode request!"));
+		return;
+	}
+	
+	p = 0;
+	/* MODE #Channel +? user1 user2 user3 */
+	param_array[p] = (gchar *) loqui_channel_entry_get_name(LOQUI_CHANNEL_ENTRY(channel));
+	p++;
+
+	if(is_give)
+		flag_str[0] = '+';
+	else
+		flag_str[0] = '-';
+
+	for (i = 0; i < list_num; i++)
+		flag_str[i+1] = (gchar) flag;
+	flag_str[i+1] = '\0';
+
+	param_array[p] = flag_str;
+	p++;
+	
+	for (cur = str_list; cur != NULL; cur = cur->next) {
+		param_array[p] = cur->data;
+		p++;
+	}
+	param_array[p] = NULL;
+
+	msg = irc_message_createv(IRCCommandMode, param_array);
+	debug_puts("Sending MODE command.\n");
+	if (show_msg_mode)
+		irc_message_print(msg);
+	irc_connection_push_message(conn, msg);
+	g_object_unref(msg);
+}

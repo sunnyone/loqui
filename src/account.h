@@ -107,9 +107,6 @@ void account_console_buffer_append(Account *account, TextType type, gchar *str);
 
 gboolean account_is_current_nick(Account *account, const gchar *str);
 
-void account_change_channel_user_mode(Account *account, LoquiChannel *channel, 
-				      gboolean is_give, IRCModeFlag flag, GList *str_list);
-
 void account_get_updated_number(Account *account, gint *updated_private_talk_number, gint *updated_channel_number); 
 
 LoquiUser* account_fetch_user(Account *account, const gchar *nick);
