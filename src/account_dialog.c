@@ -313,7 +313,7 @@ account_dialog_new(LoquiProfileAccount *profile)
 	if (codeset)
 		gtk_entry_set_text(GTK_ENTRY(priv->entry_codeset), codeset);
 
-	label = gtk_label_new("codeset: ");
+	label = gtk_label_new(_("codeset: "));
 	gtk_box_pack_end(GTK_BOX(hbox), label, FALSE, FALSE, 0);
 
 	menu = gtk_option_menu_get_menu(GTK_OPTION_MENU(priv->option_codeconv));
