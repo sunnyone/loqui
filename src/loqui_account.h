@@ -53,8 +53,8 @@ struct _LoquiAccount
 	/* key: channel identifier(gchar *), value: GList * */
 	GHashTable *channel_identifier_table;
 
-	GHashTable *user_nick_table; /* key: user, value: nick */
-	GHashTable *nick_user_table; /* key: nick, value: user */
+	GHashTable *user_identifier_table; /* key: user, value: identifier */
+	GHashTable *identifier_user_table; /* key: identifier, value: user */
 
 	LoquiUser *user_self;
 
@@ -100,8 +100,8 @@ void loqui_account_remove_channel(LoquiAccount *account, LoquiChannel *channel);
 void loqui_account_remove_all_channel(LoquiAccount *account);
 
 GList *loqui_account_get_channel_list(LoquiAccount *account);
-LoquiChannel* loqui_account_get_channel_by_identifier(LoquiAccount *account, const gchar *identifier);
-GSList *loqui_account_search_joined_channel(LoquiAccount *account, gchar *nick);
+LoquiChannel* loqui_account_get_channel_by_identifier(LoquiAccount *account, const gchar *channel_identifier);
+GSList *loqui_account_search_joined_channel(LoquiAccount *account, gchar *user_identifier);
 
 void loqui_account_console_buffer_append(LoquiAccount *account, TextType type, gchar *str);
 
@@ -109,8 +109,8 @@ gboolean loqui_account_is_current_nick(LoquiAccount *account, const gchar *str);
 
 void loqui_account_get_updated_number(LoquiAccount *account, gint *updated_private_talk_number, gint *updated_channel_number); 
 
-LoquiUser* loqui_account_fetch_user(LoquiAccount *account, const gchar *nick);
-LoquiUser* loqui_account_peek_user(LoquiAccount *account, const gchar *nick);
+LoquiUser* loqui_account_fetch_user(LoquiAccount *account, const gchar *identifier);
+LoquiUser* loqui_account_peek_user(LoquiAccount *account, const gchar *identifier);
 
 G_END_DECLS
 

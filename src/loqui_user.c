@@ -39,6 +39,7 @@ enum {
 	PROP_AWAY_MESSAGE,
 	PROP_IDLE_TIME,
 	PROP_IS_IGNORED,
+	PROP_IDENTIFIER,
         LAST_PROP
 };
 
@@ -122,6 +123,7 @@ static void
 loqui_user_get_property(GObject *object, guint param_id, GValue *value, GParamSpec *pspec)
 {
         LoquiUser *user;        
+	gchar *tmp;
 
         user = LOQUI_USER(object);
 
@@ -152,6 +154,11 @@ loqui_user_get_property(GObject *object, guint param_id, GValue *value, GParamSp
 		break;
 	case PROP_IS_IGNORED:
 		g_value_set_boolean(value, user->is_ignored);
+		break;
+	case PROP_IDENTIFIER:
+		tmp = loqui_user_get_identifier(user);
+		g_value_set_string(value, tmp);
+		g_free(tmp);
 		break;
         default:
                 G_OBJECT_WARN_INVALID_PROPERTY_ID(object, param_id, pspec);
@@ -270,6 +277,12 @@ loqui_user_class_init(LoquiUserClass *klass)
 							     _("Ignored"),
 							     _("Ignored or not"),
 							     FALSE, G_PARAM_READWRITE));
+	g_object_class_install_property(object_class,
+					PROP_IDENTIFIER,
+					g_param_spec_string("identifier",
+							    _("Identifier"),
+							    _("The string to determine the user"),
+							    NULL, G_PARAM_READABLE));
 
 	klass->away_type_array = g_ptr_array_sized_new(AWAY_TYPE_ARRAY_DEFAULT_SIZE);
 	g_ptr_array_add(klass->away_type_array, null_ptr);
@@ -440,4 +453,20 @@ loqui_user_get_nick(LoquiUser *user)
         g_return_val_if_fail(LOQUI_IS_USER(user), 0);
 
 	return user->nick;
+}
+
+gchar *
+loqui_user_get_identifier(LoquiUser *user)
+{
+	LoquiUserClass *klass;
+
+        g_return_val_if_fail(user != NULL, NULL);
+        g_return_val_if_fail(LOQUI_IS_USER(user), NULL);
+
+	klass = LOQUI_USER_GET_CLASS(user);
+        if (klass->get_identifier)
+                return (* klass->get_identifier)(user);
+
+	g_warning("Not implemented User#get_identifier");
+	return NULL;
 }

@@ -91,7 +91,7 @@ static void loqui_account_connection_warn_cb(GObject *object, gchar *str, LoquiA
 static void loqui_account_connection_info_cb(GObject *object, gchar *str, LoquiAccount *account);
 static void loqui_account_connection_arrive_message_cb(IRCConnection *connection, IRCMessage *msg, LoquiAccount *account);
 
-static void loqui_account_user_notify_nick_cb(LoquiUser *user, GParamSpec *pspec, LoquiAccount *account);
+static void loqui_account_user_notify_identifier_cb(LoquiUser *user, GParamSpec *pspec, LoquiAccount *account);
 static void loqui_account_user_self_notify_cb(LoquiUser *user_self, GParamSpec *pspec, LoquiAccount *account);
 static void loqui_account_profile_notify_name_cb(LoquiProfileAccount *profile, GParamSpec *pspec, LoquiAccount *account);
 
@@ -201,8 +201,8 @@ loqui_account_init(LoquiAccount *account)
 	account->channel_list = NULL;
 	account->channel_identifier_table = g_hash_table_new_full(utils_strcase_hash, utils_strcase_equal, g_free, NULL);
 	
-	account->user_nick_table = g_hash_table_new_full(g_direct_hash, g_direct_equal, NULL, g_free);
-	account->nick_user_table = g_hash_table_new_full(utils_strcase_hash, utils_strcase_equal, g_free, NULL);
+	account->user_identifier_table = g_hash_table_new_full(g_direct_hash, g_direct_equal, NULL, g_free);
+	account->identifier_user_table = g_hash_table_new_full(utils_strcase_hash, utils_strcase_equal, g_free, NULL);
 
 	account->sender = LOQUI_SENDER(loqui_sender_irc_new(account));
 }
@@ -228,9 +228,9 @@ loqui_account_finalize (GObject *object)
 		g_hash_table_destroy(account->channel_identifier_table);
 		account->channel_identifier_table = NULL;
 	}
-	if (account->nick_user_table) {
-		g_hash_table_destroy(account->nick_user_table);
-		account->nick_user_table = NULL;
+	if (account->identifier_user_table) {
+		g_hash_table_destroy(account->identifier_user_table);
+		account->identifier_user_table = NULL;
 	}
 
         if (G_OBJECT_CLASS(parent_class)->finalize)
@@ -715,7 +715,7 @@ loqui_account_is_current_nick(LoquiAccount *account, const gchar *str)
 }
 
 GSList *
-loqui_account_search_joined_channel(LoquiAccount *account, gchar *nick)
+loqui_account_search_joined_channel(LoquiAccount *account, gchar *identifier)
 {
 	GList *cur;
 	GSList *list = NULL;
@@ -724,9 +724,9 @@ loqui_account_search_joined_channel(LoquiAccount *account, gchar *nick)
 
         g_return_val_if_fail(account != NULL, NULL);
         g_return_val_if_fail(LOQUI_IS_ACCOUNT(account), NULL);
-	g_return_val_if_fail(nick != NULL, NULL);
+	g_return_val_if_fail(identifier != NULL, NULL);
 
-	user = loqui_account_peek_user(account, nick);
+	user = loqui_account_peek_user(account, identifier);
 	if (!user) {
 		return NULL;
 	}
@@ -767,29 +767,29 @@ loqui_account_get_updated_number(LoquiAccount *account, gint *updated_private_ta
 static void
 loqui_account_user_disposed_cb(LoquiAccount *account, LoquiUser *user)
 {
-	gchar *nick;
+	gchar *identifier;
 
         g_return_if_fail(account != NULL);
         g_return_if_fail(LOQUI_IS_ACCOUNT(account));
 
-	nick = g_hash_table_lookup(account->user_nick_table, user);
-	g_hash_table_remove(account->nick_user_table, nick);
-	g_hash_table_remove(account->user_nick_table, user);
+	identifier = g_hash_table_lookup(account->user_identifier_table, user);
+	g_hash_table_remove(account->identifier_user_table, identifier);
+	g_hash_table_remove(account->user_identifier_table, user);
 }
 static void
-loqui_account_user_notify_nick_cb(LoquiUser *user, GParamSpec *pspec, LoquiAccount *account)
+loqui_account_user_notify_identifier_cb(LoquiUser *user, GParamSpec *pspec, LoquiAccount *account)
 {
-	const gchar *nick_old, *nick_new;
+	const gchar *identifier_old, *identifier_new;
 
         g_return_if_fail(account != NULL);
         g_return_if_fail(LOQUI_IS_ACCOUNT(account));
 
-	nick_old = g_hash_table_lookup(account->user_nick_table, user);
-	nick_new = loqui_user_get_nick(user);
+	identifier_old = g_hash_table_lookup(account->user_identifier_table, user);
+	identifier_new = loqui_user_get_identifier(user);
 
-	g_hash_table_remove(account->nick_user_table, nick_old);
-	g_hash_table_insert(account->nick_user_table, g_strdup(nick_new), user);
-	g_hash_table_replace(account->user_nick_table, user, g_strdup(nick_new));
+	g_hash_table_remove(account->identifier_user_table, identifier_old);
+	g_hash_table_insert(account->identifier_user_table, g_strdup(identifier_new), user);
+	g_hash_table_replace(account->user_identifier_table, user, g_strdup(identifier_new));
 }
 static void
 loqui_account_add_user(LoquiAccount *account, LoquiUser *user)
@@ -797,23 +797,24 @@ loqui_account_add_user(LoquiAccount *account, LoquiUser *user)
 	g_return_if_fail(account != NULL);
         g_return_if_fail(LOQUI_IS_ACCOUNT(account));
 
-	g_signal_connect(G_OBJECT(user), "notify::nick",
-			 G_CALLBACK(loqui_account_user_notify_nick_cb), account);
+	g_signal_connect(G_OBJECT(user), "notify::identifier",
+			 G_CALLBACK(loqui_account_user_notify_identifier_cb), account);
 	g_object_weak_ref(G_OBJECT(user), (GWeakNotify) loqui_account_user_disposed_cb, account);
-	g_hash_table_insert(account->nick_user_table, g_strdup(loqui_user_get_nick(user)), user);
-	g_hash_table_insert(account->user_nick_table, user, g_strdup(loqui_user_get_nick(user)));	
+	g_hash_table_insert(account->identifier_user_table, g_strdup(loqui_user_get_identifier(user)), user);
+	g_hash_table_insert(account->user_identifier_table, user, g_strdup(loqui_user_get_identifier(user)));	
 }
+/* FIXME: this should be on _irc */
 LoquiUser *
-loqui_account_fetch_user(LoquiAccount *account, const gchar *nick)
+loqui_account_fetch_user(LoquiAccount *account, const gchar *identifier)
 {
 	LoquiUser *user;
 		
         g_return_val_if_fail(account != NULL, NULL);
         g_return_val_if_fail(LOQUI_IS_ACCOUNT(account), NULL);
 
-	if((user = loqui_account_peek_user(account, nick)) == NULL) {
+	if((user = loqui_account_peek_user(account, identifier)) == NULL) {
 		user = LOQUI_USER(loqui_user_irc_new());
-		loqui_user_set_nick(user, nick);
+		loqui_user_set_nick(user, identifier); /* FIXME */
 		loqui_account_add_user(account, user);
 	} else {
 		g_object_ref(user);
@@ -822,10 +823,10 @@ loqui_account_fetch_user(LoquiAccount *account, const gchar *nick)
 	return user;
 }
 LoquiUser *
-loqui_account_peek_user(LoquiAccount *account, const gchar *nick)
+loqui_account_peek_user(LoquiAccount *account, const gchar *identifier)
 {
         g_return_val_if_fail(account != NULL, NULL);
         g_return_val_if_fail(LOQUI_IS_ACCOUNT(account), NULL);
 
-	return g_hash_table_lookup(account->nick_user_table, nick);
+	return g_hash_table_lookup(account->identifier_user_table, identifier);
 }

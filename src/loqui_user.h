@@ -88,6 +88,9 @@ struct _LoquiUserClass
 
 	GPtrArray *away_type_array;
 
+	/* child class must implement get_identifier */
+	gchar* (* get_identifier) (LoquiUser *user);
+
 	GList* (* get_away_type_list) (LoquiUserClass *user_class);
 };
 
@@ -104,6 +107,9 @@ struct _LoquiUserClass
 GType loqui_user_get_type(void) G_GNUC_CONST;
 
 LoquiUser* loqui_user_new(void);
+
+/* free returned string */
+gchar* loqui_user_get_identifier(LoquiUser *user);
 
 LoquiAwayType loqui_user_class_install_away_type(LoquiUserClass *user_class,
 						 LoquiBasicAwayType basic_away_type,

@@ -46,6 +46,9 @@ static void loqui_user_irc_dispose(GObject *object);
 
 static void loqui_user_irc_get_property(GObject *object, guint param_id, GValue *value, GParamSpec *pspec);
 static void loqui_user_irc_set_property(GObject *object, guint param_id, const GValue *value, GParamSpec *pspec);
+static gchar* loqui_user_irc_get_identifier(LoquiUser *user);
+
+static void loqui_user_notify_nick_cb(GObject *object, GParamSpec *pspec, gpointer data);
 
 GType
 loqui_user_irc_get_type(void)
@@ -161,6 +164,8 @@ loqui_user_irc_class_init(LoquiUserIRCClass *klass)
         object_class->dispose = loqui_user_irc_dispose;
         object_class->get_property = loqui_user_irc_get_property;
         object_class->set_property = loqui_user_irc_set_property;
+	LOQUI_USER_CLASS(klass)->get_identifier = loqui_user_irc_get_identifier;
+
 	g_object_class_install_property(object_class,
 					PROP_SERVER_INFO,
 					g_param_spec_string("server_info",
@@ -188,10 +193,27 @@ loqui_user_irc_class_init(LoquiUserIRCClass *klass)
 							     FALSE, G_PARAM_READWRITE));
 	
 }
+static void
+loqui_user_notify_nick_cb(GObject *object, GParamSpec *pspec, gpointer data)
+{
+	g_object_notify(object, "identifier");
+}
 static void 
 loqui_user_irc_init(LoquiUserIRC *user)
 {
+	g_signal_connect(G_OBJECT(user), "notify::nick",
+			 G_CALLBACK(loqui_user_notify_nick_cb), NULL);
 }
+
+static gchar *
+loqui_user_irc_get_identifier(LoquiUser *user)
+{
+        g_return_val_if_fail(user != NULL, NULL);
+        g_return_val_if_fail(LOQUI_IS_USER_IRC(user), NULL);
+
+	return user->nick ? g_strdup(user->nick) : NULL;
+}
+
 LoquiUserIRC*
 loqui_user_irc_new(void)
 {
