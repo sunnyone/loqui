@@ -27,6 +27,7 @@
 #include "account_list_dialog.h"
 #include "account_dialog.h"
 #include "intl.h"
+#include "loqui_toolbar.h"
 
 struct _AccountManagerPrivate
 {
@@ -36,6 +37,8 @@ struct _AccountManagerPrivate
 
 	ChannelBuffer *common_buffer;
 	LoquiApp *app;
+
+	gboolean is_scroll;
 };
 
 static GObjectClass *parent_class = NULL;
@@ -45,7 +48,6 @@ static void account_manager_class_init(AccountManagerClass *klass);
 static void account_manager_init(AccountManager *account_manager);
 static void account_manager_finalize(GObject *object);
 static Account* account_manager_search_account(AccountManager *manager, Channel *channel);
-static gboolean account_manager_whether_scroll(AccountManager *account_manager);
 
 static void account_manager_add_account(AccountManager *manager, Account *account);
 static void account_manager_update_account(AccountManager *manager, Account *account);
@@ -311,11 +313,7 @@ account_manager_search_account(AccountManager *manager, Channel *channel)
 	}
 	return NULL;
 }
-static gboolean
-account_manager_whether_scroll(AccountManager *account_manager)
-{
-	return loqui_app_is_scroll(account_manager->priv->app);
-}
+
 void account_manager_speak(AccountManager *manager, const gchar *str)
 {
 	AccountManagerPrivate *priv;
@@ -367,7 +365,7 @@ account_manager_scroll_channel_textview(AccountManager *manager)
         g_return_if_fail(manager != NULL);
         g_return_if_fail(IS_ACCOUNT_MANAGER(manager));	
 
-	if(account_manager_whether_scroll(manager)) {
+	if(account_manager_get_whether_scrolling(manager)) {
 		loqui_app_scroll_channel_textview(manager->priv->app);
 	}
 }
@@ -378,7 +376,7 @@ account_manager_common_buffer_append(AccountManager *manager, TextType type, gch
         g_return_if_fail(IS_ACCOUNT_MANAGER(manager));
 
 	channel_buffer_append_line(manager->priv->common_buffer, type, str);
-	if(account_manager_whether_scroll(manager)) {
+	if(account_manager_get_whether_scrolling(manager)) {
 		loqui_app_scroll_common_textview(manager->priv->app);
 	}
 }
@@ -392,7 +390,7 @@ void account_manager_common_buffer_append_remark(AccountManager *manager, TextTy
 
 	channel_buffer_append_remark(manager->priv->common_buffer, type, FALSE,
 				     is_self, is_priv, channel_name, nick, remark);
-	if(account_manager_whether_scroll(manager)) {
+	if(account_manager_get_whether_scrolling(manager)) {
 		loqui_app_scroll_common_textview(manager->priv->app);
 	}	
 }
@@ -543,4 +541,21 @@ account_manager_remove_account_with_dialog(AccountManager *manager, Account *acc
 	}
 	account_manager_save_accounts(manager);
 
+}
+void
+account_manager_set_whether_scrolling(AccountManager *manager, gboolean is_scroll)
+{
+	AccountManagerPrivate *priv;
+
+	priv = manager->priv;
+
+	priv->is_scroll = is_scroll;
+	loqui_toolbar_set_toggle_scrolling_without_signal_emission(LOQUI_TOOLBAR(priv->app->toolbar),
+								   is_scroll);
+	debug_puts("Set scroll: %d", is_scroll);
+}
+gboolean
+account_manager_get_whether_scrolling(AccountManager *manager)
+{
+	return manager->priv->is_scroll;
 }

@@ -35,10 +35,6 @@
 
 struct _LoquiAppPrivate
 {
-	GtkWidget *toolbar;
-
-	GtkWidget *label_topic;
-	GtkWidget *toggle_scroll;
 	GtkWidget *channel_textview;
 	GtkWidget *common_textview;
 	GtkWidget *entry;
@@ -223,11 +219,6 @@ loqui_app_set_current_info(LoquiApp *app, const gchar *account_name,
 	
 	priv = app->priv;
 
-	if(topic)
-		gtk_label_set_text(GTK_LABEL(app->priv->label_topic), topic);
-	else
-		gtk_label_set_text(GTK_LABEL(app->priv->label_topic), _("No topic"));
-
 	if(channel_name && account_name) {
 		title = g_strdup_printf("%s @ %s - Loqui version %s", channel_name, account_name, VERSION);
 	} else if(account_name) {
@@ -300,22 +291,9 @@ loqui_app_new (void)
 	gtk_box_pack_start(GTK_BOX(vbox), loqui_menu_get_widget(app->menu),
 			   FALSE, FALSE, 0);
 
-	priv->toolbar = loqui_toolbar_new(app);
-	gtk_box_pack_start(GTK_BOX(vbox), priv->toolbar, FALSE, FALSE, 0);
+	app->toolbar = loqui_toolbar_new(app);
+	gtk_box_pack_start(GTK_BOX(vbox), app->toolbar, FALSE, FALSE, 0);
 
-	/* topic line */
-	hbox = gtk_hbox_new(FALSE, 0);
-	gtk_box_pack_start(GTK_BOX(vbox), hbox, FALSE, FALSE, 0);
-
-	priv->toggle_scroll = gtk_toggle_button_new_with_mnemonic(_("Sc_roll"));
-	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(priv->toggle_scroll), TRUE);
-	gtk_box_pack_end(GTK_BOX(hbox), priv->toggle_scroll, FALSE, FALSE, 0);
-
-	priv->label_topic = gtk_label_new(_("Topic"));
-	gtk_label_set_selectable(GTK_LABEL(priv->label_topic), TRUE);
-	gtk_label_set_justify(GTK_LABEL(priv->label_topic), GTK_JUSTIFY_LEFT);
-	gtk_box_pack_start(GTK_BOX(hbox), priv->label_topic, FALSE, FALSE, 1);
-	
 #define SET_SCROLLED_WINDOW(s, w, vpolicy, hpolicy) \
 { \
 	s = gtk_scrolled_window_new(NULL, NULL); \
@@ -396,18 +374,6 @@ loqui_app_new (void)
 	loqui_app_set_focus(app);
 
 	return GTK_WIDGET(app);
-}
-gboolean
-loqui_app_is_scroll(LoquiApp *app)
-{
-	LoquiAppPrivate *priv;
-
-        g_return_val_if_fail(app != NULL, FALSE);
-        g_return_val_if_fail(LOQUI_IS_APP(app), FALSE);
-
-	priv = app->priv;
-
-	return gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(priv->toggle_scroll));
 }
 void loqui_app_set_focus(LoquiApp *app)
 {

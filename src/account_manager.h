@@ -90,6 +90,9 @@ void account_manager_remove_account_with_dialog(AccountManager *manager, Account
 
 GSList *account_manager_get_account_list(AccountManager *manager);
 
+void account_manager_set_whether_scrolling(AccountManager *manager, gboolean is_scroll);
+gboolean account_manager_get_whether_scrolling(AccountManager *manager);
+
 G_END_DECLS
 
 #endif /* __ACCOUNT_MANAGER_H__ */

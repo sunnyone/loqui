@@ -98,6 +98,7 @@ main(int argc, char *argv[])
 
 	account_manager = account_manager_get();
 	account_manager_load_accounts(account_manager);
+	account_manager_set_whether_scrolling(account_manager, TRUE);
 
 	gtk_main();
 	prefs_general_save();

@@ -47,6 +47,7 @@ struct _LoquiApp
 	GAsyncQueue *error_connections;
 
 	LoquiMenu *menu;
+	GtkWidget *toolbar;
 
 	NickList *nick_list;
 	ChannelTree *channel_tree;
@@ -65,7 +66,6 @@ GtkWidget*      loqui_app_new                 (void);
 void loqui_app_set_current_info(LoquiApp *app, const gchar *account_name, 
 				const gchar *channel_name, const gchar *channel_mode,
 				const gchar *topic, gint user_number, gint op_number);
-gboolean loqui_app_is_scroll(LoquiApp *app);
 void loqui_app_set_focus(LoquiApp *app);
 
 void loqui_app_set_channel_buffer(LoquiApp *app, GtkTextBuffer *textbuf);

@@ -21,9 +21,11 @@
 
 #include "loqui_toolbar.h"
 #include "intl.h"
+#include "account_manager.h"
 
 struct _LoquiToolbarPrivate
 {
+	guint toggle_scroll_hander_id;
 };
 
 static GtkToolbarClass *parent_class = NULL;
@@ -109,6 +111,13 @@ loqui_toolbar_destroy (GtkObject *object)
                 (* GTK_OBJECT_CLASS(parent_class)->destroy) (object);
 }
 
+static void
+loqui_toolbar_toggle_scrolling_cb(GtkWidget *widget, gpointer data)
+{
+	account_manager_set_whether_scrolling(account_manager_get(), 
+					      gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget)));
+}
+
 GtkWidget*
 loqui_toolbar_new(gpointer data)
 {
@@ -128,11 +137,27 @@ loqui_toolbar_new(gpointer data)
 				 data,
 				 -1);  /* -1 means "append" */
 	
-	gtk_toolbar_append_element(GTK_TOOLBAR(toolbar),
-				   GTK_TOOLBAR_CHILD_TOGGLEBUTTON,
-				   NULL, _("Scroll"),
-				   _("Toggle whether scrolling"),
-				   NULL, NULL,
-				   NULL, NULL);
+	toolbar->toggle_scroll = gtk_toolbar_append_element(GTK_TOOLBAR(toolbar),
+							    GTK_TOOLBAR_CHILD_TOGGLEBUTTON,
+							    NULL, _("Scroll"),
+							    _("Toggle whether scrolling"),
+							    NULL, NULL,
+							    NULL, NULL);
+
+	priv->toggle_scroll_hander_id = g_signal_connect(G_OBJECT(toolbar->toggle_scroll),
+							 "toggled",
+							 G_CALLBACK(loqui_toolbar_toggle_scrolling_cb),
+							 toolbar);
 	return GTK_WIDGET(toolbar);
+}
+void
+loqui_toolbar_set_toggle_scrolling_without_signal_emission(LoquiToolbar *toolbar, gboolean is_scroll)
+{
+	LoquiToolbarPrivate *priv;
+
+	priv = toolbar->priv;
+
+	g_signal_handler_block(toolbar->toggle_scroll, priv->toggle_scroll_hander_id);
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(toolbar->toggle_scroll), is_scroll);
+	g_signal_handler_unblock(toolbar->toggle_scroll, priv->toggle_scroll_hander_id);
 }
