@@ -54,6 +54,7 @@ static void irc_handle_my_command_nick(IRCHandle *handle, IRCMessage *msg);
 static void irc_handle_my_command_join(IRCHandle *handle, IRCMessage *msg);
 
 static void irc_handle_command_privmsg_notice(IRCHandle *handle, IRCMessage *msg);
+static void irc_handle_command_ping(IRCHandle *handle, IRCMessage *msg);
 
 GType
 irc_handle_get_type(void)
@@ -138,6 +139,17 @@ static void irc_handle_command_privmsg_notice(IRCHandle *handle, IRCMessage *msg
 
 	g_free(str);
 }
+static void irc_handle_command_ping(IRCHandle *handle, IRCMessage *msg)
+{
+	gchar *server;
+	server = irc_message_get_param(msg, 0);
+
+	msg = irc_message_create(IRCCommandPong, server, NULL);
+	connection_put_irc_message(handle->priv->connection, msg);
+	g_object_unref(msg);
+
+	debug_puts("put PONG to %s", server);
+}
 static void irc_handle_my_command_join(IRCHandle *handle, IRCMessage *msg)
 {
 	Channel *channel;
@@ -210,10 +222,14 @@ irc_handle_response(IRCHandle *handle, IRCMessage *msg)
 	case IRC_COMMAND_NOTICE:
 	case IRC_COMMAND_PRIVMSG:
 		irc_handle_command_privmsg_notice(handle, msg);
-		break;
+		return;
+	case IRC_COMMAND_PING:
+		irc_handle_command_ping(handle, msg);
+		return;
 	default:
-		irc_handle_inspect_message(handle, msg);
+		break;
 	}
+	irc_handle_inspect_message(handle, msg);
 }
 static gpointer irc_handle_thread_func(IRCHandle *handle)
 {
