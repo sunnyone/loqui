@@ -39,6 +39,11 @@ struct _LoquiAppPrivate
 	GtkWidget *channel_textview;
 	GtkWidget *common_textview;
 	GtkWidget *entry;
+	GtkWidget *statusbar;
+	GtkWidget *label_user_number;
+	GtkWidget *label_channel;
+	GtkWidget *label_channel_mode;
+	GtkWidget *label_account;
 };
 
 static GtkWindowClass *parent_class = NULL;
@@ -210,7 +215,8 @@ loqui_app_set_current_info(LoquiApp *app, const gchar *account_name,
 			   const gchar *topic, gint user_number, gint op_number)
 {
 	LoquiAppPrivate *priv;
-	GString *string;
+	gchar *buf, *title;
+	guint context_id;
 	
 	priv = app->priv;
 
@@ -219,26 +225,44 @@ loqui_app_set_current_info(LoquiApp *app, const gchar *account_name,
 	else
 		gtk_label_set_text(GTK_LABEL(app->priv->label_topic), _("No topic"));
 
-	string = g_string_new(NULL);
-	if(account_name) {
-		g_string_append_printf(string, "[%s] ", account_name);
+	if(channel_name && account_name) {
+		title = g_strdup_printf("%s @ %s - Loqui version %s", channel_name, account_name, VERSION);
+	} else if(account_name) {
+		title = g_strdup_printf("%s - Loqui version %s", account_name, VERSION);
+	} else {
+		title = g_strdup_printf("Loqui version %s", VERSION);
 	}
-	if(channel_name) {
-		g_string_append_printf(string, "%s ", channel_name);
-	}
-	if(channel_mode) {
-		g_string_append_printf(string, "[%s] ", channel_mode);
-	}
-	if(user_number >= 0 && op_number >= 0) {
-		g_string_append_printf(string, "(%d/%d) ", op_number, user_number);
-	}
-	if(topic) {
-		g_string_append_printf(string, "%s - ", topic);
-	}
-	g_string_append_printf(string, "Loqui version %s", VERSION);
+	gtk_window_set_title(GTK_WINDOW(app), title);
+	g_free(title);
 
-	gtk_window_set_title(GTK_WINDOW(app), string->str);
-	g_string_free(string, TRUE);
+	gtk_label_set(GTK_LABEL(priv->label_channel), "");
+	if(channel_name) {
+		gtk_label_set(GTK_LABEL(priv->label_channel), channel_name);
+	}
+
+	gtk_label_set(GTK_LABEL(priv->label_account), "");
+	if(account_name) {
+		gtk_label_set(GTK_LABEL(priv->label_account), account_name);
+	}
+
+	gtk_label_set(GTK_LABEL(priv->label_channel_mode), "");
+	if(channel_mode) {
+		buf = g_strdup_printf("[%s]", channel_mode);
+		gtk_label_set(GTK_LABEL(priv->label_channel_mode), buf);
+		g_free(buf);
+	}
+	gtk_label_set(GTK_LABEL(priv->label_user_number), "");
+	if(user_number > 0 && op_number >= 0) {
+		buf = g_strdup_printf("(%d/%d)", op_number, user_number);
+		gtk_label_set(GTK_LABEL(priv->label_user_number), buf);
+		g_free(buf);
+	}
+
+	context_id = gtk_statusbar_get_context_id(GTK_STATUSBAR(priv->statusbar), "Topic");
+	gtk_statusbar_pop(GTK_STATUSBAR(priv->statusbar), context_id);
+
+	if(topic)
+		gtk_statusbar_push(GTK_STATUSBAR(priv->statusbar), context_id, topic);
 
 }
 GtkWidget*
@@ -255,6 +279,8 @@ loqui_app_new (void)
 	GtkWidget *hpaned;
 	GtkWidget *vpaned;
 	GtkWidget *scrolled_win;
+
+	GtkWidget *hsep;
 
 	app = g_object_new(loqui_app_get_type(), NULL);
 	priv = app->priv;
@@ -293,6 +319,26 @@ loqui_app_new (void)
 
 	hpaned = gtk_hpaned_new();
 	gtk_box_pack_start_defaults(GTK_BOX(vbox), hpaned);
+
+	priv->statusbar = gtk_statusbar_new();
+	gtk_statusbar_set_has_resize_grip(GTK_STATUSBAR(priv->statusbar), FALSE);
+	gtk_label_set_selectable(GTK_LABEL(GTK_STATUSBAR(priv->statusbar)->label), TRUE);
+	gtk_box_pack_start(GTK_BOX(vbox), priv->statusbar, FALSE, FALSE, 1);
+
+	priv->label_channel = gtk_label_new("");
+	gtk_box_pack_start(GTK_BOX(priv->statusbar), priv->label_channel, FALSE, FALSE, 0);
+
+	priv->label_channel_mode = gtk_label_new("");
+	gtk_box_pack_start(GTK_BOX(priv->statusbar), priv->label_channel_mode, FALSE, FALSE, 0);
+
+	priv->label_user_number = gtk_label_new("");
+	gtk_box_pack_start(GTK_BOX(priv->statusbar), priv->label_user_number, FALSE, FALSE, 0);
+
+	hsep = gtk_vseparator_new();
+	gtk_box_pack_start(GTK_BOX(priv->statusbar), hsep, FALSE, FALSE, 2);
+
+	priv->label_account = gtk_label_new("");
+	gtk_box_pack_start(GTK_BOX(priv->statusbar), priv->label_account, FALSE, FALSE, 0);
 
 	/* left side */
 	vpaned = gtk_vpaned_new();
