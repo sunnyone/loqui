@@ -23,6 +23,7 @@
 #include "intl.h"
 
 #include "account_manager.h"
+#include "loqui_account_manager_iter.h"
 #include "about.h"
 #include "remark_entry.h"
 #include "command_dialog.h"
@@ -63,6 +64,8 @@ static void loqui_app_actions_previous_unread_channel_buffer_cb(GtkAction *actio
 static void loqui_app_actions_next_unread_channel_buffer_cb(GtkAction *action, LoquiApp *app);
 static void loqui_app_actions_previous_channel_buffer_cb(GtkAction *action, LoquiApp *app);
 static void loqui_app_actions_next_channel_buffer_cb(GtkAction *action, LoquiApp *app);
+static void loqui_app_actions_clear_all_unread_flags_cb(GtkAction *action, LoquiApp *app);
+
 static void loqui_app_actions_join_cb(GtkAction *action, LoquiApp *app);
 static void loqui_app_actions_part_cb(GtkAction *action, LoquiApp *app);
 static void loqui_app_actions_set_topic_cb(GtkAction *action, LoquiApp *app);
@@ -147,6 +150,7 @@ static GtkActionEntry loqui_action_entries[] =
         {"NextUnreadChannel",     GTK_STOCK_GOTO_BOTTOM, N_("_Next Unread Channel Buffer"), ALT "Down", NULL, G_CALLBACK(loqui_app_actions_next_unread_channel_buffer_cb)},
         {"PreviousChannel",        GTK_STOCK_GO_UP, N_("Previous Channel Buffer"), CTRL "Up", NULL, G_CALLBACK(loqui_app_actions_previous_channel_buffer_cb)},
         {"NextChannel",            GTK_STOCK_GO_DOWN, N_("Next Channel Buffer"), CTRL "Down", NULL, G_CALLBACK(loqui_app_actions_next_channel_buffer_cb)},
+        {"ClearAllUnreadFlags",    GTK_STOCK_CLEAR, N_("Clear All Unread Flags of Buffers"), NULL, NULL, G_CALLBACK(loqui_app_actions_clear_all_unread_flags_cb)},
         {"GeneralSettings",        NULL, N_("_General Settings"), NULL, NULL, G_CALLBACK(loqui_app_actions_common_settings_cb)},
         {"AccountSettings",        NULL, N_("_Account Settings"), NULL, NULL, G_CALLBACK(loqui_app_actions_account_settings_cb)},
 
@@ -580,6 +584,17 @@ loqui_app_actions_next_channel_buffer_cb(GtkAction *action, LoquiApp *app)
 						       FALSE);
 	if (chent)
 		loqui_app_set_current_channel_entry(app, chent);
+}
+static void
+loqui_app_actions_clear_all_unread_flags_cb(GtkAction *action, LoquiApp *app)
+{
+	LoquiChannelEntry *chent;
+	LoquiAccountManagerIter iter;
+
+	loqui_account_manager_iter_init(loqui_app_get_account_manager(app), &iter);
+	loqui_account_manager_iter_set_first_channel_entry(&iter);
+	while ((chent = loqui_account_manager_iter_channel_entry_next(&iter)) != NULL)
+		loqui_channel_entry_set_as_read(chent);
 }
 static void
 loqui_app_actions_join_cb(GtkAction *action, LoquiApp *app)

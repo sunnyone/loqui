@@ -63,6 +63,7 @@
       <menuitem name="NextUnreadChannel" action="NextUnreadChannel"/>
       <menuitem name="PreviousChannel" action="PreviousChannel"/>
       <menuitem name="NextChannel" action="NextChannel"/>
+      <menuitem name="ClearAllUnreadFlags" action="ClearAllUnreadFlags" />
     </menu>
     <menu name="SettingsMenu" action="StockSettingsMenu">
       <menuitem name="GeneralSettings" action="GeneralSettings"/>
