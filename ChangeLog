@@ -1,3 +1,81 @@
+2003-06-16 03:22  y-imai
+
+	* src/irc_message.c: fixed the bug loqui can't parse a message like
+	TOPIC
+
+2003-06-16 02:58  y-imai
+
+	* src/: loqui_app.c, loqui_app.h, loqui_menu.c, loqui_menu.h,
+	prefs_general.c, prefs_general.h: added preference of whether or
+	not showing channelbar
+
+2003-06-16 02:46  y-imai
+
+	* src/: account_manager.c, buffer_menu.c, channel_tree.c,
+	irc_handle.c, loqui_app.c, loqui_channelbar.c, loqui_channelbar.h,
+	main.h: implemented channelbar
+
+2003-06-16 02:26  y-imai
+
+	* src/: channel.c, channel.h: added channel_is_private_talk
+
+2003-06-15 01:51  y-imai
+
+	* src/: Makefile.am, channel_bar.c, channel_bar.h, loqui_app.c,
+	loqui_app.h, loqui_channelbar.c, loqui_channelbar.h: renamed
+	channel_bar to loqui_channelbar
+
+2003-06-15 01:36  y-imai
+
+	* src/: Makefile.am, channel_bar.c, channel_bar.h, loqui_app.c:
+	added channel_bar. handlebox -> handlebox_toolbar
+
+2003-06-15 00:36  y-imai
+
+	* src/: Makefile.am, account_manager.c, buffer_menu.c,
+	buffer_menu.h, loqui_menu.c, loqui_menu.h: made buffer_menu.[ch] to
+	manage the menu of buffers
+
+2003-06-15 00:06  y-imai
+
+	* src/loqui_menu.c: change the way of removing menuitem of buffer
+
+2003-06-14 23:47  y-imai
+
+	* src/: gtkutils.c, gtkutils.h, loqui_menu.c: created
+	gtkutils_set_label_color
+
+2003-06-14 23:26  y-imai
+
+	* src/remark_entry.c: made combo entry in the remark entry case
+	sensitive
+
+2003-06-12 15:47  y-imai
+
+	* src/: channel_tree.c, nick_list.c: set ypad of all treeview as 0
+
+2003-06-07 21:56  y-imai
+
+	* debian/changelog: updated debian changelog
+
+2003-06-07 21:55  y-imai
+
+	* Makefile.am, NEWS, NEWS.ja, configure.in, src/account_manager.c:
+	0.1.16
+
+2003-06-07 21:39  y-imai
+
+	* loqui.spec.in: fixed bindir
+
+2003-06-07 21:28  y-imai
+
+	* ChangeLog, configure.in, debian/control, po/ja.po, po/loqui.pot:
+	updated po.
+
+2003-06-07 21:28  y-imai
+
+	* loqui.spec.in: added spec
+
 2003-06-07 19:53  y-imai
 
 	* src/icons/: Makefile.am, console.png: added icons

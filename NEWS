@@ -101,3 +101,7 @@
 * Added "Buffers" menu.
 * Added loqui.spec.
 
+2003-06-16     0.1.17
+* Created channelbar.
+* Fixed the case sensitibity of RemarkEntry.
+* Remove needless padding of ChannelTree/NickList.
