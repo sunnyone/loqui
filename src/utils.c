@@ -406,6 +406,14 @@ utils_return_true_if_value_equals_data(gpointer key, gpointer value, gpointer da
 {
 	return (value == data);
 }
+gboolean
+utils_return_true_if_data_of_list_equals_data(gpointer key, gpointer value, gpointer data)
+{
+	GList *l;
+
+	l = value;
+	return (l && l->data == data);
+}
 
 /* ::ffff:127.0.0.1 -> 127.0.0.1 */
 G_CONST_RETURN gchar *

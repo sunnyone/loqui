@@ -86,6 +86,7 @@ guint utils_strcase_hash(gconstpointer v);
 
 void utils_g_ptr_array_insert_sort(GPtrArray *array, gint sort_start_pos, GCompareFunc sort_func);
 gboolean utils_return_true_if_value_equals_data(gpointer key, gpointer value, gpointer data);
+gboolean utils_return_true_if_data_of_list_equals_data(gpointer key, gpointer value, gpointer data);
 
 G_CONST_RETURN gchar* utils_remove_ipv6_prefix_ffff(const gchar *str);
 

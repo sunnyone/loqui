@@ -447,7 +447,7 @@ loqui_account_channel_notify_identifier_cb(LoquiChannel *channel, GParamSpec *ps
         g_return_if_fail(LOQUI_IS_ACCOUNT(account));
 	
 	g_hash_table_foreach_remove(account->identifier_channel_table,
-				    utils_return_true_if_value_equals_data,
+				    utils_return_true_if_data_of_list_equals_data,
 				    channel);
 
 	l = g_list_find(account->channel_list, channel);
