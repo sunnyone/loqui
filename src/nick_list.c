@@ -25,11 +25,11 @@
 #include "main.h"
 #include "irc_constants.h"
 #include "account_manager.h"
+#include "icons/pixbufs.h"
 
 struct _NickListPrivate
 {
 	GdkPixbuf *op_icon;
-	GdkPixbuf *nonop_icon;
 	GdkPixbuf *speak_ability_icon;
 
 	GdkPixbuf *busy_icon;
@@ -176,7 +176,6 @@ nick_list_destroy(GtkObject *object)
 	priv = nick_list->priv;
 
 	G_OBJECT_UNREF_UNLESS_NULL(priv->op_icon);
-	G_OBJECT_UNREF_UNLESS_NULL(priv->nonop_icon);
 	G_OBJECT_UNREF_UNLESS_NULL(priv->speak_ability_icon);	
 	G_OBJECT_UNREF_UNLESS_NULL(priv->away_icon);
 	G_OBJECT_UNREF_UNLESS_NULL(priv->busy_icon);
@@ -191,26 +190,40 @@ static void
 nick_list_create_icons(NickList *list)
 {
 	NickListPrivate *priv;
-
+	PangoContext *pcon;
+	PangoLayout *layout;
+	gint height;
+	
         g_return_if_fail(list != NULL);
         g_return_if_fail(IS_NICK_LIST(list));
 
 	priv = list->priv;
 
-	priv->op_icon = gtk_widget_render_icon(GTK_WIDGET(list), GTK_STOCK_YES,
-					       GTK_ICON_SIZE_MENU, NULL);
-	priv->nonop_icon = gtk_widget_render_icon(GTK_WIDGET(list), GTK_STOCK_NO,
-						  GTK_ICON_SIZE_MENU, NULL);
-	priv->speak_ability_icon = gtk_widget_render_icon(GTK_WIDGET(list), GTK_STOCK_OK,
-							  GTK_ICON_SIZE_MENU, NULL);
-	priv->busy_icon = gtk_widget_render_icon(GTK_WIDGET(list), LOQUI_STOCK_BUSY,
-						 GTK_ICON_SIZE_MENU, NULL);
-	priv->away_icon = gtk_widget_render_icon(GTK_WIDGET(list), LOQUI_STOCK_AWAY,
-						 GTK_ICON_SIZE_MENU, NULL);
-	priv->online_icon = gtk_widget_render_icon(GTK_WIDGET(list), LOQUI_STOCK_ONLINE,
-						   GTK_ICON_SIZE_MENU, NULL);
-	priv->offline_icon = gtk_widget_render_icon(GTK_WIDGET(list), LOQUI_STOCK_OFFLINE,
-						    GTK_ICON_SIZE_MENU, NULL);
+	pcon = gtk_widget_get_pango_context(GTK_WIDGET(list));
+	layout = pango_layout_new(pcon);
+	pango_layout_get_size(layout, NULL, &height);
+	g_object_unref(layout);
+	height = PANGO_PIXELS(height);
+
+#define CREATE_ICON(pixbuf_scaled, size, data) { \
+	GdkPixbuf *pixbuf; \
+	pixbuf = gdk_pixbuf_new_from_inline(-1, data, FALSE, NULL); \
+	if(pixbuf == NULL) \
+		g_error("Can't get pixbuf"); \
+	pixbuf_scaled = gdk_pixbuf_scale_simple(pixbuf, size, size, GDK_INTERP_BILINEAR); \
+	if(pixbuf_scaled == NULL) \
+		g_error("Can't scale pixbuf"); \
+}
+	
+	CREATE_ICON(priv->op_icon, height, naruto_pixbuf);
+	CREATE_ICON(priv->speak_ability_icon, height, speaker_pixbuf);
+
+	CREATE_ICON(priv->busy_icon, height, busy_pixbuf);
+	CREATE_ICON(priv->away_icon, height, away_pixbuf);
+	CREATE_ICON(priv->online_icon, height, online_pixbuf);
+	CREATE_ICON(priv->offline_icon, height, offline_pixbuf);
+	
+#undef CREATE_ICON
 
 }
 static void nick_list_cell_data_func_op(GtkTreeViewColumn *tree_column,
@@ -233,7 +246,7 @@ static void nick_list_cell_data_func_op(GtkTreeViewColumn *tree_column,
 		g_object_set(G_OBJECT(cell), "pixbuf", nick_list->priv->speak_ability_icon, NULL);
 		return;
 	case USER_POWER_NOTHING:
-		g_object_set(G_OBJECT(cell), "pixbuf", nick_list->priv->nonop_icon, NULL);
+		g_object_set(G_OBJECT(cell), "pixbuf", NULL, NULL);
 		return;
 	default:
 		break;
