@@ -22,14 +22,12 @@
 #include "loqui_statusbar.h"
 #include "intl.h"
 #include "loqui_stock.h"
-#include "icons/pixbufs.h"
 #include "gtkutils.h"
 #include "account_manager.h"
 #include "main.h"
 
 #include <string.h>
 
-#define STATUSBAR_ICON_SIZE 14
 #define STRING_DISCONNECTED _("(disconnected)")
 #define STRING_UNSELECTED _("(unselected)")
 
@@ -420,25 +418,6 @@ loqui_statusbar_toggle_scrolling_cb(GtkWidget *widget, LoquiStatusbar *statusbar
 	if(is_active)
 		loqui_app_scroll_channel_buffer(priv->app);
 }
-static GtkWidget*
-loqui_statusbar_create_icon_image(const guint8 *data)
-{
-	GtkWidget *image;
-	GdkPixbuf *pixbuf, *pixbuf_scaled;
-	
-	pixbuf = gdk_pixbuf_new_from_inline(-1, data, FALSE, NULL);
-	if(pixbuf == NULL)
-		g_error("Can't get pixbuf");
-	pixbuf_scaled = gdk_pixbuf_scale_simple(pixbuf, STATUSBAR_ICON_SIZE, STATUSBAR_ICON_SIZE, GDK_INTERP_BILINEAR);
-	if(pixbuf_scaled == NULL)
-		g_error("Can't scale pixbuf");
-	image = gtk_image_new_from_pixbuf(pixbuf_scaled);
-	gtk_widget_show(image);
-	g_object_unref(pixbuf);
-	g_object_unref(pixbuf_scaled);
-	
-	return image;
-}
 
 GtkWidget*
 loqui_statusbar_new(LoquiApp *app)
@@ -456,10 +435,17 @@ loqui_statusbar_new(LoquiApp *app)
 	gtk_statusbar_set_has_resize_grip(GTK_STATUSBAR(statusbar), FALSE);
 	gtk_label_set_selectable(GTK_LABEL(GTK_STATUSBAR(statusbar)->label), TRUE);
 	
-	priv->image_offline = loqui_statusbar_create_icon_image(offline_pixbuf);
-	priv->image_online = loqui_statusbar_create_icon_image(online_pixbuf);
-	priv->image_away = loqui_statusbar_create_icon_image(away_pixbuf);
-	priv->image_busy = loqui_statusbar_create_icon_image(busy_pixbuf);
+	priv->image_offline = gtk_image_new_from_stock(LOQUI_STOCK_OFFLINE, LOQUI_ICON_SIZE_FONT);
+	gtk_widget_show(priv->image_offline);
+
+	priv->image_online = gtk_image_new_from_stock(LOQUI_STOCK_ONLINE, LOQUI_ICON_SIZE_FONT);
+	gtk_widget_show(priv->image_online);
+
+	priv->image_away = gtk_image_new_from_stock(LOQUI_STOCK_AWAY, LOQUI_ICON_SIZE_FONT);
+	gtk_widget_show(priv->image_away);
+
+	priv->image_busy = gtk_image_new_from_stock(LOQUI_STOCK_AWAY, LOQUI_ICON_SIZE_FONT);
+	gtk_widget_show(priv->image_busy);
 
 /* FIXME: why statusbar becomes taller when button widget is on it? */
 #define WIDGET_MINIMIZE_HEIGHT(widget) gtk_widget_set_usize(widget, -1, 1);

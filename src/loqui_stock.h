@@ -29,6 +29,8 @@
 #define LOQUI_STOCK_NARUTO	 "loqui-naruto"
 #define LOQUI_STOCK_SPEAKER	 "loqui-speaker"
 
+extern int LOQUI_ICON_SIZE_FONT;
+
 void loqui_stock_init(void);
 
 #endif /* __LOQUI_STOCK_H__ */

@@ -25,7 +25,7 @@
 #include "main.h"
 #include "irc_constants.h"
 #include "account_manager.h"
-#include "icons/pixbufs.h"
+#include "loqui_stock.h"
 
 struct _NickListPrivate
 {
@@ -190,35 +190,18 @@ static void
 nick_list_create_icons(NickList *list)
 {
 	NickListPrivate *priv;
-	gint height;
 	
         g_return_if_fail(list != NULL);
         g_return_if_fail(IS_NICK_LIST(list));
 
 	priv = list->priv;
 
-	gtkutils_get_current_font_pixel_size(GTK_WIDGET(list), NULL, &height);
-
-#define CREATE_ICON(pixbuf_scaled, size, data) { \
-	GdkPixbuf *pixbuf; \
-	pixbuf = gdk_pixbuf_new_from_inline(-1, data, FALSE, NULL); \
-	if(pixbuf == NULL) \
-		g_error("Can't get pixbuf"); \
-	pixbuf_scaled = gdk_pixbuf_scale_simple(pixbuf, size, size, GDK_INTERP_BILINEAR); \
-	if(pixbuf_scaled == NULL) \
-		g_error("Can't scale pixbuf"); \
-}
-	
-	CREATE_ICON(priv->op_icon, height, naruto_pixbuf);
-	CREATE_ICON(priv->speak_ability_icon, height, speaker_pixbuf);
-
-	CREATE_ICON(priv->busy_icon, height, busy_pixbuf);
-	CREATE_ICON(priv->away_icon, height, away_pixbuf);
-	CREATE_ICON(priv->online_icon, height, online_pixbuf);
-	CREATE_ICON(priv->offline_icon, height, offline_pixbuf);
-	
-#undef CREATE_ICON
-
+	priv->op_icon = gtk_widget_render_icon(GTK_WIDGET(list), LOQUI_STOCK_NARUTO, LOQUI_ICON_SIZE_FONT, NULL);
+	priv->speak_ability_icon = gtk_widget_render_icon(GTK_WIDGET(list), LOQUI_STOCK_SPEAKER, LOQUI_ICON_SIZE_FONT, NULL);
+	priv->online_icon = gtk_widget_render_icon(GTK_WIDGET(list), LOQUI_STOCK_ONLINE, LOQUI_ICON_SIZE_FONT, NULL);
+	priv->offline_icon = gtk_widget_render_icon(GTK_WIDGET(list), LOQUI_STOCK_OFFLINE, LOQUI_ICON_SIZE_FONT, NULL);
+	priv->busy_icon = gtk_widget_render_icon(GTK_WIDGET(list), LOQUI_STOCK_BUSY, LOQUI_ICON_SIZE_FONT, NULL);
+	priv->away_icon = gtk_widget_render_icon(GTK_WIDGET(list), LOQUI_STOCK_AWAY, LOQUI_ICON_SIZE_FONT, NULL);
 }
 static void nick_list_cell_data_func_op(GtkTreeViewColumn *tree_column,
 					GtkCellRenderer *cell,

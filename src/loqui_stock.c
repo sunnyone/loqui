@@ -21,6 +21,7 @@
 #include "loqui_stock.h"
 
 #include <gtk/gtk.h>
+#include "gtkutils.h"
 
 #include "icons/pixbufs.h"
 
@@ -38,6 +39,8 @@ static struct icon_pair icon_list[] = { { LOQUI_STOCK_CONSOLE, console_pixbuf },
 					{ LOQUI_STOCK_SPEAKER, speaker_pixbuf },
 					{ NULL, NULL } };
 
+int LOQUI_ICON_SIZE_FONT = GTK_ICON_SIZE_INVALID;
+
 static void make_icons(void);
 
 static void
@@ -46,7 +49,15 @@ make_icons(void)
 	GdkPixbuf *pixbuf;
 	GtkIconSet *icon_set;
 	GtkIconFactory *icon_factory;
-	int i;
+	int i, height;
+	GtkWidget *widget;
+	
+	/* dummy widget */
+	widget = gtk_label_new("");
+	gtkutils_get_current_font_pixel_size(widget, NULL, &height);
+	gtk_widget_destroy(widget);
+
+	LOQUI_ICON_SIZE_FONT = gtk_icon_size_register("loqui-font", height, height);
 
 	icon_factory = gtk_icon_factory_new();
 	gtk_icon_factory_add_default(icon_factory);
