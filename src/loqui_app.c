@@ -82,7 +82,7 @@ struct _LoquiAppPrivate
 	guint updated_channel_number;
 	guint updated_private_talk_number;
 
-	gint channel_has_unread_keyword_number;
+	gboolean has_toplevel_focus;
 
 	GCompareFunc sort_func;
 };
@@ -94,7 +94,9 @@ static void loqui_app_class_init(LoquiAppClass *klass);
 static void loqui_app_init(LoquiApp *app);
 static void loqui_app_finalize(GObject *object);
 static void loqui_app_destroy(GtkObject *object);
-static gint loqui_app_delete_event(GtkWidget *widget, GdkEventAny *event);
+static gboolean loqui_app_delete_event(GtkWidget *widget, GdkEventAny *event);
+static gboolean loqui_app_focus_in_event(GtkWidget *widget, GdkEventFocus *event);
+static gboolean loqui_app_focus_out_event(GtkWidget *widget, GdkEventFocus *event);
 
 static void loqui_app_restore_size(LoquiApp *app);
 static void loqui_app_save_size(LoquiApp *app);
@@ -170,6 +172,8 @@ loqui_app_class_init (LoquiAppClass *klass)
         object_class->finalize = loqui_app_finalize;
 	gtk_object_class->destroy = loqui_app_destroy;
 	gtk_widget_class->delete_event = loqui_app_delete_event;
+	gtk_widget_class->focus_in_event = loqui_app_focus_in_event;
+	gtk_widget_class->focus_out_event = loqui_app_focus_out_event;
 }
 static void 
 loqui_app_init (LoquiApp *app)
@@ -224,7 +228,7 @@ loqui_app_finalize(GObject *object)
 	g_free(app->priv);
 }
 
-static gint
+static gboolean
 loqui_app_delete_event(GtkWidget *widget, GdkEventAny *event)
 {
 	LoquiApp *app;
@@ -242,7 +246,62 @@ loqui_app_delete_event(GtkWidget *widget, GdkEventAny *event)
 	gtk_widget_destroy(widget);
 	gtk_main_quit();
 
+	if (GTK_WIDGET_CLASS(parent_class)->delete_event)
+               return (* GTK_WIDGET_CLASS(parent_class)->delete_event) (widget, event);
+
 	return TRUE;
+}
+
+static gboolean
+loqui_app_focus_in_event(GtkWidget *widget, GdkEventFocus *event)
+{
+	LoquiApp *app;
+	LoquiAppPrivate *priv;
+
+        g_return_val_if_fail(widget != NULL, FALSE);
+        g_return_val_if_fail(LOQUI_IS_APP(widget), FALSE);
+
+	app = LOQUI_APP(widget);
+	priv = app->priv;
+	
+	priv->has_toplevel_focus = TRUE;
+
+	loqui_tray_icon_set_hilighted(app->tray_icon, FALSE);
+	
+	if (GTK_WIDGET_CLASS(parent_class)->focus_in_event)
+               return (* GTK_WIDGET_CLASS(parent_class)->focus_in_event) (widget, event);
+
+	return FALSE;
+}
+static gboolean
+loqui_app_focus_out_event(GtkWidget *widget, GdkEventFocus *event)
+{
+	LoquiApp *app;
+	LoquiAppPrivate *priv;
+
+        g_return_val_if_fail(widget != NULL, FALSE);
+        g_return_val_if_fail(LOQUI_IS_APP(widget), FALSE);
+
+	app = LOQUI_APP(widget);
+	priv = app->priv;
+
+	priv->has_toplevel_focus = FALSE;
+
+	if (GTK_WIDGET_CLASS(parent_class)->focus_out_event)
+               return (* GTK_WIDGET_CLASS(parent_class)->focus_out_event) (widget, event);
+	return FALSE;
+}
+gboolean
+loqui_app_has_toplevel_focus(LoquiApp *app)
+{
+	LoquiAppPrivate *priv;
+
+        g_return_val_if_fail(app != NULL, FALSE);
+        g_return_val_if_fail(LOQUI_IS_APP(app), FALSE);
+
+	priv = app->priv;
+
+	return priv->has_toplevel_focus;
 }
 static void loqui_app_save_size(LoquiApp *app)
 {
@@ -1130,12 +1189,12 @@ loqui_app_channel_entry_notify_has_unread_keyword_cb(LoquiChannelEntry *chent, G
 	app = LOQUI_APP(data);
 	priv = app->priv;
 
-	if (loqui_channel_entry_get_has_unread_keyword(chent))
-		priv->channel_has_unread_keyword_number++;
-        else
-		priv->channel_has_unread_keyword_number--;
-	
-	loqui_tray_icon_set_hilighted(app->tray_icon, (priv->channel_has_unread_keyword_number > 0) ? TRUE : FALSE);
+	if (!loqui_channel_entry_get_has_unread_keyword(chent))
+		return;
+	if (loqui_app_has_toplevel_focus(app))
+		return;
+
+	loqui_tray_icon_set_hilighted(app->tray_icon, TRUE);
 }
 static void
 loqui_app_channel_changed_cb(GObject *object, gpointer data)
