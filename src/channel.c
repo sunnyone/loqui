@@ -34,6 +34,21 @@ static void channel_class_init(ChannelClass *klass);
 static void channel_init(Channel *channel);
 static void channel_finalize(GObject *object);
 
+gint compare_user_nick_with_nick(gconstpointer data1, gconstpointer data2);
+
+gint compare_user_nick_with_nick(gconstpointer data1, gconstpointer data2)
+{
+	User *user;
+
+	if(data1 == NULL) return 0;
+
+	user = (User *)data1;
+
+	if(g_ascii_strcasecmp(user->nick, (const gchar *) data2) == 0)
+		return 1;
+	return 0;
+}
+
 GType
 channel_get_type(void)
 {
@@ -121,6 +136,7 @@ channel_new (gchar *name)
 
 	channel->name = g_strdup(name);
 	channel->text = CHANNEL_TEXT(channel_text_new());
+	channel->user_list = NULL;
 
 	return channel;
 }
@@ -178,4 +194,82 @@ gchar *channel_get_topic(Channel *channel)
 	g_return_val_if_fail(IS_CHANNEL(channel), NULL);
 
 	return channel->priv->topic;
+}
+void channel_append_user(Channel *channel, const gchar *nick, UserPower power)
+{
+	User *user;
+	g_return_if_fail(channel != NULL);
+	g_return_if_fail(IS_CHANNEL(channel));
+	g_return_if_fail(nick != NULL);
+	g_return_if_fail(*nick != '\0');
+
+	user = g_new0(User, 1);
+
+	if(power == USER_POWER_UNDETERMINED) {
+		if(*nick == '@') {
+			user->nick = g_strdup(nick+1);
+			user->power = USER_POWER_OP;
+		} else if (*nick == '+') {
+			user->nick = g_strdup(nick+1);
+			user->power = USER_POWER_V;
+		} else {
+			user->nick = g_strdup(nick);
+			user->power = USER_POWER_NOTHING;
+		}
+	} else {
+		user->nick = g_strdup(nick);
+		user->power = power;
+	}
+
+	channel->user_list = g_slist_append(channel->user_list, user);
+}
+void channel_remove_user(Channel *channel, const gchar *nick)
+{
+	GSList *slist;
+	User *user;
+
+	g_return_if_fail(channel != NULL);
+	g_return_if_fail(IS_CHANNEL(channel));
+	g_return_if_fail(nick != NULL);
+
+	slist = g_slist_find_custom(channel->user_list, nick, compare_user_nick_with_nick);
+	user = (User *) slist->data;
+	g_free(user->nick);
+	g_free(user);
+
+	g_slist_delete_link(channel->user_list, slist);
+}
+void channel_change_user_power(Channel *channel, const gchar *nick, UserPower power)
+{
+	GSList *slist;
+	User *user;
+
+	slist = g_slist_find_custom(channel->user_list, nick, compare_user_nick_with_nick);
+	user = (User *)slist->data;
+	user->power = power;
+}
+void channel_change_user_nick(Channel *channel, const gchar *nick_orig, const gchar *nick_new)
+{
+	GSList *slist;
+	User *user;
+
+	slist = g_slist_find_custom(channel->user_list, nick_orig, compare_user_nick_with_nick);
+	user = (User *)slist->data;
+	g_free(user->nick);
+	user->nick = g_strdup(nick_new);
+}
+void channel_clear_user(Channel *channel)
+{
+	GSList *cur;
+	User *user;
+
+	for(cur = channel->user_list; cur != NULL; cur = cur->next) {
+		if(!cur->data) continue;
+
+		user = (User *)cur->data;
+
+		g_free(user->nick);
+		g_free(user);
+	}
+	g_slist_free(channel->user_list);
 }

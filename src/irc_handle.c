@@ -297,6 +297,23 @@ irc_handle_inspect_message(IRCHandle *handle, IRCMessage *msg)
 static void
 irc_handle_reply_names(IRCHandle *handle, IRCMessage *msg)
 {
+	Channel *channel;
+	gchar *name, *nick;
+	gchar **nick_array;
+	gint i;
+
+	name = irc_message_get_param(msg, 3);
+	channel = account_search_channel_by_name(handle->priv->account, name);
+	if(channel == NULL)
+		return;
+
+	channel_clear_user(channel);
+	nick_array = g_strsplit(irc_message_get_trailing(msg), " ", 0);
+	for(i = 0; nick_array[i] != NULL; i++) {
+		channel_append_user(channel, nick_array[i], USER_POWER_UNDETERMINED);
+	}
+	g_strfreev(nick_array);
+
 	irc_handle_channel_append(handle, msg, FALSE, 3, TEXT_TYPE_NORMAL, "%3: %t");
 }
 static void

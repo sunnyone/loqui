@@ -41,7 +41,8 @@ typedef enum {
 	USER_POWER_UNKNOWN,
 	USER_POWER_OP,
 	USER_POWER_V,
-	USER_POWER_NONOP
+	USER_POWER_NOTHING,
+	USER_POWER_UNDETERMINED = 255,
 } UserPower;
 
 typedef struct _User {
@@ -73,6 +74,14 @@ void channel_append_text(Channel *channel, gboolean with_common_text, TextType t
 void channel_append_remark(Channel *channel, TextType type, gchar *name, gchar *remark);
 void channel_set_topic(Channel *channel, const gchar *topic);
 gchar *channel_get_topic(Channel *channel);
+
+void channel_append_user(Channel *channel, const gchar *nick, UserPower power);
+void channel_remove_user(Channel *channel, const gchar *nick);
+void channel_clear_user(Channel *channel);
+void channel_change_user_power(Channel *channel, 
+			       const gchar *nick, UserPower power);
+void channel_change_user_nick(Channel *channel, 
+			      const gchar *nick_orig, const gchar *nick_new);
 
 G_END_DECLS
 
