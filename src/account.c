@@ -28,6 +28,7 @@
 #include "main.h"
 #include "gtkutils.h"
 #include "intl.h"
+#include "prefs_general.h"
 
 #include <string.h>
 
@@ -506,7 +507,21 @@ account_get_away_status(Account *account)
 }
 
 void
-account_set_away(Account *account, const gchar *away_message)
+account_set_away(Account *account, gboolean is_away)
+{
+        g_return_if_fail(account != NULL);
+        g_return_if_fail(IS_ACCOUNT(account));
+
+	if(!account_is_connected(account))
+		return;
+
+	if(is_away)
+		account_set_away_message(account, prefs_general.away_message);
+	else
+		account_set_away_message(account, NULL);
+}
+void
+account_set_away_message(Account *account, const gchar *away_message)
 {
 	IRCMessage *msg;
 	AccountPrivate *priv;
@@ -515,6 +530,9 @@ account_set_away(Account *account, const gchar *away_message)
         g_return_if_fail(IS_ACCOUNT(account));
 
 	priv = account->priv;
+
+	if(!account_is_connected(account))
+		return;
 
 	if(away_message == NULL)
 		msg = irc_message_create(IRCCommandAway, NULL);

@@ -378,32 +378,6 @@ void account_manager_speak(AccountManager *manager, const gchar *str)
 
 	account_speak(account, priv->current_channel, str);
 }
-void
-account_manager_current_account_set_away(AccountManager *manager, gboolean is_away)
-{
-	AccountManagerPrivate *priv;
-	Account *account;
-
-        g_return_if_fail(manager != NULL);
-        g_return_if_fail(IS_ACCOUNT_MANAGER(manager));
-
-	priv = manager->priv;
-	g_return_if_fail(priv->current_account != NULL || priv->current_channel != NULL);
-	
-	if(priv->current_channel)
-		account = priv->current_channel->account;
-	else
-		account = priv->current_account;
-
-	if(account == NULL || !account_is_connected(account))
-		return;
-
-	if(is_away)
-		account_set_away(account, prefs_general.away_message);
-	else
-		account_set_away(account, NULL);
-
-}
 AccountManager *
 account_manager_get(void)
 {

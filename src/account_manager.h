@@ -98,7 +98,6 @@ GSList *account_manager_get_account_list(AccountManager *manager);
 void account_manager_set_whether_scrolling(AccountManager *manager, gboolean is_scroll);
 gboolean account_manager_get_whether_scrolling(AccountManager *manager);
 
-void account_manager_current_account_set_away(AccountManager *manager, gboolean is_away);
 void account_manager_update_away_status(AccountManager *manager, gboolean is_away);
 
 G_END_DECLS

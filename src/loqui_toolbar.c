@@ -128,12 +128,15 @@ loqui_toolbar_toggle_away_cb(GtkWidget *widget, gpointer data)
 {
 	LoquiToolbar *toolbar;
 	gboolean is_active;
+	Account *account;
 
 	toolbar = LOQUI_TOOLBAR(data);
 
 	is_active = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget));
-	account_manager_current_account_set_away(account_manager_get(),
-						 is_active);
+	account = account_manager_get_current_account(account_manager_get());
+	if(account)
+		account_set_away(account, is_active);
+
 	/* cancel toggling */
 	loqui_toolbar_toggle_away_without_signal_emission(toolbar, !is_active);
 }

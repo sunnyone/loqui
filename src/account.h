@@ -124,7 +124,9 @@ void account_speak(Account *account, Channel *channel, const gchar *str);
 
 void account_set_away_status(Account *account, gboolean is_away);
 gboolean account_get_away_status(Account *account);
-void account_set_away(Account *account, const gchar *away_message);
+
+void account_set_away(Account *account, gboolean is_away);
+void account_set_away_message(Account *account, const gchar *away_message);
 
 G_END_DECLS
 
