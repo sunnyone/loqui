@@ -298,7 +298,11 @@ class Loqui:Receiver:IPMsg from Loqui:Receiver
 			if ((member = loqui_channel_entry_get_member_by_user(LOQUI_CHANNEL_ENTRY(channel), user)) != NULL) {
 				loqui_member_set_last_message_time(member, time(NULL));
 			}
+
 		} else {
+			gchar *str = ipmsg_packet_inspect(packet);
+			loqui_account_warning(account, "An unrecognized user sent an message: %s", str);
+			g_free(str);
 			/* FIXME: the message by not registered user */
 		}
 
