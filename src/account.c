@@ -203,7 +203,8 @@ account_add_server(Account *account, const gchar *hostname, gint port,
 	else
 		server->port = port;
 
-	server->password = g_strdup(password);
+	if(password)
+		server->password = g_strdup(password);
 	server->use = use;
 
 	account->server_list = g_slist_append(account->server_list, server);
@@ -315,6 +316,12 @@ account_restore(Account *account, const gchar *name)
 	g_free(key);
 
 #undef ACCOUNT_GCONF_GET_STRING
+
+	if(!list) {
+		gtkutils_msgbox_info(GTK_MESSAGE_ERROR,
+				     _("Account '%s': No servers found."), name);
+		return FALSE;
+	}
 
 	for(cur = list; cur != NULL; cur = cur->next) {
 		hostname = utils_gconf_get_basename((gchar *) cur->data);
