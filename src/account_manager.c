@@ -23,7 +23,6 @@
 #include "account.h"
 #include "utils.h"
 #include "loqui_app.h"
-#include "prefs_account.h"
 #include "prefs_general.h"
 #include "account_list_dialog.h"
 #include "account_dialog.h"
@@ -31,8 +30,9 @@
 #include "loqui_channelbar.h"
 #include "loqui_statusbar.h"
 #include "prefs_dialog.h"
-#include "connect_dialog.h"
 #include "main.h"
+#include "loqui_profile_handle.h"
+#include "loqui_profile_account_irc.h"
 
 #include <time.h>
 
@@ -56,6 +56,7 @@ struct _AccountManagerPrivate
 
 static GObjectClass *parent_class = NULL;
 #define PARENT_TYPE G_TYPE_OBJECT
+#define ACCOUNT_CONFIG_FILENAME "account.xml"
 
 static void account_manager_class_init(AccountManagerClass *klass);
 static void account_manager_init(AccountManager *account_manager);
@@ -223,29 +224,52 @@ account_manager_update_account(AccountManager *manager, Account *account)
 void
 account_manager_load_accounts(AccountManager *account_manager)
 {
-        GSList *cur, *slist;
+        GList *cur, *list = NULL;
 	AccountManagerPrivate *priv;
+	gchar *path;
+	LoquiProfileHandle *handle;
+	Account *account;
 
         g_return_if_fail(account_manager != NULL);
         g_return_if_fail(IS_ACCOUNT_MANAGER(account_manager));
 
         priv = account_manager->priv;
 
-	slist = prefs_account_load();
-	for(cur = slist; cur != NULL; cur = cur->next) {
-		account_manager_add_account(account_manager, cur->data);
+	path = g_build_filename(g_get_home_dir(), PREFS_DIR, ACCOUNT_CONFIG_FILENAME, NULL);
+	handle = loqui_profile_handle_new();
+	loqui_profile_handle_register_type(handle, "IRC", LOQUI_TYPE_PROFILE_ACCOUNT_IRC);
+	loqui_profile_handle_read_from_file(handle, &list, path);
+
+	for(cur = list; cur != NULL; cur = cur->next) {
+		account = account_new();
+		account_set_profile(account, cur->data);
+		account_manager_add_account(account_manager, account);
 	}
-	g_slist_free(slist);
+	g_list_free(list);
 }
 
 void
 account_manager_save_accounts(AccountManager *account_manager)
 {
+        GSList *cur;
+	GList *list = NULL;
+	gchar *path;
+	LoquiProfileHandle *handle;
+
         g_return_if_fail(account_manager != NULL);
         g_return_if_fail(IS_ACCOUNT_MANAGER(account_manager));
 
-	prefs_account_save(account_manager->priv->account_list);
+	for(cur = account_manager->priv->account_list; cur != NULL; cur = cur->next) {
+		list = g_list_append(list, account_get_profile(cur->data));
+	}
+
+	path = g_build_filename(g_get_home_dir(), PREFS_DIR, ACCOUNT_CONFIG_FILENAME, NULL);
+	handle = loqui_profile_handle_new();
+	loqui_profile_handle_register_type(handle, "IRC", LOQUI_TYPE_PROFILE_ACCOUNT_IRC);
+	loqui_profile_handle_write_to_file(handle, list, path);
+	g_list_free(list);
 }
+
 static void
 account_manager_add_channel_cb(Account *account, Channel *channel, AccountManager *manager)
 {
@@ -723,7 +747,7 @@ account_manager_open_connect_dialog(AccountManager *manager)
 	g_return_if_fail(manager != NULL);
         g_return_if_fail(IS_ACCOUNT_MANAGER(manager));
 
-	connect_dialog_open(GTK_WINDOW(manager->priv->app));
+	account_list_dialog_open_for_connect(GTK_WINDOW(manager->priv->app));
 }
 void
 account_manager_connect_all_default(AccountManager *manager)
@@ -737,13 +761,13 @@ account_manager_connect_all_default(AccountManager *manager)
 
 	priv = manager->priv;
 
-	for(cur = priv->account_list; cur != NULL; cur = cur->next) {
+	for (cur = priv->account_list; cur != NULL; cur = cur->next) {
 		account = ACCOUNT(cur->data);
-		if(account_is_connected(account))
+		if (account_is_connected(account))
 			continue;
-		if(!account->use)
+		if (!loqui_profile_account_get_use(account_get_profile(account)))
 			continue;
-
-		account_connect_default(account);
+		
+		account_connect(account);
 	}
 }

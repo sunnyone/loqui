@@ -24,16 +24,24 @@
 #include "gtkutils.h"
 #include "account_manager.h"
 #include "utils.h"
+#include "loqui_profile_account.h"
+#include "loqui_profile_account_irc.h"
+
 
 struct _AccountDialogPrivate
 {
-	Account *account;
+	LoquiProfileAccount *profile;
 
 	GtkWidget *entry_name;
 	GtkWidget *check_use;
 
 	GtkWidget *entry_nick;
 	GtkWidget *entry_username;
+	GtkWidget *entry_password;
+	
+	GtkWidget *entry_servername;
+	GtkWidget *spin_port;
+	
 	GtkWidget *entry_realname;
 	GtkWidget *entry_userinfo;
 	GtkWidget *entry_autojoin;
@@ -41,10 +49,7 @@ struct _AccountDialogPrivate
 	GtkWidget *option_codeconv;
 	GtkWidget *entry_codeset;
 
-	GtkWidget *treeview;
-
 	GtkWidget *textview_nicklist;
-	GtkListStore *list_store;
 };
 
 enum {
@@ -65,17 +70,6 @@ static void account_dialog_finalize(GObject *object);
 static void account_dialog_destroy(GtkObject *object);
 
 static void account_dialog_response_cb(GtkWidget *widget, gint response, gpointer data);
-
-static void account_dialog_list_use_toggled_cb(GtkCellRendererToggle *cell,
-					       gchar *path_str, gpointer data);
-static void account_dialog_list_column_edited_cb(GtkCellRendererText *cell,
-						 const gchar *path_str,
-						 const gchar *new_text,
-						 gpointer data);
-static void account_dialog_add_cb(GtkWidget *widget, gpointer data);
-static void account_dialog_remove_cb(GtkWidget *widget, gpointer data);
-static void account_dialog_up_cb(GtkWidget *widget, gpointer data);
-static void account_dialog_down_cb(GtkWidget *widget, gpointer data);
 
 static void account_dialog_option_codeconv_changed_cb(GtkWidget *widget, gpointer data);
 
@@ -158,12 +152,8 @@ account_dialog_response_cb(GtkWidget *widget, gint response, gpointer data)
 {
 	AccountDialog *dialog;
 	AccountDialogPrivate *priv;
-	GtkTreeIter iter;
-	guint port;
-	gchar *hostname, *password;
-	gboolean use;
-	CodeSetType code_type;
-	CodeConv *codeconv;
+	GList *nick_list;
+	gint code_type;
 
 	dialog = ACCOUNT_DIALOG(data);
 
@@ -171,236 +161,76 @@ account_dialog_response_cb(GtkWidget *widget, gint response, gpointer data)
 
 	switch(response) {
 	case GTK_RESPONSE_OK:
-		codeconv = codeconv_new();
 		code_type = gtk_option_menu_get_history(GTK_OPTION_MENU(priv->option_codeconv));
-		codeconv_set_codeset_type(codeconv, code_type);
+		loqui_profile_account_irc_set_codeset_type(LOQUI_PROFILE_ACCOUNT_IRC(priv->profile), code_type);
 		if(code_type == CODESET_TYPE_CUSTOM)
-			codeconv_set_codeset(codeconv, gtk_entry_get_text(GTK_ENTRY(priv->entry_codeset)));
+			loqui_profile_account_irc_set_codeset(LOQUI_PROFILE_ACCOUNT_IRC(priv->profile),
+							      gtk_entry_get_text(GTK_ENTRY(priv->entry_codeset)));
 
-		g_object_set(priv->account,
+		g_object_set(priv->profile,
 			     "use", gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(priv->check_use)),
 			     "name", gtk_entry_get_text(GTK_ENTRY(priv->entry_name)),
 			     "nick", gtk_entry_get_text(GTK_ENTRY(priv->entry_nick)),
 			     "username", gtk_entry_get_text(GTK_ENTRY(priv->entry_username)),
+			     "password", gtk_entry_get_text(GTK_ENTRY(priv->entry_password)),
 			     "realname", gtk_entry_get_text(GTK_ENTRY(priv->entry_realname)),
 			     "userinfo", gtk_entry_get_text(GTK_ENTRY(priv->entry_userinfo)),
 			     "autojoin", gtk_entry_get_text(GTK_ENTRY(priv->entry_autojoin)),
-			     "codeconv", codeconv,
+			     "servername", gtk_entry_get_text(GTK_ENTRY(priv->entry_servername)),
+			     "port", (int) gtk_spin_button_get_value(GTK_SPIN_BUTTON(priv->spin_port)),
 			     NULL);
-		gtkutils_set_string_list_from_textview(&priv->account->nick_list, GTK_TEXT_VIEW(priv->textview_nicklist));
-		g_object_unref(codeconv);
-
-		account_remove_all_server(priv->account);
-
-		if(!gtk_tree_model_get_iter_first(GTK_TREE_MODEL(priv->list_store), &iter))
-			break;
-		do {
-			gtk_tree_model_get(GTK_TREE_MODEL(priv->list_store), &iter,
-					   COLUMN_HOSTNAME, &hostname,
-					   COLUMN_PORT, &port,
-					   COLUMN_PASSWORD, &password,
-					   COLUMN_USE, &use, -1);
-			account_add_server(priv->account, hostname, port, password, use);
-		} while(gtk_tree_model_iter_next(GTK_TREE_MODEL(priv->list_store), &iter));
+		nick_list = NULL;
+		gtkutils_set_string_list_from_textview(&nick_list, GTK_TEXT_VIEW(priv->textview_nicklist));
+		loqui_profile_account_set_nick_list(priv->profile, nick_list);
 		break;
 	default:
 		break;
 	}
-}
-static void
-account_dialog_list_use_toggled_cb(GtkCellRendererToggle *cell,
-				   gchar *path_str, gpointer data)
-{
-	AccountDialog *dialog;
-	AccountDialogPrivate *priv;
-	GtkTreeIter  iter;
-
-	dialog = ACCOUNT_DIALOG(data);
-	priv = dialog->priv;
-	gtk_tree_model_get_iter_first(GTK_TREE_MODEL(priv->list_store), &iter);
-	do {
-		gtk_list_store_set(priv->list_store, &iter, COLUMN_USE, FALSE, -1);
-	} while(gtk_tree_model_iter_next(GTK_TREE_MODEL(priv->list_store), &iter));
-	
-	gtk_tree_model_get_iter_from_string(GTK_TREE_MODEL(priv->list_store), &iter, path_str);
-	gtk_list_store_set(priv->list_store, &iter, COLUMN_USE, TRUE, -1);
-}
-static void
-account_dialog_list_column_edited_cb(GtkCellRendererText *cell,
-						 const gchar *path_str,
-						 const gchar *new_text,
-						 gpointer data)
-{
-	AccountDialog *dialog;
-	AccountDialogPrivate *priv;
-	GtkTreeIter  iter;
-	gint column;
-	guint u;
-
-	dialog = ACCOUNT_DIALOG(data);
-	priv = dialog->priv;
-
-	gtk_tree_model_get_iter_from_string(GTK_TREE_MODEL(priv->list_store), &iter, path_str);
-
-	column = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(cell), "column"));
-	switch(column) {
-	case COLUMN_HOSTNAME:
-	case COLUMN_PASSWORD:
-		gtk_list_store_set(priv->list_store, &iter, column, new_text, -1);
-		break;
-	case COLUMN_PORT:
-		u = (guint) g_ascii_strtoull(new_text, NULL, 10);
-		gtk_list_store_set(priv->list_store, &iter, column, u, -1);
-		break;
-	default:
-		break;
-	}
-}
-static void
-account_dialog_add_cb(GtkWidget *widget, gpointer data)
-{
-	AccountDialog *dialog;
-	AccountDialogPrivate *priv;
-	GtkTreeIter iter;
-
-	dialog = ACCOUNT_DIALOG(data);
-	priv = dialog->priv;
-
-	gtk_list_store_append(priv->list_store, &iter);
-	gtk_list_store_set(priv->list_store, &iter,
-			   COLUMN_USE, TRUE,
-			   COLUMN_HOSTNAME, "irc.example.com",
-			   COLUMN_PORT, 6667,
-			   COLUMN_EDITABLE, TRUE,
-			   -1);
-}
-static void
-account_dialog_remove_cb(GtkWidget *widget, gpointer data)
-{
-	AccountDialog *dialog;
-	AccountDialogPrivate *priv;
-	GtkTreeIter iter, iter_next;
-	GtkTreeSelection *selection;
-
-	dialog = ACCOUNT_DIALOG(data);
-	priv = dialog->priv;
-
-	selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(priv->treeview));
-	if(!gtk_tree_selection_get_selected(selection, NULL, &iter))
-		return;
-	iter_next = iter;
-	if(gtk_tree_model_iter_next(GTK_TREE_MODEL(priv->list_store), &iter_next))
-		gtk_tree_selection_select_iter(selection, &iter_next);
-	gtk_list_store_remove(priv->list_store, &iter);
-}
-static void
-account_dialog_up_cb(GtkWidget *widget, gpointer data)
-{
-	AccountDialog *dialog;
-	AccountDialogPrivate *priv;
-	GtkTreePath *path;
-	GtkTreeIter iter, iter_prev;
-	GtkTreeSelection *selection;
-
-	dialog = ACCOUNT_DIALOG(data);
-	priv = dialog->priv;
-
-	selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(priv->treeview));
-	if(!gtk_tree_selection_get_selected(selection, NULL, &iter))
-		return;
-	path = gtk_tree_model_get_path(GTK_TREE_MODEL(priv->list_store), &iter);
-	if(!gtk_tree_path_prev(path))
-		goto error;
-	if(!gtk_tree_model_get_iter(GTK_TREE_MODEL(priv->list_store), &iter_prev, path))
-		goto error;
-	
-	gtk_list_store_swap(priv->list_store, &iter, &iter_prev);
-
- error:
-	gtk_tree_path_free(path);
-	return;
-}
-static void
-account_dialog_down_cb(GtkWidget *widget, gpointer data)
-{
-	AccountDialog *dialog;
-	AccountDialogPrivate *priv;
-	GtkTreePath *path;
-	GtkTreeIter iter, iter_next;
-	GtkTreeSelection *selection;
-
-	dialog = ACCOUNT_DIALOG(data);
-	priv = dialog->priv;
-
-	selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(priv->treeview));
-	if(!gtk_tree_selection_get_selected(selection, NULL, &iter))
-		return;
-
-	path = gtk_tree_model_get_path(GTK_TREE_MODEL(priv->list_store), &iter);
-	gtk_tree_path_next(path);
-	if(!gtk_tree_model_get_iter(GTK_TREE_MODEL(priv->list_store), &iter_next, path))
-		goto error;
-	
-	gtk_list_store_swap(priv->list_store, &iter, &iter_next);
-
- error:
-	gtk_tree_path_free(path);
-	return;
 }
 static void
 account_dialog_option_codeconv_changed_cb(GtkWidget *widget, gpointer data)
 {
 	AccountDialog *dialog;
 	AccountDialogPrivate *priv;
-	CodeConv *cur_codeconv;
 	const gchar *codeset;
 	gint i;
 
 	dialog = ACCOUNT_DIALOG(data);
 	priv = dialog->priv;
 
-	cur_codeconv = account_get_codeconv(priv->account);
-	codeset = codeconv_get_codeset(cur_codeconv);
-
 	i = gtk_option_menu_get_history(GTK_OPTION_MENU(widget));
-	if(i == CODESET_TYPE_CUSTOM) {
+	if (i == CODESET_TYPE_CUSTOM) {
 		gtk_widget_set_sensitive(priv->entry_codeset, TRUE);
-		gtk_entry_set_text(GTK_ENTRY(priv->entry_codeset), codeset);
+		codeset = loqui_profile_account_irc_get_codeset(LOQUI_PROFILE_ACCOUNT_IRC(priv->profile));
+		if (codeset)
+			gtk_entry_set_text(GTK_ENTRY(priv->entry_codeset), codeset);
 	} else {
 		gtk_widget_set_sensitive(priv->entry_codeset, FALSE);
-		if(conv_table[i].codeset)
+		if (conv_table[i].codeset)
 			gtk_entry_set_text(GTK_ENTRY(priv->entry_codeset), conv_table[i].codeset);
 		else
 			gtk_entry_set_text(GTK_ENTRY(priv->entry_codeset), "");
 	}
-
 }
+
 GtkWidget*
-account_dialog_new(Account *account)
+account_dialog_new(LoquiProfileAccount *profile)
 {
         AccountDialog *dialog;
 	AccountDialogPrivate *priv;
 	GtkWidget *notebook;
 	GtkWidget *vbox, *hbox, *vbox_c;
-	GtkWidget *scrolled_win;
 	GtkWidget *frame;
-	GtkWidget *button;
 	GtkWidget *menu;
 	GtkWidget *menuitem;
 	GtkWidget *label;
-	GtkCellRenderer *renderer;
-	GtkTreeViewColumn *column;
-	GtkTreeIter iter;
-	GSList *cur;
-	Server *server;
-	CodeConv *codeconv;
 	gint i;
-
-	g_return_val_if_fail(account != NULL, NULL);
+	const gchar *codeset;
 
 	dialog = g_object_new(account_dialog_get_type(), NULL);
+	
 	priv = dialog->priv;
-	priv->account = account;
+	priv->profile = profile;
 
 	gtk_dialog_add_buttons(GTK_DIALOG(dialog),
 			       GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
@@ -414,26 +244,50 @@ account_dialog_new(Account *account)
 
 	vbox = GTK_DIALOG(dialog)->vbox;
 	
-	hbox = gtk_hbox_new(TRUE, 0);
-	gtk_box_pack_start(GTK_BOX(vbox), hbox, FALSE, TRUE, 0);
-
-	gtkutils_add_label_entry(hbox, _("Account:"), &priv->entry_name, account_get_name(account));
-	
-	priv->check_use = gtk_check_button_new_with_label(_("Connect by default"));
-	gtk_box_pack_start(GTK_BOX(hbox), priv->check_use, TRUE, TRUE, 0);
-	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(priv->check_use), account->use);
-
 	notebook = gtk_notebook_new();
 	gtk_box_pack_start(GTK_BOX(vbox), notebook, TRUE, TRUE, 0);
 
 	vbox = gtk_vbox_new(FALSE, 0);
 	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), vbox, gtk_label_new(_("Profile")));
+	
+	hbox = gtk_hbox_new(TRUE, 0);
+	gtk_box_pack_start(GTK_BOX(vbox), hbox, FALSE, TRUE, 0);
+	
+	gtkutils_add_label_entry(hbox, _("Account name:"), &priv->entry_name, loqui_profile_account_get_name(profile));
+	
+	priv->check_use = gtk_check_button_new_with_label(_("Connect by default"));
+	gtk_box_pack_start(GTK_BOX(hbox), priv->check_use, TRUE, TRUE, 0);
 
-	gtkutils_add_label_entry(vbox, _("Nickname:"), &priv->entry_nick, account_get_nick(account));
-	gtkutils_add_label_entry(vbox, _("Username:"), &priv->entry_username, account_get_username(account));
-	gtkutils_add_label_entry(vbox, _("Realname:"), &priv->entry_realname, account_get_realname(account));
-	gtkutils_add_label_entry(vbox, _("User information:"), &priv->entry_userinfo, account_get_userinfo(account));
-	gtkutils_add_label_entry(vbox, _("Auto join channels:"), &priv->entry_autojoin, account_get_autojoin(account));
+	frame = gtk_frame_new(_("User"));
+	gtk_box_pack_start(GTK_BOX(vbox), frame, TRUE, TRUE, 0);
+	
+	vbox_c = gtk_vbox_new(TRUE, 0);
+	gtk_container_add(GTK_CONTAINER(frame), vbox_c);
+	
+	gtkutils_add_label_entry(vbox_c, _("Nickname:"), &priv->entry_nick, loqui_profile_account_get_nick(profile));
+	gtkutils_add_label_entry(vbox_c, _("User name:"), &priv->entry_username, loqui_profile_account_get_username(profile));
+	gtkutils_add_label_entry(vbox_c, _("Password:"), &priv->entry_password, loqui_profile_account_get_password(profile));
+	gtk_entry_set_visibility(GTK_ENTRY(priv->entry_password), FALSE);
+
+	frame = gtk_frame_new(_("Server"));
+	gtk_box_pack_start(GTK_BOX(vbox), frame, TRUE, TRUE, 0);
+	
+	vbox_c = gtk_vbox_new(TRUE, 0);
+	gtk_container_add(GTK_CONTAINER(frame), vbox_c);
+	
+	gtkutils_add_label_entry(vbox_c, _("Hostname:"), &priv->entry_servername, loqui_profile_account_get_servername(profile));
+	gtkutils_add_label_spin_button(vbox_c, _("Port:"), &priv->spin_port, 1, 65535, 1);
+	gtk_spin_button_set_value(GTK_SPIN_BUTTON(priv->spin_port), loqui_profile_account_get_port(profile));
+
+	vbox = gtk_vbox_new(FALSE, 0);
+	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), vbox, gtk_label_new(_("IRC")));
+	
+	gtkutils_add_label_entry(vbox, _("Realname:"), &priv->entry_realname,
+				 loqui_profile_account_irc_get_realname(LOQUI_PROFILE_ACCOUNT_IRC(profile)));
+	gtkutils_add_label_entry(vbox, _("User information:"), &priv->entry_userinfo,
+				 loqui_profile_account_irc_get_userinfo(LOQUI_PROFILE_ACCOUNT_IRC(profile)));
+	gtkutils_add_label_entry(vbox, _("Auto join channels:"), &priv->entry_autojoin,
+				 loqui_profile_account_irc_get_autojoin(LOQUI_PROFILE_ACCOUNT_IRC(profile)));
 
 	vbox = gtk_vbox_new(FALSE, 0);
 	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), vbox, gtk_label_new(_("Code")));
@@ -446,6 +300,7 @@ account_dialog_new(Account *account)
 
 	priv->option_codeconv = gtk_option_menu_new();
 	gtk_box_pack_start(GTK_BOX(hbox), priv->option_codeconv, FALSE, FALSE, 0);
+
 	menu = gtk_menu_new();
 	gtk_option_menu_set_menu(GTK_OPTION_MENU(priv->option_codeconv), menu);
 	g_signal_connect(G_OBJECT(priv->option_codeconv), "changed",
@@ -453,123 +308,21 @@ account_dialog_new(Account *account)
 	
 	priv->entry_codeset = gtk_entry_new();
 	gtk_box_pack_end(GTK_BOX(hbox), priv->entry_codeset, FALSE, FALSE, 0);
+	codeset = loqui_profile_account_irc_get_codeset(LOQUI_PROFILE_ACCOUNT_IRC(profile));
+	if (codeset)
+		gtk_entry_set_text(GTK_ENTRY(priv->entry_codeset), codeset);
 
 	label = gtk_label_new("codeset: ");
 	gtk_box_pack_end(GTK_BOX(hbox), label, FALSE, FALSE, 0);
 
 	menu = gtk_option_menu_get_menu(GTK_OPTION_MENU(priv->option_codeconv));
 
-	for(i = 0; i < N_CODESET_TYPE; i++) {
+	for (i = 0; i < N_CODESET_TYPE; i++) {
 		menuitem = gtk_menu_item_new_with_label(gettext(conv_table[i].title));
 		gtk_menu_shell_append(GTK_MENU_SHELL(menu), menuitem);
 	}
-	codeconv = account_get_codeconv(priv->account);
-	gtk_option_menu_set_history(GTK_OPTION_MENU(priv->option_codeconv),
-				    codeconv_get_codeset_type(codeconv));
-
-	vbox = gtk_vbox_new(FALSE, 0);
-	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), vbox, gtk_label_new(_("Server")));
-
-	frame = gtk_frame_new(_("Servers (Cells are editable.)"));
-	gtk_box_pack_start(GTK_BOX(vbox), frame, TRUE, TRUE, 0);
-
-	hbox = gtk_hbox_new (FALSE, 0);
-	gtk_container_add (GTK_CONTAINER (frame), hbox);
-
-	scrolled_win = gtk_scrolled_window_new(NULL, NULL);
-	gtk_box_pack_start(GTK_BOX (hbox), scrolled_win, TRUE, TRUE, 0);
-	gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled_win),
-				       GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
-
-	priv->list_store = gtk_list_store_new(COLUMN_NUMBER,
-					      G_TYPE_BOOLEAN,
-					      G_TYPE_STRING,
-					      G_TYPE_UINT,
-					      G_TYPE_STRING,
-					      G_TYPE_BOOLEAN);
-
-	for(cur = account->server_list; cur != NULL; cur = cur->next) {
-		server = (Server *) cur->data;
-
-		gtk_list_store_append(priv->list_store, &iter);
-		gtk_list_store_set(priv->list_store, &iter,
-				   COLUMN_USE, server->use,
-				   COLUMN_HOSTNAME, server->hostname,
-				   COLUMN_PORT, server->port,
-				   COLUMN_PASSWORD, server->password, 
-				   COLUMN_EDITABLE, TRUE,
-				   -1);
-	}
-
-	priv->treeview = gtk_tree_view_new_with_model(GTK_TREE_MODEL(priv->list_store));
-
-	renderer = gtk_cell_renderer_toggle_new();
-	g_signal_connect(G_OBJECT(renderer), "toggled",
-			 G_CALLBACK(account_dialog_list_use_toggled_cb), dialog);
-	gtk_cell_renderer_toggle_set_radio(GTK_CELL_RENDERER_TOGGLE(renderer), TRUE);
-	column = gtk_tree_view_column_new_with_attributes("Use",
-							  renderer,
-							  "active", COLUMN_USE,
-							  NULL);
-	gtk_tree_view_append_column(GTK_TREE_VIEW(priv->treeview), column);
-	
-	renderer = gtk_cell_renderer_text_new();
-	g_object_set_data(G_OBJECT(renderer), "column", GINT_TO_POINTER(COLUMN_HOSTNAME));
-	g_signal_connect(G_OBJECT(renderer), "edited",
-			 G_CALLBACK(account_dialog_list_column_edited_cb), dialog);
-	column = gtk_tree_view_column_new_with_attributes("Hostname",
-							  renderer,
-							  "text", COLUMN_HOSTNAME,
-							  "editable", COLUMN_EDITABLE,
-							  NULL);
-	gtk_tree_view_append_column(GTK_TREE_VIEW(priv->treeview), column);
-
-	renderer = gtk_cell_renderer_text_new();
-	g_object_set_data(G_OBJECT(renderer), "column", GINT_TO_POINTER(COLUMN_PORT));
-	g_signal_connect(G_OBJECT(renderer), "edited",
-			  G_CALLBACK(account_dialog_list_column_edited_cb), dialog);
-	column = gtk_tree_view_column_new_with_attributes("Port",
-							  renderer,
-							  "text", COLUMN_PORT,
-							  "editable", COLUMN_EDITABLE,
-							  NULL);
-	gtk_tree_view_append_column(GTK_TREE_VIEW(priv->treeview), column);
-
-	renderer = gtk_cell_renderer_text_new();
-	g_object_set_data(G_OBJECT(renderer), "column", GINT_TO_POINTER(COLUMN_PASSWORD));
-	g_signal_connect(G_OBJECT(renderer), "edited",
-			 G_CALLBACK(account_dialog_list_column_edited_cb), dialog);
-	column = gtk_tree_view_column_new_with_attributes("Password",
-							  renderer,
-							  "text", COLUMN_PASSWORD,
-							  "editable", COLUMN_EDITABLE,
-							  NULL);
-	gtk_tree_view_append_column(GTK_TREE_VIEW(priv->treeview), column);
-
-	gtk_container_add(GTK_CONTAINER(scrolled_win), priv->treeview);
-
-	vbox_c = gtk_vbox_new(TRUE, 0);
-	gtk_box_pack_start(GTK_BOX(hbox), vbox_c, FALSE, FALSE, 0);
-
-	button = gtk_button_new_from_stock(GTK_STOCK_ADD);
-	g_signal_connect(G_OBJECT(button), "clicked",
-			 G_CALLBACK(account_dialog_add_cb), dialog);
-	gtk_box_pack_start(GTK_BOX(vbox_c), button, FALSE, FALSE, 0);
-
-	button = gtk_button_new_from_stock(GTK_STOCK_GO_UP);
-	g_signal_connect(G_OBJECT(button), "clicked",
-			 G_CALLBACK(account_dialog_up_cb), dialog);
-	gtk_box_pack_start(GTK_BOX(vbox_c), button, FALSE, FALSE, 0);
-
-	button = gtk_button_new_from_stock(GTK_STOCK_GO_DOWN);
-	g_signal_connect(G_OBJECT(button), "clicked",
-			 G_CALLBACK(account_dialog_down_cb), dialog);
-	gtk_box_pack_start(GTK_BOX(vbox_c), button, FALSE, FALSE, 0);
-
-	button = gtk_button_new_from_stock(GTK_STOCK_REMOVE);
-	g_signal_connect(G_OBJECT(button), "clicked",
-			 G_CALLBACK(account_dialog_remove_cb), dialog);
-	gtk_box_pack_start(GTK_BOX(vbox_c), button, FALSE, FALSE, 0);
+ 	gtk_option_menu_set_history(GTK_OPTION_MENU(priv->option_codeconv),
+				    loqui_profile_account_irc_get_codeset_type(LOQUI_PROFILE_ACCOUNT_IRC(profile)));
 
 	vbox = gtk_vbox_new(FALSE, 0);
 	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), vbox, gtk_label_new(_("Nick")));
@@ -577,7 +330,7 @@ account_dialog_new(Account *account)
 	frame = gtkutils_create_framed_textview(&priv->textview_nicklist,
 						_("List of often used nick(Separate each words with linefeeds)"));
 	gtkutils_set_textview_from_string_list(GTK_TEXT_VIEW(priv->textview_nicklist),
-					       account->nick_list);
+					       loqui_profile_account_get_nick_list(profile));
 
 	gtk_box_pack_start(GTK_BOX(vbox), frame, TRUE, TRUE, 0);
 
@@ -590,20 +343,23 @@ void
 account_dialog_open_add_dialog(GtkWindow *parent)
 {
 	AccountDialog *dialog;
+	LoquiProfileAccount *profile;
 	Account *account;
 	gint response;
 
-	account = account_new();
-	dialog = ACCOUNT_DIALOG(account_dialog_new(account));
+	profile = LOQUI_PROFILE_ACCOUNT(loqui_profile_account_irc_new());
+	dialog = ACCOUNT_DIALOG(account_dialog_new(profile));
 	gtk_window_set_transient_for(GTK_WINDOW(dialog), parent);
 	response = gtk_dialog_run(GTK_DIALOG(dialog));
 	gtk_widget_destroy(GTK_WIDGET(dialog));
 
-	if(response == GTK_RESPONSE_OK) {
+	if (response == GTK_RESPONSE_OK) {
+		account = account_new();
+		account_set_profile(account, profile);
 		account_manager_add_account(account_manager_get(), account);
 		account_manager_save_accounts(account_manager_get());
 	} else {
-		g_object_unref(account);
+		g_object_unref(profile);
 	}
 }
 
@@ -612,7 +368,7 @@ account_dialog_open_configure_dialog(GtkWindow *parent, Account *account)
 {
 	GtkWidget *dialog;
 	
-	dialog = account_dialog_new(account);
+	dialog = account_dialog_new(account_get_profile(account));
 	gtk_window_set_transient_for(GTK_WINDOW(dialog), parent);
 	gtk_dialog_run(GTK_DIALOG(dialog));
 	gtk_widget_destroy(dialog);
@@ -636,7 +392,7 @@ account_dialog_open_remove_dialog(GtkWindow *parent, Account *account)
 	response = gtk_dialog_run(GTK_DIALOG(dialog));
 	gtk_widget_destroy(dialog);
 
-	if(response == GTK_RESPONSE_YES) {
+	if (response == GTK_RESPONSE_YES) {
 		account_manager_remove_account(account_manager_get(), account);
 		account_manager_save_accounts(account_manager_get());
 		debug_puts("Removed account.");

@@ -21,8 +21,8 @@
 #define __ACCOUNT_H__
 
 #include <glib.h>
-#include "gobject_utils.h"
 #include "codeconv.h"
+#include "loqui_profile_account.h"
 
 G_BEGIN_DECLS
 
@@ -37,7 +37,6 @@ typedef struct _Account            Account;
 typedef struct _AccountClass       AccountClass;
 
 typedef struct _AccountPrivate     AccountPrivate;
-typedef struct _Server Server;
 
 #include "channel.h"
 
@@ -45,21 +44,8 @@ struct _Account
 {
         GObject parent;
 
-	gchar *name;
-
-	gboolean use;
-
-	GSList *server_list; /* list of Server */
-	GList *nick_list; /* list of gchar * */
-
 	/* key: channel name(gchar *), value: channel(Channel) */
 	GHashTable *channel_hash;
-
-	gchar *nick;
-	gchar *username;
-	gchar *realname;
-	gchar *userinfo;
-	gchar *autojoin;
 
 	ChannelBuffer *console_buffer;
 
@@ -80,38 +66,15 @@ struct _AccountClass
 	void (* remove_channel)   (Account *account,
 				   Channel *channel);
 };
-struct _Server
-{
-	gchar *hostname;
-	guint port;
-	gchar *password;
-	gboolean use;
-};
 
 GType account_get_type(void) G_GNUC_CONST;
 
 Account* account_new(void);
-void account_print(Account *account);
 
-#define ACCOUNT_ACCESSOR_STRING(attr_name) \
-  ATTR_ACCESSOR_POINTER(g_strdup, g_free, const gchar *, G_CONST_RETURN gchar *, Account, account, attr_name)
-#define ACCOUNT_ACCESSOR_STRING_PROTOTYPE(attr_name) \
-  ATTR_ACCESSOR_POINTER_PROTOTYPE(const gchar *, G_CONST_RETURN gchar *, Account, account, attr_name)
+LoquiProfileAccount *account_get_profile(Account *account);
+void account_set_profile(Account *account, LoquiProfileAccount *profile);
 
-ACCOUNT_ACCESSOR_STRING_PROTOTYPE(name);
-ACCOUNT_ACCESSOR_STRING_PROTOTYPE(nick);
-ACCOUNT_ACCESSOR_STRING_PROTOTYPE(username);
-ACCOUNT_ACCESSOR_STRING_PROTOTYPE(realname);
-ACCOUNT_ACCESSOR_STRING_PROTOTYPE(userinfo);
-ACCOUNT_ACCESSOR_STRING_PROTOTYPE(autojoin);
-
-void account_add_server(Account *account, const gchar *hostname,
-			gint port, const gchar *password,
-			gboolean use);
-void account_remove_all_server(Account *account);
-
-void account_connect_default(Account *account);
-void account_connect(Account *account, Server *server);
+void account_connect(Account *account);
 void account_disconnect(Account *account);
 gboolean account_is_connected(Account *account);
 

@@ -54,6 +54,7 @@ GtkType account_list_dialog_get_type (void) G_GNUC_CONST;
 GtkWidget* account_list_dialog_new (void);
 
 void account_list_dialog_open(GtkWindow *parent);
+void account_list_dialog_open_for_connect(GtkWindow *parent);
 
 G_END_DECLS
 

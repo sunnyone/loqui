@@ -152,7 +152,7 @@ account_list_dialog_construct_list(AccountListDialog *dialog)
 
 		gtk_list_store_append(priv->list_store, &iter);
 		gtk_list_store_set(priv->list_store, &iter,
-				   COLUMN_NAME, account_get_name(account), 
+				   COLUMN_NAME, loqui_profile_account_get_name(account_get_profile(account)),
 				   COLUMN_POINTER, account,
 				   -1);
 	}
@@ -237,7 +237,7 @@ account_list_dialog_new (void)
 	gtk_window_set_title(GTK_WINDOW(dialog), _("Account List"));
 	/* TODO: destroy with parent window */
 	gtk_dialog_add_buttons(GTK_DIALOG(dialog), 
-			       GTK_STOCK_OK, GTK_RESPONSE_NONE, 
+			       GTK_STOCK_CLOSE, GTK_RESPONSE_CLOSE,
 			       NULL);
 
 	hbox = gtk_hbox_new(FALSE, 0);
@@ -293,4 +293,9 @@ account_list_dialog_open(GtkWindow *parent)
 	gtk_window_set_transient_for(GTK_WINDOW(dialog), parent);
 	gtk_dialog_run(GTK_DIALOG(dialog));
 	gtk_widget_destroy(dialog);
+}
+void
+account_list_dialog_open_for_connect(GtkWindow *parent)
+{
+	// TODO: 
 }

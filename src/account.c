@@ -30,6 +30,7 @@
 #include "intl.h"
 #include "prefs_general.h"
 #include "ctcp_message.h"
+#include "loqui_profile_account_irc.h"
 
 #include <string.h>
 
@@ -44,15 +45,6 @@ enum {
 };
 
 enum {
-	PROP_0,
-	PROP_NAME,
-	PROP_USE,
-	PROP_NICK,
-	PROP_USERNAME,
-	PROP_REALNAME,
-	PROP_USERINFO,
-	PROP_AUTOJOIN,
-	PROP_CODECONV,
 	LAST_PROP
 };
 
@@ -60,9 +52,9 @@ struct _AccountPrivate
 {
 	IRCHandle *handle;
 	IRCConnection *connection;
-
+	LoquiProfileAccount *profile;
+	
 	CodeConv *codeconv;
-	Server *server_on_connecting;
 
 	gchar *current_nick;
 	gboolean is_away;
@@ -70,7 +62,6 @@ struct _AccountPrivate
 
 static GObjectClass *parent_class = NULL;
 #define PARENT_TYPE G_TYPE_OBJECT
-#define IRC_DEFAULT_PORT 6667
 
 static guint account_signals[LAST_SIGNAL] = { 0 };
 
@@ -92,7 +83,6 @@ static void account_connection_disconnected_cb(GObject *object, Account *account
 static void account_connection_terminated_cb(GObject *object, Account *account);
 static void account_connection_warn_cb(GObject *object, gchar *str, Account *account);
 static void account_connection_info_cb(GObject *object, gchar *str, Account *account);
-static void account_connect_internal(Account *account, Server *server);
 
 GType
 account_get_type(void)
@@ -130,57 +120,7 @@ account_class_init (AccountClass *klass)
         object_class->finalize = account_finalize;
 	object_class->set_property = account_set_property;
 	object_class->get_property = account_get_property;
-
-	g_object_class_install_property(object_class,
-					PROP_NAME,
-					g_param_spec_string("name",
-							    _("Name"),
-							    _("Account name"),
-							    NULL, G_PARAM_READWRITE));
-	g_object_class_install_property(object_class,
-					PROP_NICK,
-					g_param_spec_string("nick",
-							    _("Nick"),
-							    _("Nickname at first"),
-							    NULL, G_PARAM_READWRITE));
-	g_object_class_install_property(object_class,
-					PROP_USE,
-					g_param_spec_boolean("use",
-							     _("Use account"),
-							     _("Whether or not to connect this account by default"),
-							     TRUE, G_PARAM_READWRITE));
-	g_object_class_install_property(object_class,
-					PROP_USERNAME,
-					g_param_spec_string("username",
-							    _("Username"),
-							    _("Username"),
-							    NULL, G_PARAM_READWRITE));
-	g_object_class_install_property(object_class,
-					PROP_REALNAME,
-					g_param_spec_string("realname",
-							    _("Realname"),
-							    _("Realname"),
-							    NULL, G_PARAM_READWRITE));
-	g_object_class_install_property(object_class,
-					PROP_USERINFO,
-					g_param_spec_string("userinfo",
-							    _("User information"),
-							    _("User information used with CTCP USERINFO"),
-							    NULL, G_PARAM_READWRITE));
-	g_object_class_install_property(object_class,
-					PROP_AUTOJOIN,
-					g_param_spec_string("autojoin",
-							    _("Autojoin channels"),
-							    _("Channels which are joined automatically"),
-							    NULL, G_PARAM_READWRITE));
-	g_object_class_install_property(object_class,
-					PROP_CODECONV,
-					g_param_spec_object("codeconv",
-							    _("Code Converter"),
-							    _("Character code converter for IRC server"),
-							    TYPE_CODECONV, G_PARAM_READWRITE));
-
-
+	
 	account_signals[CONNECTED] = g_signal_new("connected",
 						  G_OBJECT_CLASS_TYPE(object_class),
 						  G_SIGNAL_RUN_FIRST,
@@ -227,7 +167,7 @@ account_class_init (AccountClass *klass)
 						       TYPE_CHANNEL);
 }
 static void 
-account_init (Account *account)
+account_init(Account *account)
 {
 	AccountPrivate *priv;
 
@@ -235,17 +175,14 @@ account_init (Account *account)
 
 	account->priv = priv;
 	priv->is_away = FALSE;
+	
 	account->channel_hash = g_hash_table_new_full(channel_name_hash, channel_name_equal, g_free, g_object_unref);
-	priv->codeconv = codeconv_new();
-	codeconv_set_codeset_type(priv->codeconv, CODESET_TYPE_AUTO_DETECTION);
 }
 static void 
 account_finalize (GObject *object)
 {
 	Account *account;
 	AccountPrivate *priv;
-	GSList *cur;
-	Server *server;
 
         g_return_if_fail(object != NULL);
         g_return_if_fail(IS_ACCOUNT(object));
@@ -254,27 +191,9 @@ account_finalize (GObject *object)
 	priv = account->priv;
 	
 	G_OBJECT_UNREF_UNLESS_NULL(priv->handle);
-	G_OBJECT_UNREF_UNLESS_NULL(priv->codeconv);
-
-	G_FREE_UNLESS_NULL(account->name);
-	G_FREE_UNLESS_NULL(account->nick);
-	G_FREE_UNLESS_NULL(account->username);
-	G_FREE_UNLESS_NULL(account->realname);
-	G_FREE_UNLESS_NULL(account->userinfo);
-	G_FREE_UNLESS_NULL(account->autojoin);
-
-	for(cur = account->server_list; cur != NULL; cur = cur->next) {
-		if(cur->data) {
-			server = (Server *) cur->data;
-			if(server->hostname) g_free(server->hostname);
-			if(server->password) g_free(server->password);
-			g_free(server);
-		}
-	}
-	if(account->server_list) {
-		g_slist_free(account->server_list);
-		account->server_list = NULL;
-	}
+	G_OBJECT_UNREF_UNLESS_NULL(priv->connection);
+	G_OBJECT_UNREF_UNLESS_NULL(priv->profile);
+	
 	if(account->channel_hash) {
 		g_hash_table_destroy(account->channel_hash);
 		account->channel_hash = NULL;
@@ -297,30 +216,6 @@ static void account_set_property(GObject *object,
 	account = ACCOUNT(object);
 
 	switch(param_id) {
-	case PROP_NAME:
-		account_set_name(account, g_value_get_string(value));
-		break;
-	case PROP_NICK:
-		account_set_nick(account, g_value_get_string(value));
-		break;
-	case PROP_USE:
-		account->use = g_value_get_boolean(value);
-		break;
-	case PROP_USERNAME:
-		account_set_username(account, g_value_get_string(value));
-		break;
-	case PROP_REALNAME:
-		account_set_realname(account, g_value_get_string(value));
-		break;
-	case PROP_USERINFO:
-		account_set_userinfo(account, g_value_get_string(value));
-		break;
-	case PROP_AUTOJOIN:
-		account_set_autojoin(account, g_value_get_string(value));
-		break;
-	case PROP_CODECONV:
-		account_set_codeconv(account, g_value_get_object(value));
-		break;
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, param_id, pspec);
 		break;
@@ -337,27 +232,6 @@ static void account_get_property(GObject  *object,
 	account = ACCOUNT(object);
 
 	switch(param_id) {
-	case PROP_NAME:
-		g_value_set_string(value, account_get_name(account));
-		break;
-	case PROP_NICK:
-		g_value_set_string(value, account_get_nick(account));
-		break;
-	case PROP_USE:
-		g_value_set_boolean(value, account->use);
-		break;
-	case PROP_USERNAME:
-		g_value_set_string(value, account_get_username(account));
-		break;
-	case PROP_REALNAME:
-		g_value_set_string(value, account_get_realname(account));
-		break;
-	case PROP_USERINFO:
-		g_value_set_string(value, account_get_userinfo(account));
-		break;
-	case PROP_AUTOJOIN:
-		g_value_set_string(value, account_get_autojoin(account));
-		break;
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, param_id, pspec);
 		break;
@@ -375,228 +249,64 @@ account_new (void)
 	return account;
 }
 
-ACCOUNT_ACCESSOR_STRING(name);
-ACCOUNT_ACCESSOR_STRING(nick);
-ACCOUNT_ACCESSOR_STRING(username);
-ACCOUNT_ACCESSOR_STRING(realname);
-ACCOUNT_ACCESSOR_STRING(userinfo);
-ACCOUNT_ACCESSOR_STRING(autojoin);
+LoquiProfileAccount *
+account_get_profile(Account *account)
+{
+        g_return_val_if_fail(account != NULL, FALSE);
+        g_return_val_if_fail(IS_ACCOUNT(account), FALSE);
 
+	return account->priv->profile;
+}
 void
-account_set_codeconv(Account *account, CodeConv *codeconv)
+account_set_profile(Account *account, LoquiProfileAccount *profile)
 {
         g_return_if_fail(account != NULL);
         g_return_if_fail(IS_ACCOUNT(account));
-	g_return_if_fail(codeconv != NULL);
-	g_return_if_fail(IS_CODECONV(codeconv));
-	
-	G_OBJECT_UNREF_UNLESS_NULL(account->priv->codeconv);
-	g_object_ref(codeconv);
-	account->priv->codeconv = codeconv;
-}
-CodeConv *
-account_get_codeconv(Account *account)
-{
-        g_return_val_if_fail(account != NULL, NULL);
-        g_return_val_if_fail(IS_ACCOUNT(account), NULL);
 
-	return account->priv->codeconv;
-}
-void
-account_print(Account *account)
-{
-	GSList *cur;
-	Server *server;
-	GParamSpec **param_specs;
-	guint n_properties;
-	gint i;
-	const gchar *param_name;
-	gchar *value_str;
-	GValue value = { 0, };
-
-        g_return_if_fail(account != NULL);
-        g_return_if_fail(IS_ACCOUNT(account));
-
-	param_specs = g_object_class_list_properties(G_OBJECT_CLASS(ACCOUNT_GET_CLASS(account)),
-						     &n_properties);
-	g_print("Account { ");
-
-	g_value_init(&value, G_TYPE_STRING);
-	for(i = 0; i < n_properties; i++) {
-		param_name = g_param_spec_get_name(param_specs[i]);
-		g_object_get_property(G_OBJECT(account), param_name, &value);
-		value_str = g_strdup_value_contents(&value);
-		g_print("%s = %s; ", param_name, value_str);
-		g_free(value_str);
-	}
-	g_print("\n");
-
-	for(cur = account->server_list; cur != NULL; cur = cur->next) {
-		server = (Server *) cur->data;
-		g_print("  Server { hostname = '%s', port = %d, password = '%s', use = %d } \n",
-			server->hostname, server->port, server->password, server->use);
-	}
-	g_print("}\n");
+	G_OBJECT_UNREF_UNLESS_NULL(account->priv->profile);
+	g_object_ref(profile);
+	account->priv->profile = profile;
 }
 
 void
-account_add_server(Account *account, const gchar *hostname, gint port,
-		   const gchar *password, gboolean use)
-{
-	Server *server;
-	AccountPrivate *priv;
-
-        g_return_if_fail(account != NULL);
-        g_return_if_fail(IS_ACCOUNT(account));
-
-	priv = account->priv;
-
-	server = g_new0(Server, 1);
-
-	server->hostname = g_strdup(hostname);
-	if(port == 0)
-		server->port = IRC_DEFAULT_PORT;
-	else
-		server->port = port;
-
-	if(password && strlen(password) > 0)
-		server->password = g_strdup(password);
-	server->use = use;
-
-	account->server_list = g_slist_append(account->server_list, server);
-}
-void
-account_remove_all_server(Account *account)
-{
-	GSList *cur;
-	Server *server;
-
-	for(cur = account->server_list; cur != NULL; cur = cur->next) {
-		server = (Server *) cur->data;
-
-		if(server->password)
-			g_free(server->password);
-		if(server->hostname)
-			g_free(server->hostname);
-		g_free(server);
-	}
-	g_slist_free(account->server_list);
-	account->server_list = NULL;
-}
-#if 0
-static Server*
-account_parse_server_string(const gchar *input)
-{
-	Server *server;
-	gchar *str, *s, *t;
-	gdouble d;
-
-	g_return_val_if_fail(input != NULL, NULL);
-	server = g_new0(Server, 1);
-	str = g_strdup(input);
-
-	s = strchr(str, '@');
-	if(s != NULL) {
-		do {
-			t = s;
-		} while((s = strchr(++s, '@')) != NULL);
-		*t = '\0';
-		server->password = g_strdup(str);
-
-		s = ++t;
-	} else
-		s = str;
- 
-	t = strchr(s, ':');
-	if(t != NULL) {
-		*t = '\0';
-		d = g_ascii_strtod(t+1, NULL);
-		if(d == 0)
-			server->port = IRC_DEFAULT_PORT;
-		else
-			server->port = d;
-	}
-	server->port = IRC_DEFAULT_PORT;
-
-	if(strlen(s) < 1) {
-		g_warning("parse_server_string error: no hostname was found.");
-		g_free(server->password);
-		g_free(server);
-		g_free(str);
-		return NULL;
-	}
-	server->hostname = g_strdup(s);
-
-	g_free(str);
-	return server;
-}
-#endif
-
-void
-account_connect_default(Account *account)
+account_connect(Account *account)
 {
 	AccountPrivate *priv;
-	GSList *cur;
-	Server *tmp_server = NULL;
-		
+	const gchar *servername, *codeset;
+	gint port;
+	gint codeset_type;
+	
+	CodeConv *codeconv;
+	gchar *str;
+	
         g_return_if_fail(account != NULL);
         g_return_if_fail(IS_ACCOUNT(account));
-	
-	priv = account->priv;
-	
-	for(cur = account->server_list; cur != NULL; cur = cur->next) {
-		if(cur->data && ((Server *) cur->data)->use) {
-			tmp_server = (Server *) cur->data;
-			break;
-		}
-	}
-	if(!tmp_server) {
-		account_console_buffer_append(account, TEXT_TYPE_ERROR, _("No usable servers found."));
-	} else {
-		account_connect_internal(account, tmp_server);
-	}
-}	
-void
-account_connect(Account *account, Server *server)
-{
-	AccountPrivate *priv;
-
-        g_return_if_fail(account != NULL);
-        g_return_if_fail(IS_ACCOUNT(account));
-	g_return_if_fail(server != NULL);
 	
 	priv = account->priv;
 
 	if(account_is_connected(account)) {
-		gtkutils_msgbox_info(GTK_MESSAGE_ERROR,
-				     _("Account '%s' has already connected."),
-				     account_get_name(account));
+		account_console_buffer_append(account, TEXT_TYPE_ERROR, _("Already connected."));
 		return;
 	}
 	
-	account_connect_internal(account, server);
-}
-static void
-account_connect_internal(Account *account, Server *server)
-{
-	AccountPrivate *priv;
-	gchar *str;
-
-        g_return_if_fail(account != NULL);
-        g_return_if_fail(IS_ACCOUNT(account));
-	g_return_if_fail(server != NULL);
-	g_return_if_fail(!account_is_connected(account));
-
-	priv = account->priv;
-
+	servername = loqui_profile_account_get_servername(LOQUI_PROFILE_ACCOUNT(priv->profile));
+	port = loqui_profile_account_get_port(LOQUI_PROFILE_ACCOUNT(priv->profile));
+	codeset_type = loqui_profile_account_irc_get_codeset_type(LOQUI_PROFILE_ACCOUNT_IRC(priv->profile));
+	codeset = loqui_profile_account_irc_get_codeset(LOQUI_PROFILE_ACCOUNT_IRC(priv->profile));
+	
 	priv->handle = irc_handle_new(account);
 
-	priv->server_on_connecting = server;
-	priv->connection = irc_connection_new(server->hostname, server->port);
-	irc_connection_set_codeconv(priv->connection, account_get_codeconv(account));
+	priv->connection = irc_connection_new(servername, port);
+
+	codeconv = codeconv_new();
+	codeconv_set_codeset_type(codeconv, codeset_type);
+	if(codeset_type == CODESET_TYPE_CUSTOM)
+		codeconv_set_codeset(codeconv, codeset);
+	irc_connection_set_codeconv(priv->connection, codeconv);
+	
 	irc_connection_set_irc_handle(priv->connection, priv->handle);
 
-	str = g_strdup_printf(_("Connecting to %s:%d"), server->hostname, server->port);
+	str = g_strdup_printf(_("Connecting to %s:%d"), servername, port);
 	account_console_buffer_append(account, TEXT_TYPE_INFO, str);
 	g_free(str);
 
@@ -613,7 +323,7 @@ account_connect_internal(Account *account, Server *server)
 	g_signal_connect(G_OBJECT(priv->connection), "info",
 			 G_CALLBACK(account_connection_info_cb), account);
 
-	g_signal_emit(account, account_signals[CONNECTED], 0);
+	g_signal_emit(account, account_signals[CONNECTED], 0);	
 }
 
 static void
@@ -621,27 +331,29 @@ account_connection_connected_cb(GObject *object, gboolean is_success, Account *a
 {
 	AccountPrivate *priv;
 	IRCMessage *msg;
-	Server *server;
-	const gchar *tmp;
+	const gchar *password, *nick, *username, *realname, *autojoin;
 
         g_return_if_fail(account != NULL);
         g_return_if_fail(IS_ACCOUNT(account));
 
 	priv = account->priv;
-	server = priv->server_on_connecting;
 
 	if(!is_success) {
 		account_console_buffer_append(account, TEXT_TYPE_INFO, _("Failed to connect."));
 		G_OBJECT_UNREF_UNLESS_NULL(priv->connection);
-//		if(priv->fallback_current)
-//			account_connect_internal(account, server); /* FIXME: not NULL */
 		return;
 	}
 
 	account_console_buffer_append(account, TEXT_TYPE_INFO, _("Connected. Sending Initial command..."));
 
-	if(server->password && strlen(server->password) > 0) {
-		msg = irc_message_create(IRCCommandPass, server->password, NULL);
+	password = loqui_profile_account_get_password(LOQUI_PROFILE_ACCOUNT(priv->profile));
+	nick = loqui_profile_account_get_nick(LOQUI_PROFILE_ACCOUNT(priv->profile));	
+	username = loqui_profile_account_get_username(LOQUI_PROFILE_ACCOUNT(priv->profile));	
+	realname = loqui_profile_account_irc_get_realname(LOQUI_PROFILE_ACCOUNT_IRC(priv->profile));	
+	autojoin = loqui_profile_account_irc_get_autojoin(LOQUI_PROFILE_ACCOUNT_IRC(priv->profile));
+	
+	if(password && strlen(password) > 0) {
+		msg = irc_message_create(IRCCommandPass, password, NULL);
 		if(debug_mode) {
 			debug_puts("Sending PASS...");
 			irc_message_print(msg);
@@ -650,7 +362,7 @@ account_connection_connected_cb(GObject *object, gboolean is_success, Account *a
 		g_object_unref(msg);
 	}
 
-	msg = irc_message_create(IRCCommandNick, account->nick, NULL);
+	msg = irc_message_create(IRCCommandNick, nick, NULL);
 	if(debug_mode) {
 		debug_puts("Sending NICK...");
 		irc_message_print(msg);
@@ -658,11 +370,11 @@ account_connection_connected_cb(GObject *object, gboolean is_success, Account *a
 	irc_connection_push_message(priv->connection, msg);
 	g_object_unref(msg);
 
-	account_set_current_nick(account, account->nick);
+	account_set_current_nick(account, nick);
 	
 	msg = irc_message_create(IRCCommandUser, 
-				 account->username, "*", "*", 
-				 account->realname, NULL);
+				 username, "*", "*", 
+				 realname, NULL);
 	if(debug_mode) {
 		debug_puts("Sending USER...");
 		irc_message_print(msg);
@@ -670,9 +382,8 @@ account_connection_connected_cb(GObject *object, gboolean is_success, Account *a
 	irc_connection_push_message(priv->connection, msg);
 	g_object_unref(msg);
 
-	tmp = account_get_autojoin(account);
-	if(tmp && strlen(tmp) > 0) {
-		msg = irc_message_create(IRCCommandJoin, tmp, NULL);
+	if(autojoin && strlen(autojoin) > 0) {
+		msg = irc_message_create(IRCCommandJoin, autojoin, NULL);
 		if(debug_mode) {
 			debug_puts("Sending JOIN for autojoin...");
 			irc_message_print(msg);
@@ -701,12 +412,8 @@ account_connection_terminated_cb(GObject *object, Account *account)
 	account_console_buffer_append(account, TEXT_TYPE_INFO, _("Connection terminated."));
 
 	if(prefs_general.auto_reconnect) {
-		if(!priv->server_on_connecting) {
-			g_warning(_("Can't find the server connecting."));
-			return;
-		}
 		account_console_buffer_append(account, TEXT_TYPE_INFO, _("Trying to reconnect..."));
-		account_connect_internal(account, priv->server_on_connecting);
+		account_connect(account);
 	}
 }
 static void
@@ -816,7 +523,7 @@ account_console_buffer_append(Account *account, TextType type, gchar *str)
 	msgtext = message_text_new();
 	g_object_set(G_OBJECT(msgtext),
 		     "is_remark", FALSE,
-		     "account_name", account->name,
+		     "account_name", loqui_profile_account_get_name(account_get_profile(account)),
 		     "text_type", type,
 		     "text", str,
 		     NULL);
