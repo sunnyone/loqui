@@ -77,7 +77,8 @@ buffer_menu_update_account(GtkMenuShell *menu, Account *account)
 			g_warning(_("Menuitem's children is null in Buffer menu"));
 			break;
 		}
-		gtk_label_set_text(GTK_LABEL(children->data), account_get_name(account));
+		if(GTK_IS_LABEL(children->data))
+			gtk_label_set_text(GTK_LABEL(children->data), account_get_name(account));
 	}
 
 }
