@@ -51,8 +51,6 @@ struct _Account
 	GHashTable *user_nick_table; /* key: user, value: nick */
 	GHashTable *nick_user_table; /* key: nick, value: user */
 
-	ChannelBuffer *console_buffer;
-
         AccountPrivate *priv;
 };
 

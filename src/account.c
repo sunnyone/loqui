@@ -210,8 +210,6 @@ account_finalize (GObject *object)
 		account->nick_user_table = NULL;
 	}
 
-	G_OBJECT_UNREF_UNLESS_NULL(account->console_buffer);
-
         if (G_OBJECT_CLASS(parent_class)->finalize)
                 (* G_OBJECT_CLASS(parent_class)->finalize) (object);
 
@@ -253,9 +251,9 @@ account_new (void)
 {
         Account *account;
 
-	account = g_object_new(account_get_type(), NULL);
-	
-	account->console_buffer = channel_buffer_new();
+	account = g_object_new(account_get_type(), 
+			       "buffer", channel_buffer_new(),
+			       NULL);
 	
 	return account;
 }
@@ -527,6 +525,7 @@ void
 account_console_buffer_append(Account *account, TextType type, gchar *str)
 {
 	MessageText *msgtext;
+	ChannelBuffer *buffer;
 
 	g_return_if_fail(account != NULL);
 	g_return_if_fail(str != NULL);
@@ -539,7 +538,9 @@ account_console_buffer_append(Account *account, TextType type, gchar *str)
 		     "text", str,
 		     NULL);
 
-	channel_buffer_append_message_text(account->console_buffer, msgtext, FALSE, FALSE);
+	buffer = loqui_channel_entry_get_buffer(LOQUI_CHANNEL_ENTRY(account));
+	if (buffer)
+		channel_buffer_append_message_text(buffer, msgtext, FALSE, FALSE);
 	g_object_unref(msgtext);
 }
 void
