@@ -236,7 +236,7 @@ class Loqui:Receiver:IPMsg from Loqui:Receiver
 		g_free(identifier);
 
 		loqui_account_append_text_printf(SELF_GET_ACCOUNT(self), NULL, LOQUI_TEXT_TYPE_INFO,
-						 "*** %s (%s) (%s@%s) has disappeared",
+						 "*** %s (%s) (%s@%s) has quit",
 						 loqui_user_get_nick(user),
 						 LOQUI_UTILS_EMPTY_IF_NULL(loqui_user_ipmsg_get_group_name(LOQUI_USER_IPMSG(user))),
 						 loqui_user_get_username(user),
