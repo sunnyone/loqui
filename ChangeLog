@@ -1,3 +1,52 @@
+2003-01-12 23:27  y-imai
+
+	* src/channel.c: added include utils.h
+
+2003-01-12 23:21  y-imai
+
+	* po/ja.po: updated po
+
+2003-01-12 23:07  y-imai
+
+	* src/: channel_text.c, loqui_app.c: added underlined branket of
+	gettext
+
+2003-01-12 23:03  y-imai
+
+	* src/irc_handle.c: fixed handling a private message
+
+2003-01-12 14:37  y-imai
+
+	* src/channel.c: fixed about finding user
+
+2003-01-11 16:24  y-imai
+
+	* src/channel_text.c: added uri picker
+
+2003-01-11 14:50  y-imai
+
+	* src/channel.c: not to use structure after free()
+
+2003-01-11 14:43  y-imai
+
+	* src/: irc_handle.c, main.c, main.h: added option --show-msg
+
+2003-01-11 14:43  y-imai
+
+	* src/irc_message.c: changed inspect format
+
+2003-01-11 14:00  y-imai
+
+	* src/irc_handle.c: disconnect when the thread exits
+
+2003-01-11 13:51  y-imai
+
+	* src/irc_message.c: checking if tmp == cur in irc_message_format
+
+2003-01-10 20:58  y-imai
+
+	* ChangeLog: changelog
+
 2003-01-10 20:46  y-imai
 
 	* src/irc_handle.c: remove needless printing
