@@ -190,6 +190,8 @@ nick_list_new (void)
                                    G_TYPE_POINTER);
         gtk_tree_view_set_model(GTK_TREE_VIEW(list), GTK_TREE_MODEL(model));
 
+	gtk_tree_view_set_headers_clickable(GTK_TREE_VIEW(list), TRUE);
+
 	sel = gtk_tree_view_get_selection(GTK_TREE_VIEW(list));
         gtk_tree_selection_set_mode(sel, GTK_SELECTION_MULTIPLE);
 	

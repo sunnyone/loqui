@@ -90,8 +90,8 @@ channel_init (Channel *channel)
 	priv = g_new0(ChannelPrivate, 1);
 
 	channel->priv = priv;
+	channel->mode = NULL;
 	priv->topic = NULL;
-
 }
 static void 
 channel_finalize (GObject *object)

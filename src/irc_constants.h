@@ -8,6 +8,8 @@
 #define IRCCommandChar = '\001';
 #define IRCModeChar    = '\007';
 
+#define IRC_MESSAGE_PARAMETER_MAX 15
+
 enum IRCModeFlag {
   /* user mode */
   MODE_IRC_UserInvisible             = 'i',

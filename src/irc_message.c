@@ -23,6 +23,7 @@
 #include "command_table.h"
 #include "utils.h"
 #include <stdarg.h>
+#include "irc_constants.h"
 
 struct _IRCMessagePrivate
 {
@@ -38,7 +39,6 @@ static void irc_message_finalize(GObject *object);
 /* this function returns TRUE if str is nick!user@host
    Then nick, user and host must be freed. */
 static gboolean irc_message_parse_prefix(const gchar *str, gchar **nick, gchar **user, gchar **host);
-static gint irc_message_count_parameters(IRCMessage *msg);
 
 GType
 irc_message_get_type(void)
@@ -366,7 +366,7 @@ irc_message_to_string(IRCMessage *msg)
 
 	return str;
 }
-static gint
+gint
 irc_message_count_parameters(IRCMessage *msg)
 {
 	gint num;
@@ -386,7 +386,7 @@ gchar *
 irc_message_get_param(IRCMessage *msg, guint i)
 {
 	int num;
-	g_return_val_if_fail(1 <= i && i <= 15, NULL);
+	g_return_val_if_fail(1 <= i && i <= IRC_MESSAGE_PARAMETER_MAX, NULL);
 
 	i--;
 	num = irc_message_count_parameters(msg);

@@ -24,6 +24,7 @@
 #include "utils.h"
 #include "account.h"
 #include "account_manager.h"
+#include "irc_constants.h"
 
 struct _IRCHandlePrivate
 {
@@ -69,6 +70,7 @@ static void irc_handle_command_quit(IRCHandle *handle, IRCMessage *msg);
 static void irc_handle_command_join(IRCHandle *handle, IRCMessage *msg);
 static void irc_handle_command_part(IRCHandle *handle, IRCMessage *msg);
 static void irc_handle_command_nick(IRCHandle *handle, IRCMessage *msg);
+static void irc_handle_command_mode(IRCHandle *handle, IRCMessage *msg);
 
 static void irc_handle_account_console_append(IRCHandle *handle, IRCMessage *msg, TextType type, gchar *format);
 static void irc_handle_channel_append(IRCHandle *handle, IRCMessage *msg, gboolean make_channel,
@@ -278,6 +280,127 @@ irc_handle_command_nick(IRCHandle *handle, IRCMessage *msg)
 		g_slist_free(slist);
 }
 
+/* FIXME: this function current handles user's op and speak ability only. */
+static void
+irc_handle_command_mode(IRCHandle *handle, IRCMessage *msg)
+{
+	gchar *changer = NULL;
+	gchar *name, *flags, *format, *changee;
+	gboolean is_add = TRUE;
+	gint i = 0, param_num;
+	Channel *channel = NULL;
+
+	if(msg->nick)
+		changer = msg->nick;
+	else if(msg->prefix)
+		changer = msg->prefix;
+	else {
+		g_warning(_("Who can change mode?"));
+		return;
+	}
+	if(strchr(changer, '%')) {
+		g_warning(_("Nick should not contain '%%'"));
+		return;
+	}
+
+	name = irc_message_get_param(msg, 1);
+	if(name == NULL) {
+		g_warning(_("The target is not found in MODE command"));
+		return;
+	}
+
+	flags = irc_message_get_param(msg, 2);
+	if(flags == NULL || *flags == '\0') {
+		g_warning(_("Flags are not found in MODE command"));
+		return;
+	}
+
+	i = 3;
+
+	switch (*flags) {
+	case '+':
+		is_add = TRUE;
+		break;
+	case '-':
+		is_add = FALSE;
+		break;
+	default:
+		g_warning(_("Flags don't have + or -"));
+		return;
+	}
+	flags++;
+
+	param_num = irc_message_count_parameters(msg);
+	
+	if(STRING_IS_CHANNEL(name)) {
+		channel = account_search_channel_by_name(handle->priv->account, name);
+		if(!channel) {
+			g_warning(_("Why can you know the change of his mode?"));
+			return;
+		}
+
+		while (*flags) {
+			if(param_num < i) {
+				g_warning(_("Invalid MODE command"));
+				return;
+			}
+			changee = irc_message_get_param(msg, i);
+			if(!changee) {
+				g_warning(_("Can't find a nick to change mode"));
+				return;
+			}
+
+#define CHANGE_USER_POWER(nick, power) { \
+  gdk_threads_enter(); \
+  channel_change_user_power(channel, nick, power); \
+  gdk_threads_leave(); \
+}
+			switch(*flags) {
+			case MODE_IRC_ChannelOperatorPrivs:
+				if(is_add) {
+					CHANGE_USER_POWER(changee, USER_POWER_OP);
+				} else {
+					CHANGE_USER_POWER(changee, USER_POWER_NOTHING); /* FIXME */
+				}
+				break;
+			case MODE_IRC_ChannelSpeakAbility:
+				if(is_add) {
+					CHANGE_USER_POWER(changee, USER_POWER_V);
+				} else {
+					CHANGE_USER_POWER(changee, USER_POWER_NOTHING); /* FIXME */
+				}
+				break;
+			case MODE_IRC_ChannelPrivateChannel:
+			case MODE_IRC_ChannelSecretChannel:
+			case MODE_IRC_ChannelInviteOnly:
+			case MODE_IRC_ChannelTopicSettable:
+			case MODE_IRC_ChannelNoMessagesFromOutside:
+			case MODE_IRC_ChannelModerated:
+			case MODE_IRC_ChannelUserLimit:
+			case MODE_IRC_ChannelBanMask:
+			case MODE_IRC_ChannelChannelKey:
+				break;
+			default:
+				g_warning(_("Unknown mode flag"));
+				break;
+			}
+			flags++;
+			i++;
+		}
+	} else {
+	}
+
+#undef CHANGE_USER_POWER
+
+	format = g_strdup_printf(_("*** New mode for %%1 by %s: %%*2"), changer);
+	if(channel) {
+		irc_handle_channel_append(handle, msg, FALSE, 1, TEXT_TYPE_INFO, format);
+	} else {
+		irc_handle_account_console_append(handle, msg, TEXT_TYPE_INFO, format);
+	}
+
+	g_free(format);
+}
 static void
 irc_handle_command_join(IRCHandle *handle, IRCMessage *msg)
 {
@@ -619,6 +742,9 @@ irc_handle_command(IRCHandle *handle, IRCMessage *msg)
 	case IRC_COMMAND_NOTICE:
 	case IRC_COMMAND_PRIVMSG:
 		irc_handle_command_privmsg_notice(handle, msg);
+		return TRUE;
+	case IRC_COMMAND_MODE:
+		irc_handle_command_mode(handle, msg);
 		return TRUE;
 	case IRC_COMMAND_NICK:
 		irc_handle_command_nick(handle, msg);
