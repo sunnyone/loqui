@@ -24,6 +24,7 @@ loqui_SOURCES = \
 	account_manager.c account_manager.h \
 	loqui_stock.c loqui_stock.h \
 	loqui_app.c loqui_app.h \
+	loqui_channel_entry_store.c loqui_channel_entry_store.h \
 	account.c account.h \
 	codeconv.c codeconv.h \
 	loqui_dropdown_box.c loqui_dropdown_box.h \
