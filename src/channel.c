@@ -40,7 +40,10 @@ gint compare_user_nick_with_nick(gconstpointer data1, gconstpointer data2)
 {
 	User *user;
 
-	if(data1 == NULL) return 0;
+	g_return_val_if_fail(data1 != NULL, -1);
+	g_return_val_if_fail(data2 != NULL, -1);
+
+/*	if(data1 == NULL) return -1; */
 
 	user = (User *)data1;
 
@@ -314,9 +317,11 @@ void channel_clear_user(Channel *channel)
 	User *user;
 
 	for(cur = channel->user_list; cur != NULL; cur = cur->next) {
-		if(!cur->data) continue;
-
 		user = (User *)cur->data;
+		if(!user) {
+			debug_puts("NULL User is found!");
+			continue;
+		}
 
 		g_free(user->nick);
 		g_free(user);
