@@ -5,7 +5,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: loqui 0.0.6\n"
-"POT-Creation-Date: 2003-02-12 02:41+0900\n"
+"POT-Creation-Date: 2003-02-16 14:25+0900\n"
 "PO-Revision-Date: 2002-11-10 13:17+0900\n"
 "Last-Translator: Yoichi Imai <yoichi@silver-forest.com>\n"
 "Language-Team: Japanese <ja@li.org>\n"
@@ -54,11 +54,11 @@ msgstr "ユーザ情報:"
 msgid "Auto join channels:"
 msgstr "自動joinチャンネル:"
 
-#: src/account_dialog.c:374
+#: src/account_dialog.c:373
 msgid "Servers (Cells are editable.)"
 msgstr "サーバ(セルは編集可能です)"
 
-#: src/account_dialog.c:526
+#: src/account_dialog.c:525
 msgid ""
 "This account's configuration and connection will be removed.\n"
 "Do you really want to remove this account?"
@@ -78,16 +78,33 @@ msgstr "名前"
 msgid "Failed to add channel"
 msgstr "チャンネルを追加するのに失敗しました"
 
-#: src/codeconv.c:52
-msgid "the setting of codeconv was invalid; now 'Auto Detection' is selected."
+#: src/codeconv.c:37 src/codeconv.c:57
+msgid "Auto Detection"
+msgstr ""
+
+#: src/codeconv.c:38
+msgid "No conv"
+msgstr ""
+
+#: src/codeconv.c:39
+msgid "Custom"
+msgstr ""
+
+#: src/codeconv.c:40
+msgid "Japanese"
+msgstr ""
+
+#: src/codeconv.c:57
+#, fuzzy, c-format
+msgid "the setting of codeconv was invalid; now '%s' is selected."
 msgstr "codeconvの設定が不正です。自動選択が選択されます。"
 
-#: src/codeconv.c:95
+#: src/codeconv.c:96
 #, c-format
 msgid "Code convartion error: %s"
 msgstr "コード変換エラー: %s"
 
-#: src/codeconv.c:157
+#: src/codeconv.c:158
 #, fuzzy
 msgid "Unknown error occured in code convertion."
 msgstr "コード変換で不明なエラーが発生する"
@@ -95,6 +112,15 @@ msgstr "コード変換で不明なエラーが発生する"
 #: src/connection.c:254
 msgid "Connection error"
 msgstr "接続エラー"
+
+#: src/gtkutils.c:137
+msgid "Illegal command"
+msgstr ""
+
+#: src/gtkutils.c:155
+#, c-format
+msgid "Error occured when executing command: %s"
+msgstr ""
 
 #: src/irc_handle.c:176
 msgid "This PRIVMSG/NOTICE message doesn't contain a remark."
@@ -260,19 +286,23 @@ msgstr "接続しました。初期コマンドを送信しています..."
 msgid "Done."
 msgstr "完了。"
 
-#: src/irc_handle.c:1040
+#: src/irc_handle.c:1034
+msgid "Sent join command for autojoin."
+msgstr ""
+
+#: src/irc_handle.c:1055
 msgid "Connection terminated."
 msgstr "接続は切断されました。"
 
-#: src/irc_handle.c:1139
+#: src/irc_handle.c:1154
 msgid "Connection thread is not created."
 msgstr "接続スレッドが作られていません"
 
-#: src/irc_handle.c:1143
+#: src/irc_handle.c:1158
 msgid "Thread sending message is not created."
 msgstr "メッセージを送るスレッドが作られていません"
 
-#: src/irc_handle.c:1147
+#: src/irc_handle.c:1162
 msgid "Message queue is not created."
 msgstr "メッセージキューが作られていません"
 
@@ -280,88 +310,93 @@ msgstr "メッセージキューが作られていません"
 msgid "Invalid parameter number"
 msgstr ""
 
-#: src/loqui_app.c:223
+#: src/loqui_app.c:224
 #, fuzzy
 msgid "No accounts are selected!"
 msgstr "チャンネルが選択されていません"
 
-#: src/loqui_menu.c:48
+#: src/loqui_menu.c:49
 msgid "/_File"
 msgstr "/ファイル(_F)"
 
-#: src/loqui_menu.c:49
+#: src/loqui_menu.c:50
 msgid "/File/_Connect"
 msgstr "/File/接続(_C)"
 
-#: src/loqui_menu.c:50
+#: src/loqui_menu.c:51
 msgid "/File/_Quit"
 msgstr "/File/終了(_Q)"
 
-#: src/loqui_menu.c:51
+#: src/loqui_menu.c:52
 msgid "/_Edit"
 msgstr "/編集(_E)"
 
-#: src/loqui_menu.c:52
+#: src/loqui_menu.c:53
 msgid "/Edit/Cut"
 msgstr "/Edit/切り取り"
 
-#: src/loqui_menu.c:53
+#: src/loqui_menu.c:54
 msgid "/Edit/_Copy"
 msgstr "/Edit/コピー(_C)"
 
-#: src/loqui_menu.c:54
+#: src/loqui_menu.c:55
 msgid "/Edit/_Paste"
 msgstr "/Edit/ペースト(_P)"
 
-#: src/loqui_menu.c:55
+#: src/loqui_menu.c:56
 msgid "/Edit/Paste with linefeeds cut"
 msgstr "/Edit/改行を削除してペースト"
 
-#: src/loqui_menu.c:56
+#: src/loqui_menu.c:57
 msgid "/Edit/_Find"
 msgstr ""
 
-#: src/loqui_menu.c:57
+#: src/loqui_menu.c:58
 msgid "/Edit/_Find again"
 msgstr ""
 
-#: src/loqui_menu.c:59
+#: src/loqui_menu.c:60
 msgid "/Edit/Clear _buffer"
 msgstr ""
 
-#: src/loqui_menu.c:60
+#: src/loqui_menu.c:61
 msgid "/Edit/Clear co_mmon buffer"
 msgstr ""
 
-#: src/loqui_menu.c:61
+#: src/loqui_menu.c:62
 msgid "/_Server"
 msgstr "/サーバ(_S)"
 
-#: src/loqui_menu.c:62
+#: src/loqui_menu.c:63
 msgid "/_Channel"
 msgstr "/チャンネル(_C)"
 
-#: src/loqui_menu.c:63
+#: src/loqui_menu.c:64
 msgid "/_User"
 msgstr "/ユーザ(_U)"
 
-#: src/loqui_menu.c:64
+#: src/loqui_menu.c:65
 msgid "/_View"
 msgstr "/表示(_V)"
 
-#: src/loqui_menu.c:65
+#: src/loqui_menu.c:66
 msgid "/_Settings"
 msgstr "/設定(_S)"
 
-#: src/loqui_menu.c:66
+#: src/loqui_menu.c:67
+#, fuzzy
+msgid "/Settings/Common Prefsrences..."
+msgstr "/Settings/アカウント設定..."
+
+#: src/loqui_menu.c:68
 msgid "/Settings/Account Settings..."
 msgstr "/Settings/アカウント設定..."
 
-#: src/loqui_menu.c:67
+#: src/loqui_menu.c:69
 msgid "/_Help"
 msgstr "/ヘルプ(_H)"
 
-#: src/loqui_menu.c:68
+#: src/loqui_menu.c:70
 msgid "/Help/_About"
 msgstr "/Help/このプログラムについて(_A)"
 
@@ -389,20 +424,20 @@ msgstr "スクロール"
 msgid "Toggle whether scrolling"
 msgstr "スクロールするかどうかを切り替え"
 
-#: src/main.c:50
+#: src/main.c:51
 #, c-format
 msgid "Invalid \"%s\""
 msgstr ""
 
-#: src/main.c:88
+#: src/main.c:89
 msgid "  --debug      debug mode\n"
 msgstr ""
 
-#: src/main.c:89
+#: src/main.c:90
 msgid "  --show-msg   show message mode\n"
 msgstr ""
 
-#: src/main.c:90
+#: src/main.c:91
 msgid "  --help       show this help\n"
 msgstr ""
 
@@ -453,7 +488,7 @@ msgstr ""
 msgid "Invalid hostname: %s"
 msgstr ""
 
-#: src/prefs_account.c:192 src/prefs_general.c:112
+#: src/prefs_account.c:192 src/prefs_general.c:117
 #, c-format
 msgid "Invalid element: %s"
 msgstr ""
@@ -463,27 +498,27 @@ msgstr ""
 msgid "Accountrc parse error: %s"
 msgstr "Accountrcパースエラー: %s"
 
-#: src/prefs_account.c:264 src/prefs_account.c:302 src/prefs_general.c:249
-#: src/prefs_general.c:280
+#: src/prefs_account.c:264 src/prefs_account.c:302 src/prefs_general.c:254
+#: src/prefs_general.c:285
 #, c-format
 msgid "Can't open %s: %s"
 msgstr "%sが開けませんでした: %s"
 
-#: src/prefs_account.c:274 src/prefs_general.c:259
+#: src/prefs_account.c:274 src/prefs_general.c:264
 #, c-format
 msgid "Loquirc parse error: %s"
 msgstr ""
 
-#: src/prefs_general.c:121
+#: src/prefs_general.c:126
 #, c-format
 msgid "prefs_general: Invalid attribute for entry: %s"
 msgstr ""
 
-#: src/prefs_general.c:127
+#: src/prefs_general.c:132
 #, c-format
 msgid "Unknown key: %s\n"
 msgstr ""
 
-#: src/prefs_general.c:177 src/prefs_general.c:200
+#: src/prefs_general.c:182 src/prefs_general.c:205
 msgid "Unsupported pref type!"
 msgstr ""

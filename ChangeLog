@@ -1,3 +1,74 @@
+2003-02-19 15:08  y-imai
+
+	* src/: account.c, account_manager.c, account_manager.h,
+	channel_tree.c, irc_handle.c: removed
+	account_manager_select_current_*
+
+2003-02-19 14:29  y-imai
+
+	* src/: Makefile.am, channel_buffer.c, main.c, prefs_account.c,
+	prefs_dialog.c, prefs_emphasis_words.c, prefs_emphasis_words.h,
+	prefs_general.c, prefs_highlight.c, prefs_highlight.h: substituted
+	emphasis with highlight
+
+2003-02-19 13:08  y-imai
+
+	* src/channel.c: use strcmp instead of g_ascii_strcasecmp
+
+2003-02-19 12:30  y-imai
+
+	* src/: account.c, channel.c, channel.h, channel_tree.c,
+	irc_handle.c, nick_list.c: USER_POWER_V is replaced with
+	USER_POWER_VOICE
+
+2003-02-19 12:18  y-imai
+
+	* src/connection.c: changed looping condition
+
+2003-02-19 12:02  y-imai
+
+	* src/: connection.c, irc_handle.c: enabled handling error in
+	irc_handle
+
+2003-02-19 11:44  y-imai
+
+	* src/connection.c: avoid buffering error
+
+2003-02-19 11:32  y-imai
+
+	* src/: account_manager.c, channel_tree.c: use changed signal
+	instead of selection function
+
+2003-02-19 11:06  y-imai
+
+	* src/connection.c: lock mutex
+
+2003-02-19 10:44  y-imai
+
+	* src/connection.c: Don't use iochannel internal buffer.
+
+2003-02-19 09:23  y-imai
+
+	* src/: connection.c, connection.h, irc_handle.c: use GIOChannel
+	function of glib2
+
+2003-02-18 22:20  y-imai
+
+	* src/irc_handle.c: not showing mode command
+
+2003-02-17 18:07  y-imai
+
+	* src/: account_manager.c, channel.c, channel.h, irc_constants.h,
+	irc_handle.c, nick_list.c: implemented channel mode
+
+2003-02-17 13:17  y-imai
+
+	* src/irc_handle.c: removed end_motd.
+
+2003-02-16 14:24  y-imai
+
+	* ChangeLog, NEWS, configure.in, po/ja.po, po/loqui.pot: 0.1.4
+
 2003-02-16 14:21  y-imai
 
 	* src/: account_manager.c, account_manager.h, loqui_menu.c:

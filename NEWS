@@ -43,4 +43,9 @@
 * Notification feature.
 * Clickable URL.
 * Common Preferences dialog.
- 
+
+2003-02-19     0.1.5 Release
+* Replaced emphasis with highlight.
+* Fix the high load when selected a channel.
+* Show channel modes.
+
