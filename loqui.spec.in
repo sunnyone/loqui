@@ -1,0 +1,41 @@
+%define ver @VERSION@
+
+Summary: Loqui - a IRC client for Gtk2 -
+Name: loqui
+Version: %{ver}
+Release: 1
+Group: Applications/Internet
+Source: http://loqui.good-day.net/src/%{name}-%{ver}.tar.gz
+Copyright: GPL
+Packager: Yoichi Imai <yoichi@silver-forest.com>
+Requires: gtk2 >= 2.2.0, gnet2 >= 2.0.0
+BuildRequires: gtk2-devel >= 2.2.0, gnet2-devel >= 2.0.0
+URL: http://loqui.good-day.net/
+BuildRoot: /var/tmp/%{name}-root
+
+%description
+Loqui is a 4-paned IRC client, which supports multiple servers.
+
+%prep
+rm -rf $RPM_BUILD_ROOT
+%setup
+
+%build
+%configure
+make
+
+%install
+%makeinstall
+
+%clean
+rm -rf $RPM_BUILD_ROOT
+
+%files
+%defattr (-,root,root)
+%doc README COPYING INSTALL ChangeLog ABOUT-NLS AUTHORS
+%{_bindir}/bin/loqui
+%{_datadir}/locale/*/LC_MESSAGES/loqui.mo
+
+%changelog
+* Sat Jun 7 2003 Yoichi Imai <yoichi@silver-forest.com>
+- created spec.in
