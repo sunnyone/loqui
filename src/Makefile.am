@@ -37,13 +37,11 @@ loqui_SOURCES = \
 	loqui_channelbar.c loqui_channelbar.h \
 	loqui_select_dialog.c loqui_select_dialog.h \
 	loqui-core-gtk.gob loqui-core-gtk.c loqui-core-gtk.h loqui-core-gtk-private.h \
-	loqui-style-entry.gob loqui-style-entry.c loqui-style-entry.h loqui-style-entry-private.h \
-	loqui-style-prefs.gob loqui-style-prefs.c loqui-style-prefs.h loqui-style-prefs-private.h
+	loqui-style-entry.gob loqui-style-entry.c loqui-style-entry.h loqui-style-entry-private.h
 
 BUILT_SOURCES := \
 	loqui-core-gtk.c loqui-core-gtk.h loqui-core-gtk-private.h \
-	loqui-style-entry.c loqui-style-entry.h loqui-style-entry-private.h \
-	loqui-style-prefs.c loqui-style-prefs.h loqui-style-prefs-private.h
+	loqui-style-entry.c loqui-style-entry.h loqui-style-entry-private.h
 
 loqui_LDADD = \
         $(GTK_LIBS) $(GNET_LIBS) ../libloqui/libloqui.la
