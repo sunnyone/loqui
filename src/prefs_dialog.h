@@ -36,6 +36,8 @@ typedef struct _PrefsDialogClass       PrefsDialogClass;
 
 typedef struct _PrefsDialogPrivate     PrefsDialogPrivate;
 
+#include "loqui_app.h"
+
 struct _PrefsDialog
 {
         GtkDialog parent;
@@ -51,9 +53,9 @@ struct _PrefsDialogClass
 
 GtkType prefs_dialog_get_type (void) G_GNUC_CONST;
 
-GtkWidget* prefs_dialog_new (void);
+GtkWidget* prefs_dialog_new(LoquiApp *app);
 
-void prefs_dialog_open(GtkWindow *parent);
+void prefs_dialog_open(LoquiApp *app);
 
 G_END_DECLS
 

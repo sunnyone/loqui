@@ -273,7 +273,7 @@ loqui_app_actions_about_cb(GtkAction *action, LoquiApp *app)
 static void
 loqui_app_actions_common_settings_cb(GtkAction *action, LoquiApp *app)
 {
-	prefs_dialog_open(GTK_WINDOW(app));
+	prefs_dialog_open(app);
 }
 static void
 loqui_app_actions_account_settings_cb(GtkAction *action, LoquiApp *app)

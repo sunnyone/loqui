@@ -510,6 +510,7 @@ loqui_app_new(AccountManager *account_manager)
 			 G_CALLBACK(loqui_app_entry_activate_cb), app);
 
 	app->common_textview = loqui_channel_text_view_new(app);
+	loqui_channel_text_view_set_auto_switch_scrolling(LOQUI_CHANNEL_TEXT_VIEW(app->common_textview), FALSE);
 	gtk_paned_pack2(GTK_PANED(vpaned), LOQUI_CHANNEL_TEXT_VIEW(app->common_textview)->scrolled_window, FALSE, TRUE);
 
 	/* right side */
@@ -560,6 +561,28 @@ loqui_app_new(AccountManager *account_manager)
 	gtk_widget_grab_focus(app->remark_entry);
 
 	return GTK_WIDGET(app);
+}
+void
+loqui_app_set_auto_switch_scrolling_channel_buffers(LoquiApp *app, gboolean auto_switch_scrolling)
+{
+	LoquiAppPrivate *priv;
+	LoquiAccountManagerIter iter;
+	LoquiChannelEntry *chent;
+	LoquiChannelTextView *chview;
+        g_return_if_fail(app != NULL);
+        g_return_if_fail(LOQUI_IS_APP(app));
+
+	priv = app->priv;
+
+	loqui_account_manager_iter_init(loqui_app_get_account_manager(app), &iter);
+	loqui_account_manager_iter_set_first_channel_entry(&iter);
+	while ((chent = loqui_account_manager_iter_channel_entry_next(&iter))) {
+		chview = g_object_get_data(G_OBJECT(chent), CHANNEL_TEXT_VIEW_KEY);
+
+		if (chview)
+			loqui_channel_text_view_set_auto_switch_scrolling(chview, auto_switch_scrolling);
+	}
+	prefs_general.auto_switch_scrolling = auto_switch_scrolling;
 }
 void
 loqui_app_set_show_statusbar(LoquiApp *app, gboolean show)
@@ -870,6 +893,9 @@ loqui_app_add_account_after_cb(AccountManager *manager, Account *account, LoquiA
 	chview = loqui_channel_text_view_new(app);
 	g_object_set_data(G_OBJECT(account), CHANNEL_TEXT_VIEW_KEY, chview);
 	loqui_channel_text_view_set_channel_buffer(LOQUI_CHANNEL_TEXT_VIEW(chview), buffer);
+	loqui_channel_text_view_set_auto_switch_scrolling(LOQUI_CHANNEL_TEXT_VIEW(chview),
+							  prefs_general.auto_switch_scrolling);
+
 	gtk_notebook_append_page(GTK_NOTEBOOK(app->channel_notebook),
 				 LOQUI_CHANNEL_TEXT_VIEW(chview)->scrolled_window,
 				 NULL);

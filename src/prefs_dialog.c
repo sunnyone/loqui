@@ -25,6 +25,7 @@
 #include "utils.h"
 #include "gtkutils.h"
 #include "codeconv.h"
+#include "loqui_app.h"
 
 #include <string.h>
 
@@ -54,6 +55,8 @@ struct _PrefsDialogPrivate
 
 	GtkWidget *entry_browser_command;
 	GtkWidget *entry_notification_command;
+
+	LoquiApp *app;
 };
 
 static GtkDialogClass *parent_class = NULL;
@@ -189,7 +192,6 @@ prefs_dialog_save_settings(PrefsDialog *dialog)
 	priv = dialog->priv;
 
 	prefs_general.save_size = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(priv->check_save_size));
-	prefs_general.auto_switch_scrolling = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(priv->check_auto_switch_scrolling));
 	prefs_general.parse_plum_recent = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(priv->check_parse_plum_recent));
 	prefs_general.use_transparent_ignore = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(priv->check_use_transparent_ignore));
 	prefs_general.use_notification = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(priv->check_use_notification));
@@ -197,6 +199,8 @@ prefs_dialog_save_settings(PrefsDialog *dialog)
 	prefs_general.connect_startup = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(priv->check_connect_startup));
 	prefs_general.auto_command_mode = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(priv->check_auto_command_mode));
 	prefs_general.save_log = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(priv->check_save_log));
+
+	loqui_app_set_auto_switch_scrolling_channel_buffers(priv->app, gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(priv->check_auto_switch_scrolling)));
 
 	gtkutils_set_string_list_from_textview(&prefs_general.highlight_list, GTK_TEXT_VIEW(priv->textview_highlight));
 	gtkutils_set_string_list_from_textview(&prefs_general.transparent_ignore_list,
@@ -234,7 +238,7 @@ prefs_dialog_response_cb(GtkWidget *widget, gint response, gpointer data)
 }
 
 GtkWidget*
-prefs_dialog_new(void)
+prefs_dialog_new(LoquiApp *app)
 {
         PrefsDialog *dialog;
 	PrefsDialogPrivate *priv;
@@ -257,6 +261,7 @@ prefs_dialog_new(void)
 			 dialog);
 
 	priv = dialog->priv;
+	priv->app = app;
 
 	notebook = gtk_notebook_new();
 	gtk_box_pack_start(GTK_BOX(GTK_DIALOG(dialog)->vbox), notebook, TRUE, TRUE, 5);
@@ -334,12 +339,12 @@ prefs_dialog_new(void)
 }
 
 void 
-prefs_dialog_open(GtkWindow *parent)
+prefs_dialog_open(LoquiApp *app)
 {
         GtkWidget *dialog;
 
-        dialog = prefs_dialog_new();
-        gtk_window_set_transient_for(GTK_WINDOW(dialog), parent);
+        dialog = prefs_dialog_new(app);
+        gtk_window_set_transient_for(GTK_WINDOW(dialog), GTK_WINDOW(app));
         gtk_dialog_run(GTK_DIALOG(dialog));
         gtk_widget_destroy(dialog);
 }

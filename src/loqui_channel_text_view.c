@@ -23,8 +23,6 @@
 #include "gtkutils.h"
 #include "intl.h"
 
-#include "prefs_general.h"
-
 #define EPS 0.00000001
 
 enum {
@@ -35,6 +33,7 @@ enum {
 enum {
 	PROP_0,
 	PROP_IS_SCROLL,
+	PROP_AUTO_SWITCH_SCROLLING,
         LAST_PROP
 };
 
@@ -131,6 +130,9 @@ loqui_channel_text_view_get_property(GObject *object, guint param_id, GValue *va
 	case PROP_IS_SCROLL:
 		g_value_set_boolean(value, view->is_scroll);
 		break;
+	case PROP_AUTO_SWITCH_SCROLLING:
+		g_value_set_boolean(value, view->auto_switch_scrolling);
+		break;
         default:
                 G_OBJECT_WARN_INVALID_PROPERTY_ID(object, param_id, pspec);
                 break;
@@ -146,6 +148,9 @@ loqui_channel_text_view_set_property(GObject *object, guint param_id, const GVal
         switch (param_id) {
 	case PROP_IS_SCROLL:
 		loqui_channel_text_view_set_is_scroll(view, g_value_get_boolean(value));
+		break;
+	case PROP_AUTO_SWITCH_SCROLLING:
+		loqui_channel_text_view_set_auto_switch_scrolling(view, g_value_get_boolean(value));
 		break;
         default:
                 G_OBJECT_WARN_INVALID_PROPERTY_ID(object, param_id, pspec);
@@ -174,6 +179,13 @@ loqui_channel_text_view_class_init(LoquiChannelTextViewClass *klass)
 					g_param_spec_boolean("is_scroll",
 							     _("IsScroll"),
 							     _("Scrolling or not"),
+							     TRUE,
+							     G_PARAM_READWRITE));
+	g_object_class_install_property(object_class,
+					PROP_IS_SCROLL,
+					g_param_spec_boolean("auto_switch_scrolling",
+							     _("Auto switch scrolling"),
+							     _("Switch scrolling automatically"),
 							     TRUE,
 							     G_PARAM_READWRITE));
 	
@@ -240,7 +252,7 @@ loqui_channel_text_view_vadj_value_changed_cb(GtkAdjustment *adj, gpointer data)
 	if (reached_to_end)
 		g_signal_emit(G_OBJECT(chview), channel_text_view_signals[SIGNAL_SCROLLED_TO_END], 0);
 	
-	if (prefs_general.auto_switch_scrolling) {
+	if (chview->auto_switch_scrolling) {
 		loqui_channel_text_view_set_is_scroll(chview, reached_to_end);
 	}
 }
@@ -373,3 +385,24 @@ loqui_channel_text_view_scroll(LoquiChannelTextView *chview, GtkMovementStep ste
 	g_signal_emit_by_name(chview, "move_cursor", step, count, FALSE);
 }
 
+void
+loqui_channel_text_view_set_auto_switch_scrolling(LoquiChannelTextView *chview, gboolean auto_switch_scrolling)
+{
+        g_return_if_fail(chview != NULL);
+        g_return_if_fail(LOQUI_IS_CHANNEL_TEXT_VIEW(chview));
+
+	if (chview->auto_switch_scrolling == auto_switch_scrolling)
+		return;
+
+	chview->auto_switch_scrolling = auto_switch_scrolling;
+
+	g_object_notify(G_OBJECT(chview), "auto_switch_scrolling");
+}
+gboolean
+loqui_channel_text_view_get_auto_switch_scrolling(LoquiChannelTextView *chview)
+{
+        g_return_val_if_fail(chview != NULL, FALSE);
+        g_return_val_if_fail(LOQUI_IS_CHANNEL_TEXT_VIEW(chview), FALSE);
+
+	return chview->auto_switch_scrolling;
+}

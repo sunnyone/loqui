@@ -45,6 +45,7 @@ struct _LoquiChannelTextView
 
 	GtkWidget *scrolled_window;
         gboolean is_scroll;
+	gboolean auto_switch_scrolling;
 
         LoquiChannelTextViewPrivate *priv;
 };
@@ -68,6 +69,9 @@ gboolean loqui_channel_text_view_get_is_scroll(LoquiChannelTextView *textview);
 
 void loqui_channel_text_view_scroll_to_end(LoquiChannelTextView *chview);
 void loqui_channel_text_view_scroll_to_end_if_enabled(LoquiChannelTextView *chview);
+
+void loqui_channel_text_view_set_auto_switch_scrolling(LoquiChannelTextView *textview, gboolean auto_switch_scrolling);
+gboolean loqui_channel_text_view_get_auto_switch_scrolling(LoquiChannelTextView *textview);
 
 void loqui_channel_text_view_scroll(LoquiChannelTextView *chview, GtkMovementStep step, gint count);
 
