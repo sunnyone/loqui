@@ -23,6 +23,7 @@
 #include <glib.h>
 #include "codeconv.h"
 #include "loqui_profile_account.h"
+#include "irc_connection.h"
 
 G_BEGIN_DECLS
 
@@ -41,7 +42,6 @@ typedef struct _AccountPrivate     AccountPrivate;
 #include "loqui_channel_entry.h"
 #include "loqui_channel.h"
 #include "loqui_sender.h"
-#include "irc_connection.h"
 #include "irc_handle.h"
 
 struct _Account
