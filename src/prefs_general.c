@@ -35,7 +35,7 @@ PrefElement prefs_general_defs[] = {
 	{"codeconv", "0", G_TYPE_UINT, &prefs_general.codeconv },
 	{"codeset", "", G_TYPE_STRING, &prefs_general.codeset },
 
-	{"save_size", "1", G_TYPE_BOOLEAN, &prefs_general.save_size },
+	{"save_size", "true", G_TYPE_BOOLEAN, &prefs_general.save_size },
 	{"window_height","400", G_TYPE_UINT, &prefs_general.window_height},
 	{"window_width", "480", G_TYPE_UINT, &prefs_general.window_width},
 	{"channel_tree_height", "180", G_TYPE_UINT, &prefs_general.channel_tree_height},
@@ -45,6 +45,8 @@ PrefElement prefs_general_defs[] = {
 	{"away_message", "Gone.", G_TYPE_STRING, &prefs_general.away_message},
 
 	{"browser_command", "mozilla %s", G_TYPE_STRING, &prefs_general.browser_command},
+
+	{"use_notification", "true", G_TYPE_BOOLEAN, &prefs_general.use_notification },
 	{"notification_command", "esdplay /usr/share/sounds/email.wav", G_TYPE_STRING, &prefs_general.notification_command},
 
 	{NULL, NULL, 0, NULL}

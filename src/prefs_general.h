@@ -49,6 +49,8 @@ typedef struct _PrefsGeneral {
 	gchar *away_message;
 
 	gchar *browser_command;
+
+	gboolean use_notification;
 	gchar *notification_command;
 
 } PrefsGeneral;
