@@ -250,6 +250,7 @@ nick_list_new (void)
 						list, NULL);
 	gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
 	gtk_tree_view_column_set_fixed_width(column, 20);
+	gtk_tree_view_column_set_sort_column_id(column, USERLIST_COLUMN_HOMEAWAY);
         gtk_tree_view_append_column(GTK_TREE_VIEW(list), column);
 
         renderer = gtk_cell_renderer_pixbuf_new();
@@ -259,6 +260,7 @@ nick_list_new (void)
 						list, NULL);
 	gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
 	gtk_tree_view_column_set_fixed_width(column, 20);
+	gtk_tree_view_column_set_sort_column_id(column, USERLIST_COLUMN_OP);
         gtk_tree_view_append_column(GTK_TREE_VIEW(list), column);
 
         renderer = gtk_cell_renderer_text_new();
@@ -266,8 +268,13 @@ nick_list_new (void)
 							  renderer,
 							  "text", USERLIST_COLUMN_NICK,
 							  NULL);
+	gtk_tree_view_column_set_sort_column_id(column, USERLIST_COLUMN_NICK);
         gtk_tree_view_append_column(GTK_TREE_VIEW(list), column);
 	
+	gtk_tree_view_set_rules_hint(GTK_TREE_VIEW(list), TRUE);
+	gtk_tree_view_set_search_column(GTK_TREE_VIEW(list), USERLIST_COLUMN_NICK);
+	gtk_tree_view_set_enable_search(GTK_TREE_VIEW(list), TRUE);
+
 	return GTK_WIDGET(list);
 }
 void nick_list_set_store(NickList *list, GtkListStore *store)
