@@ -320,7 +320,9 @@ irc_message_to_string(IRCMessage *msg)
 	gchar *str;
 	gint i, num;
 
-	g_return_val_if_fail(msg != NULL, NULL);
+        g_return_val_if_fail(msg != NULL, NULL);
+        g_return_val_if_fail(IS_IRC_MESSAGE(msg), NULL);
+
 	g_return_val_if_fail(msg->command != NULL, NULL);
 	g_return_val_if_fail(msg->parameter != NULL, NULL);
 
@@ -344,11 +346,16 @@ irc_message_to_string(IRCMessage *msg)
 gchar *
 irc_message_get_param(IRCMessage *msg, guint i)
 {
-	g_return_val_if_fail(0 <= i && i < 15, NULL);
+	g_return_val_if_fail(1 <= i && i <= 15, NULL);
 	int num;
 
+	i--;
 	for(num = 0; msg->parameter[num] != NULL; num++); /* count the number of parameters */
 	g_return_val_if_fail(num >= i, NULL);
 	
 	return msg->parameter[i];
+}
+gchar *
+irc_message_format(IRCMessage *msg, const gchar *format)
+{
 }

@@ -132,8 +132,8 @@ irc_handle_command_privmsg_notice(IRCHandle *handle, IRCMessage *msg)
         g_return_if_fail(handle != NULL);
         g_return_if_fail(IS_IRC_HANDLE(handle));
 
-	receiver_name = irc_message_get_param(msg, 0);
-	remark = irc_message_get_param(msg, 1);
+	receiver_name = irc_message_get_param(msg, 1);
+	remark = irc_message_get_param(msg, 2);
 
 	if(msg->response == IRC_COMMAND_NOTICE) {
 		type = TEXT_TYPE_NOTICE;
@@ -170,7 +170,7 @@ irc_handle_command_ping(IRCHandle *handle, IRCMessage *msg)
         g_return_if_fail(handle != NULL);
         g_return_if_fail(IS_IRC_HANDLE(handle));
 
-	server = irc_message_get_param(msg, 0);
+	server = irc_message_get_param(msg, 1);
 
 	msg = irc_message_create(IRCCommandPong, server, NULL);
 	connection_put_irc_message(handle->priv->connection, msg);
@@ -188,7 +188,7 @@ irc_handle_my_command_join(IRCHandle *handle, IRCMessage *msg)
         g_return_if_fail(IS_IRC_HANDLE(handle));
 	g_return_if_fail(msg != NULL);
 
-	name = irc_message_get_param(msg, 0);
+	name = irc_message_get_param(msg, 1);
 	g_return_if_fail(name != NULL);
 
 	gdk_threads_enter();
@@ -208,7 +208,7 @@ irc_handle_my_command_nick(IRCHandle *handle, IRCMessage *msg)
 		g_free(handle->priv->current_nick);
 	}
 
-	handle->priv->current_nick = g_strdup(irc_message_get_param(msg, 0));
+	handle->priv->current_nick = g_strdup(irc_message_get_param(msg, 1));
 	debug_puts("current nick is set to %s", handle->priv->current_nick);
 }
 
