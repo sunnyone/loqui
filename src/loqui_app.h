@@ -21,7 +21,9 @@
 #ifndef __LOQUI_APP_H__
 #define __LOQUI_APP_H__
 
+#include <gtk/gtk.h>
 #include <gtk24backports.h>
+
 G_BEGIN_DECLS
 
 #define LOQUI_TYPE_APP                 (loqui_app_get_type ())
