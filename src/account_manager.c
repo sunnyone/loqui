@@ -274,11 +274,11 @@ account_manager_remove_channel_cb(Account *account, Channel *channel, AccountMan
 static gboolean
 account_manager_update_account_info(AccountManager *manager)
 {
+	AccountManagerPrivate *priv;
+
         g_return_val_if_fail(manager != NULL, FALSE);
         g_return_val_if_fail(IS_ACCOUNT_MANAGER(manager), FALSE);
 	
-	AccountManagerPrivate *priv;
-
 	priv = manager->priv;
 
 	loqui_app_update_info(priv->app, 
@@ -291,11 +291,11 @@ account_manager_update_account_info(AccountManager *manager)
 static gboolean
 account_manager_update_channel_info(AccountManager *manager)
 {
+	AccountManagerPrivate *priv;
+
         g_return_val_if_fail(manager != NULL, FALSE);
         g_return_val_if_fail(IS_ACCOUNT_MANAGER(manager), FALSE);
 	
-	AccountManagerPrivate *priv;
-
 	priv = manager->priv;
 
 	loqui_app_update_info(priv->app, 
