@@ -30,7 +30,8 @@ loqui_SOURCES = \
 	loqui_toolbar.c loqui_toolbar.h \
 	prefs_highlight.c prefs_highlight.h \
 	prefs_dialog.c prefs_dialog.h \
-	connect_dialog.c connect_dialog.h
+	connect_dialog.c connect_dialog.h \
+	channel_input_dialog.c channel_input_dialog.h
 
 loqui_LDADD = \
         $(GTK_LIBS) $(GNET_LIBS)

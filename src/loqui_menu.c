@@ -26,6 +26,7 @@
 #include "account_manager.h"
 #include "intl.h"
 #include "gtkutils.h"
+#include "channel_input_dialog.h"
 
 struct _LoquiMenuPrivate
 {
@@ -41,17 +42,22 @@ static void loqui_menu_finalize(GObject *object);
 
 static void loqui_menu_edit_activate_cb(GtkWidget *widget, gpointer data);
 
+static void loqui_menu_connect_cb(gpointer data, guint callback_action, GtkWidget *widget);
+static void loqui_menu_quit_cb(gpointer data, guint callback_action, GtkWidget *widget);
+
 static void loqui_menu_edit_cb(gpointer data, guint callback_action, GtkWidget *widget);
 static void loqui_menu_find_cb(gpointer data, guint callback_action, GtkWidget *widget);
 
-static void loqui_menu_about_cb(gpointer data, guint callback_action, GtkWidget *widget);
-static void loqui_menu_quit_cb(gpointer data, guint callback_action, GtkWidget *widget);
-static void loqui_menu_connect_cb(gpointer data, guint callback_action, GtkWidget *widget);
-static void loqui_menu_account_settings_cb(gpointer data, guint callback_action, GtkWidget *widget);
-static void loqui_menu_common_settings_cb(gpointer data, guint callback_action, GtkWidget *widget);
+static void loqui_menu_join_channel_cb(gpointer data, guint callback_action, GtkWidget *widget);
+
 static void loqui_menu_view_toolbar_cb(gpointer data, guint callback_action, GtkWidget *widget);
 static void loqui_menu_view_statusbar_cb(gpointer data, guint callback_action, GtkWidget *widget);
 static void loqui_menu_view_move_cb(gpointer data, guint callback_action, GtkWidget *widget);
+
+static void loqui_menu_account_settings_cb(gpointer data, guint callback_action, GtkWidget *widget);
+static void loqui_menu_common_settings_cb(gpointer data, guint callback_action, GtkWidget *widget);
+
+static void loqui_menu_about_cb(gpointer data, guint callback_action, GtkWidget *widget);
 
 enum {
 	LOQUI_MENU_CUT,
@@ -75,9 +81,8 @@ static GtkItemFactoryEntry menu_items[] = {
 	{ "/Edit/sep",        NULL,         0,       0, "<Separator>" },
 	{ N_("/Edit/_Find"),    "<control>F", loqui_menu_find_cb, 0, "<StockItem>", GTK_STOCK_FIND },
 	{ N_("/Edit/_Find again"), NULL, loqui_menu_find_cb, 1, "<StockItem>", GTK_STOCK_FIND },
-	{ N_("/_Server"), NULL, 0, 0, "<Branch>" },
-	{ N_("/_Channel"), NULL, 0, 0, "<Branch>" },
-	{ N_("/_User"), NULL, 0, 0, "<Branch>" },
+	{ N_("/_Command"), NULL, 0, 0, "<Branch>" },
+	{ N_("/Command/_Join channel"), NULL, loqui_menu_join_channel_cb, 0 },
 	{ N_("/_View"), NULL, 0, 0, "<Branch>" },
 	{ N_("/View/Toolbar"), NULL, 0, 0, "<Branch>" },
 	{ N_("/View/Toolbar/Icon"), NULL, loqui_menu_view_toolbar_cb, GTK_TOOLBAR_ICONS, "<RadioItem>" },
@@ -87,8 +92,8 @@ static GtkItemFactoryEntry menu_items[] = {
 	{ N_("/View/Toolbar/Hide"), NULL, loqui_menu_view_toolbar_cb, 100, "/View/Toolbar/Icon" },
 	{ N_("/View/Status bar"), NULL, loqui_menu_view_statusbar_cb, 0, "<ToggleItem>" },
 	{ "/View/sep",        NULL,         0,       0, "<Separator>" },
-	{ N_("/View/Previous fresh channel"), NULL, loqui_menu_view_move_cb, 0 },
-	{ N_("/View/Next fresh channel"), NULL, loqui_menu_view_move_cb, 1},
+	{ N_("/View/Previous fresh channel"), "<Alt>P", loqui_menu_view_move_cb, 0 },
+	{ N_("/View/Next fresh channel"), "<Alt>N", loqui_menu_view_move_cb, 1},
 	{ "/View/sep2",        NULL,         0,       0, "<Separator>" },
 	{ N_("/View/Previous channel"), "<Control>P", loqui_menu_view_move_cb, 2},
 	{ N_("/View/Next channel"), "<Control>N", loqui_menu_view_move_cb, 3 },
@@ -223,9 +228,6 @@ loqui_menu_new(LoquiApp *app)
 
 	gtk_item_factory_create_items(priv->item_factory, G_N_ELEMENTS(menu_items),
 				      menu_items, menu);
-	gtk_widget_set_sensitive(gtk_item_factory_get_item(priv->item_factory, "/User"), FALSE);
-	gtk_widget_set_sensitive(gtk_item_factory_get_item(priv->item_factory, "/Channel"), FALSE);
-	gtk_widget_set_sensitive(gtk_item_factory_get_item(priv->item_factory, "/Server"), FALSE);
 
 	g_signal_connect(G_OBJECT(gtk_item_factory_get_item(priv->item_factory, "/Edit")), "activate",
 			 G_CALLBACK(loqui_menu_edit_activate_cb), menu);
@@ -419,4 +421,24 @@ void loqui_menu_set_view_statusbar(LoquiMenu *menu, gboolean show)
 	item = gtk_item_factory_get_item(priv->item_factory, "/View/Status bar");
 
 	gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(item), show);
+}
+static void
+loqui_menu_join_channel_cb(gpointer data, guint callback_action, GtkWidget *widget)
+{
+	LoquiMenu *menu;
+	LoquiMenuPrivate *priv;
+
+	menu = LOQUI_MENU(data);
+
+	g_return_if_fail(menu != NULL);
+        g_return_if_fail(LOQUI_IS_MENU(menu));
+
+	priv = menu->priv;
+
+	channel_input_dialog_open(GTK_WINDOW(priv->app), 
+				  _("Join/Private message"),
+				  _("Type channel name to join or nick to send private message."),
+				  CHANNEL_HISTORY_JOINED, NULL,
+				  TRUE, account_manager_get_current_account(account_manager_get()), 
+				  TRUE, NULL, FALSE, NULL, NULL);
 }
