@@ -84,6 +84,8 @@ void utils_g_list_foreach_swapped(GList *list, GFunc func, gpointer user_data);
 gboolean utils_strcase_equal(gconstpointer a, gconstpointer b);
 guint utils_strcase_hash(gconstpointer v);
 
+void utils_g_ptr_array_insert_sort(GPtrArray *array, gint sort_start_pos, GCompareFunc sort_func);
+
 /* copied from Sylpheed. (c) 2002, Hiroyuki Yamamoto. */
 gint make_dir(const gchar *dir);
 

@@ -382,7 +382,25 @@ utils_strcase_hash(gconstpointer v)
 {
        return g_str_hash(g_ascii_strdown(v, -1));
 }
+void
+utils_g_ptr_array_insert_sort(GPtrArray *array, gint sort_start_pos, GCompareFunc sort_func)
+{
+	gint i, j;
+	gpointer *pdata = array->pdata;
+	gpointer tmp;
 
+	for (i = sort_start_pos; i < array->len; i++) {
+		for (j = 0; j < i; j++) {
+			if (sort_func(&pdata[j], &pdata[i]) > 0)
+				break;
+		}
+		if (i != j) {
+			tmp = pdata[i];
+			g_memmove(pdata + j + 1, pdata + j, (i - j) * sizeof(gpointer));
+			pdata[j] = tmp;
+		}
+	}
+}
 /* copied from Sylpheed. (c) 2002, Hiroyuki Yamamoto. */
 gint make_dir(const gchar *dir)
 {

@@ -771,13 +771,13 @@ loqui_account_manager_store_get_iter_by_channel_entry(LoquiAccountManagerStore* 
 						      GtkTreeIter *iter,
 						      LoquiChannelEntry *chent)
 {
-	iter->stamp = store->stamp;
-	iter->user_data = chent;
-
         g_return_if_fail(store != NULL);
         g_return_if_fail(LOQUI_IS_ACCOUNT_MANAGER_STORE(store));
         g_return_if_fail(chent != NULL);
         g_return_if_fail(LOQUI_IS_CHANNEL_ENTRY(chent));
+
+	iter->stamp = store->stamp;
+	iter->user_data = chent;
 
 	if (IS_ACCOUNT(chent)) {
 		iter->user_data2 = g_list_find(account_manager_get_account_list(store->manager), chent);
