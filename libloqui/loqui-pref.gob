@@ -164,6 +164,9 @@ class Loqui:Pref from G:Object
 	public gboolean has_key(self, const gchar *group_name, const gchar *key, GError **error) {
 		return lqg_key_file_has_key(selfp->keyfile, group_name, key, error);
 	}
+	public gboolean has_group(self, const gchar *group_name) {
+		return lqg_key_file_has_group(selfp->keyfile, group_name);
+	}
 
 	public void set_default_string(self, const gchar *group_name, const gchar *key, const gchar *default_value) {
 		if (self_has_key(self, group_name, key, NULL))
