@@ -156,3 +156,20 @@
 * Show buffer numbers at the channel tree.
 * PageUp/Down scrolls the channel buffer, Alt+PageUp/Down scrolls the common buffer.
 
+2004-04-04   0.3.0pre1
+* Changed the framework of the preference of accounts.
+* Performance improvement?
+* Using GtkAction.
+* Fixed memory-leaks.
+* Changed menu.
+* Changed the style of the channelbar.
+* Use current nick on the dialog to change nick.
+* Loop to select the next/previous channel buffer.
+* Changed the accel keys of next / previous channel buffer (Ctrl+Up/Down, Ctrl+Space, Ctrl+Shift+Space)
+* Improvement accuracy of automatic toggling scrolling.
+* Can specify the channel key with the dialog.
+* 'Channel > Part' closes private talk.
+* Move focus when pressed a key on the channel buffer / common buffer / nick list / channel tree.
+* Prevent from opening duplicated the buffer of private talk.
+* Added icons for away-status to the channel tree.
+* Made the nick list sortable.
