@@ -24,10 +24,15 @@
 #include "codeconv.h"
 #include "command_table.h"
 #include "account_manager.h"
+#include "prefs_general.h"
+#include "utils.h"
 
 #include <gnome.h>
+
 int debug_mode;
 int show_msg_mode;
+
+static void make_program_dir(void);
 
 static const struct poptOption options[] =
 {
@@ -35,6 +40,21 @@ static const struct poptOption options[] =
 	{"show-msg", '\0', POPT_ARG_NONE, &show_msg_mode, 0, N_("Print messages to console"), NULL},
         {NULL, '\0', 0, NULL, 0}
 };
+
+static void make_program_dir(void)
+{
+	gchar *dirname;
+
+	dirname = g_build_filename(g_get_home_dir(), PREFS_DIR, NULL);
+	if(!g_file_test(dirname, G_FILE_TEST_EXISTS)) {
+		make_dir(dirname);
+	}
+
+	if(!g_file_test(dirname, G_FILE_TEST_IS_DIR)) {
+		g_error(_("Invalid \"%s\""), dirname);
+	}
+	g_free(dirname);
+}
 
 int
 main(int argc, char *argv[])
@@ -52,6 +72,8 @@ main(int argc, char *argv[])
 		g_thread_init (NULL);
 	gdk_threads_init();
 
+	make_program_dir();
+
         program = gnome_program_init(PACKAGE, VERSION,
 				     LIBGNOMEUI_MODULE, argc, argv,
 				     GNOME_PARAM_POPT_TABLE, options,
@@ -59,6 +81,8 @@ main(int argc, char *argv[])
 				     _("Loqui IRC client"),
 				     GNOME_PARAM_APP_DATADIR, DATADIR,
 				     NULL);
+
+	prefs_general_load();
 
         eel_gconf_client_get_global();
 	codeconv_init();
@@ -69,10 +93,13 @@ main(int argc, char *argv[])
 	if(show_msg_mode)
 		g_print("Start show msg mode\n");
 
+
 	account_manager = account_manager_get();
 	account_manager_load_accounts(account_manager);
 
 	gtk_main();
+
+	prefs_general_save();
 
 	return 0;
 }
