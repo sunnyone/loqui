@@ -31,7 +31,7 @@ requires 2.0.0
 #include <libloqui-intl.h>
 #include "utils.h"
 
-#include "ipmsg_socket.h"
+#include "loqui-socket-ipmsg.h"
 #include "ipmsg_packet.h"
 #include "loqui-account-ipmsg.h"
 #include "ipmsg.h"
@@ -49,7 +49,7 @@ class Loqui:Sender:IPMsg from Loqui:Sender
 	/* helper */
 	private void send_packet(self, IPMsg:Packet *packet) {
 		LoquiAccount *account;
-		IPMsgSocket *socket;
+		LoquiSocketIPMsg *socket;
 
 		account = SELF_GET_ACCOUNT(self);
 
@@ -59,7 +59,7 @@ class Loqui:Sender:IPMsg from Loqui:Sender
 		}
 
 		socket = loqui_account_ipmsg_get_socket(LOQUI_ACCOUNT_IPMSG(account));
-		ipmsg_socket_send_packet(socket, packet);
+		loqui_socket_ipmsg_send_packet(socket, packet);
 	}
 
 	public void nooperation(self) {

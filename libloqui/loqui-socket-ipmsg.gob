@@ -1,0 +1,194 @@
+requires 2.0.0
+
+%alltop{
+/*
+ * libloqui -- Chat/IM client library for GLib <http://loqui.good-day.net/>
+ * Copyright (C) 2004 Yoichi Imai <yoichi@silver-forest.com>
+ *
+ * This Library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Library General Public License as
+ * published by the Free Software Foundation; either version 2 of the
+ * License, or (at your option) any later version.
+ *
+ * This Library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Library General Public License for more details.
+ *
+ * You should have received a copy of the GNU Library General Public
+ * License along with the Gnome Library; see the file COPYING.LIB.  If not,
+ * write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+ * Boston, MA 02111-1307, USA.
+ */
+%}
+
+%h{
+#include "ipmsg_packet.h"
+#include "loqui_account.h"
+%}
+
+%{
+#include <libloqui-intl.h>
+#include "utils.h"
+
+#include "ipmsg_packet.h"
+#include <gnet.h>
+#include "ipmsg.h"
+
+#include <stdlib.h>
+#include <locale.h>
+#include "loqui-static-core.h"
+#include "loqui-account-ipmsg.h"
+#include "loqui-receiver-ipmsg.h"
+%}
+
+%{
+#define SELF_GET_ACCOUNT(self) (self->account)
+#define SELF_GET_ACCOUNT_IPMSG(self) (LOQUI_ACCOUNT_IPMSG(SELF_GET_ACCOUNT(self)))
+%}
+
+class Loqui:Socket:IPMsg from G:Object
+{
+	private GUdpSocket *udpsock unref {
+		self_unbind(self);
+	};
+
+	private GInetAddr *inetaddr unrefwith gnet_inetaddr_unref;
+
+	private GIConv iconv;
+
+	private guint in_watch;
+	private guint out_watch;
+
+	public LoquiAccount *account;
+
+	init(self) {
+		gchar *ctype;
+
+		ctype = setlocale(LC_CTYPE, NULL);
+	
+		if (ctype != NULL && g_str_has_prefix(ctype, "ja")) {
+			selfp->iconv = g_iconv_open("UTF-8", "Shift_JIS");
+		} else {
+			selfp->iconv = NULL;
+		}
+	}
+
+	private gboolean 
+	watch_in_cb(GIOChannel *ioch, GIOCondition condition, Self *self) {
+#define MAXBUF 65536
+		gchar buf[MAXBUF+1];
+		gsize len;
+		IPMsgPacket *packet;
+		GInetAddr *addr;
+		gchar *local;
+		gsize local_len;
+		LoquiAccount *account;
+
+		account = SELF_GET_ACCOUNT(self);
+
+		len = gnet_udp_socket_receive(selfp->udpsock, buf, MAXBUF, &addr);
+		if (len < 0) {
+			loqui_account_warning(account, "Error: receiving.");
+			selfp->in_watch = 0;
+			return FALSE;
+		} else if (len == 0) {
+			loqui_account_warning(account, "No characters is arrived.");
+			return TRUE;
+		}
+		buf[len] = '\0';
+	
+		if (selfp->iconv) {
+			local = g_convert_with_iconv(buf, len+1, selfp->iconv, NULL, &local_len, NULL);
+		} else {
+			local = g_memdup(buf, len+1);
+		}
+	
+		if (local == NULL) {
+			loqui_account_warning(account, _("Failed to convert codeset"));
+			return TRUE;
+		}
+
+		packet = ipmsg_packet_parse(local, len);
+		if (!packet) {
+			loqui_account_warning(account, _("Invalid packet: '%s'"), local);
+			g_free(local);
+			return TRUE;
+		}
+		g_free(local);
+
+		ipmsg_packet_set_inetaddr(packet, addr);
+		gnet_inetaddr_unref(addr);
+		if (loqui_core_get_show_msg_mode(loqui_get_core()))
+			ipmsg_packet_print(packet);
+
+		loqui_receiver_ipmsg_handle(LOQUI_RECEIVER_IPMSG(SELF_GET_ACCOUNT(self)->receiver), packet);
+		g_object_unref(packet);
+
+		return TRUE;
+	}
+
+	public gboolean bind(self) {
+		GIOChannel *ioch;
+
+		selfp->udpsock = gnet_udp_socket_new_with_port(IPMSG_DEFAULT_PORT);
+
+		if (!selfp->udpsock)
+			return FALSE;
+
+		ioch = gnet_udp_socket_get_io_channel(selfp->udpsock);
+		selfp->in_watch = g_io_add_watch(ioch, G_IO_IN | G_IO_ERR | G_IO_HUP | G_IO_NVAL,
+						(GIOFunc) self_watch_in_cb, self);
+
+		selfp->inetaddr = gnet_inetaddr_new_nonblock("255.255.255.255", IPMSG_DEFAULT_PORT);
+
+		return TRUE;
+	}
+
+	public void unbind(self) {
+		if (!selfp->udpsock)
+			return;
+
+		if (selfp->in_watch) {
+			g_source_remove(selfp->in_watch);
+			selfp->in_watch = 0;
+		}
+
+		gnet_udp_socket_delete(selfp->udpsock);
+		selfp->udpsock = NULL;
+	}
+
+	public void send_packet(self, IPMsgPacket *packet) {
+		gchar *buf;
+		gint len;
+
+		g_return_if_fail(selfp->inetaddr);
+
+		if (!selfp->udpsock)
+			return;
+
+		if ((buf = ipmsg_packet_to_string(packet, &len)) == NULL) {
+			g_warning("Failed to send a packet.");
+			return;
+		}
+
+		gnet_udp_socket_send(selfp->udpsock, buf, len, selfp->inetaddr);
+
+		if (loqui_core_get_show_msg_mode(loqui_get_core())) {
+			g_print("Sent:");
+			ipmsg_packet_print(packet);
+		}
+
+		g_free(buf);
+	}
+
+	public LoquiSocketIPMsg *
+	new(LoquiAccount *account) {
+		Self *self;
+
+		self = GET_NEW;
+		self->account = account;
+
+		return self;
+	}
+}

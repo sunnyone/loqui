@@ -25,7 +25,7 @@ requires 2.0.0
 %h{
 #include "loqui_account.h"
 #include "ipmsg_packet.h"
-#include "ipmsg_socket.h"
+#include "loqui-socket-ipmsg.h"
 %}
 
 %{
@@ -36,14 +36,13 @@ requires 2.0.0
 #include "loqui-sender-ipmsg.h"
 #include "loqui-receiver-ipmsg.h"
 
-#include "ipmsg_socket.h"
 #include "ipmsg_packet.h"
 #include "ipmsg.h"
 %}
 
 class Loqui:Account:IPMsg from Loqui:Account
 {
-	private IPMsgSocket *sock;
+	private LoquiSocketIPMsg *sock;
 	private gint current_packet_num = { (gint) time(NULL) };
 
 	override (G:Object) GObject *
@@ -78,20 +77,15 @@ class Loqui:Account:IPMsg from Loqui:Account
 			return;
 		}
 
-		selfp->sock = ipmsg_socket_new();
+		selfp->sock = loqui_socket_ipmsg_new(account);
 
-		if (!ipmsg_socket_bind(selfp->sock)) {
+		if (!loqui_socket_ipmsg_bind(selfp->sock)) {
 			loqui_account_warning(LOQUI_ACCOUNT(self), _("Failed to create socket. Is used the port?"));
 			G_OBJECT_UNREF_UNLESS_NULL(selfp->sock);
 			return;
 		}
 	
 		loqui_account_set_is_connected(LOQUI_ACCOUNT(self), TRUE);
-
-		g_signal_connect(G_OBJECT(selfp->sock), "arrive_packet",
-				 G_CALLBACK(loqui_account_ipmsg_socket_arrive_packet_cb), LOQUI_ACCOUNT(self));
-		g_signal_connect(G_OBJECT(selfp->sock), "warn",
-				 G_CALLBACK(loqui_account_ipmsg_socket_warn_cb), LOQUI_ACCOUNT(self));
 
 		str = g_strdup_printf(_("Opened the socket."));
 		loqui_account_append_text(LOQUI_ACCOUNT(self), NULL, LOQUI_TEXT_TYPE_INFO, str);
@@ -116,23 +110,13 @@ class Loqui:Account:IPMsg from Loqui:Account
 			return;
 		
 		if (selfp->sock)
-			ipmsg_socket_unbind(selfp->sock);
+			loqui_socket_ipmsg_unbind(selfp->sock);
 		G_OBJECT_UNREF_UNLESS_NULL(selfp->sock);
 
 		loqui_account_append_text(account, NULL, LOQUI_TEXT_TYPE_INFO, _("Disconnected."));
 
 		loqui_account_set_is_connected(LOQUI_ACCOUNT(account), FALSE);
 		loqui_user_set_away(loqui_account_get_user_self(LOQUI_ACCOUNT(account)), LOQUI_AWAY_TYPE_OFFLINE);
-	}
-
-	private void
-	socket_arrive_packet_cb(IPMsgSocket *socket, IPMsgPacket *packet, LoquiAccount *account) {
-		loqui_receiver_ipmsg_handle(LOQUI_RECEIVER_IPMSG(loqui_account_get_receiver(account)), packet);
-	}
-
-	private void
-	socket_warn_cb(IPMsgSocket *socket, const gchar *warn, LoquiAccount *account) {
-		loqui_account_warning(account, "%s", warn);
 	}
 
 	public LoquiAccountIPMsg *
@@ -142,7 +126,7 @@ class Loqui:Account:IPMsg from Loqui:Account
 		return self;
 	}
 	
-	public IPMsgSocket *get_socket(self) {
+	public LoquiSocketIPMsg *get_socket(self) {
 		return selfp->sock;
 	}
 
