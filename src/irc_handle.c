@@ -138,17 +138,24 @@ irc_handle_init(IRCHandle *irc_handle)
 static void 
 irc_handle_finalize(GObject *object)
 {
-	IRCHandle *irc_handle;
+	IRCHandle *handle;
+	IRCHandlePrivate *priv;
 
         g_return_if_fail(object != NULL);
         g_return_if_fail(IS_IRC_HANDLE(object));
 
-        irc_handle = IRC_HANDLE(object);
+        handle = IRC_HANDLE(object);
+	priv = handle->priv;
+
+	if(priv->connection) {
+		g_object_unref(priv->connection);
+		priv->connection = NULL;
+	}
 
         if (G_OBJECT_CLASS(parent_class)->finalize)
                 (* G_OBJECT_CLASS(parent_class)->finalize) (object);
 
-	g_free(irc_handle->priv);
+	g_free(handle->priv);
 }
 static void
 irc_handle_command_privmsg_notice(IRCHandle *handle, IRCMessage *msg)
