@@ -544,6 +544,11 @@ void
 loqui_app_info_channel_entry_removed(LoquiAppInfo *appinfo, LoquiChannelEntry *chent)
 {
 	g_signal_handlers_disconnect_by_func(chent, loqui_app_info_channel_entry_notify_is_updated_cb, appinfo);
+	if (loqui_channel_entry_get_is_updated(chent)) {
+		appinfo->updated_entry_number--;
+		loqui_app_info_update_updated_entry_number(appinfo);
+		loqui_app_info_update_string_idle(appinfo);
+	}
 }
 void
 loqui_app_info_account_added(LoquiAppInfo *appinfo, LoquiAccount *account)
@@ -560,4 +565,9 @@ loqui_app_info_channel_added(LoquiAppInfo *appinfo, LoquiChannel *channel)
 void
 loqui_app_info_channel_removed(LoquiAppInfo *appinfo, LoquiChannel *channel)
 {
+	if (loqui_channel_get_is_private_talk(channel) && loqui_channel_entry_get_is_updated(LOQUI_CHANNEL_ENTRY(channel))) {
+		appinfo->updated_private_talk_number--;
+		loqui_app_info_update_updated_private_talk_number(appinfo);
+		loqui_app_info_update_string_idle(appinfo);
+	}
 }
