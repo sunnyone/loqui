@@ -470,18 +470,20 @@ loqui_channel_text_view_iter_activated(LoquiChannelTextView *chview, LoquiChanne
         g_return_if_fail(buffer_gtk != NULL);
         g_return_if_fail(LOQUI_IS_CHANNEL_BUFFER_GTK(buffer_gtk));
 
-	browser_command = loqui_pref_get_with_default_string(loqui_get_general_pref(),
-							     LOQUI_GENERAL_PREF_GTK_GROUP_COMMANDS, "BrowserCommand",
-							     LOQUI_GENERAL_PREF_GTK_DEFAULT_COMMANDS_BROWSER_COMMAND, NULL);
-	if (browser_command) {
-		if (loqui_channel_text_view_get_uri_at_iter(chview, buffer_gtk, iter, &uri_start_iter, &uri_end_iter)) {
-			uri_str = gtk_text_iter_get_text(&uri_start_iter, &uri_end_iter);
+	if (loqui_channel_text_view_get_uri_at_iter(chview, buffer_gtk, iter, &uri_start_iter, &uri_end_iter)) {
+		uri_str = gtk_text_iter_get_text(&uri_start_iter, &uri_end_iter);
+
+		browser_command = loqui_pref_get_with_default_string(loqui_get_general_pref(),
+								     LOQUI_GENERAL_PREF_GTK_GROUP_COMMANDS, "BrowserCommand",
+								     LOQUI_GENERAL_PREF_GTK_DEFAULT_COMMANDS_BROWSER_COMMAND, NULL);
+		
+		if (browser_command) {
 			gtkutils_exec_command_argument_with_error_dialog(browser_command, uri_str);
-			g_free(uri_str);
+			g_free(browser_command);
+		} else {
+			g_warning(_("Failed to get browser command."));
 		}
-		g_free(browser_command);
-	} else {
-		g_warning(_("Failed to get browser command."));
+		g_free(uri_str);
 	}
 }
 /* iter == NULL: forced to remove hover underline */
