@@ -17,3 +17,9 @@
 2003-01-23     0.0.9 Release
 * Fix the bug a connection is terminated when failed to convert codeset.
 * Change color of the channel on the channel tree when new messages are arrived.
+
+2003-01-27     0.1.0 Release
+* Created account settings.
+* Fix the bug blocking when disconnecting.
+* Enabled nicklist sorting.
+
