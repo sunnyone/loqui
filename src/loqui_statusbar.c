@@ -190,9 +190,10 @@ static void
 loqui_statusbar_set_away_state(LoquiStatusbar *statusbar, AwayState away_state)
 {
 	LoquiStatusbarPrivate *priv;
+        GtkWidget *old_image;
+
         g_return_if_fail(statusbar != NULL);
         g_return_if_fail(LOQUI_IS_STATUSBAR(statusbar));
-        GtkWidget *old_image;
         
         priv = statusbar->priv;	
 	
