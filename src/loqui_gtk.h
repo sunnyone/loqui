@@ -22,6 +22,8 @@
 
 #define FRESH_COLOR "red"
 #define NONFRESH_COLOR "black"
+#define UNJOINED_COLOR "grey"
+
 #define SHORTCUT_CHANNEL_ENTRY_ACCEL_MAP_PREFIX "<ChannelEntries>/ChannelEntry "
 
 void loqui_gtk_init(int *argc, char ***argv);
