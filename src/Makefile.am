@@ -9,11 +9,13 @@ loqui_SOURCES = \
 	intl.h \
 	utils.c utils.h \
 	gobject_utils.c gobject_utils.h \
+	loqui_marshalers.c loqui_marshalers.h \
 	loqui_user.c loqui_user.h \
 	loqui_user_irc.c loqui_user_irc.h \
 	loqui_member.c loqui_member.h \
 	loqui_profile_account.c loqui_profile_account.h \
 	loqui_profile_account_irc.c loqui_profile_account_irc.h \
+	loqui_channel_entry.c loqui_channel_entry.h \
 	loqui_profile_handle.c loqui_profile_handle.h \
 	prefs_general.c prefs_general.h \
 	main.c main.h \
@@ -51,3 +53,15 @@ loqui_SOURCES = \
 
 loqui_LDADD = \
         $(GTK_LIBS) $(GNET_LIBS) ../gtk24backports/libgtk24backports.la
+
+BUILT_SOURCES = \
+	loqui_marshalers.c loqui_marshalers.h
+
+loqui_marshalers.h : loqui_marshalers.list $(GLIB_GENMARSHAL)
+	$(GLIB_GENMARSHAL) $< --header --prefix=_loqui_marshal > $@
+
+loqui_marshalers.c : loqui_marshalers.list $(GLIB_GENMARSHAL)
+	$(GLIB_GENMARSHAL) $< --body --prefix=_loqui_marshal > $@
+
+EXTRA_DIST= \
+	loqui_marshalers.list
