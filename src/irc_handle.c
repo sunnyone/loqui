@@ -460,7 +460,7 @@ irc_handle_parse_mode_arguments(IRCHandle *handle, IRCMessage *msg, Channel *cha
   i++; \
 }
 	if(channel) {
-		while (*flags++) {
+		for (; *flags; flags++) {
 			if (*flags == '+') {
 				is_add = 1;
 				continue;
