@@ -44,7 +44,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_datadir}/pixmaps/loqui.png
 
 %changelog
-* Thu Wed  8 2004 Yoichi Imai <yoichi@silver-forest.com>
+* Thu Apr  8 2004 Yoichi Imai <yoichi@silver-forest.com>
 - Added icon / desktop file.
 
 * Thu Jan 22 2004 Yoichi Imai <yoichi@silver-forest.com>
