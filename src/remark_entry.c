@@ -78,7 +78,6 @@ static void remark_entry_finalize(GObject *object);
 static void remark_entry_destroy(GtkObject *object);
 
 static void remark_entry_entry_text_shown_cb(GtkWidget *widget, gpointer data);
-static void remark_entry_toggle_command_toggled_cb_for_signal(GtkWidget *widget, gpointer data);
 static void remark_entry_entry_multiline_toggled_cb(GtkWidget *widget, gpointer data);
 static void remark_entry_activated_cb(GtkWidget *widget, gpointer data);
 static void remark_entry_entry_changed_cb(GtkEntry *widget, RemarkEntry *remark_entry);

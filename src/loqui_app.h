@@ -91,14 +91,6 @@ void loqui_app_scroll_page_common_buffer(LoquiApp *app, gint pages);
 void loqui_app_get_current_widget_editing_status(LoquiApp *app, gboolean *cutable, gboolean *copiable, gboolean *pastable,
 						 gboolean *clearable, gboolean *findable);
 
-void loqui_app_current_widget_cut(LoquiApp *app);
-void loqui_app_current_widget_copy(LoquiApp *app);
-void loqui_app_current_widget_paste(LoquiApp *app);
-void loqui_app_current_widget_clear(LoquiApp *app);
-
-void loqui_app_current_widget_find(LoquiApp *app);
-void loqui_app_current_widget_find_next(LoquiApp *app);
-
 G_END_DECLS
 
 #endif /* __LOQUI_APP_H__ */
