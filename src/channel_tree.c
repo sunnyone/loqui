@@ -185,6 +185,7 @@ channel_tree_new(void)
 							   "text", COLUMN_TEXT,
 							   "foreground", COLUMN_COLOR,
 							   NULL);
+	gtk_tree_view_column_set_resizable(column, TRUE);
 	gtk_tree_view_append_column (GTK_TREE_VIEW (tree), column);
 
         renderer = gtk_cell_renderer_text_new();
@@ -192,6 +193,7 @@ channel_tree_new(void)
 							   renderer,
 							   "text", COLUMN_USERS,
 							   NULL);
+	gtk_tree_view_column_set_resizable(column, TRUE);
         gtk_tree_view_append_column(GTK_TREE_VIEW(tree), column);
 
         renderer = gtk_cell_renderer_text_new();
@@ -199,6 +201,7 @@ channel_tree_new(void)
 							   renderer,
 							   "text", COLUMN_OP_USERS,
 							   NULL);
+	gtk_tree_view_column_set_resizable(column, TRUE);
         gtk_tree_view_append_column(GTK_TREE_VIEW(tree), column);
 
         renderer = gtk_cell_renderer_text_new();
@@ -206,6 +209,7 @@ channel_tree_new(void)
 							   renderer,
 							   "text", COLUMN_NONOP_USERS,
 							   NULL);
+	gtk_tree_view_column_set_resizable(column, TRUE);
         gtk_tree_view_append_column(GTK_TREE_VIEW(tree), column);
 
 	g_signal_connect(G_OBJECT(tree), "row_activated",
