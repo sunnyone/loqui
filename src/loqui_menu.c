@@ -166,7 +166,7 @@ GtkWidget* loqui_menu_get_widget(LoquiMenu *menu)
 	return gtk_item_factory_get_widget(menu->priv->item_factory, "<main>");
 }
 
-void loqui_menu_create_connect_submenu(LoquiMenu *menu, GSList *account_list)
+void loqui_menu_update_connect_submenu(LoquiMenu *menu, GSList *account_list)
 {
 	LoquiMenuPrivate *priv;
 	GSList *cur;
@@ -195,7 +195,7 @@ void loqui_menu_create_connect_submenu(LoquiMenu *menu, GSList *account_list)
 		added = TRUE;
 	}
 
-        gtk_widget_set_sensitive (priv->connect_menu, added);
+        gtk_widget_set_sensitive(priv->connect_menu, added);
 }
 
 static void
