@@ -138,8 +138,6 @@ static void
 prefs_dialog_load_settings(PrefsDialog *dialog)
 {
 	PrefsDialogPrivate *priv;
-	gchar *buf;
-	GtkTextBuffer *buffer;
 
 	g_return_if_fail(dialog != NULL);
         g_return_if_fail(IS_PREFS_DIALOG(dialog));
@@ -154,19 +152,9 @@ prefs_dialog_load_settings(PrefsDialog *dialog)
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(priv->check_auto_reconnect), prefs_general.auto_reconnect);
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(priv->check_connect_startup), prefs_general.connect_startup);
 
-	buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(priv->textview_highlight));
-	if(prefs_general.highlight_list) {
-		buf = utils_line_separated_text_from_list(prefs_general.highlight_list);
-		gtk_text_buffer_set_text(GTK_TEXT_BUFFER(buffer), buf, -1);
-		g_free(buf);
-	}
-
-	buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(priv->textview_transparent_ignore));
-	if(prefs_general.transparent_ignore_list) {
-		buf = utils_line_separated_text_from_list(prefs_general.transparent_ignore_list);
-		gtk_text_buffer_set_text(GTK_TEXT_BUFFER(buffer), buf, -1);
-		g_free(buf);
-	}
+	gtkutils_set_textview_from_string_list(GTK_TEXT_VIEW(priv->textview_highlight), prefs_general.highlight_list);
+	gtkutils_set_textview_from_string_list(GTK_TEXT_VIEW(priv->textview_transparent_ignore),
+					       prefs_general.transparent_ignore_list);
 
 	gtk_entry_set_text(GTK_ENTRY(priv->entry_away_message), prefs_general.away_message);
 	gtk_entry_set_text(GTK_ENTRY(priv->entry_browser_command), prefs_general.browser_command);
@@ -176,9 +164,6 @@ static void
 prefs_dialog_save_settings(PrefsDialog *dialog)
 {
 	PrefsDialogPrivate *priv;
-	gchar *buf;
-	GtkTextBuffer *buffer;
-	GtkTextIter start, end;
 
 	g_return_if_fail(dialog != NULL);
         g_return_if_fail(IS_PREFS_DIALOG(dialog));
@@ -193,21 +178,9 @@ prefs_dialog_save_settings(PrefsDialog *dialog)
 	prefs_general.auto_reconnect = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(priv->check_auto_reconnect));
 	prefs_general.connect_startup = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(priv->check_connect_startup));
 
-	buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(priv->textview_highlight));
-	gtk_text_buffer_get_start_iter(GTK_TEXT_BUFFER(buffer), &start);
-	gtk_text_buffer_get_end_iter(GTK_TEXT_BUFFER(buffer), &end);
-	buf = gtk_text_buffer_get_text(GTK_TEXT_BUFFER(buffer), &start, &end, FALSE);
-
-	G_LIST_FREE_WITH_ELEMENT_FREE_UNLESS_NULL(prefs_general.highlight_list);
-	prefs_general.highlight_list = utils_line_separated_text_to_list(buf);
-
-	buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(priv->textview_transparent_ignore));
-	gtk_text_buffer_get_start_iter(GTK_TEXT_BUFFER(buffer), &start);
-	gtk_text_buffer_get_end_iter(GTK_TEXT_BUFFER(buffer), &end);
-	buf = gtk_text_buffer_get_text(GTK_TEXT_BUFFER(buffer), &start, &end, FALSE);
-
-	G_LIST_FREE_WITH_ELEMENT_FREE_UNLESS_NULL(prefs_general.transparent_ignore_list);
-	prefs_general.transparent_ignore_list = utils_line_separated_text_to_list(buf);
+	gtkutils_set_string_list_from_textview(&prefs_general.highlight_list, GTK_TEXT_VIEW(priv->textview_highlight));
+	gtkutils_set_string_list_from_textview(&prefs_general.transparent_ignore_list,
+					       GTK_TEXT_VIEW(priv->textview_transparent_ignore));
 
 	G_FREE_UNLESS_NULL(prefs_general.away_message);
 	prefs_general.away_message = g_strdup(gtk_entry_get_text(GTK_ENTRY(priv->entry_away_message)));

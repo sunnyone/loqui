@@ -28,6 +28,7 @@
 #include <stdarg.h>
 #include <string.h>
 #include "intl.h"
+#include "utils.h"
 
 void
 gtkutils_msgbox_info(GtkMessageType icon, const gchar *format, ...)
@@ -185,6 +186,43 @@ gtkutils_set_label_color(GtkLabel *label, const gchar *color)
 	gtk_label_set_attributes(label, pattr_list);
 	/* pango_attr_list_unref(pattr_list);
 	   pango_attribute_destroy(pattr); */
+}
+void
+gtkutils_set_textview_from_string_list(GtkTextView *textview, GList *list)
+{
+	GtkTextBuffer *buffer;
+	gchar *buf;
+
+	g_return_if_fail(textview != NULL);
+	g_return_if_fail(GTK_IS_TEXT_VIEW(textview));
+
+	buffer = gtk_text_view_get_buffer(textview);
+	if(list) {
+		buf = utils_line_separated_text_from_list(list);
+		gtk_text_buffer_set_text(GTK_TEXT_BUFFER(buffer), buf, -1);
+		g_free(buf);
+	} else {
+		gtk_text_buffer_set_text(GTK_TEXT_BUFFER(buffer), "", -1);
+	}
+}
+void
+gtkutils_set_string_list_from_textview(GList **list_ptr, GtkTextView *textview)
+{
+	GtkTextBuffer *buffer;
+	gchar *buf;
+	GtkTextIter start, end;
+
+	g_return_if_fail(list_ptr != NULL);
+	g_return_if_fail(textview != NULL);
+	g_return_if_fail(GTK_IS_TEXT_VIEW(textview));
+	
+	buffer = gtk_text_view_get_buffer(textview);
+	gtk_text_buffer_get_start_iter(GTK_TEXT_BUFFER(buffer), &start);
+	gtk_text_buffer_get_end_iter(GTK_TEXT_BUFFER(buffer), &end);
+	buf = gtk_text_buffer_get_text(GTK_TEXT_BUFFER(buffer), &start, &end, FALSE);
+
+	G_LIST_FREE_WITH_ELEMENT_FREE_UNLESS_NULL(*list_ptr);
+	*list_ptr = utils_line_separated_text_to_list(buf);
 }
 
 void
