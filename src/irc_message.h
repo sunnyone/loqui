@@ -40,7 +40,7 @@ typedef struct _IRCMessageClass       IRCMessageClass;
 typedef struct _IRCMessagePrivate     IRCMessagePrivate;
 
 #define IRC_MESSAGE_IS_COMMAND(msg) (msg->response > 1000)
-#define IRC_MESSAGE_IS_REPLY(msg) ((200 < msg->response && msg->response < 400))
+#define IRC_MESSAGE_IS_REPLY(msg) (msg->response < 100 || (200 < msg->response && msg->response < 400))
 #define IRC_MESSAGE_IS_ERROR(msg) ((400 < msg->response && msg->response < 1000))
 
 struct _IRCMessage
