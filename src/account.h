@@ -105,10 +105,11 @@ void account_add_server(Account *account, const gchar *hostname,
 			gint port, const gchar *password,
 			gboolean use);
 void account_remove_all_server(Account *account);
-
 gboolean account_restore(Account *account, const gchar *name);
+
 void account_connect(Account *account, gint server_num, gboolean fallback);
 void account_disconnect(Account *account);
+gboolean account_is_connected(Account *account);
 
 void account_add_channel(Account *account, Channel *channel);
 void account_remove_channel(Account *account, Channel *channel);
@@ -122,9 +123,9 @@ GSList *account_search_joined_channel(Account *account, gchar *nick);
 void account_console_buffer_append(Account *account, gboolean with_common_buffer, TextType type, gchar *str);
 void account_speak(Account *account, Channel *channel, const gchar *str);
 
-void account_set_is_away(Account *account, gboolean is_away);
-gboolean account_get_is_away(Account *account);
-void account_change_away_mode(Account *account, const gchar *away_message);
+void account_set_away_status(Account *account, gboolean is_away);
+gboolean account_get_away_status(Account *account);
+void account_set_away(Account *account, const gchar *away_message);
 
 G_END_DECLS
 

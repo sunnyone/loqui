@@ -55,7 +55,8 @@ struct _LoquiToolbarClass
 GtkType loqui_toolbar_get_type (void) G_GNUC_CONST;
 
 GtkWidget* loqui_toolbar_new(gpointer data);
-void loqui_toolbar_set_toggle_scrolling_without_signal_emission(LoquiToolbar *toolbar, gboolean is_scroll);
+void loqui_toolbar_toggle_scrolling_without_signal_emission(LoquiToolbar *toolbar, gboolean is_scroll);
+void loqui_toolbar_toggle_away_without_signal_emission(LoquiToolbar *toolbar, gboolean is_away);
 
 G_END_DECLS
 

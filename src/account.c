@@ -360,6 +360,13 @@ account_disconnect(Account *account)
 	irc_handle_disconnect(priv->handle);
 	priv->handle = NULL;
 }
+gboolean account_is_connected(Account *account)
+{
+        g_return_val_if_fail(account != NULL, FALSE);
+        g_return_val_if_fail(IS_ACCOUNT(account), FALSE);
+		
+	return (account->priv->handle != NULL);
+}
 
 void
 account_add_channel(Account *account, Channel *channel)
@@ -476,21 +483,24 @@ account_speak(Account *account, Channel *channel, const gchar *str)
 }
 
 void
-account_set_is_away(Account *account, gboolean is_away)
+account_set_away_status(Account *account, gboolean is_away)
 {
         g_return_if_fail(account != NULL);
         g_return_if_fail(IS_ACCOUNT(account));
 
 	account->priv->is_away = is_away;
-	/* it should be handled with signal */
 	if(is_away)
 		debug_puts("Now away.");
 	else
 		debug_puts("Now unaway.");
 
+	/* FIXME: it should be done with signal */
+	if(account_manager_is_current_account(account_manager_get(), account)) 
+		account_manager_update_away_status(account_manager_get(), is_away);
+
 }
 gboolean
-account_get_is_away(Account *account)
+account_get_away_status(Account *account)
 {
         g_return_val_if_fail(account != NULL, FALSE);
         g_return_val_if_fail(IS_ACCOUNT(account), FALSE);
@@ -499,7 +509,7 @@ account_get_is_away(Account *account)
 }
 
 void
-account_change_away_mode(Account *account, const gchar *away_message)
+account_set_away(Account *account, const gchar *away_message)
 {
 	IRCMessage *msg;
 	AccountPrivate *priv;

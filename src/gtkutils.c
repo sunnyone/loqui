@@ -73,6 +73,13 @@ gtkutils_add_label_entry(GtkWidget *box, const gchar *label_text,
 		gtk_entry_set_text(GTK_ENTRY(*entry), default_string);
 	gtk_box_pack_start(GTK_BOX(hbox), *entry, TRUE, TRUE, 0);
 }
+void
+gtkutils_toggle_button_without_emission(GtkToggleButton *button, guint signal_handler_id, gboolean bool)
+{
+	g_signal_handler_block(button, signal_handler_id);
+	gtk_toggle_button_set_active(button, bool);
+	g_signal_handler_unblock(button, signal_handler_id);
+}
 
 gboolean
 gtk_tree_model_find_by_column_data (GtkTreeModel * model, GtkTreeIter * iter,
