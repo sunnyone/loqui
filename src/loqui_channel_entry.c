@@ -349,6 +349,7 @@ static void
 loqui_channel_entry_add_real(LoquiChannelEntry *chent, LoquiMember *member)
 {
 	LoquiChannelEntryPrivate *priv;
+	LoquiMember *mcur;
 	gint i, pos;
 
         g_return_if_fail(chent != NULL);
@@ -361,14 +362,14 @@ loqui_channel_entry_add_real(LoquiChannelEntry *chent, LoquiMember *member)
 	g_object_ref(member);
 	if (chent->sort_func && chent->do_sort) {
 		for (i = 0; i < chent->member_array->len; i++) {
-			if (chent->sort_func(g_array_index(chent->member_array, LoquiMember *, i), member) > 0)
+			mcur = g_array_index(chent->member_array, LoquiMember *, i);
+			if (chent->sort_func(&mcur, &member) >= 0)
 				break;
 		}
 		pos = i;
-		if (i < chent->member_array->len)
-			g_array_insert_val(chent->member_array, pos, member);
-		g_array_append_val(chent->member_array, member);
-	} else {
+		g_assert(pos <= chent->member_array->len);
+		g_array_insert_val(chent->member_array, pos, member);
+		} else {
 		g_array_append_val(chent->member_array, member);
 		pos = chent->member_array->len - 1;
 	}
@@ -385,6 +386,7 @@ loqui_channel_entry_add_real(LoquiChannelEntry *chent, LoquiMember *member)
 	g_signal_connect(G_OBJECT(member), "notify",
 			 G_CALLBACK(loqui_channel_entry_member_notify_cb), chent);
 
+	/* loqui_channel_entry_sort(chent); */
 	g_object_notify(G_OBJECT(chent), "member-number");
 }
 static void
@@ -502,6 +504,8 @@ void
 loqui_channel_entry_sort(LoquiChannelEntry *chent)
 {
 	LoquiChannelEntryPrivate *priv;
+	gint i;
+	LoquiMember *mcur;
 
         g_return_if_fail(chent != NULL);
         g_return_if_fail(LOQUI_IS_CHANNEL_ENTRY(chent));
@@ -510,6 +514,12 @@ loqui_channel_entry_sort(LoquiChannelEntry *chent)
 
 	if (chent->sort_func)
 		g_array_sort(chent->member_array, chent->sort_func);
+
+	/* update */
+	for (i = 0; i < chent->member_array->len; i++) {
+		mcur = loqui_channel_entry_get_nth_member(chent, i);
+		g_hash_table_replace(chent->user_hash, mcur->user, GINT_TO_POINTER(i + 1));
+	}
 
 	g_signal_emit(chent, loqui_channel_entry_signals[SIGNAL_REORDERED], 0);
 }

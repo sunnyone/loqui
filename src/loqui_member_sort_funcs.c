@@ -15,59 +15,59 @@
 }
 
 gint
-loqui_member_sort_funcs_nick(LoquiMember *ma, LoquiMember *mb)
+loqui_member_sort_funcs_nick(LoquiMember **ma_p, LoquiMember **mb_p)
 {
-	return strcmp(ma->user->nick, mb->user->nick);
+	return strcmp((*ma_p)->user->nick_key, (*mb_p)->user->nick_key);
 }
 gint
-loqui_member_sort_funcs_power(LoquiMember *ma, LoquiMember *mb)
+loqui_member_sort_funcs_power(LoquiMember **ma_p, LoquiMember **mb_p)
 {
 	gint score_a, score_b;
 
-	MEMBER_GET_POWER_SCORE(ma, &score_a);
-	MEMBER_GET_POWER_SCORE(mb, &score_b);
+	MEMBER_GET_POWER_SCORE((*ma_p), &score_a);
+	MEMBER_GET_POWER_SCORE((*mb_p), &score_b);
 	return score_b - score_a;
 }
 gint
-loqui_member_sort_funcs_last_message_time(LoquiMember *ma, LoquiMember *mb)
+loqui_member_sort_funcs_last_message_time(LoquiMember **ma_p, LoquiMember **mb_p)
 {
-	return ma->last_message_time - mb->last_message_time;
+	return (*mb_p)->last_message_time - (*ma_p)->last_message_time;
 }
 gint
-loqui_member_sort_funcs_away(LoquiMember *ma, LoquiMember *mb)
+loqui_member_sort_funcs_away(LoquiMember **ma_p, LoquiMember **mb_p)
 {
-	return mb->user->away - ma->user->away;
-}
-
-gint
-loqui_member_sort_funcs_nick_power_away(LoquiMember *ma, LoquiMember *mb)
-{
-	return loqui_member_sort_funcs_nick(ma, mb) ||
-		loqui_member_sort_funcs_power(ma, mb) ||
-		loqui_member_sort_funcs_away(ma, mb);
-}
-gint
-loqui_member_sort_funcs_away_power_nick(LoquiMember *ma, LoquiMember *mb)
-{
-	return loqui_member_sort_funcs_away(ma, mb) ||
-		loqui_member_sort_funcs_power(ma, mb) ||
-		loqui_member_sort_funcs_nick(ma, mb);
+	return (*mb_p)->user->away - (*ma_p)->user->away;
 }
 
 gint
-loqui_member_sort_funcs_time_away_power_nick(LoquiMember *ma, LoquiMember *mb)
+loqui_member_sort_funcs_nick_away_power(LoquiMember **ma_p, LoquiMember **mb_p)
 {
-	return loqui_member_sort_funcs_last_message_time(ma, mb) ||
-		loqui_member_sort_funcs_away(ma, mb) ||
-		loqui_member_sort_funcs_power(ma, mb) ||
-		loqui_member_sort_funcs_nick(ma, mb);
+	return loqui_member_sort_funcs_nick(ma_p, mb_p) ||
+		loqui_member_sort_funcs_away(ma_p, mb_p) ||
+		loqui_member_sort_funcs_power(ma_p, mb_p);
 }
 gint
-loqui_member_sort_funcs_time_nick_power_away(LoquiMember *ma, LoquiMember *mb)
+loqui_member_sort_funcs_away_power_nick(LoquiMember **ma_p, LoquiMember **mb_p)
 {
-	return loqui_member_sort_funcs_last_message_time(ma, mb) ||
-		loqui_member_sort_funcs_nick(ma, mb) ||
-		loqui_member_sort_funcs_power(ma, mb) ||
-		loqui_member_sort_funcs_away(ma, mb);
+	return loqui_member_sort_funcs_away(ma_p, mb_p) ||
+		loqui_member_sort_funcs_power(ma_p, mb_p) ||
+		loqui_member_sort_funcs_nick(ma_p, mb_p);
+}
+
+gint
+loqui_member_sort_funcs_time_away_power_nick(LoquiMember **ma_p, LoquiMember **mb_p)
+{
+	return loqui_member_sort_funcs_last_message_time(ma_p, mb_p) ||
+		loqui_member_sort_funcs_away(ma_p, mb_p) ||
+		loqui_member_sort_funcs_power(ma_p, mb_p) ||
+		loqui_member_sort_funcs_nick(ma_p, mb_p);
+}
+gint
+loqui_member_sort_funcs_time_nick_away_power(LoquiMember **ma_p, LoquiMember **mb_p)
+{
+	return loqui_member_sort_funcs_last_message_time(ma_p, mb_p) ||
+		loqui_member_sort_funcs_nick(ma_p, mb_p) ||
+		loqui_member_sort_funcs_away(ma_p, mb_p) ||
+		loqui_member_sort_funcs_power(ma_p, mb_p);
 }
 

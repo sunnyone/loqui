@@ -216,6 +216,8 @@ loqui_channel_init(LoquiChannel *channel)
 	priv = g_new0(LoquiChannelPrivate, 1);
 
 	channel->priv = priv;
+
+	channel->end_names = TRUE;
 }
 LoquiChannel*
 loqui_channel_new(Account *account, const gchar *name, gboolean is_joined, gboolean is_private_talk)

@@ -34,6 +34,7 @@
 
 #include "codeconv.h"
 #include <string.h>
+#include <time.h>
 
 struct _IRCHandlePrivate
 {
@@ -235,6 +236,8 @@ irc_handle_command_privmsg_notice(IRCHandle *handle, IRCMessage *msg)
 	TextType type;
 	CTCPMessage *ctcp_msg;
 	gboolean is_self;
+	LoquiUser *user;
+	LoquiMember *member;
 
         g_return_if_fail(handle != NULL);
         g_return_if_fail(IS_IRC_HANDLE(handle));
@@ -294,6 +297,12 @@ irc_handle_command_privmsg_notice(IRCHandle *handle, IRCMessage *msg)
 		}
 		sender = msg->nick ? msg->nick : msg->prefix;
 		loqui_channel_append_remark(channel, type, is_self, sender, remark);
+
+		if (msg->nick &&
+		    (user = account_peek_user(priv->account, msg->nick)) != NULL &&
+		    (member = loqui_channel_entry_get_member_by_user(LOQUI_CHANNEL_ENTRY(channel), user)) != NULL) {
+			loqui_member_set_last_message_time(member, time(NULL));
+		}
 	} else {
 		account_console_buffer_append(priv->account, type, remark);
 	}

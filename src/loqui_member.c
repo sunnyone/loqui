@@ -272,9 +272,6 @@ loqui_member_set_last_message_time(LoquiMember *member, time_t last_message_time
 	g_return_if_fail(member != NULL);
         g_return_if_fail(LOQUI_IS_MEMBER(member));
 
-	if (member->last_message_time == last_message_time)
-		return;
-
 	member->last_message_time = last_message_time;
 	g_object_notify(G_OBJECT(member), "last_message_time");
 }

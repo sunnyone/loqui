@@ -657,6 +657,7 @@ account_speak(Account *account, LoquiChannel *channel, const gchar *str, gboolea
 	IRCMessage *msg;
 	gchar **array;
 	gint i;
+	LoquiMember *member;
 
         g_return_if_fail(account != NULL);
         g_return_if_fail(IS_ACCOUNT(account));
@@ -708,6 +709,9 @@ account_speak(Account *account, LoquiChannel *channel, const gchar *str, gboolea
 			loqui_channel_append_remark(channel, TEXT_TYPE_NORMAL, TRUE, loqui_user_get_nick(account->user_self), array[i]);
 		}
 		g_strfreev(array);
+
+		member = loqui_channel_entry_get_member_by_user(LOQUI_CHANNEL_ENTRY(channel), account_get_user_self(account));
+		loqui_member_set_last_message_time(member, time(NULL));
 	}
 }
 gboolean
