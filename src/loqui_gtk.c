@@ -20,6 +20,7 @@
 #include "config.h"
 #include "loqui_gtk.h"
 #include "loqui_app.h"
+#include "loqui_account_manager_gtk.h"
 
 #include <gtk/gtk.h>
 #include <gdk/gdkkeysyms.h>
@@ -55,7 +56,7 @@ loqui_gtk_start_main_loop(LoquiProtocolManager *pmanag)
 	LoquiAccountManager *account_manager;
 	gchar *path;
 	
-	account_manager = loqui_account_manager_new(pmanag);
+	account_manager = LOQUI_ACCOUNT_MANAGER(loqui_account_manager_gtk_new(pmanag));
 	app = LOQUI_APP(loqui_app_new(account_manager));
 	
 	path = g_build_filename(g_get_home_dir(), PREFS_DIR, ACCEL_MAP_FILE, NULL);
