@@ -493,7 +493,12 @@ prefs_dialog_new(LoquiApp *app)
 	
 	gtkutils_add_label_entry(vbox, _("Browser: "), &priv->entry_browser_command, "");
 
-	label = gtk_label_new(_("URL is passed to a browser with quoted, like 'http://example.com/'"));
+	label = gtk_label_new(_("An URL will be quoted and substituted with %s.\n"
+				"Sample:\n"
+				" URL: http://example.com/#id\n"
+				" Browser: mozilla -remote openURL\\(%s,new-tab\\)\n"
+				"  -> mozilla -remote openURL\\('http://example.com/#id',new-tab\\)"));
+	// gtk_label_set_multiline(GTK_LABEL(label), TRUE);
 	gtk_box_pack_start(GTK_BOX(vbox), label, FALSE, FALSE, 0);
 	
 	gtkutils_add_label_entry(vbox, _("Notification: "), &priv->entry_notification_command, "");
