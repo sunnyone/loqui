@@ -70,7 +70,7 @@ static void irc_handle_command_quit(IRCHandle *handle, IRCMessage *msg);
 static void irc_handle_account_console_append(IRCHandle *handle, IRCMessage *msg, TextType type, gchar *format);
 static void irc_handle_channel_append(IRCHandle *handle, IRCMessage *msg, gboolean make_channel,
 				      gint receiver_num, TextType type, gchar *format);
-static void irc_handle_joined_channel_append(IRCHandle *handle, IRCMessage *msg, TextType type, gchar *format);
+static void irc_handle_joined_channel_append(IRCHandle *handle, IRCMessage *msg, GSList *channel_slist, TextType type, gchar *format);
 
 static void irc_handle_reply_names(IRCHandle *handle, IRCMessage *msg);
 static void irc_handle_reply_topic(IRCHandle *handle, IRCMessage *msg);
@@ -197,8 +197,23 @@ irc_handle_command_ping(IRCHandle *handle, IRCMessage *msg)
 static void
 irc_handle_command_quit(IRCHandle *handle, IRCMessage *msg)
 {
+	GSList *slist, *cur;
 	/* FIXME: remove nicks he joined */
-	irc_handle_joined_channel_append(handle, msg, TEXT_TYPE_INFO, _("*** %n has quit IRC(%t)"));
+	
+	if(msg->nick == NULL) {
+		g_warning(_("The message is not contains nick"));
+	}
+
+	slist = account_search_joined_channel(handle->priv->account, msg->nick);
+	for(cur = slist; cur != NULL; cur = cur->next) {
+		gdk_threads_enter();
+		channel_remove_user((Channel *) cur->data, msg->nick);
+		gdk_threads_leave();
+	}
+
+	irc_handle_joined_channel_append(handle, msg, slist, TEXT_TYPE_INFO, _("*** %n has quit IRC(%t)"));
+
+	g_slist_free(slist);
 }
 
 static void
@@ -338,20 +353,24 @@ irc_handle_reply_topic(IRCHandle *handle, IRCMessage *msg)
 	irc_handle_channel_append(handle, msg, FALSE, 2, TEXT_TYPE_INFO, _("Topic for %2: %t"));
 }
 static void /* utility function for threading */
-irc_handle_joined_channel_append(IRCHandle *handle, IRCMessage *msg, TextType type, gchar *format)
+irc_handle_joined_channel_append(IRCHandle *handle, IRCMessage *msg, GSList *channel_slist, TextType type, gchar *format)
 {
 	gchar *str;
-	GSList *list = NULL, *cur;
+	GSList *slist = NULL, *cur;
 	Channel *channel;
-
+	
 	str = irc_message_format(msg, format);
 
-	if(msg->nick) {
-		list = account_search_joined_channel(handle->priv->account, msg->nick);
+	if(channel_slist == NULL) {
+		if(msg->nick)
+			slist = account_search_joined_channel(handle->priv->account, msg->nick);
+	} else {
+		slist = channel_slist;
 	}
+			
 
 	gdk_threads_enter();
-	for(cur = list; cur != NULL; cur = cur->next) {
+	for(cur = slist; cur != NULL; cur = cur->next) {
 		channel = (Channel *) cur->data;
 		channel_append_text(channel, FALSE, type, str);
 	}
@@ -359,7 +378,8 @@ irc_handle_joined_channel_append(IRCHandle *handle, IRCMessage *msg, TextType ty
 	gdk_threads_leave();
 
 	g_free(str);
-	g_slist_free(list);
+	if(channel_slist == NULL && slist != NULL)
+		g_slist_free(slist);
 }
 static void /* utility function for threading */
 irc_handle_account_console_append(IRCHandle *handle, IRCMessage *msg, TextType type, gchar *format)
