@@ -260,7 +260,7 @@ account_parse_server_string(const gchar *input)
 
 /* FIXME: configuration handlling should be more sensitive. 
    broken values may stop the program on the current implementation. */
-void 
+gboolean
 account_restore(Account *account, const gchar *name)
 {
 	AccountPrivate *priv;
@@ -272,11 +272,11 @@ account_restore(Account *account, const gchar *name)
 	gchar *password;
 	gboolean use;
 
-        g_return_if_fail(account != NULL);
-        g_return_if_fail(IS_ACCOUNT(account));
+        g_return_val_if_fail(account != NULL, FALSE);
+        g_return_val_if_fail(IS_ACCOUNT(account), FALSE);
 
-	g_return_if_fail(name != NULL);
-	g_return_if_fail(strchr(name, '/') == NULL);
+	g_return_val_if_fail(name != NULL, FALSE);
+	g_return_val_if_fail(strchr(name, '/') == NULL, FALSE);
 
 	priv = account->priv;
 
@@ -289,11 +289,27 @@ account_restore(Account *account, const gchar *name)
 	g_free(key); \
 }
 	ACCOUNT_GCONF_GET_STRING(account->nick, "nick");
+	if(account->nick == 0 || strlen(account->nick) == 0) {
+		gtkutils_msgbox_info(GTK_MESSAGE_ERROR,
+				     _("Account '%s': Nick is empty"), name);
+		return FALSE;
+	}
 	ACCOUNT_GCONF_GET_STRING(account->username, "username");
+	if(account->username == 0 || strlen(account->username) == 0) {
+		gtkutils_msgbox_info(GTK_MESSAGE_ERROR,
+				     _("Account '%s': Username is empty"), name);
+		return FALSE;
+	}
 	ACCOUNT_GCONF_GET_STRING(account->realname, "realname");
+	if(account->realname == 0 || strlen(account->realname) == 0) {
+		gtkutils_msgbox_info(GTK_MESSAGE_ERROR,
+				     _("Account '%s': Realname is empty"), name);
+		return FALSE;
+	}
 	ACCOUNT_GCONF_GET_STRING(account->userinfo, "userinfo");
 	ACCOUNT_GCONF_GET_STRING(account->autojoin, "autojoin");
 
+	
 	key = g_strdup_printf("%s/%s/%s", LOQUI_GCONF_ACCOUNT, name, "server");
 	list = eel_gconf_get_dirs(key);
 	g_free(key);
@@ -320,6 +336,8 @@ account_restore(Account *account, const gchar *name)
 		g_free(cur->data);
 #undef CONF_SERVER_GET_VALUE
 	}
+	return TRUE;
+
 }
 
 void
@@ -438,7 +456,7 @@ account_speak(Account *account, Channel *channel, const gchar *str)
 		msg = irc_message_parse_line(cur);
 		if(debug_mode) {
 			buf = irc_message_to_string(msg);
-			g_print("msg: %s\n", buf);
+			debug_puts("msg: %s", buf);
 			g_free(buf);
 		}
 		irc_handle_push_message(priv->handle, msg);

@@ -828,7 +828,9 @@ static gpointer irc_handle_thread_func(IRCHandle *handle)
 	irc_handle_push_message(handle, msg);
 	priv->current_nick = g_strdup(priv->account->nick);
 
-	msg = irc_message_create(IRCCommandUser, "Loqui", "*", "*", "*", NULL);
+	msg = irc_message_create(IRCCommandUser, 
+				 priv->account->username, "*", "*", 
+				 priv->account->realname, NULL);
 	irc_handle_push_message(handle, msg);
 
 	gdk_threads_enter();

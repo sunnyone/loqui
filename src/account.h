@@ -85,7 +85,7 @@ void account_set(Account *account,
 void account_add_server(Account *account, const gchar *hostname,
 			gint port, const gchar *password,
 			gboolean use);
-void account_restore(Account *account, const gchar *name);
+gboolean account_restore(Account *account, const gchar *name);
 void account_connect(Account *account, gint server_num, gboolean fallback);
 
 void account_add_channel(Account *account, Channel *channel);

@@ -140,7 +140,10 @@ account_manager_load_accounts(AccountManager *account_manager)
 		g_free(cur->data);
 		if(!name) continue;
                 account = account_new();
-                account_restore(account, name);
+                if(!account_restore(account, name)) {
+			g_object_unref(account);
+			continue;
+		}
  		priv->account_list = g_slist_append(priv->account_list, account);
 		channel_tree_add_account(CHANNEL_TREE(priv->app->channel_tree), account);
 
