@@ -66,7 +66,7 @@ static void command_dialog_join_cb(Account *account, const gchar *channel_text, 
 	   !check_target_valid(channel_text))
 		return;
 	
-	account_join(account, channel_text);
+	account_join(account, channel_text, text);
 }
 
 static void command_dialog_private_talk_cb(Account *account, const gchar *channel_text, const gchar *text, gpointer data)
@@ -106,11 +106,11 @@ static void command_dialog_nick_cb(Account *account, const gchar *channel_text, 
 void command_dialog_join(LoquiApp *app, Account *account)
 {
 	channel_input_dialog_open(app, 
-				  _("Join channel/private message"),
-				  _("Type channel name to join."),
+				  _("Join channel"),
+				  _("Type channel name to join (and channel key, if any)."),
 				  CHANNEL_HISTORY_SAVED,
 				  command_dialog_join_cb, NULL,
-				  TRUE, account, TRUE, NULL, FALSE, NULL);
+				  TRUE, account, TRUE, NULL, TRUE, NULL);
 }
 void command_dialog_private_talk(LoquiApp *app, Account *account)
 {

@@ -799,7 +799,7 @@ void account_whois(Account *account, const gchar *target)
 	g_object_unref(msg);
 }
 void
-account_join(Account *account, const gchar *target)
+account_join(Account *account, const gchar *target, const gchar *key)
 {
 	IRCMessage *msg;
 	AccountPrivate *priv;
@@ -811,10 +811,12 @@ account_join(Account *account, const gchar *target)
 		g_warning(_("Account is not connected."));
 		return;
 	}
+	if (key == NULL || strlen(key) == 0)
+		key = NULL;
 
 	priv = account->priv;
 
-	msg = irc_message_create(IRCCommandJoin, target, NULL);
+	msg = irc_message_create(IRCCommandJoin, target, key, NULL);
 	irc_connection_push_message(priv->connection, msg);
 	g_object_unref(msg);
 }
