@@ -176,8 +176,8 @@ irc_handle_parse_plum_recent(IRCHandle *handle, const gchar *line)
 	buf = g_strdup(line);
 
 	if(((cur = strstr(buf, " <")) == NULL) &&
-	   ((cur = strstr(buf, " =")) == NULL) &&
-	   ((cur = strstr(buf, " >")) == NULL)) {
+	   ((cur = strstr(buf, " >")) == NULL) &&
+	   ((cur = strstr(buf, " =")) == NULL)) {
 		goto error;
 	}
 	prefix = *++cur;
@@ -194,12 +194,6 @@ irc_handle_parse_plum_recent(IRCHandle *handle, const gchar *line)
 		*cur = '\0';
 
 		break;
-	case '=':
-		if((cur = strchr(buf, '=')) == NULL)
-			goto error;
-		*cur = '\0';
-
-		break;
 	case '>':
 		if((cur = strstr(buf, "< ")) == NULL)
 			goto error;
@@ -207,6 +201,12 @@ irc_handle_parse_plum_recent(IRCHandle *handle, const gchar *line)
 
 		if((cur = strrchr(buf, ':')) != NULL)
 			*cur = '\0';
+
+		break;
+	case '=':
+		if((cur = strchr(buf, '=')) == NULL)
+			goto error;
+		*cur = '\0';
 
 		break;
 	default:
