@@ -36,6 +36,7 @@ loqui_SOURCES = \
 	remark_entry.c remark_entry.h \
 	loqui_channelbar.c loqui_channelbar.h \
 	loqui_select_dialog.c loqui_select_dialog.h \
+	prefs_general_upgrader.c prefs_general_upgrader.h \
 	loqui-core-gtk.gob loqui-core-gtk.c loqui-core-gtk.h loqui-core-gtk-private.h \
 	loqui-style-entry.gob loqui-style-entry.c loqui-style-entry.h loqui-style-entry-private.h
 
