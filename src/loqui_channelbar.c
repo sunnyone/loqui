@@ -372,7 +372,6 @@ loqui_channelbar_set_current_channel(LoquiChannelbar *channelbar, Channel *chann
 
 	gtk_entry_set_text(GTK_ENTRY(priv->entry_topic), "");
 	
-	gtk_widget_set_sensitive(priv->button_ok, FALSE);
 	gtk_label_set(GTK_LABEL(priv->label_channel_mode), "");
 	gtk_label_set(GTK_LABEL(priv->label_user_number), "");
 			
@@ -396,6 +395,7 @@ loqui_channelbar_set_current_channel(LoquiChannelbar *channelbar, Channel *chann
 		gtk_widget_set_sensitive(priv->entry_topic, FALSE);
 	}
 	
+	gtk_widget_set_sensitive(priv->button_ok, FALSE);	
 	priv->entry_changed = FALSE;
 }
 
