@@ -659,7 +659,7 @@ account_console_buffer_append(Account *account, TextType type, gchar *str)
 	g_object_unref(msgtext);
 }
 void
-account_speak(Account *account, LoquiChannel *channel, const gchar *str, gboolean command_mode)
+account_speak(Account *account, LoquiChannel *channel, const gchar *str, gboolean command_mode, gboolean is_notice)
 {
 	AccountPrivate *priv;
 	const gchar *cur;
@@ -713,10 +713,12 @@ account_speak(Account *account, LoquiChannel *channel, const gchar *str, gboolea
 			if(strlen(array[i]) == 0)
 				continue;
 
-			msg = irc_message_create(IRCCommandPrivmsg, loqui_channel_entry_get_name(LOQUI_CHANNEL_ENTRY(channel)), array[i], NULL);
+			msg = irc_message_create(is_notice ? IRCCommandNotice : IRCCommandPrivmsg, 
+						 loqui_channel_entry_get_name(LOQUI_CHANNEL_ENTRY(channel)), array[i], NULL);
 			irc_connection_push_message(priv->connection, msg);
 			g_object_unref(msg);
-			loqui_channel_append_remark(channel, TEXT_TYPE_NORMAL, TRUE, loqui_user_get_nick(account->user_self), array[i]);
+			loqui_channel_append_remark(channel, is_notice ? TEXT_TYPE_NOTICE : TEXT_TYPE_NORMAL,
+						    TRUE, loqui_user_get_nick(account->user_self), array[i]);
 		}
 		g_strfreev(array);
 

@@ -33,7 +33,6 @@
 
 #include <string.h>
 
-
 enum {
 	CALL_HISTORY,
 	SCROLL_CHANNEL_TEXTVIEW,
@@ -80,11 +79,13 @@ static void remark_entry_grab_focus(GtkWidget *widget);
 
 static void remark_entry_entry_text_shown_cb(GtkWidget *widget, gpointer data);
 static void remark_entry_entry_multiline_toggled_cb(GtkWidget *widget, gpointer data);
-static void remark_entry_activated_cb(GtkWidget *widget, gpointer data);
+static void remark_entry_ok_clicked_cb(GtkWidget *widget, gpointer data);
 static void remark_entry_entry_changed_cb(GtkEntry *widget, RemarkEntry *remark_entry);
+static gboolean remark_entry_entry_key_press_event_cb(GtkWidget *widget, GdkEventKey *event, RemarkEntry *remark_entry);
 
 static void remark_entry_history_add(RemarkEntry *entry, const gchar *str);
 
+static void remark_entry_send_text(RemarkEntry *remark_entry, gboolean is_notice);
 static void remark_entry_call_history(RemarkEntry *entry, gint count);
 static void remark_entry_scroll_channel_textview(RemarkEntry *entry, gint pages);
 static void remark_entry_scroll_common_textview(RemarkEntry *entry, gint pages);
@@ -276,8 +277,8 @@ remark_entry_new(LoquiApp *app, GtkToggleAction *toggle_command_action)
 	gtk_box_pack_start(GTK_BOX(hbox), priv->vbox, TRUE, TRUE, 0);
 	
 	priv->entry = gtk_entry_new();
-	g_signal_connect(G_OBJECT(priv->entry), "activate",
-			 G_CALLBACK(remark_entry_activated_cb), remark_entry);
+	g_signal_connect(G_OBJECT(priv->entry), "key_press_event",
+			 G_CALLBACK(remark_entry_entry_key_press_event_cb), remark_entry);
 	g_signal_connect(G_OBJECT(priv->entry), "show",
 			 G_CALLBACK(remark_entry_entry_text_shown_cb), remark_entry);
 	g_signal_connect(G_OBJECT(priv->entry), "changed",
@@ -301,7 +302,7 @@ remark_entry_new(LoquiApp *app, GtkToggleAction *toggle_command_action)
 	priv->button_ok = gtk_button_new();
 	gtk_container_add(GTK_CONTAINER(priv->button_ok), image);
 	g_signal_connect(G_OBJECT(priv->button_ok), "clicked",
-			 G_CALLBACK(remark_entry_activated_cb), remark_entry);
+			 G_CALLBACK(remark_entry_ok_clicked_cb), remark_entry);
 	g_signal_connect_swapped(G_OBJECT(priv->button_ok), "clicked",
 				 G_CALLBACK(remark_entry_grab_focus), remark_entry);
 	gtk_box_pack_start(GTK_BOX(priv->hbox_text), priv->button_ok, FALSE, FALSE, 0);
@@ -525,7 +526,7 @@ remark_entry_scroll_common_textview(RemarkEntry *entry, gint pages)
 	loqui_channel_text_view_scroll(LOQUI_CHANNEL_TEXT_VIEW(priv->app->common_textview), GTK_MOVEMENT_PAGES, pages);
 }
 static void 
-remark_entry_send_text(RemarkEntry *remark_entry)
+remark_entry_send_text(RemarkEntry *remark_entry, gboolean is_notice)
 {
 	RemarkEntryPrivate *priv;
 	gchar *str;
@@ -542,11 +543,14 @@ remark_entry_send_text(RemarkEntry *remark_entry)
 	str = g_strdup(remark_entry_get_text(remark_entry));
 
 	account = loqui_app_get_current_account(priv->app);
-	if (account)
-		account_speak(account, loqui_app_get_current_channel(priv->app), str,
-			      remark_entry_get_command_mode(remark_entry));
-	else
-		gtkutils_msgbox_info(GTK_MESSAGE_ERROR, _("No accounts are selected!"));
+	if (!account) {
+		gtkutils_msgbox_info(GTK_MESSAGE_ERROR, _("Not selected an account"));
+		g_free(str);
+		return;
+	}
+	
+	account_speak(account, loqui_app_get_current_channel(priv->app), str,
+		      remark_entry_get_command_mode(remark_entry), is_notice);
 
 	remark_entry_clear_text(remark_entry);
 
@@ -557,10 +561,38 @@ remark_entry_send_text(RemarkEntry *remark_entry)
 	
 	remark_entry_set_command_mode(remark_entry, FALSE);
 }
-static void
-remark_entry_activated_cb(GtkWidget *widget, gpointer data)
+static gboolean
+remark_entry_entry_key_press_event_cb(GtkWidget *ewidget, GdkEventKey *event, RemarkEntry *remark_entry)
 {
-	remark_entry_send_text(data);
+        g_return_val_if_fail(remark_entry != NULL, FALSE);
+        g_return_val_if_fail(IS_REMARK_ENTRY(remark_entry), FALSE);
+	
+	if (event->state & GDK_CONTROL_MASK) {
+		switch (event->keyval) {
+		case GDK_Return:
+		case GDK_KP_Enter:
+			remark_entry_send_text(remark_entry, TRUE);
+			return TRUE;
+		default:
+			break;
+		}
+	}
+
+	switch (event->keyval) {
+	case GDK_Return:
+	case GDK_KP_Enter:
+		remark_entry_send_text(remark_entry, FALSE);
+		return TRUE;
+	default:
+		break;
+	}
+		
+	return FALSE;
+}
+static void
+remark_entry_ok_clicked_cb(GtkWidget *widget, gpointer data)
+{
+	remark_entry_send_text(data, FALSE);
 }
 static void
 remark_entry_entry_multiline_toggled_cb(GtkWidget *widget, gpointer data)

@@ -94,7 +94,6 @@ static gint loqui_app_delete_event(GtkWidget *widget, GdkEventAny *event);
 
 static void loqui_app_restore_size(LoquiApp *app);
 static void loqui_app_save_size(LoquiApp *app);
-static void loqui_app_entry_activate_cb(GtkWidget *widget, gpointer data);
 
 static void loqui_app_add_account_after_cb(AccountManager *manager, Account *account, LoquiApp *app);
 static void loqui_app_remove_account_cb(AccountManager *manager, Account *account, LoquiApp *app);
