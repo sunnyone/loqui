@@ -26,11 +26,13 @@ loqui_SOURCES = \
 	loqui_profile_handle.c loqui_profile_handle.h \
 	prefs_general.c prefs_general.h \
 	main.c main.h \
+	eggtrayicon.c eggtrayicon.h \
 	loqui_gtk.c loqui_gtk.h \
 	loqui_app_actions.c loqui_app_actions.h \
 	account_manager.c account_manager.h \
 	loqui_account_manager_iter.c loqui_account_manager_iter.h \
 	loqui_stock.c loqui_stock.h \
+	loqui_tray_icon.c loqui_tray_icon.h \
 	loqui_app.c loqui_app.h \
 	loqui_channel_entry_store.c loqui_channel_entry_store.h \
 	loqui_channel_entry_action.c loqui_channel_entry_action.h \

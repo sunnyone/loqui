@@ -133,4 +133,10 @@
   <popup name="PrivateTalkPopup" action="PrivateTalkPopup">
     <menuitem name="EndPrivateTalk" action="EndPrivateTalk"/>
   </popup>
+
+  <popup name="TrayIconPopup" action="TrayIconPopup">
+    <menuitem name="Quit" action="Quit"/>
+    <separator/>
+    <menuitem name="About" action="About"/>
+  </popup>
 </ui>

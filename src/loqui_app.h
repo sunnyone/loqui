@@ -42,6 +42,7 @@ typedef struct _LoquiAppPrivate     LoquiAppPrivate;
 #include "channel_tree.h"
 #include "account_manager.h"
 #include "prefs_general.h"
+#include "loqui_tray_icon.h"
 
 struct _LoquiApp
 {
@@ -79,6 +80,8 @@ struct _LoquiApp
 	NickList *nick_list;
 	ChannelTree *channel_tree;
 	GtkWidget *common_textview;
+
+	LoquiTrayIcon *tray_icon;
 };
 
 struct _LoquiAppClass

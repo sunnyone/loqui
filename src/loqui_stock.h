@@ -32,6 +32,8 @@
 #define LOQUI_STOCK_SPEAK_ABILITY "loqui-speak-ability"
 #define LOQUI_STOCK_WHETHER_SCROLL "loqui-whether-scroll"
 #define LOQUI_STOCK_NOTICE       "loqui-notice"
+#define LOQUI_STOCK_LOQUI       "loqui-loqui"
+#define LOQUI_STOCK_LOQUI_HILIGHTED   "loqui-loqui-hilighted"
 
 extern int LOQUI_ICON_SIZE_FONT;
 

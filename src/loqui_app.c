@@ -43,9 +43,11 @@
 #include "loqui_account_manager_store.h"
 #include "loqui_member_sort_funcs.h"
 #include "loqui_account_manager_iter.h"
+#include "loqui_tray_icon.h"
 
 #include "embedtxt/loqui_app_ui.h"
 #include "icons/pixbufs.h"
+#include "loqui_stock.h"
 
 #include "intl.h"
 #include "utils.h"
@@ -79,6 +81,8 @@ struct _LoquiAppPrivate
 
 	guint updated_channel_number;
 	guint updated_private_talk_number;
+
+	gint channel_has_unread_keyword_number;
 
 	GCompareFunc sort_func;
 };
@@ -115,6 +119,7 @@ static void loqui_app_channel_changed_cb(GObject *object, gpointer data);
 static void loqui_app_channel_entry_notify_cb(LoquiChannelEntry *chent, GParamSpec *pspec, gpointer data);
 static void loqui_app_channel_entry_notify_is_updated_cb(LoquiChannelEntry *chent, GParamSpec *pspec, LoquiApp *app);
 static void loqui_app_channel_entry_notify_number_cb(LoquiChannelEntry *chent, GParamSpec *pspec, LoquiApp *app);
+static void loqui_app_channel_entry_notify_has_unread_keyword_cb(LoquiChannelEntry *chent, GParamSpec *pspec, gpointer data);
 
 static void loqui_app_channel_buffer_append_cb(ChannelBuffer *buffer, MessageText *msgtext, LoquiApp *app);
 static void loqui_app_append_log(LoquiApp *app, MessageText *msgtext);
@@ -122,6 +127,7 @@ static void loqui_app_append_log(LoquiApp *app, MessageText *msgtext);
 static gboolean loqui_app_set_current_channel_for_idle(LoquiApp *app);
 static void loqui_app_set_current_channel_lazy(LoquiApp *app, LoquiChannel *channel);
 static void loqui_app_update_channel_entry_accel_key(LoquiApp *app);
+
 
 /* utilities */
 static void loqui_app_set_channel_entry_accel_key(LoquiApp *app, LoquiChannelEntry *chent);
@@ -203,6 +209,8 @@ loqui_app_finalize(GObject *object)
 		g_object_unref(priv->common_buffer);
 		priv->common_buffer = NULL;
 	}
+
+	gtk_widget_destroy(GTK_WIDGET(app->tray_icon));
 
 	g_signal_handlers_disconnect_by_func(G_OBJECT(app->account_manager), loqui_app_add_account_after_cb, app);
 	g_signal_handlers_disconnect_by_func(G_OBJECT(app->account_manager), loqui_app_remove_account_cb, app);
@@ -414,6 +422,7 @@ loqui_app_new(AccountManager *account_manager)
 	
 	GtkWidget *menu_channelbar;
 	GtkWidget *menu_nick_list;
+	GtkWidget *menu_tray_icon;
 
 	GdkPixbuf *loqui_icon;
 
@@ -548,6 +557,9 @@ loqui_app_new(AccountManager *account_manager)
 			       G_CALLBACK(loqui_app_remove_account_after_cb), app);
 
 	gtk_widget_grab_focus(app->remark_entry);
+
+	menu_tray_icon = gtk_ui_manager_get_widget(app->ui_manager, "/TrayIconPopup");
+	app->tray_icon = LOQUI_TRAY_ICON(loqui_tray_icon_new(LOQUI_APP(app), GTK_MENU(menu_tray_icon)));
 
 	return GTK_WIDGET(app);
 }
@@ -975,6 +987,8 @@ loqui_app_add_channel_after_cb(LoquiAccount *account, LoquiChannel *channel, Loq
 			 G_CALLBACK(loqui_app_channel_entry_notify_number_cb), app);
 	g_signal_connect(G_OBJECT(channel), "notify::member-number",
 			 G_CALLBACK(loqui_app_channel_entry_notify_number_cb), app);
+	g_signal_connect(G_OBJECT(channel), "notify::has-unread-keyword",
+			 G_CALLBACK(loqui_app_channel_entry_notify_has_unread_keyword_cb), app);
 
 	buffer = loqui_channel_entry_get_buffer(LOQUI_CHANNEL_ENTRY(channel));
 	g_signal_connect(G_OBJECT(buffer), "append",
@@ -1021,6 +1035,7 @@ loqui_app_remove_channel_cb(LoquiAccount *account, LoquiChannel *channel, LoquiA
 
 	g_signal_handlers_disconnect_by_func(channel, loqui_app_channel_entry_notify_is_updated_cb, app);
 	g_signal_handlers_disconnect_by_func(channel, loqui_app_channel_entry_notify_number_cb, app);
+	g_signal_handlers_disconnect_by_func(channel, loqui_app_channel_entry_notify_has_unread_keyword_cb, app);
 	
 	buffer = loqui_channel_entry_get_buffer(LOQUI_CHANNEL_ENTRY(channel));
 	g_signal_handlers_disconnect_by_func(buffer, loqui_app_channel_buffer_append_cb, app);
@@ -1102,6 +1117,25 @@ static void
 loqui_app_channel_entry_notify_cb(LoquiChannelEntry *chent, GParamSpec *pspec, gpointer data)
 {
 	loqui_app_channel_changed_cb(G_OBJECT(chent), data);
+}
+static void
+loqui_app_channel_entry_notify_has_unread_keyword_cb(LoquiChannelEntry *chent, GParamSpec *pspec, gpointer data)
+{
+	LoquiApp *app;
+	LoquiAppPrivate *priv;
+
+        g_return_if_fail(data != NULL);
+        g_return_if_fail(LOQUI_IS_APP(data));
+	
+	app = LOQUI_APP(data);
+	priv = app->priv;
+
+	if (loqui_channel_entry_get_has_unread_keyword(chent))
+		priv->channel_has_unread_keyword_number++;
+        else
+		priv->channel_has_unread_keyword_number--;
+	
+	loqui_tray_icon_set_hilighted(app->tray_icon, (priv->channel_has_unread_keyword_number > 0) ? TRUE : FALSE);
 }
 static void
 loqui_app_channel_changed_cb(GObject *object, gpointer data)
