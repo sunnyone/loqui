@@ -8,7 +8,6 @@ loqui_SOURCES = \
 	account_manager.c account_manager.h \
 	loqui_menu.c loqui_menu.h \
 	loqui_app.c loqui_app.h \
-	loqui_common_text.c loqui_common_text.h \
 	connection.c connection.h \
 	eel-gconf-extensions.c eel-gconf-extensions.h \
 	loqui_gconf.h \

@@ -20,7 +20,6 @@
 #include "config.h"
 
 #include "loqui_app.h"
-#include "loqui_common_text.h"
 #include "loqui_gconf.h"
 #include "channel_tree.h"
 #include "connection.h"
