@@ -82,6 +82,27 @@ union _TFItem {
 	TFItemFunction v_function;
 };
 
+static GHashTable *function_table = NULL;
+
+typedef gchar* (* LoquiTitleFormatFunction) (LoquiTitleFormat *ltf, GNode *node);
+
+typedef struct _TFFunctionItem TFFunctionItem;
+
+struct _TFFunctionItem {
+	gchar *name;
+	LoquiTitleFormatFunction func;
+};
+
+static gchar *loqui_title_format_function_if(LoquiTitleFormat *ltf, GNode *node);
+static gchar *loqui_title_format_function_num(LoquiTitleFormat *ltf, GNode *node);
+static gchar *loqui_title_format_function_pad(LoquiTitleFormat *ltf, GNode *node);
+
+TFFunctionItem function_item_table[] = {
+	{"if", loqui_title_format_function_if},
+	{"num", loqui_title_format_function_num},
+	{"pad", loqui_title_format_function_pad},
+	{NULL, NULL}
+};
 
 static gboolean loqui_title_format_validate_symbol_name(const gchar *name);
 static gboolean loqui_title_format_parse_internal(LoquiTitleFormat *ltf, LoquiStringTokenizer *st, gchar *end_chars, gchar *delim_ptr, GNode *parent, GNode *sibling, GError **error);
@@ -102,6 +123,58 @@ loqui_title_format_validate_symbol_name(const gchar *name)
 			return FALSE;
 		s++;
 	}
+	return TRUE;
+}
+static gint
+loqui_title_format_string_to_int(const gchar *str)
+{
+	gchar *buf, *tmp;
+	guint64 i;
+	gint m = 1;
+
+	if (str == NULL)
+		return 0;
+
+	buf = g_strdup(str);
+
+	tmp = buf;
+	tmp = g_strstrip(tmp);
+
+	if (*tmp == '-') {
+		m = -1;
+		tmp++;
+	}
+
+	i = g_ascii_strtoull(tmp, NULL, 0);
+	g_free(buf);
+	
+	return m * (gint) i;
+}
+
+static gboolean
+loqui_title_format_string_is_true(const gchar *str)
+{
+	gchar *buf, *tmp, *endptr;
+	gint i;
+
+	if (str == NULL)
+		return FALSE;
+
+	buf = g_strdup(str);
+
+	tmp = buf;
+	tmp = g_strstrip(tmp);
+
+	if (strlen(tmp) == 0)
+		return FALSE;
+	
+	if (*tmp == '-')
+		tmp++;
+
+	i = g_ascii_strtoull(tmp, &endptr, 0);
+	if (endptr != tmp && i == 0)
+		return FALSE;
+
 	return TRUE;
 }
 /* called at v   (after $)
@@ -300,11 +373,17 @@ loqui_title_format_parse_internal(LoquiTitleFormat *ltf, LoquiStringTokenizer *s
 			if (!loqui_title_format_parse_function(ltf, st, parent, sibling, error))
 				return FALSE;
 
+			g_assert(sibling->next != NULL);
+			sibling = sibling->next;
+
 			loqui_string_tokenizer_set_delimiters(st, delimiters);
 			break;
 		case '[':
 			if (!loqui_title_format_parse_variable_area(ltf, st, parent, sibling, error))
 				return FALSE;
+
+			g_assert(sibling->next != NULL);
+			sibling = sibling->next;
 
 			loqui_string_tokenizer_set_delimiters(st, delimiters);
 			break;
@@ -443,9 +522,17 @@ LoquiTitleFormat *
 loqui_title_format_new(void)
 {
 	LoquiTitleFormat *ltf;
+	TFFunctionItem *func_item;
+
+	if (!function_table) {
+		function_table = g_hash_table_new_full(g_str_hash, g_str_equal, (GDestroyNotify) g_free, NULL);
+
+		for (func_item = function_item_table; func_item->name != NULL; func_item++) {
+			g_hash_table_insert(function_table, g_strdup(func_item->name), func_item->func);
+		}
+	}
 
 	ltf = g_new0(LoquiTitleFormat, 1);
-	ltf->function_table = g_hash_table_new_full(g_str_hash, g_str_equal, (GDestroyNotify) g_free, NULL);
 	ltf->variable_table = g_hash_table_new_full(g_str_hash, g_str_equal, (GDestroyNotify) g_free, (GDestroyNotify) g_free);
 	return ltf;
 }
@@ -486,13 +573,39 @@ loqui_title_format_fetch_variable_area(LoquiTitleFormat *ltf, GNode *node, GStri
 		g_string_append(string, string_child->str);
 	g_string_free(string_child, TRUE);
 }
+
+/* argument number starts from 1 */
+static gchar *
+loqui_title_format_get_function_argument(LoquiTitleFormat *ltf, GNode *func_node, gint i, gboolean *var_set)
+{
+	TFItem *tfitem;
+	GString *string;
+	GNode *arg_node;
+
+	g_return_val_if_fail(func_node != NULL, NULL);
+	g_return_val_if_fail(i >= 1, NULL);
+
+	tfitem = func_node->data;
+	g_return_val_if_fail(tfitem->type == LOQUI_TITLE_FORMAT_NODE_FUNCTION, NULL);
+
+	arg_node = g_node_nth_child(func_node, i - 1);
+	if (arg_node == NULL)
+		return NULL;
+
+	string = g_string_new(NULL);
+	loqui_title_format_fetch_internal(ltf, arg_node->children, string, var_set);
+	
+	return g_string_free(string, FALSE);
+}
+
 static void
 loqui_title_format_fetch_internal(LoquiTitleFormat *ltf, GNode *node, GString *string, gboolean *var_set)
 {
 	GNode *cur;
 	TFItem *tfitem;
 	gchar *buf;
-	
+	LoquiTitleFormatFunction func;
+
 	for (cur = node; cur != NULL; cur = cur->next) {
 		tfitem = cur->data;
 
@@ -506,8 +619,7 @@ loqui_title_format_fetch_internal(LoquiTitleFormat *ltf, GNode *node, GString *s
 			loqui_title_format_fetch_variable_area(ltf, cur, string);
 			break;
 		case LOQUI_TITLE_FORMAT_NODE_ARGUMENT_HOLDER:
-			/* g_print("Parse: ArgumentHolder\n"); */
-			g_assert(FALSE);
+			/* g_print("Parse: Argument Holder\n"); */
 			break;
 		case LOQUI_TITLE_FORMAT_NODE_TEXT:
 			/* g_print("Parse: Text: %s\n", ((TFItemText *) tfitem)->text); */
@@ -524,7 +636,16 @@ loqui_title_format_fetch_internal(LoquiTitleFormat *ltf, GNode *node, GString *s
 			break;
 		case LOQUI_TITLE_FORMAT_NODE_FUNCTION:
 			/* g_print("Parse: Function: %s\n", ((TFItemFunction *) tfitem)->name); */
-			g_assert(FALSE);
+			func = g_hash_table_lookup(function_table, ((TFItemFunction *) tfitem)->name);
+			if (!func)
+				break;
+
+			buf = func(ltf, cur);
+			if (buf) {
+				g_string_append(string, buf);
+				g_free(buf);
+			}
+
 			break;
 		default:
 			/* g_print("Parse: Unknown (%d)\n", tfitem->type); */
@@ -544,16 +665,6 @@ loqui_title_format_fetch(LoquiTitleFormat *ltf)
 	string = g_string_new(NULL);
 	loqui_title_format_fetch_internal(ltf, ltf->root, string, NULL);
 	return g_string_free(string, FALSE);
-}
-void
-loqui_title_format_register_function(LoquiTitleFormat *ltf, const gchar *name, LoquiTitleFormatFunction *func)
-{
-	g_return_if_fail(ltf != NULL);
-
-	if (func)
-		g_hash_table_insert(ltf->function_table, g_strdup(name), func);
-	else
-		g_hash_table_remove(ltf->function_table, name);
 }
 void
 loqui_title_format_register_variable(LoquiTitleFormat *ltf, const gchar *name, const gchar *value)
@@ -583,8 +694,88 @@ void
 loqui_title_format_free(LoquiTitleFormat *ltf)
 {
 	g_hash_table_destroy(ltf->variable_table);
-	g_hash_table_destroy(ltf->function_table);
 	if (ltf->root)
 		tf_free_tree(ltf->root);
 	g_free(ltf);
+}
+
+
+/* functions */
+/* $if(cond,true,false) */
+static gchar *
+loqui_title_format_function_if(LoquiTitleFormat *ltf, GNode *node)
+{
+	gchar *cond_str, *result;
+
+	cond_str = loqui_title_format_get_function_argument(ltf, node, 1, NULL);
+	if (loqui_title_format_string_is_true(cond_str)) {
+		result = loqui_title_format_get_function_argument(ltf, node, 2, NULL);
+	} else {
+		result = loqui_title_format_get_function_argument(ltf, node, 3, NULL);
+	}
+
+	g_free(cond_str);
+
+	return result;
+}
+/* $num(number,length) */
+static gchar *
+loqui_title_format_function_num(LoquiTitleFormat *ltf, GNode *node)
+{
+	gchar *tmp, *buf, *format;
+	gint num, length;
+
+	tmp = loqui_title_format_get_function_argument(ltf, node, 1, NULL);
+	num = loqui_title_format_string_to_int(tmp);
+	g_free(tmp);
+	
+	tmp = loqui_title_format_get_function_argument(ltf, node, 2, NULL);
+	length = loqui_title_format_string_to_int(tmp);
+	g_free(tmp);
+	
+	format = g_strdup_printf("%%.%dd", length);
+	buf = g_strdup_printf(format, num);
+	g_free(format);
+
+	return buf;
+}
+
+/* $pad(string,length,padding-char)
+   ex. $pad(hoge, 9, )
+   the first (wide) character of the 3rd argument is used for padding character.
+   if unspecified, ' ' is used.
+*/
+static gchar *
+loqui_title_format_function_pad(LoquiTitleFormat *ltf, GNode *node)
+{
+	GString *string;
+	gchar *str, *tmp, *padstr;
+	gint i, length, remain;
+	gunichar pc;
+	
+	str = loqui_title_format_get_function_argument(ltf, node, 1, NULL);
+
+	tmp = loqui_title_format_get_function_argument(ltf, node, 2, NULL);
+	length = loqui_title_format_string_to_int(tmp);
+	g_free(tmp);
+	
+	if (tmp == 0)
+		return str;
+
+	padstr = loqui_title_format_get_function_argument(ltf, node, 3, NULL);
+	if (padstr == NULL || strlen(padstr) == 0)
+		pc = ' ';
+	else
+		pc = g_utf8_get_char(padstr);
+	g_free(padstr);
+
+	string = g_string_sized_new(length);
+	g_string_append(string, str);
+	remain = length - g_utf8_strlen(str, -1);
+	g_free(str);
+
+	for (i = remain; i > 0; i--)
+		g_string_append_unichar(string, pc);
+
+	return g_string_free(string, FALSE);
 }
