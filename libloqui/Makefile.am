@@ -71,7 +71,7 @@ SRC_LIBRARY_CORE = \
 	loqui_account_manager_iter.c loqui_account_manager_iter.h \
 	loqui.c loqui.h
 
-noinst_LTLIBRARIES = libloqui.la
+lib_LTLIBRARIES = libloqui.la
 
 libloqui_la_SOURCES =  \
 	$(SRC_BASE_UTILITIES) \
