@@ -54,7 +54,7 @@ struct _LoquiStatusbarPrivate
 	GtkWidget *label_nick;
 	GtkWidget *dbox_preset;
 
-	GtkWidget *progress_lag;
+	GtkWidget *progress;
 	GtkWidget *toggle_scroll_common_buffer;
 	
 	GtkWidget *menu_away;
@@ -340,7 +340,7 @@ loqui_statusbar_new(LoquiApp *app, GtkToggleAction *toggle_scroll_common_buffer_
 {
         LoquiStatusbar *statusbar;
 	LoquiStatusbarPrivate *priv;
-	GtkWidget *hsep;
+	GtkWidget *vsep;
 	GtkWidget *hbox_away;
 	GtkWidget *image;
 	gchar *text;
@@ -353,6 +353,16 @@ loqui_statusbar_new(LoquiApp *app, GtkToggleAction *toggle_scroll_common_buffer_
 	gtk_statusbar_set_has_resize_grip(GTK_STATUSBAR(statusbar), FALSE);
 	gtk_label_set_selectable(GTK_LABEL(GTK_STATUSBAR(statusbar)->label), TRUE);
 	
+	vsep = gtk_vseparator_new();
+	gtk_box_pack_start(GTK_BOX(statusbar), vsep, FALSE, FALSE, 2);
+
+	priv->progress = gtk_progress_bar_new();
+	gtk_box_pack_start(GTK_BOX(statusbar), priv->progress, FALSE, FALSE, 0);
+	gtk_widget_set_size_request(priv->progress, 70, -1);
+
+	vsep = gtk_vseparator_new();
+	gtk_box_pack_start(GTK_BOX(statusbar), vsep, FALSE, FALSE, 2);
+
 	priv->dbox_away = loqui_dropdown_box_new(NULL);
 	gtk_box_pack_start(GTK_BOX(statusbar), priv->dbox_away, FALSE, FALSE, 0);
 	gtk_button_set_relief(GTK_BUTTON(LOQUI_DROPDOWN_BOX(priv->dbox_away)->drop_button), GTK_RELIEF_NONE);
@@ -370,8 +380,8 @@ loqui_statusbar_new(LoquiApp *app, GtkToggleAction *toggle_scroll_common_buffer_
 	priv->label_away = gtk_label_new("");
 	gtk_box_pack_start(GTK_BOX(hbox_away), priv->label_away, FALSE, FALSE, 0);
 
-	hsep = gtk_vseparator_new();
-	gtk_box_pack_start(GTK_BOX(statusbar), hsep, FALSE, FALSE, 2);
+	vsep = gtk_vseparator_new();
+	gtk_box_pack_start(GTK_BOX(statusbar), vsep, FALSE, FALSE, 2);
 
 	priv->dbox_preset = loqui_dropdown_box_new(NULL);
 	gtk_button_set_relief(GTK_BUTTON(LOQUI_DROPDOWN_BOX(priv->dbox_preset)->drop_button), GTK_RELIEF_NONE);
@@ -387,15 +397,14 @@ loqui_statusbar_new(LoquiApp *app, GtkToggleAction *toggle_scroll_common_buffer_
 	priv->label_nick = gtk_label_new("");
 	gtk_container_add(GTK_CONTAINER(priv->button_nick), priv->label_nick);
 
-	hsep = gtk_vseparator_new();
-	gtk_box_pack_start(GTK_BOX(statusbar), hsep, FALSE, FALSE, 2);
+	vsep = gtk_vseparator_new();
+	gtk_box_pack_start(GTK_BOX(statusbar), vsep, FALSE, FALSE, 2);
 
 	priv->label_account = gtk_label_new("");
 	gtk_box_pack_start(GTK_BOX(statusbar), priv->label_account, FALSE, FALSE, 0);
 
-	priv->progress_lag = gtk_progress_bar_new();
-	gtk_box_pack_start(GTK_BOX(statusbar), priv->progress_lag, FALSE, FALSE, 0);
-	gtk_widget_set_size_request(priv->progress_lag, 70, -1);
+	vsep = gtk_vseparator_new();
+	gtk_box_pack_start(GTK_BOX(statusbar), vsep, FALSE, FALSE, 2);
 
 	priv->toggle_scroll_common_buffer = gtk_toggle_button_new();
 	gtk_action_connect_proxy(GTK_ACTION(toggle_scroll_common_buffer_action), priv->toggle_scroll_common_buffer);
