@@ -30,9 +30,7 @@ gboolean prefs_emphasis_words_initialized = FALSE;
 
 #define EMPHASIS_WORDS_ALLOW_FILENAME "emphasis_words.allow.txt"
 
-static void prefs_emphasis_words_init(void);
-
-static void prefs_emphasis_words_init(void)
+void prefs_emphasis_words_init(void)
 {
 	if(!prefs_emphasis_words_initialized) {
 		prefs_emphasis_words.allow_list = NULL;

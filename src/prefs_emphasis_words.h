@@ -28,6 +28,7 @@ typedef struct _PrefsEmphaisWords {
 
 } PrefsEmphasisWords;
 
+void prefs_emphasis_words_init(void);
 void prefs_emphasis_words_load(void);
 void prefs_emphasis_words_save(void);
 
