@@ -59,7 +59,7 @@ struct _ChannelBufferClass
 GtkType channel_buffer_get_type (void) G_GNUC_CONST;
 
 ChannelBuffer* channel_buffer_new (void);
-void channel_buffer_append(ChannelBuffer *channel_buffer, TextType type, gchar *str);
+void channel_buffer_append_line(ChannelBuffer *channel_buffer, TextType type, gchar *str);
 
 G_END_DECLS
 

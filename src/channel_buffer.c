@@ -232,7 +232,7 @@ channel_buffer_get_uri_chunk(const gchar *buf)
 	return chunk_list;
 }
 void
-channel_buffer_append(ChannelBuffer *channel_buffer, TextType type, gchar *str)
+channel_buffer_append_line(ChannelBuffer *channel_buffer, TextType type, gchar *str)
 {
 	GtkTextIter iter;
 	GtkTextBuffer *textbuf;

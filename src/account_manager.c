@@ -378,7 +378,7 @@ account_manager_common_buffer_append(AccountManager *manager, TextType type, gch
         g_return_if_fail(manager != NULL);
         g_return_if_fail(IS_ACCOUNT_MANAGER(manager));
 
-	channel_buffer_append(manager->priv->common_buffer, type, str);
+	channel_buffer_append_line(manager->priv->common_buffer, type, str);
 	if(account_manager_whether_scroll(manager)) {
 		loqui_app_scroll_common_textview(manager->priv->app);
 	}

@@ -139,7 +139,7 @@ channel_append_remark(Channel *channel, TextType type, gchar *nick, gchar *remar
 		line_with_nick = g_strdup_printf("<%s> %s", nick, remark);
 	else
 		line_with_nick = g_strdup_printf("=%s= %s", nick, remark);
-	channel_buffer_append(CHANNEL_BUFFER(channel->buffer), type, line_with_nick);
+	channel_buffer_append_line(CHANNEL_BUFFER(channel->buffer), type, line_with_nick);
 	g_free(line_with_nick);
 
 	if(account_manager_is_current_channel(account_manager_get(), channel)) {
@@ -161,7 +161,7 @@ channel_append_text(Channel *channel, gboolean with_common_buffer, TextType type
 	g_return_if_fail(channel != NULL);
 	g_return_if_fail(IS_CHANNEL(channel));
 
-	channel_buffer_append(CHANNEL_BUFFER(channel->buffer), type, str);
+	channel_buffer_append_line(CHANNEL_BUFFER(channel->buffer), type, str);
 	if(with_common_buffer &&
 	   !account_manager_is_current_channel(account_manager_get(), channel)) {
 		account_manager_common_buffer_append(account_manager_get(), type, str);
