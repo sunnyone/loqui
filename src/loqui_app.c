@@ -984,8 +984,6 @@ loqui_app_add_account_after_cb(AccountManager *manager, Account *account, LoquiA
 	g_signal_connect(G_OBJECT(buffer), "append",
 			 G_CALLBACK(loqui_app_channel_buffer_append_cb), app);
 
-	loqui_channel_entry_set_id(LOQUI_CHANNEL_ENTRY(account),
-				   account_manager_new_channel_entry_id(loqui_app_get_account_manager(app)));
 	loqui_app_update_channel_entry_accel_key(app);
 }
 static void
@@ -1062,12 +1060,7 @@ loqui_app_add_channel_after_cb(Account *account, LoquiChannel *channel, LoquiApp
 	g_signal_connect(G_OBJECT(buffer), "append",
 			 G_CALLBACK(loqui_app_channel_buffer_append_cb), app);
 
-	loqui_channel_entry_set_id(LOQUI_CHANNEL_ENTRY(channel),
-				   account_manager_new_channel_entry_id(loqui_app_get_account_manager(app)));
-	account_manager_update_positions(loqui_app_get_account_manager(app));
-
 	loqui_app_update_channel_entry_accel_key(app);
-
 	loqui_app_set_current_channel_lazy(app, channel);
 }
 static void
@@ -1111,7 +1104,6 @@ loqui_app_remove_channel_after_cb(Account *account, LoquiChannel *was_channel, L
 
 	priv = app->priv;
 
-	account_manager_update_positions(loqui_app_get_account_manager(app));
 	loqui_app_update_channel_entry_accel_key(app);
 }
 static gboolean

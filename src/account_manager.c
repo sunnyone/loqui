@@ -53,6 +53,10 @@ static void account_manager_finalize(GObject *object);
 static void account_manager_add_account_real(AccountManager *manager, Account *account);
 static void account_manager_remove_account_real(AccountManager *manager, Account *account);
 
+static void account_manager_add_channel_after_cb(Account *account, LoquiChannel *channel, AccountManager *manager);
+static void account_manager_remove_channel_cb(Account *account, LoquiChannel *channel, AccountManager *manager);
+static void account_manager_remove_channel_after_cb(Account *account, LoquiChannel *channel, AccountManager *manager);
+
 GType
 account_manager_get_type(void)
 {
@@ -165,6 +169,15 @@ account_manager_add_account_real(AccountManager *manager, Account *account)
 	g_object_ref(account);
 	priv->account_list = g_list_append(priv->account_list, account);
 
+	g_signal_connect_after(G_OBJECT(account), "add-channel",
+			       G_CALLBACK(account_manager_add_channel_after_cb), manager);
+	g_signal_connect(G_OBJECT(account), "remove-channel",
+			 G_CALLBACK(account_manager_remove_channel_cb), manager);
+	g_signal_connect_after(G_OBJECT(account), "remove-channel",
+			       G_CALLBACK(account_manager_remove_channel_after_cb), manager);
+
+	loqui_channel_entry_set_id(LOQUI_CHANNEL_ENTRY(account),
+				   account_manager_new_channel_entry_id(manager));
 	account_manager_update_positions(manager);
 }
 static void
@@ -179,11 +192,33 @@ account_manager_remove_account_real(AccountManager *manager, Account *account)
 
 	priv = manager->priv;
 
+	g_signal_handlers_disconnect_by_func(G_OBJECT(account), account_manager_add_channel_after_cb, manager);
+	g_signal_handlers_disconnect_by_func(G_OBJECT(account), account_manager_remove_channel_cb, manager);
+	g_signal_handlers_disconnect_by_func(G_OBJECT(account), account_manager_remove_channel_after_cb, manager);
+
 	priv->account_list = g_list_remove(priv->account_list, account);
 	g_object_unref(account);
 
 	account_manager_update_positions(manager);
 }
+static void
+account_manager_add_channel_after_cb(Account *account, LoquiChannel *channel, AccountManager *manager)
+{
+	loqui_channel_entry_set_id(LOQUI_CHANNEL_ENTRY(channel),
+				   account_manager_new_channel_entry_id(manager));
+	account_manager_update_positions(manager);
+}
+static void
+account_manager_remove_channel_cb(Account *account, LoquiChannel *channel, AccountManager *manager)
+{
+	
+}
+static void
+account_manager_remove_channel_after_cb(Account *account, LoquiChannel *channel, AccountManager *manager)
+{
+	account_manager_update_positions(manager);
+}
+
 void
 account_manager_add_account(AccountManager *manager, Account *account)
 {
