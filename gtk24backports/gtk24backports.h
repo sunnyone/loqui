@@ -14,6 +14,7 @@
 #include <gtktoolbutton.h>
 #include <gtktoolitem.h>
 #include <gtkuimanager.h>
+#include <gtk24ext.h>
 
 void gtk24backports_init(void);
 

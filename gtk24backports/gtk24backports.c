@@ -57,7 +57,6 @@ static void (*gtk_widget_hide_orig) (GtkWidget *widget) = NULL;
 
 static void (*gtk_button_set_property_orig) (GObject *object, guint property_id, const GValue *value, GParamSpec *pspec) = NULL;
 static void (*gtk_button_get_property_orig) (GObject *object, guint property_id, GValue *value, GParamSpec *pspec) = NULL;
-static gboolean (*gtk_button_button_press_event_orig) (GtkWidget *widget, GdkEventButton *event) = NULL;
 
 static void (*gtk_check_menu_item_set_property_orig) (GObject *object, guint property_id, const GValue *value, GParamSpec *pspec) = NULL;
 static void (*gtk_check_menu_item_get_property_orig) (GObject *object, guint property_id, GValue *value, GParamSpec *pspec) = NULL;
@@ -132,7 +131,6 @@ void gtk24backports_init(void)
 	G_OBJECT_CLASS(gtk_button_class)->set_property = gtk_button_set_property_backports;
 	gtk_button_get_property_orig = G_OBJECT_CLASS(gtk_button_class)->get_property;
 	G_OBJECT_CLASS(gtk_button_class)->get_property = gtk_button_get_property_backports;
-	gtk_button_button_press_event_orig = GTK_WIDGET_CLASS(gtk_button_class)->button_press_event;
 	GTK_WIDGET_CLASS(gtk_button_class)->button_press_event = gtk_button_button_press_event_backports;
 
 	gtk_check_menu_item_class = g_type_class_ref(GTK_TYPE_CHECK_MENU_ITEM);
@@ -235,14 +233,22 @@ gtk_button_get_property_backports (GObject         *object,
 static gboolean
 gtk_button_button_press_event_backports(GtkWidget *widget, GdkEventButton *event)
 {
-	G_ERROR_IF_GTK24BACKPORTS_UNINITIALIZED();
-	
-	if (event->type == GDK_BUTTON_PRESS &&
-	    gtk_button_get_focus_on_click(GTK_BUTTON(widget)) &&
-	    !GTK_WIDGET_HAS_FOCUS(widget))
-		gtk_widget_grab_focus(widget);
+  GtkButton *button;
 
-	return gtk_button_button_press_event_orig(widget, event);
+  G_ERROR_IF_GTK24BACKPORTS_UNINITIALIZED();
+
+  if (event->type == GDK_BUTTON_PRESS)
+    {
+      button = GTK_BUTTON (widget);
+
+      if (gtk_button_get_focus_on_click(button) && !GTK_WIDGET_HAS_FOCUS (widget))
+        gtk_widget_grab_focus (widget);
+
+      if (event->button == 1)
+        gtk_button_pressed (button);
+    }
+
+  return TRUE;
 }
 
 static void
