@@ -7,3 +7,7 @@ Makefile.in
 cscope.out
 gmon.out
 loqui
+GTAGS
+GRTAGS
+GSYMS
+GPATH
