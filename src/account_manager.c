@@ -183,7 +183,8 @@ account_manager_add_account(AccountManager *manager, Account *account)
 			 G_CALLBACK(account_manager_channel_buffer_append_cb), manager);
 
 	channel_tree_add_account(priv->app->channel_tree, account);
-	loqui_menu_buffers_add_account(priv->app->menu, account);
+
+	loqui_app_menu_buffers_add_account(priv->app, account);
 	loqui_channelbar_add_account(LOQUI_CHANNELBAR(priv->app->channelbar), account);
 }
 void
@@ -218,7 +219,7 @@ account_manager_update_account(AccountManager *manager, Account *account)
 	priv = manager->priv;
 	
 	channel_tree_update_account(priv->app->channel_tree, account);
-	loqui_menu_buffers_update_account(priv->app->menu, account);
+	loqui_app_menu_buffers_update_account(priv->app, account);
 	loqui_channelbar_update_account(LOQUI_CHANNELBAR(priv->app->channelbar), account);
 }
 void
@@ -292,7 +293,7 @@ account_manager_add_channel_cb(Account *account, Channel *channel, AccountManage
 			 G_CALLBACK(account_manager_channel_buffer_append_cb), manager);
 
 	channel_tree_add_channel(priv->app->channel_tree, account, channel);
-	loqui_menu_buffers_add_channel(priv->app->menu, channel);
+	loqui_app_menu_buffers_add_channel(priv->app, channel);
 	loqui_channelbar_add_channel(LOQUI_CHANNELBAR(priv->app->channelbar), channel);
 
 	account_manager_set_current_channel(manager, channel);
@@ -317,7 +318,7 @@ account_manager_remove_channel_cb(Account *account, Channel *channel, AccountMan
 	g_signal_handlers_disconnect_by_func(channel->buffer, account_manager_channel_buffer_append_cb, manager);
 
 	channel_tree_remove_channel(manager->priv->app->channel_tree, channel);
-	loqui_menu_buffers_remove_channel(priv->app->menu, channel);
+	loqui_app_menu_buffers_remove_channel(priv->app, channel);
 	loqui_channelbar_remove_channel(LOQUI_CHANNELBAR(priv->app->channelbar), channel);
 }
 static gboolean
@@ -424,7 +425,7 @@ account_manager_channel_updated_cb(AccountManager *manager, gboolean is_updated_
 		channel_set_updated(channel, FALSE);
 
 	channel_tree_set_updated(priv->app->channel_tree, NULL, channel);
-	loqui_menu_buffers_update_channel(priv->app->menu, channel);
+	loqui_app_menu_buffers_update_channel(priv->app, channel);
 	loqui_channelbar_update_channel(LOQUI_CHANNELBAR(priv->app->channelbar), channel);
 	
 	if(is_updated_prev == updated)

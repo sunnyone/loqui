@@ -20,6 +20,8 @@
 #ifndef __LOQUI_APP_H__
 #define __LOQUI_APP_H__
 
+#include <egg-action-group.h>
+#include <egg-menu-merge.h>
 #include "channel_tree.h"
 #include "nick_list.h"
 
@@ -37,8 +39,6 @@ typedef struct _LoquiAppClass       LoquiAppClass;
 
 typedef struct _LoquiAppPrivate     LoquiAppPrivate;
 
-#include "loqui_menu.h"
-
 struct _LoquiApp
 {
         GtkWindow parent;
@@ -47,7 +47,10 @@ struct _LoquiApp
 
 	GAsyncQueue *error_connections;
 
-	LoquiMenu *menu;
+	GtkAccelGroup *accel_group;
+	EggActionGroup *action_group;
+	EggMenuMerge *menu_merge;
+
 	GtkWidget *channelbar;
 	GtkWidget *statusbar;
 	

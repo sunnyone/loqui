@@ -32,16 +32,24 @@
 #include "command_dialog.h"
 #include "loqui_profile_account.h"
 #include "account.h"
+#include "loqui_actions.h"
+#include "buffer_menu.h"
+
+#include "embedtxt/loqui_app_ui.h"
 
 #include "intl.h"
 #include "utils.h"
 
 #include <string.h>
 
+#include <egg-toggle-action.h>
+
 struct _LoquiAppPrivate
 {
 	GtkWidget *common_textview;
 	GtkWidget *handlebox_channelbar;
+
+	GtkWidget *buffers_menu;
 
 	guint channel_buffer_inserted_signal_id;
 	guint common_buffer_inserted_signal_id;
@@ -62,6 +70,8 @@ static void loqui_app_save_size(LoquiApp *app);
 static void loqui_app_entry_activate_cb(GtkWidget *widget, gpointer data);
 static void loqui_app_entry_toggle_command_toggled_cb(GtkWidget *widget, gpointer data);
 
+static void loqui_app_menu_merge_add_widget_cb(EggMenuMerge *merge, GtkWidget *widget, GtkBox *box);
+
 static void loqui_app_channel_textview_inserted_cb(GtkTextBuffer *textbuf,
 						   GtkTextIter *pos,
 						   const gchar *text,
@@ -77,6 +87,9 @@ static void loqui_app_textview_scroll_value_changed_cb(GtkAdjustment *adj, gpoin
 static void loqui_app_statusbar_nick_clicked_cb(GtkWidget *widget, gpointer data);
 static void loqui_app_statusbar_nick_selected_cb(GtkWidget *widget, gchar *nick, gpointer data);
 static void loqui_app_statusbar_away_selected_cb(GtkWidget *widget, AwayState away_state, gpointer data);
+
+static void loqui_app_menu_account_activate_cb(GtkWidget *widget, gpointer data);
+static void loqui_app_menu_channel_activate_cb(GtkWidget *widget, gpointer data);
 
 /* utilities */
 static void scroll_channel_buffer(GtkWidget *textview);
@@ -128,7 +141,6 @@ loqui_app_init (LoquiApp *app)
 	priv = g_new0(LoquiAppPrivate, 1);
 	app->priv = priv;
 
-	app->menu = NULL;
 	priv->channel_buffer_inserted_signal_id = 0;
 	priv->common_buffer_inserted_signal_id = 0;
 }
@@ -141,12 +153,7 @@ loqui_app_destroy(GtkObject *object)
         g_return_if_fail(LOQUI_IS_APP(object));
 
 	app = LOQUI_APP(object);
-	
-	if(app->menu) {
-		g_object_unref(app->menu);
-		app->menu = NULL;
-	}
-	
+		
 	if (GTK_OBJECT_CLASS(parent_class)->destroy)
                 (* GTK_OBJECT_CLASS(parent_class)->destroy) (object);
 
@@ -247,13 +254,15 @@ static void
 loqui_app_entry_toggle_command_toggled_cb(GtkWidget *widget, gpointer data)
 {
 	LoquiApp *app;
-	
+	EggAction *action;
+
 	g_return_if_fail(data != NULL);
 	g_return_if_fail(LOQUI_IS_APP(data));
 
 	app = LOQUI_APP(data);
-	
-	loqui_menu_set_command_mode(app->menu, remark_entry_get_command_mode(REMARK_ENTRY(app->remark_entry)));
+
+	action = egg_action_group_get_action(app->action_group, "ToggleCommandMode");
+	egg_toggle_action_set_active(EGG_TOGGLE_ACTION(action), remark_entry_get_command_mode(REMARK_ENTRY(app->remark_entry)));
 }
 static void
 loqui_app_statusbar_nick_clicked_cb(GtkWidget *widget, gpointer data)
@@ -431,11 +440,19 @@ loqui_app_update_info(LoquiApp *app,
 	G_FREE_UNLESS_NULL(user_number_str);
 	G_FREE_UNLESS_NULL(op_number_str);
 }
+static void
+loqui_app_menu_merge_add_widget_cb(EggMenuMerge *merge, GtkWidget *widget, GtkBox *box)
+{
+        gtk_box_pack_start(box, widget, FALSE, FALSE, 0);
+        gtk_widget_show(widget);
+}
+
 GtkWidget*
 loqui_app_new(void)
 {
 	LoquiApp *app;
 	LoquiAppPrivate *priv;
+	GError *error = NULL;
 
 	GtkWidget *channel_tree;
 	GtkWidget *nick_list;
@@ -445,6 +462,8 @@ loqui_app_new(void)
 	GtkWidget *vpaned;
 	GtkWidget *scrolled_win;
 	
+	GtkWidget *menu_box;
+
 	app = g_object_new(loqui_app_get_type(), NULL);
 	priv = app->priv;
 
@@ -456,10 +475,24 @@ loqui_app_new(void)
 	vbox = gtk_vbox_new(FALSE, 0);
 	gtk_container_add(GTK_CONTAINER(app), vbox);
 
-	app->menu = loqui_menu_new(app);
-	gtk_box_pack_start(GTK_BOX(vbox), loqui_menu_get_widget(app->menu),
-			   FALSE, FALSE, 0);
+	menu_box = gtk_vbox_new(FALSE, 0);
+	gtk_box_pack_start(GTK_BOX(vbox), menu_box, FALSE, FALSE, 0);
 
+	app->accel_group = gtk_accel_group_new();
+	app->action_group = loqui_actions_create_group(app, app->accel_group);
+
+	app->menu_merge = egg_menu_merge_new();
+	egg_menu_merge_set_accel_group(app->menu_merge, app->accel_group);
+	egg_menu_merge_insert_action_group(app->menu_merge, app->action_group, 0);
+
+	g_signal_connect(app->menu_merge, "add_widget",
+			 G_CALLBACK(loqui_app_menu_merge_add_widget_cb), menu_box);
+	if(!egg_menu_merge_add_ui_from_string(app->menu_merge, embedtxt_loqui_app_ui, -1, &error))
+		g_error("Failed to load UI XML: %s", error->message);
+
+	egg_menu_merge_ensure_update(app->menu_merge);
+	gtk_window_add_accel_group(GTK_WINDOW(app), app->accel_group);
+	
 	priv->handlebox_channelbar = gtk_handle_box_new();
 	gtk_box_pack_start(GTK_BOX(vbox), priv->handlebox_channelbar, FALSE, FALSE, 0);
 
@@ -530,7 +563,7 @@ loqui_app_new(void)
 
 	g_signal_connect(G_OBJECT(app->remark_entry), "toggle_command_mode",
 			 G_CALLBACK(loqui_app_entry_toggle_command_toggled_cb), app);
-			 
+	
 	loqui_app_update_info(app, TRUE, NULL, TRUE, NULL);
 	loqui_app_restore_size(app);
 
@@ -541,9 +574,9 @@ loqui_app_new(void)
 	loqui_app_set_show_statusbar(app, prefs_general.show_statusbar);
 	loqui_app_set_show_channelbar(app, prefs_general.show_channelbar);
 
-	loqui_menu_set_view_statusbar(app->menu, prefs_general.show_statusbar);
-	loqui_menu_set_view_channelbar(app->menu, prefs_general.show_channelbar);
-
+	ACTION_GROUP_ACTION_SET_SENSITIVE(app->action_group, "ToggleStatusbar", prefs_general.show_statusbar);
+	ACTION_GROUP_ACTION_SET_SENSITIVE(app->action_group, "ToggleChannelbar", prefs_general.show_channelbar);
+	
 	loqui_app_set_focus(app);
 
 	return GTK_WIDGET(app);
@@ -826,4 +859,96 @@ void loqui_app_current_widget_find(LoquiApp *app)
 void loqui_app_current_widget_find_next(LoquiApp *app)
 {
 
+}
+
+static GtkWidget *
+loqui_app_menu_get_buffers_menu(LoquiApp *app)
+{
+	GtkWidget *widget;
+
+        g_return_val_if_fail(app != NULL, NULL);
+        g_return_val_if_fail(LOQUI_IS_APP(app), NULL);
+	
+        widget = egg_menu_merge_get_widget(app->menu_merge, "/menu/Buffers");
+
+	if (GTK_IS_MENU_ITEM(widget))
+		return gtk_menu_item_get_submenu(GTK_MENU_ITEM(widget));
+	if (GTK_IS_MENU_SHELL(widget))
+		return widget;
+
+	g_error("Can't get buffers menu");
+	return NULL;
+}
+
+static void
+loqui_app_menu_account_activate_cb(GtkWidget *widget, gpointer data)
+{
+	Account *account;
+
+	g_return_if_fail(widget != NULL);
+
+	account = g_object_get_data(G_OBJECT(widget), "account");
+	g_return_if_fail(account != NULL);
+
+	account_manager_set_current_account(account_manager_get(), account);
+}
+static void
+loqui_app_menu_channel_activate_cb(GtkWidget *widget, gpointer data)
+{	
+	Channel *channel;
+
+	g_return_if_fail(widget != NULL);
+
+	channel = g_object_get_data(G_OBJECT(widget), "channel");
+	g_return_if_fail(channel != NULL);
+
+	account_manager_set_current_channel(account_manager_get(), channel);
+}
+void
+loqui_app_menu_buffers_add_account(LoquiApp *app, Account *account)
+{
+	GtkWidget *menuitem;
+
+	menuitem = buffer_menu_add_account(GTK_MENU_SHELL(loqui_app_menu_get_buffers_menu(app)),
+					   account);
+	g_signal_connect(G_OBJECT(menuitem), "activate",
+			 G_CALLBACK(loqui_app_menu_account_activate_cb), menuitem);
+	buffer_menu_update_accel_keys(GTK_MENU_SHELL(loqui_app_menu_get_buffers_menu(app)));
+}
+void
+loqui_app_menu_buffers_update_account(LoquiApp *app, Account *account)
+{
+	buffer_menu_update_account(GTK_MENU_SHELL(loqui_app_menu_get_buffers_menu(app)),
+				   account);
+}
+
+void
+loqui_app_menu_buffers_remove_account(LoquiApp *app, Account *account)
+{
+	buffer_menu_remove_account(GTK_MENU_SHELL(loqui_app_menu_get_buffers_menu(app)),
+				   account);
+	buffer_menu_update_accel_keys(GTK_MENU_SHELL(loqui_app_menu_get_buffers_menu(app)));
+}
+void
+loqui_app_menu_buffers_add_channel(LoquiApp *app, Channel *channel)
+{
+	GtkWidget *menuitem;
+
+	menuitem = buffer_menu_add_channel(GTK_MENU_SHELL(loqui_app_menu_get_buffers_menu(app)), channel);
+	g_signal_connect(G_OBJECT(menuitem), "activate",
+			 G_CALLBACK(loqui_app_menu_channel_activate_cb), menuitem);
+	buffer_menu_update_accel_keys(GTK_MENU_SHELL(loqui_app_menu_get_buffers_menu(app)));
+}
+void
+loqui_app_menu_buffers_remove_channel(LoquiApp *app, Channel *channel)
+{
+	buffer_menu_remove_channel(GTK_MENU_SHELL(loqui_app_menu_get_buffers_menu(app)),
+				   channel);
+	buffer_menu_update_accel_keys(GTK_MENU_SHELL(loqui_app_menu_get_buffers_menu(app)));
+}
+void
+loqui_app_menu_buffers_update_channel(LoquiApp *app, Channel *channel)
+{
+	buffer_menu_update_channel(GTK_MENU_SHELL(loqui_app_menu_get_buffers_menu(app)),
+				   channel);
 }

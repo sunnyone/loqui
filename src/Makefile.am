@@ -2,7 +2,7 @@ SUBDIRS = icons embedtxt libegg
 
 bin_PROGRAMS = loqui
 
-INCLUDES = $(GTK_CFLAGS) $(EXTRA_WARNING_CFLAGS) -g -I$(includedir) \
+INCLUDES = $(GTK_CFLAGS) $(EXTRA_WARNING_CFLAGS) -g -I$(includedir) -Ilibegg \
 	-DDATADIR=\""$(datadir)"\" $(GNET_CFLAGS) -Wall
 
 loqui_SOURCES = \
@@ -13,7 +13,7 @@ loqui_SOURCES = \
 	loqui_profile_handle.c loqui_profile_handle.h \
 	loqui_profile_account.c loqui_profile_account.h \
 	loqui_profile_account_irc.c loqui_profile_account_irc.h \
-	loqui_menu.c loqui_menu.h \
+	loqui_actions.c loqui_actions.h \
 	account_manager.c account_manager.h \
 	loqui_stock.c loqui_stock.h \
 	loqui_app.c loqui_app.h \

@@ -4,6 +4,7 @@ noinst_LTLIBRARIES = libegg.la
 
 INCLUDES = \
 	$(GTK_CFLAGS) \
+	-I$(includedir) \
 	-I$(top_srcdir)/src/
 
 CPPFLAGS= \
