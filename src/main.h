@@ -25,4 +25,11 @@ extern int show_msg_mode;
 
 #define PREFS_DIR ".loqui"
 
+enum {
+	USERLIST_COLUMN_HOMEAWAY,
+	USERLIST_COLUMN_OP,
+	USERLIST_COLUMN_NICK,
+	USERLIST_COLUMN_POINTER,
+	USERLIST_COLUMN_NUMBER
+};
 #endif /* __MAIN_H__ */

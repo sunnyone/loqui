@@ -33,13 +33,6 @@ struct _NickListPrivate
 	GdkPixbuf *home_icon;
 	GdkPixbuf *away_icon;
 };
-enum {
-	COLUMN_HOMEAWAY,
-	COLUMN_OP,
-	COLUMN_NICK,
-	COLUMN_POINTER,
-	COLUMN_NUMBER
-};
 
 static GtkTreeViewClass *parent_class = NULL;
 #define PARENT_TYPE GTK_TYPE_TREE_VIEW
@@ -188,7 +181,7 @@ static void nick_list_cell_data_func_op(GtkTreeViewColumn *tree_column,
 	NickList *nick_list;
 
 	nick_list = NICK_LIST(data);
-	gtk_tree_model_get(tree_model, iter, COLUMN_OP, &power, -1);
+	gtk_tree_model_get(tree_model, iter, USERLIST_COLUMN_OP, &power, -1);
 
 	switch(power) {
 	case USER_POWER_OP:
@@ -217,7 +210,7 @@ static void nick_list_cell_data_func_away(GtkTreeViewColumn *tree_column,
 	nick_list = NICK_LIST(data);
 	priv = nick_list->priv;
 
-	gtk_tree_model_get(tree_model, iter, COLUMN_HOMEAWAY, &exist, -1);
+	gtk_tree_model_get(tree_model, iter, USERLIST_COLUMN_HOMEAWAY, &exist, -1);
 
 	switch(exist) {
 	case USER_EXISTENCE_HOME:
@@ -246,7 +239,7 @@ nick_list_new (void)
 	priv = list->priv;
 
 	nick_list_create_icons(list);
-	model = gtk_list_store_new(COLUMN_NUMBER, 
+	model = gtk_list_store_new(USERLIST_COLUMN_NUMBER, 
 				   G_TYPE_INT,
 				   G_TYPE_INT,
                                    G_TYPE_STRING, 
@@ -279,14 +272,14 @@ nick_list_new (void)
         renderer = gtk_cell_renderer_text_new();
         column = gtk_tree_view_column_new_with_attributes(_("Nick"),
 							  renderer,
-							  "text", COLUMN_NICK,
+							  "text", USERLIST_COLUMN_NICK,
 							  NULL);
         gtk_tree_view_append_column(GTK_TREE_VIEW(list), column);
 	
         renderer = gtk_cell_renderer_text_new();
         column = gtk_tree_view_column_new_with_attributes("ptr",
 							  renderer,
-							  "text", COLUMN_POINTER,
+							  "text", USERLIST_COLUMN_POINTER,
 							  NULL);
         gtk_tree_view_column_set_visible (column, FALSE);
         gtk_tree_view_append_column(GTK_TREE_VIEW(list), column);
@@ -305,10 +298,10 @@ void nick_list_append(NickList *list, User *user)
 
 	gtk_list_store_append(GTK_LIST_STORE(model), &iter);
 	gtk_list_store_set(GTK_LIST_STORE(model), &iter,
-			   COLUMN_HOMEAWAY, user->exist,
-			   COLUMN_OP, user->power,
-			   COLUMN_NICK, user->nick,
-			   COLUMN_POINTER, user,
+			   USERLIST_COLUMN_HOMEAWAY, user->exist,
+			   USERLIST_COLUMN_OP, user->power,
+			   USERLIST_COLUMN_NICK, user->nick,
+			   USERLIST_COLUMN_POINTER, user,
 			   -1);
 }
 void nick_list_remove(NickList *list, User *user)
@@ -322,7 +315,7 @@ void nick_list_remove(NickList *list, User *user)
 	model = gtk_tree_view_get_model(GTK_TREE_VIEW(list));
 
 	if(!gtk_tree_model_find_by_column_data(model, &iter, NULL,
-					       COLUMN_POINTER, user))
+					       USERLIST_COLUMN_POINTER, user))
 		return;
 
 	gtk_list_store_remove(GTK_LIST_STORE(model), &iter);
@@ -338,14 +331,14 @@ void nick_list_update(NickList *list, User *user)
 	model = gtk_tree_view_get_model(GTK_TREE_VIEW(list));
 
 	if(!gtk_tree_model_find_by_column_data(model, &iter, NULL,
-					       COLUMN_POINTER, user))
+					       USERLIST_COLUMN_POINTER, user))
 		return;
 
 	gtk_list_store_set(GTK_LIST_STORE(model), &iter,
-			   COLUMN_HOMEAWAY, user->exist,
-			   COLUMN_OP, user->power,
-			   COLUMN_NICK, user->nick,
-			   COLUMN_POINTER, user,
+			   USERLIST_COLUMN_HOMEAWAY, user->exist,
+			   USERLIST_COLUMN_OP, user->power,
+			   USERLIST_COLUMN_NICK, user->nick,
+			   USERLIST_COLUMN_POINTER, user,
 			   -1);
 }
 void nick_list_clear(NickList *list)
