@@ -219,7 +219,6 @@ class Loqui:Receiver:IPMsg from Loqui:Receiver
 		LoquiAccount *account;
 		LoquiUser *user;
 		gchar *identifier;
-		gchar *str;
 
 		account = SELF_GET_ACCOUNT(self);
 
@@ -236,10 +235,12 @@ class Loqui:Receiver:IPMsg from Loqui:Receiver
 		}
 		g_free(identifier);
 
-		str = g_strdup_printf("*** Disappeared %s@%s (%s)",
-				      packet->username, packet->hostname, packet->group_name ? packet->group_name : "");
-		loqui_account_append_text(account, NULL, LOQUI_TEXT_TYPE_INFO, str);
-		g_free(str);
+		loqui_account_append_text_printf(SELF_GET_ACCOUNT(self), NULL, LOQUI_TEXT_TYPE_INFO,
+						 "*** %s (%s) (%s@%s) has disappeared",
+						 loqui_user_get_nick(user),
+						 LOQUI_UTILS_EMPTY_IF_NULL(loqui_user_ipmsg_get_group_name(LOQUI_USER_IPMSG(user))),
+						 loqui_user_get_username(user),
+						 loqui_user_get_hostname(user));
 	
 		/* TODO: loqui_account_remove_user(user); */
 		loqui_channel_entry_remove_member_by_user(LOQUI_CHANNEL_ENTRY(account), user);

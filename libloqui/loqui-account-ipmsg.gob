@@ -110,6 +110,8 @@ class Loqui:Account:IPMsg from Loqui:Account
 		if (!loqui_account_get_is_connected(LOQUI_ACCOUNT(account)))
 			return;
 		
+		loqui_sender_ipmsg_br_exit(LOQUI_SENDER_IPMSG(LOQUI_ACCOUNT(self)->sender));
+
 		if (selfp->sock)
 			loqui_socket_ipmsg_unbind(selfp->sock);
 		G_OBJECT_UNREF_UNLESS_NULL(selfp->sock);

@@ -115,12 +115,14 @@ class Loqui:Sender:IPMsg from Loqui:Sender
 	public void br_entry(self) {
 		self_helper_send_br_command(self, IPMSG_BR_ENTRY);
 	}
-
 	public void br_absence(self) {
 		self_helper_send_br_command(self, IPMSG_BR_ABSENCE);
 	}
 	public void ansentry(self) {
 		self_helper_send_br_command(self, IPMSG_ANSENTRY);
+	}
+	public void br_exit(self) {
+		self_helper_send_br_command(self, IPMSG_BR_EXIT);
 	}
 
 	public LoquiSenderIPMsg *
