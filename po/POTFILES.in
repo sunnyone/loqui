@@ -2,6 +2,10 @@ src/about.c
 src/about.h
 src/account.c
 src/account.h
+src/account_dialog.c
+src/account_dialog.h
+src/account_list_dialog.c
+src/account_list_dialog.h
 src/account_manager.c
 src/account_manager.h
 src/channel.c

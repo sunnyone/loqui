@@ -5,7 +5,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: loqui 0.0.6\n"
-"POT-Creation-Date: 2003-01-23 20:37+0900\n"
+"POT-Creation-Date: 2003-01-27 00:17+0900\n"
 "PO-Revision-Date: 2002-11-10 13:17+0900\n"
 "Last-Translator: Yoichi Imai <yoichi@silver-forest.com>\n"
 "Language-Team: Japanese <ja@li.org>\n"
@@ -13,24 +13,62 @@ msgstr ""
 "Content-Type: text/plain; charset=euc-jp\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: src/account.c:386
+#: src/account.c:334
 #, c-format
 msgid "Account '%s' has already connected."
 msgstr "アカウント '%s'はすでに接続されています"
 
-#: src/account.c:501
+#: src/account.c:449
 msgid "Not connected with this account"
 msgstr "このアカウントでは接続されていません"
 
-#: src/account.c:518
+#: src/account.c:466
 msgid "No channel is selected"
 msgstr "チャンネルが選択されていません"
 
-#: src/channel_tree.c:183
+#: src/account_dialog.c:358
+msgid "Account:"
+msgstr ""
+
+#: src/account_dialog.c:363
+msgid "Nickname:"
+msgstr ""
+
+#: src/account_dialog.c:364
+msgid "Username:"
+msgstr ""
+
+#: src/account_dialog.c:365
+msgid "Realname:"
+msgstr ""
+
+#: src/account_dialog.c:366
+msgid "User information:"
+msgstr ""
+
+#: src/account_dialog.c:367
+msgid "Auto join channels:"
+msgstr ""
+
+#: src/account_dialog.c:369
+msgid "Servers (Cells are editable.)"
+msgstr ""
+
+#: src/account_list_dialog.c:238
+msgid "Account List"
+msgstr ""
+
+#: src/account_list_dialog.c:256 src/channel_tree.c:183
 msgid "Name"
 msgstr ""
 
-#: src/channel_tree.c:253
+#: src/account_manager.c:484
+msgid ""
+"This account's configuration and connection will be removed.\n"
+"Do you really want to remove this account?"
+msgstr ""
+
+#: src/channel_tree.c:294
 msgid "Failed to add channel"
 msgstr "チャンネルを追加するのに失敗しました"
 
@@ -43,187 +81,187 @@ msgstr "codeconvの設定が不正です。自動選択が選択されます。"
 msgid "Code convartion error: %s"
 msgstr "コード変換エラー: %s"
 
-#: src/connection.c:133
+#: src/connection.c:254
 msgid "Connection error"
 msgstr "接続エラー"
 
-#: src/irc_handle.c:169
+#: src/irc_handle.c:173
 msgid "This PRIVMSG/NOTICE message doesn't contain a remark."
 msgstr "このPRIVMSG/NOTICEメッセージには発言が含まれていません。"
 
-#: src/irc_handle.c:226 src/irc_handle.c:253 src/irc_handle.c:279
-#: src/irc_handle.c:305
+#: src/irc_handle.c:230 src/irc_handle.c:257 src/irc_handle.c:283
+#: src/irc_handle.c:309
 msgid "The message does not contain nick"
 msgstr "メッセージにnickが含まれていません"
 
-#: src/irc_handle.c:242
+#: src/irc_handle.c:246
 msgid "*** %n has quit IRC(%t)"
 msgstr ""
 
-#: src/irc_handle.c:259 src/irc_handle.c:285
+#: src/irc_handle.c:263 src/irc_handle.c:289
 msgid "The message does not contain the channal name"
 msgstr "メッセージにチャンネル名が含まれていません。"
 
-#: src/irc_handle.c:270
+#: src/irc_handle.c:274
 msgid "*** %n has just part %1(%t)"
 msgstr ""
 
-#: src/irc_handle.c:296
+#: src/irc_handle.c:300
 msgid "*** %2 was kicked from %1 by %n(%3)"
 msgstr ""
 
-#: src/irc_handle.c:311
+#: src/irc_handle.c:315
 msgid "The NICK message does not contain new nick"
 msgstr "NICKメッセージに新しいnickが含まれていません"
 
-#: src/irc_handle.c:322
+#: src/irc_handle.c:326
 msgid "*** %n is known as %1"
 msgstr ""
 
-#: src/irc_handle.c:343
+#: src/irc_handle.c:347
 msgid "Who can change mode?"
 msgstr "誰がモードを変えられるのです？"
 
-#: src/irc_handle.c:347
+#: src/irc_handle.c:351
 #, c-format
 msgid "Nick should not contain '%%'"
 msgstr "Nickは'%%'を含むべきではありません"
 
-#: src/irc_handle.c:353
+#: src/irc_handle.c:357
 msgid "The target is not found in MODE command"
 msgstr "MODEコマンドに対象が発見できません"
 
-#: src/irc_handle.c:359
+#: src/irc_handle.c:363
 msgid "Flags are not found in MODE command"
 msgstr "MODEコマンドにフラグが見つかりません"
 
-#: src/irc_handle.c:373
+#: src/irc_handle.c:377
 msgid "Flags don't have + or -"
 msgstr "フラグに+か-にありません"
 
-#: src/irc_handle.c:383
+#: src/irc_handle.c:387
 msgid "Why can you know the change of his mode?"
 msgstr ""
 
-#: src/irc_handle.c:389
+#: src/irc_handle.c:393
 msgid "Invalid MODE command"
 msgstr ""
 
-#: src/irc_handle.c:394
+#: src/irc_handle.c:398
 msgid "Can't find a nick to change mode"
 msgstr ""
 
-#: src/irc_handle.c:429
+#: src/irc_handle.c:433
 msgid "Unknown mode flag"
 msgstr ""
 
-#: src/irc_handle.c:440
+#: src/irc_handle.c:444
 #, c-format
 msgid "*** New mode for %%1 by %s: %%*2"
 msgstr ""
 
-#: src/irc_handle.c:456
+#: src/irc_handle.c:460
 msgid "The message does not contain nick."
 msgstr ""
 
-#: src/irc_handle.c:461
+#: src/irc_handle.c:465
 msgid "Invalid JOIN command"
 msgstr ""
 
-#: src/irc_handle.c:467
+#: src/irc_handle.c:471
 msgid "Why do you know that the user join the channel?"
 msgstr ""
 
-#: src/irc_handle.c:475
+#: src/irc_handle.c:479
 msgid "*** %n (%u@%h) joined channel %t"
 msgstr ""
 
-#: src/irc_handle.c:489 src/irc_handle.c:512 src/irc_handle.c:538
+#: src/irc_handle.c:493 src/irc_handle.c:516 src/irc_handle.c:542
 msgid "Can't get channel name"
 msgstr ""
 
-#: src/irc_handle.c:661
+#: src/irc_handle.c:665
 msgid "Topic for %2: %t"
 msgstr ""
 
-#: src/irc_handle.c:680
+#: src/irc_handle.c:684
 msgid "*** New topic on %1 by %n: %t"
 msgstr ""
 
-#: src/irc_handle.c:739
+#: src/irc_handle.c:743
 msgid "Can't find the channel from the message"
 msgstr ""
 
-#: src/irc_handle.c:773
+#: src/irc_handle.c:777
 msgid "*** %2 is marked as begin AWAY, but left the message: %3"
 msgstr ""
 
-#: src/irc_handle.c:782
+#: src/irc_handle.c:786
 msgid "*** %t"
 msgstr ""
 
-#: src/irc_handle.c:785
+#: src/irc_handle.c:789
 msgid "*** You are inviting %2 to %3"
 msgstr ""
 
-#: src/irc_handle.c:788
+#: src/irc_handle.c:792
 msgid "*** %3 is running IRC version %2 (%4)"
 msgstr ""
 
-#: src/irc_handle.c:813
+#: src/irc_handle.c:817
 msgid "%2 is %3@%4: %t"
 msgstr ""
 
-#: src/irc_handle.c:816
+#: src/irc_handle.c:820
 msgid "%2 was %3@%4: %t"
 msgstr ""
 
-#: src/irc_handle.c:819
+#: src/irc_handle.c:823
 msgid "%2: %t"
 msgstr ""
 
-#: src/irc_handle.c:822
+#: src/irc_handle.c:826
 msgid "on via server %3(%t)"
 msgstr ""
 
-#: src/irc_handle.c:825
+#: src/irc_handle.c:829
 msgid "%3 %t"
 msgstr ""
 
-#: src/irc_handle.c:828
+#: src/irc_handle.c:832
 msgid "Banned on %2 : %3"
 msgstr ""
 
-#: src/irc_handle.c:831
+#: src/irc_handle.c:835
 msgid "Time: %3(%2)"
 msgstr ""
 
-#: src/irc_handle.c:953
+#: src/irc_handle.c:957
 #, c-format
 msgid "Connecting to %s:%d"
 msgstr ""
 
-#: src/irc_handle.c:961
+#: src/irc_handle.c:965
 msgid "Connected. Sending Initial command..."
 msgstr ""
 
-#: src/irc_handle.c:998
+#: src/irc_handle.c:1002
 msgid "Done."
 msgstr ""
 
-#: src/irc_handle.c:1017
+#: src/irc_handle.c:1021
 msgid "Connection terminated."
 msgstr ""
 
-#: src/irc_handle.c:1118
+#: src/irc_handle.c:1120
 msgid "Connection thread is not created."
 msgstr ""
 
-#: src/irc_handle.c:1122
+#: src/irc_handle.c:1124
 msgid "Thread sending message is not created."
 msgstr ""
 
-#: src/irc_handle.c:1126
+#: src/irc_handle.c:1128
 msgid "Message queue is not created."
 msgstr ""
 
@@ -237,6 +275,70 @@ msgstr ""
 
 #: src/loqui_app.c:319
 msgid "No topic"
+msgstr ""
+
+#: src/loqui_menu.c:49
+msgid "/_File"
+msgstr ""
+
+#: src/loqui_menu.c:50
+msgid "/File/_Connect"
+msgstr ""
+
+#: src/loqui_menu.c:51
+msgid "/File/_Quit"
+msgstr ""
+
+#: src/loqui_menu.c:52
+msgid "/_Edit"
+msgstr ""
+
+#: src/loqui_menu.c:53
+msgid "/Edit/Cut"
+msgstr ""
+
+#: src/loqui_menu.c:54
+msgid "/Edit/_Copy"
+msgstr ""
+
+#: src/loqui_menu.c:55
+msgid "/Edit/_Paste"
+msgstr ""
+
+#: src/loqui_menu.c:56
+msgid "/Edit/Paste with linefeeds cut"
+msgstr ""
+
+#: src/loqui_menu.c:57
+msgid "/Edit/_Find"
+msgstr ""
+
+#: src/loqui_menu.c:58
+msgid "/Edit/_Find again"
+msgstr ""
+
+#: src/loqui_menu.c:60
+msgid "/Edit/Clear _buffer"
+msgstr ""
+
+#: src/loqui_menu.c:61
+msgid "/Edit/Clear co_mmon buffer"
+msgstr ""
+
+#: src/loqui_menu.c:62
+msgid "/_Settings"
+msgstr ""
+
+#: src/loqui_menu.c:63
+msgid "/Settings/Account Settings..."
+msgstr ""
+
+#: src/loqui_menu.c:64
+msgid "/_Help"
+msgstr ""
+
+#: src/loqui_menu.c:65
+msgid "/Help/_About"
 msgstr ""
 
 #: src/main.c:50
@@ -256,7 +358,7 @@ msgstr ""
 msgid "  --help       show this help\n"
 msgstr ""
 
-#: src/nick_list.c:265
+#: src/nick_list.c:267
 msgid "Nick"
 msgstr ""
 
