@@ -37,11 +37,21 @@ typedef struct {
 	gchar *property_name;
 	gchar *group;
 	gchar *key;
+	gchar *default_s;
+	gint default_i;
+	gboolean default_b;
 } StyleItem;
 
 StyleItem style_item_list_string[] = {
-	{"buffer_text_color_time", "Buffer", "TextColorTime"},
-	{NULL, NULL, NULL}
+	{"buffer_time_color",   "Buffer", "TimeColor", "blue", 0, 0},
+	{"buffer_info_color",   "Buffer", "InfoColor", "green3", 0, 0},
+	{"buffer_normal_color", "Buffer", "NormalColor", "black", 0, 0},
+	{"buffer_error_color",  "Buffer", "ErrorColor", "red", 0, 0},
+	{"buffer_notice_color", "Buffer", "NoticeColor", "#555555", 0, 0},
+	{"buffer_link_color",   "Buffer", "LinkColor", "blue", 0, 0},
+	{"buffer_hilight_color","Buffer", "HilightColor", "purple", 0, 0},
+
+	{NULL, NULL, NULL, NULL,}
 };
 
 %}
@@ -61,19 +71,68 @@ class Loqui:Style:Prefs from G:Object
 		return ret;
 	}
 
-	public gchar *buffer_text_color_time;
-	property STRING buffer_text_color_time(
-		nick = _("Buffer Text Color Time"),
-		blurb = _("Text Color of Time in Buffer"),
-		default_value = "blue",
+
+	public gchar *buffer_time_color unrefwith g_free;
+	property STRING buffer_time_color(
+		nick = _("Time Color in Buffer"),
+		blurb = _("Time Color in Buffer"),
+		default_value = NULL,
 		link, export);
+
+	public gchar *buffer_info_color unrefwith g_free;
+	property STRING buffer_info_color(
+		nick = _("Info Color in Buffer"),
+		blurb = _("Info Color in Buffer"),
+		default_value = NULL,
+		link, export);
+
+	public gchar *buffer_normal_color unrefwith g_free;
+	property STRING buffer_normal_color(
+		nick = _("Normal Color in Buffer"),
+		blurb = _("Normal Color in Buffer"),
+		default_value = NULL,
+		link, export);
+
+	public gchar *buffer_error_color unrefwith g_free;
+	property STRING buffer_error_color(
+		nick = _("Error Color in Buffer"),
+		blurb = _("Error Color in Buffer"),
+		default_value = NULL,
+		link, export);
+
+	public gchar *buffer_notice_color unrefwith g_free;
+	property STRING buffer_notice_color(
+		nick = _("Notice Color in Buffer"),
+		blurb = _("Notice Color in Buffer"),
+		default_value = NULL,
+		link, export);
+
+	public gchar *buffer_link_color unrefwith g_free;
+	property STRING buffer_link_color(
+		nick = _("Link Color in Buffer"),
+		blurb = _("Link Color in Buffer"),
+		default_value = NULL,
+		link, export);
+
+	public gchar *buffer_hilight_color unrefwith g_free;
+	property STRING buffer_hilight_color(
+		nick = _("Hilight Color in Buffer"),
+		blurb = _("Hilight Color in Buffer"),
+		default_value = NULL,
+		link, export);
+
+
+	private gchar *get_stylerc_path(void) {
+		return g_build_filename(loqui_core_get_user_dir(loqui_get_core()),
+					RC_FILENAME, NULL);
+	}
 
 	public void load(self) {
 		gchar *path;
 		StyleItem *st;
+		gchar *str;
 
-		path = g_build_filename(loqui_core_get_user_dir(loqui_get_core()),
-					RC_FILENAME, NULL);
+		path = self_get_stylerc_path();
 		if (!lqg_key_file_load_from_file(self->keyfile, path, LQG_KEY_FILE_NONE, NULL)) {
 			g_warning(_("Failed to load %s"), RC_FILENAME);
 			g_free(path);
@@ -82,19 +141,47 @@ class Loqui:Style:Prefs from G:Object
 		g_free(path);
 
 		for (st = style_item_list_string; st->property_name != NULL; st++) {
-			g_object_set(G_OBJECT(self), st->property_name,
-				     lqg_key_file_get_string(self->keyfile, st->group, st->key, NULL),
-				     NULL);
+			str = lqg_key_file_get_string(self->keyfile, st->group, st->key, NULL);
+			if (str != NULL) {
+				g_object_set(G_OBJECT(self), st->property_name,
+					     str,
+					     NULL);
+				g_free(str);
+			} else {
+				g_object_set(G_OBJECT(self), st->property_name, st->default_s, NULL);
+			}
 		}
 	}
 
 	public void save(self) {
 		StyleItem *st;
 		gchar *str;
+		gchar *path;
+		gchar *buf;
+		GIOChannel *io;
 
 		for (st = style_item_list_string; st->property_name != NULL; st++) {
 			g_object_get(G_OBJECT(self), st->property_name, &str, NULL);
-			lqg_key_file_set_string(self->keyfile, st->group, st->key, str);
+			if (str != NULL)
+				lqg_key_file_set_string(self->keyfile, st->group, st->key, str);
 		}
+		path = self_get_stylerc_path();
+		if ((io = g_io_channel_new_file(path, "w", NULL)) == NULL) {
+			g_warning("Can't open stylerc file(%s)", path);
+			g_free(path);
+			return;
+		}
+		if ((buf = lqg_key_file_to_data(self->keyfile, NULL, NULL)) == NULL) {
+			g_warning("Failed to dump stylerc");
+			g_free(path);
+			g_io_channel_unref(io);
+			return;
+		}
+		if (g_io_channel_write_chars(io, buf, -1, NULL, NULL) == 0) {
+			g_warning("Can't write log(%s)", path);
+		}
+
+		g_free(buf);
+		g_io_channel_unref(io);
 	}
 }

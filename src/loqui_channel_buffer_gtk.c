@@ -27,6 +27,7 @@
 #include <string.h>
 #include "gtkutils.h"
 #include "loqui-core-gtk.h"
+#include <loqui.h>
 
 /*
 enum {
@@ -73,6 +74,8 @@ static void loqui_channel_buffer_gtk_apply_tag_cb(GtkTextBuffer *buffer,
 					GtkTextIter *end,
 					gpointer user_data);
 static gboolean loqui_channel_buffer_gtk_delete_old_lines(LoquiChannelBufferGtk *buffer);
+
+static void loqui_channel_buffer_gtk_load_styles(LoquiChannelBufferGtk *buffer);
 
 #define TIME_LEN 11
 
@@ -123,23 +126,18 @@ loqui_channel_buffer_gtk_init_tags(void)
 	default_tag_table = gtk_text_tag_table_new();
 	
 	tag = gtk_text_tag_new("time");
-	g_object_set(tag, "foreground", "blue", NULL);
 	gtk_text_tag_table_add(default_tag_table, tag);
 
 	tag = gtk_text_tag_new("info");
-	g_object_set(tag, "foreground", "green3", NULL);
 	gtk_text_tag_table_add(default_tag_table, tag);
 	
 	tag = gtk_text_tag_new("normal");
-	g_object_set(tag, "foreground", "black", NULL);
 	gtk_text_tag_table_add(default_tag_table, tag);
 	
 	tag = gtk_text_tag_new("error");
-	g_object_set(tag, "foreground", "red", NULL);
 	gtk_text_tag_table_add(default_tag_table, tag);	
 
 	tag = gtk_text_tag_new("notice");
-	g_object_set(tag, "foreground", "#555555", NULL);
 	gtk_text_tag_table_add(default_tag_table, tag);
 
 	tag = gtk_text_tag_new("action");
@@ -147,7 +145,6 @@ loqui_channel_buffer_gtk_init_tags(void)
 	gtk_text_tag_table_add(default_tag_table, tag);
 
 	tag = gtk_text_tag_new("link");
-	g_object_set(tag, "foreground", "blue", NULL);
 	gtk_text_tag_table_add(default_tag_table, tag);
 	
 	tag = gtk_text_tag_new("hover");
@@ -158,7 +155,7 @@ loqui_channel_buffer_gtk_init_tags(void)
 	gtk_text_tag_table_add(default_tag_table, tag);
 
 	tag = gtk_text_tag_new("highlight");
-	g_object_set(tag, "weight", PANGO_WEIGHT_BOLD, "foreground", HIGHLIGHT_COLOR, NULL);
+	g_object_set(tag, "weight", PANGO_WEIGHT_BOLD, NULL);
 	gtk_text_tag_table_add(default_tag_table, tag);
 
 	highlight_area_tag = gtk_text_tag_new("highlight-area");
@@ -372,7 +369,57 @@ loqui_channel_buffer_gtk_new(void)
 	g_signal_connect_after(G_OBJECT(textbuf), "apply-tag",
 			       G_CALLBACK(loqui_channel_buffer_gtk_apply_tag_cb), NULL);
 
+	loqui_channel_buffer_gtk_load_styles(channel_buffer);
+
 	return channel_buffer;
+}
+static void
+loqui_channel_buffer_gtk_load_styles(LoquiChannelBufferGtk *buffer)
+{
+	LoquiStylePrefs *sp;
+	GtkTextTag *tag;
+	gchar *str;
+ 
+#define GET_TAG(buffer, name) gtk_text_tag_table_lookup(gtk_text_buffer_get_tag_table(GTK_TEXT_BUFFER(buffer)), name)
+
+	sp = LOQUI_CORE_GTK(loqui_get_core())->style_prefs;
+
+	tag = GET_TAG(buffer, "time");
+	str = loqui_style_prefs_get_buffer_time_color(sp);
+	if (str && tag)
+		g_object_set(tag, "foreground", str, NULL);
+
+	tag = GET_TAG(buffer, "info");
+	str = loqui_style_prefs_get_buffer_info_color(sp);
+	if (str && tag)
+		g_object_set(tag, "foreground", str, NULL);
+
+	tag = GET_TAG(buffer, "normal");
+	str = loqui_style_prefs_get_buffer_normal_color(sp);
+	if (str && tag)
+		g_object_set(tag, "foreground", str, NULL);
+
+	tag = GET_TAG(buffer, "error");
+	str = loqui_style_prefs_get_buffer_error_color(sp);
+	if (str && tag)
+		g_object_set(tag, "foreground", str, NULL);
+
+	tag = GET_TAG(buffer, "notice");
+	str = loqui_style_prefs_get_buffer_notice_color(sp);
+	if (str && tag)
+		g_object_set(tag, "foreground", str, NULL);
+
+	tag = GET_TAG(buffer, "link");
+	str = loqui_style_prefs_get_buffer_link_color(sp);
+	if (str && tag)
+		g_object_set(tag, "foreground", str, NULL);
+
+	tag = GET_TAG(buffer, "hilight");
+	str = loqui_style_prefs_get_buffer_hilight_color(sp);
+	if (str && tag)
+		g_object_set(tag, "foreground", str, NULL);
+
+#undef GET_TAG
 }
 static void
 loqui_channel_buffer_gtk_append_current_time(LoquiChannelBufferGtk *buffer)

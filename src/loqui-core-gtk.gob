@@ -156,12 +156,14 @@ class Loqui:Core:Gtk from Loqui:Core
 		loqui_app_info_update_string_idle(self->app->appinfo);
 
 		self_load_accelmap(self);
+		loqui_style_prefs_load(self->style_prefs);
 
 		loqui_account_manager_load_accounts(self->account_manager);
 		if(prefs_general.connect_startup)
 			loqui_account_manager_connect_all_default(self->account_manager);
 	
 		gtk_main();
+		loqui_style_prefs_save(self->style_prefs);
 		self_save_accelmap(self);
 
 		prefs_general_save();
