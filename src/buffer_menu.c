@@ -198,3 +198,28 @@ buffer_menu_remove_channel(GtkMenuShell *menu, Channel *channel)
 	}
 	g_list_free(removing_items);
 }
+void
+buffer_menu_update_accel_keys(GtkMenuShell *menu)
+{
+	GList *cur;
+	int i = 0;
+	GtkMenuItem *item;
+	gchar *path;
+	
+	for (cur = menu->children; cur != NULL; cur = cur->next) {
+		item = GTK_MENU_ITEM(cur->data);	
+		if (GTK_IS_TEAROFF_MENU_ITEM(item))
+			continue;
+					
+		if (i > MAX_SHORTCUT_CHANNEL_NUMBER) {
+			gtk_menu_item_set_accel_path(item, NULL);
+			continue;
+		}
+				
+		path = g_strdup_printf(SHORTCUT_CHANNEL_ACCEL_MAP_PREFIX "%d", i);
+		gtk_menu_item_set_accel_path(item, path);
+		g_free(path);
+		
+		i++;
+	}	
+}

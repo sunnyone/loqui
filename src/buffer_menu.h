@@ -33,4 +33,6 @@ GtkWidget *buffer_menu_add_channel(GtkMenuShell *menu, Channel *channel);
 void buffer_menu_update_channel(GtkMenuShell *menu, Channel *channel);
 void buffer_menu_remove_channel(GtkMenuShell *menu, Channel *channel);
 
+void buffer_menu_update_accel_keys(GtkMenuShell *menu);
+
 #endif /* __BUFFER_MENU_H__ */

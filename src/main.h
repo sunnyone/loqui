@@ -22,6 +22,8 @@
 
 #define FRESH_COLOR "red"
 #define NONFRESH_COLOR "black"
+#define MAX_SHORTCUT_CHANNEL_NUMBER 19
+#define SHORTCUT_CHANNEL_ACCEL_MAP_PREFIX "<main>/Channels/Channel "
 
 extern int debug_mode;
 extern int show_msg_mode;

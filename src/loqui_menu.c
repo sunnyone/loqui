@@ -616,6 +616,7 @@ loqui_menu_buffers_add_account(LoquiMenu *menu, Account *account)
 					   account);
 	g_signal_connect(G_OBJECT(menuitem), "activate",
 			 G_CALLBACK(loqui_menu_account_activate_cb), menuitem);
+	buffer_menu_update_accel_keys(GTK_MENU_SHELL(loqui_menu_get_buffers_menu(menu)));
 }
 void
 loqui_menu_buffers_update_account(LoquiMenu *menu, Account *account)
@@ -635,6 +636,7 @@ loqui_menu_buffers_remove_account(LoquiMenu *menu, Account *account)
 
 	buffer_menu_remove_account(GTK_MENU_SHELL(loqui_menu_get_buffers_menu(menu)),
 				   account);
+	buffer_menu_update_accel_keys(GTK_MENU_SHELL(loqui_menu_get_buffers_menu(menu)));
 }
 void
 loqui_menu_buffers_add_channel(LoquiMenu *menu, Channel *channel)
@@ -647,6 +649,7 @@ loqui_menu_buffers_add_channel(LoquiMenu *menu, Channel *channel)
 	menuitem = buffer_menu_add_channel(GTK_MENU_SHELL(loqui_menu_get_buffers_menu(menu)), channel);
 	g_signal_connect(G_OBJECT(menuitem), "activate",
 			 G_CALLBACK(loqui_menu_channel_activate_cb), menuitem);
+	buffer_menu_update_accel_keys(GTK_MENU_SHELL(loqui_menu_get_buffers_menu(menu)));
 }
 void
 loqui_menu_buffers_remove_channel(LoquiMenu *menu, Channel *channel)
@@ -656,6 +659,7 @@ loqui_menu_buffers_remove_channel(LoquiMenu *menu, Channel *channel)
 
 	buffer_menu_remove_channel(GTK_MENU_SHELL(loqui_menu_get_buffers_menu(menu)),
 				   channel);
+	buffer_menu_update_accel_keys(GTK_MENU_SHELL(loqui_menu_get_buffers_menu(menu)));
 }
 void
 loqui_menu_buffers_update_channel(LoquiMenu *menu, Channel *channel)
