@@ -36,7 +36,7 @@ class Loqui:Core from G:Object
 {
 	public gboolean debug_mode = FALSE;
 	public gboolean show_msg_mode = FALSE;
-	public gboolean send_status_commands_mode = FALSE;
+	public gboolean send_status_commands_mode = TRUE;
 	public gchar *user_dir = NULL
 	   unrefwith g_free;
 	public LoquiPref *general_pref = { loqui_pref_new(); }
