@@ -28,6 +28,10 @@
 #include "command_dialog.h"
 #include "gtkutils.h"
 
+#include "prefs_general.h"
+#include "prefs_dialog.h"
+#include "account_list_dialog.h"
+
 #include <gtk24backports.h>
 
 #define CTRL "<control>"
@@ -183,12 +187,12 @@ loqui_app_actions_about_cb(GtkAction *action, LoquiApp *app)
 static void
 loqui_app_actions_common_settings_cb(GtkAction *action, LoquiApp *app)
 {
-	account_manager_open_prefs_dialog(loqui_app_get_account_manager(app));
+	prefs_dialog_open(GTK_WINDOW(app));
 }
 static void
 loqui_app_actions_account_settings_cb(GtkAction *action, LoquiApp *app)
 {
-	account_manager_open_account_list_dialog(loqui_app_get_account_manager(app));
+	account_list_dialog_open(GTK_WINDOW(app), loqui_app_get_account_manager(app));
 }
 static void
 loqui_app_actions_quit_cb(GtkAction *action, LoquiApp *app)
@@ -198,7 +202,7 @@ loqui_app_actions_quit_cb(GtkAction *action, LoquiApp *app)
 static void
 loqui_app_actions_connect_cb(GtkAction *action, LoquiApp *app)
 {
-	account_manager_open_connect_dialog(loqui_app_get_account_manager(app));
+	account_list_dialog_open_for_connect(GTK_WINDOW(app), loqui_app_get_account_manager(app));
 }
 static void
 loqui_app_actions_cut_cb(GtkAction *action, LoquiApp *app)

@@ -82,7 +82,7 @@ struct _LoquiAppClass
 
 GType        loqui_app_get_type             (void) G_GNUC_CONST;
 
-GtkWidget*      loqui_app_new                 (void);
+GtkWidget* loqui_app_new(AccountManager *manager);
 
 void loqui_app_update_info(LoquiApp *app, 
 			   gboolean is_account_changed, Account *account,
@@ -111,6 +111,12 @@ Channel *loqui_app_get_current_channel(LoquiApp *app);
 Account *loqui_app_get_current_account(LoquiApp *app);
 void loqui_app_set_current_channel(LoquiApp *app, Channel *channel);
 void loqui_app_set_current_account(LoquiApp *app, Account *account);
+
+gboolean loqui_app_is_current_account(LoquiApp *app, Account *account);
+gboolean loqui_app_is_current_channel(LoquiApp *app, Channel *channel);
+gboolean loqui_app_is_current_channel_buffer(LoquiApp *app, ChannelBuffer *buffer);
+
+void loqui_app_update_account(LoquiApp *app, Account *account);
 
 G_END_DECLS
 

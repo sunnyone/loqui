@@ -19,6 +19,7 @@
  */
 #include "config.h"
 #include "loqui_gtk.h"
+#include "loqui_app.h"
 
 #include <gtk/gtk.h>
 #include <gdk/gdkkeysyms.h>
@@ -26,6 +27,7 @@
 
 #include "main.h"
 #include "loqui_stock.h"
+#include "prefs_general.h"
 
 static void make_accel_map_entries_for_channel_shortcutkeys(void);
 
@@ -75,5 +77,14 @@ loqui_gtk_init(int *argc, char **argv[])
 void
 loqui_gtk_start_main_loop(void)
 {
+	AccountManager *account_manager;
+	LoquiApp *app;
+
+	account_manager = account_manager_new();
+	app = LOQUI_APP(loqui_app_new(account_manager));
+	account_manager_load_accounts(account_manager);
+	if(prefs_general.connect_startup)
+		account_manager_connect_all_default(account_manager);
+
 	gtk_main();
 }

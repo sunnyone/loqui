@@ -66,7 +66,6 @@ static void make_program_dir(void)
 int
 main(int argc, char *argv[])
 {
-	AccountManager *account_manager;
 	int i;
 
         bindtextdomain(GETTEXT_PACKAGE, PACKAGE_LOCALE_DIR);
@@ -113,12 +112,6 @@ main(int argc, char *argv[])
 		}
 	}
 	prefs_general_load();
-	
-	account_manager = account_manager_get();
-	account_manager_load_accounts(account_manager);
-	if(prefs_general.connect_startup)
-		account_manager_connect_all_default(account_manager);
-
 	loqui_gtk_start_main_loop();
 	prefs_general_save();
 

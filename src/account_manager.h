@@ -62,31 +62,12 @@ void account_manager_load_accounts(AccountManager *account_manager);
 void account_manager_save_accounts(AccountManager *account_manager);
 
 void account_manager_add_account(AccountManager *manager, Account *account);
-void account_manager_update_account(AccountManager *manager, Account *account);
 void account_manager_remove_account(AccountManager *manager, Account *account);
-
-void account_manager_set_current_channel(AccountManager *manager, Channel *channel);
-Channel *account_manager_get_current_channel(AccountManager *manager);
-
-void account_manager_set_current_account(AccountManager *manager, Account *account);
-Account *account_manager_get_current_account(AccountManager *manager);
-
-gboolean account_manager_is_current_account(AccountManager *manager, Account *account);
-gboolean account_manager_is_current_channel(AccountManager *manager, Channel *channel);
-gboolean account_manager_is_current_channel_buffer(AccountManager *manager, ChannelBuffer *buffer);
 
 void account_manager_connect_all_default(AccountManager *manager);
 void account_manager_disconnect_all(AccountManager *manager);
 
-void account_manager_open_account_list_dialog(AccountManager *manager);
-void account_manager_open_prefs_dialog(AccountManager *manager);
-
 GSList *account_manager_get_account_list(AccountManager *manager);
-
-void account_manager_set_whether_scrolling(AccountManager *manager, gboolean is_scroll);
-gboolean account_manager_get_whether_scrolling(AccountManager *manager);
-
-void account_manager_open_connect_dialog(AccountManager *manager);
 
 G_END_DECLS
 

@@ -374,7 +374,8 @@ account_dialog_open_configure_dialog(GtkWindow *parent, AccountManager *manager,
 	gtk_dialog_run(GTK_DIALOG(dialog));
 	gtk_widget_destroy(dialog);
 
-	account_manager_update_account(manager, account);
+	/* FIXME: should do
+	   account_manager_update_account(manager, account); */
 	account_manager_save_accounts(manager);
 }
 
