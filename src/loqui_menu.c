@@ -278,7 +278,8 @@ loqui_menu_new(LoquiApp *app)
 
 	return menu;
 }
-GtkWidget* loqui_menu_get_widget(LoquiMenu *menu)
+GtkWidget*
+loqui_menu_get_widget(LoquiMenu *menu)
 {
 	g_return_val_if_fail(menu != NULL, NULL);
         g_return_val_if_fail(LOQUI_IS_MENU(menu), NULL);
@@ -375,12 +376,14 @@ loqui_menu_quit_cb(gpointer data, guint callback_action, GtkWidget *widget)
 	gtk_main_quit();
 }
 
-static void loqui_menu_connect_cb(gpointer data, guint callback_action, GtkWidget *widget)
+static void
+loqui_menu_connect_cb(gpointer data, guint callback_action, GtkWidget *widget)
 {
 	account_manager_open_connect_dialog(account_manager_get());
 }
 
-static void loqui_menu_view_toolbar_cb(gpointer data, guint callback_action, GtkWidget *widget)
+static void
+loqui_menu_view_toolbar_cb(gpointer data, guint callback_action, GtkWidget *widget)
 {
 	LoquiMenu *menu;
 	LoquiMenuPrivate *priv;
@@ -395,7 +398,8 @@ static void loqui_menu_view_toolbar_cb(gpointer data, guint callback_action, Gtk
 	loqui_app_set_toolbar_style(priv->app, callback_action);
 }
 
-static void loqui_menu_view_statusbar_cb(gpointer data, guint callback_action, GtkWidget *widget)
+static void
+loqui_menu_view_statusbar_cb(gpointer data, guint callback_action, GtkWidget *widget)
 {
 	LoquiMenu *menu;
 	LoquiMenuPrivate *priv;
@@ -410,7 +414,8 @@ static void loqui_menu_view_statusbar_cb(gpointer data, guint callback_action, G
 
 	loqui_app_set_show_statusbar(priv->app, gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(widget)));
 }
-static void loqui_menu_view_move_cb(gpointer data, guint callback_action, GtkWidget *widget)
+static void
+loqui_menu_view_move_cb(gpointer data, guint callback_action, GtkWidget *widget)
 {
 	LoquiMenu *menu;
 	LoquiMenuPrivate *priv;
@@ -439,7 +444,101 @@ static void loqui_menu_view_move_cb(gpointer data, guint callback_action, GtkWid
 		break;
 	}
 }
-void loqui_menu_set_view_toolbar(LoquiMenu *menu, guint style)
+
+static void
+loqui_menu_join_channel_cb(gpointer data, guint callback_action, GtkWidget *widget)
+{
+	LoquiMenu *menu;
+	LoquiMenuPrivate *priv;
+
+	menu = LOQUI_MENU(data);
+
+	g_return_if_fail(menu != NULL);
+        g_return_if_fail(LOQUI_IS_MENU(menu));
+
+	priv = menu->priv;
+
+	command_dialog_join(GTK_WINDOW(priv->app),
+			    account_manager_get_current_account(account_manager_get()));
+}
+static void
+loqui_menu_start_private_talk_cb(gpointer data, guint callback_action, GtkWidget *widget)
+{
+	LoquiMenu *menu;
+	LoquiMenuPrivate *priv;
+
+	menu = LOQUI_MENU(data);
+
+	g_return_if_fail(menu != NULL);
+        g_return_if_fail(LOQUI_IS_MENU(menu));
+
+	priv = menu->priv;
+
+	command_dialog_private_talk(GTK_WINDOW(priv->app),
+				    account_manager_get_current_account(account_manager_get()));
+}
+
+static void
+loqui_menu_part_channel_cb(gpointer data, guint callback_action, GtkWidget *widget)
+{
+	LoquiMenu *menu;
+	LoquiMenuPrivate *priv;
+	AccountManager *manager;
+
+	menu = LOQUI_MENU(data);
+
+	g_return_if_fail(menu != NULL);
+        g_return_if_fail(LOQUI_IS_MENU(menu));
+
+	priv = menu->priv;
+
+	manager = account_manager_get();
+	command_dialog_part(GTK_WINDOW(priv->app),
+			    account_manager_get_current_account(manager),
+			    account_manager_get_current_channel(manager));
+}
+static void
+loqui_menu_topic_cb(gpointer data, guint callback_action, GtkWidget *widget)
+{
+	LoquiMenu *menu;
+	LoquiMenuPrivate *priv;
+	AccountManager *manager;
+
+	menu = LOQUI_MENU(data);
+
+	g_return_if_fail(menu != NULL);
+        g_return_if_fail(LOQUI_IS_MENU(menu));
+
+	priv = menu->priv;
+
+	manager = account_manager_get();
+	command_dialog_topic(GTK_WINDOW(priv->app),
+			     account_manager_get_current_account(manager),
+			     account_manager_get_current_channel(manager));
+
+}
+static void
+loqui_menu_nick_cb(gpointer data, guint callback_action, GtkWidget *widget)
+{
+
+	LoquiMenu *menu;
+	LoquiMenuPrivate *priv;
+	AccountManager *manager;
+
+	menu = LOQUI_MENU(data);
+
+	g_return_if_fail(menu != NULL);
+        g_return_if_fail(LOQUI_IS_MENU(menu));
+
+	priv = menu->priv;
+
+	manager = account_manager_get();
+	command_dialog_nick(GTK_WINDOW(priv->app),
+			    account_manager_get_current_account(manager));
+}
+
+void
+loqui_menu_set_view_toolbar(LoquiMenu *menu, guint style)
 {
 	LoquiMenuPrivate *priv;
 	GtkWidget *item;
@@ -663,94 +762,4 @@ loqui_menu_buffers_update_channel(LoquiMenu *menu, Account *account, Channel *ch
 		/* pango_attr_list_unref(pattr_list);
 		   pango_attribute_destroy(pattr); */
 	}
-}
-
-static void
-loqui_menu_join_channel_cb(gpointer data, guint callback_action, GtkWidget *widget)
-{
-	LoquiMenu *menu;
-	LoquiMenuPrivate *priv;
-
-	menu = LOQUI_MENU(data);
-
-	g_return_if_fail(menu != NULL);
-        g_return_if_fail(LOQUI_IS_MENU(menu));
-
-	priv = menu->priv;
-
-	command_dialog_join(GTK_WINDOW(priv->app),
-			    account_manager_get_current_account(account_manager_get()));
-}
-static void
-loqui_menu_start_private_talk_cb(gpointer data, guint callback_action, GtkWidget *widget)
-{
-	LoquiMenu *menu;
-	LoquiMenuPrivate *priv;
-
-	menu = LOQUI_MENU(data);
-
-	g_return_if_fail(menu != NULL);
-        g_return_if_fail(LOQUI_IS_MENU(menu));
-
-	priv = menu->priv;
-
-	command_dialog_private_talk(GTK_WINDOW(priv->app),
-				    account_manager_get_current_account(account_manager_get()));
-}
-
-static void
-loqui_menu_part_channel_cb(gpointer data, guint callback_action, GtkWidget *widget)
-{
-	LoquiMenu *menu;
-	LoquiMenuPrivate *priv;
-	AccountManager *manager;
-
-	menu = LOQUI_MENU(data);
-
-	g_return_if_fail(menu != NULL);
-        g_return_if_fail(LOQUI_IS_MENU(menu));
-
-	priv = menu->priv;
-
-	manager = account_manager_get();
-	command_dialog_part(GTK_WINDOW(priv->app),
-			    account_manager_get_current_account(manager),
-			    account_manager_get_current_channel(manager));
-}
-static void loqui_menu_topic_cb(gpointer data, guint callback_action, GtkWidget *widget)
-{
-	LoquiMenu *menu;
-	LoquiMenuPrivate *priv;
-	AccountManager *manager;
-
-	menu = LOQUI_MENU(data);
-
-	g_return_if_fail(menu != NULL);
-        g_return_if_fail(LOQUI_IS_MENU(menu));
-
-	priv = menu->priv;
-
-	manager = account_manager_get();
-	command_dialog_topic(GTK_WINDOW(priv->app),
-			     account_manager_get_current_account(manager),
-			     account_manager_get_current_channel(manager));
-
-}
-static void loqui_menu_nick_cb(gpointer data, guint callback_action, GtkWidget *widget)
-{
-
-	LoquiMenu *menu;
-	LoquiMenuPrivate *priv;
-	AccountManager *manager;
-
-	menu = LOQUI_MENU(data);
-
-	g_return_if_fail(menu != NULL);
-        g_return_if_fail(LOQUI_IS_MENU(menu));
-
-	priv = menu->priv;
-
-	manager = account_manager_get();
-	command_dialog_nick(GTK_WINDOW(priv->app),
-			    account_manager_get_current_account(manager));
 }
