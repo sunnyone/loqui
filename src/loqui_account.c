@@ -385,6 +385,7 @@ loqui_account_closed_real(LoquiAccount *account)
 	if (prefs_general.auto_reconnect) {
 		if (account->reconnect_try_count <= LOQUI_ACCOUNT_RECONNECT_COUNT_MAX) {
 			loqui_account_information(LOQUI_ACCOUNT(account), _("Trying to reconnect..."));
+			account->reconnect_try_count++;
 			loqui_account_connect(LOQUI_ACCOUNT(account));
 		} else {
 			loqui_account_information(LOQUI_ACCOUNT(account), _("Reconnect count over."));
