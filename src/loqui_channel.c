@@ -200,7 +200,7 @@ loqui_channel_class_init(LoquiChannelClass *klass)
 					g_param_spec_object("account",
 							    _("Account"),
 							    _("Parent account"),
-							    TYPE_ACCOUNT, G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
+							    LOQUI_TYPE_ACCOUNT, G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
 
         loqui_channel_signals[MODE_CHANGED] = g_signal_new("mode-changed",
 							   G_OBJECT_CLASS_TYPE(object_class),
@@ -222,7 +222,7 @@ loqui_channel_init(LoquiChannel *channel)
 	channel->end_names = TRUE;
 }
 LoquiChannel*
-loqui_channel_new(Account *account, const gchar *name, gboolean is_joined, gboolean is_private_talk)
+loqui_channel_new(LoquiAccount *account, const gchar *name, gboolean is_joined, gboolean is_private_talk)
 {
         LoquiChannel *channel;
 	LoquiChannelPrivate *priv;
@@ -241,7 +241,7 @@ loqui_channel_new(Account *account, const gchar *name, gboolean is_joined, gbool
 }
 
 void
-loqui_channel_set_account(LoquiChannel *channel, Account *account)
+loqui_channel_set_account(LoquiChannel *channel, LoquiAccount *account)
 {
         LoquiChannelPrivate *priv;
 
@@ -256,7 +256,7 @@ loqui_channel_set_account(LoquiChannel *channel, Account *account)
 	channel->account = account;
 	g_object_notify(G_OBJECT(channel), "account");
 }
-Account *
+LoquiAccount *
 loqui_channel_get_account(LoquiChannel *channel)
 {
         g_return_val_if_fail(channel != NULL, 0);
@@ -369,7 +369,7 @@ loqui_channel_flush_user_mode_queue(LoquiChannel *channel)
 		tmp_list = g_list_append(tmp_list, mode_change->nick);
 	}
 	if(mode_change)
-		loqui_sender_irc_change_member_mode(LOQUI_SENDER_IRC(account_get_sender(channel->account)), channel, mode_change->is_give,
+		loqui_sender_irc_change_member_mode(LOQUI_SENDER_IRC(loqui_account_get_sender(channel->account)), channel, mode_change->is_give,
 						    mode_change->flag, tmp_list);
 
 	g_list_free(tmp_list);
@@ -499,7 +499,7 @@ loqui_channel_add_member_by_nick(LoquiChannel *channel, const gchar *nick, gbool
 		speakable = is_v;
 	}
 
-	user = account_fetch_user(channel->account, nick);
+	user = loqui_account_fetch_user(channel->account, nick);
 	member = loqui_member_new(user);
 	g_object_unref(user); /* member has reference count */
 	if (is_channel_operator)

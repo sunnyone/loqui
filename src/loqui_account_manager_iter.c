@@ -60,7 +60,7 @@ void
 loqui_account_manager_iter_set_last_channel_entry(LoquiAccountManagerIter *iter)
 {
 	iter->cur_ac = g_list_last(iter->cur_ac ? iter->cur_ac : iter->account_list);
-	iter->channel_list = account_get_channel_list(iter->cur_ac->data);
+	iter->channel_list = loqui_account_get_channel_list(iter->cur_ac->data);
 	iter->cur_ch = g_list_last(iter->channel_list);
 }
 gboolean
@@ -102,7 +102,7 @@ loqui_account_manager_iter_channel_entry_next(LoquiAccountManagerIter *iter)
 	} else if (iter->cur_ac != NULL) {
 		chent = iter->cur_ac->data;
 
-		iter->channel_list = account_get_channel_list(iter->cur_ac->data);
+		iter->channel_list = loqui_account_get_channel_list(iter->cur_ac->data);
 		if (iter->channel_list)
 			iter->cur_ch = iter->channel_list;
 		else
@@ -127,7 +127,7 @@ loqui_account_manager_iter_channel_entry_previous(LoquiAccountManagerIter *iter)
 		chent = iter->cur_ac->data;
 		iter->cur_ac = iter->cur_ac->prev;
 		if (iter->cur_ac) {
-			iter->channel_list = account_get_channel_list(iter->cur_ac->data);
+			iter->channel_list = loqui_account_get_channel_list(iter->cur_ac->data);
 			iter->cur_ch = g_list_last(iter->channel_list);
 		}
 		return chent;

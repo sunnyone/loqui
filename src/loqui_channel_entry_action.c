@@ -309,7 +309,7 @@ loqui_channel_entry_action_set_channel_entry(LoquiChannelEntryAction *action, Lo
 
 		g_object_set(G_OBJECT(action), "label", loqui_channel_entry_get_name(channel_entry), NULL);
 
-		if (IS_ACCOUNT(channel_entry))
+		if (LOQUI_IS_ACCOUNT(channel_entry))
 			g_object_set(G_OBJECT(action), "stock_id", LOQUI_STOCK_CONSOLE, NULL);
 
 		loqui_channel_entry_action_set_label_color(action);

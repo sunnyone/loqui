@@ -52,7 +52,7 @@ enum {
 	LAST_PROP
 };
 
-struct _AccountPrivate
+struct _LoquiAccountPrivate
 {
 	IRCHandle *handle;
 	IRCConnection *connection;
@@ -66,57 +66,57 @@ static LoquiChannelEntryClass *parent_class = NULL;
 
 static guint account_signals[LAST_SIGNAL] = { 0 };
 
-static void account_class_init(AccountClass *klass);
-static void account_init(Account *account);
-static void account_finalize(GObject *object);
+static void loqui_account_class_init(LoquiAccountClass *klass);
+static void loqui_account_init(LoquiAccount *account);
+static void loqui_account_finalize(GObject *object);
 
-static void account_get_property(GObject  *object,
+static void loqui_account_get_property(GObject  *object,
 				 guint param_id,
                                  GValue *value,
                                  GParamSpec *pspec);
-static void account_set_property(GObject *object,
+static void loqui_account_set_property(GObject *object,
 				 guint param_id,
 				 const GValue *value,
 				 GParamSpec *pspec);
 
-static void account_set_profile(Account *account, LoquiProfileAccount *profile);
-static void account_set_user_self(Account *account, LoquiUser *user_self);
+static void loqui_account_set_profile(LoquiAccount *account, LoquiProfileAccount *profile);
+static void loqui_account_set_user_self(LoquiAccount *account, LoquiUser *user_self);
 
-static void account_add_user(Account *account, LoquiUser *user);
+static void loqui_account_add_user(LoquiAccount *account, LoquiUser *user);
 
-static void account_connection_connected_cb(GObject *object, gboolean is_succes, Account *account);
-static void account_connection_disconnected_cb(GObject *object, Account *account);
-static void account_connection_terminated_cb(GObject *object, Account *account);
-static void account_connection_warn_cb(GObject *object, gchar *str, Account *account);
-static void account_connection_info_cb(GObject *object, gchar *str, Account *account);
-static void account_connection_arrive_message_cb(IRCConnection *connection, IRCMessage *msg, Account *account);
+static void loqui_account_connection_connected_cb(GObject *object, gboolean is_succes, LoquiAccount *account);
+static void loqui_account_connection_disconnected_cb(GObject *object, LoquiAccount *account);
+static void loqui_account_connection_terminated_cb(GObject *object, LoquiAccount *account);
+static void loqui_account_connection_warn_cb(GObject *object, gchar *str, LoquiAccount *account);
+static void loqui_account_connection_info_cb(GObject *object, gchar *str, LoquiAccount *account);
+static void loqui_account_connection_arrive_message_cb(IRCConnection *connection, IRCMessage *msg, LoquiAccount *account);
 
-static void account_user_notify_nick_cb(LoquiUser *user, GParamSpec *pspec, Account *account);
-static void account_user_self_notify_cb(LoquiUser *user_self, GParamSpec *pspec, Account *account);
-static void account_profile_notify_name_cb(LoquiProfileAccount *profile, GParamSpec *pspec, Account *account);
+static void loqui_account_user_notify_nick_cb(LoquiUser *user, GParamSpec *pspec, LoquiAccount *account);
+static void loqui_account_user_self_notify_cb(LoquiUser *user_self, GParamSpec *pspec, LoquiAccount *account);
+static void loqui_account_profile_notify_name_cb(LoquiProfileAccount *profile, GParamSpec *pspec, LoquiAccount *account);
 
-static void account_remove_channel_real(Account *account, LoquiChannel *channel);
+static void loqui_account_remove_channel_real(LoquiAccount *account, LoquiChannel *channel);
 
 GType
-account_get_type(void)
+loqui_account_get_type(void)
 {
 	static GType type = 0;
 	if (type == 0) {
 		static const GTypeInfo our_info =
 			{
-				sizeof(AccountClass),
+				sizeof(LoquiAccountClass),
 				NULL,           /* base_init */
 				NULL,           /* base_finalize */
-				(GClassInitFunc) account_class_init,
+				(GClassInitFunc) loqui_account_class_init,
 				NULL,           /* class_finalize */
 				NULL,           /* class_data */
-				sizeof(Account),
+				sizeof(LoquiAccount),
 				0,              /* n_preallocs */
-				(GInstanceInitFunc) account_init
+				(GInstanceInitFunc) loqui_account_init
 			};
 		
 		type = g_type_register_static(PARENT_TYPE,
-					      "Account",
+					      "LoquiAccount",
 					      &our_info,
 					      0);
 	}
@@ -124,17 +124,17 @@ account_get_type(void)
 	return type;
 }
 static void
-account_class_init (AccountClass *klass)
+loqui_account_class_init (LoquiAccountClass *klass)
 {
         GObjectClass *object_class = G_OBJECT_CLASS(klass);
 
         parent_class = g_type_class_peek_parent(klass);
         
-        object_class->finalize = account_finalize;
-	object_class->set_property = account_set_property;
-	object_class->get_property = account_get_property;
+        object_class->finalize = loqui_account_finalize;
+	object_class->set_property = loqui_account_set_property;
+	object_class->get_property = loqui_account_get_property;
 
-	klass->remove_channel = account_remove_channel_real;
+	klass->remove_channel = loqui_account_remove_channel_real;
 
 	g_object_class_install_property(object_class,
 					PROP_USER_SELF,
@@ -154,21 +154,21 @@ account_class_init (AccountClass *klass)
 	account_signals[CONNECTED] = g_signal_new("connected",
 						  G_OBJECT_CLASS_TYPE(object_class),
 						  G_SIGNAL_RUN_FIRST,
-						  G_STRUCT_OFFSET(AccountClass, connected),
+						  G_STRUCT_OFFSET(LoquiAccountClass, connected),
 						  NULL, NULL,
 						  g_cclosure_marshal_VOID__VOID,
 						  G_TYPE_NONE, 0);
 	account_signals[DISCONNECTED] = g_signal_new("disconnected",
 						     G_OBJECT_CLASS_TYPE(object_class),
 						     G_SIGNAL_RUN_FIRST,
-						     G_STRUCT_OFFSET(AccountClass, disconnected),
+						     G_STRUCT_OFFSET(LoquiAccountClass, disconnected),
 						     NULL, NULL,
 						     g_cclosure_marshal_VOID__VOID,
 						     G_TYPE_NONE, 0);
 	account_signals[ADD_CHANNEL] = g_signal_new("add-channel",
 						    G_OBJECT_CLASS_TYPE(object_class),
 						    G_SIGNAL_RUN_LAST,
-						    G_STRUCT_OFFSET(AccountClass, add_channel),
+						    G_STRUCT_OFFSET(LoquiAccountClass, add_channel),
 						    NULL, NULL,
 						    g_cclosure_marshal_VOID__OBJECT,
 						    G_TYPE_NONE, 1,
@@ -176,7 +176,7 @@ account_class_init (AccountClass *klass)
 	account_signals[REMOVE_CHANNEL] = g_signal_new("remove-channel",
 						       G_OBJECT_CLASS_TYPE(object_class),
 						       G_SIGNAL_RUN_LAST,
-						       G_STRUCT_OFFSET(AccountClass, remove_channel),
+						       G_STRUCT_OFFSET(LoquiAccountClass, remove_channel),
 						       NULL, NULL,
 						       g_cclosure_marshal_VOID__OBJECT,
 						       G_TYPE_NONE, 1,
@@ -184,17 +184,17 @@ account_class_init (AccountClass *klass)
 	account_signals[USER_SELF_CHANGED] = g_signal_new("user-self-changed",
 							  G_OBJECT_CLASS_TYPE(object_class),
 							  G_SIGNAL_RUN_LAST,
-							  G_STRUCT_OFFSET(AccountClass, user_self_changed),
+							  G_STRUCT_OFFSET(LoquiAccountClass, user_self_changed),
 							  NULL, NULL,
 							  g_cclosure_marshal_VOID__VOID,
 							  G_TYPE_NONE, 0);
 }
 static void 
-account_init(Account *account)
+loqui_account_init(LoquiAccount *account)
 {
-	AccountPrivate *priv;
+	LoquiAccountPrivate *priv;
 
-	priv = g_new0(AccountPrivate, 1);
+	priv = g_new0(LoquiAccountPrivate, 1);
 
 	account->priv = priv;
 	
@@ -207,22 +207,22 @@ account_init(Account *account)
 	account->sender = LOQUI_SENDER(loqui_sender_irc_new(account));
 }
 static void 
-account_finalize (GObject *object)
+loqui_account_finalize (GObject *object)
 {
-	Account *account;
-	AccountPrivate *priv;
+	LoquiAccount *account;
+	LoquiAccountPrivate *priv;
 
         g_return_if_fail(object != NULL);
-        g_return_if_fail(IS_ACCOUNT(object));
+        g_return_if_fail(LOQUI_IS_ACCOUNT(object));
 
-        account = ACCOUNT(object);
+        account = LOQUI_ACCOUNT(object);
 	priv = account->priv;
 	
 	G_OBJECT_UNREF_UNLESS_NULL(priv->handle);
 	G_OBJECT_UNREF_UNLESS_NULL(priv->connection);
 	G_OBJECT_UNREF_UNLESS_NULL(priv->profile);
 
-	account_remove_all_channel(account);
+	loqui_account_remove_all_channel(account);
 
 	if(account->channel_name_hash) {
 		g_hash_table_destroy(account->channel_name_hash);
@@ -238,21 +238,21 @@ account_finalize (GObject *object)
 
 	g_free(account->priv);
 }
-static void account_set_property(GObject *object,
+static void loqui_account_set_property(GObject *object,
 				 guint param_id,
 				 const GValue *value,
 				 GParamSpec *pspec)
 {
-	Account *account;
+	LoquiAccount *account;
 
-	account = ACCOUNT(object);
+	account = LOQUI_ACCOUNT(object);
 
 	switch(param_id) {
 	case PROP_USER_SELF:
-		account_set_user_self(account, g_value_get_object(value));
+		loqui_account_set_user_self(account, g_value_get_object(value));
 		break;
 	case PROP_PROFILE:
-		account_set_profile(account, g_value_get_object(value));
+		loqui_account_set_profile(account, g_value_get_object(value));
 		break;
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, param_id, pspec);
@@ -260,14 +260,14 @@ static void account_set_property(GObject *object,
 	}
 
 }
-static void account_get_property(GObject  *object,
+static void loqui_account_get_property(GObject  *object,
 				 guint param_id,
                                  GValue *value,
                                  GParamSpec *pspec)
 {
-	Account *account;
+	LoquiAccount *account;
 
-	account = ACCOUNT(object);
+	account = LOQUI_ACCOUNT(object);
 
 	switch(param_id) {
 	case PROP_USER_SELF:
@@ -281,17 +281,17 @@ static void account_get_property(GObject  *object,
 		break;
 	}
 }
-Account*
-account_new (LoquiProfileAccount *profile)
+LoquiAccount*
+loqui_account_new (LoquiProfileAccount *profile)
 {
-        Account *account;
+        LoquiAccount *account;
 	LoquiUser *user;
 
 	user = LOQUI_USER(loqui_user_irc_new());
 	loqui_user_set_nick(user, loqui_profile_account_get_nick(profile));
 	loqui_user_set_away(user, LOQUI_AWAY_TYPE_OFFLINE);
 
-	account = g_object_new(account_get_type(), 
+	account = g_object_new(loqui_account_get_type(), 
 			       "buffer", channel_buffer_new(),
 			       "profile", profile,
 			       "user_self", user,
@@ -301,18 +301,18 @@ account_new (LoquiProfileAccount *profile)
 }
 
 LoquiProfileAccount *
-account_get_profile(Account *account)
+loqui_account_get_profile(LoquiAccount *account)
 {
         g_return_val_if_fail(account != NULL, NULL);
-        g_return_val_if_fail(IS_ACCOUNT(account), NULL);
+        g_return_val_if_fail(LOQUI_IS_ACCOUNT(account), NULL);
 
 	return account->priv->profile;
 }
 static void
-account_set_profile(Account *account, LoquiProfileAccount *profile)
+loqui_account_set_profile(LoquiAccount *account, LoquiProfileAccount *profile)
 {
         g_return_if_fail(account != NULL);
-        g_return_if_fail(IS_ACCOUNT(account));
+        g_return_if_fail(LOQUI_IS_ACCOUNT(account));
 
 	G_OBJECT_UNREF_UNLESS_NULL(account->priv->profile);
 	g_object_ref(profile);
@@ -320,49 +320,49 @@ account_set_profile(Account *account, LoquiProfileAccount *profile)
 
 	loqui_channel_entry_set_name(LOQUI_CHANNEL_ENTRY(account), loqui_profile_account_get_name(profile));
 	g_signal_connect(G_OBJECT(profile), "notify::name",
-			 G_CALLBACK(account_profile_notify_name_cb), account);
+			 G_CALLBACK(loqui_account_profile_notify_name_cb), account);
 
 	g_object_notify(G_OBJECT(account), "profile");
 }
 static void
-account_profile_notify_name_cb(LoquiProfileAccount *profile, GParamSpec *pspec, Account *account)
+loqui_account_profile_notify_name_cb(LoquiProfileAccount *profile, GParamSpec *pspec, LoquiAccount *account)
 {
 	loqui_channel_entry_set_name(LOQUI_CHANNEL_ENTRY(account), loqui_profile_account_get_name(profile));
 }
 LoquiUser *
-account_get_user_self(Account *account)
+loqui_account_get_user_self(LoquiAccount *account)
 {
         g_return_val_if_fail(account != NULL, NULL);
-        g_return_val_if_fail(IS_ACCOUNT(account), NULL);
+        g_return_val_if_fail(LOQUI_IS_ACCOUNT(account), NULL);
 
 	return account->user_self;
 }
 static void
-account_set_user_self(Account *account, LoquiUser *user_self)
+loqui_account_set_user_self(LoquiAccount *account, LoquiUser *user_self)
 {
         g_return_if_fail(account != NULL);
-        g_return_if_fail(IS_ACCOUNT(account));
+        g_return_if_fail(LOQUI_IS_ACCOUNT(account));
 
 	G_OBJECT_UNREF_UNLESS_NULL(account->user_self);
 
 	g_object_ref(user_self);
 	account->user_self = user_self;
-	account_add_user(account, user_self);
+	loqui_account_add_user(account, user_self);
 
 	g_signal_connect(user_self, "notify",
-			 G_CALLBACK(account_user_self_notify_cb), account);
+			 G_CALLBACK(loqui_account_user_self_notify_cb), account);
 
 	g_object_notify(G_OBJECT(account), "user_self");	
 }
 static void
-account_user_self_notify_cb(LoquiUser *user_self, GParamSpec *pspec, Account *account)
+loqui_account_user_self_notify_cb(LoquiUser *user_self, GParamSpec *pspec, LoquiAccount *account)
 {
 	g_signal_emit(G_OBJECT(account), account_signals[USER_SELF_CHANGED], 0);
 }
 void
-account_connect(Account *account)
+loqui_account_connect(LoquiAccount *account)
 {
-	AccountPrivate *priv;
+	LoquiAccountPrivate *priv;
 	const gchar *servername, *codeset;
 	gint port;
 	gint codeset_type;
@@ -371,12 +371,12 @@ account_connect(Account *account)
 	gchar *str;
 	
         g_return_if_fail(account != NULL);
-        g_return_if_fail(IS_ACCOUNT(account));
+        g_return_if_fail(LOQUI_IS_ACCOUNT(account));
 	
 	priv = account->priv;
 
-	if(account_is_connected(account)) {
-		account_console_buffer_append(account, TEXT_TYPE_ERROR, _("Already connected."));
+	if(loqui_account_is_connected(account)) {
+		loqui_account_console_buffer_append(account, TEXT_TYPE_ERROR, _("Already connected."));
 		return;
 	}
 	
@@ -396,46 +396,46 @@ account_connect(Account *account)
 	irc_connection_set_codeconv(priv->connection, codeconv);
 	
 	str = g_strdup_printf(_("Connecting to %s:%d"), servername, port);
-	account_console_buffer_append(account, TEXT_TYPE_INFO, str);
+	loqui_account_console_buffer_append(account, TEXT_TYPE_INFO, str);
 	g_free(str);
 
 	irc_connection_connect(priv->connection);
 
 	g_signal_connect(G_OBJECT(priv->connection), "connected",
-			 G_CALLBACK(account_connection_connected_cb), account);
+			 G_CALLBACK(loqui_account_connection_connected_cb), account);
 	g_signal_connect(G_OBJECT(priv->connection), "disconnected",
-			 G_CALLBACK(account_connection_disconnected_cb), account);
+			 G_CALLBACK(loqui_account_connection_disconnected_cb), account);
 	g_signal_connect(G_OBJECT(priv->connection), "terminated",
-			 G_CALLBACK(account_connection_terminated_cb), account);
+			 G_CALLBACK(loqui_account_connection_terminated_cb), account);
 	g_signal_connect(G_OBJECT(priv->connection), "warn",
-			 G_CALLBACK(account_connection_warn_cb), account);
+			 G_CALLBACK(loqui_account_connection_warn_cb), account);
 	g_signal_connect(G_OBJECT(priv->connection), "info",
-			 G_CALLBACK(account_connection_info_cb), account);
+			 G_CALLBACK(loqui_account_connection_info_cb), account);
 	g_signal_connect(G_OBJECT(priv->connection), "arrive_message",
-			 G_CALLBACK(account_connection_arrive_message_cb), account);
+			 G_CALLBACK(loqui_account_connection_arrive_message_cb), account);
 
 	g_signal_emit(account, account_signals[CONNECTED], 0);	
 }
 
 static void
-account_connection_connected_cb(GObject *object, gboolean is_success, Account *account)
+loqui_account_connection_connected_cb(GObject *object, gboolean is_success, LoquiAccount *account)
 {
-	AccountPrivate *priv;
+	LoquiAccountPrivate *priv;
 	IRCMessage *msg;
 	const gchar *password, *nick, *username, *realname, *autojoin;
 
         g_return_if_fail(account != NULL);
-        g_return_if_fail(IS_ACCOUNT(account));
+        g_return_if_fail(LOQUI_IS_ACCOUNT(account));
 
 	priv = account->priv;
 
 	if(!is_success) {
-		account_console_buffer_append(account, TEXT_TYPE_INFO, _("Failed to connect."));
+		loqui_account_console_buffer_append(account, TEXT_TYPE_INFO, _("Failed to connect."));
 		G_OBJECT_UNREF_UNLESS_NULL(priv->connection);
 		return;
 	}
 
-	account_console_buffer_append(account, TEXT_TYPE_INFO, _("Connected. Sending Initial command..."));
+	loqui_account_console_buffer_append(account, TEXT_TYPE_INFO, _("Connected. Sending Initial command..."));
 
 	password = loqui_profile_account_get_password(LOQUI_PROFILE_ACCOUNT(priv->profile));
 	nick = loqui_profile_account_get_nick(LOQUI_PROFILE_ACCOUNT(priv->profile));	
@@ -482,85 +482,85 @@ account_connection_connected_cb(GObject *object, gboolean is_success, Account *a
 		irc_connection_push_message(priv->connection, msg);
 		g_object_unref(msg);
 
-		account_console_buffer_append(account, TEXT_TYPE_INFO, _("Sent join command for autojoin."));
+		loqui_account_console_buffer_append(account, TEXT_TYPE_INFO, _("Sent join command for autojoin."));
 	}
 
-	account_console_buffer_append(account, TEXT_TYPE_INFO, _("Done."));
+	loqui_account_console_buffer_append(account, TEXT_TYPE_INFO, _("Done."));
 
 	loqui_user_set_away(account->user_self, LOQUI_AWAY_TYPE_ONLINE);
 }
 static void
-account_connection_terminated_cb(GObject *object, Account *account)
+loqui_account_connection_terminated_cb(GObject *object, LoquiAccount *account)
 {
-	AccountPrivate *priv;
+	LoquiAccountPrivate *priv;
 
         g_return_if_fail(account != NULL);
-        g_return_if_fail(IS_ACCOUNT(account));
+        g_return_if_fail(LOQUI_IS_ACCOUNT(account));
 
 	priv = account->priv;
 
 	G_OBJECT_UNREF_UNLESS_NULL(priv->connection);
 	G_OBJECT_UNREF_UNLESS_NULL(priv->handle);
 
-	account_console_buffer_append(account, TEXT_TYPE_INFO, _("Connection terminated."));
+	loqui_account_console_buffer_append(account, TEXT_TYPE_INFO, _("Connection terminated."));
 	loqui_user_set_away(account->user_self, LOQUI_AWAY_TYPE_OFFLINE);
 
 	if(prefs_general.auto_reconnect) {
-		account_console_buffer_append(account, TEXT_TYPE_INFO, _("Trying to reconnect..."));
-		account_connect(account);
+		loqui_account_console_buffer_append(account, TEXT_TYPE_INFO, _("Trying to reconnect..."));
+		loqui_account_connect(account);
 	}
 }
 static void
-account_connection_disconnected_cb(GObject *object, Account *account)
+loqui_account_connection_disconnected_cb(GObject *object, LoquiAccount *account)
 {
-	AccountPrivate *priv;
+	LoquiAccountPrivate *priv;
 
         g_return_if_fail(account != NULL);
-        g_return_if_fail(IS_ACCOUNT(account));
+        g_return_if_fail(LOQUI_IS_ACCOUNT(account));
 
 	priv = account->priv;
 	G_OBJECT_UNREF_UNLESS_NULL(priv->connection);
 	G_OBJECT_UNREF_UNLESS_NULL(priv->handle);
 
-	account_console_buffer_append(account, TEXT_TYPE_INFO, _("Disconnected."));
-	account_remove_all_channel(account);
+	loqui_account_console_buffer_append(account, TEXT_TYPE_INFO, _("Disconnected."));
+	loqui_account_remove_all_channel(account);
 
 	loqui_user_set_away(account->user_self, LOQUI_AWAY_TYPE_OFFLINE);
 	g_signal_emit(account, account_signals[DISCONNECTED], 0);
 }
 static void
-account_connection_warn_cb(GObject *object, gchar *str, Account *account)
+loqui_account_connection_warn_cb(GObject *object, gchar *str, LoquiAccount *account)
 {
         g_return_if_fail(account != NULL);
-        g_return_if_fail(IS_ACCOUNT(account));
+        g_return_if_fail(LOQUI_IS_ACCOUNT(account));
 
-	account_console_buffer_append(account, TEXT_TYPE_ERROR, str);
+	loqui_account_console_buffer_append(account, TEXT_TYPE_ERROR, str);
 }
 static void
-account_connection_info_cb(GObject *object, gchar *str, Account *account)
+loqui_account_connection_info_cb(GObject *object, gchar *str, LoquiAccount *account)
 {
         g_return_if_fail(account != NULL);
-        g_return_if_fail(IS_ACCOUNT(account));
+        g_return_if_fail(LOQUI_IS_ACCOUNT(account));
 
-	account_console_buffer_append(account, TEXT_TYPE_INFO, str);
+	loqui_account_console_buffer_append(account, TEXT_TYPE_INFO, str);
 }
 static void
-account_connection_arrive_message_cb(IRCConnection *connection, IRCMessage *msg, Account *account)
+loqui_account_connection_arrive_message_cb(IRCConnection *connection, IRCMessage *msg, LoquiAccount *account)
 {
         g_return_if_fail(account != NULL);
-        g_return_if_fail(IS_ACCOUNT(account));
+        g_return_if_fail(LOQUI_IS_ACCOUNT(account));
 
 	irc_handle_response(account->priv->handle, msg);
 }
 
 void
-account_disconnect(Account *account)
+loqui_account_disconnect(LoquiAccount *account)
 {
-	AccountPrivate *priv;
+	LoquiAccountPrivate *priv;
 	IRCMessage *msg;
 
         g_return_if_fail(account != NULL);
-        g_return_if_fail(IS_ACCOUNT(account));
+        g_return_if_fail(LOQUI_IS_ACCOUNT(account));
 	
 	priv = account->priv;
 
@@ -571,46 +571,46 @@ account_disconnect(Account *account)
 	}
 }
 gboolean
-account_is_connected(Account *account)
+loqui_account_is_connected(LoquiAccount *account)
 {
         g_return_val_if_fail(account != NULL, FALSE);
-        g_return_val_if_fail(IS_ACCOUNT(account), FALSE);
+        g_return_val_if_fail(LOQUI_IS_ACCOUNT(account), FALSE);
 	
 	return (account->priv->connection != NULL);
 }
 
 IRCHandle *
-account_get_handle(Account *account)
+loqui_account_get_handle(LoquiAccount *account)
 {
         g_return_val_if_fail(account != NULL, NULL);
-        g_return_val_if_fail(IS_ACCOUNT(account), NULL);
+        g_return_val_if_fail(LOQUI_IS_ACCOUNT(account), NULL);
 	
 	return account->priv->handle;
 }
 IRCConnection *
-account_get_connection(Account *account)
+loqui_account_get_connection(LoquiAccount *account)
 {
         g_return_val_if_fail(account != NULL, NULL);
-        g_return_val_if_fail(IS_ACCOUNT(account), NULL);
+        g_return_val_if_fail(LOQUI_IS_ACCOUNT(account), NULL);
 	
 	return account->priv->connection;
 }
 LoquiSender *
-account_get_sender(Account *account)
+loqui_account_get_sender(LoquiAccount *account)
 {
         g_return_val_if_fail(account != NULL, NULL);
-        g_return_val_if_fail(IS_ACCOUNT(account), NULL);
+        g_return_val_if_fail(LOQUI_IS_ACCOUNT(account), NULL);
 	
 	return account->sender;
 }
 
 void
-account_add_channel(Account *account, LoquiChannel *channel)
+loqui_account_add_channel(LoquiAccount *account, LoquiChannel *channel)
 {
 	GList *l;
 
         g_return_if_fail(account != NULL);
-        g_return_if_fail(IS_ACCOUNT(account));
+        g_return_if_fail(LOQUI_IS_ACCOUNT(account));
 
 	g_object_ref(channel);
 
@@ -623,7 +623,7 @@ account_add_channel(Account *account, LoquiChannel *channel)
 	g_signal_emit(account, account_signals[ADD_CHANNEL], 0, channel);
 }
 static void
-account_remove_channel_real(Account *account, LoquiChannel *channel)
+loqui_account_remove_channel_real(LoquiAccount *account, LoquiChannel *channel)
 {
 	g_hash_table_remove(account->channel_name_hash, loqui_channel_entry_get_name(LOQUI_CHANNEL_ENTRY(channel)));
 
@@ -631,43 +631,43 @@ account_remove_channel_real(Account *account, LoquiChannel *channel)
 	g_object_unref(channel);
 }
 void
-account_remove_channel(Account *account, LoquiChannel *channel)
+loqui_account_remove_channel(LoquiAccount *account, LoquiChannel *channel)
 {
         g_return_if_fail(account != NULL);
-        g_return_if_fail(IS_ACCOUNT(account));
+        g_return_if_fail(LOQUI_IS_ACCOUNT(account));
 
 	g_signal_emit(account, account_signals[REMOVE_CHANNEL], 0, channel);
 }
 void
-account_remove_all_channel(Account *account)
+loqui_account_remove_all_channel(LoquiAccount *account)
 {
 	GList *list, *cur;
 
         g_return_if_fail(account != NULL);
-        g_return_if_fail(IS_ACCOUNT(account));
+        g_return_if_fail(LOQUI_IS_ACCOUNT(account));
 
 	list = g_list_copy(account->channel_list);
 	for (cur = list; cur != NULL; cur = cur->next) {
-		account_remove_channel(account, cur->data);
+		loqui_account_remove_channel(account, cur->data);
 	}
 	g_list_free(list);
 }
 
 GList *
-account_get_channel_list(Account *account)
+loqui_account_get_channel_list(LoquiAccount *account)
 {
        g_return_val_if_fail(account != NULL, NULL);
-       g_return_val_if_fail(IS_ACCOUNT(account), NULL);
+       g_return_val_if_fail(LOQUI_IS_ACCOUNT(account), NULL);
 
        return account->channel_list;
 }
 LoquiChannel*
-account_get_channel_by_name(Account *account, const gchar *name)
+loqui_account_get_channel_by_name(LoquiAccount *account, const gchar *name)
 {
 	GList *l;
 
         g_return_val_if_fail(account != NULL, NULL);
-        g_return_val_if_fail(IS_ACCOUNT(account), NULL);
+        g_return_val_if_fail(LOQUI_IS_ACCOUNT(account), NULL);
 	g_return_val_if_fail(name != NULL, NULL);
 
 	l = g_hash_table_lookup(account->channel_name_hash, name);
@@ -677,7 +677,7 @@ account_get_channel_by_name(Account *account, const gchar *name)
 	return NULL;
 }
 void
-account_console_buffer_append(Account *account, TextType type, gchar *str)
+loqui_account_console_buffer_append(LoquiAccount *account, TextType type, gchar *str)
 {
 	MessageText *msgtext;
 	ChannelBuffer *buffer;
@@ -688,7 +688,7 @@ account_console_buffer_append(Account *account, TextType type, gchar *str)
 	msgtext = message_text_new();
 	g_object_set(G_OBJECT(msgtext),
 		     "is_remark", FALSE,
-		     "account_name", loqui_profile_account_get_name(account_get_profile(account)),
+		     "account_name", loqui_profile_account_get_name(loqui_account_get_profile(account)),
 		     "text_type", type,
 		     "text", str,
 		     NULL);
@@ -699,12 +699,12 @@ account_console_buffer_append(Account *account, TextType type, gchar *str)
 	g_object_unref(msgtext);
 }
 gboolean
-account_is_current_nick(Account *account, const gchar *str)
+loqui_account_is_current_nick(LoquiAccount *account, const gchar *str)
 {
-	AccountPrivate *priv;
+	LoquiAccountPrivate *priv;
 
         g_return_val_if_fail(account != NULL, FALSE);
-        g_return_val_if_fail(IS_ACCOUNT(account), FALSE);
+        g_return_val_if_fail(LOQUI_IS_ACCOUNT(account), FALSE);
 
 	priv = account->priv;
 
@@ -715,7 +715,7 @@ account_is_current_nick(Account *account, const gchar *str)
 }
 
 GSList *
-account_search_joined_channel(Account *account, gchar *nick)
+loqui_account_search_joined_channel(LoquiAccount *account, gchar *nick)
 {
 	GList *cur;
 	GSList *list = NULL;
@@ -723,10 +723,10 @@ account_search_joined_channel(Account *account, gchar *nick)
 	LoquiUser *user;
 
         g_return_val_if_fail(account != NULL, NULL);
-        g_return_val_if_fail(IS_ACCOUNT(account), NULL);
+        g_return_val_if_fail(LOQUI_IS_ACCOUNT(account), NULL);
 	g_return_val_if_fail(nick != NULL, NULL);
 
-	user = account_peek_user(account, nick);
+	user = loqui_account_peek_user(account, nick);
 	if (!user) {
 		return NULL;
 	}
@@ -740,13 +740,13 @@ account_search_joined_channel(Account *account, gchar *nick)
 	return list;
 }
 void
-account_get_updated_number(Account *account, gint *updated_private_talk_number, gint *updated_channel_number)
+loqui_account_get_updated_number(LoquiAccount *account, gint *updated_private_talk_number, gint *updated_channel_number)
 {
 	LoquiChannel *channel;
 	GList *cur;
 		
         g_return_if_fail(account != NULL);
-        g_return_if_fail(IS_ACCOUNT(account));
+        g_return_if_fail(LOQUI_IS_ACCOUNT(account));
         g_return_if_fail(updated_private_talk_number != NULL);
         g_return_if_fail(updated_channel_number != NULL);
 
@@ -765,24 +765,24 @@ account_get_updated_number(Account *account, gint *updated_private_talk_number, 
 	}
 }
 static void
-account_user_disposed_cb(Account *account, LoquiUser *user)
+loqui_account_user_disposed_cb(LoquiAccount *account, LoquiUser *user)
 {
 	gchar *nick;
 
         g_return_if_fail(account != NULL);
-        g_return_if_fail(IS_ACCOUNT(account));
+        g_return_if_fail(LOQUI_IS_ACCOUNT(account));
 
 	nick = g_hash_table_lookup(account->user_nick_table, user);
 	g_hash_table_remove(account->nick_user_table, nick);
 	g_hash_table_remove(account->user_nick_table, user);
 }
 static void
-account_user_notify_nick_cb(LoquiUser *user, GParamSpec *pspec, Account *account)
+loqui_account_user_notify_nick_cb(LoquiUser *user, GParamSpec *pspec, LoquiAccount *account)
 {
 	const gchar *nick_old, *nick_new;
 
         g_return_if_fail(account != NULL);
-        g_return_if_fail(IS_ACCOUNT(account));
+        g_return_if_fail(LOQUI_IS_ACCOUNT(account));
 
 	nick_old = g_hash_table_lookup(account->user_nick_table, user);
 	nick_new = loqui_user_get_nick(user);
@@ -792,29 +792,29 @@ account_user_notify_nick_cb(LoquiUser *user, GParamSpec *pspec, Account *account
 	g_hash_table_replace(account->user_nick_table, user, g_strdup(nick_new));
 }
 static void
-account_add_user(Account *account, LoquiUser *user)
+loqui_account_add_user(LoquiAccount *account, LoquiUser *user)
 {
 	g_return_if_fail(account != NULL);
-        g_return_if_fail(IS_ACCOUNT(account));
+        g_return_if_fail(LOQUI_IS_ACCOUNT(account));
 
 	g_signal_connect(G_OBJECT(user), "notify::nick",
-			 G_CALLBACK(account_user_notify_nick_cb), account);
-	g_object_weak_ref(G_OBJECT(user), (GWeakNotify) account_user_disposed_cb, account);
+			 G_CALLBACK(loqui_account_user_notify_nick_cb), account);
+	g_object_weak_ref(G_OBJECT(user), (GWeakNotify) loqui_account_user_disposed_cb, account);
 	g_hash_table_insert(account->nick_user_table, g_strdup(loqui_user_get_nick(user)), user);
 	g_hash_table_insert(account->user_nick_table, user, g_strdup(loqui_user_get_nick(user)));	
 }
 LoquiUser *
-account_fetch_user(Account *account, const gchar *nick)
+loqui_account_fetch_user(LoquiAccount *account, const gchar *nick)
 {
 	LoquiUser *user;
 		
         g_return_val_if_fail(account != NULL, NULL);
-        g_return_val_if_fail(IS_ACCOUNT(account), NULL);
+        g_return_val_if_fail(LOQUI_IS_ACCOUNT(account), NULL);
 
-	if((user = account_peek_user(account, nick)) == NULL) {
+	if((user = loqui_account_peek_user(account, nick)) == NULL) {
 		user = LOQUI_USER(loqui_user_irc_new());
 		loqui_user_set_nick(user, nick);
-		account_add_user(account, user);
+		loqui_account_add_user(account, user);
 	} else {
 		g_object_ref(user);
 	}
@@ -822,10 +822,10 @@ account_fetch_user(Account *account, const gchar *nick)
 	return user;
 }
 LoquiUser *
-account_peek_user(Account *account, const gchar *nick)
+loqui_account_peek_user(LoquiAccount *account, const gchar *nick)
 {
         g_return_val_if_fail(account != NULL, NULL);
-        g_return_val_if_fail(IS_ACCOUNT(account), NULL);
+        g_return_val_if_fail(LOQUI_IS_ACCOUNT(account), NULL);
 
 	return g_hash_table_lookup(account->nick_user_table, nick);
 }

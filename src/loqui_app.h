@@ -51,7 +51,7 @@ struct _LoquiApp
 
 	AccountManager *account_manager;
 
-	Account *current_account;
+	LoquiAccount *current_account;
 	LoquiChannel *current_channel;
 
 	gboolean is_pending_update_account_info;
@@ -92,7 +92,7 @@ GtkWidget* loqui_app_new(AccountManager *manager);
 
 void loqui_app_grab_focus_if_key_unused(LoquiApp *app, const gchar *class_name, guint modifiers, guint keyval);
 void loqui_app_update_info(LoquiApp *app, 
-			   gboolean is_account_changed, Account *account,
+			   gboolean is_account_changed, LoquiAccount *account,
 			   gboolean is_channel_changed, LoquiChannel *channel);
 
 void loqui_app_set_common_buffer(LoquiApp *app, ChannelBuffer *buffer);
@@ -112,11 +112,11 @@ LoquiChannelEntry *loqui_app_get_current_channel_entry(LoquiApp *app);
 void loqui_app_set_current_channel_entry(LoquiApp *app, LoquiChannelEntry *chent);
 
 LoquiChannel *loqui_app_get_current_channel(LoquiApp *app);
-Account *loqui_app_get_current_account(LoquiApp *app);
+LoquiAccount *loqui_app_get_current_account(LoquiApp *app);
 
 GtkWidget *loqui_app_get_current_channel_text_view(LoquiApp *app);
 
-gboolean loqui_app_is_current_account(LoquiApp *app, Account *account);
+gboolean loqui_app_is_current_account(LoquiApp *app, LoquiAccount *account);
 gboolean loqui_app_is_current_channel(LoquiApp *app, LoquiChannel *channel);
 
 void loqui_app_set_nick_list_sort_type(LoquiApp *app, PrefSortType sort_type);

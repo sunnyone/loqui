@@ -41,7 +41,7 @@ struct _IRCHandlePrivate
 {
 	CTCPHandle *ctcp_handle;
 
-	Account *account;
+	LoquiAccount *account;
 	gboolean fallback;
 
 	gboolean end_motd;
@@ -207,10 +207,10 @@ irc_handle_parse_plum_recent(IRCHandle *handle, const gchar *line)
 		g_assert_not_reached();
 	}
 	
-	channel = account_get_channel_by_name(priv->account, name);
+	channel = loqui_account_get_channel_by_name(priv->account, name);
 	if(channel == NULL) {
 		channel = loqui_channel_new(priv->account, name, FALSE, !LOQUI_UTILS_IRC_STRING_IS_CHANNEL(name));
-		account_add_channel(priv->account, channel);
+		loqui_account_add_channel(priv->account, channel);
 		g_object_unref(channel);
 	}
 	g_free(buf);
@@ -255,7 +255,7 @@ irc_handle_command_privmsg_notice(IRCHandle *handle, IRCMessage *msg)
 	}
 
 	if(msg->nick)
-		is_self = account_is_current_nick(handle->priv->account, msg->nick);
+		is_self = loqui_account_is_current_nick(handle->priv->account, msg->nick);
 	else
 		is_self = FALSE;
 
@@ -291,18 +291,18 @@ irc_handle_command_privmsg_notice(IRCHandle *handle, IRCMessage *msg)
 	}
 	
 	if (channel_name) {
-		channel = account_get_channel_by_name(priv->account, channel_name);
+		channel = loqui_account_get_channel_by_name(priv->account, channel_name);
 		if(channel == NULL) {
 			is_priv = !LOQUI_UTILS_IRC_STRING_IS_CHANNEL(channel_name);
 			channel = loqui_channel_new(priv->account, channel_name, FALSE, is_priv);
 			if (is_priv) {
-				member = loqui_member_new(account_get_user_self(priv->account));
+				member = loqui_member_new(loqui_account_get_user_self(priv->account));
 				loqui_channel_entry_add_member(LOQUI_CHANNEL_ENTRY(channel), member);
 				g_object_unref(member);
 
 				loqui_channel_add_member_by_nick(channel, receiver_name, FALSE, FALSE, FALSE);
 			}
-			account_add_channel(priv->account, channel);
+			loqui_account_add_channel(priv->account, channel);
 			g_object_unref(channel);
 		}
 		sender = msg->nick ? msg->nick : msg->prefix;
@@ -310,12 +310,12 @@ irc_handle_command_privmsg_notice(IRCHandle *handle, IRCMessage *msg)
 		loqui_channel_append_remark(channel, type, is_self, sender, remark, is_from_server);
 
 		if (msg->nick &&
-		    (user = account_peek_user(priv->account, msg->nick)) != NULL &&
+		    (user = loqui_account_peek_user(priv->account, msg->nick)) != NULL &&
 		    (member = loqui_channel_entry_get_member_by_user(LOQUI_CHANNEL_ENTRY(channel), user)) != NULL) {
 			loqui_member_set_last_message_time(member, time(NULL));
 		}
 	} else {
-		account_console_buffer_append(priv->account, type, remark);
+		loqui_account_console_buffer_append(priv->account, type, remark);
 	}
 }
 static void
@@ -324,7 +324,7 @@ irc_handle_command_ping(IRCHandle *handle, IRCMessage *msg)
         g_return_if_fail(handle != NULL);
 	g_return_if_fail(IS_IRC_HANDLE(handle));
 
-	loqui_sender_irc_pong_raw(LOQUI_SENDER_IRC(account_get_sender(handle->priv->account)), irc_message_get_param(msg, 1));
+	loqui_sender_irc_pong_raw(LOQUI_SENDER_IRC(loqui_account_get_sender(handle->priv->account)), irc_message_get_param(msg, 1));
 }
 static void
 irc_handle_command_quit(IRCHandle *handle, IRCMessage *msg)
@@ -338,14 +338,14 @@ irc_handle_command_quit(IRCHandle *handle, IRCMessage *msg)
 		return;
 	}
 
-	slist = account_search_joined_channel(handle->priv->account, msg->nick);
+	slist = loqui_account_search_joined_channel(handle->priv->account, msg->nick);
 	for(cur = slist; cur != NULL; cur = cur->next) {
 		channel = LOQUI_CHANNEL(cur->data);
 		if(!channel) {
 			g_warning("NULL channel");
 			continue;
 		}
-		user = account_peek_user(handle->priv->account, msg->nick);
+		user = loqui_account_peek_user(handle->priv->account, msg->nick);
 		if (user)
 			loqui_channel_entry_remove_member_by_user(LOQUI_CHANNEL_ENTRY(channel), user);
 	}
@@ -372,8 +372,8 @@ irc_handle_command_part(IRCHandle *handle, IRCMessage *msg)
 		return;
 	}
 
-	channel = account_get_channel_by_name(handle->priv->account, name);
-	user = account_peek_user(handle->priv->account, msg->nick);
+	channel = loqui_account_get_channel_by_name(handle->priv->account, name);
+	user = loqui_account_peek_user(handle->priv->account, msg->nick);
 	if (!channel || !user) {
 		g_warning("Why do you know the user '%s' is joined to %s?", msg->nick, name);
 	}
@@ -381,10 +381,10 @@ irc_handle_command_part(IRCHandle *handle, IRCMessage *msg)
 	if (channel && user)
 		loqui_channel_entry_remove_member_by_user(LOQUI_CHANNEL_ENTRY(channel), user);
 
-	if(account_is_current_nick(handle->priv->account, msg->nick)) {
+	if(loqui_account_is_current_nick(handle->priv->account, msg->nick)) {
 		if(channel) {
 			irc_handle_account_console_append(handle, msg, TEXT_TYPE_INFO, "*** You have left %1");
-			account_remove_channel(handle->priv->account, channel);
+			loqui_account_remove_channel(handle->priv->account, channel);
 		}
 	} else {
 		irc_handle_channel_append(handle, msg, FALSE, 1, TEXT_TYPE_INFO, _("*** %n has just part %1(%t)"));
@@ -416,14 +416,14 @@ irc_handle_command_kick(IRCHandle *handle, IRCMessage *msg)
 		return;
 	}
 	
-	channel = account_get_channel_by_name(handle->priv->account, name);
-	user = account_peek_user(handle->priv->account, receiver);
+	channel = loqui_account_get_channel_by_name(handle->priv->account, name);
+	user = loqui_account_peek_user(handle->priv->account, receiver);
 	if (channel && user)
 		loqui_channel_entry_remove_member_by_user(LOQUI_CHANNEL_ENTRY(channel), user);
 
-	if(account_is_current_nick(handle->priv->account, receiver)) {
+	if(loqui_account_is_current_nick(handle->priv->account, receiver)) {
 		irc_handle_account_console_append(handle, msg, TEXT_TYPE_INFO, "*** You were kicked from %1 by %n (%3)");
-		account_remove_channel(handle->priv->account, channel);
+		loqui_account_remove_channel(handle->priv->account, channel);
 	} else {
 		irc_handle_channel_append(handle, msg, FALSE, 1, TEXT_TYPE_INFO, _("*** %2 was kicked from %1 by %n(%3)"));
 	}
@@ -449,16 +449,16 @@ irc_handle_command_nick(IRCHandle *handle, IRCMessage *msg)
 		return;
 	}
 
-	user = account_peek_user(handle->priv->account, msg->nick);
+	user = loqui_account_peek_user(handle->priv->account, msg->nick);
 	irc_handle_joined_channel_append(handle, msg, NULL, TEXT_TYPE_INFO, _("*** %n is known as %1"));
 	if (user)
 		loqui_user_set_nick(user, nick_new);
 
-	if(account_is_current_nick(handle->priv->account, msg->nick))
-		loqui_user_set_nick(account_get_user_self(handle->priv->account), nick_new);
+	if(loqui_account_is_current_nick(handle->priv->account, msg->nick))
+		loqui_user_set_nick(loqui_account_get_user_self(handle->priv->account), nick_new);
 
 	if (!LOQUI_UTILS_IRC_STRING_IS_CHANNEL(msg->nick)) {
-		channel = account_get_channel_by_name(handle->priv->account, msg->nick);
+		channel = loqui_account_get_channel_by_name(handle->priv->account, msg->nick);
 		if (channel) {
 			loqui_channel_entry_set_name(LOQUI_CHANNEL_ENTRY(channel), nick_new);
 		}
@@ -497,7 +497,7 @@ irc_handle_parse_mode_arguments(IRCHandle *handle, IRCMessage *msg, LoquiChannel
   gchar *target; \
   LoquiUser *user; \
   GET_TARGET_OR_RETURN(msg, i, &target); \
-  user = account_peek_user(channel->account, target); \
+  user = loqui_account_peek_user(channel->account, target); \
   if (!user) { \
         g_warning("User not found."); \
         return; \
@@ -592,7 +592,7 @@ irc_handle_reply_channelmodeis(IRCHandle *handle, IRCMessage *msg)
 	cur++;
 
 	if(LOQUI_UTILS_IRC_STRING_IS_CHANNEL(name)) {
-		channel = account_get_channel_by_name(handle->priv->account, name);
+		channel = loqui_account_get_channel_by_name(handle->priv->account, name);
 		if(!channel)
 			return;
 	} else {
@@ -636,7 +636,7 @@ irc_handle_command_mode(IRCHandle *handle, IRCMessage *msg)
 	cur++;
 
 	if(LOQUI_UTILS_IRC_STRING_IS_CHANNEL(name)) {
-		channel = account_get_channel_by_name(handle->priv->account, name);
+		channel = loqui_account_get_channel_by_name(handle->priv->account, name);
 		if(!channel) {
 			g_warning(_("Why can you know the change of his mode?"));
 			return;
@@ -679,17 +679,17 @@ irc_handle_command_join(IRCHandle *handle, IRCMessage *msg)
 		return;
 	}
 	
-	channel = account_get_channel_by_name(handle->priv->account, name);
-	if(account_is_current_nick(handle->priv->account, msg->nick)) {
+	channel = loqui_account_get_channel_by_name(handle->priv->account, name);
+	if(loqui_account_is_current_nick(handle->priv->account, msg->nick)) {
 		if(!channel) {
 			channel = loqui_channel_new(priv->account, name, TRUE, !LOQUI_UTILS_IRC_STRING_IS_CHANNEL(name));
-			account_add_channel(priv->account, channel);
+			loqui_account_add_channel(priv->account, channel);
 			g_object_unref(channel);
 		} else {
 			loqui_channel_set_is_joined(channel, TRUE);
 		}
 		if(send_status_commands_mode)
-			loqui_sender_irc_get_channel_mode(account_get_sender(handle->priv->account), channel);
+			loqui_sender_irc_get_channel_mode(loqui_account_get_sender(handle->priv->account), channel);
 	} else {
 		if(!channel) {
 			g_warning(_("Why do you know that the user join the channel?"));
@@ -709,7 +709,7 @@ irc_handle_inspect_message(IRCHandle *handle, IRCMessage *msg)
 
 	str = irc_message_inspect(msg);
 	
-	account_console_buffer_append(handle->priv->account, TEXT_TYPE_NORMAL, str);
+	loqui_account_console_buffer_append(handle->priv->account, TEXT_TYPE_NORMAL, str);
 	
 	g_free(str);
 }
@@ -722,7 +722,7 @@ irc_handle_reply_names(IRCHandle *handle, IRCMessage *msg)
 	gint i;
 
 	name = irc_message_get_param(msg, 3);
-	channel = account_get_channel_by_name(handle->priv->account, name);
+	channel = loqui_account_get_channel_by_name(handle->priv->account, name);
 	if(channel == NULL)
 		return;
 
@@ -747,7 +747,7 @@ irc_handle_reply_endofnames(IRCHandle *handle, IRCMessage *msg)
 	gchar *name;
 
 	name = irc_message_get_param(msg, 2);
-	channel = account_get_channel_by_name(handle->priv->account, name);
+	channel = loqui_account_get_channel_by_name(handle->priv->account, name);
 	if(channel == NULL)
 		return;
 
@@ -877,14 +877,14 @@ irc_handle_reply_who(IRCHandle *handle, IRCMessage *msg)
 	flags = irc_message_get_param(msg, 7);
 	trailing = irc_message_get_param(msg, 8);
 	if (!channel_name || !username || !hostname || !server_name || !nick || !flags || !trailing) {
-		account_console_buffer_append(priv->account, TEXT_TYPE_ERROR, _("Invalid WHO reply"));
+		loqui_account_console_buffer_append(priv->account, TEXT_TYPE_ERROR, _("Invalid WHO reply"));
 		return;
 	}
 	
-	user = account_peek_user(priv->account, nick);
+	user = loqui_account_peek_user(priv->account, nick);
 	/* TODO: Check. username, hostname, server_name should not be changed,
 	   if there is difference between new and old, something happend. */
-	channel = account_get_channel_by_name(priv->account, channel_name);
+	channel = loqui_account_get_channel_by_name(priv->account, channel_name);
 	if (channel && user) {
 		member = loqui_channel_entry_get_member_by_user(LOQUI_CHANNEL_ENTRY(channel), user);
 		if (!member)
@@ -942,7 +942,7 @@ irc_handle_reply_who(IRCHandle *handle, IRCMessage *msg)
 		buf2 = g_strdup_printf(_("%c%s(%s) is %s@%s (%s) on %s(%s hops) [%s]"),
 					op_char, nick, channel_name, username, hostname,
 					realname, server_name, hops_str ? hops_str : "?", away_str);
-		account_console_buffer_append(handle->priv->account, TEXT_TYPE_INFO, buf2);
+		loqui_account_console_buffer_append(handle->priv->account, TEXT_TYPE_INFO, buf2);
 		g_free(buf2);
 	}
 	
@@ -957,7 +957,7 @@ irc_handle_reply_topic(IRCHandle *handle, IRCMessage *msg)
 	gchar *name;
 
 	name = irc_message_get_param(msg, 2);
-	channel = account_get_channel_by_name(handle->priv->account, name);
+	channel = loqui_account_get_channel_by_name(handle->priv->account, name);
 	if(channel == NULL)
 		return;
 
@@ -975,7 +975,7 @@ irc_handle_command_topic(IRCHandle *handle, IRCMessage *msg)
 	gchar *name;
 
 	name = irc_message_get_param(msg, 1);
-	channel = account_get_channel_by_name(handle->priv->account, name);
+	channel = loqui_account_get_channel_by_name(handle->priv->account, name);
 	if(channel == NULL)
 		return;
 
@@ -995,7 +995,7 @@ irc_handle_error_nick_unusable(IRCHandle *handle, IRCMessage *msg)
 	irc_handle_account_console_append(handle, msg, TEXT_TYPE_ERROR, "%t");
 
 	if(!priv->passed_welcome)
-		account_disconnect(handle->priv->account);
+		loqui_account_disconnect(handle->priv->account);
 }
 static void /* utility function */
 irc_handle_joined_channel_append(IRCHandle *handle, IRCMessage *msg, GSList *channel_slist, TextType type, gchar *format)
@@ -1009,7 +1009,7 @@ irc_handle_joined_channel_append(IRCHandle *handle, IRCMessage *msg, GSList *cha
 
 	if(channel_slist == NULL) {
 		if(msg->nick)
-			slist = account_search_joined_channel(handle->priv->account, msg->nick);
+			slist = loqui_account_search_joined_channel(handle->priv->account, msg->nick);
 	} else {
 		slist = channel_slist;
 	}
@@ -1027,7 +1027,7 @@ irc_handle_joined_channel_append(IRCHandle *handle, IRCMessage *msg, GSList *cha
 							   msgtext, FALSE, FALSE);
 		}
 	} else {
-		account_console_buffer_append(handle->priv->account, type, str);
+		loqui_account_console_buffer_append(handle->priv->account, type, str);
 	}
 	g_object_unref(msgtext);
 
@@ -1042,7 +1042,7 @@ irc_handle_account_console_append(IRCHandle *handle, IRCMessage *msg, TextType t
 
 	str = irc_message_format(msg, format);
 
-	account_console_buffer_append(handle->priv->account, type, str);
+	loqui_account_console_buffer_append(handle->priv->account, type, str);
 
 	g_free(str);
 }
@@ -1064,17 +1064,17 @@ irc_handle_channel_append(IRCHandle *handle, IRCMessage *msg, gboolean make_chan
 		return;
 	}
 
-	channel = account_get_channel_by_name(priv->account, receiver_name);
+	channel = loqui_account_get_channel_by_name(priv->account, receiver_name);
 	if(make_channel == TRUE && channel == NULL) { /* FIXME as well as privmsg_notice */
 		channel = loqui_channel_new(priv->account, receiver_name, FALSE, !LOQUI_UTILS_IRC_STRING_IS_CHANNEL(receiver_name));
-		account_add_channel(priv->account, channel);
+		loqui_account_add_channel(priv->account, channel);
 		g_object_unref(channel);
 	}
 
 	str = irc_message_format(msg, format);
 
 	if(channel == NULL) {
-		account_console_buffer_append(priv->account, type, str);
+		loqui_account_console_buffer_append(priv->account, type, str);
 	} else {
 		loqui_channel_append_text(channel, type, str);
 
@@ -1117,11 +1117,11 @@ irc_handle_reply(IRCHandle *handle, IRCMessage *msg)
 		irc_handle_account_console_append(handle, msg, TEXT_TYPE_INFO, _("*** %t"));
 		return TRUE;
 	case IRC_RPL_UNAWAY:
-		loqui_user_set_away(account_get_user_self(priv->account), LOQUI_AWAY_TYPE_ONLINE);
+		loqui_user_set_away(loqui_account_get_user_self(priv->account), LOQUI_AWAY_TYPE_ONLINE);
 		irc_handle_account_console_append(handle, msg, TEXT_TYPE_INFO, _("*** %t"));
 		return TRUE;
 	case IRC_RPL_NOWAWAY:
-		loqui_user_set_away(account_get_user_self(priv->account), LOQUI_AWAY_TYPE_AWAY);
+		loqui_user_set_away(loqui_account_get_user_self(priv->account), LOQUI_AWAY_TYPE_AWAY);
 		irc_handle_account_console_append(handle, msg, TEXT_TYPE_INFO, _("*** %t"));
 		return TRUE;
 	case IRC_RPL_INVITING:
@@ -1348,7 +1348,7 @@ irc_handle_response(IRCHandle *handle, IRCMessage *msg)
 }
 
 IRCHandle*
-irc_handle_new(Account *account)
+irc_handle_new(LoquiAccount *account)
 {
         IRCHandle *handle;
 	IRCHandlePrivate *priv;

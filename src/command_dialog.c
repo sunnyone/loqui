@@ -23,17 +23,17 @@
 #include "intl.h"
 #include <string.h>
 
-static gboolean check_account_connected(Account *account);
+static gboolean check_account_connected(LoquiAccount *account);
 static gboolean check_target_valid(const gchar *str);
 
 static gboolean
-check_account_connected(Account *account)
+check_account_connected(LoquiAccount *account)
 {
 	if(account == NULL) {
 		gtkutils_msgbox_info(GTK_MESSAGE_ERROR, _("Account is not selected."));
 		return FALSE;
 	}
-	if(!account_is_connected(account)) {
+	if(!loqui_account_is_connected(account)) {
 		gtkutils_msgbox_info(GTK_MESSAGE_ERROR, _("Account is not connected."));
 		return FALSE;
 	}
@@ -70,7 +70,7 @@ check_target_valid(const gchar *str)
 }
 
 void
-command_dialog_join(LoquiApp *app, Account *account)
+command_dialog_join(LoquiApp *app, LoquiAccount *account)
 {
 	GtkWidget *dialog;
 	GtkWidget *label;
@@ -113,13 +113,13 @@ command_dialog_join(LoquiApp *app, Account *account)
 			return;
 		}
 
-		loqui_sender_join_raw(account_get_sender(account), text_name, text_key);
+		loqui_sender_join_raw(loqui_account_get_sender(account), text_name, text_key);
 	}
 
 	gtk_widget_destroy(dialog);
 }
 void
-command_dialog_private_talk(LoquiApp *app, Account *account)
+command_dialog_private_talk(LoquiApp *app, LoquiAccount *account)
 {
 	GtkWidget *dialog;
 	GtkWidget *label;
@@ -158,18 +158,18 @@ command_dialog_private_talk(LoquiApp *app, Account *account)
 			return;
 		}
 
-		user = account_fetch_user(account, text_name);
+		user = loqui_account_fetch_user(account, text_name);
 		if (!user) {
 			g_warning("Can't fetch user for private talk");
 			return;
 		}
-		loqui_sender_start_private_talk(account_get_sender(account), user);
+		loqui_sender_start_private_talk(loqui_account_get_sender(account), user);
 		g_object_unref(user);
 	}
 	gtk_widget_destroy(dialog);
 }
 void
-command_dialog_part(LoquiApp *app, Account *account, LoquiChannel *channel)
+command_dialog_part(LoquiApp *app, LoquiAccount *account, LoquiChannel *channel)
 {
 	GtkWidget *dialog;
 	GtkWidget *label;
@@ -207,12 +207,12 @@ command_dialog_part(LoquiApp *app, Account *account, LoquiChannel *channel)
 	if (result == GTK_RESPONSE_OK) {
 		text = gtk_entry_get_text(GTK_ENTRY(entry));
 
-		loqui_sender_part(account_get_sender(account), channel, text);
+		loqui_sender_part(loqui_account_get_sender(account), channel, text);
 	}
 	gtk_widget_destroy(dialog);
 }
 void
-command_dialog_topic(LoquiApp *app, Account *account, LoquiChannel *channel)
+command_dialog_topic(LoquiApp *app, LoquiAccount *account, LoquiChannel *channel)
 {
 	GtkWidget *dialog;
 	GtkWidget *label;
@@ -251,12 +251,12 @@ command_dialog_topic(LoquiApp *app, Account *account, LoquiChannel *channel)
 	if (result == GTK_RESPONSE_OK) {
 		text = gtk_entry_get_text(GTK_ENTRY(entry));
 
-		loqui_sender_topic(account_get_sender(account), channel, text);
+		loqui_sender_topic(loqui_account_get_sender(account), channel, text);
 	}
 	gtk_widget_destroy(dialog);
 }
 void
-command_dialog_nick(LoquiApp *app, Account *account)
+command_dialog_nick(LoquiApp *app, LoquiAccount *account)
 {
 	GtkWidget *dialog;
 	GtkWidget *label;
@@ -281,7 +281,7 @@ command_dialog_nick(LoquiApp *app, Account *account)
 	gtk_box_pack_start(GTK_BOX(GTK_DIALOG(dialog)->vbox), label, FALSE, FALSE, 0);
 	g_free(buf);
 
-	gtkutils_add_label_entry(GTK_DIALOG(dialog)->vbox, _("Nickname:"), &entry, loqui_user_get_nick(account_get_user_self(account)));
+	gtkutils_add_label_entry(GTK_DIALOG(dialog)->vbox, _("Nickname:"), &entry, loqui_user_get_nick(loqui_account_get_user_self(account)));
 	gtk_entry_set_activates_default(GTK_ENTRY(entry), TRUE);
 
 	gtk_widget_show_all(GTK_DIALOG(dialog)->vbox);
@@ -295,7 +295,7 @@ command_dialog_nick(LoquiApp *app, Account *account)
 			return;
 		}
 
-		loqui_sender_nick(account_get_sender(account), text);
+		loqui_sender_nick(loqui_account_get_sender(account), text);
 	}
 	gtk_widget_destroy(dialog);
 }

@@ -23,10 +23,10 @@
 #include "account.h"
 #include "loqui_app.h"
 
-void command_dialog_join(LoquiApp *app, Account *account);
-void command_dialog_part(LoquiApp *app, Account *account, LoquiChannel *channel);
-void command_dialog_topic(LoquiApp *app, Account *account, LoquiChannel *channel);
-void command_dialog_nick(LoquiApp *app, Account *account);
-void command_dialog_private_talk(LoquiApp *app, Account *account);
+void command_dialog_join(LoquiApp *app, LoquiAccount *account);
+void command_dialog_part(LoquiApp *app, LoquiAccount *account, LoquiChannel *channel);
+void command_dialog_topic(LoquiApp *app, LoquiAccount *account, LoquiChannel *channel);
+void command_dialog_nick(LoquiApp *app, LoquiAccount *account);
+void command_dialog_private_talk(LoquiApp *app, LoquiAccount *account);
 
 #endif /* __COMMAND_DIALOG_H__ */

@@ -29,7 +29,7 @@
 
 struct _CTCPHandlePrivate
 {
-	Account *account;
+	LoquiAccount *account;
 	IRCHandle *handle;
 
 	GTimer *interval_timer;
@@ -131,7 +131,7 @@ ctcp_handle_finalize(GObject *object)
 }
 
 CTCPHandle*
-ctcp_handle_new(IRCHandle *handle, Account *account)
+ctcp_handle_new(IRCHandle *handle, LoquiAccount *account)
 {
         CTCPHandle *ctcp_handle;
 	CTCPHandlePrivate *priv;
@@ -181,14 +181,14 @@ void ctcp_handle_message(CTCPHandle *ctcp_handle, CTCPMessage *ctcp_msg, gboolea
 			      ctcp_msg->command,
 			      ctcp_msg->argument ? " " : "",
 			      ctcp_msg->argument ? ctcp_msg->argument : "");
-	account_console_buffer_append(priv->account, TEXT_TYPE_INFO, buf);
+	loqui_account_console_buffer_append(priv->account, TEXT_TYPE_INFO, buf);
 
 	if(!is_request)
 		return;
 
 	g_timer_stop(priv->interval_timer);
 	if(g_timer_elapsed(priv->interval_timer, NULL) < CTCP_INTERVAL) {
-		account_console_buffer_append(priv->account, TEXT_TYPE_INFO, _("The CTCP request was ignored."));
+		loqui_account_console_buffer_append(priv->account, TEXT_TYPE_INFO, _("The CTCP request was ignored."));
 		g_timer_start(priv->interval_timer);
 		return;
 	}
@@ -216,7 +216,7 @@ ctcp_handle_send_ctcp_reply(CTCPHandle *ctcp_handle, CTCPMessage *ctcp_msg, cons
 	priv = ctcp_handle->priv;
 
 	buf = ctcp_message_to_str(ctcp_msg);
-	sender = account_get_sender(priv->account);
+	sender = loqui_account_get_sender(priv->account);
 	loqui_sender_irc_notice_raw(LOQUI_SENDER_IRC(sender), target, buf);
 	g_free(buf);
 
@@ -226,7 +226,7 @@ ctcp_handle_send_ctcp_reply(CTCPHandle *ctcp_handle, CTCPMessage *ctcp_msg, cons
 		tmp = g_strdup(ctcp_msg->command);
 
 	buf = g_strdup_printf(_("Sent CTCP reply to %s: %s"), target, tmp);
-	account_console_buffer_append(priv->account, TEXT_TYPE_INFO, buf);
+	loqui_account_console_buffer_append(priv->account, TEXT_TYPE_INFO, buf);
 	g_free(tmp);
 	g_free(buf);
 }
@@ -276,7 +276,7 @@ ctcp_handle_userinfo(CTCPHandle *ctcp_handle, CTCPMessage *ctcp_msg, const gchar
 
 	/* FIXME: should quote string with ctcp */
 	ctcp_reply = ctcp_message_new(IRCCTCPUserInfo,
-		loqui_profile_account_irc_get_userinfo(LOQUI_PROFILE_ACCOUNT_IRC(account_get_profile(priv->account))));
+		loqui_profile_account_irc_get_userinfo(LOQUI_PROFILE_ACCOUNT_IRC(loqui_account_get_profile(priv->account))));
 	ctcp_handle_send_ctcp_reply(ctcp_handle, ctcp_reply, sender);
 	g_object_unref(ctcp_reply);
 }

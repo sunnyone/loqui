@@ -52,7 +52,7 @@ loqui_channel_entry_ui_attach_channel_entry_action(LoquiApp *app, LoquiChannelEn
 	g_free(ce_name);
 }
 void
-loqui_channel_entry_ui_add_account(LoquiApp *app, Account *account, const gchar *path, const gchar *data_prefix)
+loqui_channel_entry_ui_add_account(LoquiApp *app, LoquiAccount *account, const gchar *path, const gchar *data_prefix)
 {
 	gchar *ph_name, *ph_path, *data_name;
 	const gchar *ce_name;
@@ -61,7 +61,7 @@ loqui_channel_entry_ui_add_account(LoquiApp *app, Account *account, const gchar 
 	GtkAction *ph_action;
 
 	g_return_if_fail(account != NULL);
-	g_return_if_fail(IS_ACCOUNT(account));
+	g_return_if_fail(LOQUI_IS_ACCOUNT(account));
         g_return_if_fail(app != NULL);
         g_return_if_fail(LOQUI_IS_APP(app));
 
@@ -94,14 +94,14 @@ loqui_channel_entry_ui_add_account(LoquiApp *app, Account *account, const gchar 
 	g_free(ph_path);
 }
 void
-loqui_channel_entry_ui_remove_account(LoquiApp *app, Account *account, const gchar *path, const gchar *data_prefix)
+loqui_channel_entry_ui_remove_account(LoquiApp *app, LoquiAccount *account, const gchar *path, const gchar *data_prefix)
 {
 	LoquiChannelEntryAction *ce_action;
 	gchar *data_name;
 	guint id;
 
 	g_return_if_fail(account != NULL);
-	g_return_if_fail(IS_ACCOUNT(account));
+	g_return_if_fail(LOQUI_IS_ACCOUNT(account));
         g_return_if_fail(app != NULL);
         g_return_if_fail(LOQUI_IS_APP(app));
 

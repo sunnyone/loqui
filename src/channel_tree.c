@@ -146,8 +146,8 @@ channel_tree_row_activated_cb(ChannelTree *tree, GtkTreePath *path, GtkTreeViewC
 	gtk_tree_model_get_iter(model, &iter, path);
 	gtk_tree_model_get(model, &iter,
 			   LOQUI_ACCOUNT_MANAGER_STORE_COLUMN_CHANNEL_ENTRY, &chent, -1);
-	if (chent && IS_ACCOUNT(chent) && !account_is_connected(ACCOUNT(chent))) {
-		account_connect(ACCOUNT(chent));
+	if (chent && LOQUI_IS_ACCOUNT(chent) && !loqui_account_is_connected(LOQUI_ACCOUNT(chent))) {
+		loqui_account_connect(LOQUI_ACCOUNT(chent));
 	}
 
 	gtk_widget_grab_focus(tree->priv->app->remark_entry);
@@ -248,7 +248,7 @@ channel_tree_button_press_event_cb(GtkWidget *widget, GdkEventButton *event, gpo
 		gtk_tree_model_get(model, &iter, LOQUI_ACCOUNT_MANAGER_STORE_COLUMN_CHANNEL_ENTRY, &chent, -1);
 		g_return_val_if_fail(chent != NULL, FALSE);
 		
-		if (IS_ACCOUNT(chent)) {
+		if (LOQUI_IS_ACCOUNT(chent)) {
 			menu = GTK_MENU(priv->popup_menu_account);
 		} else if (LOQUI_IS_CHANNEL(chent)) {
 			if (loqui_channel_get_is_private_talk(LOQUI_CHANNEL(chent)))

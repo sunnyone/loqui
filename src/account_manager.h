@@ -50,8 +50,8 @@ struct _AccountManagerClass
 {
         GObjectClass parent_class;
 
-	void (* add_account) (AccountManager *manager, Account *account);
-	void (* remove_account) (AccountManager *manager, Account *account);
+	void (* add_account) (AccountManager *manager, LoquiAccount *account);
+	void (* remove_account) (AccountManager *manager, LoquiAccount *account);
 };
 
 GType account_manager_get_type(void) G_GNUC_CONST;
@@ -62,8 +62,8 @@ AccountManager *account_manager_get(void);
 void account_manager_load_accounts(AccountManager *account_manager);
 void account_manager_save_accounts(AccountManager *account_manager);
 
-void account_manager_add_account(AccountManager *manager, Account *account);
-void account_manager_remove_account(AccountManager *manager, Account *account);
+void account_manager_add_account(AccountManager *manager, LoquiAccount *account);
+void account_manager_remove_account(AccountManager *manager, LoquiAccount *account);
 void account_manager_remove_all_account(AccountManager *manager);
 
 void account_manager_connect_all_default(AccountManager *manager);

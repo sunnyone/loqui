@@ -17,8 +17,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
-#ifndef __ACCOUNT_H__
-#define __ACCOUNT_H__
+#ifndef __LOQUI_ACCOUNT_H__
+#define __LOQUI_ACCOUNT_H__
 
 #include <glib.h>
 #include "codeconv.h"
@@ -27,24 +27,24 @@
 
 G_BEGIN_DECLS
 
-#define TYPE_ACCOUNT                 (account_get_type ())
-#define ACCOUNT(obj)                 (G_TYPE_CHECK_INSTANCE_CAST ((obj), TYPE_ACCOUNT, Account))
-#define ACCOUNT_CLASS(klass)         (G_TYPE_CHECK_CLASS_CAST ((klass), TYPE_ACCOUNT, AccountClass))
-#define IS_ACCOUNT(obj)              (G_TYPE_CHECK_INSTANCE_TYPE ((obj), TYPE_ACCOUNT))
-#define IS_ACCOUNT_CLASS(klass)      (G_TYPE_CHECK_CLASS_TYPE ((klass), TYPE_ACCOUNT))
-#define ACCOUNT_GET_CLASS(obj)       (G_TYPE_INSTANCE_GET_CLASS ((obj), TYPE_ACCOUNT, AccountClass))
+#define LOQUI_TYPE_ACCOUNT                 (loqui_account_get_type ())
+#define LOQUI_ACCOUNT(obj)                 (G_TYPE_CHECK_INSTANCE_CAST ((obj), LOQUI_TYPE_ACCOUNT, LoquiAccount))
+#define LOQUI_ACCOUNT_CLASS(klass)         (G_TYPE_CHECK_CLASS_CAST ((klass), LOQUI_TYPE_ACCOUNT, LoquiAccountClass))
+#define LOQUI_IS_ACCOUNT(obj)              (G_TYPE_CHECK_INSTANCE_TYPE ((obj), LOQUI_TYPE_ACCOUNT))
+#define LOQUI_IS_ACCOUNT_CLASS(klass)      (G_TYPE_CHECK_CLASS_TYPE ((klass), LOQUI_TYPE_ACCOUNT))
+#define LOQUI_ACCOUNT_GET_CLASS(obj)       (G_TYPE_INSTANCE_GET_CLASS ((obj), LOQUI_TYPE_ACCOUNT, LoquiAccountClass))
 
-typedef struct _Account            Account;
-typedef struct _AccountClass       AccountClass;
+typedef struct _LoquiAccount            LoquiAccount;
+typedef struct _LoquiAccountClass       LoquiAccountClass;
 
-typedef struct _AccountPrivate     AccountPrivate;
+typedef struct _LoquiAccountPrivate     LoquiAccountPrivate;
 
 #include "loqui_channel_entry.h"
 #include "loqui_channel.h"
 #include "loqui_sender.h"
 #include "irc_handle.h"
 
-struct _Account
+struct _LoquiAccount
 {
 	LoquiChannelEntry parent;
 
@@ -60,58 +60,58 @@ struct _Account
 
 	LoquiSender *sender;
 
-        AccountPrivate *priv;
+        LoquiAccountPrivate *priv;
 };
 
-struct _AccountClass
+struct _LoquiAccountClass
 {
         LoquiChannelEntryClass parent_class;
 
 	/* signals */
-	void (* connected)        (Account *account);
-	void (* disconnected)     (Account *account);
-	void (* add_channel)      (Account *account,
+	void (* connected)        (LoquiAccount *account);
+	void (* disconnected)     (LoquiAccount *account);
+	void (* add_channel)      (LoquiAccount *account,
 				   LoquiChannel *channel);
-	void (* remove_channel)   (Account *account,
+	void (* remove_channel)   (LoquiAccount *account,
 				   LoquiChannel *channel);
-	void (* user_self_changed) (Account *account);
+	void (* user_self_changed) (LoquiAccount *account);
 };
 
-GType account_get_type(void) G_GNUC_CONST;
+GType loqui_account_get_type(void) G_GNUC_CONST;
 
-Account* account_new(LoquiProfileAccount *profile);
+LoquiAccount* loqui_account_new(LoquiProfileAccount *profile);
 
-LoquiProfileAccount *account_get_profile(Account *account);
-LoquiUser* account_get_user_self(Account *account);
+LoquiProfileAccount *loqui_account_get_profile(LoquiAccount *account);
+LoquiUser* loqui_account_get_user_self(LoquiAccount *account);
 
-void account_connect(Account *account);
-void account_disconnect(Account *account);
-gboolean account_is_connected(Account *account);
+void loqui_account_connect(LoquiAccount *account);
+void loqui_account_disconnect(LoquiAccount *account);
+gboolean loqui_account_is_connected(LoquiAccount *account);
 
-IRCConnection *account_get_connection(Account *account);
-IRCHandle *account_get_handle(Account *account);
-LoquiSender *account_get_sender(Account *account);
+IRCConnection *loqui_account_get_connection(LoquiAccount *account);
+IRCHandle *loqui_account_get_handle(LoquiAccount *account);
+LoquiSender *loqui_account_get_sender(LoquiAccount *account);
 
-void account_set_codeconv(Account *account, CodeConv *codeconv);
-CodeConv *account_get_codeconv(Account *account);
+void loqui_account_set_codeconv(LoquiAccount *account, CodeConv *codeconv);
+CodeConv *loqui_account_get_codeconv(LoquiAccount *account);
 
-void account_add_channel(Account *account, LoquiChannel *channel);
-void account_remove_channel(Account *account, LoquiChannel *channel);
-void account_remove_all_channel(Account *account);
+void loqui_account_add_channel(LoquiAccount *account, LoquiChannel *channel);
+void loqui_account_remove_channel(LoquiAccount *account, LoquiChannel *channel);
+void loqui_account_remove_all_channel(LoquiAccount *account);
 
-GList *account_get_channel_list(Account *account);
-LoquiChannel* account_get_channel_by_name(Account *account, const gchar *name);
-GSList *account_search_joined_channel(Account *account, gchar *nick);
+GList *loqui_account_get_channel_list(LoquiAccount *account);
+LoquiChannel* loqui_account_get_channel_by_name(LoquiAccount *account, const gchar *name);
+GSList *loqui_account_search_joined_channel(LoquiAccount *account, gchar *nick);
 
-void account_console_buffer_append(Account *account, TextType type, gchar *str);
+void loqui_account_console_buffer_append(LoquiAccount *account, TextType type, gchar *str);
 
-gboolean account_is_current_nick(Account *account, const gchar *str);
+gboolean loqui_account_is_current_nick(LoquiAccount *account, const gchar *str);
 
-void account_get_updated_number(Account *account, gint *updated_private_talk_number, gint *updated_channel_number); 
+void loqui_account_get_updated_number(LoquiAccount *account, gint *updated_private_talk_number, gint *updated_channel_number); 
 
-LoquiUser* account_fetch_user(Account *account, const gchar *nick);
-LoquiUser* account_peek_user(Account *account, const gchar *nick);
+LoquiUser* loqui_account_fetch_user(LoquiAccount *account, const gchar *nick);
+LoquiUser* loqui_account_peek_user(LoquiAccount *account, const gchar *nick);
 
 G_END_DECLS
 
-#endif /* __ACCOUNT_H__ */
+#endif /* __LOQUI_ACCOUNT_H__ */

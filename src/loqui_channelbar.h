@@ -57,14 +57,14 @@ GtkType loqui_channelbar_get_type (void) G_GNUC_CONST;
 
 GtkWidget* loqui_channelbar_new(LoquiApp *app, GtkWidget *menu_dropdown, GtkToggleAction *toggle_scroll_action);
 
-void loqui_channelbar_add_account(LoquiChannelbar *channelbar, Account *account);
-void loqui_channelbar_update_account(LoquiChannelbar *channelbar, Account *account);
-void loqui_channelbar_remove_account(LoquiChannelbar *channelbar, Account *account);
+void loqui_channelbar_add_account(LoquiChannelbar *channelbar, LoquiAccount *account);
+void loqui_channelbar_update_account(LoquiChannelbar *channelbar, LoquiAccount *account);
+void loqui_channelbar_remove_account(LoquiChannelbar *channelbar, LoquiAccount *account);
 void loqui_channelbar_add_channel(LoquiChannelbar *channelbar, LoquiChannel *channel);
 void loqui_channelbar_remove_channel(LoquiChannelbar *channelbar, LoquiChannel *channel);
 void loqui_channelbar_update_channel(LoquiChannelbar *channelbar, LoquiChannel *channel);
 void loqui_channelbar_set_current_channel(LoquiChannelbar *channelbar, LoquiChannel *channel);
-void loqui_channelbar_set_current_account(LoquiChannelbar *channelbar, Account *account);
+void loqui_channelbar_set_current_account(LoquiChannelbar *channelbar, LoquiAccount *account);
 
 G_END_DECLS
 

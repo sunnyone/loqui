@@ -56,8 +56,8 @@ GtkType account_dialog_get_type (void) G_GNUC_CONST;
 GtkWidget* account_dialog_new(LoquiProfileAccount *profile);
 
 void account_dialog_open_add_dialog(GtkWindow *parent, AccountManager *manager);
-void account_dialog_open_configure_dialog(GtkWindow *parent, AccountManager *manager, Account *account);
-void account_dialog_open_remove_dialog(GtkWindow *parent, AccountManager *manager, Account *account);
+void account_dialog_open_configure_dialog(GtkWindow *parent, AccountManager *manager, LoquiAccount *account);
+void account_dialog_open_remove_dialog(GtkWindow *parent, AccountManager *manager, LoquiAccount *account);
 
 G_END_DECLS
 

@@ -150,7 +150,7 @@ loqui_channelbar_entry_topic_activated_cb(GtkWidget *widget, gpointer data)
 	
 	channel = loqui_app_get_current_channel(priv->app);
 	str = gtk_entry_get_text(GTK_ENTRY(priv->entry_topic));
-	loqui_sender_topic(account_get_sender(loqui_channel_get_account(channel)), channel, str);
+	loqui_sender_topic(loqui_account_get_sender(loqui_channel_get_account(channel)), channel, str);
 }
 static void
 loqui_channelbar_entry_changed_cb(GtkWidget *widget, gpointer data)
@@ -171,7 +171,7 @@ loqui_channelbar_channel_button_clicked_cb(GtkWidget *widget, gpointer data)
 {
 	LoquiChannelbar *channelbar;
 	LoquiChannelbarPrivate *priv;
-	Account *account;
+	LoquiAccount *account;
 
 	g_return_if_fail(data != NULL);
 	
@@ -296,7 +296,7 @@ loqui_channelbar_set_current_channel(LoquiChannelbar *channelbar, LoquiChannel *
 }
 
 void
-loqui_channelbar_set_current_account(LoquiChannelbar *channelbar, Account *account)
+loqui_channelbar_set_current_account(LoquiChannelbar *channelbar, LoquiAccount *account)
 {
 	LoquiChannelbarPrivate *priv;
 	GtkAction *action;

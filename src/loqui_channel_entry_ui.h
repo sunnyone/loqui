@@ -24,8 +24,8 @@
 #include "loqui_channel_entry_action.h"
 
 void loqui_channel_entry_ui_attach_channel_entry_action(LoquiApp *app, LoquiChannelEntry *channel_entry);
-void loqui_channel_entry_ui_add_account(LoquiApp *app, Account *account, const gchar *path, const gchar *data_prefix);
-void loqui_channel_entry_ui_remove_account(LoquiApp *app, Account *account, const gchar *path, const gchar *data_prefix);
+void loqui_channel_entry_ui_add_account(LoquiApp *app, LoquiAccount *account, const gchar *path, const gchar *data_prefix);
+void loqui_channel_entry_ui_remove_account(LoquiApp *app, LoquiAccount *account, const gchar *path, const gchar *data_prefix);
 
 void loqui_channel_entry_ui_add_channel(LoquiApp *app, LoquiChannel *channel, const gchar *path, const gchar *data_prefix);
 void loqui_channel_entry_ui_remove_channel(LoquiApp *app, LoquiChannel *channel, const gchar *data_prefix);

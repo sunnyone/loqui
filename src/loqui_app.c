@@ -65,7 +65,7 @@ struct _LoquiAppPrivate
 
 	LoquiChannelEntry *current_chent;
 
-	Account *current_account; /* read only */
+	LoquiAccount *current_account; /* read only */
 	LoquiChannel *current_channel; /* read only */
 
 	MessageText *last_msgtext;
@@ -95,13 +95,13 @@ static gint loqui_app_delete_event(GtkWidget *widget, GdkEventAny *event);
 static void loqui_app_restore_size(LoquiApp *app);
 static void loqui_app_save_size(LoquiApp *app);
 
-static void loqui_app_add_account_after_cb(AccountManager *manager, Account *account, LoquiApp *app);
-static void loqui_app_remove_account_cb(AccountManager *manager, Account *account, LoquiApp *app);
-static void loqui_app_remove_account_after_cb(AccountManager *manager, Account *account, LoquiApp *app);
+static void loqui_app_add_account_after_cb(AccountManager *manager, LoquiAccount *account, LoquiApp *app);
+static void loqui_app_remove_account_cb(AccountManager *manager, LoquiAccount *account, LoquiApp *app);
+static void loqui_app_remove_account_after_cb(AccountManager *manager, LoquiAccount *account, LoquiApp *app);
 
-static void loqui_app_add_channel_after_cb(Account *account, LoquiChannel *channel, LoquiApp *app);
-static void loqui_app_remove_channel_cb(Account *account, LoquiChannel *channel, LoquiApp *app);
-static void loqui_app_remove_channel_after_cb(Account *account, LoquiChannel *channel, LoquiApp *app);
+static void loqui_app_add_channel_after_cb(LoquiAccount *account, LoquiChannel *channel, LoquiApp *app);
+static void loqui_app_remove_channel_cb(LoquiAccount *account, LoquiChannel *channel, LoquiApp *app);
+static void loqui_app_remove_channel_after_cb(LoquiAccount *account, LoquiChannel *channel, LoquiApp *app);
 
 static gboolean loqui_app_update_account_info(LoquiApp *app);
 static gboolean loqui_app_update_channel_info(LoquiApp *app);
@@ -331,7 +331,7 @@ loqui_app_grab_focus_if_key_unused(LoquiApp *app, const gchar *class_name, guint
 }
 void
 loqui_app_update_info(LoquiApp *app, 
-		      gboolean is_account_changed, Account *account,
+		      gboolean is_account_changed, LoquiAccount *account,
 		      gboolean is_channel_changed, LoquiChannel *channel)
 
 {
@@ -348,7 +348,7 @@ loqui_app_update_info(LoquiApp *app,
 	priv = app->priv;
 
 	if(account) {
-		account_name = loqui_profile_account_get_name(account_get_profile(account));
+		account_name = loqui_profile_account_get_name(loqui_account_get_profile(account));
 	}
 	if(channel) {
 		channel_name = loqui_channel_entry_get_name(LOQUI_CHANNEL_ENTRY(channel));
@@ -694,7 +694,7 @@ loqui_app_set_current_channel_entry(LoquiApp *app, LoquiChannelEntry *chent)
 	LoquiAppPrivate *priv;
 	gboolean is_account_changed, is_channel_changed;
 	GtkTreeModel *model;
-	Account *account;
+	LoquiAccount *account;
 	LoquiChannel *channel;
 	LoquiChannelTextView *chview;
 
@@ -723,9 +723,9 @@ loqui_app_set_current_channel_entry(LoquiApp *app, LoquiChannelEntry *chent)
 		g_signal_handlers_disconnect_by_func(priv->current_account, loqui_app_account_changed_cb, app);
 	}
 
-	if (IS_ACCOUNT(chent)) {
+	if (LOQUI_IS_ACCOUNT(chent)) {
 		channel = NULL;
-		account = ACCOUNT(chent);
+		account = LOQUI_ACCOUNT(chent);
 	} else {
 		channel = LOQUI_CHANNEL(chent);
 		account = loqui_channel_get_account(channel);
@@ -787,7 +787,7 @@ loqui_app_get_current_channel(LoquiApp *app)
 {
 	return app->priv->current_channel;
 }
-Account *
+LoquiAccount *
 loqui_app_get_current_account(LoquiApp *app)
 {
 	return app->priv->current_account;
@@ -827,7 +827,7 @@ loqui_app_set_current_channel_lazy(LoquiApp *app, LoquiChannel *channel)
 	}
 }
 gboolean
-loqui_app_is_current_account(LoquiApp *app, Account *account)
+loqui_app_is_current_account(LoquiApp *app, LoquiAccount *account)
 {
 	LoquiAppPrivate *priv;
 
@@ -847,7 +847,7 @@ loqui_app_is_current_channel(LoquiApp *app, LoquiChannel *channel)
 	return (loqui_app_get_current_channel(app) == channel);
 }
 static void
-loqui_app_add_account_after_cb(AccountManager *manager, Account *account, LoquiApp *app)
+loqui_app_add_account_after_cb(AccountManager *manager, LoquiAccount *account, LoquiApp *app)
 {
 	LoquiAppPrivate *priv;
 	LoquiChannelEntryStore *store;
@@ -857,7 +857,7 @@ loqui_app_add_account_after_cb(AccountManager *manager, Account *account, LoquiA
         g_return_if_fail(manager != NULL);
         g_return_if_fail(IS_ACCOUNT_MANAGER(manager));
 	g_return_if_fail(account != NULL);
-	g_return_if_fail(IS_ACCOUNT(account));
+	g_return_if_fail(LOQUI_IS_ACCOUNT(account));
         g_return_if_fail(app != NULL);
         g_return_if_fail(LOQUI_IS_APP(app));
 
@@ -898,7 +898,7 @@ loqui_app_add_account_after_cb(AccountManager *manager, Account *account, LoquiA
 	loqui_app_update_channel_entry_accel_key(app);
 }
 static void
-loqui_app_remove_account_cb(AccountManager *manager, Account *account, LoquiApp *app)
+loqui_app_remove_account_cb(AccountManager *manager, LoquiAccount *account, LoquiApp *app)
 {
 	LoquiAppPrivate *priv;
 	ChannelBuffer *buffer;
@@ -910,7 +910,7 @@ loqui_app_remove_account_cb(AccountManager *manager, Account *account, LoquiApp 
         g_return_if_fail(app != NULL);
         g_return_if_fail(LOQUI_IS_APP(app));
 	g_return_if_fail(account != NULL);
-	g_return_if_fail(IS_ACCOUNT(account));
+	g_return_if_fail(LOQUI_IS_ACCOUNT(account));
 
 	priv = app->priv;
 
@@ -933,7 +933,7 @@ loqui_app_remove_account_cb(AccountManager *manager, Account *account, LoquiApp 
 	g_object_unref(store);
 }
 static void
-loqui_app_remove_account_after_cb(AccountManager *manager, Account *was_account, LoquiApp *app)
+loqui_app_remove_account_after_cb(AccountManager *manager, LoquiAccount *was_account, LoquiApp *app)
 {
         g_return_if_fail(manager != NULL);
         g_return_if_fail(IS_ACCOUNT_MANAGER(manager));
@@ -943,7 +943,7 @@ loqui_app_remove_account_after_cb(AccountManager *manager, Account *was_account,
 	loqui_app_update_channel_entry_accel_key(app);
 }
 static void
-loqui_app_add_channel_after_cb(Account *account, LoquiChannel *channel, LoquiApp *app)
+loqui_app_add_channel_after_cb(LoquiAccount *account, LoquiChannel *channel, LoquiApp *app)
 {
 	LoquiAppPrivate *priv;
 	LoquiChannelEntryStore *store;
@@ -953,7 +953,7 @@ loqui_app_add_channel_after_cb(Account *account, LoquiChannel *channel, LoquiApp
         g_return_if_fail(app != NULL);
         g_return_if_fail(LOQUI_IS_APP(app));
 	g_return_if_fail(account != NULL);
-	g_return_if_fail(IS_ACCOUNT(account));
+	g_return_if_fail(LOQUI_IS_ACCOUNT(account));
 	g_return_if_fail(channel != NULL);
 	g_return_if_fail(LOQUI_IS_CHANNEL(channel));
 
@@ -994,7 +994,7 @@ loqui_app_add_channel_after_cb(Account *account, LoquiChannel *channel, LoquiApp
 		loqui_app_set_current_channel_lazy(app, channel);
 }
 static void
-loqui_app_remove_channel_cb(Account *account, LoquiChannel *channel, LoquiApp *app)
+loqui_app_remove_channel_cb(LoquiAccount *account, LoquiChannel *channel, LoquiApp *app)
 {
 	LoquiAppPrivate *priv;
 	ChannelBuffer *buffer;
@@ -1004,7 +1004,7 @@ loqui_app_remove_channel_cb(Account *account, LoquiChannel *channel, LoquiApp *a
         g_return_if_fail(app != NULL);
         g_return_if_fail(LOQUI_IS_APP(app));
 	g_return_if_fail(account != NULL);
-	g_return_if_fail(IS_ACCOUNT(account));
+	g_return_if_fail(LOQUI_IS_ACCOUNT(account));
 	g_return_if_fail(channel != NULL);
 	g_return_if_fail(LOQUI_IS_CHANNEL(channel));
 
@@ -1030,14 +1030,14 @@ loqui_app_remove_channel_cb(Account *account, LoquiChannel *channel, LoquiApp *a
 	g_object_unref(store);
 }
 static void
-loqui_app_remove_channel_after_cb(Account *account, LoquiChannel *was_channel, LoquiApp *app)
+loqui_app_remove_channel_after_cb(LoquiAccount *account, LoquiChannel *was_channel, LoquiApp *app)
 {
 	LoquiAppPrivate *priv;
 
         g_return_if_fail(app != NULL);
         g_return_if_fail(LOQUI_IS_APP(app));
 	g_return_if_fail(account != NULL);
-	g_return_if_fail(IS_ACCOUNT(account));
+	g_return_if_fail(LOQUI_IS_ACCOUNT(account));
 
 	priv = app->priv;
 

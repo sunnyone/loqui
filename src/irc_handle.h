@@ -57,7 +57,7 @@ struct _IRCHandleClass
 
 GType irc_handle_get_type(void) G_GNUC_CONST;
 
-IRCHandle* irc_handle_new(Account *account);
+IRCHandle* irc_handle_new(LoquiAccount *account);
 void irc_handle_response(IRCHandle *handle, IRCMessage *msg);
 
 G_END_DECLS

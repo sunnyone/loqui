@@ -148,7 +148,7 @@ loqui_sender_init(LoquiSender *sender)
 	sender->priv = priv;
 }
 LoquiSender*
-loqui_sender_new(Account *account)
+loqui_sender_new(LoquiAccount *account)
 {
         LoquiSender *sender;
 	LoquiSenderPrivate *priv;

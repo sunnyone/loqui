@@ -186,7 +186,7 @@ loqui_statusbar_preset_menuitem_activated_cb(GtkWidget *widget, LoquiStatusbar *
 {
 	LoquiStatusbarPrivate *priv;
 	const gchar *nick;
-	Account *account;
+	LoquiAccount *account;
 
 	g_return_if_fail(GTK_IS_MENU_ITEM(widget));
         g_return_if_fail(statusbar != NULL);
@@ -198,8 +198,8 @@ loqui_statusbar_preset_menuitem_activated_cb(GtkWidget *widget, LoquiStatusbar *
 
 	account = loqui_app_get_current_account(priv->app);
 	if (account)
-		if (account_is_connected(account))
-			loqui_sender_nick(account_get_sender(account), nick);
+		if (loqui_account_is_connected(account))
+			loqui_sender_nick(loqui_account_get_sender(account), nick);
 	        else
 			gtkutils_msgbox_info(GTK_MESSAGE_ERROR, _("The account is not connected!"));
 	else
@@ -210,7 +210,7 @@ loqui_statusbar_away_menuitem_activated_cb(GtkWidget *widget, LoquiStatusbar *st
 {
 	LoquiStatusbarPrivate *priv;
 	LoquiAwayType away_type;
-	Account *account;
+	LoquiAccount *account;
 
 	g_return_if_fail(GTK_IS_MENU_ITEM(widget));
         g_return_if_fail(statusbar != NULL);
@@ -222,8 +222,8 @@ loqui_statusbar_away_menuitem_activated_cb(GtkWidget *widget, LoquiStatusbar *st
 
 	account = loqui_app_get_current_account(priv->app);
 	if (account) {
-		if (account_is_connected(account))
-			loqui_sender_away(account_get_sender(account), away_type, NULL);
+		if (loqui_account_is_connected(account))
+			loqui_sender_away(loqui_account_get_sender(account), away_type, NULL);
 		else
 			gtkutils_msgbox_info(GTK_MESSAGE_ERROR, _("The account is not connected!"));
 	} else {
@@ -322,7 +322,7 @@ static void
 loqui_statusbar_nick_button_clicked_cb(GtkWidget *widget, LoquiStatusbar *statusbar)
 {
 	LoquiStatusbarPrivate *priv;
-	Account *account;
+	LoquiAccount *account;
 
         g_return_if_fail(statusbar != NULL);
         g_return_if_fail(LOQUI_IS_STATUSBAR(statusbar));
@@ -428,7 +428,7 @@ loqui_statusbar_set_current_channel(LoquiStatusbar *statusbar, LoquiChannel *cha
     	priv = statusbar->priv;
 }
 void
-loqui_statusbar_set_current_account(LoquiStatusbar *statusbar, Account *account)
+loqui_statusbar_set_current_account(LoquiStatusbar *statusbar, LoquiAccount *account)
 {
 	LoquiStatusbarPrivate *priv;
 	LoquiAwayType away;
@@ -439,14 +439,14 @@ loqui_statusbar_set_current_account(LoquiStatusbar *statusbar, Account *account)
         
         // set account label
         gtk_label_set(GTK_LABEL(priv->label_account),
-        	       account ? loqui_profile_account_get_name(account_get_profile(account)) : STRING_UNSELECTED);
+        	       account ? loqui_profile_account_get_name(loqui_account_get_profile(account)) : STRING_UNSELECTED);
 
 	// set nick        
         if (account == NULL) {
         	gtk_widget_set_sensitive(priv->dbox_preset, FALSE);
         	gtk_widget_set_sensitive(priv->dbox_away, FALSE);        	
         	gtk_label_set(GTK_LABEL(priv->label_nick), STRING_UNSELECTED);
-        } else if (!account_is_connected(account)) {
+        } else if (!loqui_account_is_connected(account)) {
       	 	gtk_widget_set_sensitive(priv->dbox_preset, FALSE);
         	gtk_widget_set_sensitive(priv->dbox_away, FALSE);
         	gtk_label_set(GTK_LABEL(priv->label_nick), STRING_DISCONNECTED);
@@ -454,23 +454,23 @@ loqui_statusbar_set_current_account(LoquiStatusbar *statusbar, Account *account)
         	gtk_widget_set_sensitive(priv->button_nick, TRUE);
         	gtk_widget_set_sensitive(priv->dbox_preset, TRUE);
         	gtk_widget_set_sensitive(priv->dbox_away, TRUE);
-        	gtk_label_set(GTK_LABEL(priv->label_nick), loqui_user_get_nick(account_get_user_self(account)));
+        	gtk_label_set(GTK_LABEL(priv->label_nick), loqui_user_get_nick(loqui_account_get_user_self(account)));
         }
         
         if (account) 
-        	loqui_statusbar_set_preset_menu(statusbar, loqui_profile_account_get_nick_list(account_get_profile(account)));
+        	loqui_statusbar_set_preset_menu(statusbar, loqui_profile_account_get_nick_list(loqui_account_get_profile(account)));
         if (account)
-		loqui_statusbar_set_away_menu(statusbar, LOQUI_USER_GET_CLASS(account_get_user_self(account)));
+		loqui_statusbar_set_away_menu(statusbar, LOQUI_USER_GET_CLASS(loqui_account_get_user_self(account)));
 	
         // set icon
         if (account == NULL) {
         	away = LOQUI_AWAY_TYPE_OFFLINE;
 	} else {
-		away = loqui_user_get_away(account_get_user_self(account));
+		away = loqui_user_get_away(loqui_account_get_user_self(account));
 	}
         
 	if (account)
-		loqui_statusbar_set_away(statusbar, LOQUI_USER_GET_CLASS(account_get_user_self(account)), away);
+		loqui_statusbar_set_away(statusbar, LOQUI_USER_GET_CLASS(loqui_account_get_user_self(account)), away);
 }
 void
 loqui_statusbar_set_default(LoquiStatusbar *statusbar, const gchar *str)

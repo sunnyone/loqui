@@ -44,7 +44,7 @@ struct _LoquiChannel
 {
         LoquiChannelEntry parent;
 
-        Account *account;
+        LoquiAccount *account;
 
 	gboolean is_joined;
 	gboolean is_private_talk;
@@ -63,13 +63,13 @@ struct _LoquiChannelClass
 
 GType loqui_channel_get_type(void) G_GNUC_CONST;
 
-LoquiChannel* loqui_channel_new(Account *account,
+LoquiChannel* loqui_channel_new(LoquiAccount *account,
 				const gchar *name,
 				gboolean is_joined,
 				gboolean is_private_talk);
 
-void loqui_channel_set_account(LoquiChannel *channel, Account *account);
-Account *loqui_channel_get_account(LoquiChannel *channel);
+void loqui_channel_set_account(LoquiChannel *channel, LoquiAccount *account);
+LoquiAccount *loqui_channel_get_account(LoquiChannel *channel);
 
 void loqui_channel_set_is_private_talk(LoquiChannel *channel, gboolean is_private_talk);
 gboolean loqui_channel_get_is_private_talk(LoquiChannel *channel);

@@ -51,12 +51,12 @@ static void account_manager_init(AccountManager *account_manager);
 static void account_manager_finalize(GObject *object);
 static void account_manager_dispose(GObject *object);
 
-static void account_manager_add_account_real(AccountManager *manager, Account *account);
-static void account_manager_remove_account_real(AccountManager *manager, Account *account);
+static void account_manager_add_account_real(AccountManager *manager, LoquiAccount *account);
+static void account_manager_remove_account_real(AccountManager *manager, LoquiAccount *account);
 
-static void account_manager_add_channel_after_cb(Account *account, LoquiChannel *channel, AccountManager *manager);
-static void account_manager_remove_channel_cb(Account *account, LoquiChannel *channel, AccountManager *manager);
-static void account_manager_remove_channel_after_cb(Account *account, LoquiChannel *channel, AccountManager *manager);
+static void account_manager_add_channel_after_cb(LoquiAccount *account, LoquiChannel *channel, AccountManager *manager);
+static void account_manager_remove_channel_cb(LoquiAccount *account, LoquiChannel *channel, AccountManager *manager);
+static void account_manager_remove_channel_after_cb(LoquiAccount *account, LoquiChannel *channel, AccountManager *manager);
 
 GType
 account_manager_get_type(void)
@@ -103,7 +103,7 @@ account_manager_class_init (AccountManagerClass *klass)
 								   NULL, NULL,
 								   g_cclosure_marshal_VOID__OBJECT,
 								   G_TYPE_NONE, 1,
-								   TYPE_ACCOUNT);
+								   LOQUI_TYPE_ACCOUNT);
 	account_manager_signals[SIGNAL_REMOVE_ACCOUNT] = g_signal_new("remove-account",
 								      G_OBJECT_CLASS_TYPE(object_class),
 								      G_SIGNAL_RUN_LAST,
@@ -111,7 +111,7 @@ account_manager_class_init (AccountManagerClass *klass)
 								      NULL, NULL,
 								      g_cclosure_marshal_VOID__OBJECT,
 								      G_TYPE_NONE, 1,
-								      TYPE_ACCOUNT);
+								      LOQUI_TYPE_ACCOUNT);
 }
 static void 
 account_manager_init (AccountManager *account_manager)
@@ -173,14 +173,14 @@ account_manager_new (void)
 }
 
 static void
-account_manager_add_account_real(AccountManager *manager, Account *account)
+account_manager_add_account_real(AccountManager *manager, LoquiAccount *account)
 {
 	AccountManagerPrivate *priv;
 
         g_return_if_fail(manager != NULL);
         g_return_if_fail(IS_ACCOUNT_MANAGER(manager));
 	g_return_if_fail(account != NULL);
-	g_return_if_fail(IS_ACCOUNT(account));	
+	g_return_if_fail(LOQUI_IS_ACCOUNT(account));	
 
 	priv = manager->priv;
 
@@ -199,14 +199,14 @@ account_manager_add_account_real(AccountManager *manager, Account *account)
 	account_manager_update_positions(manager);
 }
 static void
-account_manager_remove_account_real(AccountManager *manager, Account *account)
+account_manager_remove_account_real(AccountManager *manager, LoquiAccount *account)
 {
 	AccountManagerPrivate *priv;
 
         g_return_if_fail(manager != NULL);
         g_return_if_fail(IS_ACCOUNT_MANAGER(manager));
 	g_return_if_fail(account != NULL);
-	g_return_if_fail(IS_ACCOUNT(account));
+	g_return_if_fail(LOQUI_IS_ACCOUNT(account));
 
 	priv = manager->priv;
 
@@ -220,46 +220,46 @@ account_manager_remove_account_real(AccountManager *manager, Account *account)
 	account_manager_update_positions(manager);
 }
 static void
-account_manager_add_channel_after_cb(Account *account, LoquiChannel *channel, AccountManager *manager)
+account_manager_add_channel_after_cb(LoquiAccount *account, LoquiChannel *channel, AccountManager *manager)
 {
 	loqui_channel_entry_set_id(LOQUI_CHANNEL_ENTRY(channel),
 				   account_manager_new_channel_entry_id(manager));
 	account_manager_update_positions(manager);
 }
 static void
-account_manager_remove_channel_cb(Account *account, LoquiChannel *channel, AccountManager *manager)
+account_manager_remove_channel_cb(LoquiAccount *account, LoquiChannel *channel, AccountManager *manager)
 {
 	
 }
 static void
-account_manager_remove_channel_after_cb(Account *account, LoquiChannel *channel, AccountManager *manager)
+account_manager_remove_channel_after_cb(LoquiAccount *account, LoquiChannel *channel, AccountManager *manager)
 {
 	account_manager_update_positions(manager);
 }
 
 void
-account_manager_add_account(AccountManager *manager, Account *account)
+account_manager_add_account(AccountManager *manager, LoquiAccount *account)
 {
 	AccountManagerPrivate *priv;
 
         g_return_if_fail(manager != NULL);
         g_return_if_fail(IS_ACCOUNT_MANAGER(manager));
 	g_return_if_fail(account != NULL);
-	g_return_if_fail(IS_ACCOUNT(account));
+	g_return_if_fail(LOQUI_IS_ACCOUNT(account));
 
 	priv = manager->priv;
 
 	g_signal_emit(G_OBJECT(manager), account_manager_signals[SIGNAL_ADD_ACCOUNT], 0, account);
 }
 void
-account_manager_remove_account(AccountManager *manager, Account *account)
+account_manager_remove_account(AccountManager *manager, LoquiAccount *account)
 {
 	AccountManagerPrivate *priv;
 
         g_return_if_fail(manager != NULL);
         g_return_if_fail(IS_ACCOUNT_MANAGER(manager));
 	g_return_if_fail(account != NULL);
-	g_return_if_fail(IS_ACCOUNT(account));
+	g_return_if_fail(LOQUI_IS_ACCOUNT(account));
 
 	priv = manager->priv;
 
@@ -290,7 +290,7 @@ account_manager_load_accounts(AccountManager *account_manager)
 	AccountManagerPrivate *priv;
 	gchar *path;
 	LoquiProfileHandle *handle;
-	Account *account;
+	LoquiAccount *account;
 
         g_return_if_fail(account_manager != NULL);
         g_return_if_fail(IS_ACCOUNT_MANAGER(account_manager));
@@ -303,7 +303,7 @@ account_manager_load_accounts(AccountManager *account_manager)
 	loqui_profile_handle_read_from_file(handle, &list, path);
 
 	for(cur = list; cur != NULL; cur = cur->next) {
-		account = account_new(cur->data);
+		account = loqui_account_new(cur->data);
 		account_manager_add_account(account_manager, account);
 		g_object_unref(account);
 	}
@@ -323,7 +323,7 @@ account_manager_save_accounts(AccountManager *account_manager)
         g_return_if_fail(IS_ACCOUNT_MANAGER(account_manager));
 
 	for(cur = account_manager->priv->account_list; cur != NULL; cur = cur->next) {
-		list = g_list_append(list, account_get_profile(cur->data));
+		list = g_list_append(list, loqui_account_get_profile(cur->data));
 	}
 
 	path = g_build_filename(g_get_home_dir(), PREFS_DIR, ACCOUNT_CONFIG_FILENAME, NULL);
@@ -338,7 +338,7 @@ void account_manager_disconnect_all(AccountManager *manager)
 	g_return_if_fail(manager != NULL);
         g_return_if_fail(IS_ACCOUNT_MANAGER(manager));
 
-	g_list_foreach(manager->priv->account_list, (GFunc) account_disconnect, NULL);
+	g_list_foreach(manager->priv->account_list, (GFunc) loqui_account_disconnect, NULL);
 }
 GList *account_manager_get_account_list(AccountManager *manager)
 {
@@ -351,7 +351,7 @@ void
 account_manager_connect_all_default(AccountManager *manager)
 {
 	GList *cur;
-	Account *account;
+	LoquiAccount *account;
 	AccountManagerPrivate *priv;
 
 	g_return_if_fail(manager != NULL);
@@ -360,13 +360,13 @@ account_manager_connect_all_default(AccountManager *manager)
 	priv = manager->priv;
 
 	for (cur = priv->account_list; cur != NULL; cur = cur->next) {
-		account = ACCOUNT(cur->data);
-		if (account_is_connected(account))
+		account = LOQUI_ACCOUNT(cur->data);
+		if (loqui_account_is_connected(account))
 			continue;
-		if (!loqui_profile_account_get_use(account_get_profile(account)))
+		if (!loqui_profile_account_get_use(loqui_account_get_profile(account)))
 			continue;
 		
-		account_connect(account);
+		loqui_account_connect(account);
 	}
 }
 

@@ -265,7 +265,7 @@ nick_list_start_private_talk_selected(NickList *nick_list)
 {
 	NickListPrivate *priv;
 	GSList *member_list, *cur;
-	Account *account;
+	LoquiAccount *account;
 	LoquiMember *member;
 
 	priv = nick_list->priv;
@@ -277,7 +277,7 @@ nick_list_start_private_talk_selected(NickList *nick_list)
 	member_list = nick_list_menu_get_selected_members(nick_list);
 	for(cur = member_list; cur != NULL; cur = cur->next) {
 		member = cur->data;
-		loqui_sender_start_private_talk(account_get_sender(account), member->user);
+		loqui_sender_start_private_talk(loqui_account_get_sender(account), member->user);
 	}
 	g_slist_free(member_list);
 }
@@ -286,7 +286,7 @@ nick_list_whois_selected(NickList *nick_list)
 {
 	NickListPrivate *priv;
 	GSList *member_list, *cur;
-	Account *account;
+	LoquiAccount *account;
 	LoquiMember *member;
 
 	priv = nick_list->priv;
@@ -298,7 +298,7 @@ nick_list_whois_selected(NickList *nick_list)
 	member_list = nick_list_menu_get_selected_members(nick_list);
 	for(cur = member_list; cur != NULL; cur = cur->next) {
 		member = cur->data;
-		loqui_sender_whois(account_get_sender(account), member->user);
+		loqui_sender_whois(loqui_account_get_sender(account), member->user);
 	}
 	g_slist_free(member_list);
 }
@@ -330,7 +330,7 @@ nick_list_ctcp_selected(NickList *nick_list, const gchar *command)
 {
 	NickListPrivate *priv;
 	GSList *member_list, *cur;
-	Account *account;
+	LoquiAccount *account;
 	LoquiMember *member;
 	LoquiSender *sender;
 
@@ -340,7 +340,7 @@ nick_list_ctcp_selected(NickList *nick_list, const gchar *command)
 	if(!account)
 		return;
 
-	sender = account_get_sender(account);
+	sender = loqui_account_get_sender(account);
 	if (!LOQUI_IS_SENDER_IRC(sender)) {
 		g_warning("The account is not for IRC");
 		return;
@@ -378,7 +378,7 @@ static void nick_list_row_activated_cb(NickList *list, GtkTreePath *path, GtkTre
 	GtkTreeIter iter;
 	GtkTreeModel *model;
 	LoquiMember *member;
-	Account *account;
+	LoquiAccount *account;
 	NickListPrivate *priv;
 
 	priv = list->priv;
@@ -393,7 +393,7 @@ static void nick_list_row_activated_cb(NickList *list, GtkTreePath *path, GtkTre
 	if(!account)
 		return;
 
-	loqui_sender_start_private_talk(account_get_sender(account), member->user);
+	loqui_sender_start_private_talk(loqui_account_get_sender(account), member->user);
 }
 static gboolean
 nick_list_key_press_event(GtkWidget *widget,
