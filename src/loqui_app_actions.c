@@ -125,7 +125,7 @@ static GtkActionEntry loqui_action_entries[] =
         {"Connect",              NULL, N_("_Connect"), NULL, NULL, G_CALLBACK(loqui_app_actions_connect_cb)},
 
 	{LOQUI_ACTION_CONNECT_CURRENT_ACCOUNT, NULL, N_("_Connect Current Account"), NULL, NULL, G_CALLBACK(loqui_app_actions_connect_current_account_cb)},
-	{LOQUI_ACTION_CANCEL_PENDING_RECONNECTING_CURRENT_ACCOUNT,  NULL, N_("_Cancel Pending Reconnecting Current Account"), NULL, NULL, G_CALLBACK(loqui_app_actions_cancel_pending_reconnecting_current_account_cb)},
+	{LOQUI_ACTION_CANCEL_PENDING_RECONNECTING_CURRENT_ACCOUNT,  NULL, N_("Cancel Pending Reconnecting Current Account"), NULL, NULL, G_CALLBACK(loqui_app_actions_cancel_pending_reconnecting_current_account_cb)},
 	{LOQUI_ACTION_RECONNECT_CURRENT_ACCOUNT, NULL, N_("_Reconnect Current Account"), NULL, NULL, G_CALLBACK(loqui_app_actions_reconnect_current_account_cb)},
 	{LOQUI_ACTION_DISCONNECT_CURRENT_ACCOUNT, NULL, N_("_Disconnect Current Account"), NULL, NULL, G_CALLBACK(loqui_app_actions_disconnect_current_account_cb)},
 	{LOQUI_ACTION_TERMINATE_CURRENT_ACCOUNT, NULL, N_("_Terminate Current Account"), NULL, NULL, G_CALLBACK(loqui_app_actions_terminate_current_account_cb)},

@@ -420,7 +420,7 @@ loqui_account_closed_real(LoquiAccount *account)
 			priv->reconnect_timer = g_timeout_add(LOQUI_ACCOUNT_RECONNECT_INTERVAL, (GSourceFunc) loqui_account_reconnect_timeout_cb, account);
 			account->reconnect_try_count++;
 		} else {
-			loqui_account_information(LOQUI_ACCOUNT(account), _("Reconnect count over."));
+			loqui_account_information(LOQUI_ACCOUNT(account), _("Reconnecting count is reached to the limit."));
 			account->reconnect_try_count = 0;
 		}
 	}
