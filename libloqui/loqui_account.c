@@ -912,22 +912,24 @@ loqui_account_open_private_talk(LoquiAccount *account, const gchar *identifier, 
 	if ((channel = loqui_account_get_channel_by_identifier(account, identifier)) == NULL) {
 		/* FIXME: priv should not have a identifier? */
 		channel = loqui_protocol_create_channel(protocol, account, loqui_user_get_nick(user), identifier, TRUE, TRUE);
-		
-		user_self = loqui_account_get_user_self(account);
-		
-		member = loqui_member_new(user_self);
-		loqui_channel_entry_add_member(LOQUI_CHANNEL_ENTRY(channel), member);
-		g_object_unref(member);
-		
-		if (user_self != user) {
-			member = loqui_member_new(user);
-			loqui_channel_entry_add_member(LOQUI_CHANNEL_ENTRY(channel), member);
-			g_object_unref(member);
-		}
 
 		loqui_account_add_channel(account, channel);
 		/* account has reference */
 		g_object_unref(channel);
+	}
+
+	user_self = loqui_account_get_user_self(account);
+	if (!loqui_channel_entry_get_member_by_user(LOQUI_CHANNEL_ENTRY(channel), user_self)) {
+		member = loqui_member_new(user_self);
+		loqui_channel_entry_add_member(LOQUI_CHANNEL_ENTRY(channel), member);
+		g_object_unref(member);
+	}
+	
+	if (user_self != user &&
+	    !loqui_channel_entry_get_member_by_user(LOQUI_CHANNEL_ENTRY(channel), user_self)) {
+		member = loqui_member_new(user);
+		loqui_channel_entry_add_member(LOQUI_CHANNEL_ENTRY(channel), member);
+		g_object_unref(member);
 	}
 
 	return channel;
