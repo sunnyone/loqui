@@ -37,16 +37,31 @@ typedef struct _MessageTextClass       MessageTextClass;
 
 typedef struct _MessageTextPrivate     MessageTextPrivate;
 
+typedef enum {
+	TEXT_TYPE_NORMAL,
+	TEXT_TYPE_NOTICE,
+	TEXT_TYPE_INFO,
+	TEXT_TYPE_ERROR,
+	/* private */
+	TEXT_TYPE_TIME,
+	TEXT_TYPE_URI,
+	TEXT_TYPE_EMPHASIS,
+} TextType;
+
 struct _MessageText
 {
         GObject parent;
         
+	TextType text_type;
+
 	gchar *text;
 	gchar *channel_name;
+	gchar *account_name;
 	gchar *nick;
 	
 	gboolean is_self;
 	gboolean is_priv;
+	gboolean is_remark;
 
 	gboolean exec_notification;
 
@@ -58,17 +73,23 @@ struct _MessageTextClass
         GObjectClass parent_class;
 };
 
-
 GType message_text_get_type (void) G_GNUC_CONST;
 
 ATTR_ACCESSOR_STRING_PROTOTYPE(MessageText, message_text, text);
 ATTR_ACCESSOR_STRING_PROTOTYPE(MessageText, message_text, nick);
+ATTR_ACCESSOR_STRING_PROTOTYPE(MessageText, message_text, account_name);
 ATTR_ACCESSOR_STRING_PROTOTYPE(MessageText, message_text, channel_name);
 ATTR_ACCESSOR_BOOLEAN_PROTOTYPE(MessageText, message_text, is_self);
 ATTR_ACCESSOR_BOOLEAN_PROTOTYPE(MessageText, message_text, is_priv);
+ATTR_ACCESSOR_BOOLEAN_PROTOTYPE(MessageText, message_text, is_remark);
 ATTR_ACCESSOR_BOOLEAN_PROTOTYPE(MessageText, message_text, exec_notification);
 
+void message_text_set_text_type(MessageText *msgtext, TextType type);
+TextType message_text_get_text_type(MessageText *msgtext);
+
 MessageText* message_text_new(void);
+
+gchar *message_text_get_nick_string(MessageText *msgtext, gboolean with_channel_name);
 
 G_END_DECLS
 
