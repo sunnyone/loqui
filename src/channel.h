@@ -37,6 +37,7 @@ typedef struct _ChannelClass       ChannelClass;
 
 typedef struct _ChannelPrivate     ChannelPrivate;
 
+#include "irc_constants.h"
 #include "account.h"
 
 typedef enum {
@@ -88,6 +89,9 @@ gchar *channel_get_topic(Channel *channel);
 
 void channel_set_fresh(Channel *channel, gboolean fresh);
 gboolean channel_get_fresh(Channel *channel);
+
+void channel_push_user_mode_queue(Channel *channel, gboolean is_give, IRCModeFlag flag, const gchar *nick);
+void channel_flush_user_mode_queue(Channel *channel);
 
 void channel_append_user(Channel *channel, const gchar *nick, UserPower power, UserExistence exist);
 void channel_remove_user(Channel *channel, const gchar *nick);

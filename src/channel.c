@@ -33,7 +33,17 @@ struct _ChannelPrivate
 	guint op_number;
 
 	gboolean user_number_update_function_added;
+
+	GList *mode_change_queue;
 };
+
+typedef struct {
+	gboolean is_give;
+	IRCModeFlag flag;
+	gchar *nick;
+} ModeChange;
+
+#define MODE_CHANGE_MAX 3
 
 static GObjectClass *parent_class = NULL;
 #define PARENT_TYPE G_TYPE_OBJECT
@@ -44,6 +54,8 @@ static void channel_finalize(GObject *object);
 
 static void channel_update_user_number(Channel *channel);
 static gboolean channel_update_user_number_actually(Channel *channel);
+
+static void channel_mode_change_free(ModeChange *mode_change);
 
 GType
 channel_get_type(void)
@@ -423,4 +435,67 @@ channel_get_user_number(Channel *channel, guint *user_number, guint *op_number)
 
 	*user_number = priv->user_number;
 	*op_number = priv->op_number;
+}
+void channel_push_user_mode_queue(Channel *channel, gboolean is_give, IRCModeFlag flag, const gchar *nick)
+{
+	ChannelPrivate *priv;
+	ModeChange *mode_change_old;
+	ModeChange *mode_change;
+
+	g_return_if_fail(channel != NULL);
+	g_return_if_fail(IS_CHANNEL(channel));
+	
+	priv = channel->priv;
+
+	if(priv->mode_change_queue) {
+		mode_change_old = g_list_last(priv->mode_change_queue)->data;
+		if(mode_change_old->is_give != is_give || mode_change_old->flag != flag)
+			channel_flush_user_mode_queue(channel);
+	}
+
+	if(g_list_length(priv->mode_change_queue) >= MODE_CHANGE_MAX)
+		channel_flush_user_mode_queue(channel);
+
+	mode_change = g_new0(ModeChange, 1);
+	mode_change->is_give = is_give;
+	mode_change->flag = flag;
+	mode_change->nick = g_strdup(nick);
+
+	priv->mode_change_queue = g_list_append(priv->mode_change_queue, mode_change);
+
+}
+static void
+channel_mode_change_free(ModeChange *mode_change)
+{
+	g_return_if_fail(mode_change != NULL);
+
+	g_free(mode_change->nick);
+	g_free(mode_change);
+}
+
+void channel_flush_user_mode_queue(Channel *channel)
+{
+	ChannelPrivate *priv;
+	GList *tmp_list = NULL, *cur;
+	ModeChange *mode_change;
+
+	g_return_if_fail(channel != NULL);
+	g_return_if_fail(IS_CHANNEL(channel));
+	
+	priv = channel->priv;
+	
+	mode_change = NULL;
+	for(cur = priv->mode_change_queue; cur != NULL; cur = cur->next) {
+		mode_change = (ModeChange *) cur->data;
+		tmp_list = g_list_append(tmp_list, mode_change->nick);
+	}
+	if(mode_change)
+		account_change_channel_user_mode(channel->account, channel, mode_change->is_give,
+						 mode_change->flag, tmp_list);
+
+	g_list_free(tmp_list);
+
+	g_list_foreach(priv->mode_change_queue, (GFunc) channel_mode_change_free, NULL);
+	g_list_free(priv->mode_change_queue);
+	priv->mode_change_queue = NULL;
 }
