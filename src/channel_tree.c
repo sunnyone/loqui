@@ -41,7 +41,7 @@ static void channel_tree_finalize(GObject *object);
 static void channel_tree_destroy(GtkObject *object);
 
 static void channel_tree_row_activated_cb(ChannelTree *tree, GtkTreePath *path, GtkTreeViewColumn *col, gpointer data);
-static gboolean channel_tree_row_selected_cb(GtkTreeSelection *selection, GtkTreeModel *model, GtkTreePath *path, gboolean path_currently_selected, gpointer data);
+static void channel_tree_row_selected_cb(GtkTreeSelection *selection, gpointer data);
 
 enum {
 	COLUMN_TEXT,
@@ -132,29 +132,27 @@ static void /* double click */
 channel_tree_row_activated_cb(ChannelTree *tree, GtkTreePath *path, GtkTreeViewColumn *col, gpointer data)
 {
 }
-static gboolean
-channel_tree_row_selected_cb(GtkTreeSelection *selection, GtkTreeModel *model, GtkTreePath *path,
-			     gboolean path_currently_selected, gpointer data)
+static void
+channel_tree_row_selected_cb(GtkTreeSelection *selection, gpointer data)
 {
 	GtkTreeIter iter;
+	GtkTreeView *treeview;
+	GtkTreeModel *model;
 	Account *account;
 	Channel *channel;
-
-	if(!gtk_tree_model_get_iter(model, &iter, path))
-		return FALSE;
+	
+	if(!gtk_tree_selection_get_selected(selection, &model, &iter))
+		return;
 
 	gtk_tree_model_get(model, &iter,
 			   COLUMN_ACCOUNT, &account,
 			   COLUMN_CHANNEL, &channel,
 			   -1);
+
 	if(account)
 		account_manager_set_current_account(account_manager_get(), account);
 	else if(channel)
 		account_manager_set_current_channel(account_manager_get(), channel);
-	else
-		return FALSE;
-
-	return TRUE;
 }
 GtkWidget*
 channel_tree_new(void)
@@ -215,9 +213,8 @@ channel_tree_new(void)
 
 	g_signal_connect(G_OBJECT(tree), "row_activated",
 			 G_CALLBACK(channel_tree_row_activated_cb), NULL);
-	gtk_tree_selection_set_select_function(selection, 
-					       (GtkTreeSelectionFunc) channel_tree_row_selected_cb, 
-					       NULL, NULL);
+	g_signal_connect(G_OBJECT(selection), "changed",
+			 G_CALLBACK(channel_tree_row_selected_cb), tree);
 
 /* gtk_tree_view_set_rules_hint(GTK_TREE_VIEW(tree), TRUE); */
 

@@ -323,7 +323,7 @@ account_manager_select_channel(AccountManager *manager, Channel *channel)
         g_return_if_fail(IS_ACCOUNT_MANAGER(manager));
         g_return_if_fail(channel != NULL);
         g_return_if_fail(IS_CHANNEL(channel));
-		
+	
 	channel_tree_select_channel(manager->priv->app->channel_tree, channel);
 }
 void
