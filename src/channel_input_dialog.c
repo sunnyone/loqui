@@ -243,8 +243,8 @@ static void channel_input_dialog_update_combo(ChannelInputDialog *dialog)
 {
 	ChannelInputDialogPrivate *priv;
 	GList *items = NULL;
-	GList *channel_name_list;
-
+	GList *channel_list, *cur;
+	
         g_return_if_fail(dialog != NULL);
         g_return_if_fail(IS_CHANNEL_INPUT_DIALOG(dialog));
 	
@@ -263,12 +263,11 @@ static void channel_input_dialog_update_combo(ChannelInputDialog *dialog)
 		break;
 	case CHANNEL_HISTORY_JOINED:
 		if(priv->account == NULL) break;
-
-		channel_name_list = utils_get_key_list_from_hash(priv->account->channel_hash);
-		if(channel_name_list) {
-			gtk_combo_set_popdown_strings(GTK_COMBO(dialog->combo), channel_name_list);
-			g_list_free(channel_name_list);
-		}
+		
+		channel_list = account_get_channel_list(priv->account);
+		for(cur = channel_list; cur != NULL; cur = cur->next)
+			items = g_list_append(items, (gchar *) loqui_channel_entry_get_name(LOQUI_CHANNEL_ENTRY(cur->data)));
+		gtk_combo_set_popdown_strings(GTK_COMBO(dialog->combo), items);
 
 		break;
 	default:

@@ -45,8 +45,11 @@ struct _Account
 {
 	LoquiChannelEntry parent;
 
-	/* key: channel name(gchar *), value: channel(LoquiChannel) */
-	GHashTable *channel_hash;
+	GList *channel_list;
+	GList *tail;
+
+	/* key: channel name(gchar *), value: GList * */
+	GHashTable *channel_name_hash;
 
 	GHashTable *user_nick_table; /* key: user, value: nick */
 	GHashTable *nick_user_table; /* key: nick, value: user */
@@ -87,7 +90,8 @@ void account_add_channel(Account *account, LoquiChannel *channel);
 void account_remove_channel(Account *account, LoquiChannel *channel);
 void account_remove_all_channel(Account *account);
 
-LoquiChannel* account_get_channel(Account *account, const gchar *name);
+GList *account_get_channel_list(Account *account);
+LoquiChannel* account_get_channel_by_name(Account *account, const gchar *name);
 GSList *account_search_joined_channel(Account *account, gchar *nick);
 
 void account_console_buffer_append(Account *account, TextType type, gchar *str);

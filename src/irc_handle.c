@@ -205,10 +205,11 @@ irc_handle_parse_plum_recent(IRCHandle *handle, const gchar *line)
 		g_assert_not_reached();
 	}
 	
-	channel = account_get_channel(priv->account, name);
+	channel = account_get_channel_by_name(priv->account, name);
 	if(channel == NULL) {
 		channel = loqui_channel_new(priv->account, name, FALSE, !LOQUI_UTILS_IRC_STRING_IS_CHANNEL(name));
 		account_add_channel(priv->account, channel);
+		g_object_unref(channel);
 	}
 	g_free(buf);
 
@@ -285,10 +286,11 @@ irc_handle_command_privmsg_notice(IRCHandle *handle, IRCMessage *msg)
 	}
 	
 	if (channel_name) {
-		channel = account_get_channel(priv->account, channel_name);
+		channel = account_get_channel_by_name(priv->account, channel_name);
 		if(channel == NULL) {
 			channel = loqui_channel_new(priv->account, channel_name, FALSE, !LOQUI_UTILS_IRC_STRING_IS_CHANNEL(channel_name));
 			account_add_channel(priv->account, channel);
+			g_object_unref(channel);
 		}
 		sender = msg->nick ? msg->nick : msg->prefix;
 		loqui_channel_append_remark(channel, type, is_self, sender, remark);
@@ -350,7 +352,7 @@ irc_handle_command_part(IRCHandle *handle, IRCMessage *msg)
 		return;
 	}
 
-	channel = account_get_channel(handle->priv->account, name);
+	channel = account_get_channel_by_name(handle->priv->account, name);
 	user = account_peek_user(handle->priv->account, msg->nick);
 	if (channel && user)
 		loqui_channel_entry_remove_member_by_user(LOQUI_CHANNEL_ENTRY(channel), user);
@@ -390,7 +392,7 @@ irc_handle_command_kick(IRCHandle *handle, IRCMessage *msg)
 		return;
 	}
 	
-	channel = account_get_channel(handle->priv->account, name);
+	channel = account_get_channel_by_name(handle->priv->account, name);
 	user = account_peek_user(handle->priv->account, receiver);
 	if (channel && user)
 		loqui_channel_entry_remove_member_by_user(LOQUI_CHANNEL_ENTRY(channel), user);
@@ -558,7 +560,7 @@ irc_handle_reply_channelmodeis(IRCHandle *handle, IRCMessage *msg)
 	cur++;
 
 	if(LOQUI_UTILS_IRC_STRING_IS_CHANNEL(name)) {
-		channel = account_get_channel(handle->priv->account, name);
+		channel = account_get_channel_by_name(handle->priv->account, name);
 		if(!channel)
 			return;
 	} else {
@@ -602,7 +604,7 @@ irc_handle_command_mode(IRCHandle *handle, IRCMessage *msg)
 	cur++;
 
 	if(LOQUI_UTILS_IRC_STRING_IS_CHANNEL(name)) {
-		channel = account_get_channel(handle->priv->account, name);
+		channel = account_get_channel_by_name(handle->priv->account, name);
 		if(!channel) {
 			g_warning(_("Why can you know the change of his mode?"));
 			return;
@@ -645,11 +647,12 @@ irc_handle_command_join(IRCHandle *handle, IRCMessage *msg)
 		return;
 	}
 	
-	channel = account_get_channel(handle->priv->account, name);
+	channel = account_get_channel_by_name(handle->priv->account, name);
 	if(account_is_current_nick(handle->priv->account, msg->nick)) {
 		if(!channel) {
 			channel = loqui_channel_new(priv->account, name, TRUE, !LOQUI_UTILS_IRC_STRING_IS_CHANNEL(name));
 			account_add_channel(priv->account, channel);
+			g_object_unref(channel);
 		} else {
 			loqui_channel_set_is_joined(channel, TRUE);
 		}
@@ -687,7 +690,7 @@ irc_handle_reply_names(IRCHandle *handle, IRCMessage *msg)
 	gint i;
 
 	name = irc_message_get_param(msg, 3);
-	channel = account_get_channel(handle->priv->account, name);
+	channel = account_get_channel_by_name(handle->priv->account, name);
 	if(channel == NULL)
 		return;
 
@@ -711,7 +714,7 @@ irc_handle_reply_endofnames(IRCHandle *handle, IRCMessage *msg)
 	gchar *name;
 
 	name = irc_message_get_param(msg, 2);
-	channel = account_get_channel(handle->priv->account, name);
+	channel = account_get_channel_by_name(handle->priv->account, name);
 	if(channel == NULL)
 		return;
 
@@ -847,7 +850,7 @@ irc_handle_reply_who(IRCHandle *handle, IRCMessage *msg)
 	user = account_peek_user(priv->account, nick);
 	/* TODO: Check. username, hostname, server_name should not be changed,
 	   if there is difference between new and old, something happend. */
-	channel = account_get_channel(priv->account, channel_name);
+	channel = account_get_channel_by_name(priv->account, channel_name);
 	if (channel && user) {
 		member = loqui_channel_entry_get_member_by_user(LOQUI_CHANNEL_ENTRY(channel), user);
 		if (!member)
@@ -920,7 +923,7 @@ irc_handle_reply_topic(IRCHandle *handle, IRCMessage *msg)
 	gchar *name;
 
 	name = irc_message_get_param(msg, 2);
-	channel = account_get_channel(handle->priv->account, name);
+	channel = account_get_channel_by_name(handle->priv->account, name);
 	if(channel == NULL)
 		return;
 
@@ -938,7 +941,7 @@ irc_handle_command_topic(IRCHandle *handle, IRCMessage *msg)
 	gchar *name;
 
 	name = irc_message_get_param(msg, 1);
-	channel = account_get_channel(handle->priv->account, name);
+	channel = account_get_channel_by_name(handle->priv->account, name);
 	if(channel == NULL)
 		return;
 
@@ -1027,10 +1030,11 @@ irc_handle_channel_append(IRCHandle *handle, IRCMessage *msg, gboolean make_chan
 		return;
 	}
 
-	channel = account_get_channel(priv->account, receiver_name);
+	channel = account_get_channel_by_name(priv->account, receiver_name);
 	if(make_channel == TRUE && channel == NULL) { /* FIXME as well as privmsg_notice */
 		channel = loqui_channel_new(priv->account, receiver_name, FALSE, !LOQUI_UTILS_IRC_STRING_IS_CHANNEL(receiver_name));
 		account_add_channel(priv->account, channel);
+		g_object_unref(channel);
 	}
 
 	str = irc_message_format(msg, format);

@@ -91,6 +91,8 @@ static void account_connection_info_cb(GObject *object, gchar *str, Account *acc
 
 static void account_user_notify_nick_cb(LoquiUser *user, GParamSpec *pspec, Account *account);
 
+static void account_remove_channel_real(Account *account, LoquiChannel *channel);
+
 GType
 account_get_type(void)
 {
@@ -127,7 +129,9 @@ account_class_init (AccountClass *klass)
         object_class->finalize = account_finalize;
 	object_class->set_property = account_set_property;
 	object_class->get_property = account_get_property;
-	
+
+	klass->remove_channel = account_remove_channel_real;
+
 	g_object_class_install_property(object_class,
 					PROP_USER_SELF,
 					g_param_spec_object("user_self",
@@ -159,7 +163,7 @@ account_class_init (AccountClass *klass)
 						     G_TYPE_NONE, 0);
 	account_signals[ADD_CHANNEL] = g_signal_new("add-channel",
 						    G_OBJECT_CLASS_TYPE(object_class),
-						    G_SIGNAL_RUN_FIRST,
+						    G_SIGNAL_RUN_LAST,
 						    G_STRUCT_OFFSET(AccountClass, add_channel),
 						    NULL, NULL,
 						    g_cclosure_marshal_VOID__OBJECT,
@@ -167,7 +171,7 @@ account_class_init (AccountClass *klass)
 						    LOQUI_TYPE_CHANNEL);
 	account_signals[REMOVE_CHANNEL] = g_signal_new("remove-channel",
 						       G_OBJECT_CLASS_TYPE(object_class),
-						       G_SIGNAL_RUN_FIRST,
+						       G_SIGNAL_RUN_LAST,
 						       G_STRUCT_OFFSET(AccountClass, remove_channel),
 						       NULL, NULL,
 						       g_cclosure_marshal_VOID__OBJECT,
@@ -183,7 +187,8 @@ account_init(Account *account)
 
 	account->priv = priv;
 	
-	account->channel_hash = g_hash_table_new_full(utils_strcase_hash, utils_strcase_equal, g_free, g_object_unref);
+	account->channel_list = NULL;
+	account->channel_name_hash = g_hash_table_new_full(utils_strcase_hash, utils_strcase_equal, g_free, NULL);
 	
 	account->user_nick_table = g_hash_table_new_full(g_direct_hash, g_direct_equal, NULL, g_free);
 	account->nick_user_table = g_hash_table_new_full(utils_strcase_hash, utils_strcase_equal, g_free, NULL);
@@ -203,10 +208,12 @@ account_finalize (GObject *object)
 	G_OBJECT_UNREF_UNLESS_NULL(priv->handle);
 	G_OBJECT_UNREF_UNLESS_NULL(priv->connection);
 	G_OBJECT_UNREF_UNLESS_NULL(priv->profile);
-	
-	if(account->channel_hash) {
-		g_hash_table_destroy(account->channel_hash);
-		account->channel_hash = NULL;
+
+	account_remove_all_channel(account);
+
+	if(account->channel_name_hash) {
+		g_hash_table_destroy(account->channel_name_hash);
+		account->channel_name_hash = NULL;
 	}
 	if (account->nick_user_table) {
 		g_hash_table_destroy(account->nick_user_table);
@@ -531,12 +538,44 @@ account_is_connected(Account *account)
 void
 account_add_channel(Account *account, LoquiChannel *channel)
 {
+	GList *l;
+
         g_return_if_fail(account != NULL);
         g_return_if_fail(IS_ACCOUNT(account));
 
-	g_hash_table_insert(account->channel_hash, g_strdup(loqui_channel_entry_get_name(LOQUI_CHANNEL_ENTRY(channel))), channel);
+	g_object_ref(channel);
+
+	l = g_list_alloc();
+	l->data = channel;
+
+	if (account->channel_list) {
+		account->tail->next = l;
+		account->tail = l;
+	} else {
+		account->channel_list = l;
+		account->tail = l;
+	}
+
+	g_hash_table_insert(account->channel_name_hash, g_strdup(loqui_channel_entry_get_name(LOQUI_CHANNEL_ENTRY(channel))), l);
 
 	g_signal_emit(account, account_signals[ADD_CHANNEL], 0, channel);
+}
+static void
+account_remove_channel_real(Account *account, LoquiChannel *channel)
+{
+	g_hash_table_remove(account->channel_name_hash, loqui_channel_entry_get_name(LOQUI_CHANNEL_ENTRY(channel)));
+
+	if (!account->tail)
+		return;
+
+	if (account->tail->data == channel) {
+		account->tail = account->tail->prev;
+		if (account->tail == NULL)
+			account->channel_list = NULL;
+	} else if (account->channel_list) {
+		account->channel_list = g_list_remove(account->channel_list, channel);
+	}
+	g_object_unref(channel);
 }
 void
 account_remove_channel(Account *account, LoquiChannel *channel)
@@ -545,32 +584,44 @@ account_remove_channel(Account *account, LoquiChannel *channel)
         g_return_if_fail(IS_ACCOUNT(account));
 
 	g_signal_emit(account, account_signals[REMOVE_CHANNEL], 0, channel);
-
-	g_hash_table_remove(account->channel_hash, loqui_channel_entry_get_name(LOQUI_CHANNEL_ENTRY(channel)));
-}
-static gboolean
-account_remove_channel_func(gpointer key, gpointer value, Account *account)
-{
-	g_signal_emit(account, account_signals[REMOVE_CHANNEL], 0, LOQUI_CHANNEL(value));
-	return TRUE;
 }
 void
 account_remove_all_channel(Account *account)
 {
+	GList *list, *cur;
+
         g_return_if_fail(account != NULL);
         g_return_if_fail(IS_ACCOUNT(account));
-	
-	g_hash_table_foreach_remove(account->channel_hash, (GHRFunc) account_remove_channel_func, account);
+
+	list = g_list_copy(account->channel_list);
+	for (cur = list; cur != NULL; cur = cur->next) {
+		account_remove_channel(account, cur->data);
+	}
+	g_list_free(list);
 }
 
-LoquiChannel*
-account_get_channel(Account *account, const gchar *name)
+GList *
+account_get_channel_list(Account *account)
 {
+       g_return_val_if_fail(account != NULL, NULL);
+       g_return_val_if_fail(IS_ACCOUNT(account), NULL);
+
+       return account->channel_list;
+}
+LoquiChannel*
+account_get_channel_by_name(Account *account, const gchar *name)
+{
+	GList *l;
+
         g_return_val_if_fail(account != NULL, NULL);
         g_return_val_if_fail(IS_ACCOUNT(account), NULL);
 	g_return_val_if_fail(name != NULL, NULL);
 
-	return (LoquiChannel *) g_hash_table_lookup(account->channel_hash, name);
+	l = g_hash_table_lookup(account->channel_name_hash, name);
+	if (l)
+		return l->data;
+
+	return NULL;
 }
 void
 account_console_buffer_append(Account *account, TextType type, gchar *str)
@@ -711,7 +762,7 @@ account_set_away_message(Account *account, const gchar *away_message)
 GSList *
 account_search_joined_channel(Account *account, gchar *nick)
 {
-	GList *channel_list, *cur;
+	GList *cur;
 	GSList *list = NULL;
 	LoquiChannelEntry *chent;
 	LoquiUser *user;
@@ -725,14 +776,11 @@ account_search_joined_channel(Account *account, gchar *nick)
 		return NULL;
 	}
 
-	channel_list = utils_get_value_list_from_hash(account->channel_hash);
-	for (cur = channel_list; cur != NULL; cur = cur->next) {
+	for (cur = account->channel_list; cur != NULL; cur = cur->next) {
 		chent = LOQUI_CHANNEL_ENTRY(cur->data);
 		if (loqui_channel_entry_get_member_by_user(chent, user))
 			list = g_slist_append(list, chent);
 	}
-	if (channel_list)
-		g_list_free(channel_list);
 	
 	return list;
 }
@@ -846,6 +894,7 @@ account_start_private_talk(Account *account, const gchar *target)
 
 	channel = loqui_channel_new(account, target, TRUE, TRUE);
 	account_add_channel(account, channel);
+	g_object_unref(channel);
 }
 void account_part(Account *account, const gchar *target, const gchar *part_message)
 {
@@ -868,7 +917,7 @@ void account_part(Account *account, const gchar *target, const gchar *part_messa
 		irc_connection_push_message(priv->connection, msg);
 	} else {
 		/* close private talk */
-		channel = account_get_channel(account, target);
+		channel = account_get_channel_by_name(account, target);
 		if (channel)
 			account_remove_channel(account, channel);
 	}	
@@ -1037,7 +1086,7 @@ void
 account_get_updated_number(Account *account, gint *updated_private_talk_number, gint *updated_channel_number)
 {
 	LoquiChannel *channel;
-	GList *list, *cur;
+	GList *cur;
 		
         g_return_if_fail(account != NULL);
         g_return_if_fail(IS_ACCOUNT(account));
@@ -1047,9 +1096,7 @@ account_get_updated_number(Account *account, gint *updated_private_talk_number, 
 	*updated_private_talk_number = 0;
 	*updated_channel_number = 0;
 	
-	list = utils_get_value_list_from_hash(account->channel_hash);
-	
-	for(cur = list; cur != NULL; cur = cur->next) {
+	for(cur = account->channel_list; cur != NULL; cur = cur->next) {
 		channel = LOQUI_CHANNEL(cur->data);
 		if (loqui_channel_entry_get_is_updated(LOQUI_CHANNEL_ENTRY(channel))) {
 			if(loqui_channel_get_is_private_talk(channel)) {
@@ -1059,8 +1106,6 @@ account_get_updated_number(Account *account, gint *updated_private_talk_number, 
 			}
 		}
 	}
-	
-	g_list_free(list);
 }
 static void
 account_user_disposed_cb(Account *account, LoquiUser *user)

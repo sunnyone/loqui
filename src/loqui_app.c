@@ -987,7 +987,7 @@ loqui_app_add_account_cb(AccountManager *manager, Account *account, LoquiApp *ap
 	priv = app->priv;
 
 	store = loqui_channel_entry_store_new(LOQUI_CHANNEL_ENTRY(account));
-	g_object_set_data_full(G_OBJECT(account), CHANNEL_ENTRY_STORE_KEY, store, (GDestroyNotify) g_object_unref);
+	g_object_set_data(G_OBJECT(account), CHANNEL_ENTRY_STORE_KEY, store);
 
 	loqui_channel_entry_ui_attach_channel_entry_action(app, G_OBJECT(account)); /* FIXME */
 	loqui_channel_entry_ui_add_account(app, account, "/menubar/Buffers", "menubar");
@@ -1013,6 +1013,7 @@ loqui_app_remove_account_cb(AccountManager *manager, Account *account, LoquiApp 
 {
 	LoquiAppPrivate *priv;
 	ChannelBuffer *buffer;
+	LoquiChannelEntryStore *store;
 
         g_return_if_fail(manager != NULL);
         g_return_if_fail(IS_ACCOUNT_MANAGER(manager));
@@ -1035,7 +1036,8 @@ loqui_app_remove_account_cb(AccountManager *manager, Account *account, LoquiApp 
 	buffer = loqui_channel_entry_get_buffer(LOQUI_CHANNEL_ENTRY(account));
 	g_signal_handlers_disconnect_by_func(buffer, loqui_app_channel_buffer_append_cb, app);
 
-	g_object_unref(account);
+	store = g_object_get_data(G_OBJECT(account), CHANNEL_ENTRY_STORE_KEY);
+	g_object_unref(store);
 }
 static void
 loqui_app_add_channel_cb(Account *account, LoquiChannel *channel, LoquiApp *app)
@@ -1054,7 +1056,7 @@ loqui_app_add_channel_cb(Account *account, LoquiChannel *channel, LoquiApp *app)
 	priv = app->priv;
 
 	store = loqui_channel_entry_store_new(LOQUI_CHANNEL_ENTRY(channel));
-	g_object_set_data_full(G_OBJECT(channel), CHANNEL_ENTRY_STORE_KEY, store, (GDestroyNotify) g_object_unref);
+	g_object_set_data(G_OBJECT(channel), CHANNEL_ENTRY_STORE_KEY, store);
 
 	loqui_channel_entry_ui_attach_channel_entry_action(app, G_OBJECT(channel)); /* FIXME: ChannelEntry */
 	loqui_channel_entry_ui_add_channel(app, channel, "/menubar/Buffers", "menubar");
@@ -1080,6 +1082,7 @@ loqui_app_remove_channel_cb(Account *account, LoquiChannel *channel, LoquiApp *a
 {
 	LoquiAppPrivate *priv;
 	ChannelBuffer *buffer;
+	LoquiChannelEntryStore *store;
 
         g_return_if_fail(app != NULL);
         g_return_if_fail(LOQUI_IS_APP(app));
@@ -1102,6 +1105,9 @@ loqui_app_remove_channel_cb(Account *account, LoquiChannel *channel, LoquiApp *a
 	g_signal_handlers_disconnect_by_func(buffer, loqui_app_channel_buffer_append_cb, app);
 
 	channel_tree_remove_channel(app->channel_tree, channel);
+
+	store = g_object_get_data(G_OBJECT(channel), CHANNEL_ENTRY_STORE_KEY);
+	g_object_unref(store);
 }
 static gboolean
 loqui_app_update_account_info(LoquiApp *app)
