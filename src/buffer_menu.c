@@ -24,6 +24,7 @@
 #include "buffer_menu.h"
 #include "gtkutils.h"
 #include "main.h"
+#include "intl.h"
 
 GtkWidget *
 buffer_menu_add_account(GtkMenuShell *menu, Account *account)
@@ -67,9 +68,15 @@ buffer_menu_update_account(GtkMenuShell *menu, Account *account)
 		tmp_ac = g_object_get_data(G_OBJECT(menuitem), "account");
 		if(tmp_ac != account)
 			continue;
+		if(g_object_get_data(G_OBJECT(menuitem), "channel")) /* is channel? */
+			continue;
 		children = gtk_container_get_children(GTK_CONTAINER(menuitem));
 
 		/* FIXME: dirty way */
+		if(children == NULL) {
+			g_warning(_("Menuitem's children is null in Buffer menu"));
+			break;
+		}
 		gtk_label_set_text(GTK_LABEL(children->data), account_get_name(account));
 	}
 
