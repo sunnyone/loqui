@@ -22,6 +22,8 @@
 #include "loqui_channel.h"
 #include "intl.h"
 #include "loqui_utils_irc.h"
+#include "prefs_general.h"
+#include <string.h>
 
 enum {
 	MODE_CHANGED,
@@ -514,6 +516,8 @@ loqui_channel_append_remark(LoquiChannel *channel, TextType type, gboolean is_se
 	ChannelBuffer *buffer;
 	LoquiChannelPrivate *priv;
 	MessageText *msgtext;
+	GList *cur;
+	gchar *word;
 
 	gboolean is_priv = FALSE;
 	gboolean exec_notification = TRUE;
@@ -543,6 +547,15 @@ loqui_channel_append_remark(LoquiChannel *channel, TextType type, gboolean is_se
 		loqui_channel_entry_set_is_updated_weak(LOQUI_CHANNEL_ENTRY(channel), TRUE);
 	else
 		loqui_channel_entry_set_is_updated(LOQUI_CHANNEL_ENTRY(channel), TRUE);
+
+	if (!is_self) {
+		for (cur = prefs_general.highlight_list; cur != NULL; cur = cur->next) {
+			word = (gchar *) cur->data;
+			if (strstr(remark, word) != NULL) {
+				loqui_channel_entry_set_has_unread_keyword(LOQUI_CHANNEL_ENTRY(channel), TRUE);
+			}
+		}
+	}
 
 	channel_buffer_append_message_text(buffer, msgtext, FALSE, exec_notification);
 	g_object_unref(msgtext);

@@ -397,14 +397,16 @@ account_manager_get_next_channel_entry(AccountManager *manager, LoquiChannelEntr
 		loqui_account_manager_iter_channel_entry_next(&iter);
 		while ((tmp_chent = loqui_account_manager_iter_channel_entry_next(&iter))) {
 			if (!require_updated ||
-			    loqui_channel_entry_get_is_updated(LOQUI_CHANNEL_ENTRY(tmp_chent)))
+			    loqui_channel_entry_get_is_updated(LOQUI_CHANNEL_ENTRY(tmp_chent)) ||
+			    loqui_channel_entry_get_has_unread_keyword(LOQUI_CHANNEL_ENTRY(tmp_chent)))
 				return tmp_chent;
 		}
 	}
 	loqui_account_manager_iter_set_first_channel_entry(&iter);			
 	while ((tmp_chent = loqui_account_manager_iter_channel_entry_next(&iter))) {
 		if (!require_updated ||
-		    loqui_channel_entry_get_is_updated(LOQUI_CHANNEL_ENTRY(tmp_chent)))
+		    loqui_channel_entry_get_is_updated(LOQUI_CHANNEL_ENTRY(tmp_chent)) ||
+		    loqui_channel_entry_get_has_unread_keyword(LOQUI_CHANNEL_ENTRY(tmp_chent)))
 			return tmp_chent;
 	}
 	return NULL;
@@ -432,14 +434,16 @@ account_manager_get_previous_channel_entry(AccountManager *manager, LoquiChannel
 		loqui_account_manager_iter_channel_entry_previous(&iter);
 		while ((tmp_chent = loqui_account_manager_iter_channel_entry_previous(&iter))) {
 			if (!require_updated ||
-			    loqui_channel_entry_get_is_updated(LOQUI_CHANNEL_ENTRY(tmp_chent)))
+			    loqui_channel_entry_get_is_updated(LOQUI_CHANNEL_ENTRY(tmp_chent)) ||
+			    loqui_channel_entry_get_has_unread_keyword(LOQUI_CHANNEL_ENTRY(tmp_chent)))
 				return tmp_chent;
 		}
 	}
 	loqui_account_manager_iter_set_last_channel_entry(&iter);			
 	while ((tmp_chent = loqui_account_manager_iter_channel_entry_previous(&iter))) {
 		if (!require_updated ||
-		    loqui_channel_entry_get_is_updated(LOQUI_CHANNEL_ENTRY(tmp_chent)))
+		    loqui_channel_entry_get_is_updated(LOQUI_CHANNEL_ENTRY(tmp_chent)) ||
+		    loqui_channel_entry_get_has_unread_keyword(LOQUI_CHANNEL_ENTRY(tmp_chent)))
 			return tmp_chent;
 	}
 	return NULL;
