@@ -61,6 +61,7 @@ static void loqui_actions_start_private_talk_cb(GtkAction *action, LoquiApp *app
 static GtkActionEntry loqui_action_entries[] =
 {
 	/* name, stock_id, label, accelerator, tooltip, callback */
+	/* see gdkkeynames.c to find key name */
 	{"StockFileMenu",        NULL, N_("_File"),       NULL, NULL},
 	{"StockEditMenu",        NULL, N_("_Edit"),       NULL, NULL, G_CALLBACK(loqui_actions_edit_menu_cb)},
 	{"StockCommandMenu",     NULL, N_("_Command"),    NULL, NULL},
@@ -94,10 +95,10 @@ static GtkActionEntry loqui_action_entries[] =
         {"ChangeNick",            NULL, N_("_Change Nickname"), CTRL ALT "N", NULL, G_CALLBACK(loqui_actions_nick_cb)},
         {"RefreshAway",           NULL, N_("_Refresh users' away information of current channel"), CTRL ALT "A", NULL, G_CALLBACK(loqui_actions_away_info_cb)},
 
-        {"PreviousUpdatedChannel", GTK_STOCK_GOTO_TOP, N_("_Previous Updated Channel"), NULL, NULL, G_CALLBACK(loqui_actions_previous_updated_channel_cb)},
-        {"NextUpdatedChannel",     GTK_STOCK_GOTO_BOTTOM, N_("_Next Updated Channel"), NULL, NULL, G_CALLBACK(loqui_actions_next_updated_channel_cb)},
-        {"PreviousChannel",        GTK_STOCK_GO_UP, N_("Previous Channel"),CTRL "P", NULL, G_CALLBACK(loqui_actions_previous_channel_cb)},
-        {"NextChannel",            GTK_STOCK_GO_DOWN, N_("Next Channel"), CTRL "N", NULL, G_CALLBACK(loqui_actions_next_channel_cb)},
+        {"PreviousUpdatedChannel", GTK_STOCK_GOTO_TOP, N_("_Previous Updated Channel"), CTRL SHIFT "space", NULL, G_CALLBACK(loqui_actions_previous_updated_channel_cb)},
+        {"NextUpdatedChannel",     GTK_STOCK_GOTO_BOTTOM, N_("_Next Updated Channel"), CTRL "space", NULL, G_CALLBACK(loqui_actions_next_updated_channel_cb)},
+        {"PreviousChannel",        GTK_STOCK_GO_UP, N_("Previous Channel"),CTRL "Up", NULL, G_CALLBACK(loqui_actions_previous_channel_cb)},
+        {"NextChannel",            GTK_STOCK_GO_DOWN, N_("Next Channel"), CTRL "Down", NULL, G_CALLBACK(loqui_actions_next_channel_cb)},
         {"GeneralSettings",        NULL, N_("_General Settings"), NULL, NULL, G_CALLBACK(loqui_actions_common_settings_cb)},
         {"AccountSettings",        NULL, N_("_Account Settings"), NULL, NULL, G_CALLBACK(loqui_actions_account_settings_cb)},
 
