@@ -32,7 +32,10 @@ static void
 loqui_channel_entry_action_activate_cb(LoquiChannelEntryAction *action, LoquiApp *app)
 {
 	LoquiChannelEntry *chent;
-	
+
+	if (!loqui_app_has_toplevel_focus(app))
+		gtk_window_present(GTK_WINDOW(app));
+
 	chent = loqui_channel_entry_action_get_channel_entry(action);
 	loqui_app_set_current_channel_entry(app, chent);
 }

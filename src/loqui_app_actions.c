@@ -111,6 +111,8 @@ static GtkActionEntry loqui_action_entries[] =
 	{"StockNickListSortTypeMenu",  NULL, N_("Sort Type of NickList"),        NULL, NULL},
 	{"StockChannelEntry",    NULL, "",                NULL, NULL},
 
+	{"StockTrayIconPopupBuffers", NULL, N_("Buffers"), NULL, NULL},
+
 	{"FakeToplevel",         NULL, (""),               NULL, NULL, NULL},
 
         {"Quit",                 GTK_STOCK_QUIT, N_("_Quit"), CTRL"Q", NULL, G_CALLBACK(loqui_app_actions_quit_cb)},

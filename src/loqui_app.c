@@ -1005,6 +1005,7 @@ loqui_app_add_account_after_cb(AccountManager *manager, LoquiAccount *account, L
 	loqui_channel_entry_ui_attach_channel_entry_action(app, LOQUI_CHANNEL_ENTRY(account));
 	loqui_channel_entry_ui_add_account(app, account, "/menubar/Buffers", "menubar");
 	loqui_channel_entry_ui_add_account(app, account, "/ChannelListPopup", "channelbar");
+	loqui_channel_entry_ui_add_account(app, account, "/TrayIconPopup/BuffersMenu", "trayicon");
 
 	g_signal_connect_swapped(G_OBJECT(account), "connected",
 				 G_CALLBACK(loqui_app_set_current_channel_entry), app);
@@ -1052,6 +1053,7 @@ loqui_app_remove_account_cb(AccountManager *manager, LoquiAccount *account, Loqu
 
 	loqui_channel_entry_ui_remove_account(app, account, "/menubar/Buffers", "menubar");
 	loqui_channel_entry_ui_remove_account(app, account, "/ChannelListPopup", "channelbar");
+	loqui_channel_entry_ui_remove_account(app, account, "/TrayIconPopup/BuffersMenu", "trayicon");
 
 	g_signal_handlers_disconnect_by_func(G_OBJECT(account), loqui_app_set_current_channel_entry, app);
 	g_signal_handlers_disconnect_by_func(G_OBJECT(account), loqui_app_add_channel_after_cb, app);
@@ -1101,6 +1103,7 @@ loqui_app_add_channel_after_cb(LoquiAccount *account, LoquiChannel *channel, Loq
 	loqui_channel_entry_ui_attach_channel_entry_action(app, LOQUI_CHANNEL_ENTRY(channel));
 	loqui_channel_entry_ui_add_channel(app, channel, "/menubar/Buffers", "menubar");
 	loqui_channel_entry_ui_add_channel(app, channel, "/ChannelListPopup", "channelbar");
+	loqui_channel_entry_ui_add_channel(app, channel, "/TrayIconPopup/BuffersMenu", "trayicon");
 
 	g_signal_connect(G_OBJECT(channel), "notify::is-updated",
 			 G_CALLBACK(loqui_app_channel_entry_notify_is_updated_cb), app);
@@ -1150,6 +1153,7 @@ loqui_app_remove_channel_cb(LoquiAccount *account, LoquiChannel *channel, LoquiA
 
 	loqui_channel_entry_ui_remove_channel(app, channel, "menubar");
 	loqui_channel_entry_ui_remove_channel(app, channel, "channelbar");
+	loqui_channel_entry_ui_remove_channel(app, channel, "trayicon");
 
 	if (loqui_app_get_current_channel(app) == channel)
 		loqui_app_set_current_channel_entry(app, LOQUI_CHANNEL_ENTRY(account));

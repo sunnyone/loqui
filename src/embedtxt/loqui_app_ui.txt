@@ -135,6 +135,9 @@
   </popup>
 
   <popup name="TrayIconPopup" action="TrayIconPopup">
+    <menu name="BuffersMenu" action="StockTrayIconPopupBuffers">
+    </menu>
+    <separator/>
     <menuitem name="Quit" action="Quit"/>
     <separator/>
     <menuitem name="About" action="About"/>
