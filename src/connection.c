@@ -171,15 +171,18 @@ gchar *connection_gets(Connection *connection, GError **error)
 	string = g_string_sized_new(512);
 	while(priv->io) {
 		g_mutex_lock(priv->mutex);
-		if(!priv->io) { g_mutex_unlock(priv->mutex); break; }
+		if(!priv->io) { 
+			g_mutex_unlock(priv->mutex);
+			g_string_free(string, TRUE);
+			return NULL;
+		}
 		status = g_io_channel_read_chars(priv->io, &c, 1, &len, error);
 		g_mutex_unlock(priv->mutex);
 
 		if(status == G_IO_STATUS_EOF) {
 			break;
 		} else if(status == G_IO_STATUS_ERROR) {
-			if(error && *error)
-				g_warning(_("connection_gets error: %s"), (*error)->message);
+			g_string_free(string, TRUE);
 			return NULL;
 		} else if (status == G_IO_STATUS_AGAIN) {
 			g_usleep(WAIT_TIME_FOR_EAGAIN);
@@ -190,9 +193,6 @@ gchar *connection_gets(Connection *connection, GError **error)
 		if(c == '\n')
 			break;
 	}
-
-	if(priv->io == NULL)
-		return NULL;
 
 	local = codeconv_to_local(string->str);
 	if(string->len > 0 && local == NULL)
@@ -266,11 +266,11 @@ void connection_disconnect(Connection *connection)
 
 	priv = connection->priv;
 
-	g_mutex_lock(priv->mutex);
 	debug_puts("Disconnecting...");
+	g_mutex_lock(priv->mutex);
 	g_io_channel_shutdown(connection->priv->io, TRUE, NULL);
 	connection->priv->io = NULL;
 	gnet_tcp_socket_delete(connection->priv->sock);
-	debug_puts("Done.");
 	g_mutex_unlock(priv->mutex);
+	debug_puts("Done.");
 }

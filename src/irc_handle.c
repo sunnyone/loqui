@@ -1043,6 +1043,7 @@ static gpointer irc_handle_thread_func(IRCHandle *handle)
 	IRCMessage *msg;
 	Account *account;
 	gchar *str, *tmp;
+	GError *error;
 
 	priv = handle->priv;
 	account = priv->account;
@@ -1111,9 +1112,15 @@ static gpointer irc_handle_thread_func(IRCHandle *handle)
 	}
 
 	
+	error = NULL;
         while(priv->connection) {
-		if((msg = connection_get_irc_message(priv->connection, NULL)) == NULL)
+		if((msg = connection_get_irc_message(priv->connection, &error)) == NULL) {
+			if(error) {
+				g_warning(_("connection_get_irc_message error: %s"), error->message);
+				g_error_free(error);
+			}
 			break;
+		}
 
 		if(show_msg_mode)
 			irc_message_print(msg);
@@ -1154,6 +1161,7 @@ static gpointer irc_handle_send_thread_func(IRCHandle *handle)
 	IRCHandlePrivate *priv;
 	gpointer data;
 	IRCMessage *msg;
+	GError *error;
 
 	priv = handle->priv;
 
@@ -1167,7 +1175,11 @@ static gpointer irc_handle_send_thread_func(IRCHandle *handle)
 			break;
 		}
 
-		connection_put_irc_message(priv->connection, msg, NULL);
+		error = NULL;
+		if(!connection_put_irc_message(priv->connection, msg, &error) && error) {
+			g_warning(_("Failed to send irc message: %s"), error->message);
+			g_error_free(error);
+		}
 		g_object_unref(msg);
 	}
 
