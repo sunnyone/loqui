@@ -69,6 +69,8 @@ gboolean loqui_title_format_parse(LoquiTitleFormat *ltf, const gchar *str, GErro
 gchar *loqui_title_format_fetch(LoquiTitleFormat *ltf);
 void loqui_title_format_register_function(LoquiTitleFormat *ltf, const gchar *name, LoquiTitleFormatFunction *func);
 void loqui_title_format_register_variable(LoquiTitleFormat *ltf, const gchar *name, const gchar *value);
+
+void loqui_title_format_register_variables(LoquiTitleFormat *ltf, ...);
 void loqui_title_format_free(LoquiTitleFormat *ltf);
 
 #endif /* __LOQUI_TITLE_FORMAT_H__ */

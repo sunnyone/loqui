@@ -32,8 +32,6 @@
 
 /* TODO:
  *  - test function
- *  - multiline
- *  - comment
  *  - standard functions
  */
 
@@ -231,6 +229,29 @@ loqui_title_format_parse_variable_area(LoquiTitleFormat *ltf, LoquiStringTokeniz
 	}
 	return TRUE;
 }
+
+/* this function supports the text has one line */
+static gboolean
+loqui_title_format_remove_comment(const gchar *text, gchar **result)
+{
+	gchar *tmp;
+	gboolean is_include_comment = FALSE;
+	gchar *buf;
+
+	buf = g_strdup(text);
+	
+	if ((tmp = strstr(buf, "//")) != NULL) {
+		is_include_comment = TRUE;
+		*tmp = '\0';
+	}
+
+	if (result)
+		*result = buf;
+	else
+		g_free(buf);
+
+	return is_include_comment;
+}
 static gboolean
 loqui_title_format_parse_internal(LoquiTitleFormat *ltf, LoquiStringTokenizer *st, gchar *end_chars, gchar *delim_ptr, GNode *parent, GNode *sibling, GError **error)
 {
@@ -238,18 +259,30 @@ loqui_title_format_parse_internal(LoquiTitleFormat *ltf, LoquiStringTokenizer *s
 	gchar *delimiters;
 	const gchar *token, *text, *var_name;
 	gchar delim, d;
-	
+	gchar *tmp;
+	gboolean is_include_comment;
+
 	/* end_chars is NULL or not */
-	delimiters = g_strconcat("$[%'", end_chars, NULL);
+	delimiters = g_strconcat("$[%'\n", end_chars, NULL);
 	loqui_string_tokenizer_set_delimiters(st, delimiters);
 
 	while ((token = loqui_string_tokenizer_next_token(st, &delim)) != NULL) {
-		node = tf_item_node_new(LOQUI_TITLE_FORMAT_NODE_TEXT, NULL, token);
+		is_include_comment = loqui_title_format_remove_comment(token, &tmp);
+		node = tf_item_node_new(LOQUI_TITLE_FORMAT_NODE_TEXT, NULL, tmp);
+		g_free(tmp);
+		
 		g_node_insert_after(parent, sibling, node);
 		sibling = node;
 
 		if (delim == '\0')
 			break;
+
+		if (is_include_comment && delim != '\n') {
+			loqui_string_tokenizer_set_delimiters(st, "\n");
+			loqui_string_tokenizer_next_token(st, NULL);
+			loqui_string_tokenizer_set_delimiters(st, delimiters);
+			continue;
+		}
 
 		// when ended with end_chars
 		if (end_chars != NULL &&
@@ -261,6 +294,8 @@ loqui_title_format_parse_internal(LoquiTitleFormat *ltf, LoquiStringTokenizer *s
 		}
 
 		switch (delim) {
+		case '\n':
+			break;
 		case '$':
 			if (!loqui_title_format_parse_function(ltf, st, parent, sibling, error))
 				return FALSE;
@@ -529,6 +564,20 @@ loqui_title_format_register_variable(LoquiTitleFormat *ltf, const gchar *name, c
 		g_hash_table_insert(ltf->variable_table, g_strdup(name), g_strdup(value));
 	else
 		g_hash_table_remove(ltf->variable_table, name);
+}
+void
+loqui_title_format_register_variables(LoquiTitleFormat *ltf, ...)
+{
+	va_list args;
+	const gchar *name;
+	const gchar *value;
+
+	va_start(args, ltf);
+	while ((name = va_arg(args, gchar *)) != NULL) {
+		value = va_arg(args, gchar *);
+		loqui_title_format_register_variable(ltf, name, value);
+	}
+	va_end(args);
 }
 void
 loqui_title_format_free(LoquiTitleFormat *ltf)
