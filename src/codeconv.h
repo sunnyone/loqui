@@ -22,8 +22,16 @@
 
 #include <glib.h>
 
+typedef struct _CodeConvDef {
+	gchar *title;
+	gchar *locale;
+	gchar *charset;
+} CodeConvDef;
+
 void codeconv_init(void);
 gchar *codeconv_to_server(const gchar *input);
 gchar *codeconv_to_local(const gchar *input);
+
+extern CodeConvDef conv_table[];
 
 #endif /* __CODECONV_H__ */

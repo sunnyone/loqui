@@ -31,7 +31,7 @@ static gchar *server_codeset = NULL;
 #define BUFFER_LEN 2048
 
 /* tell me other languages if you know */
-static gchar *conv_table[][3] = {
+CodeConvDef conv_table[] = {
 	{"Auto Detection", NULL,       NULL}, /* for the setting */
 	{"No conv",        NULL,       ""},   /* for the setting */
 	{"Japanese",       "ja_JP",    "ISO-2022-JP"},
@@ -45,7 +45,7 @@ codeconv_init(void)
 	gchar *ctype;
 
 	length = 0;
-	while(conv_table[length][0] != NULL) length++;
+	while(conv_table[length].title != NULL) length++;
 	
 	num = prefs_general.codeconv;
 	if(num > length) {
@@ -59,17 +59,17 @@ codeconv_init(void)
 		i = 2;
 		ctype = setlocale(LC_CTYPE, NULL);
 		if(ctype) {
-			while(conv_table[i] != NULL) {
-				if(conv_table[i][1] == NULL) continue;
-				if(strstr(ctype, conv_table[i][1]) != NULL) {
-					server_codeset = conv_table[i][2];
+			while(conv_table[i].title != NULL) {
+				if(conv_table[i].locale == NULL) continue;
+				if(strstr(ctype, conv_table[i].locale) != NULL) {
+					server_codeset = conv_table[i].charset;
 					break;
 				}
 				i++;
 			}
 		}
 	} else {
-		server_codeset = conv_table[num][2];
+		server_codeset = conv_table[num].charset;
 	}
 
 	if(server_codeset == NULL)
