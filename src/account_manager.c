@@ -495,7 +495,7 @@ account_manager_set_whether_scrolling(AccountManager *manager, gboolean is_scrol
 	priv = manager->priv;
 
 	priv->is_scroll = is_scroll;
-	loqui_toolbar_toggle_scrolling_without_signal_emission(LOQUI_TOOLBAR(priv->app->toolbar),
+	loqui_toolbar_toggle_scrolling_with_signal_handler_blocked(LOQUI_TOOLBAR(priv->app->toolbar),
 								   is_scroll);
 	debug_puts("Set scroll: %d", is_scroll);
 }
@@ -510,6 +510,6 @@ account_manager_update_away_status(AccountManager *manager, gboolean is_away)
 	g_return_if_fail(manager != NULL);
         g_return_if_fail(IS_ACCOUNT_MANAGER(manager));
 	
-	loqui_toolbar_toggle_away_without_signal_emission(LOQUI_TOOLBAR(manager->priv->app->toolbar),
-							  is_away);
+	loqui_toolbar_toggle_away_with_signal_handler_blocked(LOQUI_TOOLBAR(manager->priv->app->toolbar),
+							      is_away);
 }

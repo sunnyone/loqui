@@ -76,7 +76,7 @@ gtkutils_add_label_entry(GtkWidget *box, const gchar *label_text,
 	gtk_box_pack_start(GTK_BOX(hbox), *entry, TRUE, TRUE, 0);
 }
 void
-gtkutils_toggle_button_without_emission(GtkToggleButton *button, guint signal_handler_id, gboolean bool)
+gtkutils_toggle_button_with_signal_handler_blocked(GtkToggleButton *button, guint signal_handler_id, gboolean bool)
 {
 	g_signal_handler_block(button, signal_handler_id);
 	gtk_toggle_button_set_active(button, bool);

@@ -26,6 +26,8 @@
 
 struct _LoquiToolbarPrivate
 {
+	LoquiApp *app;
+
 	guint toggle_scroll_handler_id;
 	guint toggle_away_handler_id;
 };
@@ -138,10 +140,10 @@ loqui_toolbar_toggle_away_cb(GtkWidget *widget, gpointer data)
 		account_set_away(account, is_active);
 
 	/* cancel toggling */
-	loqui_toolbar_toggle_away_without_signal_emission(toolbar, !is_active);
+	loqui_toolbar_toggle_away_with_signal_handler_blocked(toolbar, !is_active);
 }
 GtkWidget*
-loqui_toolbar_new(gpointer data)
+loqui_toolbar_new(LoquiApp *app)
 {
         LoquiToolbar *toolbar;
 	LoquiToolbarPrivate *priv;
@@ -151,6 +153,9 @@ loqui_toolbar_new(gpointer data)
 	toolbar = g_object_new(loqui_toolbar_get_type(), NULL);
 
 	priv = toolbar->priv;
+
+	priv->app = app;
+
 	gtk_toolbar_set_icon_size(GTK_TOOLBAR(toolbar), TOOLBAR_ICON_SIZE);
 /*	gtk_toolbar_set_style(GTK_TOOLBAR(toolbar), GTK_TOOLBAR_BOTH_HORIZ); */
 
@@ -193,17 +198,17 @@ loqui_toolbar_new(gpointer data)
 	return GTK_WIDGET(toolbar);
 }
 void
-loqui_toolbar_toggle_scrolling_without_signal_emission(LoquiToolbar *toolbar, gboolean is_scroll)
+loqui_toolbar_toggle_scrolling_with_signal_handler_blocked(LoquiToolbar *toolbar, gboolean is_scroll)
 {
-	gtkutils_toggle_button_without_emission(GTK_TOGGLE_BUTTON(toolbar->toggle_scroll),
-						toolbar->priv->toggle_scroll_handler_id,
-						is_scroll);
+	gtkutils_toggle_button_with_signal_handler_blocked(GTK_TOGGLE_BUTTON(toolbar->toggle_scroll),
+							   toolbar->priv->toggle_scroll_handler_id,
+							   is_scroll);
 }
 
 void
-loqui_toolbar_toggle_away_without_signal_emission(LoquiToolbar *toolbar, gboolean is_away)
+loqui_toolbar_toggle_away_with_signal_handler_blocked(LoquiToolbar *toolbar, gboolean is_away)
 {
-	gtkutils_toggle_button_without_emission(GTK_TOGGLE_BUTTON(toolbar->toggle_away),
-						toolbar->priv->toggle_away_handler_id,
-						is_away);
+	gtkutils_toggle_button_with_signal_handler_blocked(GTK_TOGGLE_BUTTON(toolbar->toggle_away),
+							   toolbar->priv->toggle_away_handler_id,
+							   is_away);
 }
