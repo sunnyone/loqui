@@ -92,6 +92,7 @@ static void account_connection_info_cb(GObject *object, gchar *str, Account *acc
 
 static void account_user_notify_nick_cb(LoquiUser *user, GParamSpec *pspec, Account *account);
 static void account_user_self_notify_cb(LoquiUser *user_self, GParamSpec *pspec, Account *account);
+static void account_profile_notify_name_cb(LoquiProfileAccount *profile, GParamSpec *pspec, Account *account);
 
 static void account_remove_channel_real(Account *account, LoquiChannel *channel);
 
@@ -315,8 +316,15 @@ account_set_profile(Account *account, LoquiProfileAccount *profile)
 	account->priv->profile = profile;
 
 	loqui_channel_entry_set_name(LOQUI_CHANNEL_ENTRY(account), loqui_profile_account_get_name(profile));
+	g_signal_connect(G_OBJECT(profile), "notify::name",
+			 G_CALLBACK(account_profile_notify_name_cb), account);
 
 	g_object_notify(G_OBJECT(account), "profile");
+}
+static void
+account_profile_notify_name_cb(LoquiProfileAccount *profile, GParamSpec *pspec, Account *account)
+{
+	loqui_channel_entry_set_name(LOQUI_CHANNEL_ENTRY(account), loqui_profile_account_get_name(profile));
 }
 LoquiUser *
 account_get_user_self(Account *account)

@@ -127,7 +127,7 @@ static gboolean loqui_app_update_channel_info(LoquiApp *app);
 
 static void loqui_app_account_changed_cb(GObject *object, gpointer data);
 static void loqui_app_channel_changed_cb(GObject *object, gpointer data);
-static void loqui_app_channel_entry_notify_topic_cb(LoquiChannelEntry *chent, GParamSpec *pspec, gpointer data);
+static void loqui_app_channel_entry_notify_cb(LoquiChannelEntry *chent, GParamSpec *pspec, gpointer data);
 static void loqui_app_channel_entry_notify_is_updated_cb(LoquiChannelEntry *chent, GParamSpec *pspec, LoquiApp *app);
 static void loqui_app_channel_entry_notify_number_cb(LoquiChannelEntry *chent, GParamSpec *pspec, LoquiApp *app);
 
@@ -827,6 +827,9 @@ loqui_app_set_current_channel_entry(LoquiApp *app, LoquiChannelEntry *chent)
 	
 	priv = app->priv;
 
+	if (priv->current_chent) {
+		g_signal_handlers_disconnect_by_func(priv->current_chent, loqui_app_channel_entry_notify_cb, app);
+	}
 	if (priv->current_channel) {
 		g_signal_handlers_disconnect_by_func(priv->current_channel, loqui_app_channel_changed_cb, app);
 	}
@@ -860,8 +863,8 @@ loqui_app_set_current_channel_entry(LoquiApp *app, LoquiChannelEntry *chent)
 
 	loqui_channel_entry_set_is_updated(chent, FALSE);
 
-	g_signal_connect(G_OBJECT(chent), "notify::topic",
-			 G_CALLBACK(loqui_app_channel_entry_notify_topic_cb), app);
+	g_signal_connect(G_OBJECT(chent), "notify",
+			 G_CALLBACK(loqui_app_channel_entry_notify_cb), app);
 
 	if (LOQUI_IS_CHANNEL(chent)) {
 		g_signal_connect(channel, "mode-changed",
@@ -1165,7 +1168,7 @@ loqui_app_account_changed_cb(GObject *object, gpointer data)
 	}
 }
 static void
-loqui_app_channel_entry_notify_topic_cb(LoquiChannelEntry *chent, GParamSpec *pspec, gpointer data)
+loqui_app_channel_entry_notify_cb(LoquiChannelEntry *chent, GParamSpec *pspec, gpointer data)
 {
 	loqui_app_channel_changed_cb(G_OBJECT(chent), data);
 }

@@ -55,6 +55,7 @@ static void loqui_channel_entry_action_get_property(GObject *object, guint param
 static void loqui_channel_entry_action_set_property(GObject *object, guint param_id, const GValue *value, GParamSpec *pspec);
 
 static void loqui_channel_entry_action_entry_notify_is_updated_cb(LoquiChannelEntry *chent, GParamSpec *psec, LoquiChannelEntryAction *action);
+static void loqui_channel_entry_action_entry_notify_name_cb(LoquiChannelEntry *chent, GParamSpec *psec, LoquiChannelEntryAction *action);
 static void loqui_channel_entry_action_set_label_color(LoquiChannelEntryAction *ce_ction);
 
 static void loqui_channel_entry_action_entry_notify_id_cb(LoquiChannelEntry *ce_action, GParamSpec *psec, LoquiChannelEntryAction *action);
@@ -245,6 +246,11 @@ loqui_channel_entry_action_entry_notify_is_updated_cb(LoquiChannelEntry *chent, 
 	loqui_channel_entry_action_set_label_color(action);
 }
 static void
+loqui_channel_entry_action_entry_notify_name_cb(LoquiChannelEntry *chent, GParamSpec *psec, LoquiChannelEntryAction *action)
+{
+	g_object_set(G_OBJECT(action), "label", loqui_channel_entry_get_name(chent), NULL);
+}
+static void
 loqui_channel_entry_action_entry_notify_id_cb(LoquiChannelEntry *ce_action, GParamSpec *psec, LoquiChannelEntryAction *action)
 {
 	loqui_channel_entry_set_id_accel_path(action);
@@ -279,6 +285,8 @@ loqui_channel_entry_action_set_channel_entry(LoquiChannelEntryAction *action, Lo
 	g_signal_handlers_disconnect_by_func(G_OBJECT(channel_entry),
 					     loqui_channel_entry_action_entry_notify_is_updated_cb, action);
 	g_signal_handlers_disconnect_by_func(G_OBJECT(channel_entry),
+					     loqui_channel_entry_action_entry_notify_name_cb, action);
+	g_signal_handlers_disconnect_by_func(G_OBJECT(channel_entry),
 					     loqui_channel_entry_action_entry_notify_id_cb, action);
 
 	if (channel_entry) {
@@ -288,6 +296,9 @@ loqui_channel_entry_action_set_channel_entry(LoquiChannelEntryAction *action, Lo
 
 		g_signal_connect(G_OBJECT(channel_entry), "notify::is-updated",
 				 G_CALLBACK(loqui_channel_entry_action_entry_notify_is_updated_cb), action);
+		g_signal_connect(G_OBJECT(channel_entry), "notify::name",
+				 G_CALLBACK(loqui_channel_entry_action_entry_notify_name_cb), action);
+
 		g_object_set(G_OBJECT(action), "label", loqui_channel_entry_get_name(channel_entry), NULL);
 
 		if (IS_ACCOUNT(channel_entry))
