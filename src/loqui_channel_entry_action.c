@@ -27,6 +27,8 @@
 #include "loqui_channel.h"
 #include "account.h"
 #include "loqui_stock.h"
+#include "loqui_gtk.h"
+#include "gtkutils.h"
 
 enum {
         LAST_SIGNAL
@@ -53,6 +55,9 @@ static void loqui_channel_entry_action_dispose(GObject *object);
 
 static void loqui_channel_entry_action_get_property(GObject *object, guint param_id, GValue *value, GParamSpec *pspec);
 static void loqui_channel_entry_action_set_property(GObject *object, guint param_id, const GValue *value, GParamSpec *pspec);
+
+static void loqui_channel_entry_action_entry_notify_is_updated_cb(LoquiChannelEntry *chent, GParamSpec *psec, LoquiChannelEntryAction *action);
+static void loqui_channel_entry_action_set_label_color(LoquiChannelEntryAction *ce_ction);
 
 GType
 loqui_channel_entry_action_get_type(void)
@@ -104,7 +109,11 @@ loqui_channel_entry_action_dispose(GObject *object)
         g_return_if_fail(LOQUI_IS_CHANNEL_ENTRY_ACTION(object));
 
         action = LOQUI_CHANNEL_ENTRY_ACTION(object);
-
+	
+	if(action->channel_entry) {
+		g_signal_handlers_disconnect_by_func(G_OBJECT(action->channel_entry),
+						     loqui_channel_entry_action_entry_notify_is_updated_cb, action);
+	}
 	G_OBJECT_UNREF_UNLESS_NULL(action->channel_entry);
 
         if (G_OBJECT_CLASS(parent_class)->dispose)
@@ -157,8 +166,47 @@ loqui_channel_entry_action_connect_proxy(GtkAction *action, GtkWidget *proxy)
 		g_object_get(G_OBJECT(ce_action), "label", &label, NULL);
 		gtk_label_set(GTK_LABEL(proxy), label);
 	}
-
 	(* parent_class->connect_proxy) (action, proxy);
+	loqui_channel_entry_action_set_label_color(ce_action);
+}
+static void
+loqui_channel_entry_action_set_label_color(LoquiChannelEntryAction *action)
+{
+	LoquiChannelEntry *chent;
+	const gchar *color;
+	GtkWidget *label;
+	GList *children;
+	GtkWidget *proxy;
+
+	g_return_if_fail(action != NULL);
+	g_return_if_fail(LOQUI_IS_CHANNEL_ENTRY_ACTION(action));
+
+	/* FIXME */
+	if(IS_ACCOUNT(action->channel_entry)) 
+		return;
+
+	chent = LOQUI_CHANNEL_ENTRY(action->channel_entry);
+	if(!chent)
+		return;
+
+	GSList *cur;
+
+	for (cur = gtk_action_get_proxies(GTK_ACTION(action)); cur != NULL; cur = cur->next) {
+		proxy = cur->data;
+
+		color = loqui_channel_entry_get_is_updated(chent) ? FRESH_COLOR : NONFRESH_COLOR;
+		if (GTK_IS_LABEL(proxy))
+			gtkutils_set_label_color(GTK_LABEL(proxy), color);
+		else if (GTK_IS_MENU_ITEM(proxy)) {
+			children = gtk_container_get_children(GTK_CONTAINER(proxy));
+			label = children->data;
+			if(!label || !GTK_IS_LABEL(label)) {
+				g_warning("Child is not label!");
+				return;
+			}
+			gtkutils_set_label_color(GTK_LABEL(label), color);
+		}
+	}
 }
 static void
 loqui_channel_entry_action_class_init(LoquiChannelEntryActionClass *klass)
@@ -202,6 +250,12 @@ loqui_channel_entry_action_new(const gchar *name)
 
         return action;
 }
+static void
+loqui_channel_entry_action_entry_notify_is_updated_cb(LoquiChannelEntry *chent, GParamSpec *psec, LoquiChannelEntryAction *action)
+{
+	loqui_channel_entry_action_set_label_color(action);
+}
+
 void
 loqui_channel_entry_action_set_channel_entry(LoquiChannelEntryAction *action, GObject *channel_entry)
 {
@@ -216,13 +270,17 @@ loqui_channel_entry_action_set_channel_entry(LoquiChannelEntryAction *action, GO
 
 	G_OBJECT_UNREF_UNLESS_NULL(action->channel_entry);
 
+	g_signal_handlers_disconnect_by_func(G_OBJECT(channel_entry),
+					     loqui_channel_entry_action_entry_notify_is_updated_cb, action);
 	if (channel_entry) {
 		g_object_ref(channel_entry);
 		action->channel_entry = channel_entry;
 		/* FIXME */
-		if (LOQUI_IS_CHANNEL(channel_entry))
+		if (LOQUI_IS_CHANNEL(channel_entry)) {
 			name = loqui_channel_entry_get_name(LOQUI_CHANNEL_ENTRY(channel_entry));
-		else if (IS_ACCOUNT(channel_entry)) {
+			g_signal_connect(G_OBJECT(channel_entry), "notify::is-updated",
+					 G_CALLBACK(loqui_channel_entry_action_entry_notify_is_updated_cb), action);
+		} else if (IS_ACCOUNT(channel_entry)) {
 			name = loqui_profile_account_get_name(account_get_profile(ACCOUNT(channel_entry)));
 			g_object_set(G_OBJECT(action), "stock_id", LOQUI_STOCK_CONSOLE, NULL);
 		} else {
@@ -230,6 +288,7 @@ loqui_channel_entry_action_set_channel_entry(LoquiChannelEntryAction *action, GO
 		}
 
 		g_object_set(G_OBJECT(action), "label", name, NULL);
+		loqui_channel_entry_action_set_label_color(action);
 	}
 }
 GObject * /* FIXME */
