@@ -19,6 +19,11 @@
     </menu>
     <menu name="AccountMenu" action="StockAccountMenu">
       <menuitem name="Connect" action="Connect"/>
+      <placeholder>
+        <menuitem name="ConnectCurrentAccount" action="ConnectCurrentAccount"/>
+        <menuitem name="ReconnectCurrentAccount" action="ReconnectCurrentAccount"/>
+        <menuitem name="DisconnectCurrentAccount" action="DisconnectCurrentAccount"/>
+      </placeholder>
       <menuitem name="ChangeNick" action="ChangeNick"/>
     </menu>
     <menu name="ChannelMenu" action="StockChannelMenu">
