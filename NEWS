@@ -114,3 +114,9 @@
 * Added the feature that all default accounts will be connected when the program started automatically.
 * Fixed the parser of plum-recent.
 
+2003-09-11     0.1.19
+* Fixed some bugs.
+* Settings of code convertion is moved to account configuration.
+* Made it easy to change nick if you register nick at account configuration.
+* Always show idle time with WHOIS command with NickList.
+* Made idle time human readable.

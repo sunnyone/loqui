@@ -1,3 +1,140 @@
+2003-09-11 03:03  y-imai
+
+	* src/buffer_menu.c: Check if children->data is GtkLabel.
+
+2003-09-11 02:57  y-imai
+
+	* src/account_dialog.c: created configuration item to set often
+	using nicks.
+
+2003-09-11 02:48  y-imai
+
+	* src/: gtkutils.c, gtkutils.h, prefs_dialog.c: created
+	gtkutils_create_framed_textview().
+
+2003-09-11 02:41  y-imai
+
+	* src/: gtkutils.c, gtkutils.h, prefs_dialog.c: Created function to
+	exchange from/to string list to/from textview in gtkutils.
+
+2003-09-11 02:25  y-imai
+
+	* src/account_dialog.c: separate pages with notebook.
+
+2003-09-11 02:15  y-imai
+
+	* src/: loqui_app.c, remark_entry.c: Implemented the feature to
+	change nick from the menu.
+
+2003-09-11 01:41  y-imai
+
+	* src/remark_entry.c: Fixed the place to show nicklist menu.  Use
+	ToggleButton instead of Button.
+
+2003-09-11 01:38  y-imai
+
+	* src/: gtkutils.c, gtkutils.h: gtkut_menu_position_under_widget is
+	renamed to gtkutils_menu_position_under_widget.
+
+2003-09-11 01:34  y-imai
+
+	* src/: gtkutils.c, gtkutils.h: added
+	gtkut_menu_position_under_widget().
+
+2003-09-11 01:14  y-imai
+
+	* src/: account.h, loqui_app.c, prefs_account.c, remark_entry.c:
+	show nicklist menu.
+
+2003-09-11 00:57  y-imai
+
+	* src/: account.h, prefs_account.c: added nicklist to .accountrc.
+
+2003-09-11 00:56  y-imai
+
+	* src/: remark_entry.c, remark_entry.h: added nick pulldown to
+	remark entry.
+
+2003-09-10 23:21  y-imai
+
+	* src/: loqui_app.c, remark_entry.c: added nick button to remark
+	entry.
+
+2003-09-06 20:43  y-imai
+
+	* src/icons/.cvsignore: added .xvpics to .cvsignore
+
+2003-09-06 20:42  y-imai
+
+	* src/: .cvsignore, icons/.cvsignore: edited .cvsignore
+
+2003-08-29 02:40  y-imai
+
+	* test/main_var.c: removed needless main_var.c
+
+2003-08-29 02:39  y-imai
+
+	* Makefile.am, autogen.sh, test/Makefile.am,
+	test/Makefile.am.after, test/main_var.c, test/test_main.c,
+	test/test_main.h, test/test_utils.c, test/test_utils.h,
+	test/update-makefile.sh: added testing framework (which does not
+	work)
+
+2003-08-28 04:29  y-imai
+
+	* src/irc_handle.c: format idle time like 'Idle time: %d day(s),
+	%H:%M:%S'
+
+2003-08-28 03:24  y-imai
+
+	* src/account.c: account_whois sends 'WHOIS target target'
+
+2003-08-28 03:16  y-imai
+
+	* src/: account.c, account.h, account_dialog.c, codeconv.c,
+	codeconv.h, irc_handle.c, main.c, prefs_account.c, prefs_dialog.c,
+	prefs_general.c, prefs_general.h: configuration of codeconv was
+	moved from prefs_general to prefs_account. CodeConv class was
+	created.
+
+2003-08-17 15:47  y-imai
+
+	* src/: channel.c, channel.h, channel_input_dialog.c,
+	channel_input_dialog.h, loqui_app.c: made the return value of
+	channel_get_{topic,name} const.
+
+2003-07-30 16:33  y-imai
+
+	* src/connect_dialog.c: fixed the bug loqui crashed when you
+	clicked the OK button on the connect-dialog if there are no
+	accounts
+
+2003-07-30 16:24  y-imai
+
+	* src/: channel_buffer.c, utils.c, utils.h: utils_search_uri():
+	created. fixed the bug that loqui failed to search second uri on
+	the line.
+
+2003-07-08 20:47  y-imai
+
+	* src/loqui_app.c: changed the timing to change the updated flag of
+	channels.
+
+2003-07-08 20:36  y-imai
+
+	* src/account_manager.c: fixed that
+	loqui_channel_set_current_channel is not called when the account is
+	selected
+
+2003-07-01 21:16  y-imai
+
+	* debian/changelog: updated debian changelog
+
+2003-07-01 21:15  y-imai
+
+	* ChangeLog, NEWS, NEWS.ja, configure.in, po/ja.po, po/loqui.pot:
+	0.1.18
+
 2003-07-01 20:58  y-imai
 
 	* src/remark_entry.c: managing remark history by myself. abolished
