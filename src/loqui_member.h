@@ -22,6 +22,8 @@
 #define __LOQUI_MEMBER_H__
 
 #include <glib-object.h>
+#include <time.h>
+
 #include "loqui_user.h"
 
 G_BEGIN_DECLS
@@ -44,6 +46,8 @@ struct _LoquiMember
 
 	gboolean is_channel_operator;
 	gboolean speakable;
+
+	glong last_message_time;
 };
 
 struct _LoquiMemberClass
@@ -64,6 +68,9 @@ gboolean loqui_member_get_is_channel_operator(LoquiMember *member);
 
 void loqui_member_set_speakable(LoquiMember *member, gboolean speakable);
 gboolean loqui_member_get_speakable(LoquiMember *member);
+
+void loqui_member_set_last_message_time(LoquiMember *member, time_t last_message_time);
+time_t loqui_member_get_last_message_time(LoquiMember *member);
 
 G_END_DECLS
 

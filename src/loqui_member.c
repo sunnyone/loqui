@@ -32,6 +32,7 @@ enum {
 	PROP_USER,
 	PROP_IS_CHANNEL_OPERATOR,
 	PROP_SPEAKABLE,
+	PROP_LAST_MESSAGE_TIME,
         LAST_PROP
 };
 
@@ -118,6 +119,9 @@ loqui_member_get_property(GObject *object, guint param_id, GValue *value, GParam
 	case PROP_SPEAKABLE:
 		g_value_set_boolean(value, member->speakable);
 		break;
+	case PROP_LAST_MESSAGE_TIME:
+		g_value_set_long(value, member->last_message_time);
+		break;
         default:
                 G_OBJECT_WARN_INVALID_PROPERTY_ID(object, param_id, pspec);
                 break;
@@ -129,7 +133,6 @@ loqui_member_set_property(GObject *object, guint param_id, const GValue *value, 
         LoquiMember *member;        
 
         member = LOQUI_MEMBER(object);
-
         switch (param_id) {
 	case PROP_USER:
 		loqui_member_set_user(member, g_value_get_object(value));
@@ -139,6 +142,9 @@ loqui_member_set_property(GObject *object, guint param_id, const GValue *value, 
 		break;
 	case PROP_SPEAKABLE:
 		loqui_member_set_speakable(member, g_value_get_boolean(value));
+		break;
+	case PROP_LAST_MESSAGE_TIME:
+		loqui_member_set_last_message_time(member, (time_t) g_value_get_long(value));
 		break;
         default:
                 G_OBJECT_WARN_INVALID_PROPERTY_ID(object, param_id, pspec);
@@ -176,6 +182,14 @@ loqui_member_class_init(LoquiMemberClass *klass)
 							     _("Speakable or not"),
 							     _("Has voice privillege or not"),
 							     FALSE, G_PARAM_READWRITE));
+	g_object_class_install_property(object_class,
+					PROP_LAST_MESSAGE_TIME,
+					g_param_spec_long("last_message_time",
+							 _("Last message time"),
+							 _("Last message time"),
+							 G_MINLONG,
+							 G_MAXLONG,
+							 0, G_PARAM_READWRITE));
 }
 static void 
 loqui_member_init(LoquiMember *member)
@@ -251,4 +265,24 @@ loqui_member_get_speakable(LoquiMember *member)
         g_return_val_if_fail(LOQUI_IS_MEMBER(member), 0);
 
 	return member->speakable;
+}
+void
+loqui_member_set_last_message_time(LoquiMember *member, time_t last_message_time)
+{
+	g_return_if_fail(member != NULL);
+        g_return_if_fail(LOQUI_IS_MEMBER(member));
+
+	if (member->last_message_time == last_message_time)
+		return;
+
+	member->last_message_time = last_message_time;
+	g_object_notify(G_OBJECT(member), "last_message_time");
+}
+time_t
+loqui_member_get_last_message_time(LoquiMember *member)
+{
+        g_return_val_if_fail(member != NULL, 0);
+        g_return_val_if_fail(LOQUI_IS_MEMBER(member), 0);
+
+	return member->last_message_time;
 }
