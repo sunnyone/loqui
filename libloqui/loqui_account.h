@@ -149,6 +149,8 @@ void loqui_account_get_updated_number(LoquiAccount *account, gint *updated_priva
 void loqui_account_add_user(LoquiAccount *account, LoquiUser *user);
 LoquiUser* loqui_account_peek_user(LoquiAccount *account, const gchar *identifier);
 
+LoquiChannel *loqui_account_open_private_talk(LoquiAccount *account, const gchar *identifier, LoquiUser *user);
+
 void loqui_account_warning(LoquiAccount *account, const gchar *format, ...) G_GNUC_PRINTF(2, 3);
 void loqui_account_information(LoquiAccount *account, const gchar *format, ...) G_GNUC_PRINTF(2, 3);
 

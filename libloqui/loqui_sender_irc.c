@@ -425,25 +425,7 @@ loqui_sender_irc_start_private_talk(LoquiSender *sender, LoquiUser *user)
 
 	WARN_AND_RETURN_UNLESS_CONNECTED(sender);
 
-	if ((channel = loqui_account_get_channel_by_identifier(loqui_sender_get_account(sender), loqui_user_get_nick(user))) == NULL) {
-		/* FIXME: priv should not have a identifier */
-		channel = LOQUI_CHANNEL(loqui_channel_irc_new(loqui_sender_get_account(sender), loqui_user_get_nick(user), TRUE, TRUE));
-		
-		user_self = loqui_account_get_user_self(loqui_sender_get_account(sender));
-		
-		if (user_self != user) {
-			member = loqui_member_new(user);
-			loqui_channel_entry_add_member(LOQUI_CHANNEL_ENTRY(channel), member);
-			g_object_unref(member);
-		}
-
-		member = loqui_member_new(user_self);
-		loqui_channel_entry_add_member(LOQUI_CHANNEL_ENTRY(channel), member);
-		g_object_unref(member);
-
-		loqui_account_add_channel(loqui_sender_get_account(sender), channel);
-		g_object_unref(channel);
-	}
+	loqui_account_open_private_talk(loqui_sender_get_account(sender), loqui_user_get_nick(user), user);
 }
 static void
 loqui_sender_irc_end_private_talk(LoquiSender *sender, LoquiChannel *channel)
