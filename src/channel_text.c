@@ -115,6 +115,9 @@ channel_text_new (void)
 	ChannelTextPrivate *priv;
 
 	channel_text = g_object_new(channel_text_get_type(), NULL);
-	
+
+	gtk_text_view_set_editable(GTK_TEXT_VIEW(channel_text), FALSE);
+	gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(channel_text), GTK_WRAP_CHAR);
+
 	return GTK_WIDGET(channel_text);
 }

@@ -25,6 +25,7 @@
 #include "irc_handle.h"
 #include "gtkutils.h"
 #include "utils.h"
+#include "account_manager.h"
 
 struct _AccountPrivate
 {
@@ -135,7 +136,9 @@ account_new (void)
         Account *account;
 
 	account = g_object_new(account_get_type(), NULL);
-
+	
+	account->console_text = account_manager_add_channel_text(account_manager_get());
+	
 	return account;
 }
 

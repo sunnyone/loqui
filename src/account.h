@@ -21,6 +21,7 @@
 #define __ACCOUNT_H__
 
 #include <gnome.h>
+#include "channel_text.h"
 
 G_BEGIN_DECLS
 
@@ -51,6 +52,8 @@ struct _Account
 	gchar *realname;
 	gchar *userinfo;
 	gchar *autojoin;
+
+	ChannelText *console_text;
 
         AccountPrivate *priv;
 };

@@ -21,6 +21,7 @@
 #define __CHANNEL_BOOK_H__
 
 #include <gnome.h>
+#include "channel_text.h"
 
 G_BEGIN_DECLS
 
@@ -49,9 +50,10 @@ struct _ChannelBookClass
 };
 
 
-GtkType channel_book_get_type (void) G_GNUC_CONST;
+GtkType channel_book_get_type(void) G_GNUC_CONST;
 
-GtkWidget* channel_book_new (void);
+GtkWidget* channel_book_new(void);
+void channel_book_add_channel_text(ChannelBook *book, ChannelText *text);
 
 G_END_DECLS
 

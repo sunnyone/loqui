@@ -166,6 +166,11 @@ loqui_app_new (void)
 	LoquiApp *app;
 	LoquiAppPrivate *priv;
 
+	GtkWidget *channel_book;
+	GtkWidget *channel_tree;
+	GtkWidget *nick_list;
+	GtkWidget *common_text;
+
 	GtkWidget *appbar;
 	GtkWidget *vbox;
 	GtkWidget *entry;
@@ -218,30 +223,33 @@ loqui_app_new (void)
 	vbox = gtk_vbox_new(FALSE, 0);
 	gtk_paned_pack1(GTK_PANED(vpaned), vbox, TRUE, TRUE);
 
-	app->channel_book = channel_book_new();
-	gtk_box_pack_start_defaults(GTK_BOX(vbox), app->channel_book);
+	channel_book = channel_book_new();
+	gtk_box_pack_start_defaults(GTK_BOX(vbox), channel_book);
 
 	/* TODO: this should be replaced with a widget considered multiline editing */
 	entry = gtk_entry_new();
 	gtk_box_pack_end(GTK_BOX(vbox), entry, FALSE, FALSE, 0);
 
-	app->common_text = loqui_common_text_new();
-	SET_SCROLLED_WINDOW(scrolled_win, GTK_WIDGET(app->common_text), GTK_POLICY_NEVER, GTK_POLICY_ALWAYS);
+	common_text = channel_text_new();
+	SET_SCROLLED_WINDOW(scrolled_win, common_text, GTK_POLICY_NEVER, GTK_POLICY_ALWAYS);
 	gtk_paned_pack2(GTK_PANED(vpaned), scrolled_win, FALSE, TRUE);
-
 
 	/* right side */
 	vpaned = gtk_vpaned_new();
 	gtk_paned_pack2(GTK_PANED(hpaned), vpaned, FALSE, TRUE);
 	
-	app->nick_list = nick_list_new();
-	SET_SCROLLED_WINDOW(scrolled_win, app->nick_list, GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
+	nick_list = nick_list_new();
+	SET_SCROLLED_WINDOW(scrolled_win, nick_list, GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
 	gtk_paned_pack1(GTK_PANED(vpaned), scrolled_win, TRUE, TRUE);	
 
-	app->channel_tree = channel_tree_new();
-	SET_SCROLLED_WINDOW(scrolled_win, GTK_WIDGET(app->channel_tree), GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC); 
+	channel_tree = channel_tree_new();
+	SET_SCROLLED_WINDOW(scrolled_win, channel_tree, GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC); 
 	gtk_paned_pack2(GTK_PANED(vpaned), scrolled_win, FALSE, TRUE);
 	
+	app->channel_tree = CHANNEL_TREE(channel_tree);
+	app->channel_book = CHANNEL_BOOK(channel_book);
+	app->nick_list = NICK_LIST(nick_list);
+	app->common_text = CHANNEL_TEXT(common_text);
 
 	/* status bar */
 	appbar = gnome_appbar_new(FALSE, TRUE, GNOME_PREFERENCES_NEVER);
@@ -257,15 +265,6 @@ loqui_app_new (void)
 
 	return GTK_WIDGET(app);
 }
-
-#if 0
-LoquiApp *loqui_app_get_main_app(void)
-{
-	if(!main_app)
-		main_app = LOQUI_APP(loqui_app_new());
-	return main_app;
-}
-#endif
 
 void loqui_app_set_topic(LoquiApp *app, const gchar *str)
 {

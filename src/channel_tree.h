@@ -50,9 +50,9 @@ struct _ChannelTreeClass
 };
 
 
-GtkType channel_tree_get_type (void) G_GNUC_CONST;
+GtkType channel_tree_get_type(void) G_GNUC_CONST;
 
-GtkWidget* channel_tree_new (void);
+GtkWidget* channel_tree_new(void);
 
 void channel_tree_add_account(ChannelTree *tree, Account *account);
 

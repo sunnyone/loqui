@@ -22,9 +22,8 @@
 #include "account_manager.h"
 #include "loqui_gconf.h"
 #include "account.h"
-#include "channel_tree.h"
-#include "loqui_common_text.h"
 #include "utils.h"
+#include "loqui_app.h"
 
 struct _AccountManagerPrivate
 {
@@ -39,6 +38,8 @@ static GObjectClass *parent_class = NULL;
 static void account_manager_class_init(AccountManagerClass *klass);
 static void account_manager_init(AccountManager *account_manager);
 static void account_manager_finalize(GObject *object);
+
+static AccountManager *main_account_manager = NULL;
 
 GType
 account_manager_get_type(void)
@@ -101,7 +102,7 @@ account_manager_finalize (GObject *object)
 }
 
 AccountManager*
-account_manager_new (LoquiApp *app)
+account_manager_new (void)
 {
         AccountManager *account_manager;
 	AccountManagerPrivate *priv;
@@ -109,8 +110,8 @@ account_manager_new (LoquiApp *app)
 	account_manager = g_object_new(account_manager_get_type(), NULL);
 
 	priv = account_manager->priv;
-
-	priv->app = app;
+	priv->app = LOQUI_APP(loqui_app_new());
+	gtk_widget_show_all(GTK_WIDGET(priv->app));
 
 	return account_manager;
 }
@@ -141,4 +142,24 @@ void account_manager_load_accounts(AccountManager *account_manager)
         g_slist_free(list);
 
 	loqui_menu_create_connect_submenu(priv->app->menu, priv->account_list);
+}
+ChannelText *account_manager_add_channel_text(AccountManager *manager)
+{
+	AccountManagerPrivate *priv;
+	ChannelText *text;
+
+	priv = manager->priv;
+
+	text = CHANNEL_TEXT(channel_text_new());
+	channel_book_add_channel_text(priv->app->channel_book, text);
+	gtk_widget_show(GTK_WIDGET(text));
+
+	return text;
+}
+
+AccountManager *account_manager_get(void)
+{
+	if(!main_account_manager)
+		main_account_manager = account_manager_new();
+	return main_account_manager;
 }

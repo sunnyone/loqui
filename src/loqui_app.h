@@ -22,6 +22,10 @@
 
 #include <gnome.h>
 #include "loqui_menu.h"
+#include "channel_tree.h"
+#include "nick_list.h"
+#include "channel_book.h"
+#include "channel_text.h"
 
 G_BEGIN_DECLS
 
@@ -45,10 +49,10 @@ struct _LoquiApp
 	GAsyncQueue *error_connections;
 
 	LoquiMenu *menu;
-	GtkWidget *channel_book;
-	GtkWidget *common_text;
-	GtkWidget *nick_list;
-	GtkWidget *channel_tree;
+	ChannelBook *channel_book;
+	ChannelText *common_text;
+	NickList *nick_list;
+	ChannelTree *channel_tree;
 };
 
 struct _LoquiAppClass
