@@ -27,6 +27,7 @@
 
 struct _ChannelTreePrivate
 {
+	guint selection_changed_signal_id;
 };
 
 #define FRESH_COLOR "red"
@@ -157,12 +158,15 @@ GtkWidget*
 channel_tree_new(void)
 {
         ChannelTree *tree;
+	ChannelTreePrivate *priv;
 	GtkTreeStore *model;
 	GtkTreeViewColumn *column;
 	GtkCellRenderer *renderer;
 	GtkTreeSelection *selection;
 
 	tree = g_object_new(channel_tree_get_type(), NULL);
+
+	priv = tree->priv;
 
         gtk_tree_view_set_headers_visible(GTK_TREE_VIEW(tree), TRUE);
 	selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(tree));
@@ -212,8 +216,8 @@ channel_tree_new(void)
 
 	g_signal_connect(G_OBJECT(tree), "row_activated",
 			 G_CALLBACK(channel_tree_row_activated_cb), NULL);
-	g_signal_connect(G_OBJECT(selection), "changed",
-			 G_CALLBACK(channel_tree_row_selected_cb), tree);
+	priv->selection_changed_signal_id = g_signal_connect(G_OBJECT(selection), "changed",
+							     G_CALLBACK(channel_tree_row_selected_cb), tree);
 
 /* gtk_tree_view_set_rules_hint(GTK_TREE_VIEW(tree), TRUE); */
 
@@ -256,7 +260,6 @@ channel_tree_update_account(ChannelTree *tree, Account *account)
 	gtk_tree_store_set(GTK_TREE_STORE(model), &iter,
 			   COLUMN_TEXT, account->name,
 			   -1);
-	
 }
 
 void
@@ -354,17 +357,22 @@ channel_tree_select_channel(ChannelTree *tree, Channel *channel)
 	GtkTreeModel *model;
 	GtkTreeIter iter;
 	GtkTreeSelection *selection;
+	ChannelTreePrivate *priv;
 
         g_return_if_fail(tree != NULL);
         g_return_if_fail(IS_CHANNEL_TREE(tree));
         g_return_if_fail(channel != NULL);
         g_return_if_fail(IS_CHANNEL(channel));
 	
+	priv = tree->priv;
+
 	model = gtk_tree_view_get_model(GTK_TREE_VIEW(tree));
 	selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(tree));
 	
+	g_signal_handler_block(selection, priv->selection_changed_signal_id);
 	if(gtk_tree_model_find_by_column_data(model, &iter, NULL, COLUMN_CHANNEL, channel))
 		gtk_tree_selection_select_iter(selection, &iter);
+	g_signal_handler_unblock(selection, priv->selection_changed_signal_id);
 }
 void
 channel_tree_select_account(ChannelTree *tree, Account *account)
@@ -372,17 +380,23 @@ channel_tree_select_account(ChannelTree *tree, Account *account)
 	GtkTreeModel *model;
 	GtkTreeIter iter;
 	GtkTreeSelection *selection;
+	ChannelTreePrivate *priv;
 
         g_return_if_fail(tree != NULL);
         g_return_if_fail(IS_CHANNEL_TREE(tree));
         g_return_if_fail(account != NULL);
         g_return_if_fail(IS_ACCOUNT(account));
 
+	priv = tree->priv;
+
 	model = gtk_tree_view_get_model(GTK_TREE_VIEW(tree));
 	selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(tree));
 
+	g_signal_handler_block(selection, priv->selection_changed_signal_id);
 	if(gtk_tree_model_find_by_column_data(model, &iter, NULL, COLUMN_ACCOUNT, account))
 		gtk_tree_selection_select_iter(selection, &iter);
+	g_signal_handler_unblock(selection, priv->selection_changed_signal_id);
+
 }
 void
 channel_tree_update_user_number(ChannelTree *tree, Channel *channel)

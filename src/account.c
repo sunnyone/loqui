@@ -339,7 +339,7 @@ account_connect(Account *account, gint server_num, gboolean fallback)
 				     account->name);
 		return;
 	}
-	account_manager_select_account(account_manager_get(), account); 
+	account_manager_set_current_account(account_manager_get(), account); 
 	priv->handle = irc_handle_new(account, server_num, fallback);
 }
 void
@@ -384,7 +384,7 @@ void account_remove_channel(Account *account, Channel *channel)
         g_return_if_fail(IS_ACCOUNT(account));
 
 	account->channel_list = g_slist_remove(account->channel_list, channel);
-	account_manager_select_account(account_manager_get(), account);
+	account_manager_set_current_account(account_manager_get(), account);
 	account_manager_remove_channel(account_manager_get(), account, channel);
 }
 Channel*

@@ -572,7 +572,7 @@ irc_handle_my_command_join(IRCHandle *handle, IRCMessage *msg)
 	gdk_threads_enter();
 	channel = channel_new(priv->account, name);
 	account_add_channel(priv->account, channel);
-	account_manager_select_channel(account_manager_get(), channel);
+	account_manager_set_current_channel(account_manager_get(), channel);
 	gdk_threads_leave();
 
 	mode_msg = irc_message_create(IRCCommandMode, channel->name, NULL);

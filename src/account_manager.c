@@ -259,6 +259,7 @@ void account_manager_set_current_channel(AccountManager *manager, Channel *chann
 	priv->current_account = NULL; /* FIXME: this should be not NULL but channel->account */
 	priv->current_channel = channel;
 
+	channel_tree_select_channel(manager->priv->app->channel_tree, channel);
 	loqui_app_set_channel_buffer(priv->app, GTK_TEXT_BUFFER(channel->buffer));
 	nick_list_set_store(priv->app->nick_list, channel->user_list);
 	account_manager_update_current_info(manager);
@@ -280,6 +281,7 @@ void account_manager_set_current_account(AccountManager *manager, Account *accou
 	priv->current_channel = NULL; /* FIXME */
 	priv->current_account = account;
 
+	channel_tree_select_account(manager->priv->app->channel_tree, account);
 	loqui_app_set_channel_buffer(priv->app, GTK_TEXT_BUFFER(account->console_buffer));
 	nick_list_set_store(priv->app->nick_list, NULL);
 	account_manager_update_current_info(manager);
@@ -313,28 +315,6 @@ Account *account_manager_get_current_account(AccountManager *manager)
 		return priv->current_channel->account;
 	
 	return NULL;
-}
-
-/* mainly called */
-void
-account_manager_select_channel(AccountManager *manager, Channel *channel)
-{
-        g_return_if_fail(manager != NULL);
-        g_return_if_fail(IS_ACCOUNT_MANAGER(manager));
-        g_return_if_fail(channel != NULL);
-        g_return_if_fail(IS_CHANNEL(channel));
-	
-	channel_tree_select_channel(manager->priv->app->channel_tree, channel);
-}
-void
-account_manager_select_account(AccountManager *manager, Account *account)
-{
-        g_return_if_fail(manager != NULL);
-        g_return_if_fail(IS_ACCOUNT_MANAGER(manager));
-        g_return_if_fail(account != NULL);
-        g_return_if_fail(IS_ACCOUNT(account));
-	
-	channel_tree_select_account(manager->priv->app->channel_tree, account);
 }
 
 #if 0
