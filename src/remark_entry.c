@@ -51,6 +51,8 @@ static void remark_entry_finalize(GObject *object);
 static void remark_entry_destroy(GtkObject *object);
 static void remark_entry_combo_activated_cb(GtkWidget *widget, gpointer data);
 
+static void remark_entry_history_add(RemarkEntry *entry, const gchar *str);
+
 GType
 remark_entry_get_type(void)
 {
@@ -234,12 +236,37 @@ remark_entry_grab_focus(RemarkEntry *entry)
 }
 
 static void
+remark_entry_history_add(RemarkEntry *entry, const gchar *str)
+{
+	RemarkEntryPrivate *priv;
+	gint diff;
+	GList *cur, *prev;
+
+        g_return_if_fail(entry != NULL);
+        g_return_if_fail(IS_REMARK_ENTRY(entry));
+
+	priv = entry->priv;
+
+	priv->string_list = g_list_insert(priv->string_list, g_strdup(str), 1);
+	diff = (gint) g_list_length(priv->string_list) - (gint) prefs_general.remark_history_number - 1;
+	if(diff > 0) {
+		cur = g_list_last(priv->string_list);
+		while(cur && diff > 0) {
+			prev = cur->prev;
+			g_free((gchar *) cur->data);
+			priv->string_list = g_list_delete_link(priv->string_list, cur);
+			diff--;
+			cur = prev;
+		}
+	}
+
+	gtk_combo_set_popdown_strings(GTK_COMBO(priv->combo), priv->string_list);
+}
+static void
 remark_entry_combo_activated_cb(GtkWidget *widget, gpointer data)
 {
         RemarkEntry *remark_entry;
 	RemarkEntryPrivate *priv;
-	GList *cur, *prev;
-	gint diff;
 	gchar *str;
 
         g_return_if_fail(data != NULL);
@@ -252,19 +279,7 @@ remark_entry_combo_activated_cb(GtkWidget *widget, gpointer data)
 
 	g_signal_emit(remark_entry, remark_entry_signals[ACTIVATE], 0);
 
-	priv->string_list = g_list_insert(priv->string_list, 
-					  str, 1);
-	diff = (gint) g_list_length(priv->string_list) - (gint) prefs_general.remark_history_number - 1;
-	if(diff > 0) {
-		cur = g_list_last(priv->string_list);
-		while(cur && diff > 0) {
-			prev = cur->prev;
-			g_free((gchar *) cur->data);
-			priv->string_list = g_list_delete_link(priv->string_list, cur);
-			diff--;
-			cur = prev;
-		}
-	}
-	gtk_combo_set_popdown_strings(GTK_COMBO(priv->combo), priv->string_list);
+	remark_entry_history_add(remark_entry, str);
+	g_free(str);
 }
 
