@@ -1252,6 +1252,8 @@ loqui_receiver_irc_reply(LoquiReceiverIRC *receiver, IRCMessage *msg)
 	case IRC_RPL_WELCOME:
 		loqui_receiver_irc_reply_welcome(receiver, msg);
 		return TRUE;
+	case IRC_RPL_HELLO:
+	case IRC_RPL_YOURID:
 	case IRC_RPL_YOURHOST:
 	case IRC_RPL_CREATED:
 	case IRC_RPL_MYINFO:
