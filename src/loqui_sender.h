@@ -72,6 +72,7 @@ struct _LoquiSenderClass
 GType loqui_sender_get_type(void) G_GNUC_CONST;
 
 LoquiSender* loqui_sender_new(LoquiAccount *account);
+LoquiAccount* loqui_sender_get_account(LoquiSender *sender);
 
 /* if functions not using Loqui(Channel|User) are required, create a new function (has _raw suffix) for each protocol.
    For example, loqui_sender_irc_say_raw(LoquiSenderIRC *sender, const gchar *target, const gchar *text); */

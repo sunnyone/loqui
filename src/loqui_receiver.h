@@ -57,6 +57,7 @@ struct _LoquiReceiverClass
 GType loqui_receiver_get_type(void) G_GNUC_CONST;
 
 LoquiReceiver* loqui_receiver_new(LoquiAccount *account);
+LoquiAccount* loqui_receiver_get_account(LoquiReceiver *receiver);
 
 G_END_DECLS
 

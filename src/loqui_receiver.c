@@ -160,3 +160,15 @@ loqui_receiver_new(LoquiAccount *account)
 
         return receiver;
 }
+LoquiAccount *
+loqui_receiver_get_account(LoquiReceiver *receiver)
+{
+        g_return_val_if_fail(receiver != NULL, NULL);
+        g_return_val_if_fail(LOQUI_IS_RECEIVER(receiver), NULL);
+
+	/* check account is valid */
+	g_return_val_if_fail(receiver->account != NULL, NULL);
+	g_return_val_if_fail(LOQUI_IS_ACCOUNT(receiver->account), NULL);
+
+	return receiver->account;
+}

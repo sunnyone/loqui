@@ -77,7 +77,7 @@ static gboolean check_target_valid(LoquiAccount *account, const gchar *str);
 
 #define WARN_AND_RETURN_UNLESS_CONNECTED(sender) { \
 	LoquiAccount *ac; \
-	ac = LOQUI_SENDER(sender)->account; \
+	ac = loqui_sender_get_account(LOQUI_SENDER(sender)); \
 	if (!loqui_account_get_is_connected(ac)) { \
 		loqui_account_warning(ac, _("Not connected")); \
 		return; \
@@ -237,7 +237,7 @@ loqui_sender_irc_send_irc_message(LoquiSenderIRC *sender, IRCMessage *msg)
 {
 	IRCConnection *conn;
 
-	conn = loqui_account_irc_get_connection(LOQUI_ACCOUNT_IRC(LOQUI_SENDER(sender)->account));
+	conn = loqui_account_irc_get_connection(LOQUI_ACCOUNT_IRC(loqui_sender_get_account(LOQUI_SENDER(sender))));
 	g_return_if_fail(conn != NULL);
 
 	irc_connection_push_message(conn, msg);
@@ -250,11 +250,14 @@ loqui_sender_irc_speak(LoquiSenderIRC *sender, LoquiChannel *channel, const gcha
 	gchar **array;
 	int i;
 	LoquiMember *member;
+	LoquiUser *user_self;
 	
 	buf = g_strdup(text);
 	utils_remove_return_code(buf); /* remove last return code */
 	array = g_strsplit(buf, "\n", -1);
 	g_free(buf);
+
+	user_self = loqui_account_get_user_self(loqui_sender_get_account(LOQUI_SENDER(sender)));
 
 	for(i = 0; array[i] != NULL; i++) {
 		if(strlen(array[i]) == 0)
@@ -266,11 +269,11 @@ loqui_sender_irc_speak(LoquiSenderIRC *sender, LoquiChannel *channel, const gcha
 			loqui_sender_irc_say_raw(sender, loqui_channel_get_identifier(channel), array[i]);
 
 		loqui_channel_append_remark(channel, is_notice ? TEXT_TYPE_NOTICE : TEXT_TYPE_NORMAL,
-					    TRUE, loqui_user_get_nick(LOQUI_SENDER(sender)->account->user_self), array[i], FALSE);
+					    TRUE, loqui_user_get_nick(user_self), array[i], FALSE);
 	}
 	g_strfreev(array);
 	
-	member = loqui_channel_entry_get_member_by_user(LOQUI_CHANNEL_ENTRY(channel), loqui_account_get_user_self(LOQUI_SENDER(sender)->account));
+	member = loqui_channel_entry_get_member_by_user(LOQUI_CHANNEL_ENTRY(channel), user_self);
 	loqui_member_set_last_message_time(member, time(NULL));
 }
 static void
@@ -298,7 +301,7 @@ loqui_sender_irc_nick(LoquiSender *sender, const gchar *text)
         g_return_if_fail(LOQUI_IS_SENDER_IRC(sender));
 
 	WARN_AND_RETURN_UNLESS_CONNECTED(sender);
-	if (!check_target_valid(sender->account, text))
+	if (!check_target_valid(loqui_sender_get_account(sender), text))
 		return;
 
 	msg = irc_message_create(IRCCommandNick, text, NULL);
@@ -361,11 +364,11 @@ loqui_sender_irc_part(LoquiSender *sender, LoquiChannel *channel, const gchar *p
         g_return_if_fail(LOQUI_IS_SENDER_IRC(sender));
 
 	if (loqui_channel_get_is_private_talk(channel)) {
-		loqui_account_warning(sender->account, _("This is a private talk"));
+		loqui_account_warning(loqui_sender_get_account(sender), _("This is a private talk"));
 		return;
 	}
 	if (!loqui_channel_get_is_joined(channel)) {
-		loqui_account_remove_channel(sender->account, channel);
+		loqui_account_remove_channel(loqui_sender_get_account(sender), channel);
 		return;
 	}
 
@@ -387,7 +390,7 @@ loqui_sender_irc_topic(LoquiSender *sender, LoquiChannel *channel, const gchar *
         g_return_if_fail(LOQUI_IS_SENDER_IRC(sender));
 
 	if (loqui_channel_get_is_private_talk(channel)) {
-		loqui_account_warning(sender->account, "This is a private talk");
+		loqui_account_warning(loqui_sender_get_account(sender), "This is a private talk");
 		return;
 	}
 	WARN_AND_RETURN_UNLESS_CONNECTED(sender);
@@ -411,11 +414,11 @@ loqui_sender_irc_start_private_talk(LoquiSender *sender, LoquiUser *user)
 
 	WARN_AND_RETURN_UNLESS_CONNECTED(sender);
 
-	if ((channel = loqui_account_get_channel_by_identifier(sender->account, loqui_user_get_nick(user))) == NULL) {
+	if ((channel = loqui_account_get_channel_by_identifier(loqui_sender_get_account(sender), loqui_user_get_nick(user))) == NULL) {
 		/* FIXME: priv should not have a identifier */
-		channel = LOQUI_CHANNEL(loqui_channel_irc_new(sender->account, loqui_user_get_nick(user), TRUE, TRUE));
+		channel = LOQUI_CHANNEL(loqui_channel_irc_new(loqui_sender_get_account(sender), loqui_user_get_nick(user), TRUE, TRUE));
 		
-		user_self = loqui_account_get_user_self(sender->account);
+		user_self = loqui_account_get_user_self(loqui_sender_get_account(sender));
 		
 		if (user_self != user) {
 			member = loqui_member_new(user);
@@ -427,7 +430,7 @@ loqui_sender_irc_start_private_talk(LoquiSender *sender, LoquiUser *user)
 		loqui_channel_entry_add_member(LOQUI_CHANNEL_ENTRY(channel), member);
 		g_object_unref(member);
 
-		loqui_account_add_channel(sender->account, channel);
+		loqui_account_add_channel(loqui_sender_get_account(sender), channel);
 		g_object_unref(channel);
 	}
 }
@@ -437,7 +440,7 @@ loqui_sender_irc_end_private_talk(LoquiSender *sender, LoquiChannel *channel)
         g_return_if_fail(sender != NULL);
         g_return_if_fail(LOQUI_IS_SENDER_IRC(sender));
 
-	loqui_account_remove_channel(sender->account, channel);
+	loqui_account_remove_channel(loqui_sender_get_account(sender), channel);
 }
 static void
 loqui_sender_irc_refresh(LoquiSender *sender, LoquiChannel *channel)
@@ -450,7 +453,7 @@ loqui_sender_irc_refresh(LoquiSender *sender, LoquiChannel *channel)
 
 	WARN_AND_RETURN_UNLESS_CONNECTED(sender);
 
-	receiver = LOQUI_RECEIVER_IRC(loqui_account_get_receiver(sender->account));
+	receiver = LOQUI_RECEIVER_IRC(loqui_account_get_receiver(loqui_sender_get_account(sender)));
 	receiver->prevent_print_who_reply_count++;
 	
 	msg = irc_message_create(IRCCommandWho, loqui_channel_get_identifier(channel), NULL);
@@ -467,11 +470,11 @@ loqui_sender_irc_join_raw(LoquiSender *sender, const gchar *target, const gchar 
 
 	WARN_AND_RETURN_UNLESS_CONNECTED(sender);
 
-	if (!check_target_valid(sender->account, target))
+	if (!check_target_valid(loqui_sender_get_account(sender), target))
 		return;
 
 	if (!LOQUI_UTILS_IRC_STRING_IS_CHANNEL(target)) {
-		loqui_account_warning(sender->account, _("This name seems not to be a channel."));
+		loqui_account_warning(loqui_sender_get_account(sender), _("This name seems not to be a channel."));
 		return;
 	}
 
@@ -492,15 +495,15 @@ loqui_sender_irc_start_private_talk_raw(LoquiSender *sender, const gchar *target
 
 	WARN_AND_RETURN_UNLESS_CONNECTED(sender);
 
-	if (!check_target_valid(sender->account, target))
+	if (!check_target_valid(loqui_sender_get_account(sender), target))
 		return;
 
 	if (LOQUI_UTILS_IRC_STRING_IS_CHANNEL(target)) {
-		loqui_account_warning(sender->account, _("This name seems not to be a nick."));
+		loqui_account_warning(loqui_sender_get_account(sender), _("This name seems not to be a nick."));
 		return;
 	}
 	
-	user = LOQUI_USER(loqui_account_irc_fetch_user(LOQUI_ACCOUNT_IRC(sender->account), target));
+	user = LOQUI_USER(loqui_account_irc_fetch_user(LOQUI_ACCOUNT_IRC(loqui_sender_get_account(sender)), target));
 	if (!user) {
 		g_warning("Can't fetch user for private talk");
 		return;
@@ -599,7 +602,7 @@ loqui_sender_irc_ctcp_request_raw(LoquiSenderIRC *sender, const gchar *target, c
 
 	WARN_AND_RETURN_UNLESS_CONNECTED(sender);
 
-	if (!check_target_valid(LOQUI_SENDER(sender)->account, target))
+	if (!check_target_valid(loqui_sender_get_account(LOQUI_SENDER(sender)), target))
 		return;
 
 	ctcp_msg = ctcp_message_new(command, NULL);
@@ -612,7 +615,7 @@ loqui_sender_irc_ctcp_request_raw(LoquiSenderIRC *sender, const gchar *target, c
 	g_object_unref(msg);
 
 	buf = g_strdup_printf(_("Sent CTCP request to %s: %s"), target, command);
-	loqui_account_console_buffer_append(LOQUI_SENDER(sender)->account, TEXT_TYPE_INFO, buf);
+	loqui_account_console_buffer_append(loqui_sender_get_account(LOQUI_SENDER(sender)), TEXT_TYPE_INFO, buf);
 	g_free(buf);
 }
 void
@@ -677,7 +680,7 @@ loqui_sender_irc_user_raw(LoquiSenderIRC *sender, const gchar *username, const g
 
 	WARN_AND_RETURN_UNLESS_CONNECTED(sender);
 
-	account = LOQUI_SENDER(sender)->account;
+	account = loqui_sender_get_account(LOQUI_SENDER(sender));
 
 	if (username == NULL || strlen(username) == 0) {
 		loqui_account_warning(account, _("Username is not specified."));
@@ -708,7 +711,7 @@ loqui_sender_irc_pass(LoquiSenderIRC *sender, const gchar *password)
 
 	WARN_AND_RETURN_UNLESS_CONNECTED(sender);
 
-	account = LOQUI_SENDER(sender)->account;
+	account = loqui_sender_get_account(LOQUI_SENDER(sender));
 
 	if (password == NULL || strlen(password) == 0) {
 		loqui_account_warning(account, _("Password is not specified."));

@@ -160,6 +160,18 @@ loqui_sender_new(LoquiAccount *account)
 
         return sender;
 }
+LoquiAccount*
+loqui_sender_get_account(LoquiSender *sender)
+{
+        g_return_val_if_fail(sender != NULL, NULL);
+        g_return_val_if_fail(LOQUI_IS_SENDER(sender), NULL);
+
+	/* check account is valid */
+	g_return_val_if_fail(sender->account != NULL, NULL);
+	g_return_val_if_fail(LOQUI_IS_ACCOUNT(sender->account), NULL);
+
+	return sender->account;
+}
 
 #define CHECK_FUNCTION_IS_DEFINED_AND_RETURN_IF_FAIL(sender, name) { \
 	if (!LOQUI_SENDER_GET_CLASS(sender)->name) { \
