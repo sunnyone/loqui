@@ -30,18 +30,6 @@
 #define STRING_DISCONNECTED _("(disconnected)")
 #define STRING_UNSELECTED _("(unselected)")
 
-typedef enum {
-	AWAY_STATE_NONE,
-	AWAY_STATE_ONLINE,
-	AWAY_STATE_AWAY,
-	AWAY_STATE_BUSY,
-	AWAY_STATE_AWAY_WITH_MESSAGE,
-	AWAY_STATE_CONFIGURE,
-	AWAY_STATE_QUIT,
-	AWAY_STATE_OFFLINE,
-	AWAY_STATE_DISCONNECT
-} AwayState;
-
 enum {
 	NICK_CHANGE,
 	NICK_SELECTED,
@@ -305,7 +293,7 @@ loqui_statusbar_away_menuitem_activated_cb(GtkWidget *widget, LoquiStatusbar *st
 
         priv = statusbar->priv;		
 
-	away_state = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(widget), "away-status"));
+	away_state = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(widget), "away-state"));
 	g_signal_emit(statusbar, loqui_statusbar_signals[AWAY_SELECTED], 0, away_state);
 }
 
@@ -527,14 +515,17 @@ loqui_statusbar_set_current_account(LoquiStatusbar *statusbar, Account *account)
         if (account == NULL) {
         	gtk_widget_set_sensitive(priv->button_nick, FALSE);
         	gtk_widget_set_sensitive(priv->toggle_preset, FALSE);
+        	gtk_widget_set_sensitive(priv->toggle_away, FALSE);        	
         	gtk_label_set(GTK_LABEL(priv->label_nick), STRING_UNSELECTED);
         } else if (!account_is_connected(account)) {
  	      	gtk_widget_set_sensitive(priv->button_nick, FALSE);
       	 	gtk_widget_set_sensitive(priv->toggle_preset, FALSE);
+        	gtk_widget_set_sensitive(priv->toggle_away, FALSE);      	 	
         	gtk_label_set(GTK_LABEL(priv->label_nick), STRING_DISCONNECTED);
         } else {
         	gtk_widget_set_sensitive(priv->button_nick, TRUE);
         	gtk_widget_set_sensitive(priv->toggle_preset, TRUE);
+        	gtk_widget_set_sensitive(priv->toggle_away, TRUE);        	
         	gtk_label_set(GTK_LABEL(priv->label_nick), account_get_current_nick(account));
         }
         
