@@ -20,6 +20,7 @@
 #include "config.h"
 
 #include "loqui_profile_account_ipmsg.h"
+#include "ipmsg.h"
 
 enum {
         LAST_SIGNAL
@@ -146,6 +147,10 @@ loqui_profile_account_ipmsg_init(LoquiProfileAccountIPMsg *profile)
 	priv = g_new0(LoquiProfileAccountIPMsgPrivate, 1);
 
 	profile->priv = priv;
+
+	g_object_set(profile,
+		     "port", IPMSG_DEFAULT_PORT,
+		     NULL);
 }
 LoquiProfileAccountIPMsg*
 loqui_profile_account_ipmsg_new(void)

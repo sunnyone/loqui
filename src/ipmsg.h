@@ -12,6 +12,19 @@
 #ifndef IPMSG_H
 #define IPMSG_H
 
+/* START added by Loqui */
+/* ver,packet num, username, hostname, command num, extra */
+#define IPMSG_COMMAND_NUMBER 6
+
+#define IPMSG_COMMAND_POSITION_VERSION 0
+#define IPMSG_COMMAND_POSITION_PACKET_NUMBER 1
+#define IPMSG_COMMAND_POSITION_USERNAME 2
+#define IPMSG_COMMAND_POSITION_HOSTNAME 3
+#define IPMSG_COMMAND_POSITION_COMMAND_NUMBER 4
+#define IPMSG_COMMAND_POSITION_EXTRA 5
+
+/* END added */
+
 /*  IP Messenger Communication Protocol version 1.2 define  */
 /*  macro  */
 #define IPMSG_GET_MODE(command)	(command & 0x000000ffUL)

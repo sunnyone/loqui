@@ -21,6 +21,10 @@
 
 #include "loqui_account_ipmsg.h"
 #include "loqui_user_ipmsg.h"
+#include "loqui_sender_ipmsg.h"
+
+#include "ipmsg_socket.h"
+#include "intl.h"
 
 enum {
         LAST_SIGNAL
@@ -32,6 +36,7 @@ enum {
 
 struct _LoquiAccountIPMsgPrivate
 {
+	IPMsgSocket *sock;
 };
 
 static LoquiAccountClass *parent_class = NULL;
@@ -45,6 +50,8 @@ static void loqui_account_ipmsg_dispose(GObject *object);
 
 static void loqui_account_ipmsg_get_property(GObject *object, guint param_id, GValue *value, GParamSpec *pspec);
 static void loqui_account_ipmsg_set_property(GObject *object, guint param_id, const GValue *value, GParamSpec *pspec);
+
+static void loqui_account_ipmsg_connect(LoquiAccount *account);
 
 GType
 loqui_account_ipmsg_get_type(void)
@@ -131,6 +138,7 @@ static void
 loqui_account_ipmsg_class_init(LoquiAccountIPMsgClass *klass)
 {
         GObjectClass *object_class = G_OBJECT_CLASS(klass);
+	LoquiAccountClass *account_class = LOQUI_ACCOUNT_CLASS(klass);
 
         parent_class = g_type_class_peek_parent(klass);
         
@@ -138,6 +146,8 @@ loqui_account_ipmsg_class_init(LoquiAccountIPMsgClass *klass)
         object_class->dispose = loqui_account_ipmsg_dispose;
         object_class->get_property = loqui_account_ipmsg_get_property;
         object_class->set_property = loqui_account_ipmsg_set_property;
+	
+	account_class->connect = loqui_account_ipmsg_connect;
 }
 static void 
 loqui_account_ipmsg_init(LoquiAccountIPMsg *account)
@@ -147,6 +157,29 @@ loqui_account_ipmsg_init(LoquiAccountIPMsg *account)
 	priv = g_new0(LoquiAccountIPMsgPrivate, 1);
 
 	account->priv = priv;
+
+	loqui_account_set_sender(LOQUI_ACCOUNT(account), LOQUI_SENDER(loqui_sender_ipmsg_new(LOQUI_ACCOUNT(account))));
+}
+static void
+loqui_account_ipmsg_connect(LoquiAccount *account)
+{
+	LoquiAccountIPMsgPrivate *priv;
+	gchar *str;
+
+        g_return_if_fail(account != NULL);
+        g_return_if_fail(LOQUI_IS_ACCOUNT_IPMSG(account));
+
+        priv = LOQUI_ACCOUNT_IPMSG(account)->priv;
+	priv->sock = ipmsg_socket_new();
+
+	if (!ipmsg_socket_bind(priv->sock)) {
+		loqui_account_warning(account, _("Failed to create socket. Is used the port?"));
+		return;
+	}
+	
+	str = g_strdup_printf(_("Opened the socket."));
+	loqui_account_console_buffer_append(account, TEXT_TYPE_INFO, str);
+	g_free(str);
 }
 LoquiAccountIPMsg*
 loqui_account_ipmsg_new(LoquiProfileAccount *profile)

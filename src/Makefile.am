@@ -25,6 +25,7 @@ loqui_SOURCES = \
 	loqui_channel_irc.c loqui_channel_irc.h \
 	loqui_sender.c loqui_sender.h \
 	loqui_sender_irc.c loqui_sender_irc.h \
+	loqui_sender_ipmsg.c loqui_sender_ipmsg.h \
 	loqui_member_sort_funcs.c loqui_member_sort_funcs.h \
 	loqui_profile_handle.c loqui_profile_handle.h \
 	prefs_general.c prefs_general.h \
@@ -57,6 +58,8 @@ loqui_SOURCES = \
 	irc_handle.c irc_handle.h \
 	ctcp_handle.c ctcp_handle.h \
 	irc_constants.h ipmsg.h \
+	ipmsg_socket.c ipmsg_socket.h \
+	ipmsg_packet.c ipmsg_packet.h \
 	command_table.c command_table.h \
 	about.c about.h \
 	account_list_dialog.c account_list_dialog.h \
