@@ -47,7 +47,127 @@ static void connection_class_init(ConnectionClass *klass);
 static void connection_init(Connection *connection);
 static void connection_finalize(GObject *object);
 
+
 /* FIXME: ERROR_CONNECTION_* are required */
+
+/* copied from GNet - Networking library. 
+ * Copyright (C) 2000  David Helder
+ * Copyright (C) 2000  Andrew Lanoix
+ * I added g_usleep on 2003/01/26
+ */
+
+static GIOError
+io_channel_readline_strdup (GIOChannel    *channel, 
+			    gchar         **buf_ptr, 
+			    guint         *bytes_read);
+GIOError
+io_channel_readn (GIOChannel    *channel, 
+                       gpointer       buf, 
+                       guint          len,
+		  guint         *bytes_read);
+
+GIOError
+io_channel_readn (GIOChannel    *channel, 
+                       gpointer       buf, 
+                       guint          len,
+                       guint         *bytes_read)
+{
+  guint nleft;
+  guint nread;
+  gchar* ptr;
+  GIOError error = G_IO_ERROR_NONE;
+
+  ptr = buf;
+  nleft = len;
+
+  while (nleft > 0)
+    {
+      if ((error = g_io_channel_read(channel, ptr, nleft, &nread))
+          !=  G_IO_ERROR_NONE)
+        {
+	  if (error == G_IO_ERROR_AGAIN) {
+            nread = 0;
+	    g_usleep(500);
+	  }
+          else
+            break;
+        }
+      else if (nread == 0)
+        break;
+
+      nleft -= nread;
+      ptr += nread;
+    }
+
+  *bytes_read = (len - nleft);
+
+  return error;
+}
+
+static GIOError
+io_channel_readline_strdup (GIOChannel    *channel, 
+                                 gchar         **buf_ptr, 
+                                 guint         *bytes_read)
+{
+  guint rc, n, len;
+  gchar c, *ptr, *buf;
+  GIOError error = G_IO_ERROR_NONE;
+
+  len = 100;
+  buf = (gchar *)g_malloc(len);
+  ptr = buf;
+  n = 1;
+
+  while (1)
+    {
+    try_again:
+      error = io_channel_readn(channel, &c, 1, &rc);
+
+      if (error == G_IO_ERROR_NONE && rc == 1)          /* read 1 char */
+        {
+          *ptr++ = c;
+          if (c == '\n')
+            break;
+        }
+      else if (error == G_IO_ERROR_NONE && rc == 0)     /* read EOF */
+        {
+          if (n == 1)   /* no data read */
+            {
+              *bytes_read = 0;
+              *buf_ptr = NULL;
+              g_free(buf);
+
+              return G_IO_ERROR_NONE;
+            }
+          else          /* some data read */
+            break;
+        }
+      else
+        {
+	   if (error == G_IO_ERROR_AGAIN)
+            goto try_again;
+
+          g_free(buf);
+
+          return error;
+        }
+
+      ++n;
+
+      if (n >= len)
+        {
+          len *= 2;
+          buf = g_realloc(buf, len);
+          ptr = buf + n - 1;
+        }
+    }
+
+  *ptr = 0;
+  *buf_ptr = buf;
+  *bytes_read = n;
+
+  return error;
+}
 
 GType
 connection_get_type(void)
@@ -122,6 +242,7 @@ connection_new (Server *server)
 {
         Connection *connection;
 	ConnectionPrivate *priv;
+	GIOFlags flags;
 
 	connection = g_object_new(connection_get_type(), NULL);
 	
@@ -134,7 +255,9 @@ connection_new (Server *server)
 		return NULL;
 	}
 	priv->io = gnet_tcp_socket_get_iochannel(priv->sock);
-	g_io_channel_set_close_on_unref(priv->io, TRUE);
+
+	flags = g_io_channel_get_flags(connection->priv->io);
+	g_io_channel_set_flags(connection->priv->io, flags | G_IO_FLAG_NONBLOCK, NULL);
 
 	return connection;
 }
@@ -154,7 +277,7 @@ gchar *connection_gets(Connection *connection, GIOError *error)
 	if(priv->io == NULL)
 		return NULL;
 
-	tmp_err = gnet_io_channel_readline_strdup(priv->io, &str, &len);
+	tmp_err = io_channel_readline_strdup(priv->io, &str, &len);
 	if(tmp_err != G_IO_ERROR_NONE) {
 		if(error != NULL) {
 			*error = tmp_err;
@@ -226,9 +349,9 @@ void connection_disconnect(Connection *connection)
         g_return_if_fail(connection != NULL);
         g_return_if_fail(IS_CONNECTION(connection));
 
+
 	debug_puts("Disconnecting...");
 	g_io_channel_shutdown(connection->priv->io, TRUE, NULL);
-	g_io_channel_unref(connection->priv->io);
 	connection->priv->io = NULL;
 	gnet_tcp_socket_delete(connection->priv->sock);
 	debug_puts("Done.");
