@@ -24,13 +24,13 @@
 #include "account.h"
 #include "channel_tree.h"
 #include "loqui_common_text.h"
+#include "utils.h"
 
 struct _AccountManagerPrivate
 {
-	GList *account_list;
+	GSList *account_list;
 
-	LoquiCommonText *common_text;
-	ChannelTree *channel_tree;
+	LoquiApp *app;
 };
 
 static GObjectClass *parent_class = NULL;
@@ -101,50 +101,44 @@ account_manager_finalize (GObject *object)
 }
 
 AccountManager*
-account_manager_new (void)
+account_manager_new (LoquiApp *app)
 {
         AccountManager *account_manager;
 	AccountManagerPrivate *priv;
 
 	account_manager = g_object_new(account_manager_get_type(), NULL);
 
+	priv = account_manager->priv;
+
+	priv->app = app;
+
 	return account_manager;
 }
-void account_manager_load(AccountManager *account_manager)
+void account_manager_load_accounts(AccountManager *account_manager)
 {
 	GSList *list;
-	GSList *cur;
-	gchar *name;
-	Account *account;
+        GSList *cur;
+        gchar *name;
+        Account *account;
 	AccountManagerPrivate *priv;
 
-	priv = account_manager->priv;
+        priv = account_manager->priv;
 
-	list = eel_gconf_get_string_list(LOQUI_GCONF_ACCOUNT "/account_list");
-	if(list == NULL) return;
+	list = eel_gconf_get_dirs(LOQUI_GCONF_ACCOUNT);
+        if(list == NULL) return;
 
-	for(cur = list; cur != NULL; cur = cur->next) {
-		name = (gchar *) cur->data;
-		account = account_new();
-		account_restore(account, name);
-		channel_tree_add_account(priv->channel_tree, account);
-		g_free(name);
-	}
-	g_slist_free(list);
+        for(cur = list; cur != NULL; cur = cur->next) {
+                name = utils_gconf_get_basename((gchar *) cur->data);
+		g_free(cur->data);
+		if(!name) continue;
+                account = account_new();
+                account_restore(account, name);
+ 		priv->account_list = g_slist_append(priv->account_list, account);
+		channel_tree_add_account(CHANNEL_TREE(priv->app->channel_tree), account);
 
-}
-void account_manager_set_widgets(AccountManager *account_manager,
-				 GtkWidget *channel_book,
-				 GtkWidget *common_text,
-				 GtkWidget *nick_list,
-				 GtkWidget *channel_tree)
-{
-	AccountManagerPrivate *priv;
+                g_free(name);
+        }
+        g_slist_free(list);
 
-	priv = account_manager->priv;
-
-/*	priv->channel_book = CHANNEL_BOOK(channel_book); */
-	priv->common_text = LOQUI_COMMON_TEXT(common_text);
-/*	priv->nick_list = nick_list; */
-	priv->channel_tree = CHANNEL_TREE(channel_tree);
+	loqui_menu_create_connect_submenu(priv->app->menu, priv->account_list);
 }

@@ -23,6 +23,7 @@
 #include "loqui_app.h"
 #include "codeconv.h"
 #include "command_table.h"
+#include "account_manager.h"
 
 #include <gnome.h>
 int debug_mode;
@@ -38,6 +39,7 @@ main(int argc, char *argv[])
 {
         GnomeProgram *program;
         LoquiApp *app;
+	AccountManager *account_manager;
 
         bindtextdomain(GETTEXT_PACKAGE, PACKAGE_LOCALE_DIR);
 #ifdef HAVE_BIND_TEXTDOMAIN_CODESET
@@ -63,9 +65,12 @@ main(int argc, char *argv[])
 
 	if(debug_mode)
 		g_print("Start debug mode.\n");
-
 	
-	app = loqui_app_get_main_app();
+	app = LOQUI_APP(loqui_app_new());
+
+	account_manager = account_manager_new(app);
+	account_manager_load_accounts(account_manager);
+
 	gtk_widget_show_all(GTK_WIDGET(app));
 
 	gtk_main();

@@ -115,7 +115,7 @@ channel_book_new (void)
 	ChannelBookPrivate *priv;
 
 	channel_book = g_object_new(channel_book_get_type(), NULL);
-//	gtk_notebook_set_show_tabs(GTK_NOTEBOOK(channel_book), FALSE);
+	gtk_notebook_set_show_tabs(GTK_NOTEBOOK(channel_book), FALSE);
 
 	return GTK_WIDGET(channel_book);
 }

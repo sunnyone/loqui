@@ -32,13 +32,10 @@ struct _LoquiAppPrivate
 {
 	GtkWidget *label_topic;
 	GtkWidget *toggle_lock;
-
-	GSList *account_list;
 };
 
 static GnomeAppClass *parent_class = NULL;
 #define PARENT_TYPE GNOME_TYPE_APP
-static LoquiApp *main_app;
 
 static void loqui_app_class_init(LoquiAppClass *klass);
 static void loqui_app_init(LoquiApp *app);
@@ -49,8 +46,6 @@ static gint loqui_app_delete_event_cb(GtkWidget *widget, GdkEventAny *event);
 
 static void loqui_app_restore_size(LoquiApp *app);
 static void loqui_app_save_size(LoquiApp *app);
-static void loqui_app_load_accounts(LoquiApp *app);
-static void loqui_app_set_accounts(LoquiApp *app);
 
 GType
 loqui_app_get_type(void)
@@ -164,44 +159,7 @@ static void loqui_app_restore_size(LoquiApp *app)
         width = eel_gconf_get_integer(LOQUI_GCONF_SIZE "/window_height");
         gtk_window_set_default_size(GTK_WINDOW(app), height, width);
 }
-static void loqui_app_load_accounts(LoquiApp *app)
-{
-	GSList *list;
-        GSList *cur;
-        gchar *name;
-        Account *account;
-	LoquiAppPrivate *priv;
 
-        priv = app->priv;
-
-	list = eel_gconf_get_dirs(LOQUI_GCONF_ACCOUNT);
-        if(list == NULL) return;
-
-        for(cur = list; cur != NULL; cur = cur->next) {
-                name = utils_gconf_get_basename((gchar *) cur->data);
-		g_free(cur->data);
-		if(!name) continue;
-                account = account_new();
-                account_restore(account, name);
- 		priv->account_list = g_slist_append(priv->account_list, account);
-                g_free(name);
-        }
-        g_slist_free(list);
-
-	loqui_app_set_accounts(app);
-}
-static void loqui_app_set_accounts(LoquiApp *app)
-{
-        GSList *cur;
-	Account *account;
-
-        for(cur = app->priv->account_list; cur != NULL; cur = cur->next) {
-		account = ACCOUNT(cur->data);
-		channel_tree_add_account(CHANNEL_TREE(app->channel_tree), account);
-	}
-	loqui_menu_create_connect_submenu(app->menu, app->priv->account_list);
-
-}
 GtkWidget*
 loqui_app_new (void)
 {
@@ -294,24 +252,22 @@ loqui_app_new (void)
 	loqui_menu_attach(app->menu, GNOME_APP(app));
 
 	loqui_app_restore_size(app);
-	loqui_app_load_accounts(app);
 
 #undef SET_SCROLLED_WINDOW
 
 	return GTK_WIDGET(app);
 }
 
+#if 0
 LoquiApp *loqui_app_get_main_app(void)
 {
 	if(!main_app)
 		main_app = LOQUI_APP(loqui_app_new());
 	return main_app;
 }
+#endif
+
 void loqui_app_set_topic(LoquiApp *app, const gchar *str)
 {
 	gtk_label_set_text(GTK_LABEL(app->priv->label_topic), str);
-}
-void loqui_app_connect_with_fallback(LoquiApp *app, Account *account)
-{
-	account_connect(account, 0, TRUE);
 }

@@ -228,6 +228,5 @@ static void loqui_menu_connect_cb(GtkWidget *widget, gpointer data)
 	
 	account = ACCOUNT(data);
 
-	app = loqui_app_get_main_app();
-	loqui_app_connect_with_fallback(app, account);
+	account_connect(account, 0, TRUE);
 }

@@ -21,6 +21,7 @@
 #define __ACCOUNT_MANAGER_H__
 
 #include <gnome.h>
+#include "loqui_app.h"
 
 G_BEGIN_DECLS
 
@@ -49,17 +50,11 @@ struct _AccountManagerClass
 };
 
 
-GType account_manager_get_type (void) G_GNUC_CONST;
+GType account_manager_get_type(void) G_GNUC_CONST;
 
-AccountManager* account_manager_new (void);
+AccountManager* account_manager_new(LoquiApp *app);
 
-void account_manager_set_widgets(AccountManager *account_manager,
-				 GtkWidget *channel_book,
-				 GtkWidget *common_text,
-				 GtkWidget *nick_list,
-				 GtkWidget *channel_tree);
-
-void account_manager_load(AccountManager *account_manager);
+void account_manager_load_accounts(AccountManager *account_manager);
 
 G_END_DECLS
 

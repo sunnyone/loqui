@@ -1,4 +1,146 @@
-cscope 15 $HOME/loqui/src               0000115729
+cscope 15 $HOME/loqui/src               0000154274
+	@about.c
+
+20 
+	~"cÚfig.h
+"
+
+21 
+	~"about.h
+"
+
+24 
+	$about_İ’
+(
+gpoš‹r
+ 
+d©a
+)
+
+26 
+GtkWidg‘
+ *
+about
+;
+
+28 cÚ¡ 
+gch¬
+ *
+authÜs
+[] = { "Yoich˜Imai", 
+NULL
+ };
+
+29 cÚ¡ 
+gch¬
+ *
+docs
+[] = { 
+NULL
+ };
+
+31 
+about
+ = 
+	`gnome_about_Ãw
+(
+	`_
+("Loqui"), 
+VERSION
+,
+
+32 
+	`_
+("(C) 2002 Yoichi Imai"),
+
+33 
+	`_
+("IRC client for GNOME2\n"
+
+35 
+authÜs
+, 
+docs
+,
+
+36 
+NULL
+,
+
+37 
+NULL
+);
+
+39 
+	`gtk_wšdow_£t_Œªs›Á_fÜ
+(
+	`GTK_WINDOW
+(
+about
+), GTK_WINDOW(
+d©a
+));
+
+40 
+	`gtk_wšdow_£t_de¡roy_w™h_·»Á
+(
+	`GTK_WINDOW
+(
+about
+), 
+TRUE
+);
+
+41 
+	`g_sigÇl_cÚÃù
+ (
+	`G_OBJECT
+ (
+about
+), "destroy",
+
+42 
+	`G_CALLBACK
+ (
+gtk_widg‘_de¡royed
+), &
+about
+);
+
+44 
+	`gtk_widg‘_show
+ (
+about
+);
+
+46 
+	}
+}
+
+	@about.h
+
+20 #iâdeà
+__ABOUT_H__
+
+
+21 
+	#__ABOUT_H__
+
+
+	)
+
+23 
+	~<gnome.h
+>
+
+26 
+about_İ’
+(
+gpoš‹r
+ 
+d©a
+);
+
 	@account.c
 
 20 
@@ -18,24 +160,28 @@ cscope 15 $HOME/loqui/src               0000115729
 "
 
 25 
-	~"cÚÃùiÚ.h
+	~"œc_hªdË.h
 "
 
 26 
 	~"gtkuts.h
 "
 
-28 
+27 
+	~"uts.h
+"
+
+29 
 	s_AccouÁPriv©e
 
 
-30 
-CÚÃùiÚ
+31 
+IRCHªdË
  *
-	mcÚÃùiÚ
+	mhªdË
 ;
 
-33 
+34 
 GObjeùCÏss
  *
 	g·»Á_şass
@@ -43,7 +189,7 @@ GObjeùCÏss
 NULL
 ;
 
-34 
+35 
 	#PARENT_TYPE
  
 G_TYPE_OBJECT
@@ -51,13 +197,13 @@ G_TYPE_OBJECT
 
 	)
 
-35 
+36 
 	#IRC_DEFAULT_PORT
  6667
 
 	)
 
-37 
+38 
 accouÁ_şass_š™
 (
 AccouÁCÏss
@@ -65,7 +211,7 @@ AccouÁCÏss
 kÏss
 );
 
-38 
+39 
 accouÁ_š™
 (
 AccouÁ
@@ -73,7 +219,7 @@ AccouÁ
 accouÁ
 );
 
-39 
+40 
 accouÁ_fš®ize
 (
 GObjeù
@@ -81,67 +227,67 @@ GObjeù
 objeù
 );
 
-41 
+42 
 GTy³
 
 
-42 
+43 
 	$accouÁ_g‘_ty³
 ()
 
-44 
+45 
 GTy³
  
 ty³
  = 0;
 
-45 ià(
+46 ià(
 ty³
  == 0) {
 
-46 cÚ¡ 
+47 cÚ¡ 
 GTy³Info
  
 our_šfo
  =
 
-48 (
+49 (
 AccouÁCÏss
 ),
-
-49 
-NULL
-,
 
 50 
 NULL
 ,
 
-51 (
+51 
+NULL
+,
+
+52 (
 GCÏssIn™Func
 è
 accouÁ_şass_š™
-,
-
-52 
-NULL
 ,
 
 53 
 NULL
 ,
 
-54 (
+54 
+NULL
+,
+
+55 (
 AccouÁ
 ),
 
-56 (
+57 (
 GIn¡ªûIn™Func
 è
 accouÁ_š™
 
 
-59 
+60 
 ty³
  = 
 	`g_ty³_»gi¡”_¡©ic
@@ -149,19 +295,19 @@ ty³
 PARENT_TYPE
 ,
 
-61 &
+62 &
 our_šfo
 ,
 
-65  
+66  
 ty³
 ;
 
-66 
+67 
 	}
 }
 
-68 
+69 
 	$accouÁ_şass_š™
  (
 AccouÁCÏss
@@ -169,7 +315,7 @@ AccouÁCÏss
 kÏss
 )
 
-70 
+71 
 GObjeùCÏss
  *
 objeù_şass
@@ -179,7 +325,7 @@ objeù_şass
 kÏss
 );
 
-72 
+73 
 ·»Á_şass
  = 
 	`g_ty³_şass_³ek_·»Á
@@ -187,7 +333,7 @@ kÏss
 kÏss
 );
 
-74 
+75 
 objeù_şass
 ->
 fš®ize
@@ -195,11 +341,11 @@ fš®ize
 accouÁ_fš®ize
 ;
 
-75 
+76 
 	}
 }
 
-77 
+78 
 	$accouÁ_š™
  (
 AccouÁ
@@ -207,13 +353,13 @@ AccouÁ
 accouÁ
 )
 
-79 
+80 
 AccouÁPriv©e
  *
 ´iv
 ;
 
-81 
+82 
 ´iv
  = 
 	`g_Ãw0
@@ -221,17 +367,17 @@ AccouÁPriv©e
 AccouÁPriv©e
 , 1);
 
-83 
+84 
 accouÁ
 ->
 ´iv
  =…riv;
 
-84 
+85 
 	}
 }
 
-86 
+87 
 	$accouÁ_fš®ize
  (
 GObjeù
@@ -239,31 +385,31 @@ GObjeù
 objeù
 )
 
-88 
+89 
 AccouÁ
  *
 accouÁ
 ;
 
-89 
+90 
 AccouÁPriv©e
  *
 ´iv
 ;
 
-90 
+91 
 GSLi¡
  *
 cur
 ;
 
-91 
+92 
 S”v”
  *
 £rv”
 ;
 
-93 
+94 
 	`g_»tuº_if_ç
 (
 objeù
@@ -271,7 +417,7 @@ objeù
 NULL
 );
 
-94 
+95 
 	`g_»tuº_if_ç
 (
 	`IS_ACCOUNT
@@ -279,7 +425,7 @@ NULL
 objeù
 ));
 
-96 
+97 
 accouÁ
  = 
 	`ACCOUNT
@@ -287,13 +433,13 @@ accouÁ
 objeù
 );
 
-98 if(
+99 if(
 accouÁ
 ->
 Çme
 )
 
-99 
+100 
 	`g_ä“
 (
 accouÁ
@@ -301,13 +447,13 @@ accouÁ
 Çme
 );
 
-100 if(
+101 if(
 accouÁ
 ->
 nick
 )
 
-101 
+102 
 	`g_ä“
 (
 accouÁ
@@ -315,13 +461,13 @@ accouÁ
 nick
 );
 
-102 if(
+103 if(
 accouÁ
 ->
 u£ºame
 )
 
-103 
+104 
 	`g_ä“
 (
 accouÁ
@@ -329,13 +475,13 @@ accouÁ
 u£ºame
 );
 
-104 if(
+105 if(
 accouÁ
 ->
 »®Çme
 )
 
-105 
+106 
 	`g_ä“
 (
 accouÁ
@@ -343,13 +489,13 @@ accouÁ
 »®Çme
 );
 
-106 if(
+107 if(
 accouÁ
 ->
 u£ršfo
 )
 
-107 
+108 
 	`g_ä“
 (
 accouÁ
@@ -357,13 +503,13 @@ accouÁ
 u£ršfo
 );
 
-108 if(
+109 if(
 accouÁ
 ->
 autojoš
 )
 
-109 
+110 
 	`g_ä“
 (
 accouÁ
@@ -371,7 +517,7 @@ accouÁ
 autojoš
 );
 
-111 
+112 
 cur
  = 
 accouÁ
@@ -383,13 +529,13 @@ NULL
 Ãxt
 ) {
 
-112 if(
+113 if(
 cur
 ->
 d©a
 ) {
 
-113 
+114 
 £rv”
  = (
 S”v”
@@ -399,7 +545,7 @@ cur
 d©a
 ;
 
-114 if(
+115 if(
 £rv”
 ->
 ho¡Çme
@@ -407,7 +553,7 @@ ho¡Çme
 	`g_ä“
 (server->hostname);
 
-115 if(
+116 if(
 £rv”
 ->
 ·sswÜd
@@ -415,19 +561,19 @@ ho¡Çme
 	`g_ä“
 (server->password);
 
-116 
+117 
 	`g_ä“
 (
 £rv”
 );
 
-119 if(
+120 if(
 accouÁ
 ->
 £rv”_li¡
 ) {
 
-120 
+121 
 	`g_¦i¡_ä“
 (
 accouÁ
@@ -435,13 +581,13 @@ accouÁ
 £rv”_li¡
 );
 
-122 if(
+123 if(
 accouÁ
 ->
 u£_£rv”_li¡
 )
 
-123 
+124 
 	`g_¦i¡_ä“
 (
 accouÁ
@@ -449,7 +595,7 @@ accouÁ
 u£_£rv”_li¡
 );
 
-125 ià(
+126 ià(
 	`G_OBJECT_CLASS
 (
 ·»Á_şass
@@ -457,7 +603,7 @@ u£_£rv”_li¡
 fš®ize
 )
 
-126 (* 
+127 (* 
 	`G_OBJECT_CLASS
 (
 ·»Á_şass
@@ -467,7 +613,7 @@ fš®ize
 objeù
 );
 
-128 
+129 
 	`g_ä“
 (
 accouÁ
@@ -475,25 +621,25 @@ accouÁ
 ´iv
 );
 
-129 
+130 
 	}
 }
 
-131 
+132 
 AccouÁ
 *
 
-132 
+133 
 	$accouÁ_Ãw
  ()
 
-134 
+135 
 AccouÁ
  *
 accouÁ
 ;
 
-136 
+137 
 accouÁ
  = 
 	`g_objeù_Ãw
@@ -503,15 +649,15 @@ accouÁ
 NULL
 );
 
-138  
+139  
 accouÁ
 ;
 
-139 
+140 
 	}
 }
 
-142 
+143 
 	$accouÁ_£t
 (
 AccouÁ
@@ -519,49 +665,49 @@ AccouÁ
 accouÁ
 ,
 
-143 cÚ¡ 
+144 cÚ¡ 
 gch¬
  *
 Çme
 ,
 
-144 cÚ¡ 
+145 cÚ¡ 
 gch¬
  *
 nick
 ,
 
-145 cÚ¡ 
+146 cÚ¡ 
 gch¬
  *
 u£ºame
 ,
 
-146 cÚ¡ 
+147 cÚ¡ 
 gch¬
  *
 »®Çme
 ,
 
-147 cÚ¡ 
+148 cÚ¡ 
 gch¬
  *
 u£ršfo
 ,
 
-148 cÚ¡ 
+149 cÚ¡ 
 gch¬
  *
 autojoš
 )
 
-150 
+151 
 AccouÁPriv©e
  *
 ´iv
 ;
 
-152 
+153 
 	`g_»tuº_if_ç
 (
 accouÁ
@@ -569,13 +715,13 @@ accouÁ
 NULL
 );
 
-154 
+155 
 ´iv
  = 
 accouÁ
 ->priv;
 
-156 
+157 
 accouÁ
 ->
 Çme
@@ -583,7 +729,7 @@ accouÁ
 	`g_¡rdup
 (name);
 
-157 
+158 
 accouÁ
 ->
 nick
@@ -591,7 +737,7 @@ nick
 	`g_¡rdup
 (nick);
 
-158 
+159 
 accouÁ
 ->
 u£ºame
@@ -599,7 +745,7 @@ u£ºame
 	`g_¡rdup
 (username);
 
-159 
+160 
 accouÁ
 ->
 »®Çme
@@ -607,7 +753,7 @@ accouÁ
 	`g_¡rdup
 (realname);
 
-160 
+161 
 accouÁ
 ->
 u£ršfo
@@ -615,7 +761,7 @@ u£ršfo
 	`g_¡rdup
 (userinfo);
 
-161 
+162 
 accouÁ
 ->
 autojoš
@@ -623,11 +769,11 @@ autojoš
 	`g_¡rdup
 (autojoin);
 
-162 
+163 
 	}
 }
 
-165 
+166 
 	$accouÁ_add_£rv”
 (
 AccouÁ
@@ -643,7 +789,7 @@ gšt
 pÜt
 ,
 
-166 cÚ¡ 
+167 cÚ¡ 
 gch¬
  *
 ·sswÜd
@@ -653,25 +799,25 @@ gboŞ—n
 u£
 )
 
-168 
+169 
 S”v”
  *
 £rv”
 ;
 
-169 
+170 
 AccouÁPriv©e
  *
 ´iv
 ;
 
-171 
+172 
 ´iv
  = 
 accouÁ
 ->priv;
 
-173 
+174 
 £rv”
  = 
 	`g_Ãw0
@@ -679,7 +825,7 @@ accouÁ
 S”v”
 , 1);
 
-175 
+176 
 £rv”
 ->
 ho¡Çme
@@ -687,11 +833,11 @@ ho¡Çme
 	`g_¡rdup
 (hostname);
 
-176 if(
+177 if(
 pÜt
  == 0)
 
-177 
+178 
 £rv”
 ->
 pÜt
@@ -699,13 +845,13 @@ pÜt
 IRC_DEFAULT_PORT
 ;
 
-179 
+180 
 £rv”
 ->
 pÜt
  =…ort;
 
-181 
+182 
 £rv”
 ->
 ·sswÜd
@@ -713,13 +859,13 @@ pÜt
 	`g_¡rdup
 (password);
 
-182 
+183 
 £rv”
 ->
 u£
  = use;
 
-184 
+185 
 accouÁ
 ->
 £rv”_li¡
@@ -729,11 +875,237 @@ accouÁ
 £rv”
 );
 
-185 
+186 
 	}
 }
 
-237 
+189 
+S”v”
+*
+
+190 
+	$accouÁ_·r£_£rv”_¡ršg
+(cÚ¡ 
+gch¬
+ *
+šput
+)
+
+192 
+S”v”
+ *
+£rv”
+;
+
+193 
+gch¬
+ *
+¡r
+, *
+s
+, *
+t
+;
+
+194 
+gdoubË
+ 
+d
+;
+
+196 
+	`g_»tuº_v®_if_ç
+(
+šput
+ !ğ
+NULL
+, NULL);
+
+197 
+£rv”
+ = 
+	`g_Ãw0
+(
+S”v”
+, 1);
+
+198 
+¡r
+ = 
+	`g_¡rdup
+(
+šput
+);
+
+200 
+s
+ = 
+	`¡rchr
+(
+¡r
+, '@');
+
+201 if(
+s
+ !ğ
+NULL
+) {
+
+203 
+t
+ = 
+s
+;
+
+204 } (
+s
+ = 
+	`¡rchr
+(++s, '@')è!ğ
+NULL
+);
+
+205 *
+t
+ = '\0';
+
+206 
+£rv”
+->
+·sswÜd
+ = 
+	`g_¡rdup
+(
+¡r
+);
+
+208 
+s
+ = ++
+t
+;
+
+210 
+s
+ = 
+¡r
+;
+
+212 
+t
+ = 
+	`¡rchr
+(
+s
+, ':');
+
+213 if(
+t
+ !ğ
+NULL
+) {
+
+214 *
+t
+ = '\0';
+
+215 
+d
+ = 
+	`g_ascii_¡¹od
+(
+t
++1, 
+NULL
+);
+
+216 if(
+d
+ == 0)
+
+217 
+£rv”
+->
+pÜt
+ = 
+IRC_DEFAULT_PORT
+;
+
+219 
+£rv”
+->
+pÜt
+ = 
+d
+;
+
+221 
+£rv”
+->
+pÜt
+ = 
+IRC_DEFAULT_PORT
+;
+
+223 if(
+	`¡¾’
+(
+s
+) < 1) {
+
+224 
+	`g_w¬nšg
+("parse_server_stringƒrror:‚o hostname was found.");
+
+225 
+	`g_ä“
+(
+£rv”
+->
+·sswÜd
+);
+
+226 
+	`g_ä“
+(
+£rv”
+);
+
+227 
+	`g_ä“
+(
+¡r
+);
+
+228  
+NULL
+;
+
+230 
+£rv”
+->
+ho¡Çme
+ = 
+	`g_¡rdup
+(
+s
+);
+
+232 
+	`g_ä“
+(
+¡r
+);
+
+233  
+£rv”
+;
+
+234 
+	}
+}
+
+240 
 	$accouÁ_»¡Üe
 (
 AccouÁ
@@ -745,55 +1117,55 @@ gch¬
 Çme
 )
 
-239 
+242 
 AccouÁPriv©e
  *
 ´iv
 ;
 
-240 
+243 
 gch¬
  *
 key
 ;
 
-241 
+244 
 GSLi¡
  *
 li¡
 ;
 
-242 
+245 
 GSLi¡
  *
 cur
 ;
 
-243 
+246 
 gch¬
  *
 ho¡Çme
 ;
 
-244 
+247 
 gšt
  
 pÜt
 ;
 
-245 
+248 
 gch¬
  *
 ·sswÜd
 ;
 
-246 
+249 
 gboŞ—n
  
 u£
 ;
 
-248 
+251 
 	`g_»tuº_if_ç
 (
 Çme
@@ -801,7 +1173,7 @@ u£
 NULL
 );
 
-249 
+252 
 	`g_»tuº_if_ç
 (
 	`¡rchr
@@ -811,13 +1183,13 @@ NULL
 NULL
 );
 
-251 
+254 
 ´iv
  = 
 accouÁ
 ->priv;
 
-253 
+256 
 accouÁ
 ->
 Çme
@@ -825,7 +1197,7 @@ accouÁ
 	`g_¡rdup
 (name);
 
-255 
+258 
 	#ACCOUNT_GCONF_GET_STRING
 (
 ¡r
@@ -833,7 +1205,7 @@ accouÁ
 subkey
 ) \
 
-257 
+260 
 key
  = 
 	`g_¡rdup_´štf
@@ -845,7 +1217,7 @@ LOQUI_GCONF_ACCOUNT
 subkey
 ); \
 
-258 
+261 
 ¡r
  = 
 	`“l_gcÚf_g‘_¡ršg
@@ -853,17 +1225,17 @@ subkey
 key
 ); \
 
-259 
+262 
 	`g_ä“
 (
 key
 ); \
 
-260 }
+263 }
 
 	)
 
-261 
+264 
 	`ACCOUNT_GCONF_GET_STRING
 (
 accouÁ
@@ -871,7 +1243,7 @@ accouÁ
 nick
 , "nick");
 
-262 
+265 
 	`ACCOUNT_GCONF_GET_STRING
 (
 accouÁ
@@ -879,7 +1251,7 @@ accouÁ
 u£ºame
 , "username");
 
-263 
+266 
 	`ACCOUNT_GCONF_GET_STRING
 (
 accouÁ
@@ -887,7 +1259,7 @@ accouÁ
 »®Çme
 , "realname");
 
-264 
+267 
 	`ACCOUNT_GCONF_GET_STRING
 (
 accouÁ
@@ -895,7 +1267,7 @@ accouÁ
 u£ršfo
 , "userinfo");
 
-265 
+268 
 	`ACCOUNT_GCONF_GET_STRING
 (
 accouÁ
@@ -903,7 +1275,7 @@ accouÁ
 autojoš
 , "autojoin");
 
-267 
+270 
 key
  = 
 	`g_¡rdup_´štf
@@ -913,7 +1285,7 @@ LOQUI_GCONF_ACCOUNT
 Çme
 , "server");
 
-268 
+271 
 li¡
  = 
 	`“l_gcÚf_g‘_dœs
@@ -921,17 +1293,17 @@ li¡
 key
 );
 
-269 
+272 
 	`g_ä“
 (
 key
 );
 
-271 #undeà
+274 #undeà
 ACCOUNT_GCONF_GET_STRING
 
 
-273 
+276 
 cur
  = 
 li¡
@@ -941,17 +1313,31 @@ NULL
 Ãxt
 ) {
 
-276 
+277 
 ho¡Çme
  = 
-	`g_·th_g‘_ba£Çme
+	`uts_gcÚf_g‘_ba£Çme
+((
+gch¬
+ *è
+cur
+->
+d©a
+);
+
+278 if(!
+ho¡Çme
+) {
+
+279 
+	`g_ä“
 (
 cur
 ->
 d©a
 );
 
-277 
+282 
 	#CONF_SERVER_GET_VALUE
 (
 ty³
@@ -961,7 +1347,7 @@ ty³
 subkey
 ) { \
 
-278 
+283 
 key
  = 
 	`g_¡rdup_´štf
@@ -975,7 +1361,7 @@ d©a
 subkey
 ); \
 
-279 
+284 
 »t
  = 
 “l_gcÚf_g‘_
@@ -985,17 +1371,17 @@ subkey
 key
 ); \
 
-280 
+285 
 	`g_ä“
 (
 key
 ); \
 
-281 }
+286 }
 
 	)
 
-282 
+287 
 	`CONF_SERVER_GET_VALUE
 (
 š‹g”
@@ -1003,7 +1389,7 @@ key
 pÜt
 , "port");
 
-283 
+288 
 	`CONF_SERVER_GET_VALUE
 (
 ¡ršg
@@ -1011,7 +1397,7 @@ pÜt
 ·sswÜd
 , "password");
 
-284 
+289 
 	`CONF_SERVER_GET_VALUE
 (
 boŞ—n
@@ -1019,7 +1405,7 @@ boŞ—n
 u£
 , "use");
 
-286 
+291 
 	`accouÁ_add_£rv”
 (
 accouÁ
@@ -1033,7 +1419,7 @@ pÜt
 u£
 );
 
-288 
+293 
 	`g_ä“
 (
 cur
@@ -1041,15 +1427,15 @@ cur
 d©a
 );
 
-289 #undeà
+294 #undeà
 CONF_SERVER_GET_VALUE
 
 
-291 
+296 
 	}
 }
 
-294 
+299 
 	$accouÁ_cÚÃù
 (
 AccouÁ
@@ -1065,19 +1451,19 @@ gboŞ—n
 çÎback
 )
 
-296 
+301 
 AccouÁPriv©e
  *
 ´iv
 ;
 
-298 
+303 
 ´iv
  = 
 accouÁ
 ->priv;
 
-300 
+305 
 	`g_»tuº_if_ç
 (
 accouÁ
@@ -1085,34 +1471,34 @@ accouÁ
 NULL
 );
 
-302 if(
+307 if(
 ´iv
 ->
-cÚÃùiÚ
+hªdË
 ) {
 
-303 
+308 
 	`gtkuts_msgbox_šfo
 (
 GTK_MESSAGE_ERROR
 ,
 
-304 
+309 
 	`_
 ("Account '%s' has‡lready connected."),
 
-305 
+310 
 accouÁ
 ->
 Çme
 );
 
-308 
+313 
 ´iv
 ->
-cÚÃùiÚ
+hªdË
  = 
-	`cÚÃùiÚ_Ãw
+	`œc_hªdË_Ãw
 (
 accouÁ
 , 
@@ -1121,7 +1507,7 @@ accouÁ
 çÎback
 );
 
-309 
+314 
 	}
 }
 
@@ -1460,6 +1846,1182 @@ gboŞ—n
 );
 
 86 
+G_END_DECLS
+
+
+	@account_manager.c
+
+20 
+	~"cÚfig.h
+"
+
+22 
+	~"accouÁ_mªag”.h
+"
+
+23 
+	~"loqui_gcÚf.h
+"
+
+24 
+	~"accouÁ.h
+"
+
+25 
+	~"chªÃl_Œ“.h
+"
+
+26 
+	~"loqui_commÚ_‹xt.h
+"
+
+27 
+	~"uts.h
+"
+
+29 
+	s_AccouÁMªag”Priv©e
+
+
+31 
+GSLi¡
+ *
+	maccouÁ_li¡
+;
+
+33 
+LoquiAµ
+ *
+	m­p
+;
+
+36 
+GObjeùCÏss
+ *
+	g·»Á_şass
+ = 
+NULL
+;
+
+37 
+	#PARENT_TYPE
+ 
+G_TYPE_OBJECT
+
+
+	)
+
+39 
+accouÁ_mªag”_şass_š™
+(
+AccouÁMªag”CÏss
+ *
+kÏss
+);
+
+40 
+accouÁ_mªag”_š™
+(
+AccouÁMªag”
+ *
+accouÁ_mªag”
+);
+
+41 
+accouÁ_mªag”_fš®ize
+(
+GObjeù
+ *
+objeù
+);
+
+43 
+GTy³
+
+
+44 
+	$accouÁ_mªag”_g‘_ty³
+()
+
+46 
+GTy³
+ 
+ty³
+ = 0;
+
+47 ià(
+ty³
+ == 0) {
+
+48 cÚ¡ 
+GTy³Info
+ 
+our_šfo
+ =
+
+50 (
+AccouÁMªag”CÏss
+),
+
+51 
+NULL
+,
+
+52 
+NULL
+,
+
+53 (
+GCÏssIn™Func
+è
+accouÁ_mªag”_şass_š™
+,
+
+54 
+NULL
+,
+
+55 
+NULL
+,
+
+56 (
+AccouÁMªag”
+),
+
+58 (
+GIn¡ªûIn™Func
+è
+accouÁ_mªag”_š™
+
+
+61 
+ty³
+ = 
+	`g_ty³_»gi¡”_¡©ic
+(
+PARENT_TYPE
+,
+
+63 &
+our_šfo
+,
+
+67  
+ty³
+;
+
+68 
+	}
+}
+
+70 
+	$accouÁ_mªag”_şass_š™
+ (
+AccouÁMªag”CÏss
+ *
+kÏss
+)
+
+72 
+GObjeùCÏss
+ *
+objeù_şass
+ = 
+	`G_OBJECT_CLASS
+(
+kÏss
+);
+
+74 
+·»Á_şass
+ = 
+	`g_ty³_şass_³ek_·»Á
+(
+kÏss
+);
+
+76 
+objeù_şass
+->
+fš®ize
+ = 
+accouÁ_mªag”_fš®ize
+;
+
+77 
+	}
+}
+
+79 
+	$accouÁ_mªag”_š™
+ (
+AccouÁMªag”
+ *
+accouÁ_mªag”
+)
+
+81 
+AccouÁMªag”Priv©e
+ *
+´iv
+;
+
+83 
+´iv
+ = 
+	`g_Ãw0
+(
+AccouÁMªag”Priv©e
+, 1);
+
+85 
+accouÁ_mªag”
+->
+´iv
+ =…riv;
+
+86 
+	}
+}
+
+88 
+	$accouÁ_mªag”_fš®ize
+ (
+GObjeù
+ *
+objeù
+)
+
+90 
+AccouÁMªag”
+ *
+accouÁ_mªag”
+;
+
+92 
+	`g_»tuº_if_ç
+(
+objeù
+ !ğ
+NULL
+);
+
+93 
+	`g_»tuº_if_ç
+(
+	`IS_ACCOUNT_MANAGER
+(
+objeù
+));
+
+95 
+accouÁ_mªag”
+ = 
+	`ACCOUNT_MANAGER
+(
+objeù
+);
+
+97 ià(
+	`G_OBJECT_CLASS
+(
+·»Á_şass
+)->
+fš®ize
+)
+
+98 (* 
+	`G_OBJECT_CLASS
+(
+·»Á_şass
+)->
+fš®ize
+è(
+objeù
+);
+
+100 
+	`g_ä“
+(
+accouÁ_mªag”
+->
+´iv
+);
+
+101 
+	}
+}
+
+103 
+AccouÁMªag”
+*
+
+104 
+	$accouÁ_mªag”_Ãw
+ (
+LoquiAµ
+ *
+­p
+)
+
+106 
+AccouÁMªag”
+ *
+accouÁ_mªag”
+;
+
+107 
+AccouÁMªag”Priv©e
+ *
+´iv
+;
+
+109 
+accouÁ_mªag”
+ = 
+	`g_objeù_Ãw
+(
+	`accouÁ_mªag”_g‘_ty³
+(), 
+NULL
+);
+
+111 
+´iv
+ = 
+accouÁ_mªag”
+->priv;
+
+113 
+´iv
+->
+­p
+ =‡pp;
+
+115  
+accouÁ_mªag”
+;
+
+116 
+	}
+}
+
+117 
+	$accouÁ_mªag”_lßd_accouÁs
+(
+AccouÁMªag”
+ *
+accouÁ_mªag”
+)
+
+119 
+GSLi¡
+ *
+li¡
+;
+
+120 
+GSLi¡
+ *
+cur
+;
+
+121 
+gch¬
+ *
+Çme
+;
+
+122 
+AccouÁ
+ *
+accouÁ
+;
+
+123 
+AccouÁMªag”Priv©e
+ *
+´iv
+;
+
+125 
+´iv
+ = 
+accouÁ_mªag”
+->priv;
+
+127 
+li¡
+ = 
+	`“l_gcÚf_g‘_dœs
+(
+LOQUI_GCONF_ACCOUNT
+);
+
+128 if(
+li¡
+ =ğ
+NULL
+) ;
+
+130 
+cur
+ = 
+li¡
+; cu¸!ğ
+NULL
+; cu¸ğcur->
+Ãxt
+) {
+
+131 
+Çme
+ = 
+	`uts_gcÚf_g‘_ba£Çme
+((
+gch¬
+ *è
+cur
+->
+d©a
+);
+
+132 
+	`g_ä“
+(
+cur
+->
+d©a
+);
+
+133 if(!
+Çme
+) ;
+
+134 
+accouÁ
+ = 
+	`accouÁ_Ãw
+();
+
+135 
+	`accouÁ_»¡Üe
+(
+accouÁ
+, 
+Çme
+);
+
+136 
+´iv
+->
+accouÁ_li¡
+ = 
+	`g_¦i¡_­³nd
+Õriv->accouÁ_li¡, 
+accouÁ
+);
+
+137 
+	`chªÃl_Œ“_add_accouÁ
+(
+	`CHANNEL_TREE
+(
+´iv
+->
+­p
+->
+chªÃl_Œ“
+), 
+accouÁ
+);
+
+139 
+	`g_ä“
+(
+Çme
+);
+
+141 
+	`g_¦i¡_ä“
+(
+li¡
+);
+
+143 
+	`loqui_m’u_ü—‹_cÚÃù_subm’u
+(
+´iv
+->
+­p
+->
+m’u
+,…riv->
+accouÁ_li¡
+);
+
+144 
+	}
+}
+
+	@account_manager.h
+
+20 #iâdeà
+__ACCOUNT_MANAGER_H__
+
+
+21 
+	#__ACCOUNT_MANAGER_H__
+
+
+	)
+
+23 
+	~<gnome.h
+>
+
+24 
+	~"loqui_­p.h
+"
+
+26 
+	gG_BEGIN_DECLS
+
+
+28 
+	#TYPE_ACCOUNT_MANAGER
+ (
+	`accouÁ_mªag”_g‘_ty³
+ ())
+
+	)
+
+29 
+	#ACCOUNT_MANAGER
+(
+obj
+è(
+	`G_TYPE_CHECK_INSTANCE_CAST
+ ((obj), 
+TYPE_ACCOUNT_MANAGER
+, 
+AccouÁMªag”
+))
+
+	)
+
+30 
+	#ACCOUNT_MANAGER_CLASS
+(
+kÏss
+è(
+	`G_TYPE_CHECK_CLASS_CAST
+ ((kÏss), 
+TYPE_ACCOUNT_MANAGER
+, 
+AccouÁMªag”CÏss
+))
+
+	)
+
+31 
+	#IS_ACCOUNT_MANAGER
+(
+obj
+è(
+	`G_TYPE_CHECK_INSTANCE_TYPE
+ ((obj), 
+TYPE_ACCOUNT_MANAGER
+))
+
+	)
+
+32 
+	#IS_ACCOUNT_MANAGER_CLASS
+(
+kÏss
+è(
+	`G_TYPE_CHECK_CLASS_TYPE
+ ((kÏss), 
+TYPE_ACCOUNT_MANAGER
+))
+
+	)
+
+33 
+	#ACCOUNT_MANAGER_GET_CLASS
+(
+obj
+è(
+	`G_TYPE_INSTANCE_GET_CLASS
+ ((obj), 
+TYPE_ACCOUNT_MANAGER
+, 
+AccouÁMªag”CÏss
+))
+
+	)
+
+35 
+_AccouÁMªag”
+ 
+	tAccouÁMªag”
+;
+
+36 
+_AccouÁMªag”CÏss
+ 
+	tAccouÁMªag”CÏss
+;
+
+38 
+_AccouÁMªag”Priv©e
+ 
+	tAccouÁMªag”Priv©e
+;
+
+40 
+	s_AccouÁMªag”
+
+
+42 
+GObjeù
+ 
+	m·»Á
+;
+
+44 
+AccouÁMªag”Priv©e
+ *
+	m´iv
+;
+
+47 
+	s_AccouÁMªag”CÏss
+
+
+49 
+GObjeùCÏss
+ 
+	m·»Á_şass
+;
+
+53 
+GTy³
+ 
+	$accouÁ_mªag”_g‘_ty³
+(è
+G_GNUC_CONST
+;
+
+55 
+AccouÁMªag”
+* 
+	`accouÁ_mªag”_Ãw
+(
+LoquiAµ
+ *
+­p
+);
+
+57 
+	`accouÁ_mªag”_lßd_accouÁs
+(
+AccouÁMªag”
+ *
+accouÁ_mªag”
+);
+
+59 
+G_END_DECLS
+
+
+	@channel.c
+
+20 
+	~"cÚfig.h
+"
+
+22 
+	~"chªÃl.h
+"
+
+24 
+	s_ChªÃlPriv©e
+
+
+28 
+GObjeùCÏss
+ *
+	g·»Á_şass
+ = 
+NULL
+;
+
+29 
+	#PARENT_TYPE
+ 
+G_TYPE_OBJECT
+
+
+	)
+
+31 
+chªÃl_şass_š™
+(
+ChªÃlCÏss
+ *
+kÏss
+);
+
+32 
+chªÃl_š™
+(
+ChªÃl
+ *
+chªÃl
+);
+
+33 
+chªÃl_fš®ize
+(
+GObjeù
+ *
+objeù
+);
+
+35 
+GTy³
+
+
+36 
+	$chªÃl_g‘_ty³
+()
+
+38 
+GTy³
+ 
+ty³
+ = 0;
+
+39 ià(
+ty³
+ == 0) {
+
+40 cÚ¡ 
+GTy³Info
+ 
+our_šfo
+ =
+
+42 (
+ChªÃlCÏss
+),
+
+43 
+NULL
+,
+
+44 
+NULL
+,
+
+45 (
+GCÏssIn™Func
+è
+chªÃl_şass_š™
+,
+
+46 
+NULL
+,
+
+47 
+NULL
+,
+
+48 (
+ChªÃl
+),
+
+50 (
+GIn¡ªûIn™Func
+è
+chªÃl_š™
+
+
+53 
+ty³
+ = 
+	`g_ty³_»gi¡”_¡©ic
+(
+PARENT_TYPE
+,
+
+55 &
+our_šfo
+,
+
+59  
+ty³
+;
+
+60 
+	}
+}
+
+62 
+	$chªÃl_şass_š™
+ (
+ChªÃlCÏss
+ *
+kÏss
+)
+
+64 
+GObjeùCÏss
+ *
+objeù_şass
+ = 
+	`G_OBJECT_CLASS
+(
+kÏss
+);
+
+66 
+·»Á_şass
+ = 
+	`g_ty³_şass_³ek_·»Á
+(
+kÏss
+);
+
+68 
+objeù_şass
+->
+fš®ize
+ = 
+chªÃl_fš®ize
+;
+
+69 
+	}
+}
+
+71 
+	$chªÃl_š™
+ (
+ChªÃl
+ *
+chªÃl
+)
+
+73 
+ChªÃlPriv©e
+ *
+´iv
+;
+
+75 
+´iv
+ = 
+	`g_Ãw0
+(
+ChªÃlPriv©e
+, 1);
+
+77 
+chªÃl
+->
+´iv
+ =…riv;
+
+78 
+	}
+}
+
+80 
+	$chªÃl_fš®ize
+ (
+GObjeù
+ *
+objeù
+)
+
+82 
+ChªÃl
+ *
+chªÃl
+;
+
+84 
+	`g_»tuº_if_ç
+(
+objeù
+ !ğ
+NULL
+);
+
+85 
+	`g_»tuº_if_ç
+(
+	`IS_CHANNEL
+(
+objeù
+));
+
+87 
+chªÃl
+ = 
+	`CHANNEL
+(
+objeù
+);
+
+89 ià(
+	`G_OBJECT_CLASS
+(
+·»Á_şass
+)->
+fš®ize
+)
+
+90 (* 
+	`G_OBJECT_CLASS
+(
+·»Á_şass
+)->
+fš®ize
+è(
+objeù
+);
+
+92 
+	`g_ä“
+(
+chªÃl
+->
+´iv
+);
+
+93 
+	}
+}
+
+95 
+ChªÃl
+*
+
+96 
+	$chªÃl_Ãw
+ ()
+
+98 
+ChªÃl
+ *
+chªÃl
+;
+
+99 
+ChªÃlPriv©e
+ *
+´iv
+;
+
+101 
+chªÃl
+ = 
+	`g_objeù_Ãw
+(
+	`chªÃl_g‘_ty³
+(), 
+NULL
+);
+
+103  
+chªÃl
+;
+
+104 
+	}
+}
+
+	@channel.h
+
+20 #iâdeà
+__CHANNEL_H__
+
+
+21 
+	#__CHANNEL_H__
+
+
+	)
+
+23 
+	~<gnome.h
+>
+
+24 
+	~"chªÃl_‹xt.h
+"
+
+26 
+	gG_BEGIN_DECLS
+
+
+28 
+	#TYPE_CHANNEL
+ (
+	`chªÃl_g‘_ty³
+ ())
+
+	)
+
+29 
+	#CHANNEL
+(
+obj
+è(
+	`G_TYPE_CHECK_INSTANCE_CAST
+ ((obj), 
+TYPE_CHANNEL
+, 
+ChªÃl
+))
+
+	)
+
+30 
+	#CHANNEL_CLASS
+(
+kÏss
+è(
+	`G_TYPE_CHECK_CLASS_CAST
+ ((kÏss), 
+TYPE_CHANNEL
+, 
+ChªÃlCÏss
+))
+
+	)
+
+31 
+	#IS_CHANNEL
+(
+obj
+è(
+	`G_TYPE_CHECK_INSTANCE_TYPE
+ ((obj), 
+TYPE_CHANNEL
+))
+
+	)
+
+32 
+	#IS_CHANNEL_CLASS
+(
+kÏss
+è(
+	`G_TYPE_CHECK_CLASS_TYPE
+ ((kÏss), 
+TYPE_CHANNEL
+))
+
+	)
+
+33 
+	#CHANNEL_GET_CLASS
+(
+obj
+è(
+	`G_TYPE_INSTANCE_GET_CLASS
+ ((obj), 
+TYPE_CHANNEL
+, 
+ChªÃlCÏss
+))
+
+	)
+
+35 
+_ChªÃl
+ 
+	tChªÃl
+;
+
+36 
+_ChªÃlCÏss
+ 
+	tChªÃlCÏss
+;
+
+38 
+_ChªÃlPriv©e
+ 
+	tChªÃlPriv©e
+;
+
+40 
+	s_ChªÃl
+
+
+42 
+GObjeù
+ 
+	m·»Á
+;
+
+44 
+gšt
+ 
+	m·ge_num
+;
+
+45 
+gch¬
+ *
+	mÇme
+;
+
+46 
+ChªÃlText
+ *
+	m‹xt
+;
+
+48 
+ChªÃlPriv©e
+ *
+	m´iv
+;
+
+51 
+	s_ChªÃlCÏss
+
+
+53 
+GObjeùCÏss
+ 
+	m·»Á_şass
+;
+
+57 
+GTy³
+ 
+	$chªÃl_g‘_ty³
+ (è
+G_GNUC_CONST
+;
+
+59 
+ChªÃl
+* 
+	`chªÃl_Ãw
+ ();
+
+61 
 G_END_DECLS
 
 
@@ -1852,11 +3414,13 @@ NULL
 );
 
 118 
-	`g_»tuº_if_ç
+	`gtk_nÙebook_£t_show_bs
+(
+	`GTK_NOTEBOOK
 (
 chªÃl_book
- !ğ
-NULL
+), 
+FALSE
 );
 
 120  
@@ -2025,18 +3589,18 @@ GtkWidg‘
 G_END_DECLS
 
 
-	@channel_page.c
+	@channel_text.c
 
 20 
 	~"cÚfig.h
 "
 
 22 
-	~"chªÃl_·ge.h
+	~"chªÃl_‹xt.h
 "
 
 24 
-	s_ChªÃlPagePriv©e
+	s_ChªÃlTextPriv©e
 
 
 28 
@@ -2056,23 +3620,23 @@ GTK_TYPE_TEXT_VIEW
 	)
 
 31 
-chªÃl_·ge_şass_š™
+chªÃl_‹xt_şass_š™
 (
-ChªÃlPageCÏss
+ChªÃlTextCÏss
  *
 kÏss
 );
 
 32 
-chªÃl_·ge_š™
+chªÃl_‹xt_š™
 (
-ChªÃlPage
+ChªÃlText
  *
-chªÃl_·ge
+chªÃl_‹xt
 );
 
 33 
-chªÃl_·ge_fš®ize
+chªÃl_‹xt_fš®ize
 (
 GObjeù
  *
@@ -2080,7 +3644,7 @@ objeù
 );
 
 34 
-chªÃl_·ge_de¡roy
+chªÃl_‹xt_de¡roy
 (
 GtkObjeù
  *
@@ -2092,7 +3656,7 @@ GTy³
 
 
 37 
-	$chªÃl_·ge_g‘_ty³
+	$chªÃl_‹xt_g‘_ty³
 ()
 
 39 
@@ -2112,7 +3676,7 @@ our_šfo
  =
 
 43 (
-ChªÃlPageCÏss
+ChªÃlTextCÏss
 ),
 
 44 
@@ -2126,7 +3690,7 @@ NULL
 46 (
 GCÏssIn™Func
 è
-chªÃl_·ge_şass_š™
+chªÃl_‹xt_şass_š™
 ,
 
 47 
@@ -2138,13 +3702,13 @@ NULL
 ,
 
 49 (
-ChªÃlPage
+ChªÃlText
 ),
 
 51 (
 GIn¡ªûIn™Func
 è
-chªÃl_·ge_š™
+chªÃl_‹xt_š™
 
 
 54 
@@ -2168,9 +3732,9 @@ ty³
 }
 
 63 
-	$chªÃl_·ge_şass_š™
+	$chªÃl_‹xt_şass_š™
  (
-ChªÃlPageCÏss
+ChªÃlTextCÏss
  *
 kÏss
 )
@@ -2208,7 +3772,7 @@ objeù_şass
 ->
 fš®ize
  = 
-chªÃl_·ge_fš®ize
+chªÃl_‹xt_fš®ize
 ;
 
 71 
@@ -2216,7 +3780,7 @@ gtk_objeù_şass
 ->
 de¡roy
  = 
-chªÃl_·ge_de¡roy
+chªÃl_‹xt_de¡roy
 ;
 
 72 
@@ -2224,15 +3788,15 @@ chªÃl_·ge_de¡roy
 }
 
 74 
-	$chªÃl_·ge_š™
+	$chªÃl_‹xt_š™
  (
-ChªÃlPage
+ChªÃlText
  *
-chªÃl_·ge
+chªÃl_‹xt
 )
 
 76 
-ChªÃlPagePriv©e
+ChªÃlTextPriv©e
  *
 ´iv
 ;
@@ -2242,11 +3806,11 @@ ChªÃlPagePriv©e
  = 
 	`g_Ãw0
 (
-ChªÃlPagePriv©e
+ChªÃlTextPriv©e
 , 1);
 
 80 
-chªÃl_·ge
+chªÃl_‹xt
 ->
 ´iv
  =…riv;
@@ -2256,7 +3820,7 @@ chªÃl_·ge
 }
 
 83 
-	$chªÃl_·ge_fš®ize
+	$chªÃl_‹xt_fš®ize
  (
 GObjeù
  *
@@ -2264,9 +3828,9 @@ objeù
 )
 
 85 
-ChªÃlPage
+ChªÃlText
  *
-chªÃl_·ge
+chªÃl_‹xt
 ;
 
 87 
@@ -2280,15 +3844,15 @@ NULL
 88 
 	`g_»tuº_if_ç
 (
-	`IS_CHANNEL_PAGE
+	`IS_CHANNEL_TEXT
 (
 objeù
 ));
 
 90 
-chªÃl_·ge
+chªÃl_‹xt
  = 
-	`CHANNEL_PAGE
+	`CHANNEL_TEXT
 (
 objeù
 );
@@ -2314,7 +3878,7 @@ objeù
 95 
 	`g_ä“
 (
-chªÃl_·ge
+chªÃl_‹xt
 ->
 ´iv
 );
@@ -2324,7 +3888,7 @@ chªÃl_·ge
 }
 
 98 
-	$chªÃl_·ge_de¡roy
+	$chªÃl_‹xt_de¡roy
  (
 GtkObjeù
  *
@@ -2332,9 +3896,9 @@ objeù
 )
 
 100 
-ChªÃlPage
+ChªÃlText
  *
-chªÃl_·ge
+chªÃl_‹xt
 ;
 
 102 
@@ -2348,15 +3912,15 @@ NULL
 103 
 	`g_»tuº_if_ç
 (
-	`IS_CHANNEL_PAGE
+	`IS_CHANNEL_TEXT
 (
 objeù
 ));
 
 105 
-chªÃl_·ge
+chªÃl_‹xt
  = 
-	`CHANNEL_PAGE
+	`CHANNEL_TEXT
 (
 objeù
 );
@@ -2388,57 +3952,49 @@ GtkWidg‘
 *
 
 112 
-	$chªÃl_·ge_Ãw
+	$chªÃl_‹xt_Ãw
  ()
 
 114 
-ChªÃlPage
+ChªÃlText
  *
-chªÃl_·ge
+chªÃl_‹xt
 ;
 
 115 
-ChªÃlPagePriv©e
+ChªÃlTextPriv©e
  *
 ´iv
 ;
 
 117 
-chªÃl_·ge
+chªÃl_‹xt
  = 
 	`g_objeù_Ãw
 (
-	`chªÃl_·ge_g‘_ty³
+	`chªÃl_‹xt_g‘_ty³
 (), 
 NULL
 );
 
-118 
-	`g_»tuº_if_ç
-(
-chªÃl_·ge
- !ğ
-NULL
-);
-
-120  
+119  
 	`GTK_WIDGET
 (
-chªÃl_·ge
+chªÃl_‹xt
 );
 
-121 
+120 
 	}
 }
 
-	@channel_page.h
+	@channel_text.h
 
 20 #iâdeà
-__CHANNEL_PAGE_H__
+__CHANNEL_TEXT_H__
 
 
 21 
-	#__CHANNEL_PAGE_H__
+	#__CHANNEL_TEXT_H__
 
 
 	)
@@ -2452,99 +4008,99 @@ __CHANNEL_PAGE_H__
 
 
 27 
-	#TYPE_CHANNEL_PAGE
+	#TYPE_CHANNEL_TEXT
  (
-	`chªÃl_·ge_g‘_ty³
+	`chªÃl_‹xt_g‘_ty³
  ())
 
 	)
 
 28 
-	#CHANNEL_PAGE
+	#CHANNEL_TEXT
 (
 obj
 è(
 	`G_TYPE_CHECK_INSTANCE_CAST
  ((obj), 
-TYPE_CHANNEL_PAGE
+TYPE_CHANNEL_TEXT
 , 
-ChªÃlPage
+ChªÃlText
 ))
 
 	)
 
 29 
-	#CHANNEL_PAGE_CLASS
+	#CHANNEL_TEXT_CLASS
 (
 kÏss
 è(
 	`G_TYPE_CHECK_CLASS_CAST
  ((kÏss), 
-TYPE_CHANNEL_PAGE
+TYPE_CHANNEL_TEXT
 , 
-ChªÃlPageCÏss
+ChªÃlTextCÏss
 ))
 
 	)
 
 30 
-	#IS_CHANNEL_PAGE
+	#IS_CHANNEL_TEXT
 (
 obj
 è(
 	`G_TYPE_CHECK_INSTANCE_TYPE
  ((obj), 
-TYPE_CHANNEL_PAGE
+TYPE_CHANNEL_TEXT
 ))
 
 	)
 
 31 
-	#IS_CHANNEL_PAGE_CLASS
+	#IS_CHANNEL_TEXT_CLASS
 (
 kÏss
 è(
 	`G_TYPE_CHECK_CLASS_TYPE
  ((kÏss), 
-TYPE_CHANNEL_PAGE
+TYPE_CHANNEL_TEXT
 ))
 
 	)
 
 32 
-	#CHANNEL_PAGE_GET_CLASS
+	#CHANNEL_TEXT_GET_CLASS
 (
 obj
 è(
 	`G_TYPE_INSTANCE_GET_CLASS
  ((obj), 
-TYPE_CHANNEL_PAGE
+TYPE_CHANNEL_TEXT
 , 
-ChªÃlPageCÏss
+ChªÃlTextCÏss
 ))
 
 	)
 
 34 
-_ChªÃlPage
+_ChªÃlText
  
-	tChªÃlPage
+	tChªÃlText
 ;
 
 35 
-_ChªÃlPageCÏss
+_ChªÃlTextCÏss
  
-	tChªÃlPageCÏss
+	tChªÃlTextCÏss
 ;
 
 37 
-_ChªÃlPagePriv©e
+_ChªÃlTextPriv©e
  
-	tChªÃlPagePriv©e
+	tChªÃlTextPriv©e
 ;
 
 39 
-	s_ChªÃlPage
+	s_ChªÃlText
 
 
 41 
@@ -2554,13 +4110,13 @@ GtkTextV›w
 ;
 
 43 
-ChªÃlPagePriv©e
+ChªÃlTextPriv©e
  *
 	m´iv
 ;
 
 46 
-	s_ChªÃlPageCÏss
+	s_ChªÃlTextCÏss
 
 
 48 
@@ -2572,7 +4128,7 @@ GtkTextV›wCÏss
 52 
 GtkTy³
  
-	$chªÃl_·ge_g‘_ty³
+	$chªÃl_‹xt_g‘_ty³
  (è
 G_GNUC_CONST
 ;
@@ -2580,7 +4136,7 @@ G_GNUC_CONST
 54 
 GtkWidg‘
 * 
-	`chªÃl_·ge_Ãw
+	`chªÃl_‹xt_Ãw
  ();
 
 56 
@@ -3937,6 +5493,414 @@ gch¬
 codecÚv_to_loÿl
 (cÚ¡ gch¬ *
 šput
+);
+
+	@command_table.c
+
+20 
+	~"cÚfig.h
+"
+
+21 
+	~"commªd_bË.h
+"
+
+24 
+gch¬
+ *
+	mcommªd
+;
+
+25 
+IRCRe¥Ú£
+ 
+	m»¥Ú£
+;
+
+26 } 
+	tCommªdI‹m
+;
+
+28 
+CommªdI‹m
+ 
+	gcommªd_bË
+[] = {
+
+29 {
+IRCCommªdPšg
+, 
+IRC_COMMAND_PING
+},
+
+30 {
+IRCCommªdPrivmsg
+, 
+IRC_COMMAND_PRIVMSG
+},
+
+31 {
+IRCCommªdJoš
+, 
+IRC_COMMAND_JOIN
+},
+
+32 {
+IRCCommªdNÙiû
+, 
+IRC_COMMAND_NOTICE
+},
+
+33 {
+IRCCommªdTİic
+, 
+IRC_COMMAND_TOPIC
+},
+
+34 {
+IRCCommªdMode
+, 
+IRC_COMMAND_MODE
+},
+
+35 {
+IRCCommªdNick
+, 
+IRC_COMMAND_NICK
+},
+
+36 {
+IRCCommªdP¬t
+, 
+IRC_COMMAND_PART
+},
+
+37 {
+IRCCommªdQu™
+, 
+IRC_COMMAND_QUIT
+},
+
+38 {
+IRCCommªdKick
+, 
+IRC_COMMAND_KICK
+},
+
+39 {
+IRCCommªdInv™e
+, 
+IRC_COMMAND_INVITE
+},
+
+40 {
+IRCCommªdE¼Ü
+, 
+IRC_COMMAND_ERROR
+},
+
+41 {
+IRCCommªdPass
+, 
+IRC_COMMAND_PASS
+},
+
+42 {
+IRCCommªdNick
+, 
+IRC_COMMAND_NICK
+},
+
+43 {
+IRCCommªdU£r
+, 
+IRC_COMMAND_USER
+},
+
+44 {
+IRCCommªdO³r
+, 
+IRC_COMMAND_OPER
+},
+
+45 {
+IRCCommªdSQu™
+, 
+IRC_COMMAND_SQUIT
+},
+
+46 {
+IRCCommªdSts
+, 
+IRC_COMMAND_STATS
+},
+
+47 {
+IRCCommªdLšks
+, 
+IRC_COMMAND_LINKS
+},
+
+48 {
+IRCCommªdTime
+, 
+IRC_COMMAND_TIME
+},
+
+49 {
+IRCCommªdCÚÃù
+, 
+IRC_COMMAND_CONNECT
+},
+
+50 {
+IRCCommªdT¿û
+, 
+IRC_COMMAND_TRACE
+},
+
+51 {
+IRCCommªdAdmš
+, 
+IRC_COMMAND_ADMIN
+},
+
+52 {
+IRCCommªdInfo
+, 
+IRC_COMMAND_INFO
+},
+
+53 {
+IRCCommªdNÙiû
+, 
+IRC_COMMAND_NOTICE
+},
+
+54 {
+IRCCommªdWho
+, 
+IRC_COMMAND_WHO
+},
+
+55 {
+IRCCommªdWhois
+, 
+IRC_COMMAND_WHOIS
+},
+
+56 {
+IRCCommªdWhowas
+, 
+IRC_COMMAND_WHOWAS
+},
+
+57 {
+IRCCommªdKl
+, 
+IRC_COMMAND_KILL
+},
+
+58 {
+IRCCommªdPšg
+, 
+IRC_COMMAND_PING
+},
+
+59 {
+IRCCommªdPÚg
+, 
+IRC_COMMAND_PONG
+},
+
+60 {
+IRCCommªdAway
+, 
+IRC_COMMAND_AWAY
+},
+
+61 {
+IRCCommªdRehash
+, 
+IRC_COMMAND_REHASH
+},
+
+62 {
+IRCCommªdRe¡¬t
+, 
+IRC_COMMAND_RESTART
+},
+
+63 {
+IRCCommªdSummÚ
+, 
+IRC_COMMAND_SUMMON
+},
+
+64 {
+IRCCommªdU£rs
+, 
+IRC_COMMAND_USERS
+},
+
+65 {
+IRCCommªdU£rho¡
+, 
+IRC_COMMAND_USERHOST
+},
+
+66 {
+IRCCommªdIsÚ
+, 
+IRC_COMMAND_ISON
+},
+
+67 {
+IRCCommªdObjeù
+, 
+IRC_COMMAND_OBJECT
+},
+
+68 {
+NULL
+, 0}
+
+71 
+GHashTabË
+ *
+	gcommªd_hash
+ = 
+NULL
+;
+
+74 
+	$commªd_bË_š™
+()
+
+76 
+i
+;
+
+77 if(!
+commªd_hash
+) {
+
+78 
+commªd_hash
+ = 
+	`g_hash_bË_Ãw
+(
+g_¡r_hash
+, 
+g_¡r_equ®
+);
+
+79 
+i
+ = 0; 
+commªd_bË
+[i].
+commªd
+ !ğ
+NULL
+; i++) {
+
+80 
+	`g_hash_bË_š£¹
+(
+commªd_hash
+,
+
+81 (
+gpoš‹r
+è
+commªd_bË
+[
+i
+].
+commªd
+,
+
+82 
+	`GINT_TO_POINTER
+(
+commªd_bË
+[
+i
+].
+»¥Ú£
+));
+
+85 
+	}
+}
+
+87 
+IRCRe¥Ú£
+
+
+88 
+	$commªd_bË_make_commªd_num”ic
+(cÚ¡ 
+gch¬
+ *
+commªd
+)
+
+90 
+	`g_»tuº_v®_if_ç
+(
+commªd_hash
+ !ğ
+NULL
+, 0);
+
+91  
+	`GPOINTER_TO_INT
+(
+	`g_hash_bË_lookup
+(
+commªd_hash
+, 
+commªd
+));
+
+92 
+	}
+}
+
+	@command_table.h
+
+20 #iâdeà
+__COMMAND_TABLE_H__
+
+
+21 
+	#__COMMAND_TABLE_H__
+
+
+	)
+
+23 
+	~"œc_cÚ¡ªts.h
+"
+
+24 
+	~<glib.h
+>
+
+27 
+commªd_bË_š™
+();
+
+28 
+IRCRe¥Ú£
+ 
+commªd_bË_make_commªd_num”ic
+(cÚ¡ 
+gch¬
+ *
+commªd
 );
 
 	@connection.c
@@ -7785,6 +9749,3598 @@ fÜm©
 	`G_GNUC_PRINTF
 (2, 3);
 
+	@irc_constants.h
+
+5 #iâdeà
+__LOQUI_IRC_CONSTANTS__
+
+
+6 
+	#__LOQUI_IRC_CONSTANTS__
+
+
+	)
+
+8 
+	#IRCCommªdCh¬
+ = '\001';
+
+	)
+
+9 
+	#IRCModeCh¬
+ = '\007';
+
+	)
+
+11 
+	eIRCModeFÏg
+ {
+
+13 
+	mMODE_IRC_U£rInvisibË
+ = 'i',
+
+14 
+	mMODE_IRC_U£rReûivesS”v”NÙiûs
+ = 's',
+
+15 
+	mMODE_IRC_U£rReûivesW®lİs
+ = 'w',
+
+16 
+	mMODE_IRC_U£rO³¿tÜPrivs
+ = 'o',
+
+18 
+	mMODE_IRC_ChªÃlO³¿tÜPrivs
+ = 'o',
+
+19 
+	mMODE_IRC_ChªÃlPriv©eChªÃl
+ = 'p',
+
+20 
+	mMODE_IRC_ChªÃlSeü‘ChªÃl
+ = 's',
+
+21 
+	mMODE_IRC_ChªÃlInv™eOÆy
+ = 'i',
+
+22 
+	mMODE_IRC_ChªÃlTİicS‘bË
+ = 't',
+
+23 
+	mMODE_IRC_ChªÃlNoMes§gesFromOutside
+ = 'n',
+
+24 
+	mMODE_IRC_ChªÃlMod”©ed
+ = 'm',
+
+25 
+	mMODE_IRC_ChªÃlU£rLim™
+ = 'l',
+
+26 
+	mMODE_IRC_ChªÃlBªMask
+ = 'b',
+
+27 
+	mMODE_IRC_ChªÃlS³akAb™y
+ = 'v',
+
+28 
+	mMODE_IRC_ChªÃlChªÃlKey
+ = 'k'
+
+32 
+	mIRC_UNDEFINED
+ = 1000,
+
+33 
+	mIRC_ERR_NOSUCHNICK
+ = 401,
+
+34 
+	mIRC_ERR_NOSUCHSERVER
+ = 402,
+
+35 
+	mIRC_ERR_NOSUCHCHANNEL
+ = 403,
+
+36 
+	mIRC_ERR_CANNOTSENDTOCHAN
+ = 404,
+
+37 
+	mIRC_ERR_TOOMANYCHANNELS
+ = 405,
+
+38 
+	mIRC_ERR_WASNOSUCHNICK
+ = 406,
+
+39 
+	mIRC_ERR_TOOMANYTARGETS
+ = 407,
+
+40 
+	mIRC_ERR_NOORIGIN
+ = 409,
+
+41 
+	mIRC_ERR_NORECIPIENT
+ = 411,
+
+42 
+	mIRC_ERR_NOTEXTTOSEND
+ = 412,
+
+43 
+	mIRC_ERR_NOTOPLEVEL
+ = 413,
+
+44 
+	mIRC_ERR_WILDTOPLEVEL
+ = 414,
+
+45 
+	mIRC_ERR_UNKNOWNCOMMAND
+ = 421,
+
+46 
+	mIRC_ERR_NOMOTD
+ = 422,
+
+47 
+	mIRC_ERR_NOADMININFO
+ = 423,
+
+48 
+	mIRC_ERR_FILEERROR
+ = 424,
+
+49 
+	mIRC_ERR_NONICKNAMEGIVEN
+ = 431,
+
+50 
+	mIRC_ERR_ERRONEUSNICKNAME
+ = 432,
+
+51 
+	mIRC_ERR_NICKNAMEINUSE
+ = 433,
+
+52 
+	mIRC_ERR_NICKCOLLISION
+ = 436,
+
+53 
+	mIRC_ERR_USERNOTINCHANNEL
+ = 441,
+
+54 
+	mIRC_ERR_NOTONCHANNEL
+ = 442,
+
+55 
+	mIRC_ERR_USERONCHANNEL
+ = 443,
+
+56 
+	mIRC_ERR_NOLOGIN
+ = 444,
+
+57 
+	mIRC_ERR_SUMMONDISABLED
+ = 445,
+
+58 
+	mIRC_ERR_USERSDISABLED
+ = 446,
+
+59 
+	mIRC_ERR_NOTREGISTERED
+ = 451,
+
+60 
+	mIRC_ERR_NEEDMOREPARAMS
+ = 461,
+
+61 
+	mIRC_ERR_ALREADYREGISTRED
+ = 462,
+
+62 
+	mIRC_ERR_NOPERMFORHOST
+ = 463,
+
+63 
+	mIRC_ERR_PASSWDMISMATCH
+ = 464,
+
+64 
+	mIRC_ERR_YOUREBANNEDCREEP
+ = 465,
+
+65 
+	mIRC_ERR_KEYSET
+ = 467,
+
+66 
+	mIRC_ERR_CHANNELISFULL
+ = 471,
+
+67 
+	mIRC_ERR_UNKNOWNMODE
+ = 472,
+
+68 
+	mIRC_ERR_INVITEONLYCHAN
+ = 473,
+
+69 
+	mIRC_ERR_BANNEDFROMCHAN
+ = 474,
+
+70 
+	mIRC_ERR_BADCHANNELKEY
+ = 475,
+
+71 
+	mIRC_ERR_NOPRIVILEGES
+ = 481,
+
+72 
+	mIRC_ERR_CHANOPRIVSNEEDED
+ = 482,
+
+73 
+	mIRC_ERR_CANTKILLSERVER
+ = 483,
+
+74 
+	mIRC_ERR_NOOPERHOST
+ = 491,
+
+75 
+	mIRC_ERR_UMODEUNKNOWNFLAG
+ = 501,
+
+76 
+	mIRC_ERR_USERSDONTMATCH
+ = 502,
+
+78 
+	mIRC_RPL_NONE
+ = 300,
+
+79 
+	mIRC_RPL_AWAY
+ = 301,
+
+80 
+	mIRC_RPL_USERHOST
+ = 302,
+
+81 
+	mIRC_RPL_ISON
+ = 303,
+
+82 
+	mIRC_RPL_UNAWAY
+ = 305,
+
+83 
+	mIRC_RPL_NOWAWAY
+ = 306,
+
+84 
+	mIRC_RPL_WHOISUSER
+ = 311,
+
+85 
+	mIRC_RPL_WHOISSERVER
+ = 312,
+
+86 
+	mIRC_RPL_WHOISOPERATOR
+ = 313,
+
+87 
+	mIRC_RPL_WHOISIDLE
+ = 317,
+
+88 
+	mIRC_RPL_ENDOFWHOIS
+ = 318,
+
+89 
+	mIRC_RPL_WHOISCHANNELS
+ = 319,
+
+90 
+	mIRC_RPL_WHOWASUSER
+ = 314,
+
+91 
+	mIRC_RPL_ENDOFWHOWAS
+ = 369,
+
+92 
+	mIRC_RPL_LISTSTART
+ = 321,
+
+93 
+	mIRC_RPL_LIST
+ = 322,
+
+94 
+	mIRC_RPL_LISTEND
+ = 323,
+
+95 
+	mIRC_RPL_CHANNELMODEIS
+ = 324,
+
+96 
+	mIRC_RPL_NOTOPIC
+ = 331,
+
+97 
+	mIRC_RPL_TOPIC
+ = 332,
+
+98 
+	mIRC_RPL_INVITING
+ = 341,
+
+99 
+	mIRC_RPL_SUMMONING
+ = 342,
+
+101 
+	mIRC_RPL_VERSION
+ = 351,
+
+102 
+	mIRC_RPL_WHOREPLY
+ = 352,
+
+103 
+	mIRC_RPL_ENDOFWHO
+ = 315,
+
+104 
+	mIRC_RPL_NAMREPLY
+ = 353,
+
+105 
+	mIRC_RPL_ENDOFNAMES
+ = 366,
+
+106 
+	mIRC_RPL_LINKS
+ = 364,
+
+107 
+	mIRC_RPL_ENDOFLINKS
+ = 365,
+
+108 
+	mIRC_RPL_BANLIST
+ = 367,
+
+109 
+	mIRC_RPL_ENDOFBANLIST
+ = 368,
+
+110 
+	mIRC_RPL_INFO
+ = 371,
+
+111 
+	mIRC_RPL_ENDOFINFO
+ = 374,
+
+112 
+	mIRC_RPL_MOTDSTART
+ = 375,
+
+113 
+	mIRC_RPL_MOTD
+ = 372,
+
+114 
+	mIRC_RPL_ENDOFMOTD
+ = 376,
+
+115 
+	mIRC_RPL_YOUREOPER
+ = 381,
+
+116 
+	mIRC_RPL_REHASHING
+ = 382,
+
+117 
+	mIRC_RPL_TIME
+ = 391,
+
+118 
+	mIRC_RPL_USERSSTART
+ = 392,
+
+119 
+	mIRC_RPL_USERS
+ = 393,
+
+120 
+	mIRC_RPL_ENDOFUSERS
+ = 394,
+
+121 
+	mIRC_RPL_NOUSERS
+ = 395,
+
+122 
+	mIRC_RPL_TRACELINK
+ = 200,
+
+123 
+	mIRC_RPL_TRACECONNECTING
+ = 201,
+
+124 
+	mIRC_RPL_TRACEHANDSHAKE
+ = 202,
+
+125 
+	mIRC_RPL_TRACEUNKNOWN
+ = 203,
+
+126 
+	mIRC_RPL_TRACEOPERATOR
+ = 204,
+
+127 
+	mIRC_RPL_TRACEUSER
+ = 205,
+
+128 
+	mIRC_RPL_TRACESERVER
+ = 206,
+
+129 
+	mIRC_RPL_TRACENEWTYPE
+ = 208,
+
+130 
+	mIRC_RPL_TRACELOG
+ = 261,
+
+131 
+	mIRC_RPL_STATSLINKINFO
+ = 211,
+
+132 
+	mIRC_RPL_STATSCOMMANDS
+ = 212,
+
+133 
+	mIRC_RPL_STATSCLINE
+ = 213,
+
+134 
+	mIRC_RPL_STATSNLINE
+ = 214,
+
+135 
+	mIRC_RPL_STATSILINE
+ = 215,
+
+136 
+	mIRC_RPL_STATSKLINE
+ = 216,
+
+137 
+	mIRC_RPL_STATSYLINE
+ = 218,
+
+138 
+	mIRC_RPL_ENDOFSTATS
+ = 219,
+
+139 
+	mIRC_RPL_STATSLLINE
+ = 241,
+
+140 
+	mIRC_RPL_STATSUPTIME
+ = 242,
+
+141 
+	mIRC_RPL_STATSOLINE
+ = 243,
+
+142 
+	mIRC_RPL_STATSHLINE
+ = 244,
+
+143 
+	mIRC_RPL_UMODEIS
+ = 221,
+
+144 
+	mIRC_RPL_LUSERCLIENT
+ = 251,
+
+145 
+	mIRC_RPL_LUSEROP
+ = 252,
+
+146 
+	mIRC_RPL_LUSERUNKNOWN
+ = 253,
+
+147 
+	mIRC_RPL_LUSERCHANNELS
+ = 254,
+
+148 
+	mIRC_RPL_LUSERME
+ = 255,
+
+149 
+	mIRC_RPL_ADMINME
+ = 256,
+
+150 
+	mIRC_RPL_ADMINLOC1
+ = 257,
+
+151 
+	mIRC_RPL_ADMINLOC2
+ = 258,
+
+152 
+	mIRC_RPL_ADMINEMAIL
+ = 259,
+
+154 
+	mIRC_RPL_CREATIONTIME
+ = 329,
+
+155 
+	mIRC_RPL_TOPICINFORMATION
+ = 333,
+
+158 
+	mIRC_RPL_TRACECLASS
+ = 209,
+
+159 
+	mIRC_RPL_SERVICEINFO
+ = 231,
+
+160 
+	mIRC_RPL_SERVICE
+ = 233,
+
+161 
+	mIRC_RPL_SERVLISTEND
+ = 235,
+
+162 
+	mIRC_RPL_WHOISCHANOP
+ = 316,
+
+163 
+	mIRC_RPL_CLOSING
+ = 362,
+
+164 
+	mIRC_RPL_INFOSTART
+ = 373,
+
+165 
+	mIRC_ERR_YOUWILLBEBANNED
+ = 466,
+
+166 
+	mIRC_ERR_NOSERVICEHOST
+ = 492,
+
+167 
+	mIRC_RPL_STATSQLINE
+ = 217,
+
+168 
+	mIRC_RPL_ENDOFSERVICES
+ = 232,
+
+169 
+	mIRC_RPL_SERVLIST
+ = 234,
+
+170 
+	mIRC_RPL_KILLDONE
+ = 361,
+
+171 
+	mIRC_RPL_CLOSEEND
+ = 363,
+
+172 
+	mIRC_RPL_MYPORTIS
+ = 384,
+
+173 
+	mIRC_ERR_BADCHANMASK
+ = 476,
+
+176 
+	mIRC_COMMAND_PRIVMSG
+ = 1002,
+
+177 
+	mIRC_COMMAND_JOIN
+ = 1003,
+
+178 
+	mIRC_COMMAND_NOTICE
+ = 1004,
+
+179 
+	mIRC_COMMAND_TOPIC
+ = 1005,
+
+180 
+	mIRC_COMMAND_MODE
+ = 1006,
+
+181 
+	mIRC_COMMAND_NICK
+ = 1007,
+
+182 
+	mIRC_COMMAND_PART
+ = 1008,
+
+183 
+	mIRC_COMMAND_QUIT
+ = 1009,
+
+184 
+	mIRC_COMMAND_KICK
+ = 1010,
+
+185 
+	mIRC_COMMAND_INVITE
+ = 1011,
+
+186 
+	mIRC_COMMAND_ERROR
+ = 1012,
+
+187 
+	mIRC_COMMAND_PASS
+ = 1013,
+
+188 
+	mIRC_COMMAND_USER
+ = 1015,
+
+189 
+	mIRC_COMMAND_OPER
+ = 1016,
+
+190 
+	mIRC_COMMAND_SQUIT
+ = 1017,
+
+191 
+	mIRC_COMMAND_STATS
+ = 1018,
+
+192 
+	mIRC_COMMAND_LINKS
+ = 1019,
+
+193 
+	mIRC_COMMAND_TIME
+ = 1020,
+
+194 
+	mIRC_COMMAND_CONNECT
+ = 1021,
+
+195 
+	mIRC_COMMAND_TRACE
+ = 1022,
+
+196 
+	mIRC_COMMAND_ADMIN
+ = 1023,
+
+197 
+	mIRC_COMMAND_INFO
+ = 1024,
+
+198 
+	mIRC_COMMAND_WHO
+ = 1026,
+
+199 
+	mIRC_COMMAND_WHOIS
+ = 1027,
+
+200 
+	mIRC_COMMAND_WHOWAS
+ = 1028,
+
+201 
+	mIRC_COMMAND_KILL
+ = 1029,
+
+202 
+	mIRC_COMMAND_PING
+ = 1030,
+
+203 
+	mIRC_COMMAND_PONG
+ = 1031,
+
+204 
+	mIRC_COMMAND_AWAY
+ = 1032,
+
+205 
+	mIRC_COMMAND_REHASH
+ = 1033,
+
+206 
+	mIRC_COMMAND_RESTART
+ = 1034,
+
+207 
+	mIRC_COMMAND_SUMMON
+ = 1035,
+
+208 
+	mIRC_COMMAND_USERS
+ = 1036,
+
+209 
+	mIRC_COMMAND_USERHOST
+ = 1037,
+
+210 
+	mIRC_COMMAND_ISON
+ = 1038,
+
+211 
+	mIRC_COMMAND_OBJECT
+ = 1039,
+
+212 } 
+	tIRCRe¥Ú£
+;
+
+218 
+	#IRCCtıV”siÚ
+ "VERSION"
+
+	)
+
+220 
+	#IRCCommªdPrivmsg
+ "PRIVMSG"
+
+	)
+
+221 
+	#IRCCommªdJoš
+ "JOIN"
+
+	)
+
+222 
+	#IRCCommªdNÙiû
+ "NOTICE"
+
+	)
+
+223 
+	#IRCCommªdTİic
+ "TOPIC"
+
+	)
+
+224 
+	#IRCCommªdMode
+ "MODE"
+
+	)
+
+225 
+	#IRCCommªdNick
+ "NICK"
+
+	)
+
+226 
+	#IRCCommªdP¬t
+ "PART"
+
+	)
+
+227 
+	#IRCCommªdQu™
+ "QUIT"
+
+	)
+
+228 
+	#IRCCommªdKick
+ "KICK"
+
+	)
+
+229 
+	#IRCCommªdInv™e
+ "INVITE"
+
+	)
+
+231 
+	#IRCCommªdE¼Ü
+ "ERROR"
+
+	)
+
+233 
+	#IRCCommªdPass
+ "PASS"
+
+	)
+
+234 
+	#IRCCommªdU£r
+ "USER"
+
+	)
+
+235 
+	#IRCCommªdO³r
+ "OPER"
+
+	)
+
+237 
+	#IRCCommªdSQu™
+ "SQUIT"
+
+	)
+
+239 
+	#IRCCommªdSts
+ "STATS"
+
+	)
+
+240 
+	#IRCCommªdLšks
+ "LINKS"
+
+	)
+
+241 
+	#IRCCommªdTime
+ "TIME"
+
+	)
+
+242 
+	#IRCCommªdCÚÃù
+ "CONNECT"
+
+	)
+
+243 
+	#IRCCommªdT¿û
+ "TRACE"
+
+	)
+
+244 
+	#IRCCommªdAdmš
+ "ADMIN"
+
+	)
+
+245 
+	#IRCCommªdInfo
+ "INFO"
+
+	)
+
+246 
+	#IRCCommªdWho
+ "WHO"
+
+	)
+
+247 
+	#IRCCommªdWhois
+ "WHOIS"
+
+	)
+
+248 
+	#IRCCommªdWhowas
+ "WHOWAS"
+
+	)
+
+249 
+	#IRCCommªdKl
+ "KILL"
+
+	)
+
+250 
+	#IRCCommªdPšg
+ "PING"
+
+	)
+
+251 
+	#IRCCommªdPÚg
+ "PONG"
+
+	)
+
+252 
+	#IRCCommªdAway
+ "AWAY"
+
+	)
+
+253 
+	#IRCCommªdRehash
+ "REHASH"
+
+	)
+
+254 
+	#IRCCommªdRe¡¬t
+ "RESTART"
+
+	)
+
+255 
+	#IRCCommªdSummÚ
+ "SUMMON"
+
+	)
+
+256 
+	#IRCCommªdU£rs
+ "USERS"
+
+	)
+
+257 
+	#IRCCommªdU£rho¡
+ "USERHOST"
+
+	)
+
+258 
+	#IRCCommªdIsÚ
+ "ISON"
+
+	)
+
+259 
+	#IRCCommªdObjeù
+ "OBJECT"
+
+	)
+
+	@irc_handle.c
+
+20 
+	~"cÚfig.h
+"
+
+22 
+	~"œc_hªdË.h
+"
+
+23 
+	~"cÚÃùiÚ.h
+"
+
+24 
+	~"loqui_­p.h
+"
+
+25 
+	~"œc_mes§ge.h
+"
+
+27 
+	s_IRCHªdËPriv©e
+
+
+29 
+CÚÃùiÚ
+ *
+	mcÚÃùiÚ
+;
+
+30 
+AccouÁ
+ *
+	maccouÁ
+;
+
+31 
+LoquiAµ
+ *
+	m­p
+;
+
+32 
+S”v”
+ *
+	m£rv”
+;
+
+34 
+GTh»ad
+ *
+	mth»ad
+;
+
+36 
+gboŞ—n
+ 
+	m·s£d_mÙd
+;
+
+40 
+GObjeùCÏss
+ *
+	g·»Á_şass
+ = 
+NULL
+;
+
+41 
+	#PARENT_TYPE
+ 
+G_TYPE_OBJECT
+
+
+	)
+
+43 
+œc_hªdË_şass_š™
+(
+IRCHªdËCÏss
+ *
+kÏss
+);
+
+44 
+œc_hªdË_š™
+(
+IRCHªdË
+ *
+œc_hªdË
+);
+
+45 
+œc_hªdË_fš®ize
+(
+GObjeù
+ *
+objeù
+);
+
+47 
+gpoš‹r
+ 
+œc_hªdË_th»ad_func
+(
+IRCHªdË
+ *
+hªdË
+);
+
+49 
+GTy³
+
+
+50 
+	$œc_hªdË_g‘_ty³
+()
+
+52 
+GTy³
+ 
+ty³
+ = 0;
+
+53 ià(
+ty³
+ == 0) {
+
+54 cÚ¡ 
+GTy³Info
+ 
+our_šfo
+ =
+
+56 (
+IRCHªdËCÏss
+),
+
+57 
+NULL
+,
+
+58 
+NULL
+,
+
+59 (
+GCÏssIn™Func
+è
+œc_hªdË_şass_š™
+,
+
+60 
+NULL
+,
+
+61 
+NULL
+,
+
+62 (
+IRCHªdË
+),
+
+64 (
+GIn¡ªûIn™Func
+è
+œc_hªdË_š™
+
+
+67 
+ty³
+ = 
+	`g_ty³_»gi¡”_¡©ic
+(
+PARENT_TYPE
+,
+
+69 &
+our_šfo
+,
+
+73  
+ty³
+;
+
+74 
+	}
+}
+
+76 
+	$œc_hªdË_şass_š™
+(
+IRCHªdËCÏss
+ *
+kÏss
+)
+
+78 
+GObjeùCÏss
+ *
+objeù_şass
+ = 
+	`G_OBJECT_CLASS
+(
+kÏss
+);
+
+80 
+·»Á_şass
+ = 
+	`g_ty³_şass_³ek_·»Á
+(
+kÏss
+);
+
+82 
+objeù_şass
+->
+fš®ize
+ = 
+œc_hªdË_fš®ize
+;
+
+83 
+	}
+}
+
+85 
+	$œc_hªdË_š™
+(
+IRCHªdË
+ *
+œc_hªdË
+)
+
+87 
+IRCHªdËPriv©e
+ *
+´iv
+;
+
+89 
+´iv
+ = 
+	`g_Ãw0
+(
+IRCHªdËPriv©e
+, 1);
+
+91 
+œc_hªdË
+->
+´iv
+ =…riv;
+
+92 
+	}
+}
+
+94 
+	$œc_hªdË_fš®ize
+(
+GObjeù
+ *
+objeù
+)
+
+96 
+IRCHªdË
+ *
+œc_hªdË
+;
+
+98 
+	`g_»tuº_if_ç
+(
+objeù
+ !ğ
+NULL
+);
+
+99 
+	`g_»tuº_if_ç
+(
+	`IS_IRC_HANDLE
+(
+objeù
+));
+
+101 
+œc_hªdË
+ = 
+	`IRC_HANDLE
+(
+objeù
+);
+
+103 ià(
+	`G_OBJECT_CLASS
+(
+·»Á_şass
+)->
+fš®ize
+)
+
+104 (* 
+	`G_OBJECT_CLASS
+(
+·»Á_şass
+)->
+fš®ize
+è(
+objeù
+);
+
+106 
+	`g_ä“
+(
+œc_hªdË
+->
+´iv
+);
+
+107 
+	}
+}
+
+108 
+gpoš‹r
+ 
+	$œc_hªdË_th»ad_func
+(
+IRCHªdË
+ *
+hªdË
+)
+
+110 
+IRCHªdËPriv©e
+ *
+´iv
+;
+
+111 
+LoquiAµ
+ *
+­p
+;
+
+112 
+GtkTextI‹r
+ 
+™”
+;
+
+113 
+GtkTextBufãr
+ *
+‹xtbuf
+;
+
+114 
+IRCMes§ge
+ *
+msg
+;
+
+116 
+´iv
+ = 
+hªdË
+->priv;
+
+118 
+	`g_´št
+(
+	`_
+("%s: CÚÃùšgØ%s:%d\n"), 
+´iv
+->
+accouÁ
+->
+Çme
+,…riv->
+£rv”
+->
+ho¡Çme
+,…riv->£rv”->
+pÜt
+);
+
+119 
+´iv
+->
+cÚÃùiÚ
+ = 
+	`cÚÃùiÚ_Ãw
+Õriv->
+£rv”
+);
+
+120 
+	`g_´št
+(
+	`_
+("%s: CÚÃùed. S’dšg In™ŸÈcommªd..."), 
+´iv
+->
+accouÁ
+->
+Çme
+);
+
+122 
+msg
+ = 
+	`œc_mes§ge_ü—‹
+(
+IRCCommªdPass
+, 
+´iv
+->
+£rv”
+->
+·sswÜd
+, 
+NULL
+);
+
+123 
+	`cÚÃùiÚ_put_œc_mes§ge
+(
+´iv
+->
+cÚÃùiÚ
+, 
+msg
+);
+
+124 
+	`g_objeù_uÄef
+(
+msg
+);
+
+126 
+msg
+ = 
+	`œc_mes§ge_ü—‹
+(
+IRCCommªdNick
+, "hogehoge", 
+NULL
+);
+
+127 
+	`cÚÃùiÚ_put_œc_mes§ge
+(
+´iv
+->
+cÚÃùiÚ
+, 
+msg
+);
+
+128 
+	`g_objeù_uÄef
+(
+msg
+);
+
+130 
+msg
+ = 
+	`œc_mes§ge_ü—‹
+(
+IRCCommªdU£r
+, "‹¡", "*", "*", "*", 
+NULL
+);
+
+131 
+	`cÚÃùiÚ_put_œc_mes§ge
+(
+´iv
+->
+cÚÃùiÚ
+, 
+msg
+);
+
+132 
+	`g_objeù_uÄef
+(
+msg
+);
+
+134 
+	`g_´št
+(
+	`_
+("Done.\n"));
+
+142 (
+msg
+ = 
+	`cÚÃùiÚ_g‘_œc_mes§ge
+(
+´iv
+->
+cÚÃùiÚ
+, 
+NULL
+)) != NULL) {
+
+144 
+	`gdk_th»ads_’‹r
+();
+
+145 
+	`gtk_‹xt_bufãr_š£¹
+(
+‹xtbuf
+, &
+™”
+, 
+utf8
+, -1);
+
+149 
+	`gdk_th»ads_Ëave
+();
+
+151 
+	`œc_mes§ge_´št
+(
+msg
+);
+
+152 
+	`g_objeù_uÄef
+(
+msg
+);
+
+155  
+NULL
+;
+
+156 
+	}
+}
+
+157 
+IRCHªdË
+*
+
+158 
+	$œc_hªdË_Ãw
+(
+AccouÁ
+ *
+accouÁ
+, 
+gušt
+ 
+£rv”_num
+, 
+gboŞ—n
+ 
+çÎback
+)
+
+160 
+IRCHªdË
+ *
+hªdË
+;
+
+161 
+IRCHªdËPriv©e
+ *
+´iv
+;
+
+163 
+hªdË
+ = 
+	`g_objeù_Ãw
+(
+	`œc_hªdË_g‘_ty³
+(), 
+NULL
+);
+
+165 
+´iv
+ = 
+hªdË
+->priv;
+
+167 
+	`g_»tuº_v®_if_ç
+(
+£rv”_num
+ < 
+	`g_¦i¡_Ëngth
+(
+accouÁ
+->
+£rv”_li¡
+), 
+NULL
+);
+
+168 
+´iv
+->
+£rv”
+ = 
+	`g_¦i¡_Áh
+(
+accouÁ
+->
+£rv”_li¡
+, 
+£rv”_num
+)->
+d©a
+;
+
+169 
+	`g_»tuº_v®_if_ç
+(
+´iv
+->
+£rv”
+ !ğ
+NULL
+, NULL);
+
+171 
+´iv
+->
+­p
+ = 
+	`loqui_­p_g‘_maš_­p
+();
+
+172 
+´iv
+->
+accouÁ
+ =‡ccount;
+
+174 
+hªdË
+->
+£rv”_num
+ = server_num;
+
+175 
+hªdË
+->
+çÎback
+ = fallback;
+
+178 
+´iv
+->
+th»ad
+ = 
+	`g_th»ad_ü—‹
+((
+GTh»adFunc
+è
+œc_hªdË_th»ad_func
+,
+
+179 
+hªdË
+,
+
+180 
+TRUE
+,
+
+181 
+NULL
+);
+
+183  
+hªdË
+;
+
+184 
+	}
+}
+
+	@irc_handle.h
+
+20 #iâdeà
+__IRC_HANDLE_H__
+
+
+21 
+	#__IRC_HANDLE_H__
+
+
+	)
+
+23 
+	~<gnome.h
+>
+
+24 
+	~"accouÁ.h
+"
+
+26 
+	gG_BEGIN_DECLS
+
+
+28 
+	#TYPE_IRC_HANDLE
+ (
+	`œc_hªdË_g‘_ty³
+ ())
+
+	)
+
+29 
+	#IRC_HANDLE
+(
+obj
+è(
+	`G_TYPE_CHECK_INSTANCE_CAST
+ ((obj), 
+TYPE_IRC_HANDLE
+, 
+IRCHªdË
+))
+
+	)
+
+30 
+	#IRC_HANDLE_CLASS
+(
+kÏss
+è(
+	`G_TYPE_CHECK_CLASS_CAST
+ ((kÏss), 
+TYPE_IRC_HANDLE
+, 
+IRCHªdËCÏss
+))
+
+	)
+
+31 
+	#IS_IRC_HANDLE
+(
+obj
+è(
+	`G_TYPE_CHECK_INSTANCE_TYPE
+ ((obj), 
+TYPE_IRC_HANDLE
+))
+
+	)
+
+32 
+	#IS_IRC_HANDLE_CLASS
+(
+kÏss
+è(
+	`G_TYPE_CHECK_CLASS_TYPE
+ ((kÏss), 
+TYPE_IRC_HANDLE
+))
+
+	)
+
+33 
+	#IRC_HANDLE_GET_CLASS
+(
+obj
+è(
+	`G_TYPE_INSTANCE_GET_CLASS
+ ((obj), 
+TYPE_IRC_HANDLE
+, 
+IRCHªdËCÏss
+))
+
+	)
+
+35 
+_IRCHªdË
+ 
+	tIRCHªdË
+;
+
+36 
+_IRCHªdËCÏss
+ 
+	tIRCHªdËCÏss
+;
+
+38 
+_IRCHªdËPriv©e
+ 
+	tIRCHªdËPriv©e
+;
+
+40 
+	s_IRCHªdË
+
+
+42 
+GObjeù
+ 
+	m·»Á
+;
+
+44 
+gboŞ—n
+ 
+	mçÎback
+;
+
+45 
+gušt
+ 
+	m£rv”_num
+;
+
+47 
+GE¼Ü
+ *
+	m”rÜ
+;
+
+49 
+IRCHªdËPriv©e
+ *
+	m´iv
+;
+
+52 
+	s_IRCHªdËCÏss
+
+
+54 
+GObjeùCÏss
+ 
+	m·»Á_şass
+;
+
+58 
+GTy³
+ 
+	$œc_hªdË_g‘_ty³
+(è
+G_GNUC_CONST
+;
+
+60 
+IRCHªdË
+* 
+	`œc_hªdË_Ãw
+(
+AccouÁ
+ *
+accouÁ
+, 
+gušt
+ 
+£rv”_num
+, 
+gboŞ—n
+ 
+çÎback
+);
+
+62 
+G_END_DECLS
+
+
+	@irc_message.c
+
+20 
+	~"cÚfig.h
+"
+
+22 
+	~"œc_mes§ge.h
+"
+
+23 
+	~"commªd_bË.h
+"
+
+24 
+	~"uts.h
+"
+
+25 
+	~<¡d¬g.h
+>
+
+27 
+	s_IRCMes§gePriv©e
+
+
+31 
+GObjeùCÏss
+ *
+	g·»Á_şass
+ = 
+NULL
+;
+
+32 
+	#PARENT_TYPE
+ 
+G_TYPE_OBJECT
+
+
+	)
+
+34 
+œc_mes§ge_şass_š™
+(
+IRCMes§geCÏss
+ *
+kÏss
+);
+
+35 
+œc_mes§ge_š™
+(
+IRCMes§ge
+ *
+œc_mes§ge
+);
+
+36 
+œc_mes§ge_fš®ize
+(
+GObjeù
+ *
+objeù
+);
+
+40 
+gboŞ—n
+ 
+œc_mes§ge_·r£_´efix
+(cÚ¡ 
+gch¬
+ *
+¡r
+, gch¬ **
+nick
+, gch¬ **
+u£r
+, gch¬ **
+ho¡
+);
+
+42 
+GTy³
+
+
+43 
+	$œc_mes§ge_g‘_ty³
+()
+
+45 
+GTy³
+ 
+ty³
+ = 0;
+
+46 ià(
+ty³
+ == 0) {
+
+47 cÚ¡ 
+GTy³Info
+ 
+our_šfo
+ =
+
+49 (
+IRCMes§geCÏss
+),
+
+50 
+NULL
+,
+
+51 
+NULL
+,
+
+52 (
+GCÏssIn™Func
+è
+œc_mes§ge_şass_š™
+,
+
+53 
+NULL
+,
+
+54 
+NULL
+,
+
+55 (
+IRCMes§ge
+),
+
+57 (
+GIn¡ªûIn™Func
+è
+œc_mes§ge_š™
+
+
+60 
+ty³
+ = 
+	`g_ty³_»gi¡”_¡©ic
+(
+PARENT_TYPE
+,
+
+62 &
+our_šfo
+,
+
+66  
+ty³
+;
+
+67 
+	}
+}
+
+69 
+	$œc_mes§ge_şass_š™
+(
+IRCMes§geCÏss
+ *
+kÏss
+)
+
+71 
+GObjeùCÏss
+ *
+objeù_şass
+ = 
+	`G_OBJECT_CLASS
+(
+kÏss
+);
+
+73 
+·»Á_şass
+ = 
+	`g_ty³_şass_³ek_·»Á
+(
+kÏss
+);
+
+75 
+objeù_şass
+->
+fš®ize
+ = 
+œc_mes§ge_fš®ize
+;
+
+76 
+	}
+}
+
+78 
+	$œc_mes§ge_š™
+(
+IRCMes§ge
+ *
+œc_mes§ge
+)
+
+80 
+IRCMes§gePriv©e
+ *
+´iv
+;
+
+82 
+´iv
+ = 
+	`g_Ãw0
+(
+IRCMes§gePriv©e
+, 1);
+
+84 
+œc_mes§ge
+->
+´iv
+ =…riv;
+
+85 
+	}
+}
+
+87 
+	$œc_mes§ge_fš®ize
+(
+GObjeù
+ *
+objeù
+)
+
+89 
+IRCMes§ge
+ *
+msg
+;
+
+91 
+	`g_»tuº_if_ç
+(
+objeù
+ !ğ
+NULL
+);
+
+92 
+	`g_»tuº_if_ç
+(
+	`IS_IRC_MESSAGE
+(
+objeù
+));
+
+94 
+msg
+ = 
+	`IRC_MESSAGE
+(
+objeù
+);
+
+96 if(
+msg
+->
+´efix
+) {
+
+97 
+	`g_ä“
+(
+msg
+->
+´efix
+);
+
+98 
+msg
+->
+´efix
+ = 
+NULL
+;
+
+100 if(
+msg
+->
+commªd
+) {
+
+101 
+	`g_ä“
+(
+msg
+->
+commªd
+);
+
+102 
+msg
+->
+commªd
+ = 
+NULL
+;
+
+104 if(
+msg
+->
+·¿m‘”
+) {
+
+105 
+	`g_¡rä“v
+(
+msg
+->
+·¿m‘”
+);
+
+106 
+msg
+->
+·¿m‘”
+ = 
+NULL
+;
+
+108 if(
+msg
+->
+nick
+) {
+
+109 
+	`g_ä“
+(
+msg
+->
+nick
+);
+
+110 
+msg
+->
+nick
+ = 
+NULL
+;
+
+112 if(
+msg
+->
+u£r
+) {
+
+113 
+	`g_ä“
+(
+msg
+->
+u£r
+);
+
+114 
+msg
+->
+u£r
+ = 
+NULL
+;
+
+116 if(
+msg
+->
+ho¡
+) {
+
+117 
+	`g_ä“
+(
+msg
+->
+ho¡
+);
+
+118 
+msg
+->
+ho¡
+ = 
+NULL
+;
+
+121 ià(
+	`G_OBJECT_CLASS
+(
+·»Á_şass
+)->
+fš®ize
+)
+
+122 (* 
+	`G_OBJECT_CLASS
+(
+·»Á_şass
+)->
+fš®ize
+è(
+objeù
+);
+
+124 
+	`g_ä“
+(
+msg
+->
+´iv
+);
+
+125 
+	}
+}
+
+127 
+gboŞ—n
+
+
+128 
+	$œc_mes§ge_·r£_´efix
+(cÚ¡ 
+gch¬
+ *
+¡r
+, gch¬ **
+nick
+, gch¬ **
+u£r
+, gch¬ **
+ho¡
+)
+
+130 
+gch¬
+ *
+s
+, *
+t
+, *
+buf
+;
+
+132 
+	`g_»tuº_v®_if_ç
+(
+¡r
+ !ğ
+NULL
+, 
+FALSE
+);
+
+133 
+	`g_»tuº_v®_if_ç
+(
+nick
+ !ğ
+NULL
+, 
+FALSE
+);
+
+134 
+	`g_»tuº_v®_if_ç
+(
+u£r
+ !ğ
+NULL
+, 
+FALSE
+);
+
+135 
+	`g_»tuº_v®_if_ç
+(
+ho¡
+ !ğ
+NULL
+, 
+FALSE
+);
+
+137 *
+nick
+ = 
+NULL
+;
+
+138 *
+u£r
+ = 
+NULL
+;
+
+139 *
+ho¡
+ = 
+NULL
+;
+
+141 
+buf
+ = 
+t
+ = 
+	`g_¡rdup
+(
+¡r
+);
+
+143 
+s
+ = 
+	`¡rchr
+(
+t
+, '!');
+
+144 if(!
+s
+) {
+
+145 
+	`g_ä“
+(
+buf
+);
+
+146  
+FALSE
+;
+
+148 *
+s
+ = '\0';
+
+149 *
+nick
+ = 
+	`g_¡rdup
+(
+t
+);
+
+151 
+t
+ = ++
+s
+;
+
+152 
+s
+ = 
+	`¡rchr
+(
+t
+, '@');
+
+153 if(!
+s
+) {
+
+154 
+	`g_ä“
+(*
+nick
+);
+
+155 *
+nick
+ = 
+NULL
+;
+
+156 
+	`g_ä“
+(
+buf
+);
+
+157  
+FALSE
+;
+
+159 *
+s
+ = '\0';
+
+160 *
+u£r
+ = 
+	`g_¡rdup
+(
+t
+);
+
+162 
+t
+ = ++
+s
+;
+
+163 *
+ho¡
+ = 
+	`g_¡rdup
+(
+t
+);
+
+165  
+TRUE
+;
+
+166 
+	}
+}
+
+168 
+IRCMes§ge
+*
+
+169 
+	$œc_mes§ge_Ãw
+(cÚ¡ 
+gch¬
+ *
+´efix
+, cÚ¡ gch¬ *
+commªd
+, gch¬ **
+·¿m‘”
+)
+
+171 
+IRCMes§ge
+ *
+msg
+;
+
+173 
+	`g_»tuº_v®_if_ç
+(
+commªd
+ !ğ
+NULL
+, NULL);
+
+174 
+	`g_»tuº_v®_if_ç
+(
+·¿m‘”
+ !ğ
+NULL
+, NULL);
+
+176 
+msg
+ = 
+	`g_objeù_Ãw
+(
+	`œc_mes§ge_g‘_ty³
+(), 
+NULL
+);
+
+178 if(
+´efix
+) {
+
+179 
+msg
+->
+´efix
+ = 
+	`g_¡rdup
+(prefix);
+
+180 
+	`œc_mes§ge_·r£_´efix
+(
+´efix
+, &
+msg
+->
+nick
+, &msg->
+u£r
+, &msg->
+ho¡
+);
+
+182 
+msg
+->
+´efix
+ = 
+NULL
+;
+
+184 
+msg
+->
+commªd
+ = 
+	`g_¡rdup
+(command);
+
+185 
+msg
+->
+·¿m‘”
+ = 
+	`g_¡rdupv
+(parameter);
+
+187 
+msg
+->
+»¥Ú£
+ = (è
+	`g_ascii_¡¹od
+(
+commªd
+, 
+NULL
+);
+
+188 if(
+msg
+->
+»¥Ú£
+ == 0) {
+
+189 
+msg
+->
+»¥Ú£
+ = 
+	`commªd_bË_make_commªd_num”ic
+(
+commªd
+);
+
+192  
+msg
+;
+
+193 
+	}
+}
+
+195 
+	$œc_mes§ge_´št
+(
+IRCMes§ge
+ *
+msg
+)
+
+197 
+i
+;
+
+199 
+	`g_´št
+("´efix: %s, commªd: %s,‚um”ic: %d\n", 
+msg
+->
+´efix
+, msg->
+commªd
+, msg->
+»¥Ú£
+);
+
+200 if(
+msg
+->
+´efix
+ !ğ
+NULL
+) {
+
+201 if(
+msg
+->
+nick
+) {
+
+202 
+	`g_´št
+("nick: %s, u£r: %s, ho¡: %s\n", 
+msg
+->
+nick
+, msg->
+u£r
+, msg->
+ho¡
+);
+
+204 
+	`g_´št
+("£rv”: %s\n", 
+msg
+->
+´efix
+);
+
+208 
+i
+ = 0; 
+msg
+->
+·¿m‘”
+[i] !ğ
+NULL
+; i++) {
+
+209 
+	`g_´št
+("·¿[%d]: '%s'\n", 
+i
+, 
+msg
+->
+·¿m‘”
+[i]);
+
+212 
+	}
+}
+
+214 
+IRCMes§ge
+*
+
+215 
+	$œc_mes§ge_·r£_lše
+(cÚ¡ 
+gch¬
+ *
+lše
+)
+
+217 
+IRCMes§ge
+ *
+msg
+;
+
+218 
+gch¬
+ **
+¬¿y
+;
+
+219 
+gch¬
+ *
+´efix
+, *
+commªd
+, *
+·¿m‘”
+[16], *
+Ï¡_·¿m
+;
+
+220 
+i
+, 
+j
+;
+
+222 
+	`g_»tuº_v®_if_ç
+(
+lše
+ !ğ
+NULL
+, NULL);
+
+225 
+¬¿y
+ = 
+	`g_¡r¥l™
+(
+lše
+, " ", 17);
+
+227 
+´efix
+ = 
+NULL
+;
+
+229 
+i
+ = 0;
+
+230 if(*
+¬¿y
+[
+i
+] == ':') {
+
+231 
+´efix
+ = 
+¬¿y
+[
+i
+]+1;
+
+232 
+i
+++;
+
+234 
+commªd
+ = 
+¬¿y
+[
+i
+];
+
+235 
+i
+++;
+
+237 
+j
+ = 
+i
+; j < 14+i; j++) {
+
+238 if(
+¬¿y
+[
+j
+] =ğ
+NULL
+ || *array[j] == ':')
+
+240 
+·¿m‘”
+[
+j
+-
+i
+] = 
+¬¿y
+[j];
+
+242 
+Ï¡_·¿m
+ = 
+	`g_¡rjošv
+(" ", 
+¬¿y
++
+j
+);
+
+243 
+·¿m‘”
+[
+j
+-
+i
+] = 
+Ï¡_·¿m
+;
+
+244 if(*
+·¿m‘”
+[
+j
+-
+i
+] == ':')
+
+245 
+·¿m‘”
+[
+j
+-
+i
+]++;
+
+246 
+	`uts_»move_»tuº_code
+(
+·¿m‘”
+[
+j
+-
+i
+]);
+
+247 
+·¿m‘”
+[
+j
+-
+i
++1] = 
+NULL
+;
+
+249 
+msg
+ = 
+	`œc_mes§ge_Ãw
+(
+´efix
+, 
+commªd
+, 
+·¿m‘”
+);
+
+251 
+	`g_ä“
+(
+Ï¡_·¿m
+);
+
+252 
+	`g_¡rä“v
+(
+¬¿y
+);
+
+254  
+msg
+;
+
+255 
+	}
+}
+
+257 
+IRCMes§ge
+ *
+
+258 
+	$œc_mes§ge_ü—‹
+(
+gch¬
+ *
+commªd
+, gch¬ *
+·¿m
+, ...)
+
+260 
+IRCMes§ge
+ *
+msg
+;
+
+261 
+va_li¡
+ 
+¬gs
+;
+
+262 
+gšt
+ 
+num
+, 
+i
+;
+
+263 
+gch¬
+ **
+¡ršgs
+;
+
+265 
+	`va_¡¬t
+(
+¬gs
+, 
+·¿m
+);
+
+266 
+num
+ = 0; 
+	`va_¬g
+(
+¬gs
+, 
+gch¬
+ *);‚um++);
+
+267 
+	`va_’d
+(
+¬gs
+);
+
+269 
+¡ršgs
+ = 
+	`g_Ãw
+(
+gch¬
+ *, 
+num
+ + 2);
+
+271 
+¡ršgs
+[0] = 
+·¿m
+;
+
+273 
+	`va_¡¬t
+(
+¬gs
+, 
+·¿m
+);
+
+274 
+i
+ = 1; i < 
+num
++1; i++) {
+
+275 
+¡ršgs
+[
+i
+] = 
+	`va_¬g
+(
+¬gs
+, 
+gch¬
+ *);
+
+277 
+¡ršgs
+[
+i
+] = 
+NULL
+;
+
+278 
+	`va_’d
+(
+¬gs
+);
+
+280 
+msg
+ = 
+	`œc_mes§ge_Ãw
+(
+NULL
+, 
+commªd
+, 
+¡ršgs
+);
+
+281 
+	`g_ä“
+(
+¡ršgs
+);
+
+283  
+msg
+;
+
+284 
+	}
+}
+
+286 
+IRCMes§ge
+ *
+
+287 
+	$œc_mes§ge_ü—‹v
+(
+gch¬
+ *
+commªd
+, gch¬ *
+·¿m_¬¿y
+[])
+
+289  
+	`œc_mes§ge_Ãw
+(
+NULL
+, 
+commªd
+, 
+·¿m_¬¿y
+);
+
+290 
+	}
+}
+
+294 
+gch¬
+ *
+
+295 
+	$œc_mes§ge_to_¡ršg
+(
+IRCMes§ge
+ *
+msg
+)
+
+297 
+GSŒšg
+ *
+¡ršg
+;
+
+298 
+gch¬
+ *
+¡r
+;
+
+299 
+gšt
+ 
+i
+, 
+num
+;
+
+301 
+	`g_»tuº_v®_if_ç
+(
+msg
+ !ğ
+NULL
+, NULL);
+
+302 
+	`g_»tuº_v®_if_ç
+(
+msg
+->
+commªd
+ !ğ
+NULL
+, NULL);
+
+303 
+	`g_»tuº_v®_if_ç
+(
+msg
+->
+·¿m‘”
+ !ğ
+NULL
+, NULL);
+
+305 
+num
+ = 0; 
+msg
+->
+·¿m‘”
+[num] !ğ
+NULL
+;‚um++);
+
+306 if(
+num
+ < 1)
+
+307  
+NULL
+;
+
+309 
+¡ršg
+ = 
+	`g_¡ršg_Ãw
+(
+msg
+->
+commªd
+);
+
+311 
+i
+ = 0; i < 
+num
+ - 1; i++) {
+
+312 
+	`g_¡ršg_­³nd_c
+(
+¡ršg
+, ' ');
+
+313 
+	`g_¡ršg_­³nd
+(
+¡ršg
+, 
+msg
+->
+·¿m‘”
+[
+i
+]);
+
+315 
+	`g_¡ršg_­³nd_´štf
+(
+¡ršg
+, " :%s", 
+msg
+->
+·¿m‘”
+[
+i
+]);
+
+317 
+¡r
+ = 
+¡ršg
+->str;
+
+318 
+	`g_¡ršg_ä“
+(
+¡ršg
+, 
+FALSE
+);
+
+320  
+¡r
+;
+
+321 
+	}
+}
+
+322 
+gch¬
+ *
+
+323 
+	$œc_mes§ge_g‘_·¿m
+(
+IRCMes§ge
+ *
+msg
+, 
+gušt
+ 
+i
+)
+
+325 
+	`g_»tuº_v®_if_ç
+(0 < 
+i
+ && i < 15, 
+NULL
+);
+
+328 
+	}
+}
+
+	@irc_message.h
+
+20 #iâdeà
+__IRC_MESSAGE_H__
+
+
+21 
+	#__IRC_MESSAGE_H__
+
+
+	)
+
+23 
+	~<gnome.h
+>
+
+24 
+	~"œc_cÚ¡ªts.h
+"
+
+26 
+	gG_BEGIN_DECLS
+
+
+28 
+	#TYPE_IRC_MESSAGE
+ (
+	`œc_mes§ge_g‘_ty³
+ ())
+
+	)
+
+29 
+	#IRC_MESSAGE
+(
+obj
+è(
+	`G_TYPE_CHECK_INSTANCE_CAST
+ ((obj), 
+TYPE_IRC_MESSAGE
+, 
+IRCMes§ge
+))
+
+	)
+
+30 
+	#IRC_MESSAGE_CLASS
+(
+kÏss
+è(
+	`G_TYPE_CHECK_CLASS_CAST
+ ((kÏss), 
+TYPE_IRC_MESSAGE
+, 
+IRCMes§geCÏss
+))
+
+	)
+
+31 
+	#IS_IRC_MESSAGE
+(
+obj
+è(
+	`G_TYPE_CHECK_INSTANCE_TYPE
+ ((obj), 
+TYPE_IRC_MESSAGE
+))
+
+	)
+
+32 
+	#IS_IRC_MESSAGE_CLASS
+(
+kÏss
+è(
+	`G_TYPE_CHECK_CLASS_TYPE
+ ((kÏss), 
+TYPE_IRC_MESSAGE
+))
+
+	)
+
+33 
+	#IRC_MESSAGE_GET_CLASS
+(
+obj
+è(
+	`G_TYPE_INSTANCE_GET_CLASS
+ ((obj), 
+TYPE_IRC_MESSAGE
+, 
+IRCMes§geCÏss
+))
+
+	)
+
+35 
+_IRCMes§ge
+ 
+	tIRCMes§ge
+;
+
+36 
+_IRCMes§geCÏss
+ 
+	tIRCMes§geCÏss
+;
+
+38 
+_IRCMes§gePriv©e
+ 
+	tIRCMes§gePriv©e
+;
+
+46 
+	s_IRCMes§ge
+
+
+48 
+GObjeù
+ 
+	m·»Á
+;
+
+50 
+gch¬
+ *
+	m´efix
+;
+
+53 
+gch¬
+ *
+	mnick
+;
+
+54 
+gch¬
+ *
+	mu£r
+;
+
+55 
+gch¬
+ *
+	mho¡
+;
+
+57 
+IRCRe¥Ú£
+ 
+	m»¥Ú£
+;
+
+58 
+gch¬
+ *
+	mcommªd
+;
+
+60 
+gch¬
+ **
+	m·¿m‘”
+;
+
+62 
+IRCMes§gePriv©e
+ *
+	m´iv
+;
+
+65 
+	s_IRCMes§geCÏss
+
+
+67 
+GObjeùCÏss
+ 
+	m·»Á_şass
+;
+
+71 
+GTy³
+ 
+	$œc_mes§ge_g‘_ty³
+ (è
+G_GNUC_CONST
+;
+
+73 
+IRCMes§ge
+* 
+	`œc_mes§ge_Ãw
+ (cÚ¡ 
+gch¬
+ *
+´efix
+,
+
+74 cÚ¡ 
+gch¬
+ *
+commªd
+,
+
+75 
+gch¬
+ **
+·¿m‘”
+);
+
+76 
+gch¬
+ *
+	`œc_mes§ge_g‘_·¿m
+(
+IRCMes§ge
+ *
+msg
+, 
+gušt
+ 
+i
+);
+
+77 
+IRCMes§ge
+* 
+	`œc_mes§ge_·r£_lše
+(cÚ¡ 
+gch¬
+ *
+lše
+);
+
+78 
+	`œc_mes§ge_´št
+(
+IRCMes§ge
+ *
+msg
+);
+
+79 
+IRCMes§ge
+* 
+	`œc_mes§ge_ü—‹
+(
+gch¬
+ *
+commªd
+, gch¬ *
+·¿m
+, ...);
+
+80 
+IRCMes§ge
+* 
+	`œc_mes§ge_ü—‹v
+(
+gch¬
+ *
+commªd
+, gch¬ *
+·¿m_¬¿y
+[]);
+
+81 
+gch¬
+* 
+	`œc_mes§ge_to_¡ršg
+(
+IRCMes§ge
+ *
+msg
+);
+
+83 
+G_END_DECLS
+
+
 	@loqui_app.c
 
 20 
@@ -7811,29 +13367,35 @@ fÜm©
 	~"cÚÃùiÚ.h
 "
 
-28 
+27 
+	~"uts.h
+"
+
+28 
+	~"chªÃl_book.h
+"
+
+29 
+	~"nick_li¡.h
+"
+
+31 
 	s_LoquiAµPriv©e
 
 
-30 
+33 
 GtkWidg‘
  *
 	mÏb–_tİic
 ;
 
-31 
+34 
 GtkWidg‘
  *
 	mtoggË_lock
 ;
 
-33 
-GSLi¡
- *
-	maccouÁ_li¡
-;
-
-36 
+37 
 GnomeAµCÏss
  *
 	g·»Á_şass
@@ -7841,7 +13403,7 @@ GnomeAµCÏss
 NULL
 ;
 
-37 
+38 
 	#PARENT_TYPE
  
 GNOME_TYPE_APP
@@ -7849,13 +13411,13 @@ GNOME_TYPE_APP
 
 	)
 
-38 
+39 
 LoquiAµ
  *
 	gmaš_­p
 ;
 
-40 
+41 
 loqui_­p_şass_š™
 (
 LoquiAµCÏss
@@ -7863,7 +13425,7 @@ LoquiAµCÏss
 kÏss
 );
 
-41 
+42 
 loqui_­p_š™
 (
 LoquiAµ
@@ -7871,7 +13433,7 @@ LoquiAµ
 ­p
 );
 
-42 
+43 
 loqui_­p_fš®ize
 (
 GObjeù
@@ -7879,7 +13441,7 @@ GObjeù
 objeù
 );
 
-43 
+44 
 loqui_­p_de¡roy
 (
 GtkObjeù
@@ -7887,7 +13449,7 @@ GtkObjeù
 objeù
 );
 
-45 
+46 
 gšt
  
 loqui_­p_d–‘e_ev’t_cb
@@ -7901,7 +13463,7 @@ GdkEv’tAny
 ev’t
 );
 
-47 
+48 
 loqui_­p_»¡Üe_size
 (
 LoquiAµ
@@ -7909,7 +13471,7 @@ LoquiAµ
 ­p
 );
 
-48 
+49 
 loqui_­p_§ve_size
 (
 LoquiAµ
@@ -7917,83 +13479,67 @@ LoquiAµ
 ­p
 );
 
-49 
-loqui_­p_lßd_accouÁs
-(
-LoquiAµ
- *
-­p
-);
-
-50 
-loqui_­p_£t_accouÁs
-(
-LoquiAµ
- *
-­p
-);
-
-52 
+51 
 GTy³
 
 
-53 
+52 
 	$loqui_­p_g‘_ty³
 ()
 
-55 
+54 
 GTy³
  
 ty³
  = 0;
 
-56 ià(
+55 ià(
 ty³
  == 0) {
 
-57 cÚ¡ 
+56 cÚ¡ 
 GTy³Info
  
 our_šfo
  =
 
-59 (
+58 (
 LoquiAµCÏss
 ),
+
+59 
+NULL
+,
 
 60 
 NULL
 ,
 
-61 
-NULL
-,
-
-62 (
+61 (
 GCÏssIn™Func
 è
 loqui_­p_şass_š™
+,
+
+62 
+NULL
 ,
 
 63 
 NULL
 ,
 
-64 
-NULL
-,
-
-65 (
+64 (
 LoquiAµ
 ),
 
-67 (
+66 (
 GIn¡ªûIn™Func
 è
 loqui_­p_š™
 
 
-70 
+69 
 ty³
  = 
 	`g_ty³_»gi¡”_¡©ic
@@ -8001,19 +13547,19 @@ ty³
 PARENT_TYPE
 ,
 
-72 &
+71 &
 our_šfo
 ,
 
-76  
+75  
 ty³
 ;
 
-77 
+76 
 	}
 }
 
-79 
+78 
 	$loqui_­p_şass_š™
  (
 LoquiAµCÏss
@@ -8021,7 +13567,7 @@ LoquiAµCÏss
 kÏss
 )
 
-81 
+80 
 GObjeùCÏss
  *
 objeù_şass
@@ -8031,7 +13577,7 @@ objeù_şass
 kÏss
 );
 
-82 
+81 
 GtkObjeùCÏss
  *
 gtk_objeù_şass
@@ -8041,7 +13587,7 @@ gtk_objeù_şass
 kÏss
 );
 
-84 
+83 
 ·»Á_şass
  = 
 	`g_ty³_şass_³ek_·»Á
@@ -8049,7 +13595,7 @@ kÏss
 kÏss
 );
 
-86 
+85 
 objeù_şass
 ->
 fš®ize
@@ -8057,7 +13603,7 @@ fš®ize
 loqui_­p_fš®ize
 ;
 
-87 
+86 
 gtk_objeù_şass
 ->
 de¡roy
@@ -8065,11 +13611,11 @@ de¡roy
 loqui_­p_de¡roy
 ;
 
-88 
+87 
 	}
 }
 
-90 
+89 
 	$loqui_­p_š™
  (
 LoquiAµ
@@ -8077,13 +13623,13 @@ LoquiAµ
 ­p
 )
 
-92 
+91 
 LoquiAµPriv©e
  *
 ´iv
 ;
 
-94 
+93 
 ´iv
  = 
 	`g_Ãw0
@@ -8091,13 +13637,13 @@ LoquiAµPriv©e
 LoquiAµPriv©e
 , 1);
 
-95 
+94 
 ­p
 ->
 ´iv
  =…riv;
 
-97 
+96 
 ­p
 ->
 m’u
@@ -8105,11 +13651,11 @@ m’u
 NULL
 ;
 
-98 
+97 
 	}
 }
 
-99 
+98 
 	$loqui_­p_de¡roy
 (
 GtkObjeù
@@ -8117,13 +13663,13 @@ GtkObjeù
 objeù
 )
 
-101 
+100 
 LoquiAµ
  *
 ­p
 ;
 
-103 
+102 
 	`g_»tuº_if_ç
 (
 objeù
@@ -8131,7 +13677,7 @@ objeù
 NULL
 );
 
-104 
+103 
 	`g_»tuº_if_ç
 (
 	`LOQUI_IS_APP
@@ -8139,7 +13685,7 @@ NULL
 objeù
 ));
 
-106 
+105 
 ­p
  = 
 	`LOQUI_APP
@@ -8147,13 +13693,13 @@ objeù
 objeù
 );
 
-108 if(
+107 if(
 ­p
 ->
 m’u
 ) {
 
-109 
+108 
 	`g_objeù_uÄef
 (
 ­p
@@ -8161,7 +13707,7 @@ m’u
 m’u
 );
 
-110 
+109 
 ­p
 ->
 m’u
@@ -8169,7 +13715,7 @@ m’u
 NULL
 ;
 
-113 ià(
+112 ià(
 	`GTK_OBJECT_CLASS
 (
 ·»Á_şass
@@ -8177,7 +13723,7 @@ NULL
 de¡roy
 )
 
-114 (* 
+113 (* 
 	`GTK_OBJECT_CLASS
 (
 ·»Á_şass
@@ -8187,11 +13733,11 @@ de¡roy
 objeù
 );
 
-116 
+115 
 	}
 }
 
-118 
+117 
 	$loqui_­p_fš®ize
  (
 GObjeù
@@ -8199,13 +13745,13 @@ GObjeù
 objeù
 )
 
-120 
+119 
 LoquiAµ
  *
 ­p
 ;
 
-122 
+121 
 	`g_»tuº_if_ç
  (
 objeù
@@ -8213,7 +13759,7 @@ objeù
 NULL
 );
 
-123 
+122 
 	`g_»tuº_if_ç
  (
 	`LOQUI_IS_APP
@@ -8221,7 +13767,7 @@ NULL
 objeù
 ));
 
-125 
+124 
 ­p
  = 
 	`LOQUI_APP
@@ -8229,7 +13775,7 @@ objeù
 objeù
 );
 
-127 ià(
+126 ià(
 	`G_OBJECT_CLASS
 (
 ·»Á_şass
@@ -8237,7 +13783,7 @@ objeù
 fš®ize
 )
 
-128 (* 
+127 (* 
 	`G_OBJECT_CLASS
 (
 ·»Á_şass
@@ -8247,7 +13793,7 @@ fš®ize
 objeù
 );
 
-130 
+129 
 	`g_ä“
 (
 ­p
@@ -8255,15 +13801,15 @@ objeù
 ´iv
 );
 
-131 
+130 
 	}
 }
 
-133 
+132 
 gšt
 
 
-134 
+133 
 	$loqui_­p_d–‘e_ev’t_cb
 (
 GtkWidg‘
@@ -8275,13 +13821,13 @@ GdkEv’tAny
 ev’t
 )
 
-136 ià(
+135 ià(
 	`“l_gcÚf_g‘_boŞ—n
 (
 LOQUI_GCONF_SIZE
  "/save_size")) {
 
-137 
+136 
 	`loqui_­p_§ve_size
 (
 	`LOQUI_APP
@@ -8289,25 +13835,25 @@ LOQUI_GCONF_SIZE
 widg‘
 ));
 
-139 
+138 
 	`gtk_widg‘_de¡roy
 (
 widg‘
 );
 
-140 
+139 
 	`gtk_maš_qu™
 ();
 
-142  
+141  
 TRUE
 ;
 
-143 
+142 
 	}
 }
 
-144 
+143 
 	$loqui_­p_§ve_size
 (
 LoquiAµ
@@ -8315,19 +13861,19 @@ LoquiAµ
 ­p
 )
 
-146 
+145 
 gšt
  
 height
 ;
 
-147 
+146 
 gšt
  
 width
 ;
 
-149 
+148 
 	`gtk_wšdow_g‘_size
 (
 	`GTK_WINDOW
@@ -8339,7 +13885,7 @@ width
 height
 );
 
-150 
+149 
 	`“l_gcÚf_£t_š‹g”
 (
 LOQUI_GCONF_SIZE
@@ -8347,7 +13893,7 @@ LOQUI_GCONF_SIZE
 width
 );
 
-151 
+150 
 	`“l_gcÚf_£t_š‹g”
 (
 LOQUI_GCONF_SIZE
@@ -8355,11 +13901,11 @@ LOQUI_GCONF_SIZE
 height
 );
 
-154 
+153 
 	}
 }
 
-155 
+154 
 	$loqui_­p_»¡Üe_size
 (
 LoquiAµ
@@ -8367,19 +13913,19 @@ LoquiAµ
 ­p
 )
 
-157 
+156 
 gšt
  
 height
 ;
 
-158 
+157 
 gšt
  
 width
 ;
 
-160 
+159 
 height
  = 
 	`“l_gcÚf_g‘_š‹g”
@@ -8387,7 +13933,7 @@ height
 LOQUI_GCONF_SIZE
  "/window_width");
 
-161 
+160 
 width
  = 
 	`“l_gcÚf_g‘_š‹g”
@@ -8395,7 +13941,7 @@ width
 LOQUI_GCONF_SIZE
  "/window_height");
 
-162 
+161 
 	`gtk_wšdow_£t_deçuÉ_size
 (
 	`GTK_WINDOW
@@ -8407,279 +13953,73 @@ height
 width
 );
 
-163 
+162 
 	}
 }
 
-164 
-	$loqui_­p_lßd_accouÁs
-(
-LoquiAµ
- *
-­p
-)
-
-166 
-GSLi¡
- *
-li¡
-;
-
-167 
-GSLi¡
- *
-cur
-;
-
-168 
-gch¬
- *
-Çme
-;
-
-169 
-AccouÁ
- *
-accouÁ
-;
-
-170 
-LoquiAµPriv©e
- *
-´iv
-;
-
-172 
-´iv
- = 
-­p
-->priv;
-
-174 
-li¡
- = 
-	`“l_gcÚf_g‘_dœs
-(
-LOQUI_GCONF_ACCOUNT
-);
-
-175 if(
-li¡
- =ğ
-NULL
-) ;
-
-177 
-cur
- = 
-li¡
-; cu¸!ğ
-NULL
-; cu¸ğcur->
-Ãxt
-) {
-
-178 
-Çme
- = 
-	`uts_gcÚf_g‘_ba£Çme
-(((
-gch¬
- *è
-cur
-->
-d©a
-);
-
-179 
-	`g_ä“
-(
-cur
-->
-d©a
-);
-
-180 
-accouÁ
- = 
-	`accouÁ_Ãw
-();
-
-181 
-	`accouÁ_»¡Üe
-(
-accouÁ
-, 
-Çme
-);
-
-182 
-´iv
-->
-accouÁ_li¡
- = 
-	`g_¦i¡_­³nd
-Õriv->accouÁ_li¡, 
-accouÁ
-);
-
-183 
-	`g_ä“
-(
-Çme
-);
-
-185 
-	`g_¦i¡_ä“
-(
-li¡
-);
-
-187 
-	`loqui_­p_£t_accouÁs
-(
-­p
-);
-
-188 
-	}
-}
-
-189 
-	$loqui_­p_£t_accouÁs
-(
-LoquiAµ
- *
-­p
-)
-
-191 
-GSLi¡
- *
-cur
-;
-
-192 
-AccouÁ
- *
-accouÁ
-;
-
-194 
-cur
- = 
-­p
-->
-´iv
-->
-accouÁ_li¡
-; cu¸!ğ
-NULL
-; cu¸ğcur->
-Ãxt
-) {
-
-195 
-accouÁ
- = 
-	`ACCOUNT
-(
-cur
-->
-d©a
-);
-
-196 
-	`chªÃl_Œ“_add_accouÁ
-(
-	`CHANNEL_TREE
-(
-­p
-->
-chªÃl_Œ“
-), 
-accouÁ
-);
-
-198 
-	`loqui_m’u_ü—‹_cÚÃù_subm’u
-(
-­p
-->
-m’u
-,‡µ->
-´iv
-->
-accouÁ_li¡
-);
-
-200 
-	}
-}
-
-201 
+164 
 GtkWidg‘
 *
 
-202 
+165 
 	$loqui_­p_Ãw
  ()
 
-204 
+167 
 LoquiAµ
  *
 ­p
 ;
 
-205 
+168 
 LoquiAµPriv©e
  *
 ´iv
 ;
 
-207 
+170 
 GtkWidg‘
  *
 ­pb¬
 ;
 
-208 
+171 
 GtkWidg‘
  *
 vbox
 ;
 
-209 
+172 
 GtkWidg‘
  *
 ’Œy
 ;
 
-210 
+173 
 GtkWidg‘
  *
 hbox
 ;
 
-211 
+174 
 GtkWidg‘
  *
 h·Ãd
 ;
 
-212 
+175 
 GtkWidg‘
  *
 v·Ãd
 ;
 
-213 
+176 
 GtkWidg‘
  *
 süŞËd_wš
 ;
 
-215 
+178 
 ­p
  = 
 	`g_objeù_Ãw
@@ -8689,13 +14029,13 @@ süŞËd_wš
 NULL
 );
 
-216 
+179 
 ´iv
  = 
 ­p
 ->priv;
 
-218 
+181 
 	`g_sigÇl_cÚÃù
 (
 	`G_OBJECT
@@ -8703,7 +14043,7 @@ NULL
 ­p
 ), "delete_event",
 
-219 
+182 
 	`G_CALLBACK
 (
 loqui_­p_d–‘e_ev’t_cb
@@ -8711,7 +14051,7 @@ loqui_­p_d–‘e_ev’t_cb
 NULL
 );
 
-221 
+184 
 	`gnome_­p_cÚ¡ruù
 (
 	`GNOME_APP
@@ -8719,11 +14059,11 @@ NULL
 ­p
 ),
 
-223 
+186 
 	`_
 ("Loqui"));
 
-224 
+187 
 	`gtk_wšdow_£t_pŞicy
  (
 	`GTK_WINDOW
@@ -8733,7 +14073,7 @@ NULL
 TRUE
 , TRUE, TRUE);
 
-226 
+189 
 vbox
  = 
 	`gtk_vbox_Ãw
@@ -8741,7 +14081,7 @@ vbox
 FALSE
 , 0);
 
-227 
+190 
 	`gnome_­p_£t_cÚ‹Ás
 (
 	`GNOME_APP
@@ -8751,7 +14091,7 @@ FALSE
 vbox
 );
 
-230 
+193 
 hbox
  = 
 	`gtk_hbox_Ãw
@@ -8759,7 +14099,7 @@ hbox
 FALSE
 , 0);
 
-231 
+194 
 	`gtk_box_·ck_¡¬t
 (
 	`GTK_BOX
@@ -8771,7 +14111,7 @@ hbox
 FALSE
 , FALSE, 0);
 
-233 
+196 
 ´iv
 ->
 toggË_lock
@@ -8779,7 +14119,7 @@ toggË_lock
 	`gtk_toggË_bu‰Ú_Ãw_w™h_mÃmÚic
 ("_Scroll Lock");
 
-234 
+197 
 	`gtk_box_·ck_¡¬t
 (
 	`GTK_BOX
@@ -8793,7 +14133,7 @@ toggË_lock
 FALSE
 , FALSE, 0);
 
-236 
+199 
 ´iv
 ->
 Ïb–_tİic
@@ -8801,7 +14141,7 @@ FALSE
 	`gtk_Ïb–_Ãw
 ("Topic");
 
-237 
+200 
 	`gtk_Ïb–_£t_£ËùabË
 (
 	`GTK_LABEL
@@ -8813,7 +14153,7 @@ FALSE
 TRUE
 );
 
-238 
+201 
 	`gtk_Ïb–_£t_ju¡ify
 (
 	`GTK_LABEL
@@ -8825,7 +14165,7 @@ TRUE
 GTK_JUSTIFY_LEFT
 );
 
-240 
+203 
 	`gtk_box_·ck_¡¬t_deçuÉs
 (
 	`GTK_BOX
@@ -8837,7 +14177,7 @@ hbox
 Ïb–_tİic
 );
 
-242 
+205 
 	#SET_SCROLLED_WINDOW
 (
 s
@@ -8849,7 +14189,7 @@ vpŞicy
 hpŞicy
 ) \
 
-244 
+207 
 s
  = 
 	`gtk_süŞËd_wšdow_Ãw
@@ -8857,7 +14197,7 @@ s
 NULL
 , NULL); \
 
-245 
+208 
 	`gtk_süŞËd_wšdow_£t_pŞicy
 (
 	`GTK_SCROLLED_WINDOW
@@ -8869,7 +14209,7 @@ vpŞicy
 hpŞicy
 ); \
 
-246 
+209 
 	`gtk_cÚš”_add
 (
 	`GTK_CONTAINER
@@ -8879,17 +14219,17 @@ s
 w
 ); \
 
-247 }
+210 }
 
 	)
 
-249 
+212 
 h·Ãd
  = 
 	`gtk_h·Ãd_Ãw
 ();
 
-250 
+213 
 	`gtk_box_·ck_¡¬t_deçuÉs
 (
 	`GTK_BOX
@@ -8899,13 +14239,13 @@ vbox
 h·Ãd
 );
 
-253 
+216 
 v·Ãd
  = 
 	`gtk_v·Ãd_Ãw
 ();
 
-254 
+217 
 	`gtk_·Ãd_·ck1
 (
 	`GTK_PANED
@@ -8917,7 +14257,7 @@ v·Ãd
 TRUE
 , TRUE);
 
-256 
+219 
 vbox
  = 
 	`gtk_vbox_Ãw
@@ -8925,7 +14265,7 @@ vbox
 FALSE
 , 0);
 
-257 
+220 
 	`gtk_·Ãd_·ck1
 (
 	`GTK_PANED
@@ -8937,47 +14277,33 @@ vbox
 TRUE
 , TRUE);
 
-261 
-GtkWidg‘
- *
-‹xt
-;
-
-263 
-‹xt
+222 
+­p
+->
+chªÃl_book
  = 
-	`gtk_‹xt_v›w_Ãw
+	`chªÃl_book_Ãw
 ();
 
-264 
-	`SET_SCROLLED_WINDOW
-(
-süŞËd_wš
-, 
-‹xt
-, 
-GTK_POLICY_NEVER
-, 
-GTK_POLICY_ALWAYS
-);
-
-265 
+223 
 	`gtk_box_·ck_¡¬t_deçuÉs
 (
 	`GTK_BOX
 (
 vbox
 ), 
-süŞËd_wš
+­p
+->
+chªÃl_book
 );
 
-269 
+226 
 ’Œy
  = 
 	`gtk_’Œy_Ãw
 ();
 
-270 
+227 
 	`gtk_box_·ck_’d
 (
 	`GTK_BOX
@@ -8989,7 +14315,7 @@ vbox
 FALSE
 , FALSE, 0);
 
-272 
+229 
 ­p
 ->
 commÚ_‹xt
@@ -8997,7 +14323,7 @@ commÚ_‹xt
 	`loqui_commÚ_‹xt_Ãw
 ();
 
-273 
+230 
 	`SET_SCROLLED_WINDOW
 (
 süŞËd_wš
@@ -9013,7 +14339,7 @@ GTK_POLICY_NEVER
 GTK_POLICY_ALWAYS
 );
 
-274 
+231 
 	`gtk_·Ãd_·ck2
 (
 	`GTK_PANED
@@ -9027,13 +14353,13 @@ FALSE
 TRUE
 );
 
-277 
+235 
 v·Ãd
  = 
 	`gtk_v·Ãd_Ãw
 ();
 
-278 
+236 
 	`gtk_·Ãd_·ck2
 (
 	`GTK_PANED
@@ -9047,29 +14373,27 @@ FALSE
 TRUE
 );
 
-281 
-GtkWidg‘
- *
-nick_Œ“
-;
-
-283 
-nick_Œ“
+238 
+­p
+->
+nick_li¡
  = 
-	`gtk_Œ“_v›w_Ãw
+	`nick_li¡_Ãw
 ();
 
-284 
+239 
 	`SET_SCROLLED_WINDOW
 (
 süŞËd_wš
 , 
-nick_Œ“
+­p
+->
+nick_li¡
 , 
 GTK_POLICY_AUTOMATIC
 , GTK_POLICY_AUTOMATIC);
 
-285 
+240 
 	`gtk_·Ãd_·ck1
 (
 	`GTK_PANED
@@ -9081,7 +14405,7 @@ süŞËd_wš
 TRUE
 , TRUE);
 
-287 
+242 
 ­p
 ->
 chªÃl_Œ“
@@ -9089,7 +14413,7 @@ chªÃl_Œ“
 	`chªÃl_Œ“_Ãw
 ();
 
-288 
+243 
 	`SET_SCROLLED_WINDOW
 (
 süŞËd_wš
@@ -9103,7 +14427,7 @@ chªÃl_Œ“
 GTK_POLICY_AUTOMATIC
 , GTK_POLICY_AUTOMATIC);
 
-289 
+244 
 	`gtk_·Ãd_·ck2
 (
 	`GTK_PANED
@@ -9117,7 +14441,7 @@ FALSE
 TRUE
 );
 
-293 
+248 
 ­pb¬
  = 
 	`gnome_­pb¬_Ãw
@@ -9129,7 +14453,7 @@ TRUE
 GNOME_PREFERENCES_NEVER
 );
 
-294 
+249 
 	`gnome_­p_£t_¡©usb¬
 (
 	`GNOME_APP
@@ -9139,7 +14463,7 @@ GNOME_PREFERENCES_NEVER
 ­pb¬
 );
 
-295 
+250 
 	`gnome_­pb¬_£t_deçuÉ
 (
 	`GNOME_APPBAR
@@ -9149,7 +14473,7 @@ GNOME_PREFERENCES_NEVER
 VERSION
 );
 
-297 
+252 
 ­p
 ->
 m’u
@@ -9157,7 +14481,7 @@ m’u
 	`loqui_m’u_Ãw
 ();
 
-298 
+253 
 	`loqui_m’u_©ch
 (
 ­p
@@ -9167,43 +14491,37 @@ m’u
 	`GNOME_APP
 (app));
 
-300 
+255 
 	`loqui_­p_»¡Üe_size
 (
 ­p
 );
 
-301 
-	`loqui_­p_lßd_accouÁs
-(
-­p
-);
-
-303 #undeà
+257 #undeà
 SET_SCROLLED_WINDOW
 
 
-305  
+259  
 	`GTK_WIDGET
 (
 ­p
 );
 
-306 
+260 
 	}
 }
 
-308 
+262 
 LoquiAµ
  *
 	$loqui_­p_g‘_maš_­p
 ()
 
-310 if(!
+264 if(!
 maš_­p
 )
 
-311 
+265 
 maš_­p
  = 
 	`LOQUI_APP
@@ -9211,15 +14529,15 @@ maš_­p
 	`loqui_­p_Ãw
 ());
 
-312  
+266  
 maš_­p
 ;
 
-313 
+267 
 	}
 }
 
-314 
+268 
 	$loqui_­p_£t_tİic
 (
 LoquiAµ
@@ -9231,7 +14549,7 @@ gch¬
 ¡r
 )
 
-316 
+270 
 	`gtk_Ïb–_£t_‹xt
 (
 	`GTK_LABEL
@@ -9245,31 +14563,7 @@ gch¬
 ¡r
 );
 
-317 
-	}
-}
-
-318 
-	$loqui_­p_cÚÃù_w™h_çÎback
-(
-LoquiAµ
- *
-­p
-, 
-AccouÁ
- *
-accouÁ
-)
-
-320 
-	`accouÁ_cÚÃù
-(
-accouÁ
-, 0, 
-TRUE
-);
-
-321 
+271 
 	}
 }
 
@@ -9293,15 +14587,11 @@ __LOQUI_APP_H__
 	~"loqui_m’u.h
 "
 
-25 
-	~"accouÁ.h
-"
-
-27 
+26 
 	gG_BEGIN_DECLS
 
 
-29 
+28 
 	#LOQUI_TYPE_APP
  (
 	`loqui_­p_g‘_ty³
@@ -9309,7 +14599,7 @@ __LOQUI_APP_H__
 
 	)
 
-30 
+29 
 	#LOQUI_APP
 (
 obj
@@ -9323,7 +14613,7 @@ LoquiAµ
 
 	)
 
-31 
+30 
 	#LOQUI_APP_CLASS
 (
 kÏss
@@ -9337,7 +14627,7 @@ LoquiAµCÏss
 
 	)
 
-32 
+31 
 	#LOQUI_IS_APP
 (
 obj
@@ -9349,7 +14639,7 @@ LOQUI_TYPE_APP
 
 	)
 
-33 
+32 
 	#LOQUI_IS_APP_CLASS
 (
 kÏss
@@ -9361,7 +14651,7 @@ LOQUI_TYPE_APP
 
 	)
 
-34 
+33 
 	#LOQUI_APP_GET_CLASS
 (
 obj
@@ -9375,81 +14665,87 @@ LoquiAµCÏss
 
 	)
 
-36 
+35 
 _LoquiAµ
  
 	tLoquiAµ
 ;
 
-37 
+36 
 _LoquiAµCÏss
  
 	tLoquiAµCÏss
 ;
 
-39 
+38 
 _LoquiAµPriv©e
  
 	tLoquiAµPriv©e
 ;
 
-41 
+40 
 	s_LoquiAµ
 
 
-43 
+42 
 GnomeAµ
  
 	m·»Á
 ;
 
-44 
+43 
 LoquiAµPriv©e
  *
 	m´iv
 ;
 
-46 
+45 
 GAsyncQueue
  *
 	m”rÜ_cÚÃùiÚs
 ;
 
-48 
+47 
 LoquiM’u
  *
 	mm’u
 ;
 
-49 
+48 
 GtkWidg‘
  *
 	mchªÃl_book
 ;
 
-50 
+49 
 GtkWidg‘
  *
 	mcommÚ_‹xt
 ;
 
-52 
+50 
+GtkWidg‘
+ *
+	mnick_li¡
+;
+
+51 
 GtkWidg‘
  *
 	mchªÃl_Œ“
 ;
 
-55 
+54 
 	s_LoquiAµCÏss
 
 
-57 
+56 
 GnomeAµCÏss
  
 	m·»Á_şass
 ;
 
-60 
+59 
 GTy³
  
 	$loqui_­p_g‘_ty³
@@ -9457,19 +14753,19 @@ GTy³
 G_GNUC_CONST
 ;
 
-62 
+61 
 GtkWidg‘
 * 
 	`loqui_­p_Ãw
  ();
 
-64 
+63 
 LoquiAµ
  *
 	`loqui_­p_g‘_maš_­p
 ();
 
-65 
+64 
 	`loqui_­p_£t_tİic
 (
 LoquiAµ
@@ -9481,19 +14777,7 @@ gch¬
 ¡r
 );
 
-67 
-	`loqui_­p_cÚÃù_w™h_çÎback
-(
-LoquiAµ
- *
-­p
-, 
-AccouÁ
- *
-accouÁ
-);
-
-69 
+66 
 G_END_DECLS
 
 
@@ -10127,17 +15411,21 @@ LOQUI_GCONF_BASEDIR
 	~"accouÁ.h
 "
 
-26 
+25 
+	~"about.h
+"
+
+27 
 	s_LoquiM’uPriv©e
 
 
-28 
+29 
 GtkWidg‘
  *
 	mcÚÃù_m’u
 ;
 
-31 
+32 
 loqui_m’u_şass_š™
 (
 LoquiM’uCÏss
@@ -10145,7 +15433,7 @@ LoquiM’uCÏss
 kÏss
 );
 
-32 
+33 
 loqui_m’u_š™
 (
 LoquiM’u
@@ -10153,7 +15441,7 @@ LoquiM’u
 loqui_m’u
 );
 
-33 
+34 
 loqui_m’u_fš®ize
 (
 GObjeù
@@ -10161,7 +15449,19 @@ GObjeù
 objeù
 );
 
-35 
+36 
+loqui_m’u_about_cb
+(
+GtkWidg‘
+ *
+widg‘
+, 
+gpoš‹r
+ 
+d©a
+);
+
+37 
 loqui_m’u_qu™_cb
 (
 GtkWidg‘
@@ -10173,7 +15473,7 @@ gpoš‹r
 d©a
 );
 
-36 
+38 
 loqui_m’u_cÚÃù_cb
 (
 GtkWidg‘
@@ -10185,19 +15485,19 @@ gpoš‹r
 d©a
 );
 
-38 
+40 
 	#MENU_NUMBER_CONNECT
  1
 
 	)
 
-40 
+42 
 GnomeUIInfo
  
 	gfe_m’u
 [] = {
 
-41 
+43 
 GNOMEUIINFO_ITEM_NONE
 (
 N_
@@ -10205,7 +15505,7 @@ N_
 NULL
 ),
 
-42 
+44 
 GNOMEUIINFO_ITEM_NONE
 (
 N_
@@ -10213,7 +15513,7 @@ N_
 NULL
 ),
 
-43 
+45 
 GNOMEUIINFO_MENU_QUIT_ITEM
 (
 loqui_m’u_qu™_cb
@@ -10221,83 +15521,71 @@ loqui_m’u_qu™_cb
 NULL
 ),
 
-44 
+46 
 GNOMEUIINFO_END
 
 
-46 
+48 
 GnomeUIInfo
  
 	ged™_m’u
 [] = {
 
-47 
+49 
 GNOMEUIINFO_MENU_CUT_ITEM
 (
 NULL
 , NULL),
 
-48 
+50 
 GNOMEUIINFO_MENU_COPY_ITEM
 (
 NULL
 , NULL),
 
-49 
+51 
 GNOMEUIINFO_MENU_PASTE_ITEM
 (
 NULL
 , NULL),
 
-50 
+52 
 GNOMEUIINFO_ITEM_STOCK
 (
 N_
 ("Paste with†inefeeds cut"), N_("Paste selection with†inefeeds cut"),
 
-51 
+53 
 NULL
 , 
 GNOME_STOCK_PIXMAP_CLEAR
 ),
 
-52 
+54 
 GNOMEUIINFO_SEPARATOR
 ,
 
-53 
+55 
 GNOMEUIINFO_MENU_FIND_ITEM
 (
 NULL
 , NULL),
 
-54 
+56 
 GNOMEUIINFO_MENU_FIND_AGAIN_ITEM
 (
 NULL
 , NULL),
 
-55 
+57 
 GNOMEUIINFO_SEPARATOR
 ,
-
-56 
-GNOMEUIINFO_ITEM_STOCK
-(
-N_
-("Clear buffer"), N_("Clear buffer of current channel"),
-
-57 
-NULL
-, 
-GNOME_STOCK_PIXMAP_CLEAR
-),
 
 58 
 GNOMEUIINFO_ITEM_STOCK
 (
 N_
-("Clear common buffer"), N_("Clear common buffer"),
+("Clear buffer"), N_("Clear buffer of current channel"),
 
 59 
 NULL
@@ -10306,76 +15594,90 @@ GNOME_STOCK_PIXMAP_CLEAR
 ),
 
 60 
+GNOMEUIINFO_ITEM_STOCK
+(
+N_
+("Clear common buffer"), N_("Clear common buffer"),
+
+61 
+NULL
+, 
+GNOME_STOCK_PIXMAP_CLEAR
+),
+
+62 
 GNOMEUIINFO_END
 
 
-72 
+74 
 GnomeUIInfo
  
 	g£‰šgs_m’u
 [] = {
 
-73 
+75 
 GNOMEUIINFO_MENU_PREFERENCES_ITEM
 (
 NULL
 , NULL),
 
-74 
+76 
 GNOMEUIINFO_END
 
 
-76 
+78 
 GnomeUIInfo
  
 	gh–p_m’u
 [] = {
 
-77 
+79 
 GNOMEUIINFO_MENU_ABOUT_ITEM
 (
+loqui_m’u_about_cb
+, 
 NULL
-, NULL),
+),
 
-78 
+80 
 GNOMEUIINFO_END
 
 
-80 
+82 
 GnomeUIInfo
  
 	gm’ub¬
 [] = {
 
-81 
+83 
 GNOMEUIINFO_MENU_FILE_TREE
 (
 fe_m’u
 ),
 
-82 
+84 
 GNOMEUIINFO_MENU_EDIT_TREE
 (
 ed™_m’u
 ),
 
-86 
+88 
 GNOMEUIINFO_MENU_SETTINGS_TREE
 (
 £‰šgs_m’u
 ),
 
-87 
+89 
 GNOMEUIINFO_MENU_HELP_TREE
 (
 h–p_m’u
 ),
 
-88 
+90 
 GNOMEUIINFO_END
 
 
-91 
+93 
 GObjeùCÏss
  *
 	g·»Á_şass
@@ -10383,7 +15685,7 @@ GObjeùCÏss
 NULL
 ;
 
-92 
+94 
 	#PARENT_TYPE
  
 G_TYPE_OBJECT
@@ -10391,67 +15693,67 @@ G_TYPE_OBJECT
 
 	)
 
-94 
+96 
 GTy³
 
 
-95 
+97 
 	$loqui_m’u_g‘_ty³
 ()
 
-97 
+99 
 GTy³
  
 ty³
  = 0;
 
-98 ià(
+100 ià(
 ty³
  == 0) {
 
-99 cÚ¡ 
+101 cÚ¡ 
 GTy³Info
  
 our_šfo
  =
 
-101 (
+103 (
 LoquiM’uCÏss
 ),
 
-102 
+104 
 NULL
-,
-
-103 
-NULL
-,
-
-104 (
-GCÏssIn™Func
-è
-loqui_m’u_şass_š™
 ,
 
 105 
 NULL
 ,
 
-106 
+106 (
+GCÏssIn™Func
+è
+loqui_m’u_şass_š™
+,
+
+107 
 NULL
 ,
 
-107 (
+108 
+NULL
+,
+
+109 (
 LoquiM’u
 ),
 
-109 (
+111 (
 GIn¡ªûIn™Func
 è
 loqui_m’u_š™
 
 
-112 
+114 
 ty³
  = 
 	`g_ty³_»gi¡”_¡©ic
@@ -10459,19 +15761,19 @@ ty³
 PARENT_TYPE
 ,
 
-114 &
+116 &
 our_šfo
 ,
 
-118  
+120  
 ty³
 ;
 
-119 
+121 
 	}
 }
 
-121 
+123 
 	$loqui_m’u_şass_š™
  (
 LoquiM’uCÏss
@@ -10479,7 +15781,7 @@ LoquiM’uCÏss
 kÏss
 )
 
-123 
+125 
 GObjeùCÏss
  *
 objeù_şass
@@ -10489,7 +15791,7 @@ objeù_şass
 kÏss
 );
 
-125 
+127 
 ·»Á_şass
  = 
 	`g_ty³_şass_³ek_·»Á
@@ -10497,7 +15799,7 @@ kÏss
 kÏss
 );
 
-127 
+129 
 objeù_şass
 ->
 fš®ize
@@ -10505,11 +15807,11 @@ fš®ize
 loqui_m’u_fš®ize
 ;
 
-128 
+130 
 	}
 }
 
-130 
+132 
 	$loqui_m’u_š™
  (
 LoquiM’u
@@ -10517,13 +15819,13 @@ LoquiM’u
 loqui_m’u
 )
 
-132 
+134 
 LoquiM’uPriv©e
  *
 ´iv
 ;
 
-134 
+136 
 ´iv
  = 
 	`g_Ãw0
@@ -10531,17 +15833,17 @@ LoquiM’uPriv©e
 LoquiM’uPriv©e
 , 1);
 
-136 
+138 
 loqui_m’u
 ->
 ´iv
  =…riv;
 
-137 
+139 
 	}
 }
 
-139 
+141 
 	$loqui_m’u_fš®ize
  (
 GObjeù
@@ -10549,13 +15851,13 @@ GObjeù
 objeù
 )
 
-141 
+143 
 LoquiM’u
  *
 m’u
 ;
 
-143 
+145 
 	`g_»tuº_if_ç
  (
 objeù
@@ -10563,7 +15865,7 @@ objeù
 NULL
 );
 
-144 
+146 
 	`g_»tuº_if_ç
  (
 	`LOQUI_IS_MENU
@@ -10571,7 +15873,7 @@ NULL
 objeù
 ));
 
-146 
+148 
 m’u
  = 
 	`LOQUI_MENU
@@ -10579,7 +15881,7 @@ m’u
 objeù
 );
 
-148 ià(
+150 ià(
 	`G_OBJECT_CLASS
 (
 ·»Á_şass
@@ -10587,7 +15889,7 @@ objeù
 fš®ize
 )
 
-149 (* 
+151 (* 
 	`G_OBJECT_CLASS
 (
 ·»Á_şass
@@ -10597,7 +15899,7 @@ fš®ize
 objeù
 );
 
-151 
+153 
 	`g_ä“
 (
 m’u
@@ -10605,25 +15907,25 @@ m’u
 ´iv
 );
 
-152 
+154 
 	}
 }
 
-153 
+155 
 LoquiM’u
 *
 
-154 
+156 
 	$loqui_m’u_Ãw
  ()
 
-156 
+158 
 LoquiM’u
  *
 m’u
 ;
 
-158 
+160 
 m’u
  = 
 	`g_objeù_Ãw
@@ -10633,7 +15935,7 @@ m’u
 NULL
 );
 
-159 
+161 
 	`g_»tuº_v®_if_ç
 (
 m’u
@@ -10641,15 +15943,15 @@ m’u
 NULL
 , NULL);
 
-161  
+163  
 m’u
 ;
 
-162 
+164 
 	}
 }
 
-164 
+166 
 	$loqui_m’u_©ch
 (
 LoquiM’u
@@ -10661,26 +15963,10 @@ GnomeAµ
 ­p
 )
 
-166 
-	`g_»tuº_if_ç
-(
-m’u
- !ğ
-NULL
-);
-
-167 
-	`g_»tuº_if_ç
-(
-	`LOQUI_IS_MENU
-(
-m’u
-));
-
 168 
 	`g_»tuº_if_ç
 (
-­p
+m’u
  !ğ
 NULL
 );
@@ -10688,12 +15974,28 @@ NULL
 169 
 	`g_»tuº_if_ç
 (
+	`LOQUI_IS_MENU
+(
+m’u
+));
+
+170 
+	`g_»tuº_if_ç
+(
+­p
+ !ğ
+NULL
+);
+
+171 
+	`g_»tuº_if_ç
+(
 	`LOQUI_IS_APP
 (
 ­p
 ));
 
-171 
+173 
 	`gnome_­p_ü—‹_m’us_w™h_d©a
 (
 ­p
@@ -10701,7 +16003,7 @@ NULL
 m’ub¬
 ,‡pp);
 
-172 
+174 
 	`gnome_­p_š¡®l_­pb¬_m’u_hšts
 (
 	`GNOME_APPBAR
@@ -10715,7 +16017,7 @@ m’ub¬
 m’ub¬
 );
 
-173 
+175 
 m’u
 ->
 ´iv
@@ -10729,7 +16031,7 @@ MENU_NUMBER_CONNECT
 widg‘
 ;
 
-175 
+177 
 	`gtk_widg‘_£t_£ns™ive
 (
 fe_m’u
@@ -10739,7 +16041,7 @@ widg‘
 FALSE
 );
 
-176 
+178 
 	`gtk_widg‘_£t_£ns™ive
 (
 m’ub¬
@@ -10749,11 +16051,11 @@ widg‘
 FALSE
 );
 
-178 
+180 
 	}
 }
 
-180 
+182 
 	$loqui_m’u_ü—‹_cÚÃù_subm’u
 (
 LoquiM’u
@@ -10765,19 +16067,19 @@ GSLi¡
 accouÁ_li¡
 )
 
-182 
+184 
 LoquiM’uPriv©e
  *
 ´iv
 ;
 
-183 
+185 
 GSLi¡
  *
 cur
 ;
 
-184 
+186 
 GtkWidg‘
  *
 subm’u
@@ -10785,13 +16087,13 @@ subm’u
 NULL
 ;
 
-185 
+187 
 GtkWidg‘
  *
 ™em
 ;
 
-186 
+188 
 gboŞ—n
  
 added
@@ -10799,19 +16101,19 @@ added
 FALSE
 ;
 
-187 
+189 
 AccouÁ
  *
 accouÁ
 ;
 
-189 
+191 
 ´iv
  = 
 m’u
 ->priv;
 
-191 ià(
+193 ià(
 	`GTK_MENU_ITEM
 (
 ´iv
@@ -10821,7 +16123,7 @@ cÚÃù_m’u
 subm’u
 )
 
-192 
+194 
 	`gtk_m’u_™em_»move_subm’u
  (
 	`GTK_MENU_ITEM
@@ -10831,7 +16133,7 @@ subm’u
 cÚÃù_m’u
 ));
 
-194 
+196 
 cur
  = 
 accouÁ_li¡
@@ -10841,7 +16143,7 @@ NULL
 Ãxt
 ) {
 
-195 
+197 
 accouÁ
  = 
 	`ACCOUNT
@@ -10851,17 +16153,17 @@ cur
 d©a
 );
 
-196 if(!
+198 if(!
 subm’u
 ) {
 
-197 
+199 
 subm’u
  = 
 	`gtk_m’u_Ãw
 ();
 
-198 
+200 
 	`gtk_m’u_™em_£t_subm’u
 (
 	`GTK_MENU_ITEM
@@ -10873,7 +16175,7 @@ cÚÃù_m’u
 subm’u
 );
 
-200 
+202 
 ™em
  = 
 	`gtk_m’u_™em_Ãw_w™h_Ïb–
@@ -10883,7 +16185,7 @@ accouÁ
 Çme
 );
 
-201 
+203 
 	`g_sigÇl_cÚÃù
 (
 	`G_OBJECT
@@ -10891,7 +16193,7 @@ accouÁ
 ™em
 ), "activate",
 
-202 
+204 
 	`G_CALLBACK
 (
 loqui_m’u_cÚÃù_cb
@@ -10899,7 +16201,7 @@ loqui_m’u_cÚÃù_cb
 accouÁ
 );
 
-203 
+205 
 	`gtk_m’u_­³nd
 (
 	`GTK_MENU
@@ -10909,19 +16211,19 @@ subm’u
 ™em
 );
 
-204 
+206 
 	`gtk_widg‘_show_®l
 (
 ™em
 );
 
-206 
+208 
 added
  = 
 TRUE
 ;
 
-209 
+211 
 	`gtk_widg‘_£t_£ns™ive
  (
 ´iv
@@ -10931,11 +16233,33 @@ cÚÃù_m’u
 added
 );
 
-210 
+212 
 	}
 }
 
-212 
+214 
+	$loqui_m’u_about_cb
+(
+GtkWidg‘
+ *
+widg‘
+, 
+gpoš‹r
+ 
+d©a
+)
+
+216 
+	`about_İ’
+(
+d©a
+);
+
+217 
+	}
+}
+
+219 
 	$loqui_m’u_qu™_cb
 (
 GtkWidg‘
@@ -10947,15 +16271,15 @@ gpoš‹r
 d©a
 )
 
-214 
+221 
 	`gtk_maš_qu™
 ();
 
-215 
+222 
 	}
 }
 
-217 
+224 
 	$loqui_m’u_cÚÃù_cb
 (
 GtkWidg‘
@@ -10967,19 +16291,19 @@ gpoš‹r
 d©a
 )
 
-219 
+226 
 LoquiAµ
  *
 ­p
 ;
 
-220 
+227 
 AccouÁ
  *
 accouÁ
 ;
 
-222 
+229 
 accouÁ
  = 
 	`ACCOUNT
@@ -10987,21 +16311,15 @@ accouÁ
 d©a
 );
 
-224 
-­p
- = 
-	`loqui_­p_g‘_maš_­p
-();
-
-225 
-	`loqui_­p_cÚÃù_w™h_çÎback
+231 
+	`accouÁ_cÚÃù
 (
-­p
-, 
 accouÁ
+, 0, 
+TRUE
 );
 
-226 
+232 
 	}
 }
 
@@ -11392,6 +16710,1298 @@ __MAIN_H__
 23 
 debug_mode
 ;
+
+	@nick_list.c
+
+20 
+	~"cÚfig.h
+"
+
+22 
+	~"nick_li¡.h
+"
+
+24 
+	s_NickLi¡Priv©e
+
+
+26 
+GdkPixbuf
+ *
+	mİ_icÚ
+;
+
+27 
+GdkPixbuf
+ *
+	mnÚİ_icÚ
+;
+
+28 
+GdkPixbuf
+ *
+	m¥—k_ab™y_icÚ
+;
+
+30 
+GdkPixbuf
+ *
+	mhome_icÚ
+;
+
+31 
+GdkPixbuf
+ *
+	maway_icÚ
+;
+
+34 
+	mCOLUMN_HOMEAWAY
+,
+
+35 
+	mCOLUMN_OP
+,
+
+36 
+	mCOLUMN_NICK
+,
+
+37 
+	mCOLUMN_POINTER
+,
+
+38 
+	mCOLUMN_NUMBER
+
+
+41 
+GtkT»eV›wCÏss
+ *
+	g·»Á_şass
+ = 
+NULL
+;
+
+42 
+	#PARENT_TYPE
+ 
+GTK_TYPE_TREE_VIEW
+
+
+	)
+
+44 
+nick_li¡_şass_š™
+(
+NickLi¡CÏss
+ *
+kÏss
+);
+
+45 
+nick_li¡_š™
+(
+NickLi¡
+ *
+nick_li¡
+);
+
+46 
+nick_li¡_fš®ize
+(
+GObjeù
+ *
+objeù
+);
+
+47 
+nick_li¡_de¡roy
+(
+GtkObjeù
+ *
+objeù
+);
+
+49 
+nick_li¡_ü—‹_icÚs
+(
+NickLi¡
+ *
+li¡
+);
+
+51 
+GTy³
+
+
+52 
+	$nick_li¡_g‘_ty³
+()
+
+54 
+GTy³
+ 
+ty³
+ = 0;
+
+55 ià(
+ty³
+ == 0) {
+
+56 cÚ¡ 
+GTy³Info
+ 
+our_šfo
+ =
+
+58 (
+NickLi¡CÏss
+),
+
+59 
+NULL
+,
+
+60 
+NULL
+,
+
+61 (
+GCÏssIn™Func
+è
+nick_li¡_şass_š™
+,
+
+62 
+NULL
+,
+
+63 
+NULL
+,
+
+64 (
+NickLi¡
+),
+
+66 (
+GIn¡ªûIn™Func
+è
+nick_li¡_š™
+
+
+69 
+ty³
+ = 
+	`g_ty³_»gi¡”_¡©ic
+(
+PARENT_TYPE
+,
+
+71 &
+our_šfo
+,
+
+75  
+ty³
+;
+
+76 
+	}
+}
+
+78 
+	$nick_li¡_şass_š™
+ (
+NickLi¡CÏss
+ *
+kÏss
+)
+
+80 
+GObjeùCÏss
+ *
+objeù_şass
+ = 
+	`G_OBJECT_CLASS
+(
+kÏss
+);
+
+81 
+GtkObjeùCÏss
+ *
+gtk_objeù_şass
+ = 
+	`GTK_OBJECT_CLASS
+(
+kÏss
+);
+
+83 
+·»Á_şass
+ = 
+	`g_ty³_şass_³ek_·»Á
+(
+kÏss
+);
+
+85 
+objeù_şass
+->
+fš®ize
+ = 
+nick_li¡_fš®ize
+;
+
+86 
+gtk_objeù_şass
+->
+de¡roy
+ = 
+nick_li¡_de¡roy
+;
+
+87 
+	}
+}
+
+89 
+	$nick_li¡_š™
+ (
+NickLi¡
+ *
+nick_li¡
+)
+
+91 
+NickLi¡Priv©e
+ *
+´iv
+;
+
+93 
+´iv
+ = 
+	`g_Ãw0
+(
+NickLi¡Priv©e
+, 1);
+
+95 
+nick_li¡
+->
+´iv
+ =…riv;
+
+96 
+	}
+}
+
+98 
+	$nick_li¡_fš®ize
+ (
+GObjeù
+ *
+objeù
+)
+
+100 
+NickLi¡
+ *
+nick_li¡
+;
+
+102 
+	`g_»tuº_if_ç
+(
+objeù
+ !ğ
+NULL
+);
+
+103 
+	`g_»tuº_if_ç
+(
+	`IS_NICK_LIST
+(
+objeù
+));
+
+105 
+nick_li¡
+ = 
+	`NICK_LIST
+(
+objeù
+);
+
+107 ià(
+	`G_OBJECT_CLASS
+(
+·»Á_şass
+)->
+fš®ize
+)
+
+108 (* 
+	`G_OBJECT_CLASS
+(
+·»Á_şass
+)->
+fš®ize
+è(
+objeù
+);
+
+110 
+	`g_ä“
+(
+nick_li¡
+->
+´iv
+);
+
+111 
+	}
+}
+
+113 
+	$nick_li¡_de¡roy
+ (
+GtkObjeù
+ *
+objeù
+)
+
+115 
+NickLi¡
+ *
+nick_li¡
+;
+
+116 
+NickLi¡Priv©e
+ *
+´iv
+;
+
+117 
+	`g_»tuº_if_ç
+(
+objeù
+ !ğ
+NULL
+);
+
+118 
+	`g_»tuº_if_ç
+(
+	`IS_NICK_LIST
+(
+objeù
+));
+
+120 
+nick_li¡
+ = 
+	`NICK_LIST
+(
+objeù
+);
+
+121 
+´iv
+ = 
+nick_li¡
+->priv;
+
+123 if(
+´iv
+->
+İ_icÚ
+) {
+
+124 
+	`gdk_pixbuf_uÄef
+(
+´iv
+->
+İ_icÚ
+);
+
+125 
+´iv
+->
+İ_icÚ
+ = 
+NULL
+;
+
+127 if(
+´iv
+->
+nÚİ_icÚ
+) {
+
+128 
+	`gdk_pixbuf_uÄef
+(
+´iv
+->
+nÚİ_icÚ
+);
+
+129 
+´iv
+->
+nÚİ_icÚ
+ = 
+NULL
+;
+
+131 if(
+´iv
+->
+¥—k_ab™y_icÚ
+) {
+
+132 
+	`gdk_pixbuf_uÄef
+(
+´iv
+->
+¥—k_ab™y_icÚ
+);
+
+133 
+´iv
+->
+¥—k_ab™y_icÚ
+ = 
+NULL
+;
+
+135 if(
+´iv
+->
+home_icÚ
+) {
+
+136 
+	`gdk_pixbuf_uÄef
+(
+´iv
+->
+home_icÚ
+);
+
+137 
+´iv
+->
+home_icÚ
+ = 
+NULL
+;
+
+139 if(
+´iv
+->
+away_icÚ
+) {
+
+140 
+	`gdk_pixbuf_uÄef
+(
+´iv
+->
+away_icÚ
+);
+
+141 
+´iv
+->
+away_icÚ
+ = 
+NULL
+;
+
+143 ià(
+	`GTK_OBJECT_CLASS
+(
+·»Á_şass
+)->
+de¡roy
+)
+
+144 (* 
+	`GTK_OBJECT_CLASS
+(
+·»Á_şass
+)->
+de¡roy
+è(
+objeù
+);
+
+145 
+	}
+}
+
+146 
+	$nick_li¡_ü—‹_icÚs
+(
+NickLi¡
+ *
+li¡
+)
+
+148 
+NickLi¡Priv©e
+ *
+´iv
+;
+
+150 
+´iv
+ = 
+li¡
+->priv;
+
+152 
+´iv
+->
+İ_icÚ
+ = 
+	`gtk_widg‘_»nd”_icÚ
+(
+	`GTK_WIDGET
+(
+li¡
+), 
+GTK_STOCK_YES
+,
+
+153 
+GTK_ICON_SIZE_MENU
+, 
+NULL
+);
+
+154 
+´iv
+->
+nÚİ_icÚ
+ = 
+	`gtk_widg‘_»nd”_icÚ
+(
+	`GTK_WIDGET
+(
+li¡
+), 
+GTK_STOCK_NO
+,
+
+155 
+GTK_ICON_SIZE_MENU
+, 
+NULL
+);
+
+156 
+´iv
+->
+¥—k_ab™y_icÚ
+ = 
+	`gtk_widg‘_»nd”_icÚ
+(
+	`GTK_WIDGET
+(
+li¡
+), 
+GTK_STOCK_OK
+,
+
+157 
+GTK_ICON_SIZE_MENU
+, 
+NULL
+);
+
+158 
+´iv
+->
+home_icÚ
+ = 
+	`gtk_widg‘_»nd”_icÚ
+(
+	`GTK_WIDGET
+(
+li¡
+), 
+GTK_STOCK_HOME
+,
+
+159 
+GTK_ICON_SIZE_MENU
+, 
+NULL
+);
+
+160 
+´iv
+->
+away_icÚ
+ = 
+	`gtk_widg‘_»nd”_icÚ
+(
+	`GTK_WIDGET
+(
+li¡
+), 
+GTK_STOCK_QUIT
+,
+
+161 
+GTK_ICON_SIZE_MENU
+, 
+NULL
+);
+
+162 
+	}
+}
+
+163 
+GtkWidg‘
+*
+
+164 
+	$nick_li¡_Ãw
+ ()
+
+166 
+NickLi¡
+ *
+li¡
+;
+
+167 
+NickLi¡Priv©e
+ *
+´iv
+;
+
+168 
+GtkLi¡StÜe
+ *
+mod–
+;
+
+169 
+GtkT»eV›wCŞumn
+ *
+cŞumn
+;
+
+170 
+GtkC–lR’d””
+ *
+»nd””
+;
+
+171 
+GtkT»eS–eùiÚ
+ *
+£l
+;
+
+173 
+li¡
+ = 
+	`g_objeù_Ãw
+(
+	`nick_li¡_g‘_ty³
+(), 
+NULL
+);
+
+175 
+´iv
+ = 
+li¡
+->priv;
+
+177 
+	`nick_li¡_ü—‹_icÚs
+(
+li¡
+);
+
+178 
+mod–
+ = 
+	`gtk_li¡_¡Üe_Ãw
+(
+COLUMN_NUMBER
+,
+
+179 
+GDK_TYPE_PIXBUF
+,
+
+180 
+GDK_TYPE_PIXBUF
+,
+
+181 
+G_TYPE_STRING
+,
+
+182 
+G_TYPE_POINTER
+);
+
+183 
+	`gtk_Œ“_v›w_£t_mod–
+(
+	`GTK_TREE_VIEW
+(
+li¡
+), 
+	`GTK_TREE_MODEL
+(
+mod–
+));
+
+185 
+£l
+ = 
+	`gtk_Œ“_v›w_g‘_£ËùiÚ
+(
+	`GTK_TREE_VIEW
+(
+li¡
+));
+
+186 
+	`gtk_Œ“_£ËùiÚ_£t_mode
+(
+£l
+, 
+GTK_SELECTION_MULTIPLE
+);
+
+188 
+»nd””
+ = 
+	`gtk_ûÎ_»nd””_pixbuf_Ãw
+();
+
+189 
+cŞumn
+ = 
+	`gtk_Œ“_v›w_cŞumn_Ãw_w™h_©Œibu‹s
+("Away",
+
+190 
+»nd””
+,
+
+191 "pixbuf", 
+COLUMN_HOMEAWAY
+,
+
+192 
+NULL
+);
+
+193 
+	`gtk_Œ“_v›w_cŞumn_£t_sizšg
+(
+cŞumn
+, 
+GTK_TREE_VIEW_COLUMN_FIXED
+);
+
+194 
+	`gtk_Œ“_v›w_cŞumn_£t_fixed_width
+(
+cŞumn
+, 20);
+
+195 
+	`gtk_Œ“_v›w_­³nd_cŞumn
+(
+	`GTK_TREE_VIEW
+(
+li¡
+), 
+cŞumn
+);
+
+197 
+»nd””
+ = 
+	`gtk_ûÎ_»nd””_pixbuf_Ãw
+();
+
+198 
+cŞumn
+ = 
+	`gtk_Œ“_v›w_cŞumn_Ãw_w™h_©Œibu‹s
+("@",
+
+199 
+»nd””
+,
+
+200 "pixbuf", 
+COLUMN_OP
+,
+
+201 
+NULL
+);
+
+202 
+	`gtk_Œ“_v›w_cŞumn_£t_sizšg
+(
+cŞumn
+, 
+GTK_TREE_VIEW_COLUMN_FIXED
+);
+
+203 
+	`gtk_Œ“_v›w_cŞumn_£t_fixed_width
+(
+cŞumn
+, 20);
+
+204 
+	`gtk_Œ“_v›w_­³nd_cŞumn
+(
+	`GTK_TREE_VIEW
+(
+li¡
+), 
+cŞumn
+);
+
+206 
+»nd””
+ = 
+	`gtk_ûÎ_»nd””_‹xt_Ãw
+();
+
+207 
+cŞumn
+ = 
+	`gtk_Œ“_v›w_cŞumn_Ãw_w™h_©Œibu‹s
+(
+	`_
+("Nick"),
+
+208 
+»nd””
+,
+
+209 "‹xt", 
+COLUMN_NICK
+,
+
+210 
+NULL
+);
+
+211 
+	`gtk_Œ“_v›w_­³nd_cŞumn
+(
+	`GTK_TREE_VIEW
+(
+li¡
+), 
+cŞumn
+);
+
+213 
+»nd””
+ = 
+	`gtk_ûÎ_»nd””_‹xt_Ãw
+();
+
+214 
+cŞumn
+ = 
+	`gtk_Œ“_v›w_cŞumn_Ãw_w™h_©Œibu‹s
+("ptr",
+
+215 
+»nd””
+,
+
+216 "‹xt", 
+COLUMN_POINTER
+,
+
+217 
+NULL
+);
+
+218 
+	`gtk_Œ“_v›w_cŞumn_£t_visibË
+ (
+cŞumn
+, 
+FALSE
+);
+
+219 
+	`gtk_Œ“_v›w_­³nd_cŞumn
+(
+	`GTK_TREE_VIEW
+(
+li¡
+), 
+cŞumn
+);
+
+222 
+GtkT»eI‹r
+ 
+™”
+;
+
+223 
+	`gtk_li¡_¡Üe_­³nd
+(
+	`GTK_LIST_STORE
+(
+mod–
+), &
+™”
+);
+
+224 
+	`gtk_li¡_¡Üe_£t
+(
+	`GTK_LIST_STORE
+(
+mod–
+), &
+™”
+,
+
+225 
+COLUMN_HOMEAWAY
+, 
+´iv
+->
+away_icÚ
+,
+
+226 
+COLUMN_OP
+, 
+´iv
+->
+¥—k_ab™y_icÚ
+,
+
+227 
+COLUMN_NICK
+, "Hogeo",
+
+229 
+	`gtk_li¡_¡Üe_­³nd
+(
+	`GTK_LIST_STORE
+(
+mod–
+), &
+™”
+);
+
+230 
+	`gtk_li¡_¡Üe_£t
+(
+	`GTK_LIST_STORE
+(
+mod–
+), &
+™”
+,
+
+231 
+COLUMN_HOMEAWAY
+, 
+´iv
+->
+home_icÚ
+,
+
+232 
+COLUMN_OP
+, 
+´iv
+->
+nÚİ_icÚ
+,
+
+233 
+COLUMN_NICK
+, "Fugao",
+
+237  
+	`GTK_WIDGET
+(
+li¡
+);
+
+238 
+	}
+}
+
+239 
+	$nick_li¡_add
+(
+NickLi¡
+ *
+li¡
+, 
+gch¬
+ *
+nick
+, 
+U£rPow”
+ 
+pow”
+, 
+gboŞ—n
+ 
+is_away
+)
+
+242 
+	}
+}
+
+244 
+	$nick_li¡_ş—r
+(
+NickLi¡
+ *
+li¡
+)
+
+247 
+	}
+}
+
+	@nick_list.h
+
+20 #iâdeà
+__NICK_LIST_H__
+
+
+21 
+	#__NICK_LIST_H__
+
+
+	)
+
+23 
+	~<gnome.h
+>
+
+25 
+	gG_BEGIN_DECLS
+
+
+27 
+	#TYPE_NICK_LIST
+ (
+	`nick_li¡_g‘_ty³
+ ())
+
+	)
+
+28 
+	#NICK_LIST
+(
+obj
+è(
+	`G_TYPE_CHECK_INSTANCE_CAST
+ ((obj), 
+TYPE_NICK_LIST
+, 
+NickLi¡
+))
+
+	)
+
+29 
+	#NICK_LIST_CLASS
+(
+kÏss
+è(
+	`G_TYPE_CHECK_CLASS_CAST
+ ((kÏss), 
+TYPE_NICK_LIST
+, 
+NickLi¡CÏss
+))
+
+	)
+
+30 
+	#IS_NICK_LIST
+(
+obj
+è(
+	`G_TYPE_CHECK_INSTANCE_TYPE
+ ((obj), 
+TYPE_NICK_LIST
+))
+
+	)
+
+31 
+	#IS_NICK_LIST_CLASS
+(
+kÏss
+è(
+	`G_TYPE_CHECK_CLASS_TYPE
+ ((kÏss), 
+TYPE_NICK_LIST
+))
+
+	)
+
+32 
+	#NICK_LIST_GET_CLASS
+(
+obj
+è(
+	`G_TYPE_INSTANCE_GET_CLASS
+ ((obj), 
+TYPE_NICK_LIST
+, 
+NickLi¡CÏss
+))
+
+	)
+
+34 
+_NickLi¡
+ 
+	tNickLi¡
+;
+
+35 
+_NickLi¡CÏss
+ 
+	tNickLi¡CÏss
+;
+
+37 
+_NickLi¡Priv©e
+ 
+	tNickLi¡Priv©e
+;
+
+40 
+	mUSER_POWER_UNKNOWN
+,
+
+41 
+	mUSER_POWER_OP
+,
+
+42 
+	mUSER_POWER_V
+,
+
+43 
+	mUSER_POWER_NONOP
+
+
+44 } 
+	tU£rPow”
+;
+
+46 
+	s_NickLi¡
+
+
+48 
+GtkT»eV›w
+ 
+	m·»Á
+;
+
+50 
+NickLi¡Priv©e
+ *
+	m´iv
+;
+
+53 
+	s_NickLi¡CÏss
+
+
+55 
+GtkT»eV›wCÏss
+ 
+	m·»Á_şass
+;
+
+59 
+GtkTy³
+ 
+	$nick_li¡_g‘_ty³
+ (è
+G_GNUC_CONST
+;
+
+61 
+GtkWidg‘
+* 
+	`nick_li¡_Ãw
+ ();
+
+62 
+	`nick_li¡_add
+(
+NickLi¡
+ *
+li¡
+, 
+gch¬
+ *
+nick
+, 
+U£rPow”
+ 
+pow”
+, 
+gboŞ—n
+ 
+is_away
+);
+
+63 
+	`nick_li¡_ş—r
+(
+NickLi¡
+ *
+li¡
+);
+
+65 
+G_END_DECLS
+
 
 	@utils.c
 
@@ -20824,24 +27434,38 @@ __Ãed_sched·¿m
 .
 1
 /usr/include
-47
-875
+63
+1082
+.#main.c
+about.c
+about.h
 account.c
 account.h
+account_manager.c
+account_manager.h
+channel.c
+channel.h
 channel_book.c
 channel_book.h
-channel_page.c
-channel_page.h
+channel_text.c
+channel_text.h
 channel_tree.c
 channel_tree.h
 codeconv.c
 codeconv.h
+command_table.c
+command_table.h
 connection.c
 connection.h
 eel-gconf-extensions.c
 eel-gconf-extensions.h
 gtkutils.c
 gtkutils.h
+irc_constants.h
+irc_handle.c
+irc_handle.h
+irc_message.c
+irc_message.h
 loqui_app.c
 loqui_app.h
 loqui_common_text.c
@@ -20851,6 +27475,8 @@ loqui_menu.c
 loqui_menu.h
 main.c
 main.h
+nick_list.c
+nick_list.h
 utils.c
 utils.h
 /usr/include/stdlib.h

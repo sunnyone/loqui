@@ -22,7 +22,6 @@
 
 #include <gnome.h>
 #include "loqui_menu.h"
-#include "account.h"
 
 G_BEGIN_DECLS
 
@@ -61,10 +60,7 @@ GType        loqui_app_get_type             (void) G_GNUC_CONST;
 
 GtkWidget*      loqui_app_new                 (void);
 
-LoquiApp *loqui_app_get_main_app(void);
 void loqui_app_set_topic(LoquiApp *app, const gchar *str);
-
-void loqui_app_connect_with_fallback(LoquiApp *app, Account *account);
 
 G_END_DECLS
 

@@ -21,14 +21,12 @@
 
 #include "irc_handle.h"
 #include "connection.h"
-#include "loqui_app.h"
 #include "irc_message.h"
 
 struct _IRCHandlePrivate
 {
 	Connection *connection;
 	Account *account;
-	LoquiApp *app;
 	Server *server;
 
 	GThread *thread;
@@ -108,7 +106,6 @@ irc_handle_finalize(GObject *object)
 static gpointer irc_handle_thread_func(IRCHandle *handle)
 {
 	IRCHandlePrivate *priv;
-	LoquiApp *app;
 	GtkTextIter iter;
 	GtkTextBuffer *textbuf;
 	IRCMessage *msg;
@@ -168,7 +165,6 @@ irc_handle_new(Account *account, guint server_num, gboolean fallback)
 	priv->server = g_slist_nth(account->server_list, server_num)->data;
 	g_return_val_if_fail(priv->server != NULL, NULL);
 
-	priv->app = loqui_app_get_main_app();
 	priv->account = account;
 
 	handle->server_num = server_num;

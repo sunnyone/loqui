@@ -1,4 +1,4 @@
-/* IRC constants -- This code was based on IRCatConstants.h of IRcat-Lite */
+/* IRC constants -- This code is based on IRCatConstants.h of IRcat-Lite */
 /* IRcat Constants
    1998.7   Atsushi Tagami */
 
