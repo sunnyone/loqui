@@ -195,7 +195,8 @@ channel_new(Account *account, const gchar *name)
 
 	return channel;
 }
-gchar *channel_get_name(Channel *channel)
+G_CONST_RETURN gchar *
+channel_get_name(Channel *channel)
 {
 	g_return_val_if_fail(channel != NULL, NULL);
 	g_return_val_if_fail(IS_CHANNEL(channel), NULL);
@@ -299,12 +300,13 @@ void channel_set_topic(Channel *channel, const gchar *topic)
 
 	g_signal_emit(channel, channel_signals[TOPIC_CHANGED], 0);
 }
-gchar *channel_get_topic(Channel *channel)
+G_CONST_RETURN gchar *
+channel_get_topic(Channel *channel)
 {
 	g_return_val_if_fail(channel != NULL, NULL);
 	g_return_val_if_fail(IS_CHANNEL(channel), NULL);
 
-	return g_strdup(channel->priv->topic);
+	return channel->priv->topic;
 }
 void channel_append_user(Channel *channel, const gchar *nick, UserPower power, UserExistence exist)
 {

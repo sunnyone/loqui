@@ -302,9 +302,9 @@ loqui_app_update_info(LoquiApp *app,
 	gchar *buf;
 	guint context_id;
 	
-	const gchar *account_name = NULL, *channel_name = NULL;
+	const gchar *account_name = NULL, *channel_name = NULL, *topic = NULL;
 	guint user_number, op_number;
-	gchar *channel_mode = NULL, *user_number_str = NULL, *op_number_str = NULL, *topic = NULL;
+	gchar *channel_mode = NULL, *user_number_str = NULL, *op_number_str = NULL;
 
         g_return_if_fail(app != NULL);
         g_return_if_fail(LOQUI_IS_APP(app));
@@ -375,7 +375,6 @@ loqui_app_update_info(LoquiApp *app,
 	g_free(buf);
 
 	G_FREE_UNLESS_NULL(channel_mode);
-	G_FREE_UNLESS_NULL(topic);
 	G_FREE_UNLESS_NULL(user_number_str);
 	G_FREE_UNLESS_NULL(op_number_str);
 }

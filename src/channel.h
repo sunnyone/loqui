@@ -40,6 +40,7 @@ typedef struct _ChannelPrivate     ChannelPrivate;
 
 #include "irc_constants.h"
 #include "account.h"
+#include "gobject_utils.h"
 
 typedef enum {
 	USER_POWER_UNKNOWN,
@@ -90,10 +91,10 @@ void channel_append_remark(Channel *channel, TextType type, gboolean is_self, co
 gboolean channel_is_private_talk(Channel *channel);
 
 /* return value must not be freed. */
-gchar *channel_get_name(Channel *channel);
+G_CONST_RETURN gchar *channel_get_name(Channel *channel);
 
 void channel_set_topic(Channel *channel, const gchar *topic);
-gchar *channel_get_topic(Channel *channel);
+G_CONST_RETURN gchar *channel_get_topic(Channel *channel);
 
 void channel_set_updated(Channel *channel, gboolean updated);
 gboolean channel_get_updated(Channel *channel);

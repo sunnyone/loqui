@@ -340,12 +340,12 @@ Account *channel_input_dialog_get_account(ChannelInputDialog *dialog)
 }
 
 void channel_input_dialog_open(GtkWindow *parent_window, 
-			       gchar *title, gchar *info_label,
+			       const gchar *title, const gchar *info_label,
 			       ChannelHistoryType history_type, 
 			       ChannelInputFunc func, gpointer data,
 			       gboolean use_account, Account *account, 
-			       gboolean use_channel, gchar *channel_name, 
-			       gboolean use_text, gchar *default_text)
+			       gboolean use_channel, const gchar *channel_name, 
+			       gboolean use_text, const gchar *default_text)
 {
 	ChannelInputDialog *dialog;
 	ChannelInputDialogPrivate *priv;
