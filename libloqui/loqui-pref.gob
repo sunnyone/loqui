@@ -32,7 +32,7 @@ requires 2.0.0
 typedef void (*LoquiPrefChangedFunction) (gpointer pref, const gchar *group_name, const gchar *key, gpointer data);
 %}
 %{
-#define IS_NOT_FOUND_ERROR(tmp_err) (tmp_err->domain == LQG_KEY_FILE_ERROR && (tmp_err->code == LQG_KEY_FILE_ERROR_NOT_FOUND || tmp_err->code == LQG_KEY_FILE_ERROR_GROUP_NOT_FOUND))
+#define IS_NOT_FOUND_ERROR(tmp_err) (tmp_err->domain == LQG_KEY_FILE_ERROR && (tmp_err->code == LQG_KEY_FILE_ERROR_KEY_NOT_FOUND || tmp_err->code == LQG_KEY_FILE_ERROR_GROUP_NOT_FOUND))
 %}
 
 class Loqui:Pref from G:Object
