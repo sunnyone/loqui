@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: loqui 0.1.20\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2004-05-26 20:56+0900\n"
+"POT-Creation-Date: 2004-06-15 23:40+0900\n"
 "PO-Revision-Date: 2002-11-10 13:17+0900\n"
 "Last-Translator: Yoichi Imai <yoichi@silver-forest.com>\n"
 "Language-Team: Japanese <ja@li.org>\n"
@@ -14,58 +14,9 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: src/account.c:142
-msgid "Myself"
-msgstr ""
-
-#: src/account.c:143
-msgid "user self"
-msgstr ""
-
-#: src/account.c:149 src/account_dialog.c:251
+#: src/account_dialog.c:251 src/loqui_account.c:149
 msgid "Profile"
 msgstr "プロファイル"
-
-#: src/account.c:150
-msgid "Profile of this account"
-msgstr "このアカウントのプロファイル"
-
-#: src/account.c:379
-msgid "Already connected."
-msgstr "接続済みです。"
-
-#: src/account.c:398
-#, c-format
-msgid "Connecting to %s:%d"
-msgstr "%s:%dに接続しています"
-
-#: src/account.c:433
-msgid "Failed to connect."
-msgstr "接続に失敗しました。"
-
-#: src/account.c:438
-msgid "Connected. Sending Initial command..."
-msgstr "接続しました。初期コマンドを送信しています..."
-
-#: src/account.c:485
-msgid "Sent join command for autojoin."
-msgstr "自動joinのためのjoinコマンドを送信しました。"
-
-#: src/account.c:488
-msgid "Done."
-msgstr "完了。"
-
-#: src/account.c:505
-msgid "Connection terminated."
-msgstr "接続は切断されました。"
-
-#: src/account.c:509
-msgid "Trying to reconnect..."
-msgstr "再接続の試行中です..."
-
-#: src/account.c:525
-msgid "Disconnected."
-msgstr "切断されました"
 
 #: src/account_dialog.c:256
 msgid "Account name:"
@@ -132,7 +83,7 @@ msgid "codeset: "
 msgstr "コードセット: "
 
 #: src/account_dialog.c:329 src/loqui_profile_account.c:243
-#: src/loqui_user.c:220 src/message_text.c:115 src/nick_list.c:457
+#: src/loqui_user.c:220 src/message_text.c:115 src/nick_list.c:455
 msgid "Nick"
 msgstr "Nick"
 
@@ -152,7 +103,7 @@ msgstr ""
 msgid "Account List"
 msgstr "アカウントリスト"
 
-#: src/account_list_dialog.c:317 src/channel_tree.c:315
+#: src/account_list_dialog.c:317 src/channel_tree.c:313
 #: src/loqui_channel_entry.c:256 src/loqui_channel_entry.c:257
 #: src/loqui_profile_account.c:237
 msgid "Name"
@@ -162,7 +113,7 @@ msgstr "名前"
 msgid "Connect"
 msgstr "接続"
 
-#: src/channel_tree.c:294
+#: src/channel_tree.c:292
 msgid "E"
 msgstr "E"
 
@@ -303,6 +254,14 @@ msgstr ""
 #: src/ctcp_handle.c:228
 #, c-format
 msgid "Sent CTCP reply to %s: %s"
+msgstr ""
+
+#: src/eggtrayicon.c:118
+msgid "Orientation"
+msgstr ""
+
+#: src/eggtrayicon.c:119
+msgid "The orientation of the tray."
 msgstr ""
 
 #: src/gtkutils.c:161
@@ -548,17 +507,66 @@ msgstr ""
 msgid "Invalid parameter number"
 msgstr "無効なパラメータ番号"
 
-#: src/loqui_app.c:1153
+#: src/loqui_account.c:142
+msgid "Myself"
+msgstr ""
+
+#: src/loqui_account.c:143
+msgid "user self"
+msgstr ""
+
+#: src/loqui_account.c:150
+msgid "Profile of this account"
+msgstr "このアカウントのプロファイル"
+
+#: src/loqui_account.c:379
+msgid "Already connected."
+msgstr "接続済みです。"
+
+#: src/loqui_account.c:398
+#, c-format
+msgid "Connecting to %s:%d"
+msgstr "%s:%dに接続しています"
+
+#: src/loqui_account.c:433
+msgid "Failed to connect."
+msgstr "接続に失敗しました。"
+
+#: src/loqui_account.c:438
+msgid "Connected. Sending Initial command..."
+msgstr "接続しました。初期コマンドを送信しています..."
+
+#: src/loqui_account.c:485
+msgid "Sent join command for autojoin."
+msgstr "自動joinのためのjoinコマンドを送信しました。"
+
+#: src/loqui_account.c:488
+msgid "Done."
+msgstr "完了。"
+
+#: src/loqui_account.c:505
+msgid "Connection terminated."
+msgstr "接続は切断されました。"
+
+#: src/loqui_account.c:509
+msgid "Trying to reconnect..."
+msgstr "再接続の試行中です..."
+
+#: src/loqui_account.c:525
+msgid "Disconnected."
+msgstr "切断されました"
+
+#: src/loqui_app.c:1190
 #, c-format
 msgid "Updated: %d private talk(s), %d channel(s)."
 msgstr ""
 
-#: src/loqui_app.c:1157
+#: src/loqui_app.c:1194
 #, c-format
 msgid "Updated: %d private talk(s)."
 msgstr ""
 
-#: src/loqui_app.c:1160
+#: src/loqui_app.c:1197
 #, c-format
 msgid "Updated: %d channel(s)."
 msgstr ""
@@ -1148,6 +1156,15 @@ msgstr ""
 msgid "ProfileHandle: Unsupported type: %s."
 msgstr ""
 
+#: src/loqui_sender_irc.c:625
+#, c-format
+msgid "Sent CTCP request to %s: %s"
+msgstr ""
+
+#: src/loqui_sender_irc.c:653
+msgid "Too many users in change mode request!"
+msgstr ""
+
 #: src/loqui_statusbar.c:34
 msgid "(disconnected)"
 msgstr "(切断)"
@@ -1456,4 +1473,3 @@ msgstr "チャンネルが選択されていません"
 #, c-format
 msgid "?x flag doesn't have { in '%s'"
 msgstr ""
-

@@ -213,3 +213,9 @@
 * Handle informal Japanese characters(JIS X 0201 kana, 13ku-NEC special characters)
 * Connect with double-clicking the account node of channel tree.
 
+2004-06-15  0.3.6
+* Save the configuration of accel keys at ~/.loqui/accelmaprc.
+* Changed accel keys for (Previous|Next)UnreadChannel from Ctrl+(Shift+)Space to Alt+Up/Down.
+* Save the key-event when focusing the entry.
+* Fixed the bug that failed to show some icons on gtk-2.4 environment.
+* Implemented the system tray icon (notification area).
