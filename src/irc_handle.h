@@ -20,7 +20,6 @@
 #ifndef __IRC_HANDLE_H__
 #define __IRC_HANDLE_H__
 
-#include "account.h"
 #include "irc_message.h"
 
 G_BEGIN_DECLS
@@ -36,6 +35,8 @@ typedef struct _IRCHandle            IRCHandle;
 typedef struct _IRCHandleClass       IRCHandleClass;
 
 typedef struct _IRCHandlePrivate     IRCHandlePrivate;
+
+#include "account.h"
 
 struct _IRCHandle
 {

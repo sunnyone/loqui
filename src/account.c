@@ -21,7 +21,6 @@
 
 #include "account.h"
 #include "loqui_app.h"
-#include "irc_connection.h"
 #include "irc_handle.h"
 #include "gtkutils.h"
 #include "utils.h"
@@ -564,6 +563,16 @@ account_is_connected(Account *account)
 	
 	return (account->priv->connection != NULL);
 }
+
+IRCConnection *
+account_get_connection(Account *account)
+{
+        g_return_val_if_fail(account != NULL, NULL);
+        g_return_val_if_fail(IS_ACCOUNT(account), NULL);
+	
+	return account->priv->connection;
+}
+
 void
 account_add_channel(Account *account, LoquiChannel *channel)
 {

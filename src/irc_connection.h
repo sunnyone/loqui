@@ -20,7 +20,6 @@
 #ifndef __IRC_CONNECTION_H__
 #define __IRC_CONNECTION_H__
 
-#include "irc_handle.h"
 #include "irc_message.h"
 #include "codeconv.h"
 
@@ -37,6 +36,8 @@ typedef struct _IRCConnection            IRCConnection;
 typedef struct _IRCConnectionClass       IRCConnectionClass;
 
 typedef struct _IRCConnectionPrivate     IRCConnectionPrivate;
+
+#include "irc_handle.h"
 
 struct _IRCConnection
 {

@@ -40,6 +40,9 @@ typedef struct _AccountPrivate     AccountPrivate;
 
 #include "loqui_channel_entry.h"
 #include "loqui_channel.h"
+#include "loqui_sender.h"
+#include "irc_connection.h"
+#include "irc_handle.h"
 
 struct _Account
 {
@@ -54,6 +57,8 @@ struct _Account
 	GHashTable *nick_user_table; /* key: nick, value: user */
 
 	LoquiUser *user_self;
+
+	LoquiSender *sender;
 
         AccountPrivate *priv;
 };
@@ -82,6 +87,8 @@ LoquiUser* account_get_user_self(Account *account);
 void account_connect(Account *account);
 void account_disconnect(Account *account);
 gboolean account_is_connected(Account *account);
+
+IRCConnection *account_get_connection(Account *account);
 
 void account_set_codeconv(Account *account, CodeConv *codeconv);
 CodeConv *account_get_codeconv(Account *account);
