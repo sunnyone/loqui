@@ -1,0 +1,1 @@
+shlibs:Depends=libatk1.0-0 (>= 1.2.2), libc6 (>= 2.3.1-1), libglib2.0-0 (>= 2.2.1), libgnet1.1 (>= 1.1.7), libgtk2.0-0 (>= 2.2.1), libpango1.0-0 (>= 1.2.1)
