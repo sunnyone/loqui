@@ -31,4 +31,5 @@
 2003-02-10     0.1.2 Release
 * Fix the bug the program quits when it received a QUIT message that doesn't contain no parameters.
 * New code convertion method.
+* Enabled translation of menu.
 
