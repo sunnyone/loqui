@@ -148,5 +148,5 @@ void command_dialog_nick(LoquiApp *app, Account *account)
 				  _("Type nickname."),
 				  CHANNEL_HISTORY_NONE,
 				  command_dialog_nick_cb, NULL,
-				  TRUE, account, FALSE, NULL, TRUE, account_get_current_nick(account));
+				  TRUE, account, FALSE, NULL, TRUE, loqui_user_get_nick(account_get_user_self(account)));
 }

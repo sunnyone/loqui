@@ -118,6 +118,7 @@ static void loqui_app_channel_changed_cb(GObject *object, gpointer data);
 static void loqui_app_channel_entry_notify_topic_cb(LoquiChannelEntry *chent, GParamSpec *pspec, gpointer data);
 static void loqui_app_channel_entry_notify_is_updated_cb(LoquiChannelEntry *chent, GParamSpec *pspec, LoquiApp *app);
 static void loqui_app_channel_entry_notify_number_cb(LoquiChannelEntry *chent, GParamSpec *pspec, LoquiApp *app);
+static void loqui_app_user_self_notify_cb(LoquiUser *user, GParamSpec *psepec, LoquiApp *app);
 
 static void loqui_app_channel_buffer_append_cb(ChannelBuffer *buffer, MessageText *msgtext, LoquiApp *app);
 static void loqui_app_append_log(LoquiApp *app, MessageText *msgtext);
@@ -820,6 +821,7 @@ loqui_app_set_current_channel(LoquiApp *app, LoquiChannel *channel)
 	LoquiAppPrivate *priv;
 	gboolean is_account_changed, is_channel_changed;
 	GtkTreeModel *model;
+	LoquiUser *user_self;
 
         g_return_if_fail(app != NULL);
         g_return_if_fail(LOQUI_IS_APP(app));
@@ -832,6 +834,7 @@ loqui_app_set_current_channel(LoquiApp *app, LoquiChannel *channel)
 	}
 	if (priv->current_account) {
 		g_signal_handlers_disconnect_by_func(priv->current_account, loqui_app_account_changed_cb, app);
+		g_signal_handlers_disconnect_by_func(account_get_user_self(priv->current_account), loqui_app_user_self_notify_cb, app);
 	}
 
 	is_account_changed = (loqui_app_get_current_account(app) != channel->account) ? TRUE : FALSE;
@@ -856,14 +859,25 @@ loqui_app_set_current_channel(LoquiApp *app, LoquiChannel *channel)
 			 G_CALLBACK(loqui_app_channel_entry_notify_topic_cb), app);
 
 	g_signal_connect(G_OBJECT(channel), "mode-changed",
-	G_CALLBACK(loqui_app_channel_changed_cb), app);
-	g_signal_connect(G_OBJECT(channel->account), "nick-changed",
-			 G_CALLBACK(loqui_app_account_changed_cb), app);
-	g_signal_connect(G_OBJECT(channel->account), "away-changed",
-			 G_CALLBACK(loqui_app_account_changed_cb), app);
+			 G_CALLBACK(loqui_app_channel_changed_cb), app);
+	
+	user_self = account_get_user_self(channel->account);
+	g_signal_connect(G_OBJECT(user_self), "notify::nick",
+			 G_CALLBACK(loqui_app_user_self_notify_cb), app);
+	g_signal_connect(G_OBJECT(user_self), "notify::away",
+			 G_CALLBACK(loqui_app_user_self_notify_cb), app);
 
 	if (prefs_general.auto_switch_scrolling)
 		loqui_app_actions_toggle_action_set_active(app, LOQUI_ACTION_TOGGLE_SCROLL, TRUE);
+}
+static void
+loqui_app_user_self_notify_cb(LoquiUser *user, GParamSpec *psepec, LoquiApp *app)
+{
+	Account *account;
+
+	/* FIXME: */
+	account = g_object_get_data(G_OBJECT(user), "account");
+	loqui_app_account_changed_cb(G_OBJECT(account), app);
 }
 void
 loqui_app_set_current_account(LoquiApp *app, Account *account)
@@ -871,6 +885,7 @@ loqui_app_set_current_account(LoquiApp *app, Account *account)
 	LoquiAppPrivate *priv;
 	gboolean is_account_changed, is_channel_changed;
 	GtkTreeModel *model;
+	LoquiUser *user_self;
 
         g_return_if_fail(app != NULL);
         g_return_if_fail(LOQUI_IS_APP(app));
@@ -883,6 +898,7 @@ loqui_app_set_current_account(LoquiApp *app, Account *account)
 	}
 	if (priv->current_account) {
 		g_signal_handlers_disconnect_by_func(priv->current_account, loqui_app_account_changed_cb, app);
+		g_signal_handlers_disconnect_by_func(account_get_user_self(priv->current_account), loqui_app_user_self_notify_cb, app);
 	}
 
 	is_account_changed = (loqui_app_get_current_account(app) != account) ? TRUE : FALSE;
@@ -901,10 +917,11 @@ loqui_app_set_current_account(LoquiApp *app, Account *account)
 			      is_account_changed, account,
 			      is_channel_changed, NULL);
 
-	g_signal_connect(G_OBJECT(account), "nick-changed",
-			 G_CALLBACK(loqui_app_account_changed_cb), app);
-	g_signal_connect(G_OBJECT(account), "away-changed",
-			 G_CALLBACK(loqui_app_account_changed_cb), app);
+	user_self = account_get_user_self(account);
+	g_signal_connect(G_OBJECT(user_self), "notify::nick",
+			 G_CALLBACK(loqui_app_user_self_notify_cb), app);
+	g_signal_connect(G_OBJECT(user_self), "notify::away",
+			 G_CALLBACK(loqui_app_user_self_notify_cb), app);
 	g_signal_connect(G_OBJECT(account), "disconnected",
 			 G_CALLBACK(loqui_app_account_changed_cb), app);
 			 
@@ -969,9 +986,8 @@ loqui_app_add_account_cb(AccountManager *manager, Account *account, LoquiApp *ap
 
 	priv = app->priv;
 
-	/* FIXME:
-	   store = loqui_channel_entry_store_new(LOQUI_CHANNEL_ENTRY(account));
-	   g_object_set_data_full(G_OBJECT(account), CHANNEL_ENTRY_STORE_KEY, store, (GDestroyNotify) g_object_unref); */
+	store = loqui_channel_entry_store_new(LOQUI_CHANNEL_ENTRY(account));
+	g_object_set_data_full(G_OBJECT(account), CHANNEL_ENTRY_STORE_KEY, store, (GDestroyNotify) g_object_unref);
 
 	loqui_channel_entry_ui_attach_channel_entry_action(app, G_OBJECT(account)); /* FIXME */
 	loqui_channel_entry_ui_add_account(app, account, "/menubar/Buffers", "menubar");
@@ -989,6 +1005,8 @@ loqui_app_add_account_cb(AccountManager *manager, Account *account, LoquiApp *ap
 			 G_CALLBACK(loqui_app_channel_buffer_append_cb), app);
 	channel_tree_add_account(app->channel_tree, account);
 
+	/* FIXME: user should have account normally? */
+	g_object_set_data(G_OBJECT(account_get_user_self(account)), "account", account);
 }
 static void
 loqui_app_remove_account_cb(AccountManager *manager, Account *account, LoquiApp *app)

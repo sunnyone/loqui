@@ -190,8 +190,7 @@ account_manager_load_accounts(AccountManager *account_manager)
 	loqui_profile_handle_read_from_file(handle, &list, path);
 
 	for(cur = list; cur != NULL; cur = cur->next) {
-		account = account_new();
-		account_set_profile(account, cur->data);
+		account = account_new(cur->data);
 		account_manager_add_account(account_manager, account);
 	}
 	g_list_free(list);

@@ -428,7 +428,7 @@ irc_handle_command_nick(IRCHandle *handle, IRCMessage *msg)
 		loqui_user_set_nick(user, nick_new);
 
 	if(account_is_current_nick(handle->priv->account, msg->nick))
-		account_set_current_nick(handle->priv->account, nick_new);
+		loqui_user_set_nick(account_get_user_self(handle->priv->account), nick_new);
 }
 
 static void
@@ -1077,11 +1077,11 @@ irc_handle_reply(IRCHandle *handle, IRCMessage *msg)
 		irc_handle_account_console_append(handle, msg, TEXT_TYPE_INFO, _("*** %t"));
 		return TRUE;
 	case IRC_RPL_UNAWAY:
-		account_set_away_status(priv->account, FALSE);
+		loqui_user_set_away(account_get_user_self(priv->account), LOQUI_AWAY_TYPE_ONLINE);
 		irc_handle_account_console_append(handle, msg, TEXT_TYPE_INFO, _("*** %t"));
 		return TRUE;
 	case IRC_RPL_NOWAWAY:
-		account_set_away_status(priv->account, TRUE);
+		loqui_user_set_away(account_get_user_self(priv->account), LOQUI_AWAY_TYPE_AWAY);
 		irc_handle_account_console_append(handle, msg, TEXT_TYPE_INFO, _("*** %t"));
 		return TRUE;
 	case IRC_RPL_INVITING:

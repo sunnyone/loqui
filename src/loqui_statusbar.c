@@ -447,7 +447,7 @@ loqui_statusbar_set_current_account(LoquiStatusbar *statusbar, Account *account)
         	gtk_widget_set_sensitive(priv->button_nick, TRUE);
         	gtk_widget_set_sensitive(priv->dbox_preset, TRUE);
         	gtk_widget_set_sensitive(priv->dbox_away, TRUE);
-        	gtk_label_set(GTK_LABEL(priv->label_nick), account_get_current_nick(account));
+        	gtk_label_set(GTK_LABEL(priv->label_nick), loqui_user_get_nick(account_get_user_self(account)));
         }
         
         if (account) 
@@ -456,13 +456,9 @@ loqui_statusbar_set_current_account(LoquiStatusbar *statusbar, Account *account)
         // set icon
         if (account == NULL) {
         	basic_away = LOQUI_BASIC_AWAY_TYPE_OFFLINE;
-        } else if (!account_is_connected(account)) {
-        	basic_away = LOQUI_BASIC_AWAY_TYPE_OFFLINE;
-        } else if (account_get_away_status(account)) {
-        	basic_away = LOQUI_BASIC_AWAY_TYPE_AWAY;
-        } else {
-        	basic_away = LOQUI_BASIC_AWAY_TYPE_ONLINE;
-        }
+	} else {
+		basic_away = loqui_user_get_basic_away(account_get_user_self(account));
+	}
         
         loqui_statusbar_set_basic_away(statusbar, basic_away);
 }

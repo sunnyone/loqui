@@ -51,6 +51,8 @@ struct _Account
 	GHashTable *user_nick_table; /* key: user, value: nick */
 	GHashTable *nick_user_table; /* key: nick, value: user */
 
+	LoquiUser *user_self;
+
         AccountPrivate *priv;
 };
 
@@ -61,8 +63,6 @@ struct _AccountClass
 	/* signals */
 	void (* connected)        (Account *account);
 	void (* disconnected)     (Account *account);
-	void (* nick_changed)     (Account *account);
-	void (* away_changed)     (Account *account);
 	void (* add_channel)      (Account *account,
 				   LoquiChannel *channel);
 	void (* remove_channel)   (Account *account,
@@ -71,10 +71,10 @@ struct _AccountClass
 
 GType account_get_type(void) G_GNUC_CONST;
 
-Account* account_new(void);
+Account* account_new(LoquiProfileAccount *profile);
 
 LoquiProfileAccount *account_get_profile(Account *account);
-void account_set_profile(Account *account, LoquiProfileAccount *profile);
+LoquiUser* account_get_user_self(Account *account);
 
 void account_connect(Account *account);
 void account_disconnect(Account *account);
@@ -93,12 +93,7 @@ GSList *account_search_joined_channel(Account *account, gchar *nick);
 void account_console_buffer_append(Account *account, TextType type, gchar *str);
 void account_speak(Account *account, LoquiChannel *channel, const gchar *str, gboolean command_mode);
 
-void account_set_current_nick(Account *account, const gchar *nick);
-G_CONST_RETURN gchar* account_get_current_nick(Account *account);
 gboolean account_is_current_nick(Account *account, const gchar *str);
-
-void account_set_away_status(Account *account, gboolean is_away);
-gboolean account_get_away_status(Account *account);
 
 void account_set_away(Account *account, gboolean is_away);
 void account_set_away_message(Account *account, const gchar *away_message);
