@@ -485,6 +485,8 @@ remark_entry_activated_cb(GtkWidget *widget, gpointer data)
 	g_free(str);
 	priv->current_index = 0;
 	G_FREE_UNLESS_NULL(priv->string_list->data);
+	
+	remark_entry_set_command_mode(remark_entry, FALSE);
 }
 static void
 remark_entry_toggle_command_toggled_cb(GtkWidget *widget, gpointer data)
@@ -510,6 +512,7 @@ remark_entry_toggle_command_toggled_cb_for_signal(GtkWidget *widget, gpointer da
         g_return_if_fail(IS_REMARK_ENTRY(data));
 
         remark_entry = REMARK_ENTRY(data);
+	priv = remark_entry->priv;
 	
 	g_signal_emit(remark_entry, remark_entry_signals[TOGGLE_COMMAND_MODE], 0);
 }
