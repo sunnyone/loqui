@@ -192,6 +192,7 @@ ipmsg_packet_parse(const gchar *str, gint len)
 	gchar *group_name = NULL;
 	guint real_len;
 	int i, pos;
+	IPMsgPacket *packet;
 
 	if (len < 0)
 		real_len = strlen(str);
@@ -231,13 +232,16 @@ ipmsg_packet_parse(const gchar *str, gint len)
 		cur++;
 	}
 
-	return ipmsg_packet_create((gint) g_ascii_strtoull(array[IPMSG_COMMAND_POSITION_VERSION], NULL, 10),
-				   (gint) g_ascii_strtoull(array[IPMSG_COMMAND_POSITION_PACKET_NUMBER], NULL, 10),
-				   array[IPMSG_COMMAND_POSITION_USERNAME],
-				   array[IPMSG_COMMAND_POSITION_HOSTNAME],
-				   (gint) g_ascii_strtoull(array[IPMSG_COMMAND_POSITION_COMMAND_NUMBER], NULL, 10),
-				   array[IPMSG_COMMAND_POSITION_EXTRA],
-				   group_name);
+	packet = ipmsg_packet_create((gint) g_ascii_strtoull(array[IPMSG_COMMAND_POSITION_VERSION], NULL, 10),
+				     (gint) g_ascii_strtoull(array[IPMSG_COMMAND_POSITION_PACKET_NUMBER], NULL, 10),
+				     array[IPMSG_COMMAND_POSITION_USERNAME],
+				     array[IPMSG_COMMAND_POSITION_HOSTNAME],
+				     (gint) g_ascii_strtoull(array[IPMSG_COMMAND_POSITION_COMMAND_NUMBER], NULL, 10),
+				     array[IPMSG_COMMAND_POSITION_EXTRA],
+				     group_name);
+	g_free(buf);
+
+	return packet;
 }
 IPMsgPacket *
 ipmsg_packet_create(gint version, gint packet_num, const gchar *username, const gchar *hostname, gint command_num, const gchar *extra, const gchar *group_name)
