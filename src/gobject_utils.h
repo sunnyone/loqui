@@ -23,9 +23,30 @@
 #include "utils.h"
 #include <glib.h>
 
+#define ATTR_READER_GENERIC(type, failed_value, class_name_capitalized, class_name_lowercase, attr_name) \
+type class_name_lowercase ## _get_ ## attr_name(class_name_capitalized *obj) \
+{ \
+ 	g_return_val_if_fail(obj != NULL, failed_value); \
+        g_return_val_if_fail(G_TYPE_CHECK_INSTANCE_TYPE(obj, class_name_lowercase ## _get_type()), failed_value); \
+\
+        return obj->attr_name; \
+}
+#define ATTR_WRITER_GENERIC(type, class_name_capitalized, class_name_lowercase, attr_name) \
+void class_name_lowercase ## _set_ ## attr_name(class_name_capitalized *obj, type foo) \
+{ \
+ 	g_return_if_fail(obj != NULL); \
+        g_return_if_fail(G_TYPE_CHECK_INSTANCE_TYPE(obj, class_name_lowercase ## _get_type())); \
+\
+        obj->attr_name = foo; \
+}
+#define ATTR_READER_GENERIC_PROTOTYPE(type, class_name_capitalized, class_name_lowercase, attr_name) \
+  type class_name_lowercase ## _get_ ## attr_name(class_name_capitalized *obj)
+#define ATTR_WRITER_GENERIC_PROTOTYPE(type, class_name_capitalized, class_name_lowercase, attr_name) \
+  void class_name_lowercase ## _set_ ## attr_name(class_name_capitalized *obj, type foo)
+
 /* accessors for gchar * */
 
-#define ATTR_READER_STRING(class_name_capitalized, class_name_lowercase, attr_name) \
+#define ATTR_WRITER_STRING(class_name_capitalized, class_name_lowercase, attr_name) \
 void class_name_lowercase ## _set_ ## attr_name (class_name_capitalized *obj, const gchar *str) \
 { \
  	g_return_if_fail(obj != NULL); \
@@ -35,28 +56,36 @@ void class_name_lowercase ## _set_ ## attr_name (class_name_capitalized *obj, co
 	if(str) \
 		obj->attr_name = g_strdup(str); \
 }
-#define ATTR_WRITER_STRING(class_name_capitalized, class_name_lowercase, attr_name) \
-G_CONST_RETURN gchar * class_name_lowercase ## _get_ ## attr_name(class_name_capitalized *obj) \
-{ \
- 	g_return_val_if_fail(obj != NULL, NULL); \
-        g_return_val_if_fail(G_TYPE_CHECK_INSTANCE_TYPE(obj, class_name_lowercase ## _get_type()), NULL); \
-\
-        return obj->attr_name; \
-}
+#define ATTR_READER_STRING(class_name_capitalized, class_name_lowercase, attr_name) \
+  ATTR_READER_GENERIC(G_CONST_RETURN gchar *, NULL, class_name_capitalized, class_name_lowercase, attr_name)
 
 #define ATTR_ACCESSOR_STRING(class_name_capitalized, class_name_lowercase, attr_name) \
   ATTR_READER_STRING(class_name_capitalized, class_name_lowercase, attr_name); \
   ATTR_WRITER_STRING(class_name_capitalized, class_name_lowercase, attr_name)
 
-/* G_CONST_RETURN gchar * object_get_bar(Foo *obj); */
 #define ATTR_READER_STRING_PROTOTYPE(class_name_capitalized, class_name_lowercase, attr_name) \
- G_CONST_RETURN gchar * class_name_lowercase ## _get_ ## attr_name (class_name_capitalized *obj)
-/* void object_set_bar(Foo *obj, const gchar *str); */
+  ATTR_READER_GENERIC_PROTOTYPE(G_CONST_RETURN gchar *, class_name_capitalized, class_name_lowercase, attr_name)
 #define ATTR_WRITER_STRING_PROTOTYPE(class_name_capitalized, class_name_lowercase, attr_name) \
- void class_name_lowercase ## _set_ ## attr_name (class_name_capitalized *obj, const gchar *str)
-
+  ATTR_WRITER_GENERIC_PROTOTYPE(const gchar *, class_name_capitalized, class_name_lowercase, attr_name)
 #define ATTR_ACCESSOR_STRING_PROTOTYPE(class_name_capitalized, class_name_lowercase, attr_name) \
   ATTR_READER_STRING_PROTOTYPE(class_name_capitalized, class_name_lowercase, attr_name); \
   ATTR_WRITER_STRING_PROTOTYPE(class_name_capitalized, class_name_lowercase, attr_name)
+
+#define ATTR_WRITER_BOOLEAN(class_name_capitalized, class_name_lowercase, attr_name) \
+  ATTR_WRITER_GENERIC(gboolean, class_name_capitalized, class_name_lowercase, attr_name)
+#define ATTR_READER_BOOLEAN(class_name_capitalized, class_name_lowercase, attr_name) \
+  ATTR_READER_GENERIC(gboolean, FALSE, class_name_capitalized, class_name_lowercase, attr_name)
+#define ATTR_ACCESSOR_BOOLEAN(class_name_capitalized, class_name_lowercase, attr_name) \
+  ATTR_READER_BOOLEAN(class_name_capitalized, class_name_lowercase, attr_name); \
+  ATTR_WRITER_BOOLEAN(class_name_capitalized, class_name_lowercase, attr_name)
+
+#define ATTR_WRITER_BOOLEAN_PROTOTYPE(class_name_capitalized, class_name_lowercase, attr_name) \
+  ATTR_WRITER_GENERIC_PROTOTYPE(gboolean, class_name_capitalized, class_name_lowercase, attr_name)
+#define ATTR_READER_BOOLEAN_PROTOTYPE(class_name_capitalized, class_name_lowercase, attr_name) \
+  ATTR_READER_GENERIC_PROTOTYPE(gboolean, class_name_capitalized, class_name_lowercase, attr_name)
+#define ATTR_ACCESSOR_BOOLEAN_PROTOTYPE(class_name_capitalized, class_name_lowercase, attr_name) \
+  ATTR_READER_BOOLEAN_PROTOTYPE(class_name_capitalized, class_name_lowercase, attr_name); \
+  ATTR_WRITER_BOOLEAN_PROTOTYPE(class_name_capitalized, class_name_lowercase, attr_name)
+
 
 #endif /* __GOBJECT_UTILS_H__ */
