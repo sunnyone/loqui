@@ -50,7 +50,7 @@ struct _Account
 	gboolean use;
 
 	GSList *server_list; /* list of Server */
-	GSList *nick_list; /* list of gchar * */
+	GList *nick_list; /* list of gchar * */
 
 	/* key: channel name(gchar *), value: channel(Channel) */
 	GHashTable *channel_hash;

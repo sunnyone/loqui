@@ -389,19 +389,24 @@ remark_entry_set_nick_list(RemarkEntry *entry, GList *nick_list)
 {
 	RemarkEntryPrivate *priv;
 	GtkWidget *menuitem;
-	GList *cur;
+	GList *cur, *tmp_list = NULL;
 
         g_return_if_fail(entry != NULL);
         g_return_if_fail(IS_REMARK_ENTRY(entry));
 
 	priv = entry->priv;
 
-	gtk_container_foreach(GTK_CONTAINER(priv->menu_nick), 
-			      (GtkCallback) gtk_container_remove, NULL);
+	for(cur = GTK_MENU_SHELL(priv->menu_nick)->children; cur != NULL; cur = cur->next) {
+		tmp_list = g_list_append(tmp_list, cur->data);
+	}
+	for(cur = tmp_list; cur != NULL; cur = cur->next) {
+		gtk_container_remove(GTK_CONTAINER(priv->menu_nick), cur->data);
+	}
 	for(cur = nick_list; cur != NULL; cur = cur->next) {
 		if(!cur->data)
 			continue;
 		menuitem = gtk_menu_item_new_with_label(cur->data);
+		gtk_widget_show(menuitem);
 		gtk_menu_shell_append(GTK_MENU_SHELL(priv->menu_nick), menuitem);
 	}
 }

@@ -353,6 +353,8 @@ loqui_app_update_info(LoquiApp *app,
 			remark_entry_set_nick(REMARK_ENTRY(priv->entry), account_get_current_nick(account));
 			loqui_toolbar_toggle_away_with_signal_handler_blocked(LOQUI_TOOLBAR(app->toolbar),
 									      account_get_away_status(account));
+			if(account->nick_list)
+				remark_entry_set_nick_list(REMARK_ENTRY(priv->entry), account->nick_list);
 		}
 	}
 

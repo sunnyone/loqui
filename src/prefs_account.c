@@ -289,7 +289,7 @@ text_handler           (GMarkupParseContext *context,
 		break;
 	case ELEMENT_NICKLIST_LI:
 		if(text != NULL && strlen(text) > 0)
-			current_account->nick_list = g_slist_append(current_account->nick_list, g_strdup(text));
+			current_account->nick_list = g_list_append(current_account->nick_list, g_strdup(text));
 		break;
 	default:
 		break;
@@ -353,7 +353,8 @@ void prefs_account_save(GSList *account_list)
 	gchar *tmp1, *tmp2, *tmp3;
 	gchar *escaped;
 	FILE *fp;
-	GSList *cur, *cur2, *cur_n;
+	GSList *cur, *cur2;
+	GList *cur_n;
 	Account *account;
 	Server *server;
 	CodeConv *codeconv;
