@@ -162,14 +162,14 @@ account_dialog_response_cb(GtkWidget *widget, gint response, gpointer data)
 
 	switch(response) {
 	case GTK_RESPONSE_OK:
-		account_set(priv->account,
-			    gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(priv->check_use)),
-			    gtk_entry_get_text(GTK_ENTRY(priv->entry_name)),
-			    gtk_entry_get_text(GTK_ENTRY(priv->entry_nick)),
-			    gtk_entry_get_text(GTK_ENTRY(priv->entry_username)),
-			    gtk_entry_get_text(GTK_ENTRY(priv->entry_realname)),
-			    gtk_entry_get_text(GTK_ENTRY(priv->entry_userinfo)),
-			    gtk_entry_get_text(GTK_ENTRY(priv->entry_autojoin)));
+		g_object_set(priv->account,
+			     "use", gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(priv->check_use)),
+			     "name", gtk_entry_get_text(GTK_ENTRY(priv->entry_name)),
+			     "nick", gtk_entry_get_text(GTK_ENTRY(priv->entry_nick)),
+			     "username", gtk_entry_get_text(GTK_ENTRY(priv->entry_username)),
+			     "realname", gtk_entry_get_text(GTK_ENTRY(priv->entry_realname)),
+			     "userinfo", gtk_entry_get_text(GTK_ENTRY(priv->entry_userinfo)),
+			     "autojoin", gtk_entry_get_text(GTK_ENTRY(priv->entry_autojoin)), NULL);
 		account_remove_all_server(priv->account);
 
 		if(!gtk_tree_model_get_iter_first(GTK_TREE_MODEL(priv->list_store), &iter))

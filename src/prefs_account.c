@@ -118,10 +118,14 @@ static void set_current_account(const gchar **attribute_names,
 	CHECK_NULL("username", username);
 
 	current_account = account_new();
-	account_set(current_account, use, name, nick, username, NULL, NULL, NULL);
+	g_object_set(current_account,
+		     "use", use,
+		     "name", name,
+		     "nick", nick,
+		     "username", username, NULL);
 
-	debug_puts("account: use => \"%d\", name => \"%s\", nick => \"%s\", username => \"%s\"",
-		   use, name, nick, username);
+/*	debug_puts("account: use => \"%d\", name => \"%s\", nick => \"%s\", username => \"%s\"",
+	use, name, nick, username); */
 #undef CHECK_NULL
 #undef CHECK_SPACE
 }
@@ -153,8 +157,8 @@ static void add_server(const gchar **attribute_names,
 
 	account_add_server(current_account, host,
 			   port, password, (use != 0));
-	debug_puts("  add server: host => \"%s\", port => %d, password => \"%s\", use => %d",
-		   host, port, password, use);
+/*	debug_puts("  add server: host => \"%s\", port => %d, password => \"%s\", use => %d",
+	host, port, password, use); */
 }
 
 static void
@@ -201,7 +205,7 @@ end_element_handler    (GMarkupParseContext *context,
                         GError             **error)
 {
 	if(g_ascii_strcasecmp(element_name, "account") == 0) {
-		debug_puts("End.");
+		/* debug_puts("End."); */
 		if(current_account) {
 			tmp_list = g_slist_append(tmp_list, current_account);
 		}
@@ -223,15 +227,15 @@ text_handler           (GMarkupParseContext *context,
 	switch(current_element) {
 	case ELEMENT_REALNAME:
 		account_set_realname(current_account, text);
-		debug_puts("  realname: \"%s\"", text);
+		/* debug_puts("  realname: \"%s\"", text); */
 		break;
 	case ELEMENT_USERINFO:
 		account_set_userinfo(current_account, text);
-		debug_puts("  userinfo: \"%s\"", text);
+		/* debug_puts("  userinfo: \"%s\"", text); */
 		break;
 	case ELEMENT_AUTOJOIN:
 		account_set_autojoin(current_account, text);
-		debug_puts("  autojoin: \"%s\"", text);
+		/* debug_puts("  autojoin: \"%s\"", text); */
 		break;
 	default:
 		break;

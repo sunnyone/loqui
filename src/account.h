@@ -87,14 +87,6 @@ struct _Server
 GType account_get_type(void) G_GNUC_CONST;
 
 Account* account_new(void);
-void account_set(Account *account,
-		 gboolean use,
-		 const gchar *name,
-		 const gchar *nick,
-		 const gchar *username,
-		 const gchar *realname,
-		 const gchar *userinfo,
-		 const gchar *autojoin);
 void account_print(Account *account);
 
 #define ACCOUNT_ACCESSOR_STRING(attr_name) \

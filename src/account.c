@@ -42,6 +42,18 @@ enum {
 	LAST_SIGNAL
 };
 
+enum {
+	PROP_0,
+	PROP_NAME,
+	PROP_USE,
+	PROP_NICK,
+	PROP_USERNAME,
+	PROP_REALNAME,
+	PROP_USERINFO,
+	PROP_AUTOJOIN,
+	LAST_PROP
+};
+
 struct _AccountPrivate
 {
 	IRCHandle *handle;
@@ -61,6 +73,15 @@ static guint account_signals[LAST_SIGNAL] = { 0 };
 static void account_class_init(AccountClass *klass);
 static void account_init(Account *account);
 static void account_finalize(GObject *object);
+
+static void account_get_property(GObject  *object,
+				 guint param_id,
+                                 GValue *value,
+                                 GParamSpec *pspec);
+static void account_set_property(GObject *object,
+				 guint param_id,
+				 const GValue *value,
+				 GParamSpec *pspec);
 
 static void account_handle_disconnected_cb(GObject *object, Account *account);
 static void account_handle_terminated_cb(GObject *object, Account *account);
@@ -99,7 +120,53 @@ account_class_init (AccountClass *klass)
         parent_class = g_type_class_peek_parent(klass);
         
         object_class->finalize = account_finalize;
-	
+	object_class->set_property = account_set_property;
+	object_class->get_property = account_get_property;
+
+	g_object_class_install_property(object_class,
+					PROP_NAME,
+					g_param_spec_string("name",
+							    _("Name"),
+							    _("Account name"),
+							    NULL, G_PARAM_READWRITE));
+	g_object_class_install_property(object_class,
+					PROP_NICK,
+					g_param_spec_string("nick",
+							    _("Nick"),
+							    _("Nickname at first"),
+							    NULL, G_PARAM_READWRITE));
+	g_object_class_install_property(object_class,
+					PROP_USE,
+					g_param_spec_boolean("use",
+							     _("Use account"),
+							     _("Whether or not to connect this account by default"),
+							     TRUE, G_PARAM_READWRITE));
+	g_object_class_install_property(object_class,
+					PROP_USERNAME,
+					g_param_spec_string("username",
+							    _("Username"),
+							    _("Username"),
+							    NULL, G_PARAM_READWRITE));
+	g_object_class_install_property(object_class,
+					PROP_REALNAME,
+					g_param_spec_string("realname",
+							    _("Realname"),
+							    _("Realname"),
+							    NULL, G_PARAM_READWRITE));
+	g_object_class_install_property(object_class,
+					PROP_USERINFO,
+					g_param_spec_string("userinfo",
+							    _("User information"),
+							    _("User information used with CTCP USERINFO"),
+							    NULL, G_PARAM_READWRITE));
+	g_object_class_install_property(object_class,
+					PROP_AUTOJOIN,
+					g_param_spec_string("autojoin",
+							    _("Autojoin channels"),
+							    _("Channels which are joined automatically"),
+							    NULL, G_PARAM_READWRITE));
+
+
 	account_signals[CONNECTED] = g_signal_new("connected",
 						  G_OBJECT_CLASS_TYPE(object_class),
 						  G_SIGNAL_RUN_FIRST,
@@ -168,11 +235,8 @@ account_finalize (GObject *object)
 
         account = ACCOUNT(object);
 	priv = account->priv;
-
-	if(priv->handle) {
-		g_object_unref(priv->handle);
-		priv->handle = NULL;
-	}
+	
+	G_OBJECT_UNREF_UNLESS_NULL(priv->handle);
 
 	G_FREE_UNLESS_NULL(account->name);
 	G_FREE_UNLESS_NULL(account->nick);
@@ -203,16 +267,86 @@ account_finalize (GObject *object)
 		account->channel_list = NULL;
 	}
 
-	if(account->console_buffer) {
-		g_object_unref(account->console_buffer);
-	}
+	G_OBJECT_UNREF_UNLESS_NULL(account->console_buffer);
 
         if (G_OBJECT_CLASS(parent_class)->finalize)
                 (* G_OBJECT_CLASS(parent_class)->finalize) (object);
 
 	g_free(account->priv);
 }
+static void account_set_property(GObject *object,
+				 guint param_id,
+				 const GValue *value,
+				 GParamSpec *pspec)
+{
+	Account *account;
 
+	account = ACCOUNT(object);
+
+	switch(param_id) {
+	case PROP_NAME:
+		account_set_name(account, g_value_get_string(value));
+		break;
+	case PROP_NICK:
+		account_set_nick(account, g_value_get_string(value));
+		break;
+	case PROP_USE:
+		account->use = g_value_get_boolean(value);
+		break;
+	case PROP_USERNAME:
+		account_set_username(account, g_value_get_string(value));
+		break;
+	case PROP_REALNAME:
+		account_set_realname(account, g_value_get_string(value));
+		break;
+	case PROP_USERINFO:
+		account_set_userinfo(account, g_value_get_string(value));
+		break;
+	case PROP_AUTOJOIN:
+		account_set_autojoin(account, g_value_get_string(value));
+		break;
+	default:
+		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, param_id, pspec);
+		break;
+	}
+
+}
+static void account_get_property(GObject  *object,
+				 guint param_id,
+                                 GValue *value,
+                                 GParamSpec *pspec)
+{
+	Account *account;
+
+	account = ACCOUNT(object);
+
+	switch(param_id) {
+	case PROP_NAME:
+		g_value_set_string(value, account_get_name(account));
+		break;
+	case PROP_NICK:
+		g_value_set_string(value, account_get_nick(account));
+		break;
+	case PROP_USE:
+		g_value_set_boolean(value, account->use);
+		break;
+	case PROP_USERNAME:
+		g_value_set_string(value, account_get_username(account));
+		break;
+	case PROP_REALNAME:
+		g_value_set_string(value, account_get_realname(account));
+		break;
+	case PROP_USERINFO:
+		g_value_set_string(value, account_get_userinfo(account));
+		break;
+	case PROP_AUTOJOIN:
+		g_value_set_string(value, account_get_autojoin(account));
+		break;
+	default:
+		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, param_id, pspec);
+		break;
+	}
+}
 Account*
 account_new (void)
 {
@@ -233,46 +367,37 @@ ACCOUNT_ACCESSOR_STRING(userinfo);
 ACCOUNT_ACCESSOR_STRING(autojoin);
 
 void
-account_set(Account *account,
-	    gboolean use,
-	    const gchar *name,
-	    const gchar *nick,
-	    const gchar *username,
-	    const gchar *realname,
-	    const gchar *userinfo,
-	    const gchar *autojoin)
-{
-        g_return_if_fail(account != NULL);
-        g_return_if_fail(IS_ACCOUNT(account));
-
-	account->use = use;
-	account_set_name(account, name);
-	account_set_nick(account, nick);
-	account_set_username(account, username);
-	account_set_realname(account, realname);
-	account_set_userinfo(account, userinfo);
-	account_set_autojoin(account, autojoin);
-}
-void
 account_print(Account *account)
 {
 	GSList *cur;
 	Server *server;
+	GParamSpec **param_specs;
+	guint n_properties;
+	gint i;
+	const gchar *param_name;
+	gchar *value_str;
+	GValue value = { 0, };
 
         g_return_if_fail(account != NULL);
         g_return_if_fail(IS_ACCOUNT(account));
 
-	g_print("ACCOUNT[%s] {\n", account_get_name(account));
-	g_print(" use: %s\n", account->use ? "TRUE" : "FALSE");
-	g_print(" nick: %s\n", account_get_nick(account));
-	g_print(" username: %s\n", account_get_username(account));
-	g_print(" realname: %s\n", account_get_realname(account));
-	g_print(" userinfo: %s\n", account_get_userinfo(account));
-	g_print(" autojoin: %s\n", account_get_autojoin(account));
-	
+	param_specs = g_object_class_list_properties(G_OBJECT_CLASS(ACCOUNT_GET_CLASS(account)),
+						     &n_properties);
+	g_print("Account { ");
+
+	g_value_init(&value, G_TYPE_STRING);
+	for(i = 0; i < n_properties; i++) {
+		param_name = g_param_spec_get_name(param_specs[i]);
+		g_object_get_property(G_OBJECT(account), param_name, &value);
+		value_str = g_strdup_value_contents(&value);
+		g_print("%s = %s; ", param_name, value_str);
+		g_free(value_str);
+	}
+	g_print("\n");
+
 	for(cur = account->server_list; cur != NULL; cur = cur->next) {
 		server = (Server *) cur->data;
-		g_print(" server: hostname => %s, port => %d, password => %s, use => %d\n",
+		g_print("  Server { hostname = '%s', port = %d, password = '%s', use = %d } \n",
 			server->hostname, server->port, server->password, server->use);
 	}
 	g_print("}\n");
