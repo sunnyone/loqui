@@ -21,7 +21,6 @@
 
 #include "loqui_app.h"
 #include "channel_tree.h"
-#include "connection.h"
 #include "utils.h"
 #include "nick_list.h"
 #include "account_manager.h"

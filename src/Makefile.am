@@ -11,7 +11,6 @@ loqui_SOURCES = \
 	loqui_menu.c loqui_menu.h \
 	account_manager.c account_manager.h \
 	loqui_app.c loqui_app.h \
-	connection.c connection.h \
 	account.c account.h \
 	codeconv.c codeconv.h \
 	channel_tree.c channel_tree.h \
