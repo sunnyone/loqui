@@ -90,7 +90,7 @@ GType        loqui_app_get_type             (void) G_GNUC_CONST;
 
 GtkWidget* loqui_app_new(AccountManager *manager);
 
-void loqui_app_grab_focus_if_key_unused(LoquiApp *app, const gchar *class_name, guint modifiers, guint keyval);
+void loqui_app_grab_focus_if_key_unused(LoquiApp *app, const gchar *class_name, GdkEventKey *event);
 void loqui_app_update_info(LoquiApp *app, 
 			   gboolean is_account_changed, LoquiAccount *account,
 			   gboolean is_channel_changed, LoquiChannel *channel);

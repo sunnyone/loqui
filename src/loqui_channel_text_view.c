@@ -226,9 +226,7 @@ loqui_channel_text_view_key_press_event(GtkWidget *widget,
 					GdkEventKey *event)
 {
 	loqui_app_grab_focus_if_key_unused(LOQUI_CHANNEL_TEXT_VIEW(widget)->priv->app,
-					   "GtkTextView",
-					   event->state,
-					   event->keyval);
+					   "GtkTextView", event);
 
 	if (* GTK_WIDGET_CLASS(parent_class)->key_press_event)
 		return (* GTK_WIDGET_CLASS(parent_class)->key_press_event)(widget, event);

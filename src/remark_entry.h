@@ -41,7 +41,9 @@ typedef struct _RemarkEntryPrivate     RemarkEntryPrivate;
 struct _RemarkEntry
 {
         GtkHBox parent;
-        
+
+        GtkWidget *entry;
+
         RemarkEntryPrivate *priv;
 };
 

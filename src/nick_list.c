@@ -400,9 +400,7 @@ nick_list_key_press_event(GtkWidget *widget,
 			  GdkEventKey *event)
 {
 	loqui_app_grab_focus_if_key_unused(NICK_LIST(widget)->priv->app,
-					   "GtkTreeView",
-					   event->state,
-					   event->keyval);
+					   "GtkTreeView", event);
 
 	if (* GTK_WIDGET_CLASS(parent_class)->key_press_event)
 		return (* GTK_WIDGET_CLASS(parent_class)->key_press_event)(widget, event);

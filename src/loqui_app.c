@@ -300,11 +300,12 @@ loqui_app_channel_text_view_notify_is_scroll_common_buffer_cb(LoquiChannelTextVi
 						   loqui_channel_text_view_get_is_scroll(chview));
 }
 void
-loqui_app_grab_focus_if_key_unused(LoquiApp *app, const gchar *class_name, guint modifiers, guint keyval)
+loqui_app_grab_focus_if_key_unused(LoquiApp *app, const gchar *class_name, GdkEventKey *event)
 {
 	gboolean found = FALSE;
+	guint modifiers = event->state;
 
-	switch (keyval) {
+	switch (event->keyval) {
 	case GDK_Shift_L:
 	case GDK_Shift_R:
 	case GDK_Control_L:
@@ -318,16 +319,18 @@ loqui_app_grab_focus_if_key_unused(LoquiApp *app, const gchar *class_name, guint
 	case GDK_Super_L:
 	case GDK_Super_R:
 	case GDK_Hyper_L:
-	case GDK_Hyper_R: /* FIXME: modifiers, enough? */
+	case GDK_Hyper_R: /* FIXME: modifiers. enough? */
 	case GDK_ISO_Left_Tab: /* FIXME: if this doesn't exist, shift + tab does not work... */
 	case GDK_Tab:
 		found = TRUE;
 		break;
 	default:
-		found = gtkutils_bindings_has_matched_entry(class_name, modifiers, keyval);
+		found = gtkutils_bindings_has_matched_entry(class_name, modifiers, event->keyval);
 	}
-	if (!found)
+	if (!found) {
 		gtk_widget_grab_focus(app->remark_entry);
+		gtk_widget_event(REMARK_ENTRY(app->remark_entry)->entry, (GdkEvent *) event);
+	}
 }
 void
 loqui_app_update_info(LoquiApp *app, 

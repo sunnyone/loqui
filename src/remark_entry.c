@@ -55,7 +55,6 @@ struct _RemarkEntryPrivate
 	GtkToggleAction *toggle_command_action;
 	GtkWidget *toggle_command;
 
-	GtkWidget *entry;
 	GtkWidget *hbox_text;
 	GtkWidget *textview;
 	GtkWidget *button_ok;
@@ -239,8 +238,8 @@ remark_entry_grab_focus(GtkWidget *widget)
 	if(remark_entry_get_multiline(entry))
 		gtk_widget_grab_focus(priv->textview);
 	else {
-		gtk_widget_grab_focus(priv->entry);
-		gtk_editable_select_region(GTK_EDITABLE(priv->entry), -1, -1);
+		gtk_widget_grab_focus(entry->entry);
+		gtk_editable_select_region(GTK_EDITABLE(entry->entry), -1, -1);
 	}
 }
 
@@ -282,17 +281,17 @@ remark_entry_new(LoquiApp *app, GtkToggleAction *toggle_command_action)
 	priv->vbox = gtk_vbox_new(FALSE, 0);
 	gtk_box_pack_start(GTK_BOX(hbox), priv->vbox, TRUE, TRUE, 0);
 	
-	priv->entry = gtk_entry_new();
-	g_signal_connect(G_OBJECT(priv->entry), "activate",
+	remark_entry->entry = gtk_entry_new();
+	g_signal_connect(G_OBJECT(remark_entry->entry), "activate",
 			 G_CALLBACK(remark_entry_activate_cb), remark_entry);
-	g_signal_connect(G_OBJECT(priv->entry), "key_press_event",
+	g_signal_connect(G_OBJECT(remark_entry->entry), "key_press_event",
 			 G_CALLBACK(remark_entry_entry_key_press_event_cb), remark_entry);
-	g_signal_connect(G_OBJECT(priv->entry), "show",
+	g_signal_connect(G_OBJECT(remark_entry->entry), "show",
 			 G_CALLBACK(remark_entry_entry_text_shown_cb), remark_entry);
-	g_signal_connect(G_OBJECT(priv->entry), "changed",
+	g_signal_connect(G_OBJECT(remark_entry->entry), "changed",
 			 G_CALLBACK(remark_entry_entry_changed_cb), remark_entry);
 			 
-	gtk_box_pack_start(GTK_BOX(priv->vbox), priv->entry, TRUE, TRUE, 0);
+	gtk_box_pack_start(GTK_BOX(priv->vbox), remark_entry->entry, TRUE, TRUE, 0);
 
 	priv->hbox_text = gtk_hbox_new(FALSE, 0);
 	g_signal_connect(G_OBJECT(priv->hbox_text), "show",
@@ -365,7 +364,7 @@ remark_entry_get_text(RemarkEntry *entry)
 		gtk_text_buffer_get_end_iter(buffer, &end);
 		str = gtk_text_buffer_get_text(buffer, &start, &end, TRUE);
 	} else {
-		str = gtk_entry_get_text(GTK_ENTRY(priv->entry));
+		str = gtk_entry_get_text(GTK_ENTRY(entry->entry));
 	}
 
 	return str;
@@ -380,7 +379,7 @@ remark_entry_clear_text(RemarkEntry *entry)
 
 	priv = entry->priv;
 
-	gtk_entry_set_text(GTK_ENTRY(priv->entry), "");
+	gtk_entry_set_text(GTK_ENTRY(entry->entry), "");
 	gtk_text_buffer_set_text(gtk_text_view_get_buffer(GTK_TEXT_VIEW(priv->textview)), "", 0);
 }
 
@@ -404,17 +403,17 @@ remark_entry_set_multiline(RemarkEntry *entry, gboolean is_multiline)
 
 	buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(priv->textview));
 	if(is_multiline) {
-		str = gtk_entry_get_text(GTK_ENTRY(priv->entry));
+		str = gtk_entry_get_text(GTK_ENTRY(entry->entry));
 		gtk_text_buffer_set_text(buffer, str, -1);
-		gtk_widget_hide(priv->entry);
+		gtk_widget_hide(entry->entry);
 		gtk_widget_show_all(priv->hbox_text);
 	} else {
 		gtk_text_buffer_get_start_iter(buffer, &start);
 		gtk_text_buffer_get_end_iter(buffer, &end);
 		str = gtk_text_buffer_get_text(buffer, &start, &end, TRUE);
-		gtk_entry_set_text(GTK_ENTRY(priv->entry), str);
+		gtk_entry_set_text(GTK_ENTRY(entry->entry), str);
 		gtk_widget_hide_all(priv->hbox_text);
-		gtk_widget_show(priv->entry);
+		gtk_widget_show(entry->entry);
 	}
 	
 	gtkutils_toggle_button_with_signal_handler_blocked(GTK_TOGGLE_BUTTON(priv->toggle_multiline),
@@ -510,11 +509,11 @@ remark_entry_call_history(RemarkEntry *entry, gint count)
 	cur = g_list_nth(priv->string_list, priv->current_index);
 	if(cur->data)
 		g_free(cur->data);
-	cur->data = g_strdup(gtk_entry_get_text(GTK_ENTRY(priv->entry)));
+	cur->data = g_strdup(gtk_entry_get_text(GTK_ENTRY(entry->entry)));
 	
 	priv->current_index = dest;
 	new_str = g_list_nth_data(priv->string_list, dest);
-	gtk_entry_set_text(GTK_ENTRY(priv->entry), new_str == NULL ? "" : new_str);
+	gtk_entry_set_text(GTK_ENTRY(entry->entry), new_str == NULL ? "" : new_str);
 }
 static void
 remark_entry_scroll_channel_textview(RemarkEntry *entry, gint pages)
@@ -677,7 +676,7 @@ remark_entry_entry_changed_cb(GtkEntry *widget, RemarkEntry *remark_entry)
 	priv = remark_entry->priv;
 	
 	if (prefs_general.auto_command_mode) {
-		tmp = gtk_entry_get_text(GTK_ENTRY(priv->entry));
+		tmp = gtk_entry_get_text(GTK_ENTRY(remark_entry->entry));
 		if (strncmp(tmp, prefs_general.command_prefix, strlen(prefs_general.command_prefix)) == 0)
 			remark_entry_set_command_mode(remark_entry, TRUE);
 		else
@@ -697,7 +696,7 @@ remark_entry_entry_text_shown_cb(GtkWidget *widget, gpointer data)
 	priv = remark_entry->priv;
 
 	if(remark_entry_get_multiline(remark_entry))
-		gtk_widget_hide(priv->entry);
+		gtk_widget_hide(remark_entry->entry);
 	else
 		gtk_widget_hide_all(priv->hbox_text);
 }
