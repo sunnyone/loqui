@@ -24,7 +24,7 @@
 #include "utils.h"
 #include "loqui_user.h"
 #include "loqui_sender.h"
-#include "loqui-general-pref.h"
+#include "loqui-pref.h"
 #include "loqui-general-pref-keys.h"
 #include "loqui-general-pref-default.h"
 
@@ -412,10 +412,11 @@ loqui_account_closed_real(LoquiAccount *account)
 
 	priv = account->priv;
 
-	LOQUI_GENERAL_PREF_SET_BOOLEAN_DEFAULT(LOQUI_GENERAL_PREF_GROUP_ACCOUNT,
-					       LOQUI_GENERAL_PREF_KEY_ACCOUNT_AUTO_RECONNECT,
-					       LOQUI_GENERAL_PREF_DEFAULT_ACCOUNT_AUTO_RECONNECT);
-	if (LOQUI_GENERAL_PREF_GET_BOOLEAN(LOQUI_GENERAL_PREF_GROUP_ACCOUNT, LOQUI_GENERAL_PREF_KEY_ACCOUNT_AUTO_RECONNECT)) {
+	if (loqui_pref_set_default_and_get_boolean(loqui_get_general_pref(),
+						   LOQUI_GENERAL_PREF_GROUP_ACCOUNT,
+						   LOQUI_GENERAL_PREF_KEY_ACCOUNT_AUTO_RECONNECT,
+						   LOQUI_GENERAL_PREF_DEFAULT_ACCOUNT_AUTO_RECONNECT,
+						   NULL)) {
 		if (account->reconnect_try_count <= LOQUI_ACCOUNT_RECONNECT_COUNT_MAX) {
 			loqui_account_information(LOQUI_ACCOUNT(account), _("Waiting to reconnect..."));
 			loqui_account_set_is_pending_reconnecting(account, TRUE);
