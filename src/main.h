@@ -20,6 +20,9 @@
 #ifndef __MAIN_H__
 #define __MAIN_H__
 
+#define FRESH_COLOR "red"
+#define NONFRESH_COLOR "black"
+
 extern int debug_mode;
 extern int show_msg_mode;
 

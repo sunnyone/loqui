@@ -20,8 +20,12 @@
 #include "config.h"
 
 #include "loqui_channelbar.h"
+#include "buffer_menu.h"
+#include "account_manager.h"
+#include "main.h"
+#include "gtkutils.h"
 
-struct _LoquiChannelBarPrivate
+struct _LoquiChannelbarPrivate
 {
 	GtkWidget *option_menu;
 	GtkWidget *entry_topic;
@@ -31,10 +35,13 @@ struct _LoquiChannelBarPrivate
 static GtkHBoxClass *parent_class = NULL;
 #define PARENT_TYPE GTK_TYPE_HBOX
 
-static void loqui_channelbar_class_init(LoquiChannelBarClass *klass);
-static void loqui_channelbar_init(LoquiChannelBar *channelbar);
+static void loqui_channelbar_class_init(LoquiChannelbarClass *klass);
+static void loqui_channelbar_init(LoquiChannelbar *channelbar);
 static void loqui_channelbar_finalize(GObject *object);
 static void loqui_channelbar_destroy(GtkObject *object);
+
+static void loqui_channelbar_option_changed_cb(GtkWidget *widget, gpointer data);
+static void loqui_channelbar_entry_topic_activated_cb(GtkWidget *widget, gpointer data);
 
 GType
 loqui_channelbar_get_type(void)
@@ -43,19 +50,19 @@ loqui_channelbar_get_type(void)
 	if (type == 0) {
 		static const GTypeInfo our_info =
 			{
-				sizeof(LoquiChannelBarClass),
+				sizeof(LoquiChannelbarClass),
 				NULL,           /* base_init */
 				NULL,           /* base_finalize */
 				(GClassInitFunc) loqui_channelbar_class_init,
 				NULL,           /* class_finalize */
 				NULL,           /* class_data */
-				sizeof(LoquiChannelBar),
+				sizeof(LoquiChannelbar),
 				0,              /* n_preallocs */
 				(GInstanceInitFunc) loqui_channelbar_init
 			};
 		
 		type = g_type_register_static(PARENT_TYPE,
-					      "LoquiChannelBar",
+					      "LoquiChannelbar",
 					      &our_info,
 					      0);
 	}
@@ -63,7 +70,7 @@ loqui_channelbar_get_type(void)
 	return type;
 }
 static void
-loqui_channelbar_class_init (LoquiChannelBarClass *klass)
+loqui_channelbar_class_init (LoquiChannelbarClass *klass)
 {
         GObjectClass *object_class = G_OBJECT_CLASS(klass);
         GtkObjectClass *gtk_object_class = GTK_OBJECT_CLASS(klass);
@@ -74,18 +81,18 @@ loqui_channelbar_class_init (LoquiChannelBarClass *klass)
         gtk_object_class->destroy = loqui_channelbar_destroy;
 }
 static void 
-loqui_channelbar_init (LoquiChannelBar *channelbar)
+loqui_channelbar_init (LoquiChannelbar *channelbar)
 {
-	LoquiChannelBarPrivate *priv;
+	LoquiChannelbarPrivate *priv;
 
-	priv = g_new0(LoquiChannelBarPrivate, 1);
+	priv = g_new0(LoquiChannelbarPrivate, 1);
 
 	channelbar->priv = priv;
 }
 static void 
 loqui_channelbar_finalize (GObject *object)
 {
-	LoquiChannelBar *channelbar;
+	LoquiChannelbar *channelbar;
 
         g_return_if_fail(object != NULL);
         g_return_if_fail(LOQUI_IS_CHANNELBAR(object));
@@ -100,7 +107,7 @@ loqui_channelbar_finalize (GObject *object)
 static void 
 loqui_channelbar_destroy (GtkObject *object)
 {
-        LoquiChannelBar *channelbar;
+        LoquiChannelbar *channelbar;
 
         g_return_if_fail(object != NULL);
         g_return_if_fail(LOQUI_IS_CHANNELBAR(object));
@@ -110,22 +117,266 @@ loqui_channelbar_destroy (GtkObject *object)
         if (GTK_OBJECT_CLASS(parent_class)->destroy)
                 (* GTK_OBJECT_CLASS(parent_class)->destroy) (object);
 }
+static void
+loqui_channelbar_entry_topic_activated_cb(GtkWidget *widget, gpointer data)
+{
+	LoquiChannelbar *channelbar;
+	LoquiChannelbarPrivate *priv;
+	Channel *channel;
+	const gchar *str;
 
+	g_return_if_fail(data != NULL);
+	
+	channelbar = LOQUI_CHANNELBAR(data);
+	priv = channelbar->priv;
+	
+	channel = account_manager_get_current_channel(account_manager_get());
+	str = gtk_entry_get_text(GTK_ENTRY(priv->entry_topic));
+	account_set_topic(channel->account, channel_get_name(channel), str);
+}
+static void
+loqui_channelbar_option_changed_cb(GtkWidget *widget, gpointer data)
+{
+	LoquiChannelbar *channelbar;
+	LoquiChannelbarPrivate *priv;
+	GtkWidget *menu;
+	GtkWidget *menuitem;
+	Channel *channel;
+	Account *account;
+	gint i;
+
+	g_return_if_fail(data != NULL);
+	
+	channelbar = LOQUI_CHANNELBAR(data);
+	priv = channelbar->priv;
+
+	i = gtk_option_menu_get_history(GTK_OPTION_MENU(priv->option_menu));
+	menu = gtk_option_menu_get_menu(GTK_OPTION_MENU(priv->option_menu));
+	menuitem = GTK_WIDGET(g_list_nth(GTK_MENU_SHELL(menu)->children, i)->data);
+	if(!menuitem)
+		return;
+	channel = g_object_get_data(G_OBJECT(menuitem), "channel");
+	if(channel) {
+		account_manager_set_current_channel(account_manager_get(), channel);
+		return;
+	}
+	account = g_object_get_data(G_OBJECT(menuitem), "account");
+	if(account) {
+		account_manager_set_current_account(account_manager_get(), account);
+		return;
+	}	
+}
 GtkWidget*
 loqui_channelbar_new (void)
 {
-        LoquiChannelBar *channelbar;
-	LoquiChannelBarPrivate *priv;
+        LoquiChannelbar *channelbar;
+	LoquiChannelbarPrivate *priv;
+	GtkWidget *image;
+	GtkWidget *menu;
 
 	channelbar = g_object_new(loqui_channelbar_get_type(), NULL);
 	
 	priv = channelbar->priv;
 
 	priv->option_menu = gtk_option_menu_new();
+
+	g_signal_connect(G_OBJECT(priv->option_menu), "changed",
+			 G_CALLBACK(loqui_channelbar_option_changed_cb), channelbar);
 	gtk_box_pack_start(GTK_BOX(channelbar), priv->option_menu, FALSE, FALSE, 0);
 
+	menu = gtk_menu_new();
+	gtk_option_menu_set_menu(GTK_OPTION_MENU(priv->option_menu), menu);
+
 	priv->entry_topic = gtk_entry_new();
+	g_signal_connect(G_OBJECT(priv->entry_topic), "activate",
+			 G_CALLBACK(loqui_channelbar_entry_topic_activated_cb), channelbar);
 	gtk_box_pack_start(GTK_BOX(channelbar), priv->entry_topic, TRUE, TRUE, 0);
+	gtk_widget_set_sensitive(priv->entry_topic, FALSE);
+
+	image = gtk_image_new_from_stock(GTK_STOCK_OK, GTK_ICON_SIZE_SMALL_TOOLBAR);
+	priv->button_ok = gtk_button_new();
+	g_signal_connect(G_OBJECT(priv->button_ok), "clicked",
+			 G_CALLBACK(loqui_channelbar_entry_topic_activated_cb), channelbar);
+	gtk_container_add(GTK_CONTAINER(priv->button_ok), image);
+	gtk_box_pack_start(GTK_BOX(channelbar), priv->button_ok, FALSE, FALSE, 0);
+	gtk_widget_set_sensitive(priv->button_ok, FALSE);
 
 	return GTK_WIDGET(channelbar);
+}
+void
+loqui_channelbar_add_account(LoquiChannelbar *channelbar, Account *account)
+{
+	LoquiChannelbarPrivate *priv;
+	GtkWidget *menuitem;
+	GtkMenuShell *menu;
+
+	g_return_if_fail(channelbar != NULL);
+        g_return_if_fail(LOQUI_IS_CHANNELBAR(channelbar));
+
+	priv = channelbar->priv;
+
+	menu = GTK_MENU_SHELL(gtk_option_menu_get_menu(GTK_OPTION_MENU(priv->option_menu)));
+	menuitem = buffer_menu_add_account(menu, account);
+}
+void
+loqui_channelbar_update_account(LoquiChannelbar *channelbar, Account *account)
+{
+	LoquiChannelbarPrivate *priv;
+	GtkMenuShell *menu;
+	g_return_if_fail(channelbar != NULL);
+        g_return_if_fail(LOQUI_IS_CHANNELBAR(channelbar));
+
+	priv = channelbar->priv;
+
+	menu = GTK_MENU_SHELL(gtk_option_menu_get_menu(GTK_OPTION_MENU(priv->option_menu)));
+	buffer_menu_update_account(menu, account);
+}
+
+void
+loqui_channelbar_remove_account(LoquiChannelbar *channelbar, Account *account)
+{
+	LoquiChannelbarPrivate *priv;
+	GtkMenuShell *menu;
+
+	g_return_if_fail(channelbar != NULL);
+        g_return_if_fail(LOQUI_IS_CHANNELBAR(channelbar));
+
+	priv = channelbar->priv;
+
+	menu = GTK_MENU_SHELL(gtk_option_menu_get_menu(GTK_OPTION_MENU(priv->option_menu)));
+	buffer_menu_remove_account(menu, account);
+}
+void
+loqui_channelbar_add_channel(LoquiChannelbar *channelbar, Channel *channel)
+{
+	LoquiChannelbarPrivate *priv;
+	GtkWidget *menuitem;
+	GtkMenuShell *menu;
+
+	g_return_if_fail(channelbar != NULL);
+        g_return_if_fail(LOQUI_IS_CHANNELBAR(channelbar));
+
+	priv = channelbar->priv;
+	menu = GTK_MENU_SHELL(gtk_option_menu_get_menu(GTK_OPTION_MENU(priv->option_menu)));
+	menuitem = buffer_menu_add_channel(menu, channel);
+}
+void
+loqui_channelbar_remove_channel(LoquiChannelbar *channelbar, Channel *channel)
+{
+	LoquiChannelbarPrivate *priv;
+	GtkMenuShell *menu;
+
+	g_return_if_fail(channelbar != NULL);
+        g_return_if_fail(LOQUI_IS_CHANNELBAR(channelbar));
+
+	priv = channelbar->priv;
+
+	menu = GTK_MENU_SHELL(gtk_option_menu_get_menu(GTK_OPTION_MENU(priv->option_menu)));
+	buffer_menu_remove_channel(menu, channel);
+}
+void
+loqui_channelbar_update_channel(LoquiChannelbar *channelbar, Channel *channel)
+{
+	LoquiChannelbarPrivate *priv;
+	GtkMenuShell *menu;
+	Channel *tmp_ch;
+	GList *children;
+	GtkWidget *menuitem;
+	GtkWidget *label;
+
+	g_return_if_fail(channelbar != NULL);
+        g_return_if_fail(LOQUI_IS_CHANNELBAR(channelbar));
+
+	priv = channelbar->priv;
+
+	menu = GTK_MENU_SHELL(gtk_option_menu_get_menu(GTK_OPTION_MENU(priv->option_menu)));
+
+	/* for current menuitem and others. FIXME: quick hack */
+	menuitem = GTK_OPTION_MENU(priv->option_menu)->menu_item;
+
+	tmp_ch = CHANNEL(g_object_get_data(G_OBJECT(menuitem), "channel"));
+	if(tmp_ch == channel) {
+		children = gtk_container_get_children(GTK_CONTAINER(priv->option_menu));
+
+		if(children == NULL)
+			return;
+
+		label = children->data;
+
+		gtkutils_set_label_color(GTK_LABEL(label), 
+					 channel_get_updated(channel) ?
+					 FRESH_COLOR : NONFRESH_COLOR);
+
+	} else {
+		buffer_menu_update_channel(menu, channel);
+	}
+}
+void
+loqui_channelbar_set_current_channel(LoquiChannelbar *channelbar, Channel *channel)
+{
+	LoquiChannelbarPrivate *priv;
+	GtkMenuShell *menu;
+	GtkWidget *menuitem;
+	const gchar *topic;
+	gint i = 0;
+	Channel *tmp_ch;
+	GList *cur;
+
+	g_return_if_fail(channelbar != NULL);
+        g_return_if_fail(LOQUI_IS_CHANNELBAR(channelbar));
+
+	priv = channelbar->priv;
+
+	menu = GTK_MENU_SHELL(gtk_option_menu_get_menu(GTK_OPTION_MENU(priv->option_menu)));
+
+	for(cur = menu->children; cur != NULL; cur = cur->next) {
+		menuitem = GTK_WIDGET(cur->data);
+		tmp_ch = g_object_get_data(G_OBJECT(menuitem), "channel");
+		if(tmp_ch == channel)
+			break;
+		i++;
+	}
+	gtk_option_menu_set_history(GTK_OPTION_MENU(priv->option_menu), i);
+
+	if(channel_is_private_talk(channel)) {
+		gtk_entry_set_text(GTK_ENTRY(priv->entry_topic), "");
+		gtk_widget_set_sensitive(priv->entry_topic, FALSE);
+		gtk_widget_set_sensitive(priv->button_ok, FALSE);
+	} else {
+		topic = channel_get_topic(channel);
+		gtk_entry_set_text(GTK_ENTRY(priv->entry_topic), topic ? topic : "");
+		gtk_widget_set_sensitive(priv->entry_topic, TRUE);
+		gtk_widget_set_sensitive(priv->button_ok, TRUE);
+	}
+}
+
+void
+loqui_channelbar_set_current_account(LoquiChannelbar *channelbar, Account *account)
+{
+	LoquiChannelbarPrivate *priv;
+	GtkMenuShell *menu;
+	GtkWidget *menuitem;
+	gint i = 0;
+	Account *tmp_ac;
+	GList *cur;
+
+	g_return_if_fail(channelbar != NULL);
+        g_return_if_fail(LOQUI_IS_CHANNELBAR(channelbar));
+
+	priv = channelbar->priv;
+
+	menu = GTK_MENU_SHELL(gtk_option_menu_get_menu(GTK_OPTION_MENU(priv->option_menu)));
+	
+	for(cur = menu->children; cur != NULL; cur = cur->next) {
+		menuitem = GTK_WIDGET(cur->data);
+		tmp_ac = g_object_get_data(G_OBJECT(menuitem), "account");
+		if(tmp_ac == account)
+			break;
+		i++;
+	}
+	gtk_option_menu_set_history(GTK_OPTION_MENU(priv->option_menu), i);
+
+	gtk_entry_set_text(GTK_ENTRY(priv->entry_topic), "");
+	gtk_widget_set_sensitive(priv->entry_topic, FALSE);
+	gtk_widget_set_sensitive(priv->button_ok, FALSE);
 }

@@ -23,9 +23,7 @@
 #include "config.h"
 #include "buffer_menu.h"
 #include "gtkutils.h"
-
-#define FRESH_COLOR "red"
-#define NONFRESH_COLOR "black"
+#include "main.h"
 
 GtkWidget *
 buffer_menu_add_account(GtkMenuShell *menu, Account *account)
@@ -33,6 +31,11 @@ buffer_menu_add_account(GtkMenuShell *menu, Account *account)
 	GtkWidget *image;
 	GtkWidget *menuitem;
 	
+	g_return_val_if_fail(menu != NULL, NULL);
+	g_return_val_if_fail(GTK_IS_MENU_SHELL(menu), NULL);
+	g_return_val_if_fail(account != NULL, NULL);
+	g_return_val_if_fail(IS_ACCOUNT(account), NULL);
+
 	menuitem = gtk_image_menu_item_new_with_label(account_get_name(account));
 	image = gtk_image_new_from_stock("loqui-console", GTK_ICON_SIZE_MENU);
 	gtk_widget_show(image);
@@ -54,12 +57,18 @@ buffer_menu_update_account(GtkMenuShell *menu, Account *account)
 	GList *cur;
 	GList *children;
 
+	g_return_if_fail(menu != NULL);
+	g_return_if_fail(GTK_IS_MENU_SHELL(menu));
+	g_return_if_fail(account != NULL);
+	g_return_if_fail(IS_ACCOUNT(account));
+
 	for(cur = menu->children; cur != NULL; cur = cur->next) {
 		menuitem = GTK_WIDGET(cur->data);
 		tmp_ac = g_object_get_data(G_OBJECT(menuitem), "account");
 		if(tmp_ac != account)
 			continue;
 		children = gtk_container_get_children(GTK_CONTAINER(menuitem));
+
 		/* FIXME: dirty way */
 		gtk_label_set_text(GTK_LABEL(children->data), account_get_name(account));
 	}
@@ -72,6 +81,11 @@ buffer_menu_remove_account(GtkMenuShell *menu, Account *account)
 	GList *cur;
 	GList *removing_items = NULL;
 	
+	g_return_if_fail(menu != NULL);
+	g_return_if_fail(GTK_IS_MENU_SHELL(menu));
+	g_return_if_fail(account != NULL);
+	g_return_if_fail(IS_ACCOUNT(account));
+
 	for(cur = menu->children; cur != NULL; cur = cur->next) {
 		tmp_ac = ACCOUNT(g_object_get_data(G_OBJECT(cur->data), "account"));
 		if(tmp_ac == account)
@@ -92,6 +106,11 @@ buffer_menu_add_channel(GtkMenuShell *menu, Channel *channel)
 	GList *cur;
 	GList *children;
 	guint i;
+
+	g_return_val_if_fail(menu != NULL, NULL);
+	g_return_val_if_fail(GTK_IS_MENU_SHELL(menu), NULL);
+	g_return_val_if_fail(channel != NULL, NULL);
+	g_return_val_if_fail(IS_CHANNEL(channel), NULL);
 
 	account = channel->account;
 	children = menu->children;
@@ -123,21 +142,29 @@ buffer_menu_update_channel(GtkMenuShell *menu, Channel *channel)
 	GList *cur;
 	GList *children;
 	GtkWidget *label;
-	
+
+	g_return_if_fail(menu != NULL);
+	g_return_if_fail(GTK_IS_MENU_SHELL(menu));
+	g_return_if_fail(channel != NULL);
+	g_return_if_fail(IS_CHANNEL(channel));
+
 	for(cur = menu->children; cur != NULL; cur = cur->next) {
 		menuitem = GTK_WIDGET(cur->data);
 		tmp_ch = g_object_get_data(G_OBJECT(menuitem), "channel");
 		if(tmp_ch != channel)
 			continue;
+
 		children = gtk_container_get_children(GTK_CONTAINER(menuitem));
 
-		/* FIXME: dirty way */
+		/* FIXME: though this should not happen, it DOES. */
+		if(children == NULL)
+			continue;
+
 		label = children->data;
 
-		if(channel_get_updated(channel))
-			gtkutils_set_label_color(GTK_LABEL(label), FRESH_COLOR);
-		else
-			gtkutils_set_label_color(GTK_LABEL(label), NONFRESH_COLOR);
+		gtkutils_set_label_color(GTK_LABEL(label), 
+					 channel_get_updated(channel) ?
+					 FRESH_COLOR : NONFRESH_COLOR);
 	}
 }
 
@@ -147,6 +174,11 @@ buffer_menu_remove_channel(GtkMenuShell *menu, Channel *channel)
 	Channel *tmp_ch;
 	GList *cur;
 	GList *removing_items = NULL;
+
+	g_return_if_fail(menu != NULL);
+	g_return_if_fail(GTK_IS_MENU_SHELL(menu));
+	g_return_if_fail(channel != NULL);
+	g_return_if_fail(IS_CHANNEL(channel));
 
 	for(cur = menu->children; cur != NULL; cur = cur->next) {
 		tmp_ch = CHANNEL(g_object_get_data(G_OBJECT(cur->data), "channel"));

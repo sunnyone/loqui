@@ -29,6 +29,7 @@
 #include "account_dialog.h"
 #include "intl.h"
 #include "loqui_toolbar.h"
+#include "loqui_channelbar.h"
 #include "prefs_dialog.h"
 #include "connect_dialog.h"
 
@@ -174,6 +175,7 @@ account_manager_add_account(AccountManager *manager, Account *account)
 
 	channel_tree_add_account(priv->app->channel_tree, account);
 	loqui_menu_buffers_add_account(priv->app->menu, account);
+	loqui_channelbar_add_account(LOQUI_CHANNELBAR(priv->app->channelbar), account);
 }
 void
 account_manager_remove_account(AccountManager *manager, Account *account)
@@ -189,7 +191,7 @@ account_manager_remove_account(AccountManager *manager, Account *account)
 
 	priv->account_list = g_slist_remove(priv->account_list, account);
 	channel_tree_remove_account(priv->app->channel_tree, account);
-	loqui_menu_buffers_remove_account(priv->app->menu, account);
+	loqui_channelbar_remove_account(LOQUI_CHANNELBAR(priv->app->channelbar), account);
 
 	/* FIXME: should disconnect signals? */
 	g_object_unref(account);
@@ -208,6 +210,7 @@ account_manager_update_account(AccountManager *manager, Account *account)
 	
 	channel_tree_update_account(priv->app->channel_tree, account);
 	loqui_menu_buffers_update_account(priv->app->menu, account);
+	loqui_channelbar_update_account(LOQUI_CHANNELBAR(priv->app->channelbar), account);
 }
 void
 account_manager_load_accounts(AccountManager *account_manager)
@@ -258,6 +261,8 @@ account_manager_add_channel_cb(Account *account, Channel *channel, AccountManage
 
 	channel_tree_add_channel(priv->app->channel_tree, account, channel);
 	loqui_menu_buffers_add_channel(priv->app->menu, channel);
+	loqui_channelbar_add_channel(LOQUI_CHANNELBAR(priv->app->channelbar), channel);
+
 	account_manager_set_current_channel(manager, channel);
 }
 static void
@@ -281,6 +286,7 @@ account_manager_remove_channel_cb(Account *account, Channel *channel, AccountMan
 
 	channel_tree_remove_channel(manager->priv->app->channel_tree, channel);
 	loqui_menu_buffers_remove_channel(priv->app->menu, channel);
+	loqui_channelbar_remove_channel(LOQUI_CHANNELBAR(priv->app->channelbar), channel);
 }
 static gboolean
 account_manager_update_account_info(AccountManager *manager)
@@ -373,6 +379,7 @@ account_manager_channel_updated_cb(Channel *channel, gpointer data)
 
 	channel_tree_set_updated(priv->app->channel_tree, NULL, channel);
 	loqui_menu_buffers_update_channel(priv->app->menu, channel);
+	loqui_channelbar_update_channel(LOQUI_CHANNELBAR(priv->app->channelbar), channel);
 }
 static void
 account_manager_channel_buffer_append_cb(ChannelBuffer *buffer, MessageText *msgtext, AccountManager *manager)
@@ -409,6 +416,9 @@ void account_manager_set_current_channel(AccountManager *manager, Channel *chann
 
 	if(priv->current_channel) {
 		g_signal_handlers_disconnect_by_func(priv->current_channel, account_manager_channel_changed_cb, manager);
+		g_signal_handlers_disconnect_by_func(priv->current_channel,
+						     loqui_channelbar_set_current_channel, 
+						     priv->app->channelbar);
 	}
 	if(priv->current_account) {
 		g_signal_handlers_disconnect_by_func(priv->current_account, account_manager_account_changed_cb, manager);
@@ -439,6 +449,8 @@ void account_manager_set_current_channel(AccountManager *manager, Channel *chann
 
 	g_signal_connect(G_OBJECT(channel), "topic-changed",
 			 G_CALLBACK(account_manager_channel_changed_cb), manager);
+	g_signal_connect_swapped(G_OBJECT(channel), "topic-changed",
+				 G_CALLBACK(loqui_channelbar_set_current_channel), priv->app->channelbar);
 	g_signal_connect(G_OBJECT(channel), "user-number-changed",
 			 G_CALLBACK(account_manager_channel_changed_cb), manager);
 	g_signal_connect(G_OBJECT(channel), "mode-changed",
@@ -451,6 +463,7 @@ void account_manager_set_current_channel(AccountManager *manager, Channel *chann
 	if(prefs_general.auto_switch_scrolling)
 		account_manager_set_whether_scrolling(manager, TRUE);
 
+	loqui_channelbar_set_current_channel(LOQUI_CHANNELBAR(priv->app->channelbar), channel);
 	loqui_app_set_focus(priv->app);
 }
 
@@ -501,6 +514,7 @@ void account_manager_set_current_account(AccountManager *manager, Account *accou
 	if(prefs_general.auto_switch_scrolling)
 		account_manager_set_whether_scrolling(manager, TRUE);
 
+	loqui_channelbar_set_current_account(LOQUI_CHANNELBAR(priv->app->channelbar), account);
 	loqui_app_set_focus(priv->app);
 }
 

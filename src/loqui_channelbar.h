@@ -22,28 +22,31 @@
 
 #include <gtk/gtk.h>
 
+#include "account.h"
+#include "channel.h"
+
 G_BEGIN_DECLS
 
 #define LOQUI_TYPE_CHANNELBAR                 (loqui_channelbar_get_type ())
-#define LOQUI_CHANNELBAR(obj)                 (G_TYPE_CHECK_INSTANCE_CAST ((obj), LOQUI_TYPE_CHANNELBAR, LoquiChannelBar))
-#define LOQUI_CHANNELBAR_CLASS(klass)         (G_TYPE_CHECK_CLASS_CAST ((klass), LOQUI_TYPE_CHANNELBAR, LoquiChannelBarClass))
+#define LOQUI_CHANNELBAR(obj)                 (G_TYPE_CHECK_INSTANCE_CAST ((obj), LOQUI_TYPE_CHANNELBAR, LoquiChannelbar))
+#define LOQUI_CHANNELBAR_CLASS(klass)         (G_TYPE_CHECK_CLASS_CAST ((klass), LOQUI_TYPE_CHANNELBAR, LoquiChannelbarClass))
 #define LOQUI_IS_CHANNELBAR(obj)              (G_TYPE_CHECK_INSTANCE_TYPE ((obj), LOQUI_TYPE_CHANNELBAR))
 #define LOQUI_IS_CHANNELBAR_CLASS(klass)      (G_TYPE_CHECK_CLASS_TYPE ((klass), LOQUI_TYPE_CHANNELBAR))
-#define LOQUI_CHANNELBAR_GET_CLASS(obj)       (G_TYPE_INSTANCE_GET_CLASS ((obj), LOQUI_TYPE_CHANNELBAR, LoquiChannelBarClass))
+#define LOQUI_CHANNELBAR_GET_CLASS(obj)       (G_TYPE_INSTANCE_GET_CLASS ((obj), LOQUI_TYPE_CHANNELBAR, LoquiChannelbarClass))
 
-typedef struct _LoquiChannelBar            LoquiChannelBar;
-typedef struct _LoquiChannelBarClass       LoquiChannelBarClass;
+typedef struct _LoquiChannelbar            LoquiChannelbar;
+typedef struct _LoquiChannelbarClass       LoquiChannelbarClass;
 
-typedef struct _LoquiChannelBarPrivate     LoquiChannelBarPrivate;
+typedef struct _LoquiChannelbarPrivate     LoquiChannelbarPrivate;
 
-struct _LoquiChannelBar
+struct _LoquiChannelbar
 {
         GtkHBox parent;
         
-        LoquiChannelBarPrivate *priv;
+        LoquiChannelbarPrivate *priv;
 };
 
-struct _LoquiChannelBarClass
+struct _LoquiChannelbarClass
 {
         GtkHBoxClass parent_class;
 };
@@ -52,6 +55,15 @@ struct _LoquiChannelBarClass
 GtkType loqui_channelbar_get_type (void) G_GNUC_CONST;
 
 GtkWidget* loqui_channelbar_new (void);
+
+void loqui_channelbar_add_account(LoquiChannelbar *channelbar, Account *account);
+void loqui_channelbar_update_account(LoquiChannelbar *channelbar, Account *account);
+void loqui_channelbar_remove_account(LoquiChannelbar *channelbar, Account *account);
+void loqui_channelbar_add_channel(LoquiChannelbar *channelbar, Channel *channel);
+void loqui_channelbar_remove_channel(LoquiChannelbar *channelbar, Channel *channel);
+void loqui_channelbar_update_channel(LoquiChannelbar *channelbar, Channel *channel);
+void loqui_channelbar_set_current_channel(LoquiChannelbar *channelbar, Channel *channel);
+void loqui_channelbar_set_current_account(LoquiChannelbar *channelbar, Account *account);
 
 G_END_DECLS
 

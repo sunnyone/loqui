@@ -676,7 +676,6 @@ irc_handle_command_join(IRCHandle *handle, IRCMessage *msg)
 			channel = channel_new(priv->account, name);
 			account_add_channel(priv->account, channel);
 		}
-		account_manager_set_current_channel(account_manager_get(), channel);
 
 		mode_msg = irc_message_create(IRCCommandMode, channel_get_name(channel), NULL);
 		irc_handle_push_message(handle, mode_msg);

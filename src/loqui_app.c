@@ -355,6 +355,7 @@ loqui_app_update_info(LoquiApp *app,
 				g_free(buf);
 			}
 		}
+		
 	}
 	
 #define FORMAT_INFO(format) \

@@ -19,6 +19,7 @@
  */
 #include "config.h"
 
+#include "main.h"
 #include "channel_tree.h"
 #include "gtkutils.h"
 #include "utils.h"
@@ -29,9 +30,6 @@ struct _ChannelTreePrivate
 {
 	guint selection_changed_signal_id;
 };
-
-#define FRESH_COLOR "red"
-#define NONFRESH_COLOR "black"
 
 static GtkTreeViewClass *parent_class = NULL;
 #define PARENT_TYPE GTK_TYPE_TREE_VIEW
