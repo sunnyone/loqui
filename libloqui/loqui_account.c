@@ -25,7 +25,7 @@
 #include "loqui_user.h"
 #include "loqui_sender.h"
 #include "loqui-pref.h"
-#include "loqui-general-pref-keys.h"
+#include "loqui-general-pref-groups.h"
 #include "loqui-general-pref-default.h"
 
 #include "loqui-static-core.h"

@@ -20,7 +20,7 @@
 #include "config.h"
 
 #include "loqui-pref.h"
-#include "loqui-general-pref-keys.h"
+#include "loqui-general-pref-groups.h"
 #include "loqui-general-pref-default.h"
 
 #include "loqui_channel.h"
@@ -570,8 +570,8 @@ loqui_channel_append_remark(LoquiChannel *channel, LoquiTextType type, gboolean 
 		gchar **highlight_list;
 
 		highlight_list = loqui_pref_get_string_list(loqui_get_general_pref(),
-							    LOQUI_GENERAL_PREF_GROUP_NOTIFICATION,
-							    LOQUI_GENERAL_PREF_KEY_NOTIFICATION_HIGHLIGHT_LIST, NULL, NULL);
+							    LOQUI_GENERAL_PREF_GROUP_NOTIFICATION, "HilightList",
+							    NULL, NULL);
 
 		if (highlight_list) {
 			for (i = 0; highlight_list[i] != NULL; i++) {
