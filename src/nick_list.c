@@ -430,32 +430,39 @@ nick_list_button_press_event_cb(GtkWidget *widget, GdkEventButton *event, gpoint
 	NickList *nick_list;
 	NickListPrivate *priv;
 	GtkMenu *menu;
-	GtkTreePath *path;
+	GtkTreePath *clicked_path;
 	GtkTreeSelection *selection;
-	GList *row_list = NULL;
+	GList *row_list = NULL, *search_list;
 
 	nick_list = NICK_LIST(widget);
 	priv = nick_list->priv;
 
 	menu = GTK_MENU(priv->popup_menu);
 
-	if(event->type == GDK_BUTTON_PRESS && event->button == 3) {
-		if(!gtk_tree_view_get_path_at_pos(GTK_TREE_VIEW(nick_list), event->x, event->y,
-						  &path, NULL, NULL, NULL))
+	if (event->type == GDK_BUTTON_PRESS && event->button == 3) {
+		if (!gtk_tree_view_get_path_at_pos(GTK_TREE_VIEW(nick_list), event->x, event->y,
+						   &clicked_path, NULL, NULL, NULL)) {
                         return FALSE;
-		gtk_tree_path_free(path);
+		}
 		
 		selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(nick_list));
-                if(!selection)
-                        return FALSE;
 		row_list = gtk_tree_selection_get_selected_rows(selection, NULL);
-		if(!row_list)
-			return FALSE;
+		
+		search_list = g_list_find_custom(row_list,
+						 clicked_path,
+						 (GCompareFunc) gtk_tree_path_compare);
+		if (!search_list) {
+			gtk_tree_selection_unselect_all(selection);
+			gtk_tree_selection_select_path(selection, clicked_path);
+		}
 		g_list_foreach(row_list, (GFunc) gtk_tree_path_free, NULL);
 		g_list_free(row_list);
 
+		gtk_tree_path_free(clicked_path);
+
 		gtk_menu_popup(menu, NULL, NULL, NULL,
 			       nick_list, event->button, event->time);
+
 		return TRUE;
 	}
 
