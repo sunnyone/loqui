@@ -167,6 +167,9 @@ account_set(Account *account,
 {
 	AccountPrivate *priv;
 
+        g_return_if_fail(account != NULL);
+        g_return_if_fail(IS_ACCOUNT(account));
+
 	g_return_if_fail(account != NULL);
 
 	priv = account->priv;
@@ -185,6 +188,9 @@ account_add_server(Account *account, const gchar *hostname, gint port,
 {
 	Server *server;
 	AccountPrivate *priv;
+
+        g_return_if_fail(account != NULL);
+        g_return_if_fail(IS_ACCOUNT(account));
 
 	priv = account->priv;
 
@@ -265,6 +271,9 @@ account_restore(Account *account, const gchar *name)
 	gchar *password;
 	gboolean use;
 
+        g_return_if_fail(account != NULL);
+        g_return_if_fail(IS_ACCOUNT(account));
+
 	g_return_if_fail(name != NULL);
 	g_return_if_fail(strchr(name, '/') == NULL);
 
@@ -317,6 +326,9 @@ account_connect(Account *account, gint server_num, gboolean fallback)
 {
 	AccountPrivate *priv;
 
+        g_return_if_fail(account != NULL);
+        g_return_if_fail(IS_ACCOUNT(account));
+
 	priv = account->priv;
 
 	g_return_if_fail(account != NULL);
@@ -332,6 +344,9 @@ account_connect(Account *account, gint server_num, gboolean fallback)
 void
 account_add_channel(Account *account, Channel *channel)
 {
+        g_return_if_fail(account != NULL);
+        g_return_if_fail(IS_ACCOUNT(account));
+
 	account->channel_list = g_slist_append(account->channel_list, channel);
 	account_manager_add_channel(account_manager_get(), account, channel);
 }
@@ -340,6 +355,9 @@ account_search_channel_by_name(Account *account, gchar *name)
 {
 	GSList *cur;
 	Channel *channel;
+
+        g_return_val_if_fail(account != NULL, NULL);
+        g_return_val_if_fail(IS_ACCOUNT(account), NULL);
 
 	g_return_val_if_fail(name != NULL, NULL);
 
@@ -350,6 +368,24 @@ account_search_channel_by_name(Account *account, gchar *name)
 	}
 	return NULL;
 }
+gboolean
+account_has_channel(Account *account, Channel *channel)
+{
+	GSList *cur;
+	Channel *tmp;
+
+        g_return_val_if_fail(account != NULL, FALSE);
+        g_return_val_if_fail(IS_ACCOUNT(account), FALSE);
+	g_return_val_if_fail(channel != NULL, FALSE);
+
+	for(cur = account->channel_list; cur != NULL; cur = cur->next) {
+		tmp = CHANNEL(cur->data);
+		if(channel == tmp)
+			return TRUE;
+	}
+	return FALSE;
+}
+
 void
 account_console_text_append(Account *account, TextType type, gchar *str)
 {
@@ -358,4 +394,37 @@ account_console_text_append(Account *account, TextType type, gchar *str)
 
 	channel_text_append(account->console_text, type, str);
 }
+void
+account_speak(Account *account, Channel *channel, gchar *str)
+{
+	AccountPrivate *priv;
+	gchar *cur;
+	IRCMessage *msg;
 
+        g_return_if_fail(account != NULL);
+        g_return_if_fail(IS_ACCOUNT(account));
+
+	priv = account->priv;
+
+	if(priv->handle == NULL) {
+		g_warning(_("Not connected with this account"));
+		return;
+	}
+
+	cur = str;
+	if(*cur == '/') {
+		g_warning("Not supported");
+	} else {
+		if(channel == NULL) {
+			g_warning(_("No channel is selected"));
+			return;
+		}
+
+		if(account == NULL) {
+			g_warning(_("Can't find account"));
+			return;
+		}
+		msg = irc_message_create(IRCCommandPrivmsg, channel->name, str, NULL);
+		irc_handle_push_message(priv->handle, msg);
+	}
+}

@@ -26,6 +26,7 @@
 #include "utils.h"
 #include "channel_book.h"
 #include "nick_list.h"
+#include "account_manager.h"
 
 struct _LoquiAppPrivate
 {
@@ -45,6 +46,7 @@ static gint loqui_app_delete_event_cb(GtkWidget *widget, GdkEventAny *event);
 
 static void loqui_app_restore_size(LoquiApp *app);
 static void loqui_app_save_size(LoquiApp *app);
+static void loqui_app_entry_activate_cb(GtkWidget *widget, gpointer data);
 
 GType
 loqui_app_get_type(void)
@@ -160,6 +162,16 @@ static void loqui_app_restore_size(LoquiApp *app)
         gtk_window_set_default_size(GTK_WINDOW(app), height, width);
 }
 
+static void
+loqui_app_entry_activate_cb(GtkWidget *widget, gpointer data)
+{
+	gchar *str;
+
+	str = gtk_entry_get_text(GTK_ENTRY(widget));
+	if(str == NULL || strlen(str) == 0)
+		return;
+	account_manager_speak(account_manager_get(), str);
+}
 GtkWidget*
 loqui_app_new (void)
 {
@@ -231,6 +243,8 @@ loqui_app_new (void)
 	entry = gtk_entry_new();
 	gtk_box_pack_end(GTK_BOX(vbox), entry, FALSE, FALSE, 0);
 	gtk_window_set_focus(GTK_WINDOW(app), entry);
+	g_signal_connect(G_OBJECT(entry), "activate",
+                         G_CALLBACK(loqui_app_entry_activate_cb), NULL);
 
 	common_text = channel_text_new();
 	gtk_paned_pack2(GTK_PANED(vpaned), common_text, FALSE, TRUE);

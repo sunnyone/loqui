@@ -40,6 +40,7 @@ static GObjectClass *parent_class = NULL;
 static void account_manager_class_init(AccountManagerClass *klass);
 static void account_manager_init(AccountManager *account_manager);
 static void account_manager_finalize(GObject *object);
+static Account* account_manager_search_account(AccountManager *manager, Channel *channel);
 
 static AccountManager *main_account_manager = NULL;
 
@@ -117,7 +118,8 @@ account_manager_new (void)
 
 	return account_manager;
 }
-void account_manager_load_accounts(AccountManager *account_manager)
+void
+account_manager_load_accounts(AccountManager *account_manager)
 {
 	GSList *list;
         GSList *cur;
@@ -148,7 +150,8 @@ void account_manager_load_accounts(AccountManager *account_manager)
 
 	loqui_menu_create_connect_submenu(priv->app->menu, priv->account_list);
 }
-void account_manager_add_channel_text(AccountManager *manager, ChannelText *text)
+void
+account_manager_add_channel_text(AccountManager *manager, ChannelText *text)
 {
 	AccountManagerPrivate *priv;
 
@@ -160,7 +163,8 @@ void account_manager_add_channel_text(AccountManager *manager, ChannelText *text
 	channel_book_add_channel_text(priv->app->channel_book, text);
 	gtk_widget_show_all(GTK_WIDGET(text));
 }
-void account_manager_add_channel(AccountManager *manager, Account *account, Channel *channel)
+void
+account_manager_add_channel(AccountManager *manager, Account *account, Channel *channel)
 {
         g_return_if_fail(manager != NULL);
         g_return_if_fail(IS_ACCOUNT_MANAGER(manager));
@@ -168,27 +172,73 @@ void account_manager_add_channel(AccountManager *manager, Account *account, Chan
 	account_manager_add_channel_text(manager, channel->text);
 	channel_tree_add_channel(manager->priv->app->channel_tree, account, channel);
 }
-void account_manager_set_current(AccountManager *manager, Account *account, Channel *channel)
+void
+account_manager_set_current(AccountManager *manager, Account *account, Channel *channel)
 {
+	AccountManagerPrivate *priv;
+
         g_return_if_fail(manager != NULL);
         g_return_if_fail(IS_ACCOUNT_MANAGER(manager));
 
-	manager->priv->current_channel = channel;
-	manager->priv->current_account = account;
+	priv = manager->priv;
+
+	priv->current_channel = channel;
+	priv->current_account = account;
 
 	if(channel) {
-		channel_book_change_current(manager->priv->app->channel_book, channel->text);
+		channel_book_change_current(priv->app->channel_book, channel->text);
 	} else if(account) {
-		channel_book_change_current(manager->priv->app->channel_book, account->console_text);
+		channel_book_change_current(priv->app->channel_book, account->console_text);
 	}
 }
-AccountManager *account_manager_get(void)
+static Account*
+account_manager_search_account(AccountManager *manager, Channel *channel)
+{
+	AccountManagerPrivate *priv;
+	Account *account;
+	GSList *cur;
+
+        g_return_val_if_fail(manager != NULL, NULL);
+        g_return_val_if_fail(IS_ACCOUNT_MANAGER(manager), NULL);
+
+	priv = manager->priv;
+
+	for(cur = priv->account_list; cur != NULL; cur = cur->next) {
+		account = ACCOUNT(cur->data);
+		if(account_has_channel(account, channel))
+			return account;
+	}
+	return NULL;
+}
+void account_manager_speak(AccountManager *manager, gchar *str)
+{
+	AccountManagerPrivate *priv;
+	Account *account;
+
+        g_return_if_fail(manager != NULL);
+        g_return_if_fail(IS_ACCOUNT_MANAGER(manager));
+	g_return_if_fail(str != NULL);
+
+	priv = manager->priv;
+	g_return_if_fail(priv->current_account != NULL || priv->current_channel != NULL);
+
+	
+	if(priv->current_channel)
+		account = account_manager_search_account(manager, priv->current_channel);
+	else
+		account = priv->current_account;
+
+	account_speak(account, priv->current_channel, str);
+}
+AccountManager *
+account_manager_get(void)
 {
 	if(!main_account_manager)
 		main_account_manager = account_manager_new();
 	return main_account_manager;
 }
-gboolean account_manager_whether_scroll(AccountManager *account_manager)
+gboolean
+account_manager_whether_scroll(AccountManager *account_manager)
 {
 	return loqui_app_is_scroll(account_manager->priv->app);
 }

@@ -61,6 +61,7 @@ void account_manager_add_channel_text(AccountManager *manager, ChannelText *text
 gboolean account_manager_whether_scroll(AccountManager *account_manager);
 void account_manager_add_channel(AccountManager *manager, Account *account, Channel *channel);
 void account_manager_set_current(AccountManager *manager, Account *account, Channel *channel);
+void account_manager_speak(AccountManager *manager, gchar *str);
 
 G_END_DECLS
 
