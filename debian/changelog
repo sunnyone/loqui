@@ -1,8 +1,9 @@
 loqui (0.1.7-1) unstable; urgency=low
 
- * new upstream release
+  * new upstream release
 
- -- Yoichi Imai <yoichi@silver-forest.com>  Sun, 23 Feb 2003 22:42:52 +0900
+ -- Yoichi Imai <yoichi@silver-forest.com>  Sun, 23 Feb 2003 22:43:53 +0900
+
 loqui (0.1.6-1) unstable; urgency=low
 
   * new upstream release.
