@@ -406,6 +406,11 @@ loqui_channel_entry_remove_real(LoquiChannelEntry *chent, LoquiMember *member)
         g_return_if_fail(chent != NULL);
         g_return_if_fail(LOQUI_IS_CHANNEL_ENTRY(chent));
 
+	if (loqui_member_get_is_channel_operator(member)) {
+		chent->op_number--;
+		g_object_notify(G_OBJECT(chent), "op_number");
+	}
+
 	old_pos = GPOINTER_TO_INT(g_hash_table_lookup(chent->user_hash, member->user)) - 1;
 	g_return_if_fail(old_pos >= 0);
 	g_ptr_array_remove_index(chent->member_ptr_array, old_pos);
