@@ -100,7 +100,7 @@ class Loqui:Pref from G:Object
 		return lqg_key_file_get_integer(selfp->keyfile, group_name, key, error);
 	}
 	public gboolean get_boolean(self, const gchar *group_name, const gchar *key, GError **error) {
-		return lqg_key_file_get_integer(selfp->keyfile, group_name, key, error);
+		return lqg_key_file_get_boolean(selfp->keyfile, group_name, key, error);
 	}
 	public gchar **get_string_list(self, const gchar *group_name, const gchar *key, gsize *length, GError **error) {
 		return lqg_key_file_get_string_list(selfp->keyfile, group_name, key, length, error);
@@ -115,11 +115,11 @@ class Loqui:Pref from G:Object
 		self_changed(self, group_name, key);
 	}
 	public void set_boolean(self, const gchar *group_name, const gchar *key, gboolean value) {
-		lqg_key_file_set_integer(selfp->keyfile, group_name, key, value);
+		lqg_key_file_set_boolean(selfp->keyfile, group_name, key, value);
 		self_changed(self, group_name, key);
 	}
-	public void set_string_list(self, const gchar *group_name, const gchar *key, const gchar **value, gsize length) {
-		lqg_key_file_set_string_list(selfp->keyfile, group_name, key, value, length);
+	public void set_string_list(self, const gchar *group_name, const gchar *key, gchar **value, gsize length) {
+		lqg_key_file_set_string_list(selfp->keyfile, group_name, key, (const gchar **) value, length);
 		self_changed(self, group_name, key);
 	}
 
@@ -133,7 +133,7 @@ class Loqui:Pref from G:Object
 			return;
 		self_set_boolean(self, group_name, key, default_value);
 	}
-	public void set_string_list_default(self, const gchar *group_name, const gchar *key, const gchar **default_value, gsize length) {
+	public void set_string_list_default(self, const gchar *group_name, const gchar *key, gchar **default_value, gsize length) {
 		if (lqg_key_file_has_key(selfp->keyfile, group_name, key, NULL))
 			return;
 		self_set_string_list(self, group_name, key, default_value, length);
