@@ -71,6 +71,7 @@ SRC_LIBRARY_CORE = \
 	loqui_member_sort_funcs.c loqui_member_sort_funcs.h \
 	loqui_profile_handle.c loqui_profile_handle.h \
 	prefs_general.c prefs_general.h \
+	loqui-general-pref.h loqui-general-pref-keys.h loqui-general-pref-default.h \
 	loqui_account_manager.c loqui_account_manager.h \
 	loqui_account_manager_iter.c loqui_account_manager_iter.h \
 	loqui-core.gob loqui-core.c loqui-core.h loqui-core-private.h \
