@@ -238,7 +238,7 @@ msn_message_create(GList *payload_headers, const gchar *payload_body, const gcha
 {
 	MSNMessage *msg;
 	va_list args;
-	gint num, i;
+	/* gint num, i; */
 	gchar *arg;
 	GList *list = NULL;
 
