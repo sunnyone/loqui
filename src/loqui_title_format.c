@@ -558,8 +558,10 @@ loqui_title_format_parse(LoquiTitleFormat *ltf, const gchar *str, GError **error
 	st = loqui_string_tokenizer_new(str, "");
 	result = loqui_title_format_parse_internal(ltf, st, NULL, NULL, parent, sibling, error);
 	loqui_string_tokenizer_free(st);
-	if (!result && ltf->root)
+	if (!result && ltf->root) {
 		tf_free_tree(ltf->root);
+		ltf->root = NULL;
+	}
 
 	return result;
 }
