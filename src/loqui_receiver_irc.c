@@ -316,7 +316,8 @@ loqui_receiver_irc_command_privmsg_notice(LoquiReceiverIRC *receiver, IRCMessage
 				loqui_channel_entry_add_member(LOQUI_CHANNEL_ENTRY(channel), member);
 				g_object_unref(member);
 
-				loqui_channel_irc_add_member_by_nick(LOQUI_CHANNEL_IRC(channel), is_self ? receiver_name : msg->nick, FALSE, FALSE, FALSE);
+				if (!is_self)
+					loqui_channel_irc_add_member_by_nick(LOQUI_CHANNEL_IRC(channel), msg->nick, FALSE, FALSE, FALSE);
 			}
 			loqui_account_add_channel(account, channel);
 			g_object_unref(channel);
