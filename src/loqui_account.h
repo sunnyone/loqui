@@ -40,6 +40,7 @@ typedef struct _LoquiAccountPrivate     LoquiAccountPrivate;
 #include "loqui_channel_entry.h"
 #include "loqui_channel.h"
 #include "loqui_sender.h"
+#include "loqui_receiver.h"
 
 struct _LoquiAccount
 {
@@ -55,6 +56,7 @@ struct _LoquiAccount
 	LoquiUser *user_self;
 
 	LoquiSender *sender;
+	LoquiReceiver *receiver;
 
         LoquiAccountPrivate *priv;
 };
@@ -92,6 +94,9 @@ gboolean loqui_account_is_connected(LoquiAccount *account);
 
 LoquiSender *loqui_account_get_sender(LoquiAccount *account);
 void loqui_account_set_sender(LoquiAccount *account, LoquiSender *sender);
+
+LoquiReceiver *loqui_account_get_receiver(LoquiAccount *account);
+void loqui_account_set_receiver(LoquiAccount *account, LoquiReceiver *receiver);
 
 void loqui_account_add_channel(LoquiAccount *account, LoquiChannel *channel);
 void loqui_account_remove_channel(LoquiAccount *account, LoquiChannel *channel);

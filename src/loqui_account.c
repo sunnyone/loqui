@@ -45,6 +45,7 @@ enum {
 	PROP_USER_SELF,
 	PROP_PROFILE,
 	PROP_SENDER,
+	PROP_RECEIVER,
 	LAST_PROP
 };
 
@@ -142,6 +143,13 @@ loqui_account_class_init(LoquiAccountClass *klass)
 							    _("Sender"),
 							    _("Command sender"),
 							    LOQUI_TYPE_SENDER,
+							    G_PARAM_READWRITE));
+	g_object_class_install_property(object_class,
+					PROP_RECEIVER,
+					g_param_spec_object("receiver",
+							    _("Receiver"),
+							    _("Command receiver"),
+							    LOQUI_TYPE_RECEIVER,
 							    G_PARAM_READWRITE));
 
 	account_signals[SIGNAL_CONNECT] = g_signal_new("connect",
@@ -266,6 +274,9 @@ loqui_account_set_property(GObject *object,
 	case PROP_SENDER:
 		loqui_account_set_sender(account, g_value_get_object(value));
 		break;
+	case PROP_RECEIVER:
+		loqui_account_set_receiver(account, g_value_get_object(value));
+		break;
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, param_id, pspec);
 		break;
@@ -291,6 +302,9 @@ loqui_account_get_property(GObject  *object,
 		break;
 	case PROP_SENDER:
 		g_value_set_object(value, account->sender);
+		break;
+	case PROP_RECEIVER:
+		g_value_set_object(value, account->receiver);
 		break;
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, param_id, pspec);
@@ -400,6 +414,25 @@ loqui_account_set_sender(LoquiAccount *account, LoquiSender *sender)
 
 	g_object_ref(sender);
 	account->sender = sender;
+}
+LoquiReceiver *
+loqui_account_get_receiver(LoquiAccount *account)
+{
+        g_return_val_if_fail(account != NULL, NULL);
+        g_return_val_if_fail(LOQUI_IS_ACCOUNT(account), NULL);
+
+	return account->receiver;
+}
+void
+loqui_account_set_receiver(LoquiAccount *account, LoquiReceiver *receiver)
+{
+        g_return_if_fail(account != NULL);
+        g_return_if_fail(LOQUI_IS_ACCOUNT(account));
+
+	G_OBJECT_UNREF_UNLESS_NULL(account->receiver);
+
+	g_object_ref(receiver);
+	account->receiver = receiver;
 }
 void
 loqui_account_connect(LoquiAccount *account)
