@@ -510,6 +510,7 @@ nick_list_new(void)
         gtk_tree_selection_set_mode(sel, GTK_SELECTION_MULTIPLE);
 	
         renderer = gtk_cell_renderer_pixbuf_new();
+	g_object_set(renderer, "ypad", 0, NULL);
         column = gtk_tree_view_column_new_with_attributes("Away", renderer, NULL);
 	gtk_tree_view_column_set_cell_data_func(column, renderer,
 						nick_list_cell_data_func_away,
@@ -520,6 +521,7 @@ nick_list_new(void)
         gtk_tree_view_append_column(GTK_TREE_VIEW(list), column);
 
         renderer = gtk_cell_renderer_pixbuf_new();
+	g_object_set(renderer, "ypad", 0, NULL);
         column = gtk_tree_view_column_new_with_attributes("@", renderer, NULL);
 	gtk_tree_view_column_set_cell_data_func(column, renderer,
 						nick_list_cell_data_func_op,
@@ -530,6 +532,7 @@ nick_list_new(void)
         gtk_tree_view_append_column(GTK_TREE_VIEW(list), column);
 
         renderer = gtk_cell_renderer_text_new();
+	g_object_set(renderer, "ypad", 0, NULL);
         column = gtk_tree_view_column_new_with_attributes(_("Nick"),
 							  renderer,
 							  "text", USERLIST_COLUMN_NICK,

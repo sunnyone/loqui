@@ -182,6 +182,7 @@ channel_tree_new(void)
 	gtk_tree_view_set_model(GTK_TREE_VIEW(tree), GTK_TREE_MODEL(model));
 
         renderer = gtk_cell_renderer_text_new();
+	g_object_set(renderer, "ypad", 0, NULL);
 	column = gtk_tree_view_column_new_with_attributes (_("Name"),
 							   renderer,
 							   "text", COLUMN_TEXT,
@@ -191,6 +192,7 @@ channel_tree_new(void)
 	gtk_tree_view_append_column (GTK_TREE_VIEW (tree), column);
 
         renderer = gtk_cell_renderer_text_new();
+	g_object_set(renderer, "ypad", 0, NULL);
 	column = gtk_tree_view_column_new_with_attributes ("Users",
 							   renderer,
 							   "text", COLUMN_USERS,
@@ -199,6 +201,7 @@ channel_tree_new(void)
         gtk_tree_view_append_column(GTK_TREE_VIEW(tree), column);
 
         renderer = gtk_cell_renderer_text_new();
+	g_object_set(renderer, "ypad", 0, NULL);
 	column = gtk_tree_view_column_new_with_attributes ("Op",
 							   renderer,
 							   "text", COLUMN_OP_USERS,
@@ -207,6 +210,7 @@ channel_tree_new(void)
         gtk_tree_view_append_column(GTK_TREE_VIEW(tree), column);
 
         renderer = gtk_cell_renderer_text_new();
+	g_object_set(renderer, "ypad", 0, NULL);
 	column = gtk_tree_view_column_new_with_attributes ("Nonop",
 							   renderer,
 							   "text", COLUMN_NONOP_USERS,
