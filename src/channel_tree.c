@@ -477,7 +477,7 @@ channel_tree_select_prev_channel(ChannelTree *tree, gboolean fresh_required)
 	path = gtk_tree_model_get_path(model, &iter);
 
 	if(!selected_channel) {
-	prev_account_last:
+	retry:
 		if(!gtk_tree_path_prev(path)) /* select previous account */
 			return;
 		if(!gtk_tree_model_get_iter(model, &parent, path))
@@ -511,47 +511,19 @@ channel_tree_select_prev_channel(ChannelTree *tree, gboolean fresh_required)
 	} while(gtk_tree_path_prev(path));
 
 	if(gtk_tree_path_up(path))
-		goto prev_account_last;
+		goto retry;
 
 	gtk_tree_path_free(path);
 }
-static gboolean
-channel_tree_select_next_channel_internal(ChannelTree *tree, GtkTreeIter *start_iter, gboolean fresh_required)
-{
-	GtkTreeModel *model;
-	GtkTreeSelection *selection;
-	Channel *channel;
-	GtkTreeIter iter;
 
-	g_return_val_if_fail(tree != NULL, FALSE);
-        g_return_val_if_fail(IS_CHANNEL_TREE(tree), FALSE);
-	
-	model = gtk_tree_view_get_model(GTK_TREE_VIEW(tree));
-	selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(tree));
-
-	iter = *start_iter;
-
-	do {
-		gtk_tree_model_get(model, &iter, COLUMN_CHANNEL, &channel, -1);
-		if(!channel)
-			return FALSE;
-
-		if(fresh_required && !channel_get_fresh(channel))
-			continue;
-
-		gtk_tree_selection_select_iter(selection, &iter);
-		return TRUE;
-	} while(gtk_tree_model_iter_next(model, &iter));
-
-	return FALSE;
-}
 void
 channel_tree_select_next_channel(ChannelTree *tree, gboolean fresh_required)
 {
 	GtkTreeModel *model;
 	GtkTreeSelection *selection;
 	GtkTreeIter parent, iter;
-	Account *account;
+	Channel *channel, *selected_channel;
+	gboolean is_found;
 
         g_return_if_fail(tree != NULL);
         g_return_if_fail(IS_CHANNEL_TREE(tree));
@@ -562,27 +534,35 @@ channel_tree_select_next_channel(ChannelTree *tree, gboolean fresh_required)
 	if(!gtk_tree_selection_get_selected(selection, &model, &iter))
 		gtk_tree_model_get_iter_first(model, &iter);
 
-	gtk_tree_model_get(model, &iter, COLUMN_ACCOUNT, &account, -1);
+	gtk_tree_model_get(model, &iter, COLUMN_CHANNEL, &selected_channel, -1);
 
-	if(!account) {
-		if(gtk_tree_model_iter_next(model, &iter) &&
-		   channel_tree_select_next_channel_internal(tree, &iter, fresh_required)) {
-			return;
-		} else {
-			if(!gtk_tree_model_iter_parent(model, &parent, &iter)) {
-				g_warning(_("non-account should have a parent."));
-				return;
-			}
-			if(!gtk_tree_model_iter_next(model, &parent))
-				return;
-		}
-	} else {
+	if(!selected_channel) {
 		parent = iter;
-	}
-	
-	do {
-		if(gtk_tree_model_iter_children(model, &iter, &parent) &&
-		   channel_tree_select_next_channel_internal(tree, &iter, fresh_required))
+	retry:
+		do {
+			if((is_found = gtk_tree_model_iter_children(model, &iter, &parent)))
+				break;
+		} while(gtk_tree_model_iter_next(model, &parent));
+		if(!is_found)
 			return;
-	} while(gtk_tree_model_iter_next(model, &parent));	
+	}
+
+	do {
+		gtk_tree_model_get(model, &iter, COLUMN_CHANNEL, &channel, -1);
+		if(!channel)
+			continue;
+		if(selected_channel == channel)
+			continue;
+		if(fresh_required && !channel_get_fresh(channel))
+			continue;
+
+		gtk_tree_selection_select_iter(selection, &iter);
+		return;
+	} while(gtk_tree_model_iter_next(model, &iter));
+
+	if(gtk_tree_model_iter_parent(model, &parent, &iter)) {
+		if(!gtk_tree_model_iter_next(model, &parent))
+			return;
+		goto retry;
+	}
 }
