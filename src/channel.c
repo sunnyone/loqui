@@ -171,7 +171,8 @@ channel_append_remark(Channel *channel, TextType type, gboolean is_self, const g
 
 	channel_buffer_append_remark(buffer, type, exec_notification, is_self, is_priv, NULL, nick, remark);
 
-	if(!account_manager_is_current_channel_buffer(account_manager_get(), buffer)) {
+	if(!account_manager_is_current_channel_buffer(account_manager_get(), buffer) ||
+	   !account_manager_get_whether_scrolling(account_manager_get())) {
 		account_manager_common_buffer_append_remark(account_manager_get(), type, 
 							    is_self, is_priv, channel->name, nick, remark);
 		channel_set_fresh(channel, TRUE);

@@ -266,6 +266,9 @@ void account_manager_set_current_channel(AccountManager *manager, Channel *chann
 	channel_set_fresh(channel, FALSE);
 	account_manager_update_away_status(manager, account_get_away_status(channel->account));
 
+	if(prefs_general.auto_switch_scrolling)
+		account_manager_set_whether_scrolling(manager, TRUE);
+
 	loqui_app_set_focus(priv->app);
 }
 
@@ -286,6 +289,9 @@ void account_manager_set_current_account(AccountManager *manager, Account *accou
 	nick_list_set_store(priv->app->nick_list, NULL);
 	account_manager_update_current_info(manager);
 	account_manager_update_away_status(manager, account_get_away_status(account));
+
+	if(prefs_general.auto_switch_scrolling)
+		account_manager_set_whether_scrolling(manager, TRUE);
 
 	loqui_app_set_focus(priv->app);
 }

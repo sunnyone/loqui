@@ -180,7 +180,7 @@ loqui_toolbar_new(gpointer data)
 	toolbar->toggle_scroll = gtk_toolbar_append_element(GTK_TOOLBAR(toolbar),
 							    GTK_TOOLBAR_CHILD_TOGGLEBUTTON,
 							    NULL, _("Scroll"),
-							    _("Toggle whether scrolling"),
+							    _("Toggle whether scrolling the channel buffer"),
 							    NULL, image,
 							    NULL, NULL);
 

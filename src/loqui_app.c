@@ -62,11 +62,16 @@ static void loqui_app_restore_size(LoquiApp *app);
 static void loqui_app_save_size(LoquiApp *app);
 static void loqui_app_entry_activate_cb(GtkWidget *widget, gpointer data);
 
-static void loqui_app_text_buffer_inserted_cb(GtkTextBuffer *textbuf,
-					      GtkTextIter *pos,
-					      const gchar *text,
-					      gint length,
-					      gpointer data);
+static void loqui_app_channel_textview_inserted_cb(GtkTextBuffer *textbuf,
+						   GtkTextIter *pos,
+						   const gchar *text,
+						   gint length,
+						   gpointer data);
+static void loqui_app_common_textview_inserted_cb(GtkTextBuffer *textbuf,
+						  GtkTextIter *pos,
+						  const gchar *text,
+						  gint length,
+						  gpointer data);
 
 static void loqui_app_textview_scroll_value_changed_cb(GtkAdjustment *adj, gpointer data);
 
@@ -139,7 +144,7 @@ loqui_app_destroy(GtkObject *object)
 
 }	
 static void 
-loqui_app_finalize (GObject *object)
+loqui_app_finalize(GObject *object)
 {
 	LoquiApp *app;
 
@@ -227,11 +232,11 @@ loqui_app_entry_activate_cb(GtkWidget *widget, gpointer data)
 
 	gtk_entry_set_text(GTK_ENTRY(widget), "");
 }
-static void loqui_app_text_buffer_inserted_cb(GtkTextBuffer *textbuf,
-					      GtkTextIter *pos,
-					      const gchar *text,
-					      gint length,
-					      gpointer data)
+static void loqui_app_channel_textview_inserted_cb(GtkTextBuffer *textbuf,
+						   GtkTextIter *pos,
+						   const gchar *text,
+						   gint length,
+						   gpointer data)
 {
 	GtkTextView *textview;
 
@@ -242,10 +247,30 @@ static void loqui_app_text_buffer_inserted_cb(GtkTextBuffer *textbuf,
 	gtk_text_view_scroll_mark_onscreen(GTK_TEXT_VIEW(textview),
 					   gtk_text_buffer_get_mark(textbuf, "end"));
 }
+static void loqui_app_common_textview_inserted_cb(GtkTextBuffer *textbuf,
+						  GtkTextIter *pos,
+						  const gchar *text,
+						  gint length,
+						  gpointer data)
+{
+	GtkTextView *textview;
+
+	textview = GTK_TEXT_VIEW(data);
+
+	gtk_text_view_scroll_mark_onscreen(GTK_TEXT_VIEW(textview),
+					   gtk_text_buffer_get_mark(textbuf, "end"));
+}
 static void loqui_app_textview_scroll_value_changed_cb(GtkAdjustment *adj, gpointer data)
 {
 	gboolean reached_to_end;
 	AccountManager *manager;
+	Channel *channel;
+
+	manager = account_manager_get();
+
+	channel = account_manager_get_current_channel(manager);
+	if(channel_get_fresh(channel))
+		channel_set_fresh(channel, FALSE);
 
 	if(!prefs_general.auto_switch_scrolling)
 		return;
@@ -253,14 +278,13 @@ static void loqui_app_textview_scroll_value_changed_cb(GtkAdjustment *adj, gpoin
 	/* upper - page_size is max virtually. */
 	reached_to_end = (ABS(adj->upper - adj->page_size - adj->value) < adj->step_increment);
 
-	manager = account_manager_get();
-
 	if(reached_to_end && !account_manager_get_whether_scrolling(manager)) {
 		account_manager_set_whether_scrolling(manager, TRUE);
 	} else if(!reached_to_end && account_manager_get_whether_scrolling(manager)) {
 		account_manager_set_whether_scrolling(manager, FALSE);
 	}
 }
+
 
 void
 loqui_app_set_current_info(LoquiApp *app, const gchar *account_name, 
@@ -405,8 +429,6 @@ loqui_app_new(void)
 	SET_SCROLLED_WINDOW(scrolled_win, priv->common_textview, 
 			    GTK_POLICY_NEVER, GTK_POLICY_ALWAYS);
 	gtk_paned_pack2(GTK_PANED(vpaned), scrolled_win, FALSE, TRUE);
-	g_signal_connect(G_OBJECT(GTK_TEXT_VIEW(priv->common_textview)->vadjustment), "value-changed",
-			 G_CALLBACK(loqui_app_textview_scroll_value_changed_cb), app);
 
 	/* right side */
 	vpaned = gtk_vpaned_new();
@@ -457,8 +479,8 @@ void loqui_app_set_channel_buffer(LoquiApp *app, GtkTextBuffer *textbuf)
 
 	gtk_text_view_set_buffer(GTK_TEXT_VIEW(app->channel_textview), textbuf);
 	priv->channel_buffer_inserted_signal_id = g_signal_connect(G_OBJECT(textbuf), "insert-text",
-								  G_CALLBACK(loqui_app_text_buffer_inserted_cb),
-								  app->channel_textview);
+								   G_CALLBACK(loqui_app_channel_textview_inserted_cb),
+								   app->channel_textview);
 	gtk_text_view_scroll_mark_onscreen(GTK_TEXT_VIEW(app->channel_textview),
 					   gtk_text_buffer_get_mark(textbuf, "end"));
 }
@@ -476,10 +498,10 @@ void loqui_app_set_common_buffer(LoquiApp *app, GtkTextBuffer *textbuf)
 		old_buf = gtk_text_view_get_buffer(GTK_TEXT_VIEW(priv->common_textview));
 		g_signal_handler_disconnect(old_buf, priv->common_buffer_inserted_signal_id);
 	}
-
+	
 	gtk_text_view_set_buffer(GTK_TEXT_VIEW(priv->common_textview), textbuf);
 	priv->common_buffer_inserted_signal_id = g_signal_connect(G_OBJECT(textbuf), "insert-text",
-								  G_CALLBACK(loqui_app_text_buffer_inserted_cb),
+								  G_CALLBACK(loqui_app_common_textview_inserted_cb),
 								  priv->common_textview);
 	gtk_text_view_scroll_mark_onscreen(GTK_TEXT_VIEW(priv->common_textview),
 					   gtk_text_buffer_get_mark(textbuf, "end"));
