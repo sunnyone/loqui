@@ -5,7 +5,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: loqui 0.1.9\n"
-"POT-Creation-Date: 2003-04-17 21:32+0900\n"
+"POT-Creation-Date: 2003-05-29 19:46+0900\n"
 "PO-Revision-Date: 2002-11-10 13:17+0900\n"
 "Last-Translator: Yoichi Imai <yoichi@silver-forest.com>\n"
 "Language-Team: Japanese <ja@li.org>\n"
@@ -18,9 +18,8 @@ msgid "Name"
 msgstr "名前"
 
 #: src/account.c:130 src/message_text.c:109 src/message_text.c:110
-#, fuzzy
 msgid "Account name"
-msgstr "アカウント: "
+msgstr "アカウントの名前"
 
 #: src/account.c:135 src/message_text.c:115 src/nick_list.c:533
 msgid "Nick"
@@ -277,235 +276,235 @@ msgstr "無効なコマンドです"
 msgid "Error occured when executing command: %s"
 msgstr "コマンド実行時にエラーが発生しました: %s"
 
-#: src/irc_handle.c:290
+#: src/irc_handle.c:289
 msgid "This PRIVMSG/NOTICE message doesn't contain a remark."
 msgstr "このPRIVMSG/NOTICEメッセージには発言が含まれていません。"
 
-#: src/irc_handle.c:359 src/irc_handle.c:384 src/irc_handle.c:408
-#: src/irc_handle.c:432
+#: src/irc_handle.c:358 src/irc_handle.c:383 src/irc_handle.c:407
+#: src/irc_handle.c:431
 msgid "The message does not contain nick"
 msgstr "メッセージにnickが含まれていません"
 
-#: src/irc_handle.c:373
+#: src/irc_handle.c:372
 msgid "*** %n has quit IRC(%t)"
 msgstr ""
 
-#: src/irc_handle.c:390 src/irc_handle.c:414
+#: src/irc_handle.c:389 src/irc_handle.c:413
 msgid "The message does not contain the channal name"
 msgstr "メッセージにチャンネル名が含まれていません。"
 
-#: src/irc_handle.c:399
+#: src/irc_handle.c:398
 msgid "*** %n has just part %1(%t)"
 msgstr ""
 
-#: src/irc_handle.c:423
+#: src/irc_handle.c:422
 msgid "*** %2 was kicked from %1 by %n(%3)"
 msgstr ""
 
-#: src/irc_handle.c:438
+#: src/irc_handle.c:437
 msgid "The NICK message does not contain new nick"
 msgstr "NICKメッセージに新しいnickが含まれていません"
 
-#: src/irc_handle.c:447
+#: src/irc_handle.c:446
 msgid "*** %n is known as %1"
 msgstr ""
 
-#: src/irc_handle.c:467
+#: src/irc_handle.c:466
 msgid "Flags are not found in MODE command"
 msgstr "MODEコマンドにフラグが見つかりません"
 
-#: src/irc_handle.c:475
+#: src/irc_handle.c:474
 msgid "Can't find a nick to change mode"
 msgstr "モードを変えるnickが見つかりません"
 
-#: src/irc_handle.c:480
+#: src/irc_handle.c:479
 msgid "Flags don't have + or -"
 msgstr "フラグに+か-にありません"
 
-#: src/irc_handle.c:529
+#: src/irc_handle.c:528
 msgid "Unknown mode flag"
 msgstr "不明なモードフラグです"
 
-#: src/irc_handle.c:545
+#: src/irc_handle.c:544
 msgid "User mode is not implemented."
 msgstr "ユーザーモードは実装されていません"
 
-#: src/irc_handle.c:561 src/irc_handle.c:605
+#: src/irc_handle.c:560 src/irc_handle.c:604
 msgid "The target is not found in MODE command"
 msgstr "MODEコマンドに対象が発見できません"
 
-#: src/irc_handle.c:571
+#: src/irc_handle.c:570
 #, c-format
 msgid "RPL_CHANNELMODEIS didn't return a channel name: %s"
 msgstr ""
 
-#: src/irc_handle.c:577
+#: src/irc_handle.c:576
 msgid "*** Mode for %2: %*3"
 msgstr ""
 
-#: src/irc_handle.c:592
+#: src/irc_handle.c:591
 msgid "Who can change mode?"
 msgstr "誰がモードを変えられるのです？"
 
-#: src/irc_handle.c:597
+#: src/irc_handle.c:596
 #, c-format
 msgid "Nick must not contain '%%'"
 msgstr "Nickは'%%'を含むべきではありません"
 
-#: src/irc_handle.c:613
+#: src/irc_handle.c:612
 msgid "Why can you know the change of his mode?"
 msgstr ""
 
-#: src/irc_handle.c:622
+#: src/irc_handle.c:621
 #, c-format
 msgid "*** New mode for %%1 by %s: %%*2"
 msgstr ""
 
-#: src/irc_handle.c:639
+#: src/irc_handle.c:638
 msgid "The message does not contain nick."
 msgstr "このメッセージにはnickが含まれていません"
 
-#: src/irc_handle.c:644
+#: src/irc_handle.c:643
 msgid "Invalid JOIN command"
 msgstr ""
 
-#: src/irc_handle.c:650
+#: src/irc_handle.c:649
 msgid "Why do you know that the user join the channel?"
 msgstr ""
 
-#: src/irc_handle.c:656
+#: src/irc_handle.c:655
 msgid "*** %n (%u@%h) joined channel %t"
 msgstr ""
 
-#: src/irc_handle.c:674 src/irc_handle.c:702 src/irc_handle.c:725
+#: src/irc_handle.c:673 src/irc_handle.c:701 src/irc_handle.c:724
 msgid "Can't get channel name"
 msgstr ""
 
-#: src/irc_handle.c:757
+#: src/irc_handle.c:756
 msgid "Nick is null"
 msgstr ""
 
-#: src/irc_handle.c:831
+#: src/irc_handle.c:830
 msgid "Invalid CREATIONTIME reply."
 msgstr ""
 
-#: src/irc_handle.c:836 src/irc_handle.c:869
+#: src/irc_handle.c:835 src/irc_handle.c:868
 msgid "Invalid time string"
 msgstr "無効な時間文字列"
 
-#: src/irc_handle.c:842 src/irc_handle.c:875
+#: src/irc_handle.c:841 src/irc_handle.c:874
 msgid "Invalid time"
 msgstr "無効な時間"
 
-#: src/irc_handle.c:846
+#: src/irc_handle.c:845
 #, c-format
 msgid "%%2 was created at %s"
 msgstr ""
 
-#: src/irc_handle.c:863
+#: src/irc_handle.c:862
 msgid "Invalid TOPICWHOTIME reply."
 msgstr ""
 
-#: src/irc_handle.c:879
+#: src/irc_handle.c:878
 #, c-format
 msgid "Topic for %%2 was set by %%3 at %s"
 msgstr ""
 
-#: src/irc_handle.c:901
+#: src/irc_handle.c:900
 msgid "Topic for %2: %t"
 msgstr ""
 
-#: src/irc_handle.c:919
+#: src/irc_handle.c:918
 msgid "*** New topic on %1 by %n: %t"
 msgstr ""
 
-#: src/irc_handle.c:983
+#: src/irc_handle.c:982
 msgid "Can't find the channel from the message"
 msgstr ""
 
-#: src/irc_handle.c:1017
+#: src/irc_handle.c:1016
 msgid "*** %2 is marked as begin AWAY, but left the message: %3"
 msgstr ""
 
-#: src/irc_handle.c:1024 src/irc_handle.c:1028 src/irc_handle.c:1032
+#: src/irc_handle.c:1023 src/irc_handle.c:1027 src/irc_handle.c:1031
 msgid "*** %t"
 msgstr ""
 
-#: src/irc_handle.c:1035
+#: src/irc_handle.c:1034
 msgid "*** You are inviting %2 to %3"
 msgstr ""
 
-#: src/irc_handle.c:1038
+#: src/irc_handle.c:1037
 msgid "*** %3 is running IRC version %2 (%4)"
 msgstr ""
 
-#: src/irc_handle.c:1069
+#: src/irc_handle.c:1068
 msgid "%2 is %3@%4: %t"
 msgstr ""
 
-#: src/irc_handle.c:1072
+#: src/irc_handle.c:1071
 msgid "%2 was %3@%4: %t"
 msgstr ""
 
-#: src/irc_handle.c:1075
+#: src/irc_handle.c:1074
 msgid "%2: %t"
 msgstr ""
 
-#: src/irc_handle.c:1078
+#: src/irc_handle.c:1077
 msgid "on via server %3(%t)"
 msgstr ""
 
-#: src/irc_handle.c:1081
+#: src/irc_handle.c:1080
 msgid "%3 %t"
 msgstr ""
 
-#: src/irc_handle.c:1084
+#: src/irc_handle.c:1083
 msgid "Banned on %2 : %3"
 msgstr ""
 
-#: src/irc_handle.c:1087
+#: src/irc_handle.c:1086
 msgid "Time: %3(%2)"
 msgstr ""
 
-#: src/irc_handle.c:1237
+#: src/irc_handle.c:1236
 #, c-format
 msgid "IOChannel write error: %s"
 msgstr "IOChannel書き込みエラー: %s"
 
-#: src/irc_handle.c:1292
+#: src/irc_handle.c:1291
 msgid "*** Failed to convert codeset."
 msgstr "*** コードセットの変換に失敗しました。"
 
-#: src/irc_handle.c:1327
+#: src/irc_handle.c:1325
 msgid "Failed to connect"
 msgstr "接続に失敗しました。"
 
-#: src/irc_handle.c:1334
+#: src/irc_handle.c:1332
 msgid "Connected. Sending Initial command..."
 msgstr "接続しました。初期コマンドを送信しています..."
 
-#: src/irc_handle.c:1386
+#: src/irc_handle.c:1378
 msgid "Sent join command for autojoin."
 msgstr "自動joinのためのjoinコマンドを送信しました。"
 
-#: src/irc_handle.c:1389
+#: src/irc_handle.c:1381
 msgid "Done."
 msgstr "完了。"
 
-#: src/irc_handle.c:1417 src/irc_handle.c:1427
+#: src/irc_handle.c:1409 src/irc_handle.c:1419
 msgid "No valid servers left."
 msgstr ""
 
-#: src/irc_handle.c:1433
+#: src/irc_handle.c:1425
 #, c-format
 msgid "Connecting to %s:%d"
 msgstr "%s:%dに接続しています"
 
-#: src/irc_handle.c:1503
+#: src/irc_handle.c:1495
 msgid "Message queue is not created."
 msgstr "メッセージキューが作られていません"
 
-#: src/irc_handle.c:1507
+#: src/irc_handle.c:1499
 msgid "Not connected."
 msgstr "接続されていません"
 
@@ -693,20 +692,20 @@ msgstr "スクロール"
 msgid "Toggle whether scrolling the channel buffer"
 msgstr "チャンネルバッファをスクロールするかどうかを切り替え"
 
-#: src/main.c:50
+#: src/main.c:52
 #, c-format
 msgid "Invalid \"%s\""
 msgstr ""
 
-#: src/main.c:88
+#: src/main.c:96
 msgid "  --debug      debug mode\n"
 msgstr ""
 
-#: src/main.c:89
+#: src/main.c:97
 msgid "  --show-msg   show message mode\n"
 msgstr ""
 
-#: src/main.c:90
+#: src/main.c:98
 msgid "  --help       show this help\n"
 msgstr ""
 
@@ -759,22 +758,20 @@ msgid "/Change user mode [Mode]"
 msgstr ""
 
 #: src/nick_list.c:85
-#, fuzzy
 msgid "/Change user mode [Mode]/Give channel operator privilege (+o)"
-msgstr "/Mode/チャンネルオペレータ権限を与える (+o)"
+msgstr "/ユーザモードを変える [Mode]/チャンネルオペレータ権限を与える (+o)"
 
 #: src/nick_list.c:87
-msgid "/Change user mode [Mode]/Give speak ability (+v)"
-msgstr ""
+msgid "/Change user mode [Mode]/Give voice privilege (+v)"
+msgstr "/ユーザモードを変える [Mode]/発言権を与える (+v)"
 
 #: src/nick_list.c:90
-#, fuzzy
 msgid "/Change user mode [Mode]/Deprive channel operator privilege (-o)"
-msgstr "/Mode/チャンネルオペレータ権限を与える (+o)"
+msgstr "/ユーザモードを変える [Mode]/チャンネルオペレータ権限を奪う (-o)"
 
 #: src/nick_list.c:92
-msgid "/Change user mode [Mode]/Deprive speak ability (-v)"
-msgstr ""
+msgid "/Change user mode [Mode]/Deprive voice privilege (-v)"
+msgstr "/ユーザモードを変える [Mode]/発言権を奪う (-v)"
 
 #: src/nick_list.c:95
 msgid "/CTCP"
@@ -929,3 +926,6 @@ msgstr ""
 #, c-format
 msgid "?x flag doesn't have { in '%s'"
 msgstr ""
+
+#~ msgid "/Change user mode [Mode]/Give speak ability (+v)"
+#~ msgstr "/ユーザモードを変える [Mode]/チャンネルオペレータ権限を与える (+o)"

@@ -90,3 +90,9 @@
 * Separated channel/private talk in the menus.
 * double-clicking nicklist make start private talk.
 * Transparent ignore.
+
+2003-05-29     0.1.15
+* Use GNet-2.0(Support IPv6?)
+* Parse ~/.loqui/gtkrc-2.0.
+* Fixed the problem loqui distinguishes #case and #CASE.
+

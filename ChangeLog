@@ -1,3 +1,34 @@
+2003-05-29 19:23  y-imai
+
+	* src/main.c: parse ~/.loqui/gtkrc-2.0
+
+2003-05-29 19:10  y-imai
+
+	* configure.in, po/ja.po, po/loqui.pot, src/irc_handle.c,
+	src/main.c: now it uses gnet-2.0 (supports IPv6?)
+
+2003-05-29 19:07  y-imai
+
+	* src/: account.c, channel.c, channel.h: added hash function
+
+2003-05-29 18:17  y-imai
+
+	* src/: account.c, channel.c, channel.h: changed the function to
+	check equality for the channel hash table
+
+2003-04-30 00:25  y-imai
+
+	* src/irc_handle.c: fixed the priv handling in the plum-recent
+	parser
+
+2003-04-17 21:33  y-imai
+
+	* debian/changelog: updated debian changelog
+
+2003-04-17 21:32  y-imai
+
+	* ChangeLog, NEWS, NEWS.ja, configure.in: 0.1.14
+
 2003-04-17 21:22  y-imai
 
 	* src/: channel_buffer.c, prefs_dialog.c, prefs_general.c,
