@@ -229,7 +229,6 @@ nick_list_new (void)
 {
         NickList *list;
 	NickListPrivate *priv;
-	GtkListStore *model;
 	GtkTreeViewColumn *column;
 	GtkCellRenderer *renderer;
 	GtkTreeSelection *sel;
