@@ -1295,6 +1295,11 @@ irc_handle_watch_in_cb(GIOChannel *ioch, GIOCondition condition, gpointer data)
 	msg = irc_message_parse_line(local);
 	g_free(local);
 
+	if(msg == NULL) {
+		g_warning("NULL IRCMessage");
+		return TRUE;
+	}
+
 	irc_handle_response(handle, msg);
 	g_object_unref(msg);
 
