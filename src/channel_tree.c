@@ -29,6 +29,9 @@ struct _ChannelTreePrivate
 {
 };
 
+#define FRESH_COLOR "red"
+#define NONFRESH_COLOR "black"
+
 static GtkTreeViewClass *parent_class = NULL;
 #define PARENT_TYPE GTK_TYPE_TREE_VIEW
 
@@ -44,6 +47,7 @@ enum {
 	COLUMN_TEXT,
 	COLUMN_ACCOUNT,
 	COLUMN_CHANNEL,
+	COLUMN_COLOR,
 	COLUMN_NUMBER
 };
 
@@ -165,13 +169,15 @@ channel_tree_new(void)
 	model = gtk_tree_store_new(COLUMN_NUMBER, 
 				   G_TYPE_STRING, 
 				   G_TYPE_POINTER,
-				   G_TYPE_POINTER);
+				   G_TYPE_POINTER,
+				   G_TYPE_STRING);
 	gtk_tree_view_set_model(GTK_TREE_VIEW(tree), GTK_TREE_MODEL(model));
 
         renderer = gtk_cell_renderer_text_new();
 	column = gtk_tree_view_column_new_with_attributes ("Text",
 							   renderer,
 							   "text", COLUMN_TEXT,
+							   "foreground", COLUMN_COLOR,
 							   NULL);
 	gtk_tree_view_append_column (GTK_TREE_VIEW (tree), column);
 
@@ -325,4 +331,34 @@ channel_tree_select_account(ChannelTree *tree, Account *account)
 
 	if(gtk_tree_model_find_by_column_data(model, &iter, NULL, COLUMN_ACCOUNT, account))
 		gtk_tree_selection_select_iter(selection, &iter);
+}
+void
+channel_tree_set_fresh(ChannelTree *tree, Account *account, Channel *channel)
+{
+	GtkTreeModel *model;
+	GtkTreeIter iter;
+	gchar *color;
+
+        g_return_if_fail(tree != NULL);
+        g_return_if_fail(IS_CHANNEL_TREE(tree));
+
+	model = gtk_tree_view_get_model(GTK_TREE_VIEW(tree));
+
+	/* FIXME: handling account */
+	if(account) {
+		return;
+	}
+
+	if(channel) {
+		if(!gtk_tree_model_find_by_column_data(model, &iter, NULL, COLUMN_CHANNEL, channel))
+			return;
+
+		if(channel_get_fresh(channel))
+			color = FRESH_COLOR;
+		else
+			color = NONFRESH_COLOR;
+
+		gtk_tree_store_set(GTK_TREE_STORE(model), &iter,
+				   COLUMN_COLOR, color, -1);
+	}
 }

@@ -27,6 +27,7 @@
 struct _ChannelPrivate
 {
 	gchar *topic;
+	gboolean fresh;
 };
 
 static GObjectClass *parent_class = NULL;
@@ -146,6 +147,7 @@ channel_append_remark(Channel *channel, TextType type, gchar *nick, gchar *remar
 			line_with_channel = g_strdup_printf("=%s= %s", nick, remark);
 		account_manager_common_buffer_append(account_manager_get(), TEXT_TYPE_NORMAL, line_with_channel);
 		g_free(line_with_channel);
+		channel_set_fresh(channel, TRUE);
 	}
 }
 
@@ -163,6 +165,31 @@ channel_append_text(Channel *channel, gboolean with_common_buffer, TextType type
 	if(account_manager_is_current_channel(account_manager_get(), channel)) {
 		account_manager_scroll_channel_textview(account_manager_get());
 	}
+}
+
+void channel_set_fresh(Channel *channel, gboolean fresh)
+{
+	ChannelPrivate *priv;
+
+	g_return_if_fail(channel != NULL);
+	g_return_if_fail(IS_CHANNEL(channel));
+
+	priv = channel->priv;
+
+	priv->fresh = fresh;
+
+	account_manager_set_fresh(account_manager_get(), NULL, channel);
+}
+gboolean channel_get_fresh(Channel *channel)
+{
+	ChannelPrivate *priv;
+
+	g_return_val_if_fail(channel != NULL, FALSE);
+	g_return_val_if_fail(IS_CHANNEL(channel), FALSE);
+
+	priv = channel->priv;
+
+	return priv->fresh;
 }
 void channel_set_topic(Channel *channel, const gchar *topic)
 {

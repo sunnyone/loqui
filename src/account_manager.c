@@ -171,6 +171,18 @@ account_manager_remove_channel(AccountManager *manager, Account *account, Channe
 
 	channel_tree_remove_channel(manager->priv->app->channel_tree, channel);
 }
+void
+account_manager_set_fresh(AccountManager *manager, Account *account, Channel *channel)
+{
+	AccountManagerPrivate *priv;
+
+        g_return_if_fail(manager != NULL);
+        g_return_if_fail(IS_ACCOUNT_MANAGER(manager));
+
+	priv = manager->priv;
+
+	channel_tree_set_fresh(priv->app->channel_tree, account, channel);
+}
 /* called from select_cb */
 void
 account_manager_set_current(AccountManager *manager, Account *account, Channel *channel)
@@ -189,6 +201,7 @@ account_manager_set_current(AccountManager *manager, Account *account, Channel *
 		loqui_app_set_channel_buffer(priv->app, GTK_TEXT_BUFFER(channel->buffer));
 		nick_list_set_store(priv->app->nick_list, channel->user_list);
 		account_manager_set_topic(manager, channel_get_topic(channel));
+		channel_set_fresh(channel, FALSE);
 	} else if(account) {
 		loqui_app_set_channel_buffer(priv->app, GTK_TEXT_BUFFER(account->console_buffer));
 		nick_list_set_store(priv->app->nick_list, NULL);

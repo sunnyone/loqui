@@ -78,8 +78,12 @@ GType channel_get_type(void) G_GNUC_CONST;
 Channel* channel_new(gchar *name);
 void channel_append_text(Channel *channel, gboolean with_common_buffer, TextType type, gchar *str);
 void channel_append_remark(Channel *channel, TextType type, gchar *nick, gchar *remark);
+
 void channel_set_topic(Channel *channel, const gchar *topic);
 gchar *channel_get_topic(Channel *channel);
+
+void channel_set_fresh(Channel *channel, gboolean fresh);
+gboolean channel_get_fresh(Channel *channel);
 
 void channel_append_user(Channel *channel, const gchar *nick, UserPower power, UserExistence exist);
 void channel_remove_user(Channel *channel, const gchar *nick);

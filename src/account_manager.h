@@ -62,6 +62,7 @@ void account_manager_add_channel(AccountManager *manager, Account *account, Chan
 void account_manager_remove_channel(AccountManager *manager, Account *account, Channel *channel);
 
 void account_manager_set_current(AccountManager *manager, Account *account, Channel *channel);
+void account_manager_set_fresh(AccountManager *manager, Account *account, Channel *channel);
 void account_manager_speak(AccountManager *manager, const gchar *str);
 
 gboolean account_manager_is_current_account(AccountManager *manager, Account *account);
