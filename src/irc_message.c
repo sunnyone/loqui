@@ -97,30 +97,12 @@ irc_message_finalize(GObject *object)
 
         msg = IRC_MESSAGE(object);
 
-	if(msg->prefix) { 
-		g_free(msg->prefix); 
-		msg->prefix = NULL; 
-	}
-	if(msg->command) { 
-		g_free(msg->command); 
-		msg->command = NULL; 
-	}
-	if(msg->parameter) { 
-		g_strfreev(msg->parameter); 
-		msg->parameter = NULL;
-	}
-	if(msg->nick) { 
-		g_free(msg->nick);
-		msg->nick = NULL;
-	}
-	if(msg->user) { 
-		g_free(msg->user);
-		msg->user = NULL;
-	}
-	if(msg->host) { 
-		g_free(msg->host); 
-		msg->host = NULL;
-	}
+	G_FREE_UNLESS_NULL(msg->prefix);
+	G_FREE_UNLESS_NULL(msg->command);
+	G_FREE_UNLESS_NULL(msg->parameter);
+	G_FREE_UNLESS_NULL(msg->nick);
+	G_FREE_UNLESS_NULL(msg->user);
+	G_FREE_UNLESS_NULL(msg->host);
 
         if (G_OBJECT_CLASS(parent_class)->finalize)
                 (* G_OBJECT_CLASS(parent_class)->finalize) (object);
