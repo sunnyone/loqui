@@ -63,6 +63,7 @@ static void irc_handle_inspect_message(IRCHandle *handle, IRCMessage *msg);
 static void irc_handle_my_command_nick(IRCHandle *handle, IRCMessage *msg);
 static void irc_handle_my_command_join(IRCHandle *handle, IRCMessage *msg);
 static void irc_handle_my_command_part(IRCHandle *handle, IRCMessage *msg);
+static void irc_handle_my_command_kick(IRCHandle *handle, IRCMessage *msg);
 
 static void irc_handle_command_privmsg_notice(IRCHandle *handle, IRCMessage *msg);
 static void irc_handle_command_ping(IRCHandle *handle, IRCMessage *msg);
@@ -71,6 +72,7 @@ static void irc_handle_command_join(IRCHandle *handle, IRCMessage *msg);
 static void irc_handle_command_part(IRCHandle *handle, IRCMessage *msg);
 static void irc_handle_command_nick(IRCHandle *handle, IRCMessage *msg);
 static void irc_handle_command_mode(IRCHandle *handle, IRCMessage *msg);
+static void irc_handle_command_kick(IRCHandle *handle, IRCMessage *msg);
 
 static void irc_handle_account_console_append(IRCHandle *handle, IRCMessage *msg, TextType type, gchar *format);
 static void irc_handle_channel_append(IRCHandle *handle, IRCMessage *msg, gboolean make_channel,
@@ -249,7 +251,32 @@ irc_handle_command_part(IRCHandle *handle, IRCMessage *msg)
 
 	irc_handle_channel_append(handle, msg, FALSE, 1, TEXT_TYPE_INFO, _("*** %n has just part %1(%t)"));
 }
+static void
+irc_handle_command_kick(IRCHandle *handle, IRCMessage *msg)
+{
+	Channel *channel;
+	gchar *name;
 
+	if(msg->nick == NULL) {
+		g_warning(_("The message does not contain nick"));
+		return;
+	}
+
+	name = irc_message_get_param(msg, 1);
+	if(!name) {
+		g_warning(_("The message does not contain the channal name"));
+		return;
+	}
+
+	channel = account_search_channel_by_name(handle->priv->account, name);
+	if(channel) {
+		gdk_threads_enter();
+		channel_remove_user(channel, msg->nick);
+		gdk_threads_leave();
+	}
+
+	irc_handle_channel_append(handle, msg, FALSE, 1, TEXT_TYPE_INFO, _("*** %2 was kicked from %1 by %n(%3)"));
+}
 static void
 irc_handle_command_nick(IRCHandle *handle, IRCMessage *msg)
 {
@@ -478,6 +505,32 @@ irc_handle_my_command_part(IRCHandle *handle, IRCMessage *msg)
 	g_object_unref(channel);
 	gdk_threads_leave();
 }
+static void
+irc_handle_my_command_kick(IRCHandle *handle, IRCMessage *msg)
+{
+	Channel *channel;
+	gchar *name;
+
+        g_return_if_fail(handle != NULL);
+        g_return_if_fail(IS_IRC_HANDLE(handle));
+	g_return_if_fail(msg != NULL);
+	
+	name = irc_message_get_param(msg, 1);
+	if(name == NULL) {
+		g_warning(_("Can't get channel name"));
+		return;
+	}
+	channel = account_search_channel_by_name(handle->priv->account, name);
+	if(channel == NULL)
+		return;
+
+	irc_handle_account_console_append(handle, msg, TEXT_TYPE_INFO, "*** You were kicked from %1 by %n (%3)");
+
+	gdk_threads_enter();
+	account_remove_channel(handle->priv->account, channel);
+	g_object_unref(channel);
+	gdk_threads_leave();
+}
 
 static void
 irc_handle_my_command_nick(IRCHandle *handle, IRCMessage *msg)
@@ -678,14 +731,31 @@ irc_handle_reply(IRCHandle *handle, IRCMessage *msg)
         g_return_val_if_fail(IS_IRC_HANDLE(handle), FALSE);
 
 	switch(msg->response) {
+	case IRC_RPL_AWAY:
+		irc_handle_account_console_append(handle, msg, TEXT_TYPE_INFO, _("*** %2 is marked as begin AWAY, but left the message: %3"));
+		return TRUE;
+	case IRC_RPL_INFO:
+		irc_handle_account_console_append(handle, msg, TEXT_TYPE_INFO, "*** %2");
+		return TRUE;
 	case IRC_RPL_LUSERCLIENT:
 	case IRC_RPL_LUSERME:
-		irc_handle_account_console_append(handle, msg, TEXT_TYPE_INFO, "*** %t");
+	case IRC_RPL_UNAWAY:
+	case IRC_RPL_NOWAWAY:
+		irc_handle_account_console_append(handle, msg, TEXT_TYPE_INFO, _("*** %t"));
+		return TRUE;
+	case IRC_RPL_INVITING:
+		irc_handle_account_console_append(handle, msg, TEXT_TYPE_INFO, _("*** You are inviting %2 to %3"));
+		return TRUE;
+	case IRC_RPL_VERSION:
+		irc_handle_account_console_append(handle, msg, TEXT_TYPE_INFO, _("*** %3 is running IRC version %2 (%4)"));
 		return TRUE;
 	case IRC_RPL_LUSEROP:
 	case IRC_RPL_LUSERUNKNOWN:
 	case IRC_RPL_LUSERCHANNELS:
 		irc_handle_account_console_append(handle, msg, TEXT_TYPE_INFO, "*** %2 %3");
+		return TRUE;
+	case IRC_RPL_LINKS:
+		irc_handle_account_console_append(handle, msg, TEXT_TYPE_INFO, "%3 %4");
 		return TRUE;
 	case IRC_RPL_MOTDSTART:
 	case IRC_RPL_MOTD:
@@ -701,7 +771,34 @@ irc_handle_reply(IRCHandle *handle, IRCMessage *msg)
 	case IRC_RPL_TOPIC:
 		irc_handle_reply_topic(handle, msg);
 		return TRUE;
+	case IRC_RPL_WHOISUSER:
+		irc_handle_account_console_append(handle, msg, TEXT_TYPE_NORMAL, _("%2 is %3@%4: %t"));
+		return TRUE;
+	case IRC_RPL_WHOWASUSER:
+		irc_handle_account_console_append(handle, msg, TEXT_TYPE_NORMAL, _("%2 was %3@%4: %t"));
+		return TRUE;
+	case IRC_RPL_WHOISCHANNELS:
+		irc_handle_account_console_append(handle, msg, TEXT_TYPE_NORMAL, _("%2: %t"));
+		return TRUE;
+	case IRC_RPL_WHOISSERVER:
+		irc_handle_account_console_append(handle, msg, TEXT_TYPE_NORMAL, _("on via server %3(%t)"));
+		return TRUE;
+	case IRC_RPL_WHOISIDLE:
+		irc_handle_account_console_append(handle, msg, TEXT_TYPE_NORMAL, _("%3 %t"));
+		return TRUE;
+	case IRC_RPL_BANLIST:
+		irc_handle_account_console_append(handle, msg, TEXT_TYPE_NORMAL, _("Banned on %2 : %3"));
+		return TRUE;
+	case IRC_RPL_TIME:
+		irc_handle_account_console_append(handle, msg, TEXT_TYPE_NORMAL, _("Time: %3(%2)"));
+		return TRUE;
 	case IRC_RPL_ENDOFNAMES:
+	case IRC_RPL_ENDOFWHOIS:
+	case IRC_RPL_ENDOFWHO:
+	case IRC_RPL_ENDOFBANLIST:
+	case IRC_RPL_ENDOFINFO:
+	case IRC_RPL_ENDOFUSERS:
+	case IRC_RPL_NONE:
 		return TRUE;
 	default:
 		break;
@@ -734,6 +831,9 @@ irc_handle_command(IRCHandle *handle, IRCMessage *msg)
 		case IRC_COMMAND_PART:
 			irc_handle_my_command_part(handle, msg);
 			return TRUE;
+		case IRC_COMMAND_KICK:
+			irc_handle_my_command_kick(handle, msg);
+			return TRUE;
 		default:
 			break;
 		}
@@ -754,6 +854,9 @@ irc_handle_command(IRCHandle *handle, IRCMessage *msg)
 		return TRUE;
 	case IRC_COMMAND_PART:
 		irc_handle_command_part(handle, msg);
+		return TRUE;
+	case IRC_COMMAND_KICK:
+		irc_handle_command_kick(handle, msg);
 		return TRUE;
 	case IRC_COMMAND_TOPIC:
 		irc_handle_command_topic(handle, msg);
