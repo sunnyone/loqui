@@ -344,9 +344,8 @@ loqui_user_class_away_type_get_info(LoquiUserClass *user_class, LoquiAwayType aw
 	
         g_return_val_if_fail(user_class != NULL, NULL);
         g_return_val_if_fail(LOQUI_IS_USER_CLASS(user_class), NULL);
-	
-	if (away_type < 0 || away_type >= user_class->away_type_array->len)
-		return LOQUI_AWAY_TYPE_UNKNOWN;
+	g_return_val_if_fail(away_type >= 0, NULL);
+	g_return_val_if_fail(away_type < user_class->away_type_array->len, NULL);
 
 	info = g_ptr_array_index(user_class->away_type_array, away_type);
 	
@@ -376,7 +375,7 @@ loqui_user_get_basic_away(LoquiUser *user)
 		return LOQUI_BASIC_AWAY_TYPE_UNKNOWN;
 
 	away_info = loqui_user_class_away_type_get_info(LOQUI_USER_GET_CLASS(user), user->away);
-	if (away_info)
+	if (!away_info)
 		return LOQUI_BASIC_AWAY_TYPE_UNKNOWN;
 
 	return away_info->basic_away_type;
