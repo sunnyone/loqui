@@ -1,0 +1,16 @@
+* What's this?
+Backports from gtk 2.4 for gtk 2.2 environment.
+
+* How to use?
+If in gtk2.2 environment, define USE_2_2 like this:
+
+if test "x${gtk_config_major_version}" = "x2" -a "x${gtk_config_minor_version}" = "x2"; then
+   AC_DEFINE_UNQUOTED(USE_GTK_2_2, 1)
+fi
+
+Then, include gtk24backports.h and link libgtk24backports.la.
+Use some widgets with Gtk24* prefix since GtkToolbar conflicts.
+
+* Last merged
+2004-03-16
+

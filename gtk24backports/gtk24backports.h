@@ -1,0 +1,13 @@
+#include <gtk24toolbar.h>
+#include <gtkaction.h>
+#include <gtkactiongroup.h>
+#include <gtkintl.h>
+#include <gtkradioaction.h>
+#include <gtkradiotoolbutton.h>
+#include <gtkseparatortoolitem.h>
+#include <gtktoggleaction.h>
+#include <gtktoggleactionprivate.h>
+#include <gtktoggletoolbutton.h>
+#include <gtktoolbutton.h>
+#include <gtktoolitem.h>
+#include <gtkuimanager.h>
