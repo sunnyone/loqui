@@ -19,18 +19,18 @@
  */
 
 #include "loqui_app.h"
-#include <egg-action-group.h>
+#include <gtk24backports.h>
 
 #ifndef __LOQUI_ACTIONS_H__
 #define __LOQUI_ACTIONS_H__
 
 #define ACTION_GROUP_ACTION_SET_SENSITIVE(action_group, name, bool) { \
-  EggAction *a; \
-  a = egg_action_group_get_action(action_group, name); \
+  GtkAction *a; \
+  a = gtk_action_group_get_action(action_group, name); \
   if (a) \
-    egg_action_set_sensitive(a, bool); \
+    g_object_set(a, "sensitive", bool, NULL); \
 }
 
-EggActionGroup* loqui_actions_create_group(LoquiApp *app, GtkAccelGroup *accel_group);
+GtkActionGroup* loqui_actions_create_group(LoquiApp *app);
 
 #endif /* __LOQUI_ACTIONS_H__ */

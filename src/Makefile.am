@@ -1,8 +1,8 @@
-SUBDIRS = icons embedtxt libegg
+SUBDIRS = icons embedtxt
 
 bin_PROGRAMS = loqui
 
-INCLUDES = $(GTK_CFLAGS) $(EXTRA_WARNING_CFLAGS) -g -I$(includedir) -Ilibegg \
+INCLUDES = $(GTK_CFLAGS) $(EXTRA_WARNING_CFLAGS) -g -I$(includedir) -I../gtk24backports \
 	-DDATADIR=\""$(datadir)"\" $(GNET_CFLAGS) -Wall
 
 loqui_SOURCES = \
@@ -45,4 +45,4 @@ loqui_SOURCES = \
 	loqui_channelbar.c loqui_channelbar.h
 
 loqui_LDADD = \
-        $(GTK_LIBS) $(GNET_LIBS) libegg/libegg.la
+        $(GTK_LIBS) $(GNET_LIBS) ../gtk24backports/libgtk24backports.la

@@ -112,6 +112,7 @@ main(int argc, char *argv[])
 	
 	gnet_init();
 	gtk_init(&argc, &argv);
+	gtk24backports_init();
 
 	loqui_stock_init();
 

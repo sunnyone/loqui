@@ -42,7 +42,7 @@
 
 #include <string.h>
 
-#include <egg-toggle-action.h>
+#include <gtk24backports.h>
 
 struct _LoquiAppPrivate
 {
@@ -70,7 +70,7 @@ static void loqui_app_save_size(LoquiApp *app);
 static void loqui_app_entry_activate_cb(GtkWidget *widget, gpointer data);
 static void loqui_app_entry_toggle_command_toggled_cb(GtkWidget *widget, gpointer data);
 
-static void loqui_app_menu_merge_add_widget_cb(EggMenuMerge *merge, GtkWidget *widget, GtkBox *box);
+static void loqui_app_ui_manager_add_widget_cb(GtkUIManager *ui_manager, GtkWidget *widget, GtkBox *box);
 
 static void loqui_app_channel_textview_inserted_cb(GtkTextBuffer *textbuf,
 						   GtkTextIter *pos,
@@ -254,15 +254,15 @@ static void
 loqui_app_entry_toggle_command_toggled_cb(GtkWidget *widget, gpointer data)
 {
 	LoquiApp *app;
-	EggAction *action;
+	GtkAction *action;
 
 	g_return_if_fail(data != NULL);
 	g_return_if_fail(LOQUI_IS_APP(data));
 
 	app = LOQUI_APP(data);
 
-	action = egg_action_group_get_action(app->action_group, "ToggleCommandMode");
-	egg_toggle_action_set_active(EGG_TOGGLE_ACTION(action), remark_entry_get_command_mode(REMARK_ENTRY(app->remark_entry)));
+	action = gtk_action_group_get_action(app->action_group, "ToggleCommandMode");
+	gtk_toggle_action_set_active(GTK_TOGGLE_ACTION(action), remark_entry_get_command_mode(REMARK_ENTRY(app->remark_entry)));
 }
 static void
 loqui_app_statusbar_nick_clicked_cb(GtkWidget *widget, gpointer data)
@@ -441,12 +441,11 @@ loqui_app_update_info(LoquiApp *app,
 	G_FREE_UNLESS_NULL(op_number_str);
 }
 static void
-loqui_app_menu_merge_add_widget_cb(EggMenuMerge *merge, GtkWidget *widget, GtkBox *box)
+loqui_app_ui_manager_add_widget_cb(GtkUIManager *ui_manager, GtkWidget *widget, GtkBox *box)
 {
         gtk_box_pack_start(box, widget, FALSE, FALSE, 0);
         gtk_widget_show(widget);
 }
-
 GtkWidget*
 loqui_app_new(void)
 {
@@ -478,20 +477,19 @@ loqui_app_new(void)
 	menu_box = gtk_vbox_new(FALSE, 0);
 	gtk_box_pack_start(GTK_BOX(vbox), menu_box, FALSE, FALSE, 0);
 
-	app->accel_group = gtk_accel_group_new();
-	app->action_group = loqui_actions_create_group(app, app->accel_group);
+	app->action_group = loqui_actions_create_group(app);
 
-	app->menu_merge = egg_menu_merge_new();
-	egg_menu_merge_set_accel_group(app->menu_merge, app->accel_group);
-	egg_menu_merge_insert_action_group(app->menu_merge, app->action_group, 0);
+	app->ui_manager = gtk_ui_manager_new();
+	gtk_window_add_accel_group(GTK_WINDOW(app),
+				   gtk_ui_manager_get_accel_group(app->ui_manager));
+	gtk_ui_manager_insert_action_group(app->ui_manager, app->action_group, 0);
 
-	g_signal_connect(app->menu_merge, "add_widget",
-			 G_CALLBACK(loqui_app_menu_merge_add_widget_cb), menu_box);
-	if(!egg_menu_merge_add_ui_from_string(app->menu_merge, embedtxt_loqui_app_ui, -1, &error))
+	g_signal_connect(app->ui_manager, "add_widget",
+			 G_CALLBACK(loqui_app_ui_manager_add_widget_cb), menu_box);
+	if(!gtk_ui_manager_add_ui_from_string(app->ui_manager, embedtxt_loqui_app_ui, -1, &error))
 		g_error("Failed to load UI XML: %s", error->message);
 
-	egg_menu_merge_ensure_update(app->menu_merge);
-	gtk_window_add_accel_group(GTK_WINDOW(app), app->accel_group);
+	gtk_ui_manager_ensure_update(app->ui_manager);
 	
 	priv->handlebox_channelbar = gtk_handle_box_new();
 	gtk_box_pack_start(GTK_BOX(vbox), priv->handlebox_channelbar, FALSE, FALSE, 0);
@@ -869,7 +867,7 @@ loqui_app_menu_get_buffers_menu(LoquiApp *app)
         g_return_val_if_fail(app != NULL, NULL);
         g_return_val_if_fail(LOQUI_IS_APP(app), NULL);
 	
-        widget = egg_menu_merge_get_widget(app->menu_merge, "/menu/Buffers");
+        widget = gtk_ui_manager_get_widget(app->ui_manager, "/menubar/Buffers");
 
 	if (GTK_IS_MENU_ITEM(widget))
 		return gtk_menu_item_get_submenu(GTK_MENU_ITEM(widget));

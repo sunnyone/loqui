@@ -20,8 +20,7 @@
 #ifndef __LOQUI_APP_H__
 #define __LOQUI_APP_H__
 
-#include <egg-action-group.h>
-#include <egg-menu-merge.h>
+#include <gtk24backports.h>
 #include "channel_tree.h"
 #include "nick_list.h"
 
@@ -47,9 +46,8 @@ struct _LoquiApp
 
 	GAsyncQueue *error_connections;
 
-	GtkAccelGroup *accel_group;
-	EggActionGroup *action_group;
-	EggMenuMerge *menu_merge;
+	GtkActionGroup *action_group;
+	GtkUIManager *ui_manager;
 
 	GtkWidget *channelbar;
 	GtkWidget *statusbar;

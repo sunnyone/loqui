@@ -28,115 +28,118 @@
 #include "command_dialog.h"
 #include "gtkutils.h"
 
-#include <egg-toggle-action.h>
+#include <gtk24backports.h>
 
 #define CTRL "<control>"
 #define ALT  "<alt>"
 #define SHIFT "<shift>"
 
-static void loqui_actions_about_cb(EggAction *action, LoquiApp *app);
-static void loqui_actions_common_settings_cb(EggAction *action, LoquiApp *app);
-static void loqui_actions_account_settings_cb(EggAction *action, LoquiApp *app);
-static void loqui_actions_connect_cb(EggAction *action, LoquiApp *app);
-static void loqui_actions_quit_cb(EggAction *action, LoquiApp *app);
-static void loqui_actions_edit_menu_cb(EggAction *action, LoquiApp *app);
-static void loqui_actions_cut_cb(EggAction *action, LoquiApp *app);
-static void loqui_actions_copy_cb(EggAction *action, LoquiApp *app);
-static void loqui_actions_paste_cb(EggAction *action, LoquiApp *app);
-static void loqui_actions_clear_cb(EggAction *action, LoquiApp *app);
-static void loqui_actions_toggle_channelbar_cb(EggAction *action, LoquiApp *app);
-static void loqui_actions_toggle_statusbar_cb(EggAction *action, LoquiApp *app);
-static void loqui_actions_toggle_command_mode_cb(EggAction *action, LoquiApp *app);
-static void loqui_actions_previous_updated_channel_cb(EggAction *action, LoquiApp *app);
-static void loqui_actions_next_updated_channel_cb(EggAction *action, LoquiApp *app);
-static void loqui_actions_previous_channel_cb(EggAction *action, LoquiApp *app);
-static void loqui_actions_next_channel_cb(EggAction *action, LoquiApp *app);
-static void loqui_actions_join_cb(EggAction *action, LoquiApp *app);
-static void loqui_actions_part_cb(EggAction *action, LoquiApp *app);
-static void loqui_actions_set_topic_cb(EggAction *action, LoquiApp *app);
-static void loqui_actions_nick_cb(EggAction *action, LoquiApp *app);
-static void loqui_actions_away_info_cb(EggAction *action, LoquiApp *app);
-static void loqui_actions_start_private_talk_cb(EggAction *action, LoquiApp *app);
+static void loqui_actions_about_cb(GtkAction *action, LoquiApp *app);
+static void loqui_actions_common_settings_cb(GtkAction *action, LoquiApp *app);
+static void loqui_actions_account_settings_cb(GtkAction *action, LoquiApp *app);
+static void loqui_actions_connect_cb(GtkAction *action, LoquiApp *app);
+static void loqui_actions_quit_cb(GtkAction *action, LoquiApp *app);
+static void loqui_actions_edit_menu_cb(GtkAction *action, LoquiApp *app);
+static void loqui_actions_cut_cb(GtkAction *action, LoquiApp *app);
+static void loqui_actions_copy_cb(GtkAction *action, LoquiApp *app);
+static void loqui_actions_paste_cb(GtkAction *action, LoquiApp *app);
+static void loqui_actions_clear_cb(GtkAction *action, LoquiApp *app);
+static void loqui_actions_toggle_channelbar_cb(GtkAction *action, LoquiApp *app);
+static void loqui_actions_toggle_statusbar_cb(GtkAction *action, LoquiApp *app);
+static void loqui_actions_toggle_command_mode_cb(GtkAction *action, LoquiApp *app);
+static void loqui_actions_previous_updated_channel_cb(GtkAction *action, LoquiApp *app);
+static void loqui_actions_next_updated_channel_cb(GtkAction *action, LoquiApp *app);
+static void loqui_actions_previous_channel_cb(GtkAction *action, LoquiApp *app);
+static void loqui_actions_next_channel_cb(GtkAction *action, LoquiApp *app);
+static void loqui_actions_join_cb(GtkAction *action, LoquiApp *app);
+static void loqui_actions_part_cb(GtkAction *action, LoquiApp *app);
+static void loqui_actions_set_topic_cb(GtkAction *action, LoquiApp *app);
+static void loqui_actions_nick_cb(GtkAction *action, LoquiApp *app);
+static void loqui_actions_away_info_cb(GtkAction *action, LoquiApp *app);
+static void loqui_actions_start_private_talk_cb(GtkAction *action, LoquiApp *app);
 
-static EggActionGroupEntry loqui_action_entries[] =
+static GtkActionEntry loqui_action_entries[] =
 {
-	/* name, label, stock_id, accelerator, tooltip, callback, user_data, entry_type, extra_data */
-	{"StockFileMenu",        N_("_File"),       NULL, NULL, NULL, NULL, NULL},
-	{"StockEditMenu",        N_("_Edit"),       NULL, NULL, NULL, G_CALLBACK(loqui_actions_edit_menu_cb), NULL},
-	{"StockCommandMenu",     N_("_Command"),    NULL, NULL, NULL, NULL, NULL},
-	{"StockViewMenu",        N_("_View"),       NULL, NULL, NULL, NULL, NULL},
-	{"StockBuffersMenu",     N_("_Buffers"),    NULL, NULL, NULL, NULL, NULL},
-	{"StockSettingsMenu",    N_("_Settings"),   NULL, NULL, NULL, NULL, NULL},
-	{"StockHelpMenu",        N_("_Help"),       NULL, NULL, NULL, NULL, NULL},
+	/* name, stock_id, label, accelerator, tooltip, callback */
+	{"StockFileMenu",        NULL, N_("_File"),       NULL, NULL},
+	{"StockEditMenu",        NULL, N_("_Edit"),       NULL, NULL, G_CALLBACK(loqui_actions_edit_menu_cb)},
+	{"StockCommandMenu",     NULL, N_("_Command"),    NULL, NULL},
+	{"StockViewMenu",        NULL, N_("_View"),       NULL, NULL},
+	{"StockBuffersMenu",     NULL, N_("_Buffers"),    NULL, NULL},
+	{"StockSettingsMenu",    NULL, N_("_Settings"),   NULL, NULL},
+	{"StockHelpMenu",        NULL, N_("_Help"),       NULL, NULL},
 	
-	{"StockModeMenu",        N_("Change user mode [Mode]"),    NULL, NULL, NULL, NULL, NULL},
-	{"StockCTCPMenu",        N_("CTCP"),        NULL, NULL, NULL, NULL, NULL},
+	{"StockModeMenu",        NULL, N_("Change user mode [Mode]"), NULL, NULL},
+	{"StockCTCPMenu",        NULL, N_("CTCP"),        NULL, NULL},
 
-	{"FakeToplevel",         (""),               NULL, NULL, NULL, NULL, NULL },
+	{"FakeToplevel",         NULL, (""),               NULL, NULL, NULL},
 
-        {"Quit",                  N_("_Quit"), GTK_STOCK_QUIT, CTRL"Q", NULL, G_CALLBACK(loqui_actions_quit_cb), NULL},
+        {"Quit",                 GTK_STOCK_QUIT, N_("_Quit"), CTRL"Q", NULL, G_CALLBACK(loqui_actions_quit_cb)},
 
-        {"Connect",               N_("_Connect"), NULL, NULL, NULL, G_CALLBACK(loqui_actions_connect_cb), NULL},
+        {"Connect",              NULL, N_("_Connect"), NULL, NULL, G_CALLBACK(loqui_actions_connect_cb)},
 
-        {"Cut",                   N_("_Cut"), GTK_STOCK_CUT, CTRL "X", NULL, G_CALLBACK(loqui_actions_cut_cb), NULL},
-        {"Copy",                  N_("_Copy"), GTK_STOCK_COPY, CTRL "C", NULL, G_CALLBACK(loqui_actions_copy_cb), NULL},
-        {"Paste",                 N_("_Paste"), GTK_STOCK_PASTE, CTRL "P", NULL, G_CALLBACK(loqui_actions_paste_cb), NULL},
-        {"PasteWithLinefeedsCut", N_("_Paste with Linefeeds Cut"), GTK_STOCK_PASTE, NULL, NULL, NULL, NULL},
-        {"Clear",                 N_("_Clear"), GTK_STOCK_CLEAR, NULL, NULL, G_CALLBACK(loqui_actions_clear_cb), NULL},
-        {"ToggleCommandMode",     N_("_Toggle Command Mode"), LOQUI_STOCK_COMMAND, CTRL"slash", NULL, G_CALLBACK(loqui_actions_toggle_command_mode_cb), NULL, TOGGLE_ACTION},
-        {"Find",                  N_("_Find"), GTK_STOCK_FIND, CTRL"F", NULL, NULL, NULL},
-        {"FindAgain",             N_("_Find Again"), GTK_STOCK_FIND, NULL, NULL, NULL, NULL},
+        {"Cut",                   GTK_STOCK_CUT, N_("_Cut"), CTRL "X", NULL, G_CALLBACK(loqui_actions_cut_cb)},
+        {"Copy",                  GTK_STOCK_COPY, N_("_Copy"), CTRL "C", NULL, G_CALLBACK(loqui_actions_copy_cb)},
+        {"Paste",                 GTK_STOCK_PASTE, N_("_Paste"), CTRL "P", NULL, G_CALLBACK(loqui_actions_paste_cb)},
+        {"PasteWithLinefeedsCut", GTK_STOCK_PASTE, N_("_Paste with Linefeeds Cut"), NULL, NULL, NULL},
+        {"Clear",                 GTK_STOCK_CLEAR, N_("_Clear"), NULL, NULL, G_CALLBACK(loqui_actions_clear_cb)},
 
-	{"Join",                  N_("_Join"), NULL, ALT "J", NULL, G_CALLBACK(loqui_actions_join_cb), NULL},
-        {"StartPrivateTalk",      N_("_Start Private Talk"), NULL, NULL, NULL, G_CALLBACK(loqui_actions_start_private_talk_cb), NULL},
-        {"Part",                  N_("_Part"), NULL, NULL, NULL, G_CALLBACK(loqui_actions_part_cb), NULL},
-        {"SetTopic",              N_("Set _Topic"), NULL, ALT "T", NULL, G_CALLBACK(loqui_actions_set_topic_cb), NULL},
-        {"ChangeNick",            N_("_Change Nickname"), NULL, CTRL ALT "N", NULL, G_CALLBACK(loqui_actions_nick_cb), NULL},
-        {"RefreshAway",           N_("_Refresh users' away information of current channel"), NULL, CTRL ALT "A", NULL, G_CALLBACK(loqui_actions_away_info_cb), NULL},
+        {"Find",                  GTK_STOCK_FIND, N_("_Find"), CTRL"F", NULL, NULL},
+        {"FindAgain",             GTK_STOCK_FIND, N_("_Find Again"), NULL, NULL, NULL},
 
-        {"ToggleChannelbar",       N_("_Channelbar"), NULL, NULL, NULL, G_CALLBACK(loqui_actions_toggle_channelbar_cb), NULL, TOGGLE_ACTION},
-        {"ToggleStatusbar",        N_("_Statusbar"), NULL, NULL, NULL, G_CALLBACK(loqui_actions_toggle_statusbar_cb), NULL, TOGGLE_ACTION},
-        {"PreviousUpdatedChannel", N_("_Previous Updated Channel"), GTK_STOCK_GOTO_TOP, NULL, NULL, G_CALLBACK(loqui_actions_previous_updated_channel_cb), NULL},
-        {"NextUpdatedChannel",     N_("_Next Updated Channel"), GTK_STOCK_GOTO_BOTTOM, NULL, NULL, G_CALLBACK(loqui_actions_next_updated_channel_cb), NULL},
-        {"PreviousChannel",        N_("Previous Channel"), GTK_STOCK_GO_UP, CTRL "P", NULL, G_CALLBACK(loqui_actions_previous_channel_cb), NULL},
-        {"NextChannel",            N_("Next Channel"), GTK_STOCK_GO_DOWN, CTRL "N", NULL, G_CALLBACK(loqui_actions_next_channel_cb), NULL},
-        {"GeneralSettings",        N_("_General Settings"), NULL, NULL, NULL, G_CALLBACK(loqui_actions_common_settings_cb), NULL},
-        {"AccountSettings",        N_("_Account Settings"), NULL, NULL, NULL, G_CALLBACK(loqui_actions_account_settings_cb), NULL},
+	{"Join",                  NULL, N_("_Join"), ALT "J", NULL, G_CALLBACK(loqui_actions_join_cb)},
+        {"StartPrivateTalk",      NULL, N_("_Start Private Talk"), NULL, NULL, G_CALLBACK(loqui_actions_start_private_talk_cb)},
+        {"Part",                  NULL, N_("_Part"), NULL, NULL, G_CALLBACK(loqui_actions_part_cb)},
+        {"SetTopic",              NULL, N_("Set _Topic"), ALT "T", NULL, G_CALLBACK(loqui_actions_set_topic_cb)},
+        {"ChangeNick",            NULL, N_("_Change Nickname"), CTRL ALT "N", NULL, G_CALLBACK(loqui_actions_nick_cb)},
+        {"RefreshAway",           NULL, N_("_Refresh users' away information of current channel"), CTRL ALT "A", NULL, G_CALLBACK(loqui_actions_away_info_cb)},
 
-        {"About",                  N_("_About"), NULL, NULL, NULL, G_CALLBACK(loqui_actions_about_cb), NULL},
+        {"PreviousUpdatedChannel", GTK_STOCK_GOTO_TOP, N_("_Previous Updated Channel"), NULL, NULL, G_CALLBACK(loqui_actions_previous_updated_channel_cb)},
+        {"NextUpdatedChannel",     GTK_STOCK_GOTO_BOTTOM, N_("_Next Updated Channel"), NULL, NULL, G_CALLBACK(loqui_actions_next_updated_channel_cb)},
+        {"PreviousChannel",        GTK_STOCK_GO_UP, N_("Previous Channel"),CTRL "P", NULL, G_CALLBACK(loqui_actions_previous_channel_cb)},
+        {"NextChannel",            GTK_STOCK_GO_DOWN, N_("Next Channel"), CTRL "N", NULL, G_CALLBACK(loqui_actions_next_channel_cb)},
+        {"GeneralSettings",        NULL, N_("_General Settings"), NULL, NULL, G_CALLBACK(loqui_actions_common_settings_cb)},
+        {"AccountSettings",        NULL, N_("_Account Settings"), NULL, NULL, G_CALLBACK(loqui_actions_account_settings_cb)},
 
-        {"StartPrivateTalkSelected", N_("Start private talk"), NULL, NULL, NULL, NULL, NULL},
-        {"WhoisSelected",            N_("Show information [Whois]"), NULL, NULL, NULL, NULL, NULL},
-        {"GiveOpSelected",           N_("Give Channel Operator Privilege (+o)"), LOQUI_STOCK_OPERATOR, NULL, NULL, NULL, NULL},
-        {"GiveVoiceSelected",        N_("Give Voice Privilege (+v)"), LOQUI_STOCK_SPEAK_ABILITY, NULL, NULL, NULL, NULL},
-        {"DepriveOpSelected",        N_("Deprive Channel Operator Privilege (-o)"), NULL, NULL, NULL, NULL, NULL},
-        {"DepriveVoiceSelected",     N_("Deprive Voice Privilege (-v)"), NULL, NULL, NULL, NULL, NULL},
+        {"About",                  NULL, N_("_About"), NULL, NULL, G_CALLBACK(loqui_actions_about_cb)},
 
-        {"CTCPVersionSelected",      N_("_Version"), NULL, NULL, NULL, NULL, NULL},
-        {"CTCPClientinfoSelected",   N_("_Clientinfo"), NULL, NULL, NULL, NULL, NULL},
-        {"CTCPUserinfoSelected",     N_("User_info"), NULL, NULL, NULL, NULL, NULL},
-        {"CTCPPingSelected",         N_("_Ping"), NULL, NULL, NULL, NULL, NULL},
-        {"CTCPTimeSelected",         N_("_Time"), NULL, NULL, NULL, NULL, NULL},
-        {"CTCPFingerSelected",       N_("_Finger"), NULL, NULL, NULL, NULL, NULL},
+        {"StartPrivateTalkSelected", NULL, N_("Start private talk"), NULL, NULL, NULL},
+        {"WhoisSelected",            NULL, N_("Show information [Whois]"), NULL, NULL, NULL},
+        {"GiveOpSelected",           LOQUI_STOCK_OPERATOR, N_("Give Channel Operator Privilege (+o)"), NULL, NULL, NULL},
+        {"GiveVoiceSelected",        LOQUI_STOCK_SPEAK_ABILITY, N_("Give Voice Privilege (+v)"), NULL, NULL, NULL},
+        {"DepriveOpSelected",        NULL, N_("Deprive Channel Operator Privilege (-o)"), NULL, NULL, NULL},
+        {"DepriveVoiceSelected",     NULL, N_("Deprive Voice Privilege (-v)"), NULL, NULL, NULL},
+
+        {"CTCPVersionSelected",      NULL, N_("_Version"), NULL, NULL, NULL},
+        {"CTCPClientinfoSelected",   NULL, N_("_Clientinfo"), NULL, NULL, NULL},
+        {"CTCPUserinfoSelected",     NULL, N_("User_info"), NULL, NULL, NULL},
+        {"CTCPPingSelected",         NULL, N_("_Ping"), NULL, NULL, NULL},
+        {"CTCPTimeSelected",         NULL, N_("_Time"), NULL, NULL, NULL},
+        {"CTCPFingerSelected",       NULL, N_("_Finger"), NULL, NULL, NULL},
+};
+static GtkToggleActionEntry loqui_toggle_action_entries[] = {
+        {"ToggleCommandMode", LOQUI_STOCK_COMMAND, N_("_Toggle Command Mode"),CTRL"slash", NULL, G_CALLBACK(loqui_actions_toggle_command_mode_cb), TRUE},
+        {"ToggleChannelbar",  NULL, N_("_Channelbar"), NULL, NULL, G_CALLBACK(loqui_actions_toggle_channelbar_cb), TRUE},
+        {"ToggleStatusbar",   NULL, N_("_Statusbar"), NULL, NULL, G_CALLBACK(loqui_actions_toggle_statusbar_cb), TRUE},
 };
 
-EggActionGroup *
-loqui_actions_create_group(LoquiApp *app, GtkAccelGroup *accel_group)
+GtkActionGroup *
+loqui_actions_create_group(LoquiApp *app)
 {
-	EggActionGroup *action_group;
-        gint i;
+	GtkActionGroup *action_group;
 
-	for (i = 0; i < G_N_ELEMENTS(loqui_action_entries); i++)
-                loqui_action_entries[i].user_data = app;
+        action_group = gtk_action_group_new("LoquiApp");
+	gtk_action_group_set_translate_func(action_group, gtkutils_menu_translate, NULL, NULL);
 
-        action_group = egg_action_group_new("LoquiApp");
-	if (accel_group)
-                egg_action_group_set_accel_group(action_group, accel_group);
-	
-	egg_action_group_add_actions(action_group,
+	gtk_action_group_add_actions(action_group,
 				     loqui_action_entries,
-				     G_N_ELEMENTS(loqui_action_entries));
-	
+				     G_N_ELEMENTS(loqui_action_entries),
+				     app);
+	gtk_action_group_add_toggle_actions(action_group,
+					    loqui_toggle_action_entries,
+					    G_N_ELEMENTS(loqui_toggle_action_entries),
+					    app);
+
 	ACTION_GROUP_ACTION_SET_SENSITIVE(action_group, "PasteWithLinefeedsCut", FALSE);
 	ACTION_GROUP_ACTION_SET_SENSITIVE(action_group, "Find", FALSE);
 	ACTION_GROUP_ACTION_SET_SENSITIVE(action_group, "FindAgain", FALSE);
@@ -146,7 +149,7 @@ loqui_actions_create_group(LoquiApp *app, GtkAccelGroup *accel_group)
 
 /* callbacks */
 static void
-loqui_actions_edit_menu_cb(EggAction *action, LoquiApp *app)
+loqui_actions_edit_menu_cb(GtkAction *action, LoquiApp *app)
 {
 	gboolean cutable, copiable, pastable, clearable, findable;
 
@@ -158,93 +161,93 @@ loqui_actions_edit_menu_cb(EggAction *action, LoquiApp *app)
 	ACTION_GROUP_ACTION_SET_SENSITIVE(app->action_group, "Clear", clearable);
 }
 static void
-loqui_actions_about_cb(EggAction *action, LoquiApp *app)
+loqui_actions_about_cb(GtkAction *action, LoquiApp *app)
 {
 	about_open();
 }
 static void
-loqui_actions_common_settings_cb(EggAction *action, LoquiApp *app)
+loqui_actions_common_settings_cb(GtkAction *action, LoquiApp *app)
 {
 	account_manager_open_prefs_dialog(account_manager_get());
 }
 static void
-loqui_actions_account_settings_cb(EggAction *action, LoquiApp *app)
+loqui_actions_account_settings_cb(GtkAction *action, LoquiApp *app)
 {
 	account_manager_open_account_list_dialog(account_manager_get());
 }
 static void
-loqui_actions_quit_cb(EggAction *action, LoquiApp *app)
+loqui_actions_quit_cb(GtkAction *action, LoquiApp *app)
 {
 	gtk_main_quit();
 }
 static void
-loqui_actions_connect_cb(EggAction *action, LoquiApp *app)
+loqui_actions_connect_cb(GtkAction *action, LoquiApp *app)
 {
 	account_manager_open_connect_dialog(account_manager_get());
 }
 static void
-loqui_actions_cut_cb(EggAction *action, LoquiApp *app)
+loqui_actions_cut_cb(GtkAction *action, LoquiApp *app)
 {
 	loqui_app_current_widget_cut(app);
 }
 static void
-loqui_actions_copy_cb(EggAction *action, LoquiApp *app)
+loqui_actions_copy_cb(GtkAction *action, LoquiApp *app)
 {
 	loqui_app_current_widget_copy(app);
 }
 static void
-loqui_actions_paste_cb(EggAction *action, LoquiApp *app)
+loqui_actions_paste_cb(GtkAction *action, LoquiApp *app)
 {
 	loqui_app_current_widget_paste(app);
 }
 static void
-loqui_actions_clear_cb(EggAction *action, LoquiApp *app)
+loqui_actions_clear_cb(GtkAction *action, LoquiApp *app)
 {
 	loqui_app_current_widget_clear(app);
 }
 static void
-loqui_actions_toggle_channelbar_cb(EggAction *action, LoquiApp *app)
+loqui_actions_toggle_channelbar_cb(GtkAction *action, LoquiApp *app)
 {
-	loqui_app_set_show_channelbar(app, egg_toggle_action_get_active(EGG_TOGGLE_ACTION(action)));
+	loqui_app_set_show_channelbar(app, gtk_toggle_action_get_active(GTK_TOGGLE_ACTION(action)));
 }
 static void
-loqui_actions_toggle_statusbar_cb(EggAction *action, LoquiApp *app)
+loqui_actions_toggle_statusbar_cb(GtkAction *action, LoquiApp *app)
 {
-	loqui_app_set_show_statusbar(app, egg_toggle_action_get_active(EGG_TOGGLE_ACTION(action)));
+	loqui_app_set_show_statusbar(app, gtk_toggle_action_get_active(GTK_TOGGLE_ACTION(action)));
 }
 static void
-loqui_actions_toggle_command_mode_cb(EggAction *action, LoquiApp *app)
+loqui_actions_toggle_command_mode_cb(GtkAction *action, LoquiApp *app)
 {
-        remark_entry_set_command_mode(REMARK_ENTRY(app->remark_entry), egg_toggle_action_get_active(EGG_TOGGLE_ACTION(action)));
+        remark_entry_set_command_mode(REMARK_ENTRY(app->remark_entry), gtk_toggle_action_get_active(GTK_TOGGLE_ACTION(action)));
 }
 static void
-loqui_actions_previous_updated_channel_cb(EggAction *action, LoquiApp *app)
+loqui_actions_previous_updated_channel_cb(GtkAction *action, LoquiApp *app)
 {
 	channel_tree_select_prev_channel(app->channel_tree, TRUE);
 }
 static void
-loqui_actions_next_updated_channel_cb(EggAction *action, LoquiApp *app)
+loqui_actions_next_updated_channel_cb(GtkAction *action, LoquiApp *app)
 {
 	channel_tree_select_next_channel(app->channel_tree, TRUE);	
 }
 static void
-loqui_actions_previous_channel_cb(EggAction *action, LoquiApp *app)
+loqui_actions_previous_channel_cb(GtkAction *action, LoquiApp *app)
 {
 	channel_tree_select_prev_channel(app->channel_tree, FALSE);
 }
 static void
-loqui_actions_next_channel_cb(EggAction *action, LoquiApp *app)
+loqui_actions_next_channel_cb(GtkAction *action, LoquiApp *app)
 {
 	channel_tree_select_next_channel(app->channel_tree, FALSE);
 }
 static void
-loqui_actions_join_cb(EggAction *action, LoquiApp *app)
+loqui_actions_join_cb(GtkAction *action, LoquiApp *app)
 {
 	command_dialog_join(GTK_WINDOW(app),
 			    account_manager_get_current_account(account_manager_get()));
 }
 static void
-loqui_actions_part_cb(EggAction *action, LoquiApp *app)
+loqui_actions_part_cb(GtkAction *action, LoquiApp *app)
 {
 	AccountManager *manager;
 
@@ -254,7 +257,7 @@ loqui_actions_part_cb(EggAction *action, LoquiApp *app)
 			    account_manager_get_current_channel(manager));
 }
 static void
-loqui_actions_set_topic_cb(EggAction *action, LoquiApp *app)
+loqui_actions_set_topic_cb(GtkAction *action, LoquiApp *app)
 {
 	AccountManager *manager;
 
@@ -264,7 +267,7 @@ loqui_actions_set_topic_cb(EggAction *action, LoquiApp *app)
 			     account_manager_get_current_channel(manager));
 }
 static void
-loqui_actions_nick_cb(EggAction *action, LoquiApp *app)
+loqui_actions_nick_cb(GtkAction *action, LoquiApp *app)
 {
 	AccountManager *manager;
 
@@ -273,7 +276,7 @@ loqui_actions_nick_cb(EggAction *action, LoquiApp *app)
 			    account_manager_get_current_account(manager));
 }
 static void
-loqui_actions_away_info_cb(EggAction *action, LoquiApp *app)
+loqui_actions_away_info_cb(GtkAction *action, LoquiApp *app)
 {
 	AccountManager *manager;
 	Channel *channel;
@@ -286,7 +289,7 @@ loqui_actions_away_info_cb(EggAction *action, LoquiApp *app)
 		gtkutils_msgbox_info(GTK_MESSAGE_ERROR, _("Not selected a channel!"));
 }
 static void
-loqui_actions_start_private_talk_cb(EggAction *action, LoquiApp *app)
+loqui_actions_start_private_talk_cb(GtkAction *action, LoquiApp *app)
 {
 	command_dialog_private_talk(GTK_WINDOW(app),
 				    account_manager_get_current_account(account_manager_get()));
