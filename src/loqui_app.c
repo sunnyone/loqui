@@ -269,7 +269,7 @@ static void loqui_app_textview_scroll_value_changed_cb(GtkAdjustment *adj, gpoin
 	manager = account_manager_get();
 
 	channel = account_manager_get_current_channel(manager);
-	if(channel_get_fresh(channel))
+	if(channel && channel_get_fresh(channel))
 		channel_set_fresh(channel, FALSE);
 
 	if(!prefs_general.auto_switch_scrolling)
