@@ -57,6 +57,9 @@ PrefElement prefs_general_defs[] = {
 
 	{"remark_history_number", "10", PREF_TYPE_UINT, &prefs_general.remark_history_number },
 
+	{"common_buffer_max_line_number", "500", PREF_TYPE_UINT, &prefs_general.common_buffer_max_line_number },
+	{"channel_buffer_max_line_number", "2000", PREF_TYPE_UINT, &prefs_general.channel_buffer_max_line_number },
+	
 	{"auto_reconnect", "true", PREF_TYPE_BOOLEAN, &prefs_general.auto_reconnect },
 
 	{"use_transparent_ignore", "true", PREF_TYPE_BOOLEAN, &prefs_general.use_transparent_ignore },

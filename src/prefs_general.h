@@ -69,6 +69,10 @@ typedef struct _PrefsGeneral {
 	GList *highlight_list;
 
 	guint remark_history_number;
+	
+	guint channel_buffer_max_line_number;
+	guint common_buffer_max_line_number;
+	
 	gboolean auto_reconnect;
 
 	gboolean use_transparent_ignore;

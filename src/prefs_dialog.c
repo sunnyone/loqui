@@ -36,7 +36,10 @@ struct _PrefsDialogPrivate
 	GtkWidget *check_auto_reconnect;
 	GtkWidget *check_connect_startup;
 	GtkWidget *entry_away_message;
-
+	
+	GtkWidget *spin_common_buffer_max_line_number;
+	GtkWidget *spin_channel_buffer_max_line_number;
+	
 	GtkWidget *check_use_notification;
 	GtkWidget *textview_highlight;
 
@@ -159,6 +162,11 @@ prefs_dialog_load_settings(PrefsDialog *dialog)
 	gtk_entry_set_text(GTK_ENTRY(priv->entry_away_message), prefs_general.away_message);
 	gtk_entry_set_text(GTK_ENTRY(priv->entry_browser_command), prefs_general.browser_command);
 	gtk_entry_set_text(GTK_ENTRY(priv->entry_notification_command), prefs_general.notification_command);
+
+	gtk_spin_button_set_value(GTK_SPIN_BUTTON(priv->spin_common_buffer_max_line_number),
+				  prefs_general.common_buffer_max_line_number);
+	gtk_spin_button_set_value(GTK_SPIN_BUTTON(priv->spin_channel_buffer_max_line_number),
+				  prefs_general.channel_buffer_max_line_number);
 }
 static void
 prefs_dialog_save_settings(PrefsDialog *dialog)
@@ -191,6 +199,9 @@ prefs_dialog_save_settings(PrefsDialog *dialog)
 	G_FREE_UNLESS_NULL(prefs_general.notification_command);
 	prefs_general.notification_command = g_strdup(gtk_entry_get_text(GTK_ENTRY(priv->entry_notification_command)));
 
+	prefs_general.common_buffer_max_line_number = (guint) gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(priv->spin_common_buffer_max_line_number));
+	prefs_general.channel_buffer_max_line_number = (guint) gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(priv->spin_channel_buffer_max_line_number));
+	
 	prefs_general_save();
 }
 
@@ -212,8 +223,7 @@ prefs_dialog_new(void)
 	GtkWidget *notebook;
 	GtkWidget *vbox;
 	GtkWidget *frame;
-	GtkWidget *scrolled_win;
-
+	
 	dialog = g_object_new(prefs_dialog_get_type(), NULL);
 
 	gtk_window_set_title(GTK_WINDOW(dialog), _("Common Preferences"));
@@ -248,6 +258,15 @@ prefs_dialog_new(void)
 	gtk_box_pack_start(GTK_BOX(vbox), priv->check_connect_startup, FALSE, FALSE, 0);
 
 	gtkutils_add_label_entry(vbox, _("Away message: "), &priv->entry_away_message, "");
+
+	gtkutils_add_label_spin_button(vbox,
+				       _("Max line number of a common buffer(0: unlimited): "),
+				       &priv->spin_common_buffer_max_line_number,
+				       0, G_MAXDOUBLE, 50);
+	gtkutils_add_label_spin_button(vbox,
+				       _("Max line number of a channel buffer(0: unlimited): "),
+				       &priv->spin_channel_buffer_max_line_number,
+				       0, G_MAXDOUBLE, 50);
 
 	vbox = gtk_vbox_new(FALSE, 0);
 	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), vbox, gtk_label_new(_("Highlight")));
