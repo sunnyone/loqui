@@ -1,3 +1,101 @@
+2003-02-12 02:31  y-imai
+
+	* src/nick_list.c: implemented popup menu actually.
+
+2003-02-12 02:31  y-imai
+
+	* src/: channel.c, channel.h: implemented channel mode queue
+
+2003-02-12 02:30  y-imai
+
+	* src/irc_constants.h: change enum IRCModeFlag difinition
+
+2003-02-12 02:29  y-imai
+
+	* src/: account.c, account.h: implemented whois/mode
+
+2003-02-12 00:35  y-imai
+
+	* src/loqui_app.c: warn if no accounts are selected
+
+2003-02-12 00:31  y-imai
+
+	* src/: account_manager.c, account_manager.h, loqui_app.c: removed
+	account_manager_speak().
+
+2003-02-12 00:27  y-imai
+
+	* src/account_manager.c: set channel/account correctly.
+	is_current_* is changed.
+
+2003-02-12 00:20  y-imai
+
+	* src/: account.c, account.h, account_manager.c, account_manager.h,
+	loqui_toolbar.c: removed
+	account_manager_current_account_set_away(). created
+	account_set_away_message().
+
+2003-02-12 00:10  y-imai
+
+	* src/: account_manager.c, account_manager.h, channel_tree.c:
+	removed account_manager_set_curret().
+	{get,set}_current_{channel,account} were created.
+
+2003-02-11 23:47  y-imai
+
+	* src/nick_list.c: nicklist popup menu is temporarily implemented.
+
+2003-02-11 23:45  y-imai
+
+	* src/: gtkutils.c, gtkutils.h, loqui_menu.c: translate function
+	moved
+
+2003-02-11 20:33  y-imai
+
+	* src/account_list_dialog.c: fixed mistake of previous commit
+
+2003-02-11 20:29  y-imai
+
+	* src/: account_dialog.c, account_dialog.h, account_list_dialog.c,
+	account_manager.c, account_manager.h: moved function to open dialog
+	to add/configure/remove account from account_manager.[ch] to
+	account_dialog.[ch]
+
+2003-02-11 19:45  y-imai
+
+	* src/: account.c, account_manager.c, account_manager.h, channel.c,
+	loqui_app.c, loqui_app.h: Scroll textview with insert-text signal
+	of GtkTextBuffer
+
+2003-02-11 18:42  y-imai
+
+	* src/codeconv.c: fixed typo
+
+2003-02-11 18:40  y-imai
+
+	* src/: account_manager.c, codeconv.c, loqui_app.c,
+	prefs_general.c, prefs_general.h: refactoring prefs_general
+
+2003-02-11 01:19  y-imai
+
+	* po/ja.po: set catalog charset to utf-8
+
+2003-02-11 01:06  y-imai
+
+	* src/channel_tree.c: resizable column
+
+2003-02-11 00:02  y-imai
+
+	* configure.in: 0.0.2
+
+2003-02-11 00:02  y-imai
+
+	* NEWS: update
+
+2003-02-11 00:01  y-imai
+
+	* ChangeLog, NEWS: update changelog/news
+
 2003-02-11 00:01  y-imai
 
 	* po/: ja.po, loqui.pot: update po

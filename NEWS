@@ -33,3 +33,8 @@
 * New code convertion method.
 * Enabled translation of menu.
 
+2003-02-12     0.1.3 Release
+* Change the charset of .po file into UTF-8
+* Change implementation of prefs_general(data saved in loquirc.xml will be lost.)
+* Popup menu of NickList is implemented.
+
