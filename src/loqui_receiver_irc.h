@@ -41,7 +41,7 @@ typedef struct _LoquiReceiverIRCPrivate     LoquiReceiverIRCPrivate;
 
 struct _LoquiReceiverIRC
 {
-        GObject parent;
+        LoquiReceiver *parent;
         
 	guint prevent_print_who_reply_count;
 	
