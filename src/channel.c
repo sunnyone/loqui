@@ -595,7 +595,7 @@ channel_change_mode(Channel *channel, gboolean is_add, IRCModeFlag flag, gchar *
 		
 		mode = g_new0(ChannelMode, 1);
 		mode->flag = flag;
-		mode->argument = g_strdup(mode->argument);
+		mode->argument = g_strdup(argument);
 		priv->mode_list = g_slist_append(priv->mode_list, mode);
 	} else {
 		if(!matched)
@@ -656,10 +656,10 @@ channel_get_mode(Channel *channel)
 
 		flag_string = g_string_append_c(flag_string, mode->flag);
 		if(mode->argument)
-			g_string_append_printf(argument_string, "%s ", mode->argument);
+			g_string_append_printf(argument_string, " %s", mode->argument);
 	}
 	if(argument_string->len > 1) {
-		g_string_append_len(flag_string, argument_string->str, argument_string->len-1);
+		g_string_append(flag_string, argument_string->str);
 	}
 	g_string_free(argument_string, TRUE);
 

@@ -500,7 +500,7 @@ irc_handle_parse_mode_arguments(IRCHandle *handle, IRCMessage *msg, Channel *cha
 			case IRC_CHANNEL_MODE_USER_LIMIT:
 				BREAK_IF_ADD_FLAG_IS_UNINITIALIZED();
 				GET_TARGET_OR_RETURN(msg, cur, &target);
-				channel_change_mode(channel, (gboolean) is_add, *flags, NULL);
+				channel_change_mode(channel, (gboolean) is_add, *flags, target);
 				break;
 			case IRC_CHANNEL_MODE_BAN_MASK:
 			case IRC_CHANNEL_MODE_EXCEPTION_TO_OVERIDE_BAN_MASK:
