@@ -317,7 +317,7 @@ gtk24_toolbar_get_type (void)
 	};
       
       type = g_type_register_static (GTK_TYPE_CONTAINER,
-				     "GtkToolbar",
+				     "Gtk24Toolbar",
 				     &type_info, 0);
     }
   
