@@ -243,7 +243,8 @@ connect_dialog_new(void)
 			       GTK_STOCK_OK, GTK_RESPONSE_OK,
 			       NULL);
 	gtk_window_set_title(GTK_WINDOW(dialog), _("Select accounts/server to connect"));
-	
+	gtk_dialog_set_default_response(GTK_DIALOG(dialog), GTK_RESPONSE_OK);
+
 	g_signal_connect(G_OBJECT(dialog),
 			 "response",
 			 G_CALLBACK(connect_dialog_response_cb),
