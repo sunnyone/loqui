@@ -28,7 +28,7 @@
 
 /* #include "galias.h" */
 
-#include "gkeyfile.h"
+#include "lqgkeyfile.h"
 
 #include <errno.h>
 #include <fcntl.h>
