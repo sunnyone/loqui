@@ -450,6 +450,8 @@ account_speak(Account *account, Channel *channel, const gchar *str)
 	const gchar *cur;
 	gchar *buf;
 	IRCMessage *msg;
+	gchar **array;
+	gint i;
 
         g_return_if_fail(account != NULL);
         g_return_if_fail(IS_ACCOUNT(account));
@@ -463,7 +465,7 @@ account_speak(Account *account, Channel *channel, const gchar *str)
 	}
 
 	cur = str;
-	if(*cur == '/') {
+	if(*cur == '/' && !strchr(cur, '\n')) {
 		cur++;
 		msg = irc_message_parse_line(cur);
 		if(debug_mode) {
@@ -478,9 +480,16 @@ account_speak(Account *account, Channel *channel, const gchar *str)
 					     _("No channel is selected"));
 			return;
 		}
-		msg = irc_message_create(IRCCommandPrivmsg, channel_get_name(channel), str, NULL);
-		irc_handle_push_message(priv->handle, msg);
-		channel_append_remark(channel, TEXT_TYPE_NORMAL, TRUE, irc_handle_get_current_nick(priv->handle), str);
+		buf = g_strdup(str);
+		utils_remove_return_code(buf); /* remove last return code */
+		array = g_strsplit(buf, "\n", -1);
+		g_free(buf);
+		for(i = 0; array[i] != NULL; i++) {
+			msg = irc_message_create(IRCCommandPrivmsg, channel_get_name(channel), array[i], NULL);
+			irc_handle_push_message(priv->handle, msg);
+			channel_append_remark(channel, TEXT_TYPE_NORMAL, TRUE, irc_handle_get_current_nick(priv->handle), array[i]);
+		}
+		g_strfreev(array);
 	}
 }
 
