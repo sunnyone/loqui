@@ -44,6 +44,10 @@ struct icon_pair {
 	const guint8 *inline_pixbuf;
 };
 static struct icon_pair icon_list[] = { { "loqui-console", console_pixbuf },
+					{ "loqui-online", online_pixbuf },
+					{ "loqui-offline", offline_pixbuf },
+					{ "loqui-away", away_pixbuf },
+					{ "loqui-busy", busy_pixbuf },
 					{ NULL, NULL } };
 
 static void make_program_dir(void);
