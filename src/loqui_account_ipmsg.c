@@ -26,6 +26,7 @@
 
 #include "ipmsg_socket.h"
 #include "ipmsg_packet.h"
+#include "ipmsg.h"
 #include "intl.h"
 
 enum {
@@ -39,6 +40,8 @@ enum {
 struct _LoquiAccountIPMsgPrivate
 {
 	IPMsgSocket *sock;
+
+	gint current_packet_num;
 };
 
 static LoquiAccountClass *parent_class = NULL;
@@ -191,6 +194,8 @@ loqui_account_ipmsg_init(LoquiAccountIPMsg *account)
 	priv = g_new0(LoquiAccountIPMsgPrivate, 1);
 
 	account->priv = priv;
+
+	priv->current_packet_num = (gint) time(NULL);
 }
 static void
 loqui_account_ipmsg_connect(LoquiAccount *account)
@@ -276,4 +281,24 @@ loqui_account_ipmsg_new(LoquiProfileAccount *profile)
 
         return account;
 }
+IPMsgPacket *
+loqui_account_ipmsg_create_packet(LoquiAccountIPMsg *account, gint command_num, const gchar *extra)
+{
+	LoquiAccountIPMsgPrivate *priv;
+	LoquiUser *user;
 
+        g_return_val_if_fail(account != NULL, NULL);
+        g_return_val_if_fail(LOQUI_IS_ACCOUNT_IPMSG(account), NULL);
+
+        priv = LOQUI_ACCOUNT_IPMSG(account)->priv;
+	
+	user = loqui_account_get_user_self(LOQUI_ACCOUNT(account));
+
+	return ipmsg_packet_create(IPMSG_VERSION,
+				   priv->current_packet_num++,
+				   loqui_user_get_username(user),
+				   loqui_user_get_hostname(user),
+				   command_num,
+				   extra,
+				   loqui_user_ipmsg_get_group_name(LOQUI_USER_IPMSG(user)));
+}

@@ -58,6 +58,8 @@ IPMsgSocket* ipmsg_socket_new(void);
 gboolean ipmsg_socket_bind(IPMsgSocket *sock);
 void ipmsg_socket_unbind(IPMsgSocket *sock);
 
+void ipmsg_socket_send_packet(IPMsgSocket *sock, IPMsgPacket *packet);
+
 G_END_DECLS
 
 #endif /* __IPMSG_SOCKET_H__ */

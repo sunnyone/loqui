@@ -76,6 +76,7 @@ gint ipmsg_packet_get_port(IPMsgPacket *packet);
 
 gchar *ipmsg_packet_get_identifier(IPMsgPacket *packet);
 
+IPMsgPacket *ipmsg_packet_create(gint version, gint packet_num, const gchar *username, const gchar *hostname, gint command_num, const gchar *extra, const gchar *group_name);
 G_END_DECLS
 
 #endif /* __IPMSG_PACKET_H__ */

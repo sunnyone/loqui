@@ -278,3 +278,8 @@ ipmsg_socket_unbind(IPMsgSocket *sock)
 	gnet_udp_socket_delete(priv->udpsock);
 	priv->udpsock = NULL;
 }
+void
+ipmsg_socket_send_packet(IPMsgSocket *sock, IPMsgPacket *packet)
+{
+	
+}

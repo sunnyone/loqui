@@ -22,6 +22,7 @@
 
 #include <glib-object.h>
 #include "loqui_account.h"
+#include "ipmsg_packet.h"
 
 G_BEGIN_DECLS
 
@@ -53,6 +54,8 @@ struct _LoquiAccountIPMsgClass
 GType loqui_account_ipmsg_get_type(void) G_GNUC_CONST;
 
 LoquiAccountIPMsg* loqui_account_ipmsg_new(LoquiProfileAccount *profile);
+
+IPMsgPacket *loqui_account_ipmsg_create_packet(LoquiAccountIPMsg *account, gint command_num, const gchar *extra);
 
 G_END_DECLS
 
