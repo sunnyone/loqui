@@ -152,7 +152,7 @@ ChannelText *account_manager_add_channel_text(AccountManager *manager)
 
 	text = CHANNEL_TEXT(channel_text_new());
 	channel_book_add_channel_text(priv->app->channel_book, text);
-	gtk_widget_show(GTK_WIDGET(text));
+	gtk_widget_show_all(GTK_WIDGET(text));
 
 	return text;
 }
@@ -162,4 +162,8 @@ AccountManager *account_manager_get(void)
 	if(!main_account_manager)
 		main_account_manager = account_manager_new();
 	return main_account_manager;
+}
+gboolean account_manager_whether_scroll(AccountManager *account_manager)
+{
+	return !loqui_app_is_scroll_locked(account_manager->priv->app);
 }

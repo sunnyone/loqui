@@ -93,7 +93,8 @@ loqui_app_init (LoquiApp *app)
 
 	app->menu = NULL;
 }
-static void loqui_app_destroy(GtkObject *object)
+static void
+loqui_app_destroy(GtkObject *object)
 {
 	LoquiApp *app;
 
@@ -230,8 +231,7 @@ loqui_app_new (void)
 	gtk_box_pack_end(GTK_BOX(vbox), entry, FALSE, FALSE, 0);
 
 	common_text = channel_text_new();
-	SET_SCROLLED_WINDOW(scrolled_win, common_text, GTK_POLICY_NEVER, GTK_POLICY_ALWAYS);
-	gtk_paned_pack2(GTK_PANED(vpaned), scrolled_win, FALSE, TRUE);
+	gtk_paned_pack2(GTK_PANED(vpaned), common_text, FALSE, TRUE);
 
 	/* right side */
 	vpaned = gtk_vpaned_new();
@@ -265,7 +265,18 @@ loqui_app_new (void)
 	return GTK_WIDGET(app);
 }
 
-void loqui_app_set_topic(LoquiApp *app, const gchar *str)
+void
+loqui_app_set_topic(LoquiApp *app, const gchar *str)
 {
 	gtk_label_set_text(GTK_LABEL(app->priv->label_topic), str);
+}
+
+gboolean
+loqui_app_is_scroll_locked(LoquiApp *app)
+{
+	LoquiAppPrivate *priv;
+
+	priv = app->priv;
+
+	return gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(priv->toggle_lock));
 }

@@ -21,6 +21,12 @@
 #define __GTKUTILS_H__
 #include <gtk/gtk.h>
 
+#define GTK_EVENTS_FLUSH() \
+{ \
+        while (gtk_events_pending()) \
+                gtk_main_iteration(); \
+}
+
 void gtkutils_msgbox_info(GtkMessageType icon, const gchar *format, ...) G_GNUC_PRINTF(2, 3);
 
 #endif /* __GTKUTILS_H__ */

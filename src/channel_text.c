@@ -25,8 +25,8 @@ struct _ChannelTextPrivate
 {
 };
 
-static GtkTextViewClass *parent_class = NULL;
-#define PARENT_TYPE GTK_TYPE_TEXT_VIEW
+static GtkScrolledWindowClass *parent_class = NULL;
+#define PARENT_TYPE GTK_TYPE_SCROLLED_WINDOW
 
 static void channel_text_class_init(ChannelTextClass *klass);
 static void channel_text_init(ChannelText *channel_text);
@@ -109,15 +109,20 @@ channel_text_destroy (GtkObject *object)
 }
 
 GtkWidget*
-channel_text_new (void)
+channel_text_new(void)
 {
         ChannelText *channel_text;
 	ChannelTextPrivate *priv;
 
 	channel_text = g_object_new(channel_text_get_type(), NULL);
+	priv = channel_text->priv;
 
-	gtk_text_view_set_editable(GTK_TEXT_VIEW(channel_text), FALSE);
-	gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(channel_text), GTK_WRAP_CHAR);
+	channel_text->text = gtk_text_view_new();
+	gtk_text_view_set_editable(GTK_TEXT_VIEW(channel_text->text), FALSE);
+	gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(channel_text->text), GTK_WRAP_CHAR);
+
+	gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(channel_text), GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC);
+	gtk_container_add(GTK_CONTAINER(channel_text), channel_text->text);
 
 	return GTK_WIDGET(channel_text);
 }

@@ -38,14 +38,16 @@ typedef struct _ChannelTextPrivate     ChannelTextPrivate;
 
 struct _ChannelText
 {
-        GtkTextView parent;
+        GtkScrolledWindow parent;
         
+	GtkWidget *text; /* textview */
+
         ChannelTextPrivate *priv;
 };
 
 struct _ChannelTextClass
 {
-        GtkTextViewClass parent_class;
+        GtkScrolledWindowClass parent_class;
 };
 
 

@@ -21,6 +21,7 @@
 #define __ACCOUNT_MANAGER_H__
 
 #include <gnome.h>
+#include "channel_text.h"
 
 G_BEGIN_DECLS
 
@@ -55,6 +56,8 @@ AccountManager* account_manager_new(void);
 
 void account_manager_load_accounts(AccountManager *account_manager);
 AccountManager *account_manager_get(void);
+ChannelText *account_manager_add_channel_text(AccountManager *manager);
+gboolean account_manager_whether_scroll(AccountManager *account_manager);
 
 G_END_DECLS
 

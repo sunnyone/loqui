@@ -191,26 +191,42 @@ irc_message_new(const gchar *prefix, const gchar *command, gchar **parameter)
 		
 	return msg;
 }
-void
-irc_message_print(IRCMessage *msg)
+gchar *
+irc_message_inspect(IRCMessage *msg)
 {
 		int i;
+		GString *string;
+		gchar *str;
 
-		g_print("prefix: %s, command: %s, numeric: %d\n", msg->prefix, msg->command, msg->response);
+		string = g_string_new(NULL);
+		g_string_printf(string, "prefix: %s, command: %s, numeric: %d\n", msg->prefix, msg->command, msg->response);
 		if(msg->prefix != NULL) {
 			if(msg->nick) {
-				g_print("nick: %s, user: %s, host: %s\n", msg->nick, msg->user, msg->host);
+				g_string_append_printf(string, "nick: %s, user: %s, host: %s\n", 
+						       msg->nick, msg->user, msg->host);
 			} else {
-				g_print("server: %s\n", msg->prefix);
+				g_string_append_printf(string, "server: %s\n", msg->prefix);
 			}
 		}
 
 		for(i = 0; msg->parameter[i] != NULL; i++) {
-			g_print("para[%d]: '%s'\n", i, msg->parameter[i]);
+			g_string_append_printf(string, "para[%d]: '%s'\n", i, msg->parameter[i]);
 		}
 
+		str = string->str;
+		g_string_free(string, FALSE);
+		return str;
 }
+void
+irc_message_print(IRCMessage *msg)
+{
+	gchar *str;
+	
+	str = irc_message_inspect(msg);
+	g_print("%s", str);
+	g_free(str);
 
+}
 IRCMessage*
 irc_message_parse_line(const gchar *line)
 {

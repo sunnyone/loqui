@@ -73,8 +73,9 @@ GType irc_message_get_type (void) G_GNUC_CONST;
 IRCMessage* irc_message_new (const gchar *prefix, 
 			     const gchar *command,
 			     gchar **parameter);
-gchar *irc_message_get_param(IRCMessage *msg, guint i); /* 1 < i < 15 */ 
+gchar* irc_message_get_param(IRCMessage *msg, guint i); /* 1 < i < 15 */ 
 IRCMessage* irc_message_parse_line(const gchar *line);
+gchar* irc_message_inspect(IRCMessage *msg);
 void irc_message_print(IRCMessage *msg);
 IRCMessage* irc_message_create(gchar *command, gchar *param, ...);
 IRCMessage* irc_message_createv(gchar *command, gchar *param_array[]);

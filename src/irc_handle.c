@@ -106,15 +106,27 @@ irc_handle_finalize(GObject *object)
 static gpointer irc_handle_thread_func(IRCHandle *handle)
 {
 	IRCHandlePrivate *priv;
-	GtkTextIter iter;
-	GtkTextBuffer *textbuf;
 	IRCMessage *msg;
+	Account *account;
+	gchar *str;
 
 	priv = handle->priv;
+	account = priv->account;
 
-	g_print(_("%s: Connecting to %s:%d\n"), priv->account->name, priv->server->hostname, priv->server->port);
+	gdk_threads_enter();
+	str = g_strdup_printf(_("%s: Connecting to %s:%d\n"), 
+			      priv->account->name, priv->server->hostname, priv->server->port);
+	account_console_text_append(account, str);
+	g_free(str);
+	gdk_threads_leave();
+
 	priv->connection = connection_new(priv->server);
-	g_print(_("%s: Connected. Sending Initial command..."), priv->account->name);
+
+	gdk_threads_enter();
+	str = g_strdup_printf(_("%s: Connected. Sending Initial command..."), priv->account->name);
+	account_console_text_append(account, str);
+	g_free(str);
+	gdk_threads_leave();
 
 	msg = irc_message_create(IRCCommandPass, priv->server->password, NULL);
 	connection_put_irc_message(priv->connection, msg);
@@ -128,24 +140,18 @@ static gpointer irc_handle_thread_func(IRCHandle *handle)
 	connection_put_irc_message(priv->connection, msg);
 	g_object_unref(msg);
 
-	g_print(_("Done.\n"));
-/*
 	gdk_threads_enter();
-	textbuf = GTK_TEXT_BUFFER(gtk_text_view_get_buffer(GTK_TEXT_VIEW(app->common_text)));
-	gtk_text_buffer_get_iter_at_offset (textbuf, &iter, 0);
+	account_console_text_append(account, _("Done.\n"));
 	gdk_threads_leave();
-*/
 
         while((msg = connection_get_irc_message(priv->connection, NULL)) != NULL) {
-#if 0
+		str = irc_message_inspect(msg);
+
 		gdk_threads_enter();
-		gtk_text_buffer_insert(textbuf, &iter, utf8, -1);
-/* scroll 
-		gtk_adjustment_set_value(GTK_TEXT_VIEW (app->common_text)->vadjustment,
-		GTK_TEXT_VIEW (app->common_text)->vadjustment->upper); */
+		account_console_text_append(account, str);
 		gdk_threads_leave();
-#endif
-		irc_message_print(msg);
+
+/*		irc_message_print(msg); */
 		g_object_unref(msg);
 	}
 

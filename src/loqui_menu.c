@@ -223,10 +223,8 @@ static void loqui_menu_quit_cb(GtkWidget *widget, gpointer data)
 
 static void loqui_menu_connect_cb(GtkWidget *widget, gpointer data)
 {
-	LoquiApp *app;
 	Account *account;
 	
 	account = ACCOUNT(data);
-
 	account_connect(account, 0, TRUE);
 }
