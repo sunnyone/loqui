@@ -326,7 +326,7 @@ utils_search_uri(const gchar *buf, gchar **got_uri,
 gchar *
 utils_strftime(const gchar *format, struct tm *time)
 {
-	gchar *buf;
+	gchar *buf, *buf2;
 	gint len, format_len;
 	gint size;
 	
@@ -343,8 +343,14 @@ utils_strftime(const gchar *format, struct tm *time)
 		buf = g_malloc(size + 1);
 		buf[0] = '.';
 		len = strftime(buf, size, format, time);
-		if (len > 0 || buf[0] == '\0')
+		if (buf[0] == '\0')
 			return buf;
+		
+		if (len > 0 || buf[0] == '\0') {
+			buf2 = g_locale_to_utf8(buf, -1, NULL, NULL, NULL);
+			g_free(buf);
+			return buf2;
+		}
 		
 		g_free(buf);
 		size *= 2;
