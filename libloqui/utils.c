@@ -480,13 +480,10 @@ loqui_utils_list_to_string_array(GList *list, gboolean free_original)
 	GList *cur;
 	int i;
 
-	if (list == NULL)
-		return NULL;
-
 	strarray = g_new(gchar *, g_list_length(list) + 1);
 	i = 0;
 	for (cur = list; cur != NULL; cur = cur->next) {
-		strarray[i] = cur->data;
+		strarray[i] = g_strdup(cur->data);
 		i++;
 	}
 	strarray[i] = NULL;

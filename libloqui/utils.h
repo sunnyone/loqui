@@ -56,7 +56,7 @@
 
 #define UTILS_MASK_BIT(src,field,is_add) ((is_add) ? (src | field) : (src & ~field))
 
-#define LOQUI_UTILS_EMPTY_IF_NULL(str) (str == NULL ? str : "")
+#define LOQUI_UTILS_EMPTY_IF_NULL(str) (str == NULL ? "" : str)
 
 void debug_puts(const gchar *format, ...) G_GNUC_PRINTF(1, 2);
 void debug_print(const gchar *format, ...) G_GNUC_PRINTF(1, 2);
