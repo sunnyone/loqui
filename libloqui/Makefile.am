@@ -41,8 +41,7 @@ SRC_PROTOCOL_IRC = \
 	irc_constants.h \
 	irc_message.c irc_message.h \
 	ctcp_message.c ctcp_message.h \
-	ctcp_handle.c ctcp_handle.h \
-	command_table.c command_table.h
+	ctcp_handle.c ctcp_handle.h
 
 SRC_PROTOCOL_IPMSG = \
 	loqui_protocol_ipmsg.c loqui_protocol_ipmsg.h \

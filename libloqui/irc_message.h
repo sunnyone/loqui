@@ -65,6 +65,8 @@ struct _IRCMessage
 struct _IRCMessageClass
 {
         GObjectClass parent_class;
+
+	GHashTable *command_hash;
 };
 
 

@@ -19,7 +19,6 @@
  */
 #include "config.h"
 #include "main.h"
-#include <command_table.h>
 #include <loqui_account_manager.h>
 #include <prefs_general.h>
 #include <utils.h>
@@ -84,7 +83,6 @@ main(int argc, char *argv[])
 
 	gnet_init();
 
-	command_table_init();
 	loqui_gtk_init(&argc, &argv);
 
 	for(i = 0; i < argc; i++) {

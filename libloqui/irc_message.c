@@ -20,13 +20,60 @@
 #include "config.h"
 
 #include "irc_message.h"
-#include "command_table.h"
 #include "utils.h"
 #include "irc_constants.h"
 #include "intl.h"
 
 #include <stdarg.h>
 #include <string.h>
+
+typedef struct {
+	gchar *command;
+	IRCResponse response;
+} CommandItem;
+
+static CommandItem command_table[] = {
+	{IRCCommandPing, IRC_COMMAND_PING},
+	{IRCCommandPrivmsg, IRC_COMMAND_PRIVMSG},
+	{IRCCommandJoin, IRC_COMMAND_JOIN},
+	{IRCCommandNotice, IRC_COMMAND_NOTICE},
+	{IRCCommandTopic, IRC_COMMAND_TOPIC},
+	{IRCCommandMode, IRC_COMMAND_MODE},
+	{IRCCommandNick, IRC_COMMAND_NICK},
+	{IRCCommandPart, IRC_COMMAND_PART},
+	{IRCCommandQuit, IRC_COMMAND_QUIT},
+	{IRCCommandKick, IRC_COMMAND_KICK},
+	{IRCCommandInvite, IRC_COMMAND_INVITE},
+	{IRCCommandError, IRC_COMMAND_ERROR},
+	{IRCCommandPass, IRC_COMMAND_PASS},
+	{IRCCommandNick, IRC_COMMAND_NICK},
+	{IRCCommandUser, IRC_COMMAND_USER},
+	{IRCCommandOper, IRC_COMMAND_OPER},
+	{IRCCommandSQuit, IRC_COMMAND_SQUIT},
+	{IRCCommandStats, IRC_COMMAND_STATS},
+	{IRCCommandLinks, IRC_COMMAND_LINKS},
+	{IRCCommandTime, IRC_COMMAND_TIME},
+	{IRCCommandConnect, IRC_COMMAND_CONNECT},
+	{IRCCommandTrace, IRC_COMMAND_TRACE},
+	{IRCCommandAdmin, IRC_COMMAND_ADMIN},
+	{IRCCommandInfo, IRC_COMMAND_INFO},
+	{IRCCommandNotice, IRC_COMMAND_NOTICE},
+	{IRCCommandWho, IRC_COMMAND_WHO},
+	{IRCCommandWhois, IRC_COMMAND_WHOIS},
+	{IRCCommandWhowas, IRC_COMMAND_WHOWAS},
+	{IRCCommandKill, IRC_COMMAND_KILL},
+	{IRCCommandPing, IRC_COMMAND_PING},
+	{IRCCommandPong, IRC_COMMAND_PONG},
+	{IRCCommandAway, IRC_COMMAND_AWAY},
+	{IRCCommandRehash, IRC_COMMAND_REHASH},
+	{IRCCommandRestart, IRC_COMMAND_RESTART},
+	{IRCCommandSummon, IRC_COMMAND_SUMMON},
+	{IRCCommandUsers, IRC_COMMAND_USERS},
+	{IRCCommandUserhost, IRC_COMMAND_USERHOST},
+	{IRCCommandIson, IRC_COMMAND_ISON},
+	{IRCCommandObject, IRC_COMMAND_OBJECT},
+	{NULL, 0}
+};
 
 struct _IRCMessagePrivate
 {
@@ -72,11 +119,20 @@ irc_message_get_type(void)
 static void
 irc_message_class_init(IRCMessageClass *klass)
 {
+	int i;
+
         GObjectClass *object_class = G_OBJECT_CLASS(klass);
 
         parent_class = g_type_class_peek_parent(klass);
         
         object_class->finalize = irc_message_finalize;
+
+	klass->command_hash = g_hash_table_new(g_str_hash, g_str_equal);
+	for(i = 0; command_table[i].command != NULL; i++) {
+		g_hash_table_insert(klass->command_hash,
+				    (gpointer) command_table[i].command,
+				    GINT_TO_POINTER(command_table[i].response));
+	}
 }
 static void 
 irc_message_init(IRCMessage *irc_message)
@@ -159,6 +215,7 @@ IRCMessage*
 irc_message_new(const gchar *prefix, const gchar *command, gchar **parameter)
 {
         IRCMessage *msg;
+	IRCMessageClass *klass;
 
 	g_return_val_if_fail(command != NULL, NULL);
 	g_return_val_if_fail(parameter != NULL, NULL);
@@ -176,7 +233,8 @@ irc_message_new(const gchar *prefix, const gchar *command, gchar **parameter)
 
 	msg->response = (int) g_ascii_strtoull(command, NULL, 10);
 	if(msg->response == 0) {
-		msg->response = command_table_make_command_numeric(msg->command);
+		klass = IRC_MESSAGE_GET_CLASS(msg);
+		msg->response = GPOINTER_TO_INT(g_hash_table_lookup(klass->command_hash, command));
 	}
 		
 	return msg;
