@@ -188,11 +188,11 @@ gtkutils_set_label_color(GtkLabel *label, const gchar *color)
 }
 
 void
-gtkut_menu_position_under_widget(GtkMenu   *menu,
-				 gint      *x,
-				 gint      *y,
-				 gboolean  *push_in,
-				 gpointer   user_data)
+gtkutils_menu_position_under_widget(GtkMenu   *menu,
+				    gint      *x,
+				    gint      *y,
+				    gboolean  *push_in,
+				    gpointer   user_data)
 {
         GtkWidget *w = GTK_WIDGET(user_data);
         const GtkAllocation *allocation = &w->allocation;
