@@ -23,6 +23,7 @@
 #include "prefs_general.h"
 #include "intl.h"
 #include <string.h>
+#include <locale.h>
 
 static gchar *server_codeset = NULL;
 #define GTK_CODESET "UTF-8"
