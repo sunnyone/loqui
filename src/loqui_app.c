@@ -79,6 +79,7 @@ static void loqui_app_common_textview_inserted_cb(GtkTextBuffer *textbuf,
 
 static void loqui_app_textview_scroll_value_changed_cb(GtkAdjustment *adj, gpointer data);
 static void loqui_app_entry_nick_clicked_cb(GtkWidget *widget, gpointer data);
+static void loqui_app_entry_nick_selected_cb(GtkWidget *widget, gchar *nick, gpointer data);
 
 /* utilities */
 static void scroll_channel_buffer(GtkWidget *textview);
@@ -258,6 +259,22 @@ loqui_app_entry_nick_clicked_cb(GtkWidget *widget, gpointer data)
 	else
 		gtkutils_msgbox_info(GTK_MESSAGE_ERROR, _("No accounts are selected!"));
 }
+static void
+loqui_app_entry_nick_selected_cb(GtkWidget *widget, gchar *nick, gpointer data)
+{
+	Account *account;
+	LoquiApp *app;
+
+	g_return_if_fail(data != NULL);
+	g_return_if_fail(LOQUI_IS_APP(data));
+
+	app = LOQUI_APP(data);
+	account = account_manager_get_current_account(account_manager_get());
+	if(account)
+		account_change_nick(account, nick);
+	else
+		gtkutils_msgbox_info(GTK_MESSAGE_ERROR, _("No accounts are selected!"));	
+}
        
 static void loqui_app_channel_textview_inserted_cb(GtkTextBuffer *textbuf,
 						   GtkTextIter *pos,
@@ -353,8 +370,7 @@ loqui_app_update_info(LoquiApp *app,
 			remark_entry_set_nick(REMARK_ENTRY(priv->entry), account_get_current_nick(account));
 			loqui_toolbar_toggle_away_with_signal_handler_blocked(LOQUI_TOOLBAR(app->toolbar),
 									      account_get_away_status(account));
-			if(account->nick_list)
-				remark_entry_set_nick_list(REMARK_ENTRY(priv->entry), account->nick_list);
+			remark_entry_set_nick_list(REMARK_ENTRY(priv->entry), account->nick_list);
 		}
 	}
 
@@ -494,6 +510,8 @@ loqui_app_new(void)
 			 G_CALLBACK(loqui_app_entry_activate_cb), NULL);
 	g_signal_connect(G_OBJECT(priv->entry), "nick-change",
 			 G_CALLBACK(loqui_app_entry_nick_clicked_cb), app);
+	g_signal_connect(G_OBJECT(priv->entry), "nick-selected",
+			 G_CALLBACK(loqui_app_entry_nick_selected_cb), app);
 
 	priv->common_textview = gtk_text_view_new();
 	gtk_text_view_set_editable(GTK_TEXT_VIEW(priv->common_textview), FALSE);
