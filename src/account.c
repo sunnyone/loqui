@@ -28,6 +28,7 @@
 #include "account_manager.h"
 #include <string.h>
 #include "main.h"
+#include "gtkutils.h"
 
 struct _AccountPrivate
 {
@@ -426,7 +427,8 @@ account_speak(Account *account, Channel *channel, const gchar *str)
 	priv = account->priv;
 
 	if(priv->handle == NULL) {
-		g_warning(_("Not connected with this account"));
+		gtkutils_msgbox_info(GTK_MESSAGE_WARNING,
+				     _("Not connected with this account"));
 		return;
 	}
 
@@ -442,7 +444,8 @@ account_speak(Account *account, Channel *channel, const gchar *str)
 		irc_handle_push_message(priv->handle, msg);
 	} else {
 		if(channel == NULL) {
-			g_warning(_("No channel is selected"));
+			gtkutils_msgbox_info(GTK_MESSAGE_WARNING,
+					     _("No channel is selected"));
 			return;
 		}
 		msg = irc_message_create(IRCCommandPrivmsg, channel->name, str, NULL);
