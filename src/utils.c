@@ -29,7 +29,7 @@
 #include <ctype.h>
 #include "intl.h"
 
-const gchar* uri_prefix_list[] = { "http://", "https://", "ftp://", "mailto:", NULL };
+const gchar* uri_prefix_list[] = { "http://", "https://", "ftp://", "mailto:", "ttp://", NULL };
 
 void debug_print(const gchar *format, ...)
 {
