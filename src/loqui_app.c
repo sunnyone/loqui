@@ -269,7 +269,6 @@ loqui_app_new (void)
 	GtkWidget *nick_list;
 
 	GtkWidget *vbox;
-	GtkWidget *hbox;
 	GtkWidget *hpaned;
 	GtkWidget *vpaned;
 	GtkWidget *scrolled_win;
