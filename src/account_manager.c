@@ -222,6 +222,8 @@ account_manager_add_channel(AccountManager *manager, Account *account, Channel *
 
 	g_signal_connect(G_OBJECT(channel), "updated",
 			 G_CALLBACK(account_manager_channel_updated_cb), manager);
+	g_signal_connect_swapped(G_OBJECT(channel), "user-number-changed",
+				 G_CALLBACK(channel_tree_update_user_number), manager->priv->app->channel_tree);
 	channel_tree_add_channel(manager->priv->app->channel_tree, account, channel);
 }
 void
@@ -231,6 +233,7 @@ account_manager_remove_channel(AccountManager *manager, Account *account, Channe
         g_return_if_fail(IS_ACCOUNT_MANAGER(manager));
 
 	g_signal_handlers_disconnect_by_func(channel, account_manager_channel_updated_cb, manager);
+	g_signal_handlers_disconnect_by_func(channel, channel_tree_update_user_number, manager->priv->app->channel_tree);
 	channel_tree_remove_channel(manager->priv->app->channel_tree, channel);
 }
 static void account_manager_account_changed_cb(GObject *object, gpointer data)
@@ -295,7 +298,6 @@ void account_manager_set_current_channel(AccountManager *manager, Channel *chann
 
 	if(priv->current_channel) {
 		g_signal_handlers_disconnect_by_func(priv->current_channel, account_manager_channel_changed_cb, manager);
-		g_signal_handlers_disconnect_by_func(priv->current_channel, channel_tree_update_user_number, manager->priv->app->channel_tree);
 	}
 
 	is_account_changed = (account_manager_get_current_account(manager) != channel->account) ? TRUE : FALSE;
@@ -320,8 +322,6 @@ void account_manager_set_current_channel(AccountManager *manager, Channel *chann
 	g_signal_connect(G_OBJECT(channel), "user-number-changed",
 			 G_CALLBACK(account_manager_channel_changed_cb),
 			 manager);
-	g_signal_connect_swapped(G_OBJECT(channel), "user-number-changed",
-				 G_CALLBACK(channel_tree_update_user_number), priv->app->channel_tree);
 	g_signal_connect(G_OBJECT(channel), "mode-changed",
 			 G_CALLBACK(account_manager_channel_changed_cb),
 			 manager);
@@ -345,7 +345,6 @@ void account_manager_set_current_account(AccountManager *manager, Account *accou
 
 	if(priv->current_channel) {
 		g_signal_handlers_disconnect_by_func(priv->current_channel, account_manager_channel_changed_cb, manager);
-		g_signal_handlers_disconnect_by_func(priv->current_channel, channel_tree_update_user_number, manager->priv->app->channel_tree);
 	}
 
 	is_account_changed = (account_manager_get_current_account(manager) != account) ? TRUE : FALSE;
