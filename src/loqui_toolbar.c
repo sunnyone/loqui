@@ -45,6 +45,9 @@ static void loqui_toolbar_toggle_scrolling_cb(GtkWidget *widget, gpointer data);
 static void loqui_toolbar_toggle_away_cb(GtkWidget *widget, gpointer data);
 static void loqui_toolbar_connect_cb(GtkWidget *widget, gpointer data);
 
+static void loqui_toolbar_prev_fresh_cb(GtkWidget *widget, gpointer data);
+static void loqui_toolbar_next_fresh_cb(GtkWidget *widget, gpointer data);
+
 GType
 loqui_toolbar_get_type(void)
 {
@@ -171,13 +174,43 @@ loqui_toolbar_connect_cb(GtkWidget *widget, gpointer data)
 
 	account_manager_open_connect_dialog(account_manager_get());
 }
+static void
+loqui_toolbar_prev_fresh_cb(GtkWidget *widget, gpointer data)
+{
+	LoquiToolbar *toolbar;
+	LoquiToolbarPrivate *priv;
+
+        g_return_if_fail(data != NULL);
+        g_return_if_fail(LOQUI_IS_TOOLBAR(data));
+
+	toolbar = LOQUI_TOOLBAR(data);
+
+	priv = toolbar->priv;
+
+	channel_tree_select_prev_channel(priv->app->channel_tree, TRUE);
+}
+static void
+loqui_toolbar_next_fresh_cb(GtkWidget *widget, gpointer data)
+{
+	LoquiToolbar *toolbar;
+	LoquiToolbarPrivate *priv;
+
+        g_return_if_fail(data != NULL);
+        g_return_if_fail(LOQUI_IS_TOOLBAR(data));
+
+	toolbar = LOQUI_TOOLBAR(data);
+
+	priv = toolbar->priv;
+
+	channel_tree_select_next_channel(priv->app->channel_tree, TRUE);
+}
+
 GtkWidget*
 loqui_toolbar_new(LoquiApp *app)
 {
         LoquiToolbar *toolbar;
 	LoquiToolbarPrivate *priv;
 	GtkWidget *image;
-	GtkWidget *button;
 
 	toolbar = g_object_new(loqui_toolbar_get_type(), NULL);
 
@@ -189,15 +222,30 @@ loqui_toolbar_new(LoquiApp *app)
 /*	gtk_toolbar_set_style(GTK_TOOLBAR(toolbar), GTK_TOOLBAR_BOTH_HORIZ); */
 
 	image = gtk_image_new_from_stock(GTK_STOCK_JUMP_TO, TOOLBAR_ICON_SIZE);
-	button = gtk_toolbar_append_element(GTK_TOOLBAR(toolbar),
+	gtk_toolbar_append_element(GTK_TOOLBAR(toolbar),
+				   GTK_TOOLBAR_CHILD_BUTTON,
+				   NULL,
+				   _("Connect"), _("Connect to IRC server"),
+				   NULL,
+				   image, 
+				   G_CALLBACK(loqui_toolbar_connect_cb), toolbar);
+
+	image = gtk_image_new_from_stock(GTK_STOCK_GO_UP, TOOLBAR_ICON_SIZE);
+	gtk_toolbar_append_element(GTK_TOOLBAR(toolbar),
 					    GTK_TOOLBAR_CHILD_BUTTON,
-					    NULL,
-					    _("Connect"),
-					    _("Connect to IRC server"),
-					    NULL,
-					    image, NULL, NULL);
-	g_signal_connect(G_OBJECT(button), "clicked",
-			 G_CALLBACK(loqui_toolbar_connect_cb), toolbar);
+					    NULL, _("Prev"),
+					    _("Select previous fresh channel"),
+					    NULL, image,
+					    G_CALLBACK(loqui_toolbar_prev_fresh_cb), toolbar);
+
+
+	image = gtk_image_new_from_stock(GTK_STOCK_GO_DOWN, TOOLBAR_ICON_SIZE);
+	gtk_toolbar_append_element(GTK_TOOLBAR(toolbar),
+				   GTK_TOOLBAR_CHILD_BUTTON,
+				   NULL, _("Next"),
+				   _("Select next fresh channel"),
+				   NULL, image,
+				   G_CALLBACK(loqui_toolbar_next_fresh_cb), toolbar);
 
 	image = gtk_image_new_from_stock(GTK_STOCK_HOME, TOOLBAR_ICON_SIZE);
 	toolbar->toggle_away = gtk_toolbar_append_element(GTK_TOOLBAR(toolbar),
