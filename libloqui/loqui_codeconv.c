@@ -19,7 +19,7 @@
  */
 #include "config.h"
 
-#include "codeconv.h"
+#include "loqui_codeconv.h"
 
 #include "prefs_general.h"
 #include "intl.h"
@@ -36,17 +36,17 @@
 
 /* tell me other languages if you know */
 /* if you changed this table, make sure to change codeconv.h */
-CodeConvDef conv_table[] = {
+LoquiCodeConvDef conv_table[] = {
 	{N_("Auto Detection"), NULL,       NULL, NULL}, /* for the setting */
 	{N_("No conv"),        NULL,       NULL, NULL}, /* for the setting */
 	{N_("Custom"),         NULL,       NULL, NULL}, /* for the setting */
 	{N_("Japanese"),       "ja_JP",    "ISO-2022-JP", loqui_codeconv_tools_jis_to_utf8},
 };
 
-struct _CodeConvPrivate
+struct _LoquiCodeConvPrivate
 {
 	CodeSetType code_type;
-	CodeConvFunc func;
+	LoquiCodeConvFunc func;
 	gchar *server_codeset;
 	GIConv cd_to;
 	GIConv cd_from;
@@ -55,32 +55,32 @@ struct _CodeConvPrivate
 static GObjectClass *parent_class = NULL;
 #define PARENT_TYPE G_TYPE_OBJECT
 
-static void codeconv_class_init(CodeConvClass *klass);
-static void codeconv_init(CodeConv *codeconv);
-static void codeconv_finalize(GObject *object);
+static void loqui_codeconv_class_init(LoquiCodeConvClass *klass);
+static void loqui_codeconv_init(LoquiCodeConv *codeconv);
+static void loqui_codeconv_finalize(GObject *object);
 
-static void codeconv_set_codeset_internal(CodeConv *codeconv, const gchar *codeset);
+static void loqui_codeconv_set_codeset_internal(LoquiCodeConv *codeconv, const gchar *codeset);
 
 GType
-codeconv_get_type(void)
+loqui_codeconv_get_type(void)
 {
 	static GType type = 0;
 	if (type == 0) {
 		static const GTypeInfo our_info =
 			{
-				sizeof(CodeConvClass),
+				sizeof(LoquiCodeConvClass),
 				NULL,           /* base_init */
 				NULL,           /* base_finalize */
-				(GClassInitFunc) codeconv_class_init,
+				(GClassInitFunc) loqui_codeconv_class_init,
 				NULL,           /* class_finalize */
 				NULL,           /* class_data */
-				sizeof(CodeConv),
+				sizeof(LoquiCodeConv),
 				0,              /* n_preallocs */
-				(GInstanceInitFunc) codeconv_init
+				(GInstanceInitFunc) loqui_codeconv_init
 			};
 		
 		type = g_type_register_static(PARENT_TYPE,
-					      "CodeConv",
+					      "LoquiCodeConv",
 					      &our_info,
 					      0);
 	}
@@ -88,33 +88,33 @@ codeconv_get_type(void)
 	return type;
 }
 static void
-codeconv_class_init(CodeConvClass *klass)
+loqui_codeconv_class_init(LoquiCodeConvClass *klass)
 {
         GObjectClass *object_class = G_OBJECT_CLASS(klass);
 
         parent_class = g_type_class_peek_parent(klass);
         
-        object_class->finalize = codeconv_finalize;
+        object_class->finalize = loqui_codeconv_finalize;
 }
 static void 
-codeconv_init(CodeConv *codeconv)
+loqui_codeconv_init(LoquiCodeConv *codeconv)
 {
-	CodeConvPrivate *priv;
+	LoquiCodeConvPrivate *priv;
 
-	priv = g_new0(CodeConvPrivate, 1);
+	priv = g_new0(LoquiCodeConvPrivate, 1);
 
 	codeconv->priv = priv;
-	codeconv_set_codeset_type(codeconv, CODESET_TYPE_NO_CONV);
+	loqui_codeconv_set_codeset_type(codeconv, CODESET_TYPE_NO_CONV);
 }
 static void 
-codeconv_finalize(GObject *object)
+loqui_codeconv_finalize(GObject *object)
 {
-	CodeConv *codeconv;
+	LoquiCodeConv *codeconv;
 
         g_return_if_fail(object != NULL);
-        g_return_if_fail(IS_CODECONV(object));
+        g_return_if_fail(LOQUI_IS_CODECONV(object));
 
-        codeconv = CODECONV(object);
+        codeconv = LOQUI_CODECONV(object);
 
 	G_FREE_UNLESS_NULL(codeconv->priv->server_codeset);
 
@@ -124,26 +124,26 @@ codeconv_finalize(GObject *object)
 	g_free(codeconv->priv);
 }
 
-CodeConv*
-codeconv_new(void)
+LoquiCodeConv*
+loqui_codeconv_new(void)
 {
-        CodeConv *codeconv;
+        LoquiCodeConv *codeconv;
 
-	codeconv = g_object_new(codeconv_get_type(), NULL);
+	codeconv = g_object_new(loqui_codeconv_get_type(), NULL);
 	
 	return codeconv;
 }
 
 void
-codeconv_set_codeset_type(CodeConv *codeconv, CodeSetType type)
+loqui_codeconv_set_codeset_type(LoquiCodeConv *codeconv, CodeSetType type)
 {
 	int i;
 	gchar *ctype;
 	const gchar *codeset;
-	CodeConvPrivate *priv;
+	LoquiCodeConvPrivate *priv;
 
         g_return_if_fail(codeconv != NULL);
-        g_return_if_fail(IS_CODECONV(codeconv));
+        g_return_if_fail(LOQUI_IS_CODECONV(codeconv));
 	g_return_if_fail(type < N_CODESET_TYPE);
 
 	priv = codeconv->priv;
@@ -162,34 +162,34 @@ codeconv_set_codeset_type(CodeConv *codeconv, CodeSetType type)
 				}
 			}
 		}
-		codeconv_set_codeset_internal(codeconv, codeset);
+		loqui_codeconv_set_codeset_internal(codeconv, codeset);
 		break;
 	case CODESET_TYPE_NO_CONV:
-		codeconv_set_codeset_internal(codeconv, NULL);
+		loqui_codeconv_set_codeset_internal(codeconv, NULL);
 		break;
 	case CODESET_TYPE_CUSTOM:
 		break;
 	default:
 		priv->func = conv_table[type].func;
-		codeconv_set_codeset_internal(codeconv, conv_table[type].codeset);
+		loqui_codeconv_set_codeset_internal(codeconv, conv_table[type].codeset);
 		break;
 	}
 }
 CodeSetType
-codeconv_get_codeset_type(CodeConv *codeconv)
+loqui_codeconv_get_codeset_type(LoquiCodeConv *codeconv)
 {
         g_return_val_if_fail(codeconv != NULL, 0);
-        g_return_val_if_fail(IS_CODECONV(codeconv), 0);
+        g_return_val_if_fail(LOQUI_IS_CODECONV(codeconv), 0);
 	
 	return codeconv->priv->code_type;
 }
 static void
-codeconv_set_codeset_internal(CodeConv *codeconv, const gchar *codeset)
+loqui_codeconv_set_codeset_internal(LoquiCodeConv *codeconv, const gchar *codeset)
 {
-	CodeConvPrivate *priv;
+	LoquiCodeConvPrivate *priv;
 
         g_return_if_fail(codeconv != NULL);
-        g_return_if_fail(IS_CODECONV(codeconv));
+        g_return_if_fail(LOQUI_IS_CODECONV(codeconv));
 
 	priv = codeconv->priv;
 
@@ -212,10 +212,10 @@ codeconv_set_codeset_internal(CodeConv *codeconv, const gchar *codeset)
 	priv->cd_to = g_iconv_open(codeset, GTK_CODESET);
 }
 void
-codeconv_set_codeset(CodeConv *codeconv, const gchar *codeset)
+loqui_codeconv_set_codeset(LoquiCodeConv *codeconv, const gchar *codeset)
 {
         g_return_if_fail(codeconv != NULL);
-        g_return_if_fail(IS_CODECONV(codeconv));
+        g_return_if_fail(LOQUI_IS_CODECONV(codeconv));
 	g_return_if_fail(codeconv->priv->code_type == CODESET_TYPE_CUSTOM);
 	g_return_if_fail(codeset != NULL);
 
@@ -224,13 +224,13 @@ codeconv_set_codeset(CodeConv *codeconv, const gchar *codeset)
 		return;
 	}
 
-	codeconv_set_codeset_internal(codeconv, codeset);
+	loqui_codeconv_set_codeset_internal(codeconv, codeset);
 }
 G_CONST_RETURN gchar *
-codeconv_get_codeset(CodeConv *codeconv)
+loqui_codeconv_get_codeset(LoquiCodeConv *codeconv)
 {
         g_return_val_if_fail(codeconv != NULL, NULL);
-        g_return_val_if_fail(IS_CODECONV(codeconv), NULL);
+        g_return_val_if_fail(LOQUI_IS_CODECONV(codeconv), NULL);
 
 	if(codeconv->priv->code_type == CODESET_TYPE_NO_CONV)
 		return GTK_CODESET;
@@ -239,14 +239,14 @@ codeconv_get_codeset(CodeConv *codeconv)
 }
 
 gchar *
-codeconv_to_server(CodeConv *codeconv, const gchar *input)
+loqui_codeconv_to_server(LoquiCodeConv *codeconv, const gchar *input)
 {
-	CodeConvPrivate *priv;
+	LoquiCodeConvPrivate *priv;
 	gchar *output;
 	GError *error = NULL;
 
         g_return_val_if_fail(codeconv != NULL, NULL);
-        g_return_val_if_fail(IS_CODECONV(codeconv), NULL);
+        g_return_val_if_fail(LOQUI_IS_CODECONV(codeconv), NULL);
 
 	priv = codeconv->priv;
 
@@ -266,7 +266,7 @@ codeconv_to_server(CodeConv *codeconv, const gchar *input)
 }
 
 static gchar *
-codeconv_convert(CodeConv *codeconv, const gchar *input, GIConv cd)
+loqui_codeconv_convert(LoquiCodeConv *codeconv, const gchar *input, GIConv cd)
 {
 	gchar *tmp;
 	gchar buf[BUFFER_LEN+1];
@@ -330,13 +330,13 @@ codeconv_convert(CodeConv *codeconv, const gchar *input, GIConv cd)
 	return tmp;	
 }
 gchar *
-codeconv_to_local(CodeConv *codeconv, const gchar *input)
+loqui_codeconv_to_local(LoquiCodeConv *codeconv, const gchar *input)
 {
-	CodeConvPrivate *priv;
+	LoquiCodeConvPrivate *priv;
 	gchar *buf;
 	
         g_return_val_if_fail(codeconv != NULL, NULL);
-        g_return_val_if_fail(IS_CODECONV(codeconv), NULL);
+        g_return_val_if_fail(LOQUI_IS_CODECONV(codeconv), NULL);
 
 	priv = codeconv->priv;
 
@@ -348,7 +348,7 @@ codeconv_to_local(CodeConv *codeconv, const gchar *input)
 	if(priv->func) {
 		buf = priv->func(input);
 	} else {
-		buf = codeconv_convert(codeconv, input, priv->cd_from);
+		buf = loqui_codeconv_convert(codeconv, input, priv->cd_from);
 	}
 	
 	return buf;

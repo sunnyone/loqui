@@ -20,7 +20,7 @@
 #include "config.h"
 
 #include "intl.h"
-#include "codeconv.h"
+#include "loqui_codeconv.h"
 
 #include "loqui_profile_account_irc.h"
 #include "loqui_protocol_irc.h"

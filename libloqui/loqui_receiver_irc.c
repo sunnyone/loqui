@@ -35,7 +35,7 @@
 #include "loqui_channel_irc.h"
 #include "loqui_profile_account_irc.h"
 
-#include "codeconv.h"
+#include "loqui_codeconv.h"
 #include "loqui_string_tokenizer.h"
 #include "loqui.h"
 

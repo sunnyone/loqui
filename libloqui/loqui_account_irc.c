@@ -32,7 +32,7 @@
 
 #include <string.h>
 #include <gnet.h>
-#include "codeconv.h"
+#include "loqui_codeconv.h"
 
 enum {
         LAST_SIGNAL
@@ -48,7 +48,7 @@ struct _LoquiAccountIRCPrivate
 	GConn *conn;
 	gboolean is_conn_connected;
 
-	CodeConv *codeconv;
+	LoquiCodeConv *codeconv;
 };
 
 static LoquiAccountClass *parent_class = NULL;
@@ -276,7 +276,7 @@ loqui_account_irc_connect(LoquiAccount *account)
 	const gchar *servername, *codeset;
 	gint port;
 	gint codeset_type;
-	CodeConv *codeconv;
+	LoquiCodeConv *codeconv;
 	
         g_return_if_fail(account != NULL);
         g_return_if_fail(LOQUI_IS_ACCOUNT_IRC(account));
@@ -296,10 +296,10 @@ loqui_account_irc_connect(LoquiAccount *account)
 	loqui_account_set_is_connected(account, TRUE);
 	priv->conn = gnet_conn_new(servername, port, (GConnFunc) loqui_account_irc_conn_cb, account);
 
-	codeconv = codeconv_new();
-	codeconv_set_codeset_type(codeconv, codeset_type);
+	codeconv = loqui_codeconv_new();
+	loqui_codeconv_set_codeset_type(codeconv, codeset_type);
 	if(codeset_type == CODESET_TYPE_CUSTOM)
-		codeconv_set_codeset(codeconv, codeset);
+		loqui_codeconv_set_codeset(codeconv, codeset);
 	priv->codeconv = codeconv;
 	
 	loqui_account_information(account, _("Connecting to %s:%d"), servername, port);
@@ -420,7 +420,7 @@ loqui_account_irc_conn_readline_cb(GConn *conn, const gchar *buffer, LoquiAccoun
 	
 	priv = LOQUI_ACCOUNT_IRC(account)->priv;
 
-	local = codeconv_to_local(priv->codeconv, buffer);
+	local = loqui_codeconv_to_local(priv->codeconv, buffer);
 	if (local == NULL) {
 		loqui_account_warning(LOQUI_ACCOUNT(account), "Failed to convert codeset.");
 		return;
@@ -520,7 +520,7 @@ loqui_account_irc_push_message(LoquiAccountIRC *account, IRCMessage *msg)
 	}
 
 	buf = irc_message_to_string(msg);
-	serv_str = codeconv_to_server(priv->codeconv, buf);
+	serv_str = loqui_codeconv_to_server(priv->codeconv, buf);
 	g_free(buf);
 
 	tmp = g_strdup_printf("%s\r\n", serv_str);
