@@ -75,6 +75,7 @@ struct _LoquiAccountClass
 	void (* disconnect)       (LoquiAccount *account);
 
 	void (* warn) (LoquiAccount *account, const gchar *str);
+	void (* info) (LoquiAccount *account, const gchar *str);
 
 	void (* disconnected)     (LoquiAccount *account);
 	void (* add_channel)      (LoquiAccount *account,
@@ -118,6 +119,7 @@ void loqui_account_add_user(LoquiAccount *account, LoquiUser *user);
 LoquiUser* loqui_account_peek_user(LoquiAccount *account, const gchar *identifier);
 
 void loqui_account_warning(LoquiAccount *account, const gchar *format, ...) G_GNUC_PRINTF(2, 3);
+void loqui_account_information(LoquiAccount *account, const gchar *format, ...) G_GNUC_PRINTF(2, 3);
 
 void loqui_account_set_is_connected(LoquiAccount *account, gboolean is_connected);
 gboolean loqui_account_get_is_connected(LoquiAccount *account);
