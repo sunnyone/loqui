@@ -21,6 +21,8 @@
 
 #include "codeconv.h"
 #include "prefs_general.h"
+#include "intl.h"
+#include <string.h>
 
 static gchar *server_codeset = NULL;
 #define GTK_CODESET "UTF-8"

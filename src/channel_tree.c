@@ -23,6 +23,7 @@
 #include "gtkutils.h"
 #include "utils.h"
 #include "account_manager.h"
+#include "intl.h"
 
 struct _ChannelTreePrivate
 {

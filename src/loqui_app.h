@@ -20,7 +20,6 @@
 #ifndef __LOQUI_APP_H__
 #define __LOQUI_APP_H__
 
-#include <gnome.h>
 #include "loqui_menu.h"
 #include "channel_tree.h"
 #include "nick_list.h"

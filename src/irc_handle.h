@@ -20,7 +20,6 @@
 #ifndef __IRC_HANDLE_H__
 #define __IRC_HANDLE_H__
 
-#include <gnome.h>
 #include "account.h"
 #include "irc_message.h"
 

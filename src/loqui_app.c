@@ -28,6 +28,10 @@
 #include "account_manager.h"
 #include "prefs_general.h"
 
+#include "intl.h"
+
+#include <string.h>
+
 struct _LoquiAppPrivate
 {
 	GtkWidget *label_topic;

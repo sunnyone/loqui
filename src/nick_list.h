@@ -20,7 +20,6 @@
 #ifndef __NICK_LIST_H__
 #define __NICK_LIST_H__
 
-#include <gnome.h>
 #include "channel.h"
 
 G_BEGIN_DECLS

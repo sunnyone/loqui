@@ -5,7 +5,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: loqui 0.0.6\n"
-"POT-Creation-Date: 2003-01-12 23:36+0900\n"
+"POT-Creation-Date: 2003-01-12 23:39+0900\n"
 "PO-Revision-Date: 2002-11-10 13:17+0900\n"
 "Last-Translator: Yoichi Imai <yoichi@silver-forest.com>\n"
 "Language-Team: Japanese <ja@li.org>\n"

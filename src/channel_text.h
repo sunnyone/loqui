@@ -20,7 +20,7 @@
 #ifndef __CHANNEL_TEXT_H__
 #define __CHANNEL_TEXT_H__
 
-#include <gnome.h>
+#include <gtk/gtk.h>
 
 G_BEGIN_DECLS
 

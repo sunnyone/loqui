@@ -26,6 +26,9 @@
 #include "account_manager.h"
 #include "irc_constants.h"
 #include "main.h"
+#include "intl.h"
+
+#include <string.h>
 
 struct _IRCHandlePrivate
 {

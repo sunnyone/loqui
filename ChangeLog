@@ -1,3 +1,97 @@
+2003-01-18 22:23  y-imai
+
+	* src/: Makefile.am, account.c, account_manager.c,
+	eel-gconf-extensions.c, eel-gconf-extensions.h, loqui_app.c,
+	loqui_gconf.h, main.c, utils.c, utils.h: removed gconf related
+	functions
+
+2003-01-18 22:13  y-imai
+
+	* src/: Makefile.am, stringtable.c, stringtable.h, utils.c,
+	utils.h, xml.c, xml.h: removed xml.[ch] and its relation
+
+2003-01-18 22:11  y-imai
+
+	* src/: Makefile.am, account.c, account.h, account_manager.c,
+	account_manager.h, irc_handle.c, main.c, prefs_account.c,
+	prefs_account.h: fully implemented xml-based configuration
+
+2003-01-18 18:53  y-imai
+
+	* src/: Makefile.am, loqui_app.c, loqui_app.h, loqui_menu.c,
+	loqui_menu.h: abolished GnomeApp and GnomeUIInfo
+
+2003-01-18 17:08  y-imai
+
+	* src/: about.c, about.h, loqui_menu.c: abolished gnome_about
+
+2003-01-18 17:01  y-imai
+
+	* src/main.c: using new preference engine(general only)
+
+2003-01-18 17:00  y-imai
+
+	* src/prefs_general.c: removed function making ~/.loqui
+
+2003-01-18 16:53  y-imai
+
+	* src/codeconv.c: removed gconf code. fixed memory leak
+
+2003-01-18 15:50  y-imai
+
+	* src/: Makefile.am, main.h, prefs_general.c, prefs_general.h,
+	utils.c, utils.h: new preference engine(for general)
+
+2003-01-18 12:48  y-imai
+
+	* src/account.c: account_set frees variables if they has already
+	set
+
+2003-01-18 11:40  y-imai
+
+	* src/channel.c: using the value g_slist_remove returns
+
+2003-01-18 01:12  y-imai
+
+	* src/channel_text.c: changed scrolling method
+
+2003-01-17 21:55  y-imai
+
+	* src/: Makefile.am, stringtable.c, stringtable.h, utils.c,
+	utils.h, xml.c, xml.h: copied xml-related functions from sylpheed.
+
+2003-01-17 21:01  y-imai
+
+	* src/: account.c, account.h, account_manager.c, account_manager.h,
+	channel_tree.c, channel_tree.h, irc_handle.c, irc_handle.h,
+	loqui_app.c: implemented correct quitting
+
+2003-01-13 01:24  y-imai
+
+	* src/: channel.c, channel.h: change the method of finding user
+	from the user list
+
+2003-01-13 01:24  y-imai
+
+	* src/irc_handle.c: null channel checking
+
+2003-01-13 01:23  y-imai
+
+	* src/account_manager.c: null user checking
+
+2003-01-12 23:34  y-imai
+
+	* po/: ja.po, ja.po: euc-jp
+
+2003-01-12 23:31  y-imai
+
+	* po/ja.po: utf8
+
+2003-01-12 23:28  y-imai
+
+	* ChangeLog, configure, configure.in, mkinstalldirs, po/ChangeLog,
+	po/loqui.pot: 0.0.6 release
+
 2003-01-12 23:27  y-imai
 
 	* src/channel.c: added include utils.h

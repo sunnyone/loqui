@@ -23,7 +23,10 @@
 #include "main.h"
 
 #include <stdio.h>
-#include <gnome.h>
+#include <string.h>
+#include <errno.h>
+
+#include "intl.h"
 
 PrefsGeneral *prefs_general = NULL;
 #define RC_FILENAME "loquirc.xml"

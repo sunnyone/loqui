@@ -20,7 +20,6 @@
 #ifndef __ACCOUNT_H__
 #define __ACCOUNT_H__
 
-#include <gnome.h>
 #include "channel.h"
 
 G_BEGIN_DECLS

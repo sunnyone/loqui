@@ -20,7 +20,6 @@
 #ifndef __CHANNEL_BOOK_H__
 #define __CHANNEL_BOOK_H__
 
-#include <gnome.h>
 #include "channel_text.h"
 
 G_BEGIN_DECLS

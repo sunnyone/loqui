@@ -21,6 +21,7 @@
 
 #include "nick_list.h"
 #include "gtkutils.h"
+#include "intl.h"
 
 struct _NickListPrivate
 {

@@ -22,8 +22,10 @@
 #include "irc_message.h"
 #include "command_table.h"
 #include "utils.h"
-#include <stdarg.h>
 #include "irc_constants.h"
+
+#include <stdarg.h>
+#include <string.h>
 
 struct _IRCMessagePrivate
 {

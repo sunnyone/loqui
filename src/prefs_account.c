@@ -21,9 +21,12 @@
 #include "prefs_account.h"
 #include "utils.h"
 #include "main.h"
+#include "intl.h"
 
 #include <stdio.h>
-#include <gettext.h>
+#include <errno.h>
+#include <string.h>
+#include <glib.h>
 
 #define RC_FILENAME "accountrc.xml"
 

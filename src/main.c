@@ -26,19 +26,16 @@
 #include "prefs_general.h"
 #include "utils.h"
 
-#include <gnome.h>
+#include <gtk/gtk.h>
+#include <string.h>
+#include <stdlib.h>
+
+#include "intl.h"
 
 int debug_mode;
 int show_msg_mode;
 
 static void make_program_dir(void);
-
-static const struct poptOption options[] =
-{
-	{"debug", '\0', POPT_ARG_NONE, &debug_mode, 0, N_("Enable debugging"), NULL},
-	{"show-msg", '\0', POPT_ARG_NONE, &show_msg_mode, 0, N_("Print messages to console"), NULL},
-        {NULL, '\0', 0, NULL, 0}
-};
 
 static void make_program_dir(void)
 {
@@ -58,8 +55,8 @@ static void make_program_dir(void)
 int
 main(int argc, char *argv[])
 {
-        GnomeProgram *program;
 	AccountManager *account_manager;
+	int i;
 
         bindtextdomain(GETTEXT_PACKAGE, PACKAGE_LOCALE_DIR);
 #ifdef HAVE_BIND_TEXTDOMAIN_CODESET
@@ -73,23 +70,31 @@ main(int argc, char *argv[])
 
 	make_program_dir();
 
-        program = gnome_program_init(PACKAGE, VERSION,
-				     LIBGNOMEUI_MODULE, argc, argv,
-				     GNOME_PARAM_POPT_TABLE, options,
-				     GNOME_PARAM_HUMAN_READABLE_NAME,
-				     _("Loqui IRC client"),
-				     GNOME_PARAM_APP_DATADIR, DATADIR,
-				     NULL);
+	gtk_init(&argc, &argv);
 
+	for(i = 0; i < argc; i++) {
+		if(strcmp(argv[i], "--debug") == 0) {
+			debug_mode = 1;
+			g_print("Start debug mode.\n");
+			continue;
+		}
+		if(strcmp(argv[i], "--show-msg") == 0) {
+			show_msg_mode = 1;
+			g_print("Start show msg mode\n");
+			continue;
+		}
+		if(strcmp(argv[i], "--help") == 0) {
+			g_print("Loqui %s\n", VERSION);
+			g_print(_("  --debug      debug mode\n"));
+			g_print(_("  --show-msg   show message mode\n"));
+			g_print(_("  --help       show this help\n"));
+			exit(0);
+		}
+	}
 	prefs_general_load();
 
 	codeconv_init();
 	command_table_init();
-
-	if(debug_mode)
-		g_print("Start debug mode.\n");
-	if(show_msg_mode)
-		g_print("Start show msg mode\n");
 
 	account_manager = account_manager_get();
 	account_manager_load_accounts(account_manager);

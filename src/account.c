@@ -25,9 +25,11 @@
 #include "gtkutils.h"
 #include "utils.h"
 #include "account_manager.h"
-#include <string.h>
 #include "main.h"
 #include "gtkutils.h"
+#include "intl.h"
+
+#include <string.h>
 
 struct _AccountPrivate
 {

@@ -20,7 +20,6 @@
 #ifndef __ACCOUNT_MANAGER_H__
 #define __ACCOUNT_MANAGER_H__
 
-#include <gnome.h>
 #include "account.h"
 #include "channel.h"
 

@@ -1,9 +1,10 @@
 bin_PROGRAMS = loqui
 
-INCLUDES = $(LOQUI_CFLAGS) $(EXTRA_WARNING_CFLAGS) -g -I$(includedir) \
+INCLUDES = $(GTK_CFLAGS) $(EXTRA_WARNING_CFLAGS) -g -I$(includedir) \
 	-DDATADIR=\""$(datadir)"\" $(GNET_CFLAGS) -Wall
 
 loqui_SOURCES = \
+	intl.h \
 	main.c main.h \
 	prefs_general.c prefs_general.h \
 	prefs_account.c prefs_account.h \
@@ -27,4 +28,4 @@ loqui_SOURCES = \
 	about.c about.h
 
 loqui_LDADD = \
-        $(LOQUI_LIBS) $(GNET_LIBS)
+        $(GTK_LIBS) $(GNET_LIBS)

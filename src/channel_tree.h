@@ -20,7 +20,8 @@
 #ifndef __CHANNEL_TREE_H__
 #define __CHANNEL_TREE_H__
 
-#include <gnome.h>
+#include <gtk/gtk.h>
+
 #include "account.h"
 #include "channel.h"
 

@@ -20,7 +20,7 @@
 #ifndef __CODECONV_H__
 #define __CODECONV_H__
 
-#include <gnome.h>
+#include <glib.h>
 
 void codeconv_init(void);
 gchar *codeconv_to_server(const gchar *input);

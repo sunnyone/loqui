@@ -24,9 +24,12 @@
 #include "config.h"
 
 #include "connection.h"
-#include <gnet.h>
 #include "codeconv.h"
 #include "utils.h"
+#include "intl.h"
+
+#include <gnet.h>
+#include <string.h>
 
 struct _ConnectionPrivate
 {

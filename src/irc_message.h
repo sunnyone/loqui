@@ -20,7 +20,9 @@
 #ifndef __IRC_MESSAGE_H__
 #define __IRC_MESSAGE_H__
 
-#include <gnome.h>
+#include <glib.h>
+#include <glib-object.h>
+
 #include "irc_constants.h"
 
 G_BEGIN_DECLS
@@ -41,12 +43,6 @@ typedef struct _IRCMessagePrivate     IRCMessagePrivate;
 #define IRC_MESSAGE_IS_REPLY(msg) ((200 < msg->response && msg->response < 400))
 #define IRC_MESSAGE_IS_ERROR(msg) ((400 < msg->response && msg->response < 1000))
 
-/* typedef enum {
-	IRC_MESSAGE_COMMAND,
-	IRC_MESSAGE_REPLY,
-	IRC_MESSAGE_ERROR,
-	} IRCMessageType; */
-	
 struct _IRCMessage
 {
         GObject parent;
