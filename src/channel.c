@@ -112,7 +112,7 @@ channel_class_init (ChannelClass *klass)
 	channel_signals[UPDATED] = g_signal_new("updated",
 						G_OBJECT_CLASS_TYPE(object_class),
 						G_SIGNAL_RUN_FIRST,
-						0,
+						G_STRUCT_OFFSET(ChannelClass, updated),
 						NULL, NULL,
 						g_cclosure_marshal_VOID__VOID,
 						G_TYPE_NONE, 0);
@@ -120,7 +120,7 @@ channel_class_init (ChannelClass *klass)
 	channel_signals[TOPIC_CHANGED] = g_signal_new("topic-changed",
 						      G_OBJECT_CLASS_TYPE(object_class),
 						      G_SIGNAL_RUN_FIRST,
-						      0,
+						      G_STRUCT_OFFSET(ChannelClass, topic_changed),
 						      NULL, NULL,
 						      g_cclosure_marshal_VOID__VOID,
 						      G_TYPE_NONE, 0);
@@ -128,7 +128,7 @@ channel_class_init (ChannelClass *klass)
 	channel_signals[USER_NUMBER_CHANGED] = g_signal_new("user-number-changed",
 							    G_OBJECT_CLASS_TYPE(object_class),
 							    G_SIGNAL_RUN_FIRST,
-							    0,
+							    G_STRUCT_OFFSET(ChannelClass, user_number_changed),
 							    NULL, NULL,
 							    g_cclosure_marshal_VOID__VOID,
 							    G_TYPE_NONE, 0);
@@ -136,7 +136,7 @@ channel_class_init (ChannelClass *klass)
 	channel_signals[MODE_CHANGED] = g_signal_new("mode-changed",
 						     G_OBJECT_CLASS_TYPE(object_class),
 						     G_SIGNAL_RUN_FIRST,
-						     0,
+						     G_STRUCT_OFFSET(ChannelClass, mode_changed),
 						     NULL, NULL,
 						     g_cclosure_marshal_VOID__VOID,
 						     G_TYPE_NONE, 0);

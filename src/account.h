@@ -66,6 +66,10 @@ struct _AccountClass
         GObjectClass parent_class;
 
 	/* signals */
+	void (* connected)        (Account *account);
+	void (* disconnected)     (Account *account);
+	void (* nick_changed)     (Account *account);
+	void (* away_changed)     (Account *account);
 	void (* add_channel)      (Account *account,
 				   Channel *channel);
 	void (* remove_channel)   (Account *account,

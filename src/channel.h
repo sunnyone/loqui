@@ -71,6 +71,11 @@ struct _Channel
 struct _ChannelClass
 {
         GObjectClass parent_class;
+
+	void (* updated)             (Channel *channel);
+	void (* topic_changed)       (Channel *channel);
+	void (* user_number_changed) (Channel *channel);
+	void (* mode_changed)        (Channel *channel);
 };
 
 #define STRING_IS_CHANNEL(s) ((*s == '#' || *s =='&' || *s =='!' || *s == '+'))
