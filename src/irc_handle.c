@@ -182,7 +182,22 @@ irc_handle_finalize(GObject *object)
         handle = IRC_HANDLE(object);
 	priv = handle->priv;
 
-	irc_handle_disconnect(handle);
+	if(priv->connect_id != 0) {
+		gnet_tcp_socket_connect_async_cancel(priv->connect_id);
+		priv->connect_id = 0;
+	}
+	if(priv->in_watch != 0) {
+		g_source_remove(priv->in_watch);
+		priv->in_watch = 0;
+	}
+	if(priv->out_watch != 0) {
+		g_source_remove(priv->out_watch);
+		priv->out_watch = 0;
+	}
+	if(priv->socket) {
+		gnet_tcp_socket_delete(priv->socket);
+		priv->socket = NULL;
+	}
 
         if (G_OBJECT_CLASS(parent_class)->finalize)
                 (* G_OBJECT_CLASS(parent_class)->finalize) (object);

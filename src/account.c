@@ -60,6 +60,8 @@ static void account_class_init(AccountClass *klass);
 static void account_init(Account *account);
 static void account_finalize(GObject *object);
 
+static void account_handle_disconnected_cb(GObject *object, Account *account);
+
 GType
 account_get_type(void)
 {
@@ -402,9 +404,28 @@ account_connect(Account *account, Server *server)
 	}
 
 	priv->handle = irc_handle_new(account);
+	g_signal_connect(G_OBJECT(priv->handle), "disconnected",
+			 G_CALLBACK(account_handle_disconnected_cb), account);
 	irc_handle_connect(priv->handle, (server == NULL) ? TRUE : FALSE, server);
 
 	g_signal_emit(account, account_signals[CONNECTED], 0);
+}
+static void
+account_handle_disconnected_cb(GObject *object, Account *account)
+{
+	AccountPrivate *priv;
+
+        g_return_if_fail(account != NULL);
+        g_return_if_fail(IS_ACCOUNT(account));
+
+	priv = account->priv;
+
+	if(priv->handle)
+		g_object_unref(priv->handle);
+	priv->handle = NULL;
+
+	account_console_buffer_append(account, TRUE, TEXT_TYPE_INFO, _("Disconnected."));
+	account_manager_remove_channels_of_account(account_manager_get(), account);
 }
 void
 account_disconnect(Account *account)
@@ -416,14 +437,8 @@ account_disconnect(Account *account)
 	
 	priv = account->priv;
 
-	if(!priv->handle)
-		return;
-
-	/* TODO: remove channels from channel tree */
-	account_manager_remove_channels_of_account(account_manager_get(), account);
-
-	irc_handle_disconnect(priv->handle);
-	priv->handle = NULL;
+	if(priv->handle)
+		irc_handle_disconnect(priv->handle);
 }
 gboolean account_is_connected(Account *account)
 {
