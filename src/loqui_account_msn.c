@@ -20,6 +20,8 @@
 #include "config.h"
 
 #include "loqui_account_msn.h"
+#include "msn_login.h"
+#include "intl.h"
 
 enum {
         LAST_SIGNAL
@@ -31,6 +33,7 @@ enum {
 
 struct _LoquiAccountMSNPrivate
 {
+	MSNLogin *login;
 };
 
 static LoquiAccountClass *parent_class = NULL;
@@ -46,6 +49,8 @@ static void loqui_account_msn_dispose(GObject *object);
 
 static void loqui_account_msn_get_property(GObject *object, guint param_id, GValue *value, GParamSpec *pspec);
 static void loqui_account_msn_set_property(GObject *object, guint param_id, const GValue *value, GParamSpec *pspec);
+
+static void loqui_account_msn_connect(LoquiAccount *account);
 
 GType
 loqui_account_msn_get_type(void)
@@ -108,6 +113,8 @@ loqui_account_msn_dispose(GObject *object)
 
         account = LOQUI_ACCOUNT_MSN(object);
 
+	G_FREE_UNLESS_NULL(account->trid_string);
+
         if (G_OBJECT_CLASS(parent_class)->dispose)
                 (* G_OBJECT_CLASS(parent_class)->dispose)(object);
 }
@@ -142,6 +149,7 @@ static void
 loqui_account_msn_class_init(LoquiAccountMSNClass *klass)
 {
         GObjectClass *object_class = G_OBJECT_CLASS(klass);
+	LoquiAccountClass *account_class = LOQUI_ACCOUNT_CLASS(klass);
 
         parent_class = g_type_class_peek_parent(klass);
 
@@ -150,6 +158,8 @@ loqui_account_msn_class_init(LoquiAccountMSNClass *klass)
         object_class->dispose = loqui_account_msn_dispose;
         object_class->get_property = loqui_account_msn_get_property;
         object_class->set_property = loqui_account_msn_set_property;
+
+	account_class->connect = loqui_account_msn_connect;
 }
 static void 
 loqui_account_msn_init(LoquiAccountMSN *account)
@@ -159,6 +169,11 @@ loqui_account_msn_init(LoquiAccountMSN *account)
 	priv = g_new0(LoquiAccountMSNPrivate, 1);
 
 	account->priv = priv;
+}
+static void
+loqui_account_msn_connect(LoquiAccount *account)
+{
+	loqui_account_information(account, _("Connecting."));
 }
 LoquiAccountMSN*
 loqui_account_msn_new(void)
@@ -171,4 +186,26 @@ loqui_account_msn_new(void)
         priv = account->priv;
 
         return account;
+}
+gint
+loqui_account_msn_get_new_trid(LoquiAccountMSN *account)
+{
+	g_return_val_if_fail(account != NULL, -1);
+	g_return_val_if_fail(LOQUI_IS_ACCOUNT_MSN(account), -1);
+
+	return account->trid++;
+}
+G_CONST_RETURN gchar *
+loqui_account_msn_get_trid_string(LoquiAccountMSN *account)
+{
+	gint trid;
+	g_return_val_if_fail(account != NULL, NULL);
+	g_return_val_if_fail(LOQUI_IS_ACCOUNT_MSN(account), NULL);
+
+	G_FREE_UNLESS_NULL(account->trid_string);
+
+	trid = loqui_account_msn_get_new_trid(account);
+	account->trid_string = g_strdup_printf("%d", trid);
+
+	return account->trid_string;
 }

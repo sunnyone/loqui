@@ -61,8 +61,11 @@ SRC_PROTOCOL_IPMSG = \
 	ipmsg_packet.c ipmsg_packet.h
 
 SRC_PROTOCOL_MSN = \
+	msn_login.c msn_login.h \
+	msn_message.c msn_message.h \
 	loqui_protocol_msn.c loqui_protocol_msn.h \
-	loqui_account_msn.c loqui_account_msn.h
+	loqui_account_msn.c loqui_account_msn.h \
+	msn_constants.h
 
 SRC_LIBRARY_CORE = \
 	loqui_protocol_manager.c loqui_protocol_manager.h \

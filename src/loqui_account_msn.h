@@ -41,6 +41,9 @@ struct _LoquiAccountMSN
 {
         LoquiAccount parent;
         
+	gchar *trid_string;
+	gint trid;
+
         LoquiAccountMSNPrivate *priv;
 };
 
@@ -53,6 +56,9 @@ struct _LoquiAccountMSNClass
 GType loqui_account_msn_get_type(void) G_GNUC_CONST;
 
 LoquiAccountMSN* loqui_account_msn_new(void);
+gint loqui_account_msn_get_new_trid(LoquiAccountMSN *account);
+G_CONST_RETURN gchar *loqui_account_msn_get_trid_string(LoquiAccountMSN *account);
+
 G_END_DECLS
 
 #endif /* __LOQUI_ACCOUNT_MSN_H__ */
