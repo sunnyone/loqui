@@ -652,6 +652,14 @@ channel_get_mode(Channel *channel)
 }
 
 gboolean
+channel_is_private_talk(Channel *channel)
+{
+	g_return_val_if_fail(channel != NULL, FALSE);
+	g_return_val_if_fail(IS_CHANNEL(channel), FALSE);
+	
+	return (!STRING_IS_CHANNEL(channel_get_name(channel))) ? TRUE : FALSE;
+}
+gboolean
 channel_name_equal(gconstpointer a, gconstpointer b)
 {
 	return (g_ascii_strcasecmp(a, b) == 0);

@@ -87,6 +87,8 @@ Channel* channel_new(Account *account, const gchar *name);
 void channel_append_text(Channel *channel, TextType type, gchar *str);
 void channel_append_remark(Channel *channel, TextType type, gboolean is_self, const gchar *nick, const gchar *remark);
 
+gboolean channel_is_private_talk(Channel *channel);
+
 /* return value must not be freed. */
 gchar *channel_get_name(Channel *channel);
 
