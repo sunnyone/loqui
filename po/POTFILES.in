@@ -10,8 +10,6 @@ src/account_manager.c
 src/account_manager.h
 src/channel_buffer.c
 src/channel_buffer.h
-src/channel_input_dialog.c
-src/channel_input_dialog.h
 src/channel_tree.c
 src/channel_tree.h
 src/codeconv.c
@@ -68,6 +66,8 @@ src/loqui_member.c
 src/loqui_member.h
 src/loqui_member_sort_funcs.c
 src/loqui_member_sort_funcs.h
+src/loqui_message.c
+src/loqui_message.h
 src/loqui_profile_account.c
 src/loqui_profile_account.h
 src/loqui_profile_account_irc.c
