@@ -55,7 +55,6 @@ GType loqui_menu_get_type(void) G_GNUC_CONST;
 
 LoquiMenu* loqui_menu_new(LoquiApp *app);
 
-void loqui_menu_update_connect_submenu(LoquiMenu *menu, GSList *account_list);
 GtkWidget* loqui_menu_get_widget(LoquiMenu *menu);
 
 G_END_DECLS

@@ -33,8 +33,6 @@ struct _LoquiMenuPrivate
 
 	GtkAccelGroup *accel_group;      
 	GtkItemFactory *item_factory;
-
-	GtkWidget *connect_menu;
 };
 
 static void loqui_menu_class_init(LoquiMenuClass *klass);
@@ -48,7 +46,7 @@ static void loqui_menu_find_cb(gpointer data, guint callback_action, GtkWidget *
 
 static void loqui_menu_about_cb(gpointer data, guint callback_action, GtkWidget *widget);
 static void loqui_menu_quit_cb(gpointer data, guint callback_action, GtkWidget *widget);
-static void loqui_menu_connect_cb(GtkWidget *widget, gpointer data);
+static void loqui_menu_connect_cb(gpointer data, guint callback_action, GtkWidget *widget);
 static void loqui_menu_account_settings_cb(gpointer data, guint callback_action, GtkWidget *widget);
 static void loqui_menu_common_settings_cb(gpointer data, guint callback_action, GtkWidget *widget);
 
@@ -62,7 +60,7 @@ enum {
 
 static GtkItemFactoryEntry menu_items[] = {
 	{ N_("/_File"),     NULL, 0, 0, "<Branch>" },
-	{ N_("/File/_Connect"), NULL, 0, 0, "<Branch>" },
+	{ N_("/File/_Connect"), NULL, loqui_menu_connect_cb, 0 },
 	{ N_("/File/_Quit"), "<control>Q", loqui_menu_quit_cb, 0, "<StockItem>", GTK_STOCK_QUIT },
 	{ N_("/_Edit"),     NULL, 0, 0, "<Branch>" },
 	{ N_("/Edit/Cut"),      "<control>X", loqui_menu_edit_cb, LOQUI_MENU_CUT, "<StockItem>", GTK_STOCK_CUT },
@@ -217,8 +215,6 @@ loqui_menu_new(LoquiApp *app)
 	g_signal_connect(G_OBJECT(gtk_item_factory_get_item(priv->item_factory, "/Edit")), "activate",
 			 G_CALLBACK(loqui_menu_edit_activate_cb), menu);
 
-	priv->connect_menu = gtk_item_factory_get_item(priv->item_factory, "/File/Connect");
-
 	return menu;
 }
 GtkWidget* loqui_menu_get_widget(LoquiMenu *menu)
@@ -229,37 +225,6 @@ GtkWidget* loqui_menu_get_widget(LoquiMenu *menu)
 	return gtk_item_factory_get_widget(menu->priv->item_factory, "<main>");
 }
 
-void loqui_menu_update_connect_submenu(LoquiMenu *menu, GSList *account_list)
-{
-	LoquiMenuPrivate *priv;
-	GSList *cur;
-	GtkWidget *submenu = NULL;
-	GtkWidget *item;
-	gboolean added = FALSE;
-	Account *account;
-
-	priv = menu->priv;
-	
-	if (GTK_MENU_ITEM(priv->connect_menu)->submenu) 
-                gtk_menu_item_remove_submenu (GTK_MENU_ITEM (priv->connect_menu));
-
-	for(cur = account_list; cur != NULL; cur = cur->next) {
-		account = ACCOUNT(cur->data);
-		if(!submenu) {
-			submenu = gtk_menu_new();
-			gtk_menu_item_set_submenu(GTK_MENU_ITEM(priv->connect_menu), submenu);
-		}
-		item = gtk_menu_item_new_with_label(account->name);
-		g_signal_connect(G_OBJECT(item), "activate",
-				 G_CALLBACK(loqui_menu_connect_cb), account);
-		gtk_menu_append(GTK_MENU(submenu), item);
-		gtk_widget_show_all(item);
-
-		added = TRUE;
-	}
-
-        gtk_widget_set_sensitive(priv->connect_menu, added);
-}
 
 static void
 loqui_menu_edit_cb(gpointer data, guint callback_action, GtkWidget *widget)
@@ -333,11 +298,8 @@ loqui_menu_quit_cb(gpointer data, guint callback_action, GtkWidget *widget)
 	gtk_main_quit();
 }
 
-static void loqui_menu_connect_cb(GtkWidget *widget, gpointer data)
+static void loqui_menu_connect_cb(gpointer data, guint callback_action, GtkWidget *widget)
 {
-	Account *account;
-	
-	account = ACCOUNT(data);
-	account_connect(account, NULL);
+	account_manager_open_connect_dialog(account_manager_get());
 }
 

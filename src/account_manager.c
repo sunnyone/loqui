@@ -152,8 +152,6 @@ account_manager_add_account(AccountManager *manager, Account *account)
 
 	priv->account_list = g_slist_append(priv->account_list, account);
 	channel_tree_add_account(priv->app->channel_tree, account);
-
-	loqui_menu_update_connect_submenu(priv->app->menu, priv->account_list);
 }
 void
 account_manager_remove_account(AccountManager *manager, Account *account)
@@ -170,8 +168,6 @@ account_manager_remove_account(AccountManager *manager, Account *account)
 	priv->account_list = g_slist_remove(priv->account_list, account);
 	channel_tree_remove_account(priv->app->channel_tree, account);
 	g_object_unref(account);
-
-	loqui_menu_update_connect_submenu(priv->app->menu, priv->account_list);
 }
 void
 account_manager_update_account(AccountManager *manager, Account *account)
@@ -189,8 +185,6 @@ account_manager_update_account(AccountManager *manager, Account *account)
 	for(cur = priv->account_list; cur != NULL; cur = cur->next) {
 		channel_tree_update_account(priv->app->channel_tree, account);
 	}
-
-	loqui_menu_update_connect_submenu(priv->app->menu, priv->account_list);
 }
 void
 account_manager_load_accounts(AccountManager *account_manager)
