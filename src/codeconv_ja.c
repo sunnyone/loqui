@@ -81,8 +81,16 @@ codeconv_ja_jis_to_utf8(const gchar *input)
 	string = g_string_new_len(NULL, strlen(input));
 	cur = input;
 	area_type = ISO_2022_JP_TYPE_ASCII;
-	while (*cur != '\0') {
-		if (*cur == ISO_2022_ESC) {
+	while ((c = *cur) != '\0') {
+		if (c == '\r' || c == '\n') {
+			g_string_append_c(string, c);
+			if (c == '\n')
+				area_type = ISO_2022_JP_TYPE_ASCII;
+			cur++;
+			continue;
+		}
+
+		if (c == ISO_2022_ESC) {
 			cur++;
 			if (*cur == '\0')
 				break;
@@ -119,7 +127,7 @@ codeconv_ja_jis_to_utf8(const gchar *input)
 			}
 			continue;
 		}
-		c = *cur;
+
 		switch (area_type) {
 		case ISO_2022_JP_TYPE_JISX_0208_1983:
 		case ISO_2022_JP_TYPE_JISX_0208_1978:
@@ -127,18 +135,18 @@ codeconv_ja_jis_to_utf8(const gchar *input)
 				break;
 
 			cur++;
-			c2 = *cur;
-			if (c2 == '\0')
+			c1 = *cur;
+			if (c1 == '\0')
 				break;
 			c |= 0x80;
-			c2 |= 0x80;
+			c1 |= 0x80;
 				
 			euc_jp_kanji[0] = c;
-			euc_jp_kanji[1] = c2;
+			euc_jp_kanji[1] = c1;
 			euc_jp_kanji[2] = 0;
 
-			if (c == 0xad && 0xa1 <= c2 && c2 <= 0xfc) { /* 13ku NEC special charaters */
-				u = jis_13ku_table[c2 - 0xa0];
+			if (c == 0xad && 0xa1 <= c1 && c1 <= 0xfc) { /* 13ku NEC special charaters */
+				u = jis_13ku_table[c1 - 0xa0];
 				if (u == 0)
 					g_string_append(string, "[?]");
 				else
