@@ -434,7 +434,6 @@ loqui_account_new(LoquiProfileAccount *profile)
 	user = loqui_user_new();
 
 	account = g_object_new(loqui_account_get_type(), 
-			       "buffer", channel_buffer_new(),
 			       "profile", profile,
 			       "user_self", user,
 			       NULL);
@@ -689,7 +688,6 @@ void
 loqui_account_console_buffer_append(LoquiAccount *account, LoquiTextType type, const gchar *str)
 {
 	LoquiMessageText *msgtext;
-	ChannelBuffer *buffer;
 
 	g_return_if_fail(account != NULL);
 	g_return_if_fail(str != NULL);

@@ -247,7 +247,6 @@ loqui_channel_new(LoquiAccount *account, const gchar *name, const gchar *identif
 			       "identifier", identifier,
 			       "is_private_talk", is_private_talk,
 			       "is_joined", is_joined,
-			       "buffer", channel_buffer_new(),
 			       NULL);
 	
         priv = channel->priv;

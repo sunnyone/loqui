@@ -19,7 +19,7 @@
  */
 #include "config.h"
 
-#include "channel_buffer.h"
+#include "loqui_channel_buffer_gtk.h"
 #include <time.h>
 #include <string.h>
 #include "prefs_general.h"
@@ -27,12 +27,12 @@
 #include "gtkutils.h"
 #include "loqui_gtk.h"
 
+/*
 enum {
-	APPEND,
 	LAST_SIGNAL
-};
+	}; */
 
-struct _ChannelBufferPrivate
+struct _LoquiChannelBufferGtkPrivate
 {
 	gboolean is_common_buffer;
 };
@@ -44,69 +44,81 @@ static GtkTextTagTable *default_tag_table;
 
 static GtkTextTag *highlight_area_tag;
 
-static guint channel_buffer_signals[LAST_SIGNAL] = { 0 };
+/* static guint loqui_channel_buffer_gtk_signals[LAST_SIGNAL] = { 0 }; */
 
-static void channel_buffer_class_init(ChannelBufferClass *klass);
-static void channel_buffer_init(ChannelBuffer *channel_buffer);
-static void channel_buffer_finalize(GObject *object);
+static void loqui_channel_buffer_gtk_interface_buffer_init(LoquiChannelBufferIface *iface);
+static void loqui_channel_buffer_gtk_class_init(LoquiChannelBufferGtkClass *klass);
+static void loqui_channel_buffer_gtk_init(LoquiChannelBufferGtk *channel_buffer);
+static void loqui_channel_buffer_gtk_finalize(GObject *object);
 
-static void channel_buffer_append_current_time(ChannelBuffer *channel_buffer);
-static void channel_buffer_append(ChannelBuffer *buffer, LoquiTextType type, gchar *str,
-				  gboolean enable_highlight);
+static void loqui_channel_buffer_gtk_append_current_time(LoquiChannelBufferGtk *channel_buffer);
+static void loqui_channel_buffer_gtk_append(LoquiChannelBufferGtk *buffer, LoquiTextType type, gchar *str,
+					    gboolean enable_highlight);
 
-static void channel_buffer_text_inserted_cb(GtkTextBuffer *buffer,
+static void loqui_channel_buffer_gtk_append_message_text(LoquiChannelBuffer *buffer_p, LoquiMessageText *msgtext);
+static void loqui_channel_buffer_gtk_text_inserted_cb(GtkTextBuffer *buffer,
 					    GtkTextIter *pos,
 					    const gchar *text,
 					    gint length,
 					    gpointer data);
 
-static void channel_buffer_tag_uri(GtkTextBuffer *buffer,
+static void loqui_channel_buffer_gtk_tag_uri(GtkTextBuffer *buffer,
 				   GtkTextIter *iter_in,
 				   const gchar *text);
 
-static gboolean channel_buffer_link_tag_event_cb(GtkTextTag *texttag,
+static gboolean loqui_channel_buffer_gtk_link_tag_event_cb(GtkTextTag *texttag,
 						 GObject *arg1,
 						 GdkEvent *event,
 						 GtkTextIter *arg2,
 						 gpointer user_data);
 
-static void channel_buffer_apply_tag_cb(GtkTextBuffer *buffer,
+static void loqui_channel_buffer_gtk_apply_tag_cb(GtkTextBuffer *buffer,
 					GtkTextTag *tag,
 					GtkTextIter *start,
 					GtkTextIter *end,
 					gpointer user_data);
-static gboolean channel_buffer_delete_old_lines(ChannelBuffer *buffer);
+static gboolean loqui_channel_buffer_gtk_delete_old_lines(LoquiChannelBufferGtk *buffer);
 
 #define TIME_LEN 11
 
 GType
-channel_buffer_get_type(void)
+loqui_channel_buffer_gtk_get_type(void)
 {
 	static GType type = 0;
 	if (type == 0) {
 		static const GTypeInfo our_info =
 			{
-				sizeof(ChannelBufferClass),
+				sizeof(LoquiChannelBufferGtkClass),
 				NULL,           /* base_init */
 				NULL,           /* base_finalize */
-				(GClassInitFunc) channel_buffer_class_init,
+				(GClassInitFunc) loqui_channel_buffer_gtk_class_init,
 				NULL,           /* class_finalize */
 				NULL,           /* class_data */
-				sizeof(ChannelBuffer),
+				sizeof(LoquiChannelBufferGtk),
 				0,              /* n_preallocs */
-				(GInstanceInitFunc) channel_buffer_init
+				(GInstanceInitFunc) loqui_channel_buffer_gtk_init
 			};
-		
+		static const GInterfaceInfo ibuf_info = {
+                        (GInterfaceInitFunc) loqui_channel_buffer_gtk_interface_buffer_init,    /* interface_init */
+                        NULL,                                                                   /* interface_finalize */
+                        NULL                                                                    /* interface_data */
+                };
 		type = g_type_register_static(PARENT_TYPE,
-					      "ChannelBuffer",
+					      "LoquiChannelBufferGtk",
 					      &our_info,
 					      0);
+		g_type_add_interface_static(type, LOQUI_TYPE_CHANNEL_BUFFER, &ibuf_info);
 	}
 	
 	return type;
 }
 static void
-channel_buffer_init_tags(void)
+loqui_channel_buffer_gtk_interface_buffer_init(LoquiChannelBufferIface *iface)
+{
+	iface->append_message_text = loqui_channel_buffer_gtk_append_message_text;
+}
+static void
+loqui_channel_buffer_gtk_init_tags(void)
 {
 	GtkTextTag *tag;
 	
@@ -142,7 +154,7 @@ channel_buffer_init_tags(void)
 	tag = gtk_text_tag_new("link");
 	g_object_set(tag, "foreground", "blue", "underline", PANGO_UNDERLINE_SINGLE, NULL);
 	g_signal_connect(G_OBJECT(tag), "event",
-			 G_CALLBACK(channel_buffer_link_tag_event_cb), NULL);
+			 G_CALLBACK(loqui_channel_buffer_gtk_link_tag_event_cb), NULL);
 	gtk_text_tag_table_add(default_tag_table, tag);
 	
 	tag = gtk_text_tag_new("transparent");
@@ -157,33 +169,24 @@ channel_buffer_init_tags(void)
 }
 
 static void
-channel_buffer_class_init (ChannelBufferClass *klass)
+loqui_channel_buffer_gtk_class_init(LoquiChannelBufferGtkClass *klass)
 {
         GObjectClass *object_class = G_OBJECT_CLASS(klass);
 
         parent_class = g_type_class_peek_parent(klass);
         
-        object_class->finalize = channel_buffer_finalize;
+        object_class->finalize = loqui_channel_buffer_gtk_finalize;
 
 	if(default_tag_table == NULL)
-		channel_buffer_init_tags();	
+		loqui_channel_buffer_gtk_init_tags();	
 	klass->tag_table = default_tag_table;
-
-	channel_buffer_signals[APPEND] = g_signal_new("append",
-						      G_OBJECT_CLASS_TYPE(object_class),
-						      G_SIGNAL_RUN_FIRST,
-						      G_STRUCT_OFFSET(ChannelBufferClass, append),
-						      NULL, NULL,
-						      g_cclosure_marshal_VOID__OBJECT,
-						      G_TYPE_NONE, 1,
-						      LOQUI_TYPE_MESSAGE_TEXT);
 }
-static void 
-channel_buffer_init (ChannelBuffer *channel_buffer)
+static void
+loqui_channel_buffer_gtk_init(LoquiChannelBufferGtk *channel_buffer)
 {
-	ChannelBufferPrivate *priv;
+	LoquiChannelBufferGtkPrivate *priv;
 
-	priv = g_new0(ChannelBufferPrivate, 1);
+	priv = g_new0(LoquiChannelBufferGtkPrivate, 1);
 
 	channel_buffer->priv = priv;
 
@@ -192,35 +195,36 @@ channel_buffer_init (ChannelBuffer *channel_buffer)
 	channel_buffer->show_channel_name = FALSE;
 }
 static void 
-channel_buffer_finalize (GObject *object)
+loqui_channel_buffer_gtk_finalize(GObject *object)
 {
-	ChannelBuffer *channel_buffer;
+	LoquiChannelBufferGtk *channel_buffer;
 
         g_return_if_fail(object != NULL);
-        g_return_if_fail(IS_CHANNEL_BUFFER(object));
+        g_return_if_fail(LOQUI_IS_CHANNEL_BUFFER_GTK(object));
 
-        channel_buffer = CHANNEL_BUFFER(object);
+        channel_buffer = LOQUI_CHANNEL_BUFFER_GTK(object);
 
         if (G_OBJECT_CLASS(parent_class)->finalize)
                 (* G_OBJECT_CLASS(parent_class)->finalize) (object);
 
 	g_free(channel_buffer->priv);
 }
-static void channel_buffer_apply_tag_cb(GtkTextBuffer *buffer,
-					GtkTextTag *tag,
-					GtkTextIter *start,
-					GtkTextIter *end,
-					gpointer user_data)
+static void
+loqui_channel_buffer_gtk_apply_tag_cb(GtkTextBuffer *buffer,
+				      GtkTextTag *tag,
+				      GtkTextIter *start,
+				      GtkTextIter *end,
+				      gpointer user_data)
 {
-	ChannelBuffer *channel_buffer;
-	ChannelBufferPrivate *priv;
+	LoquiChannelBufferGtk *channel_buffer;
+	LoquiChannelBufferGtkPrivate *priv;
 	GtkTextIter tmp_start, tmp_end;
 	GtkTextIter region_start, region_end;
 	gboolean matched = FALSE;
 	gchar *word;
 	GList *cur;
 
-	channel_buffer = CHANNEL_BUFFER(buffer);
+	channel_buffer = LOQUI_CHANNEL_BUFFER_GTK(buffer);
 	priv = channel_buffer->priv;
 
 	if(tag != highlight_area_tag)
@@ -250,11 +254,12 @@ static void channel_buffer_apply_tag_cb(GtkTextBuffer *buffer,
 				   start, end);
 }
 
-static gboolean channel_buffer_link_tag_event_cb(GtkTextTag *texttag,
-						 GObject *arg1,
-						 GdkEvent *event,
-						 GtkTextIter *arg2,
-						 gpointer user_data)
+static gboolean
+loqui_channel_buffer_gtk_link_tag_event_cb(GtkTextTag *texttag,
+					   GObject *arg1,
+					   GdkEvent *event,
+					   GtkTextIter *arg2,
+					   gpointer user_data)
 {
 	gchar *str;
 	GtkTextIter start_iter, end_iter;
@@ -279,9 +284,9 @@ static gboolean channel_buffer_link_tag_event_cb(GtkTextTag *texttag,
 	return FALSE;
 }
 static void
-channel_buffer_tag_uri(GtkTextBuffer *buffer,
-		       GtkTextIter *iter_in,
-		       const gchar *text)
+loqui_channel_buffer_gtk_tag_uri(GtkTextBuffer *buffer,
+				 GtkTextIter *iter_in,
+				 const gchar *text)
 {
 	GtkTextIter start_iter, end_iter;
 	const gchar *cur;
@@ -319,15 +324,15 @@ channel_buffer_tag_uri(GtkTextBuffer *buffer,
 }
 
 static gboolean
-channel_buffer_delete_old_lines(ChannelBuffer *buffer)
+loqui_channel_buffer_gtk_delete_old_lines(LoquiChannelBufferGtk *buffer)
 {
-	ChannelBufferPrivate *priv;
+	LoquiChannelBufferGtkPrivate *priv;
 	GtkTextIter cut_iter_start, cut_iter_end;
 	gint line_num;
 	gint max_line_number;
 		
 	g_return_val_if_fail(buffer != NULL, FALSE);
-	g_return_val_if_fail(IS_CHANNEL_BUFFER(buffer), FALSE);
+	g_return_val_if_fail(LOQUI_IS_CHANNEL_BUFFER_GTK(buffer), FALSE);
 
 	priv = buffer->priv;
 	
@@ -351,41 +356,41 @@ channel_buffer_delete_old_lines(ChannelBuffer *buffer)
 }
 
 static void
-channel_buffer_text_inserted_cb(GtkTextBuffer *buffer,
-  			        GtkTextIter *pos,
-				const gchar *text,
-				gint length,
-				gpointer data)
+loqui_channel_buffer_gtk_text_inserted_cb(GtkTextBuffer *buffer,
+					  GtkTextIter *pos,
+					  const gchar *text,
+					  gint length,
+					  gpointer data)
 {
-	ChannelBuffer *channel_buffer;
-	ChannelBufferPrivate *priv;	
+	LoquiChannelBufferGtk *channel_buffer;
+	LoquiChannelBufferGtkPrivate *priv;	
 	GtkTextIter tmp_iter;
 	
 	g_return_if_fail(buffer != NULL);
-	g_return_if_fail(IS_CHANNEL_BUFFER(buffer));
+	g_return_if_fail(LOQUI_IS_CHANNEL_BUFFER_GTK(buffer));
 	g_return_if_fail(g_utf8_validate(text, -1, NULL));
 	
-	channel_buffer = CHANNEL_BUFFER(buffer);
+	channel_buffer = LOQUI_CHANNEL_BUFFER_GTK(buffer);
 	priv = channel_buffer->priv;
 	
 	tmp_iter = *pos;
-	channel_buffer_tag_uri(buffer, &tmp_iter, text);
+	loqui_channel_buffer_gtk_tag_uri(buffer, &tmp_iter, text);
 	
 	/* FIXME: In reality, this should not be done in this function,
 	 *        but I can't find any reasonable ways... */
-	g_idle_add_full(G_PRIORITY_LOW, (GSourceFunc) channel_buffer_delete_old_lines, buffer, NULL);
+	g_idle_add_full(G_PRIORITY_LOW, (GSourceFunc) loqui_channel_buffer_gtk_delete_old_lines, buffer, NULL);
 }
-ChannelBuffer*
-channel_buffer_new(void)
+LoquiChannelBufferGtk*
+loqui_channel_buffer_gtk_new(void)
 {
-        ChannelBuffer *channel_buffer;
-	ChannelBufferPrivate *priv;
+        LoquiChannelBufferGtk *channel_buffer;
+	LoquiChannelBufferGtkPrivate *priv;
 	GtkTextBuffer *textbuf;
 	GtkTextIter iter;
 	
 	if(default_tag_table == NULL)
-		channel_buffer_init_tags();	
-	channel_buffer = g_object_new(channel_buffer_get_type(), "tag_table", default_tag_table, NULL);
+		loqui_channel_buffer_gtk_init_tags();	
+	channel_buffer = g_object_new(loqui_channel_buffer_gtk_get_type(), "tag_table", default_tag_table, NULL);
 	priv = channel_buffer->priv;
 
 	textbuf = GTK_TEXT_BUFFER(channel_buffer);
@@ -394,20 +399,20 @@ channel_buffer_new(void)
 	gtk_text_buffer_create_mark(textbuf, "end", &iter, FALSE);
 
 	g_signal_connect_after(G_OBJECT(textbuf), "insert-text",
-			       G_CALLBACK(channel_buffer_text_inserted_cb), NULL);
+			       G_CALLBACK(loqui_channel_buffer_gtk_text_inserted_cb), NULL);
 	g_signal_connect_after(G_OBJECT(textbuf), "apply-tag",
-			       G_CALLBACK(channel_buffer_apply_tag_cb), NULL);
+			       G_CALLBACK(loqui_channel_buffer_gtk_apply_tag_cb), NULL);
 
 	return channel_buffer;
 }
 static void
-channel_buffer_append_current_time(ChannelBuffer *buffer)
+loqui_channel_buffer_gtk_append_current_time(LoquiChannelBufferGtk *buffer)
 {
 	gchar *buf;
 	time_t t;
 	
         g_return_if_fail(buffer != NULL);
-        g_return_if_fail(IS_CHANNEL_BUFFER(buffer));
+        g_return_if_fail(LOQUI_IS_CHANNEL_BUFFER_GTK(buffer));
 
 	t = time(NULL);
 	buf = utils_strftime_epoch(prefs_general.time_format, t);
@@ -416,12 +421,12 @@ channel_buffer_append_current_time(ChannelBuffer *buffer)
 		return;
 	}
 	
-	channel_buffer_append(buffer, LOQUI_TEXT_TYPE_TIME, buf, FALSE);
+	loqui_channel_buffer_gtk_append(buffer, LOQUI_TEXT_TYPE_TIME, buf, FALSE);
 	g_free(buf);
 }
 
 static void
-channel_buffer_append(ChannelBuffer *buffer, LoquiTextType type, gchar *str, 
+loqui_channel_buffer_gtk_append(LoquiChannelBufferGtk *buffer, LoquiTextType type, gchar *str, 
 		      gboolean enable_highlight)
 {
 	GtkTextIter iter;
@@ -429,7 +434,7 @@ channel_buffer_append(ChannelBuffer *buffer, LoquiTextType type, gchar *str,
 	gchar *highlight;
 
         g_return_if_fail(buffer != NULL);
-        g_return_if_fail(IS_CHANNEL_BUFFER(buffer));
+        g_return_if_fail(LOQUI_IS_CHANNEL_BUFFER_GTK(buffer));
 
 	gtk_text_buffer_get_end_iter(GTK_TEXT_BUFFER(buffer), &iter);
 
@@ -460,28 +465,31 @@ channel_buffer_append(ChannelBuffer *buffer, LoquiTextType type, gchar *str,
 	gtk_text_buffer_insert_with_tags_by_name(GTK_TEXT_BUFFER(buffer), &iter, str, -1, 
 						 style, highlight, NULL);
 }
-void
-channel_buffer_append_message_text(ChannelBuffer *buffer, LoquiMessageText *msgtext)
+static void
+loqui_channel_buffer_gtk_append_message_text(LoquiChannelBuffer *buffer_p, LoquiMessageText *msgtext)
 {
 	gchar *buf;
 	LoquiTextType type;
+	LoquiChannelBufferGtk *buffer;
 
-        g_return_if_fail(buffer != NULL);
-        g_return_if_fail(IS_CHANNEL_BUFFER(buffer));
+        g_return_if_fail(buffer_p != NULL);
+        g_return_if_fail(LOQUI_IS_CHANNEL_BUFFER_GTK(buffer_p));
         g_return_if_fail(msgtext != NULL);
         g_return_if_fail(LOQUI_IS_MESSAGE_TEXT(msgtext));
 
-	channel_buffer_append_current_time(buffer);
+	buffer = LOQUI_CHANNEL_BUFFER_GTK(buffer_p);
+
+	loqui_channel_buffer_gtk_append_current_time(buffer);
 	
 	type = loqui_message_text_get_text_type(msgtext);
 
 	if(loqui_message_text_get_is_remark(msgtext)) {
-		buf = loqui_message_text_get_nick_string(msgtext, channel_buffer_get_show_channel_name(buffer));
-		channel_buffer_append(buffer, type, buf, FALSE);
+		buf = loqui_message_text_get_nick_string(msgtext, loqui_channel_buffer_gtk_get_show_channel_name(buffer));
+		loqui_channel_buffer_gtk_append(buffer, type, buf, FALSE);
 		g_free(buf);
 	}
 
-	if(channel_buffer_get_show_account_name(buffer) &&
+	if(loqui_channel_buffer_gtk_get_show_account_name(buffer) &&
 	   loqui_message_text_get_account_name(msgtext))
 		buf = g_strdup_printf("[%s] %s\n",
 				      loqui_message_text_get_account_name(msgtext),
@@ -489,54 +497,52 @@ channel_buffer_append_message_text(ChannelBuffer *buffer, LoquiMessageText *msgt
 	else
 		buf = g_strconcat(loqui_message_text_get_text(msgtext), "\n", NULL);
 
-	channel_buffer_append(buffer, type, buf,
-			      loqui_message_text_get_is_remark(msgtext));
+	loqui_channel_buffer_gtk_append(buffer, type, buf,
+					loqui_message_text_get_is_remark(msgtext));
 	g_free(buf);
-
-	g_signal_emit(buffer, channel_buffer_signals[APPEND], 0, msgtext);
 }
 /* FIXME: this should do with max_line_number */
 void
-channel_buffer_set_whether_common_buffer(ChannelBuffer *buffer, gboolean is_common_buffer)
+loqui_channel_buffer_gtk_set_whether_common_buffer(LoquiChannelBufferGtk *buffer, gboolean is_common_buffer)
 {
-	ChannelBufferPrivate *priv;
+	LoquiChannelBufferGtkPrivate *priv;
 	
         g_return_if_fail(buffer != NULL);
-        g_return_if_fail(IS_CHANNEL_BUFFER(buffer));
+        g_return_if_fail(LOQUI_IS_CHANNEL_BUFFER_GTK(buffer));
 
 	priv = buffer->priv;
 	
 	priv->is_common_buffer = TRUE;
 }
 void
-channel_buffer_set_show_account_name(ChannelBuffer *buffer, gboolean show_account_name)
+loqui_channel_buffer_gtk_set_show_account_name(LoquiChannelBufferGtk *buffer, gboolean show_account_name)
 {
         g_return_if_fail(buffer != NULL);
-        g_return_if_fail(IS_CHANNEL_BUFFER(buffer));
+        g_return_if_fail(LOQUI_IS_CHANNEL_BUFFER_GTK(buffer));
 
 	buffer->show_account_name = show_account_name;
 }
 gboolean
-channel_buffer_get_show_account_name(ChannelBuffer *buffer)
+loqui_channel_buffer_gtk_get_show_account_name(LoquiChannelBufferGtk *buffer)
 {
 	g_return_val_if_fail(buffer != NULL, FALSE);
-	g_return_val_if_fail(IS_CHANNEL_BUFFER(buffer), FALSE);
+	g_return_val_if_fail(LOQUI_IS_CHANNEL_BUFFER_GTK(buffer), FALSE);
 	
 	return buffer->show_account_name;
 }
 void
-channel_buffer_set_show_channel_name(ChannelBuffer *buffer, gboolean show_channel_name)
+loqui_channel_buffer_gtk_set_show_channel_name(LoquiChannelBufferGtk *buffer, gboolean show_channel_name)
 {
         g_return_if_fail(buffer != NULL);
-        g_return_if_fail(IS_CHANNEL_BUFFER(buffer));
+        g_return_if_fail(LOQUI_IS_CHANNEL_BUFFER_GTK(buffer));
 
 	buffer->show_channel_name = show_channel_name;
 }
 gboolean
-channel_buffer_get_show_channel_name(ChannelBuffer *buffer)
+loqui_channel_buffer_gtk_get_show_channel_name(LoquiChannelBufferGtk *buffer)
 {
 	g_return_val_if_fail(buffer != NULL, FALSE);
-	g_return_val_if_fail(IS_CHANNEL_BUFFER(buffer), FALSE);
+	g_return_val_if_fail(LOQUI_IS_CHANNEL_BUFFER_GTK(buffer), FALSE);
 	
 	return buffer->show_channel_name;
 }

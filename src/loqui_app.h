@@ -44,6 +44,7 @@ typedef struct _LoquiAppPrivate     LoquiAppPrivate;
 #include "prefs_general.h"
 #include "loqui_tray_icon.h"
 #include "loqui_app_info.h"
+#include "loqui_channel_buffer_gtk.h"
 
 struct _LoquiApp
 {
@@ -100,7 +101,7 @@ gboolean loqui_app_is_obscured(LoquiApp *app);
 
 void loqui_app_grab_focus_if_key_unused(LoquiApp *app, const gchar *class_name, GdkEventKey *event);
 
-void loqui_app_set_common_buffer(LoquiApp *app, ChannelBuffer *buffer);
+void loqui_app_set_common_buffer(LoquiApp *app, LoquiChannelBufferGtk *buffer);
 
 void loqui_app_set_auto_switch_scrolling_channel_buffers(LoquiApp *app, gboolean auto_switch_scrolling);
 void loqui_app_set_auto_switch_scrolling_common_buffer(LoquiApp *app, gboolean auto_switch_scrolling);

@@ -298,7 +298,7 @@ loqui_channel_text_view_new(LoquiApp *app)
 }
 
 void
-loqui_channel_text_view_set_channel_buffer(LoquiChannelTextView *chview, ChannelBuffer *buffer)
+loqui_channel_text_view_set_channel_buffer(LoquiChannelTextView *chview, LoquiChannelBufferGtk *buffer)
 {
 	LoquiChannelTextViewPrivate *priv;
 	GtkTextBuffer *old_buf;
@@ -309,7 +309,7 @@ loqui_channel_text_view_set_channel_buffer(LoquiChannelTextView *chview, Channel
         g_return_if_fail(chview != NULL);
         g_return_if_fail(LOQUI_IS_CHANNEL_TEXT_VIEW(chview));
         g_return_if_fail(buffer != NULL);
-        g_return_if_fail(IS_CHANNEL_BUFFER(buffer));
+        g_return_if_fail(LOQUI_IS_CHANNEL_BUFFER_GTK(buffer));
 	
         priv = chview->priv;
        
@@ -340,7 +340,7 @@ loqui_channel_text_view_scroll_to_end(LoquiChannelTextView *chview)
         g_return_if_fail(LOQUI_IS_CHANNEL_TEXT_VIEW(chview));
 
 	buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(chview));
-	if (buffer && IS_CHANNEL_BUFFER(buffer))
+	if (buffer && LOQUI_IS_CHANNEL_BUFFER_GTK(buffer))
 		gtk_text_view_scroll_mark_onscreen(GTK_TEXT_VIEW(chview),
 						   gtk_text_buffer_get_mark(buffer, "end"));
 

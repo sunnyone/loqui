@@ -263,7 +263,6 @@ loqui_protocol_create_account(LoquiProtocol *protocol, LoquiProfileAccount *prof
 	g_return_val_if_fail(LOQUI_IS_PROTOCOL(protocol), NULL);
 	
 	return LOQUI_ACCOUNT(g_object_new(protocol->type_account,
-					  "buffer", channel_buffer_new(),
 					  "profile", profile,
 					  NULL));
 }

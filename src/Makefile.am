@@ -20,7 +20,6 @@ SRC_PROTOCOL_BASE_BASE = \
 	codeconv.c codeconv.h \
 	loqui_message_text.c loqui_message_text.h \
 	loqui_channel_buffer.c loqui_channel_buffer.h \
-	channel_buffer.c channel_buffer.h \
 	loqui_channel_entry_utils.c loqui_channel_entry_utils.h
 
 SRC_PROTOCOL_BASE = \
@@ -88,6 +87,7 @@ SRC_GTK = \
 	loqui_channel_entry_store.c loqui_channel_entry_store.h \
 	loqui_channel_entry_action.c loqui_channel_entry_action.h \
 	loqui_channel_entry_ui.c loqui_channel_entry_ui.h \
+	loqui_channel_buffer_gtk.c loqui_channel_buffer_gtk.h \
 	loqui_dropdown_box.c loqui_dropdown_box.h \
 	loqui_account_manager_store.c loqui_account_manager_store.h \
 	channel_tree.c channel_tree.h \

@@ -278,7 +278,6 @@ loqui_account_ipmsg_new(LoquiProfileAccount *profile)
 	LoquiAccountIPMsgPrivate *priv;
 
 	account = g_object_new(loqui_account_ipmsg_get_type(),  
- 			       "buffer", channel_buffer_new(),
 			       "profile", profile,
 			       NULL);
 	

@@ -289,7 +289,8 @@ loqui_channel_entry_class_init(LoquiChannelEntryClass *klass)
 					g_param_spec_object("buffer",
 							    _("Buffer"),
 							    _("Channel buffer"),
-							    TYPE_CHANNEL_BUFFER, G_PARAM_READWRITE));
+							    G_TYPE_OBJECT, /* LOQUI_TYPE_CHANNEL_BUFFER */
+							    G_PARAM_READWRITE));
 	g_object_class_install_property(object_class,
 					PROP_OP_NUMBER,
 					g_param_spec_int("op_number",
@@ -469,14 +470,14 @@ loqui_channel_entry_remove_real(LoquiChannelEntry *chent, LoquiMember *member)
 static void
 loqui_channel_entry_append_message_text_real(LoquiChannelEntry *chent, LoquiMessageText *msgtext)
 {
-	ChannelBuffer *buffer;
+	LoquiChannelBuffer *buffer;
 
 	g_return_if_fail(chent != NULL);
         g_return_if_fail(LOQUI_IS_CHANNEL_ENTRY(chent));
 
 	buffer = loqui_channel_entry_get_buffer(chent);
 	if (buffer) {
-		channel_buffer_append_message_text(buffer, msgtext);
+		loqui_channel_buffer_append_message_text(buffer, msgtext);
 	}
 }
 static void
@@ -648,7 +649,7 @@ loqui_channel_entry_get_member_pos(LoquiChannelEntry *chent, LoquiMember *member
 	return pos;
 }
 void
-loqui_channel_entry_set_buffer(LoquiChannelEntry *chent, ChannelBuffer *buffer)
+loqui_channel_entry_set_buffer(LoquiChannelEntry *chent, LoquiChannelBuffer *buffer)
 {
         LoquiChannelEntryPrivate *priv;
 
@@ -663,7 +664,7 @@ loqui_channel_entry_set_buffer(LoquiChannelEntry *chent, ChannelBuffer *buffer)
 	chent->buffer = buffer;
 	g_object_notify(G_OBJECT(chent), "buffer");
 }
-ChannelBuffer *
+LoquiChannelBuffer *
 loqui_channel_entry_get_buffer(LoquiChannelEntry *chent)
 {
         g_return_val_if_fail(chent != NULL, 0);

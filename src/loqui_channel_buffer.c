@@ -22,7 +22,7 @@
 #include "loqui_channel_buffer.h"
 
 enum {
-	SIGNAL_APPEND,
+	SIGNAL_APPEND_MESSAGE_TEXT,
 	LAST_SIGNAL
 };
 
@@ -36,14 +36,14 @@ loqui_channel_buffer_base_init(gpointer object_class)
         static gboolean initialized = FALSE;
 
         if (!initialized) {
-		loqui_channel_buffer_signals[SIGNAL_APPEND] = g_signal_new("append",
-									   LOQUI_TYPE_CHANNEL_BUFFER,
-									   G_SIGNAL_RUN_LAST,
-									   G_STRUCT_OFFSET(LoquiChannelBufferIface, append),
-									   NULL, NULL,
-									   g_cclosure_marshal_VOID__OBJECT,
-									   G_TYPE_NONE, 1,
-									   LOQUI_TYPE_MESSAGE_TEXT);
+		loqui_channel_buffer_signals[SIGNAL_APPEND_MESSAGE_TEXT] = g_signal_new("append_message_text",
+											LOQUI_TYPE_CHANNEL_BUFFER,
+											G_SIGNAL_RUN_LAST,
+											G_STRUCT_OFFSET(LoquiChannelBufferIface, append_message_text),
+											NULL, NULL,
+											g_cclosure_marshal_VOID__OBJECT,
+											G_TYPE_NONE, 1,
+											LOQUI_TYPE_MESSAGE_TEXT);
 		
                 initialized = TRUE;
         }
@@ -74,7 +74,7 @@ loqui_channel_buffer_get_type(void)
 }
 
 void
-loqui_channel_buffer_append(LoquiChannelBuffer *chbuf, LoquiMessageText *msgtext)
+loqui_channel_buffer_append_message_text(LoquiChannelBuffer *chbuf, LoquiMessageText *msgtext)
 {
-	g_signal_emit(chbuf, loqui_channel_buffer_signals[SIGNAL_APPEND], 0, msgtext);
+	g_signal_emit(chbuf, loqui_channel_buffer_signals[SIGNAL_APPEND_MESSAGE_TEXT], 0, msgtext);
 }

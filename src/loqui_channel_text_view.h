@@ -21,7 +21,7 @@
 #define __LOQUI_CHANNEL_TEXT_VIEW_H__
 
 #include <gtk/gtk.h>
-#include "channel_buffer.h"
+#include "loqui_channel_buffer_gtk.h"
 
 G_BEGIN_DECLS
 
@@ -38,6 +38,7 @@ typedef struct _LoquiChannelTextViewClass       LoquiChannelTextViewClass;
 typedef struct _LoquiChannelTextViewPrivate     LoquiChannelTextViewPrivate;
 
 #include "loqui_app.h"
+#include "loqui_channel_buffer_gtk.h"
 
 struct _LoquiChannelTextView
 {
@@ -62,7 +63,7 @@ GType loqui_channel_text_view_get_type(void) G_GNUC_CONST;
 
 GtkWidget* loqui_channel_text_view_new(LoquiApp *app);
 
-void loqui_channel_text_view_set_channel_buffer(LoquiChannelTextView *chview, ChannelBuffer *buffer);
+void loqui_channel_text_view_set_channel_buffer(LoquiChannelTextView *chview, LoquiChannelBufferGtk *buffer);
 
 void loqui_channel_text_view_set_is_scroll(LoquiChannelTextView *textview, gboolean is_scroll);
 gboolean loqui_channel_text_view_get_is_scroll(LoquiChannelTextView *textview);

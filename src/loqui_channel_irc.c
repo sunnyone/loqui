@@ -161,7 +161,6 @@ loqui_channel_irc_new(LoquiAccount *account, const gchar *name, gboolean is_join
 			       "identifier", name,
 			       "is_private_talk", is_private_talk,
 			       "is_joined", is_joined,
-			       "buffer", channel_buffer_new(),
 			       NULL);
 	
         priv = channel->priv;

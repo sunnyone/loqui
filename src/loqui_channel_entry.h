@@ -24,7 +24,7 @@
 #include "loqui_user.h"
 #include "loqui_member.h"
 
-#include "channel_buffer.h"
+#include "loqui_channel_buffer.h"
 #include "loqui_message_text.h"
 
 G_BEGIN_DECLS
@@ -55,7 +55,7 @@ struct _LoquiChannelEntry
 	gchar *name;
 	gchar *topic;
 
-	ChannelBuffer *buffer;
+	LoquiChannelBuffer *buffer;
 
 	GCompareFunc sort_func;
 
@@ -98,8 +98,8 @@ void loqui_channel_entry_sort(LoquiChannelEntry *chent);
 LoquiMember *loqui_channel_entry_get_nth_member(LoquiChannelEntry *chent, gint n);
 gint loqui_channel_entry_get_member_number(LoquiChannelEntry *chent);
 
-void loqui_channel_entry_set_buffer(LoquiChannelEntry *chent, ChannelBuffer *buffer);
-ChannelBuffer *loqui_channel_entry_get_buffer(LoquiChannelEntry *chent);
+void loqui_channel_entry_set_buffer(LoquiChannelEntry *chent, LoquiChannelBuffer *buffer);
+LoquiChannelBuffer *loqui_channel_entry_get_buffer(LoquiChannelEntry *chent);
 
 void loqui_channel_entry_set_is_updated(LoquiChannelEntry *chent, gboolean is_updated);
 gboolean loqui_channel_entry_get_is_updated(LoquiChannelEntry *chent);

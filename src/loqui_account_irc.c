@@ -224,7 +224,6 @@ loqui_account_irc_new(LoquiProfileAccount *profile)
 	LoquiAccountIRCPrivate *priv;
 
 	account = g_object_new(loqui_account_irc_get_type(), 
-			       "buffer", channel_buffer_new(),
 			       "profile", profile,
 			       NULL);
 
