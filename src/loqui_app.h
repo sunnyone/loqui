@@ -47,6 +47,7 @@ struct _LoquiApp
 	GAsyncQueue *error_connections;
 
 	LoquiMenu *menu;
+
 	NickList *nick_list;
 	ChannelTree *channel_tree;
 };

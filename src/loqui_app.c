@@ -26,6 +26,7 @@
 #include "nick_list.h"
 #include "account_manager.h"
 #include "prefs_general.h"
+#include "loqui_toolbar.h"
 
 #include "intl.h"
 #include "utils.h"
@@ -34,6 +35,8 @@
 
 struct _LoquiAppPrivate
 {
+	GtkWidget *toolbar;
+
 	GtkWidget *label_topic;
 	GtkWidget *toggle_scroll;
 	GtkWidget *channel_textview;
@@ -296,6 +299,9 @@ loqui_app_new (void)
 	app->menu = loqui_menu_new(GTK_WINDOW(app));
 	gtk_box_pack_start(GTK_BOX(vbox), loqui_menu_get_widget(app->menu),
 			   FALSE, FALSE, 0);
+
+	priv->toolbar = loqui_toolbar_new(app);
+	gtk_box_pack_start(GTK_BOX(vbox), priv->toolbar, FALSE, FALSE, 0);
 
 	/* topic line */
 	hbox = gtk_hbox_new(FALSE, 0);
