@@ -143,9 +143,10 @@ connection_new (Server *server)
 	g_io_channel_set_flags(priv->io, flags | G_IO_FLAG_NONBLOCK, NULL);
 
 	/* for old gnet (new gnet do this internally) */
-	g_io_channel_set_buffered(priv->io, TRUE);
-	g_io_channel_set_encoding(priv->io, NULL, NULL);
-	g_io_channel_set_buffered(priv->io, FALSE);
+	if(g_io_channel_get_buffered(priv->io)) {
+                g_io_channel_set_encoding(priv->io, NULL, NULL);
+                g_io_channel_set_buffered(priv->io, FALSE);
+        }
 
 	priv->mutex = g_mutex_new();
 	return connection;
