@@ -650,3 +650,9 @@ channel_get_mode(Channel *channel)
 
 	return str;
 }
+
+gboolean
+channel_name_equal(gconstpointer a, gconstpointer b)
+{
+	return (g_ascii_strcasecmp(a, b) == 0);
+}

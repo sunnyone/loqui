@@ -113,6 +113,8 @@ void channel_change_user_nick(Channel *channel,
 gboolean channel_find_user(Channel *channel, const gchar *nick, GtkTreeIter *iter);
 void channel_get_user_number(Channel *channel, guint *user_number, guint *op_number);
 
+gboolean channel_name_equal(gconstpointer a, gconstpointer b);
+
 G_END_DECLS
 
 #endif /* __CHANNEL_H__ */
