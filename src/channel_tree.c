@@ -31,6 +31,7 @@
 struct _ChannelTreePrivate
 {
 	LoquiApp *app;
+	GtkMenu *popup_menu;
 
 	guint selection_changed_signal_id;
 };
@@ -52,6 +53,9 @@ static void channel_tree_cell_data_func_basic_away(GtkTreeViewColumn *tree_colum
 						   GtkTreeModel *tree_model,
 						   GtkTreeIter *iter,
 						   gpointer data);
+static gboolean
+channel_tree_button_press_event_cb(GtkWidget *widget, GdkEventButton *event, gpointer data);
+
 GType
 channel_tree_get_type(void)
 {
@@ -173,7 +177,8 @@ channel_tree_key_press_event(GtkWidget *widget,
 
 	return FALSE;
 }
-static void channel_tree_cell_data_func_basic_away(GtkTreeViewColumn *tree_column,
+static void
+channel_tree_cell_data_func_basic_away(GtkTreeViewColumn *tree_column,
 						   GtkCellRenderer *cell,
 						   GtkTreeModel *tree_model,
 						   GtkTreeIter *iter,
@@ -197,9 +202,28 @@ static void channel_tree_cell_data_func_basic_away(GtkTreeViewColumn *tree_colum
 		g_object_unref(pixbuf);
 	}
 }
-	
+
+static gboolean
+channel_tree_button_press_event_cb(GtkWidget *widget, GdkEventButton *event, gpointer data)
+{
+        ChannelTree *tree;
+	ChannelTreePrivate *priv;
+	GtkMenu *menu;
+
+	tree = CHANNEL_TREE(widget);
+	priv = tree->priv;
+
+	menu = GTK_MENU(priv->popup_menu);
+
+	if (event->type == GDK_BUTTON_PRESS && event->button == 3) {
+		gtkutils_tree_view_popup(GTK_TREE_VIEW(tree), event, menu);
+		return TRUE;
+	}
+
+	return FALSE;
+}	
 GtkWidget*
-channel_tree_new(LoquiApp *app)
+channel_tree_new(LoquiApp *app, GtkMenu *menu)
 {
         ChannelTree *tree;
 	ChannelTreePrivate *priv;
@@ -212,6 +236,7 @@ channel_tree_new(LoquiApp *app)
 
 	priv = tree->priv;
 	priv->app = app;
+	priv->popup_menu = menu;
 
         gtk_tree_view_set_headers_visible(GTK_TREE_VIEW(tree), FALSE);
 	selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(tree));
@@ -270,6 +295,8 @@ channel_tree_new(LoquiApp *app)
 
 	g_signal_connect(G_OBJECT(tree), "row_activated",
 			 G_CALLBACK(channel_tree_row_activated_cb), NULL);
+	g_signal_connect(G_OBJECT(tree), "button_press_event",
+			 G_CALLBACK(channel_tree_button_press_event_cb), NULL);
 	priv->selection_changed_signal_id = g_signal_connect(G_OBJECT(selection), "changed",
 							     G_CALLBACK(channel_tree_row_selected_cb), tree);
 

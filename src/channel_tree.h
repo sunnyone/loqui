@@ -57,7 +57,7 @@ struct _ChannelTreeClass
 
 GtkType channel_tree_get_type(void) G_GNUC_CONST;
 
-GtkWidget* channel_tree_new(LoquiApp *app);
+GtkWidget* channel_tree_new(LoquiApp *app, GtkMenu *menu);
 
 void channel_tree_select_channel_entry(ChannelTree *tree, LoquiChannelEntry *chent);
 
