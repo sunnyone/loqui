@@ -28,6 +28,9 @@
 }
 
 void gtkutils_msgbox_info(GtkMessageType icon, const gchar *format, ...) G_GNUC_PRINTF(2, 3);
+void gtkutils_add_label_entry(GtkWidget *box, const gchar *label_text, 
+			      GtkWidget **entry, const gchar *default_string);
+
 gboolean gtk_tree_model_find_by_column_data(GtkTreeModel * model, GtkTreeIter * iter,
 					    GtkTreeIter * start, gint col,
 					    gpointer data);

@@ -25,7 +25,8 @@
 #include "gtkutils.h"
 #include <stdarg.h>
 
-void gtkutils_msgbox_info(GtkMessageType icon, const gchar *format, ...)
+void
+gtkutils_msgbox_info(GtkMessageType icon, const gchar *format, ...)
 {
 	GtkWidget *dialog;
 	va_list args;
@@ -41,7 +42,6 @@ void gtkutils_msgbox_info(GtkMessageType icon, const gchar *format, ...)
 					GTK_BUTTONS_CLOSE,
 					"%s", buf);
 	
-	/* Destroy the dialog when the user responds to it (e.g. clicks a button) */
 	g_signal_connect_swapped (GTK_OBJECT (dialog), "response",
 				  G_CALLBACK (gtk_widget_destroy),
 				  GTK_OBJECT (dialog));
@@ -49,6 +49,29 @@ void gtkutils_msgbox_info(GtkMessageType icon, const gchar *format, ...)
 	gtk_widget_show_all(dialog);
 
 	g_free(buf);
+}
+
+void
+gtkutils_add_label_entry(GtkWidget *box, const gchar *label_text,
+			      GtkWidget **entry, const gchar *default_string)
+{
+	GtkWidget *hbox;
+	GtkWidget *label;
+
+	g_return_if_fail(entry != NULL);
+	g_return_if_fail(label_text != NULL);
+
+	hbox = gtk_hbox_new(FALSE, 0);
+	gtk_box_pack_start(GTK_BOX(box), hbox, FALSE, TRUE, 0);
+
+	label = gtk_label_new(label_text);
+	gtk_box_pack_start(GTK_BOX(hbox), label, FALSE, FALSE, 0);
+	gtk_label_set_justify(GTK_LABEL(label), GTK_JUSTIFY_RIGHT);
+
+	*entry = gtk_entry_new();
+	if(default_string != NULL)
+		gtk_entry_set_text(GTK_ENTRY(*entry), default_string);
+	gtk_box_pack_start(GTK_BOX(hbox), *entry, TRUE, TRUE, 0);
 }
 
 gboolean
