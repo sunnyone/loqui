@@ -65,6 +65,10 @@ GtkType channel_buffer_get_type (void) G_GNUC_CONST;
 ChannelBuffer* channel_buffer_new (void);
 void channel_buffer_append_line(ChannelBuffer *channel_buffer, TextType type, gchar *str);
 
+void channel_buffer_append_remark(ChannelBuffer *buffer, TextType type, gboolean exec_noticer,
+				  gboolean is_self, gboolean is_priv, 
+				  const gchar *channel_name, const gchar *nick, const gchar *remark);
+
 G_END_DECLS
 
 #endif /* __CHANNEL_BUFFER_H__ */

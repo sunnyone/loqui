@@ -345,7 +345,6 @@ account_manager_get(void)
 		main_account_manager = account_manager_new();
 	return main_account_manager;
 }
-
 gboolean
 account_manager_is_current_account(AccountManager *manager, Account *account)
 {
@@ -382,6 +381,20 @@ account_manager_common_buffer_append(AccountManager *manager, TextType type, gch
 	if(account_manager_whether_scroll(manager)) {
 		loqui_app_scroll_common_textview(manager->priv->app);
 	}
+}
+
+void account_manager_common_buffer_append_remark(AccountManager *manager, TextType type,
+						 gboolean is_self, gboolean is_priv,
+						 const gchar *channel_name, const gchar *nick, const gchar *remark)
+{
+        g_return_if_fail(manager != NULL);
+        g_return_if_fail(IS_ACCOUNT_MANAGER(manager));
+
+	channel_buffer_append_remark(manager->priv->common_buffer, type, FALSE,
+				     is_self, is_priv, channel_name, nick, remark);
+	if(account_manager_whether_scroll(manager)) {
+		loqui_app_scroll_common_textview(manager->priv->app);
+	}	
 }
 void account_manager_set_topic(AccountManager *manager, const gchar *topic)
 {

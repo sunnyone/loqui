@@ -127,30 +127,29 @@ channel_new (gchar *name)
 }
 
 void
-channel_append_remark(Channel *channel, TextType type, gchar *nick, gchar *remark)
+channel_append_remark(Channel *channel, TextType type, gboolean is_self, const gchar *nick, const gchar *remark)
 {
-	gchar *line_with_nick;
-	gchar *line_with_channel;
+	ChannelBuffer *buffer;
+	gboolean is_priv = FALSE;
+	gboolean exec_noticer = TRUE;
 
 	g_return_if_fail(channel != NULL);
 	g_return_if_fail(IS_CHANNEL(channel));
 
-	if(STRING_IS_CHANNEL(channel->name))
-		line_with_nick = g_strdup_printf("<%s> %s", nick, remark);
-	else
-		line_with_nick = g_strdup_printf("=%s= %s", nick, remark);
-	channel_buffer_append_line(CHANNEL_BUFFER(channel->buffer), type, line_with_nick);
-	g_free(line_with_nick);
+	buffer = channel->buffer;
+
+	if(!STRING_IS_CHANNEL(channel->name))
+		is_priv = FALSE;
+	if(is_self)
+		exec_noticer = FALSE;
+
+	channel_buffer_append_remark(buffer, type, exec_noticer, is_self, is_priv, NULL, nick, remark);
 
 	if(account_manager_is_current_channel(account_manager_get(), channel)) {
 		account_manager_scroll_channel_textview(account_manager_get());
 	} else {
-		if(STRING_IS_CHANNEL(channel->name))
-			line_with_channel = g_strdup_printf("<%s:%s> %s", channel->name, nick, remark);
-		else
-			line_with_channel = g_strdup_printf("=%s= %s", nick, remark);
-		account_manager_common_buffer_append(account_manager_get(), TEXT_TYPE_NORMAL, line_with_channel);
-		g_free(line_with_channel);
+		account_manager_common_buffer_append_remark(account_manager_get(), type, 
+							    is_self, is_priv, channel->name, nick, remark);
 		channel_set_fresh(channel, TRUE);
 	}
 }

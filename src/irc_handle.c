@@ -197,7 +197,7 @@ irc_handle_command_privmsg_notice(IRCHandle *handle, IRCMessage *msg)
 	
 	gdk_threads_enter();
 	if(channel != NULL) {
-		channel_append_remark(channel, type, msg->nick, remark);
+		channel_append_remark(channel, type, FALSE, msg->nick, remark);
 	} else {
 		account_console_buffer_append(handle->priv->account, TRUE, type, remark);
 	}

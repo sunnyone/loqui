@@ -468,9 +468,7 @@ account_speak(Account *account, Channel *channel, const gchar *str)
 		}
 		msg = irc_message_create(IRCCommandPrivmsg, channel->name, str, NULL);
 		irc_handle_push_message(priv->handle, msg);
-		buf = g_strdup_printf(">%s< %s", irc_handle_get_current_nick(priv->handle), str);
-		channel_append_text(channel, TRUE, TEXT_TYPE_NORMAL, buf);
-		g_free(buf);
+		channel_append_remark(channel, TEXT_TYPE_NORMAL, TRUE, irc_handle_get_current_nick(priv->handle), str);
 	}
 }
 

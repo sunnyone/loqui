@@ -277,3 +277,44 @@ channel_buffer_append_line(ChannelBuffer *buffer, TextType type, gchar *str)
 	channel_buffer_append(buffer, type, buf);
 	g_free(buf);
 }
+
+void
+channel_buffer_append_remark(ChannelBuffer *buffer, TextType type, gboolean exec_noticer,
+			     gboolean is_self, gboolean is_priv, 
+			     const gchar *channel_name, const gchar *nick, const gchar *remark)
+{
+	gchar *nick_str;
+	gchar *buf;
+	
+        g_return_if_fail(buffer != NULL);
+        g_return_if_fail(IS_CHANNEL_BUFFER(buffer));
+	g_return_if_fail(nick != NULL);
+	g_return_if_fail(remark != NULL);
+
+	channel_buffer_append_current_time(buffer);
+	
+	if(is_priv) {
+		if(is_self)
+			nick_str = g_strdup_printf(">%s< ", nick);
+		else
+			nick_str = g_strdup_printf("=%s= ", nick);
+	} else if (channel_name) {
+		if(is_self)
+			nick_str = g_strdup_printf(">%s:%s< ", channel_name, nick);
+		else
+			nick_str = g_strdup_printf("<%s:%s> ", channel_name, nick);
+	} else {
+		if(is_self)
+			nick_str = g_strdup_printf(">%s< ", nick);
+		else
+			nick_str = g_strdup_printf("<%s> ", nick);
+	}
+	
+	channel_buffer_append(buffer, type, nick_str);
+	
+	buf = g_strconcat(remark, "\n", NULL);
+	channel_buffer_append(buffer, type, buf);
+
+	g_free(buf);
+	g_free(nick_str);
+}

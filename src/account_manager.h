@@ -70,6 +70,9 @@ gboolean account_manager_is_current_account(AccountManager *manager, Account *ac
 gboolean account_manager_is_current_channel(AccountManager *manager, Channel *channel);
 
 void account_manager_common_buffer_append(AccountManager *manager, TextType type, gchar *str);
+void account_manager_common_buffer_append_remark(AccountManager *manager, TextType type,
+						 gboolean is_self, gboolean is_priv,
+						 const gchar *channel_name, const gchar *nick, const gchar *remark);
 void account_manager_scroll_channel_textview(AccountManager *manager);
 
 void account_manager_set_topic(AccountManager *manager, const gchar *topic);
@@ -87,6 +90,7 @@ void account_manager_configure_account_with_dialog(AccountManager *manager, Acco
 void account_manager_remove_account_with_dialog(AccountManager *manager, Account *account);
 
 GSList *account_manager_get_account_list(AccountManager *manager);
+
 G_END_DECLS
 
 #endif /* __ACCOUNT_MANAGER_H__ */
