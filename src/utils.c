@@ -220,7 +220,7 @@ gchar *utils_get_iso8601_date_string(time_t t)
 	struct tm tm;
 
 	localtime_r(&t, &tm);
-	if(strftime(buf, DATE_LEN, "%F %T", &tm) == 0)
+	if(strftime(buf, DATE_LEN, "%Y-%m-%d %H:%M:%S", &tm) == 0)
 		return NULL;
 
 	return g_strdup(buf);
