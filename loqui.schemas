@@ -11,7 +11,8 @@
             <long>Test key for GConf</long>
 	  </locale>
 	</schema>
-	<key>/schemas/apps/loqui/account/gconf_test</key>
+        <schema>
+        <key>/schemas/apps/loqui/account/gconf_test</key>
 	<applyto>/apps/loqui/account/gconf_test</applyto>
 	<owner>loqui</owner>
 	  <type>string</type>
