@@ -5,8 +5,8 @@
 #ifndef __LOQUI_IRC_CONSTANTS__
 #define __LOQUI_IRC_CONSTANTS__
 
-#define IRCCommandChar = '\001';
-#define IRCModeChar    = '\007';
+#define IRCCommandChar 001
+#define IRCModeChar 007
 
 #define IRC_MESSAGE_PARAMETER_MAX 15
 
@@ -234,7 +234,16 @@ typedef enum {
 
 /* IRC Commands */
 
-#define IRCCtcpVersion     "VERSION"
+#define IRCCTCPVersion     "VERSION"
+#define IRCCTCPPing        "PING"
+#define IRCCTCPClientInfo  "CLIENTINFO"
+#define IRCCTCPUserInfo    "USERINFO"
+#define IRCCTCPTime        "TIME"
+#define IRCCTCPFinger      "FINGER"
+#define IRCCTCPDCC         "DCC"
+
+#define IRCDCCSend         "SEND"
+#define IRCDCCChat         "CHAT"
 
 #define IRCCommandPrivmsg  "PRIVMSG"
 #define IRCCommandJoin     "JOIN"

@@ -21,7 +21,9 @@ loqui_SOURCES = \
 	channel.c channel.h \
 	nick_list.c nick_list.h \
 	irc_message.c irc_message.h \
+	ctcp_message.c ctcp_message.h \
 	irc_handle.c irc_handle.h \
+	ctcp_handle.c ctcp_handle.h \
 	irc_constants.h \
 	command_table.c command_table.h \
 	about.c about.h \

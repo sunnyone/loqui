@@ -27,6 +27,8 @@
 #include "main.h"
 #include "intl.h"
 #include "prefs_general.h"
+#include "ctcp_message.h"
+#include "ctcp_handle.h"
 
 #include "codeconv.h"
 #include <string.h>
@@ -38,6 +40,8 @@ struct _IRCHandlePrivate
 	GTcpSocketConnectAsyncID connect_id;
 	guint in_watch;
 	guint out_watch;
+
+	CTCPHandle *ctcp_handle;
 
 	Account *account;
 	Server *server;
@@ -272,7 +276,8 @@ irc_handle_command_privmsg_notice(IRCHandle *handle, IRCMessage *msg)
 	gchar *remark;
 	Channel *channel = NULL;
 	TextType type;
-	
+	CTCPMessage *ctcp_msg;
+
         g_return_if_fail(handle != NULL);
         g_return_if_fail(IS_IRC_HANDLE(handle));
 
@@ -297,6 +302,15 @@ irc_handle_command_privmsg_notice(IRCHandle *handle, IRCMessage *msg)
 		type = TEXT_TYPE_NOTICE;
 	} else {
 		type = TEXT_TYPE_NORMAL;
+	}
+
+	if(msg->response == IRC_COMMAND_PRIVMSG && msg->nick != NULL) {
+		if(ctcp_message_parse_line(remark, &ctcp_msg)) {
+			g_object_set_data(G_OBJECT(ctcp_msg), "sender", msg->nick);
+			ctcp_handle_message(priv->ctcp_handle, ctcp_msg);
+			g_object_unref(ctcp_msg);
+		}
+		return;
 	}
 
 	if(receiver_name != NULL && msg->nick != NULL) {
@@ -1156,6 +1170,9 @@ irc_handle_response(IRCHandle *handle, IRCMessage *msg)
         g_return_if_fail(handle != NULL);
         g_return_if_fail(IS_IRC_HANDLE(handle));
 
+	if(show_msg_mode)
+		irc_message_print(msg);
+
 	if(IRC_MESSAGE_IS_COMMAND(msg)) {
 		proceeded = irc_handle_command(handle, msg);
 	} else if(IRC_MESSAGE_IS_REPLY(msg)) {
@@ -1417,6 +1434,7 @@ irc_handle_new(Account *account)
 
 	priv->account = account;
 	priv->msg_queue = g_queue_new();
+	priv->ctcp_handle = ctcp_handle_new(handle, account);
 
 	return handle;
 }
