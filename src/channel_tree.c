@@ -149,6 +149,8 @@ channel_tree_row_activated_cb(ChannelTree *tree, GtkTreePath *path, GtkTreeViewC
 	if (chent && LOQUI_IS_ACCOUNT(chent) && !loqui_account_get_is_connected(LOQUI_ACCOUNT(chent))) {
 		loqui_account_connect(LOQUI_ACCOUNT(chent));
 	}
+	if (chent)
+		g_object_unref(chent);
 
 	gtk_widget_grab_focus(tree->priv->app->remark_entry);
 }
@@ -175,6 +177,8 @@ channel_tree_row_selected_cb(GtkTreeSelection *selection, gpointer data)
 			   -1);
 
 	loqui_app_set_current_channel_entry(priv->app, chent);
+	g_object_unref(chent);
+
 	gtk_widget_grab_focus(priv->app->remark_entry);
 }
 static gboolean
@@ -257,7 +261,8 @@ channel_tree_button_press_event_cb(GtkWidget *widget, GdkEventButton *event, gpo
 			g_warning("Unknown channel entry type");
 			return FALSE;
 		}
-		
+		g_object_unref(chent);
+
 		gtk_tree_path_free(clicked_path);
 		gtk_menu_popup(menu, NULL, NULL, NULL,
 			       tree, event->button, event->time);

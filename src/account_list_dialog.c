@@ -177,8 +177,7 @@ account_list_dialog_get_selected_account(AccountListDialog *dialog)
         g_return_val_if_fail(dialog != NULL, NULL);
         g_return_val_if_fail(IS_ACCOUNT_LIST_DIALOG(dialog), NULL);
 	
-	ac_list = account_list_dialog_get_selected_account_list(dialog);
-	if (g_list_length(ac_list) < 1)
+	if ((ac_list = account_list_dialog_get_selected_account_list(dialog)) == NULL)
 		return NULL;
 
 	account = g_list_nth_data(ac_list, 0);
@@ -186,7 +185,9 @@ account_list_dialog_get_selected_account(AccountListDialog *dialog)
 
 	return account;
 }
-
+/**
+   @return: GList of Account. do g_object_unref for each entry and g_list_free() itself.
+*/
 static GList *
 account_list_dialog_get_selected_account_list(AccountListDialog *dialog)
 {
@@ -238,6 +239,8 @@ account_list_dialog_remove_cb(GtkWidget *widget, AccountListDialog *dialog)
 		return;
 
 	account_dialog_open_remove_dialog(GTK_WINDOW(dialog), dialog->priv->manager, account);
+	g_object_unref(account);
+
 	account_list_dialog_construct_list(dialog);
 }
 static void
@@ -253,6 +256,8 @@ account_list_dialog_properties_cb(GtkWidget *widget, AccountListDialog *dialog)
 		return;
 
 	account_dialog_open_configure_dialog(GTK_WINDOW(dialog), dialog->priv->manager, account);
+	g_object_unref(account);
+
 	account_list_dialog_construct_list(dialog);
 }
 static void
@@ -372,7 +377,7 @@ account_list_dialog_open_for_connect(GtkWindow *parent, AccountManager *manager)
 	LoquiAccount *account;
 	
 	dialog = account_list_dialog_new(manager, TRUE);
-	// gtk_window_set_transient_for(GTK_WINDOW(dialog), parent);
+	/* gtk_window_set_transient_for(GTK_WINDOW(dialog), parent); */
 	gtk_window_present(GTK_WINDOW(dialog));
 
 	selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(ACCOUNT_LIST_DIALOG(dialog)->priv->treeview));
@@ -383,12 +388,15 @@ account_list_dialog_open_for_connect(GtkWindow *parent, AccountManager *manager)
 			gtk_tree_model_get(model, &iter, COLUMN_ACCOUNT, &account, -1);
 			if (loqui_profile_account_get_use(loqui_account_get_profile(account)))
 				gtk_tree_selection_select_iter(selection, &iter);
+			g_object_unref(account);
 		} while (gtk_tree_model_iter_next(model, &iter));
 	}
 
 	if (gtk_dialog_run(GTK_DIALOG(dialog)) == ACCOUNT_LIST_DIALOG_RESPONSE_CONNECT) {
 		ac_list = account_list_dialog_get_selected_account_list(ACCOUNT_LIST_DIALOG(dialog));
 		g_list_foreach(ac_list, (GFunc) loqui_account_connect, NULL);
+		g_list_foreach(ac_list, (GFunc) g_object_unref, NULL);
+		g_list_free(ac_list);
 	}
 
 	gtk_widget_destroy(dialog);

@@ -97,7 +97,7 @@ loqui_member_dispose(GObject *object)
         member = LOQUI_MEMBER(object);
 
 	G_OBJECT_UNREF_UNLESS_NULL(member->user);
-	
+
         if (G_OBJECT_CLASS(parent_class)->dispose)
                 (* G_OBJECT_CLASS(parent_class)->dispose)(object);
 }

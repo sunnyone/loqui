@@ -189,6 +189,8 @@ static void nick_list_cell_data_func_op(GtkTreeViewColumn *tree_column,
 		g_object_set(G_OBJECT(cell), "pixbuf", nick_list->priv->speak_ability_icon, NULL);
 	else
 		g_object_set(G_OBJECT(cell), "pixbuf", NULL, NULL);
+
+	g_object_unref(member);
 }
 static void nick_list_cell_data_func_away(GtkTreeViewColumn *tree_column,
 					  GtkCellRenderer *cell,
@@ -225,6 +227,9 @@ static void nick_list_cell_data_func_away(GtkTreeViewColumn *tree_column,
 		break;
 	}
 }
+/**
+   @return: GSList of LoquiMember. do g_object_unref for each entry and g_slist_free itself..
+*/
 static GSList *
 nick_list_menu_get_selected_members(NickList *nick_list)
 {
@@ -279,6 +284,7 @@ nick_list_start_private_talk_selected(NickList *nick_list)
 		member = cur->data;
 		loqui_sender_start_private_talk(loqui_account_get_sender(account), member->user);
 	}
+	g_slist_foreach(member_list, (GFunc) g_object_unref, NULL);
 	g_slist_free(member_list);
 }
 void
@@ -300,6 +306,7 @@ nick_list_whois_selected(NickList *nick_list)
 		member = cur->data;
 		loqui_sender_whois(loqui_account_get_sender(account), member->user);
 	}
+	g_slist_foreach(member_list, (GFunc) g_object_unref, NULL);
 	g_slist_free(member_list);
 }
 void
@@ -321,6 +328,7 @@ nick_list_change_mode_selected(NickList *nick_list, gboolean is_give, IRCModeFla
 		member = cur->data;
 		loqui_channel_push_user_mode_queue(channel, is_give, (IRCModeFlag) flag, loqui_user_get_nick(member->user));
 	}
+	g_slist_foreach(member_list, (GFunc) g_object_unref, NULL);
 	g_slist_free(member_list);
 	loqui_channel_flush_user_mode_queue(channel);
 	
@@ -352,6 +360,7 @@ nick_list_ctcp_selected(NickList *nick_list, const gchar *command)
 		
 		loqui_sender_irc_ctcp_request_raw(LOQUI_SENDER_IRC(sender), loqui_user_get_nick(member->user), command);
 	}
+	g_slist_foreach(member_list, (GFunc) g_object_unref, NULL);
 	g_slist_free(member_list);
 }
 static gint
@@ -373,7 +382,8 @@ nick_list_button_press_event_cb(GtkWidget *widget, GdkEventButton *event, gpoint
 
 	return FALSE;
 }
-static void nick_list_row_activated_cb(NickList *list, GtkTreePath *path, GtkTreeViewColumn *col, gpointer data)
+static void
+nick_list_row_activated_cb(NickList *list, GtkTreePath *path, GtkTreeViewColumn *col, gpointer data)
 {
 	GtkTreeIter iter;
 	GtkTreeModel *model;
@@ -394,6 +404,8 @@ static void nick_list_row_activated_cb(NickList *list, GtkTreePath *path, GtkTre
 		return;
 
 	loqui_sender_start_private_talk(loqui_account_get_sender(account), member->user);
+
+	g_object_unref(member);
 }
 static gboolean
 nick_list_key_press_event(GtkWidget *widget,

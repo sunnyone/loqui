@@ -425,6 +425,10 @@ loqui_channel_entry_add_real(LoquiChannelEntry *chent, LoquiMember *member)
 	g_object_notify(G_OBJECT(chent), "member-number");
 }
 static void
+break_point() {
+}
+
+static void
 loqui_channel_entry_remove_real(LoquiChannelEntry *chent, LoquiMember *member)
 {
 	gint old_pos;

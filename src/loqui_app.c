@@ -223,7 +223,7 @@ loqui_app_finalize(GObject *object)
 
         app = LOQUI_APP(object);
 	priv = app->priv;
-
+	
 	if(priv->common_buffer) {
 		g_object_unref(priv->common_buffer);
 		priv->common_buffer = NULL;
