@@ -20,6 +20,12 @@
 #include "config.h"
 
 #include "loqui_statusbar.h"
+#include "intl.h"
+#include "icons/pixbufs.h"
+
+#define STATUSBAR_ICON_SIZE 14
+#define STRING_DISCONNECTED _("(disconnected)")
+#define STRING_UNSELECTED _("(unselected)")
 
 struct _LoquiStatusbarPrivate
 {
@@ -27,6 +33,16 @@ struct _LoquiStatusbarPrivate
 	GtkWidget *label_channel;
 	GtkWidget *label_channel_mode;
 	GtkWidget *label_account;
+	
+	GtkWidget *image_online;
+	GtkWidget *image_offline;
+	
+	GtkWidget *button_away;
+	GtkWidget *button_nick;
+	GtkWidget *label_nick;
+	GtkWidget *button_preset;
+	GtkWidget *progress_lag;
+	GtkWidget *toggle_scroll;
 };
 
 static GtkStatusbarClass *parent_class = NULL;
@@ -118,13 +134,31 @@ loqui_statusbar_new (void)
         LoquiStatusbar *statusbar;
 	LoquiStatusbarPrivate *priv;
 	GtkWidget *hsep;
-
+	GtkWidget *arrow;
+	GdkPixbuf *pixbuf, *pixbuf_scaled;
+	
 	statusbar = g_object_new(loqui_statusbar_get_type(), NULL);
 	priv = statusbar->priv;
 	
 	gtk_statusbar_set_has_resize_grip(GTK_STATUSBAR(statusbar), FALSE);
 	gtk_label_set_selectable(GTK_LABEL(GTK_STATUSBAR(statusbar)->label), TRUE);
 	
+	pixbuf = gdk_pixbuf_new_from_inline(-1, offline_pixbuf, FALSE, NULL);
+	if(pixbuf == NULL)
+		g_error("Can't get pixbuf: offline");
+	pixbuf_scaled = gdk_pixbuf_scale_simple(pixbuf, STATUSBAR_ICON_SIZE, STATUSBAR_ICON_SIZE, GDK_INTERP_BILINEAR);	
+	priv->image_offline = gtk_image_new_from_pixbuf(pixbuf_scaled);
+	g_object_unref(pixbuf);
+	g_object_unref(pixbuf_scaled);
+	
+	pixbuf = gdk_pixbuf_new_from_inline(-1, online_pixbuf, FALSE, NULL);
+	if(pixbuf == NULL)
+		g_error("Can't get pixbuf: online");
+	pixbuf_scaled = gdk_pixbuf_scale_simple(pixbuf, STATUSBAR_ICON_SIZE, STATUSBAR_ICON_SIZE, GDK_INTERP_BILINEAR);
+	priv->image_online = gtk_image_new_from_pixbuf(pixbuf_scaled);
+	g_object_unref(pixbuf);
+	g_object_unref(pixbuf_scaled);
+		
 	priv->label_channel = gtk_label_new("");
 	gtk_box_pack_start(GTK_BOX(statusbar), priv->label_channel, FALSE, FALSE, 0);
 
@@ -134,11 +168,43 @@ loqui_statusbar_new (void)
 	priv->label_user_number = gtk_label_new("");
 	gtk_box_pack_start(GTK_BOX(statusbar), priv->label_user_number, FALSE, FALSE, 0);
 
+/* FIXME: why statusbar becomes taller when button widget is on it? */
+#define WIDGET_MINIMIZE_HEIGHT(widget) gtk_widget_set_usize(widget, -1, 1);
+
+	priv->button_away = gtk_button_new();
+	WIDGET_MINIMIZE_HEIGHT(priv->button_away);
+	gtk_box_pack_start(GTK_BOX(statusbar), priv->button_away, FALSE, FALSE, 0);
+	gtk_button_set_relief(GTK_BUTTON(priv->button_away), GTK_RELIEF_NONE);	
+
+	priv->button_nick = gtk_button_new();
+	WIDGET_MINIMIZE_HEIGHT(priv->button_nick);
+	gtk_box_pack_start(GTK_BOX(statusbar), priv->button_nick, FALSE, FALSE, 0);
+	gtk_button_set_relief(GTK_BUTTON(priv->button_nick), GTK_RELIEF_NONE);
+	
+	priv->label_nick = gtk_label_new("");
+	gtk_container_add(GTK_CONTAINER(priv->button_nick), priv->label_nick);
+
+	priv->button_preset = gtk_button_new();
+	
+	gtk_box_pack_start(GTK_BOX(statusbar), priv->button_preset, FALSE, FALSE, 0);
+	gtk_button_set_relief(GTK_BUTTON(priv->button_preset), GTK_RELIEF_NONE);
+	WIDGET_MINIMIZE_HEIGHT(priv->button_preset);
+	arrow = gtk_arrow_new(GTK_ARROW_DOWN, GTK_SHADOW_OUT);
+	gtk_container_add(GTK_CONTAINER(priv->button_preset), arrow);
+
 	hsep = gtk_vseparator_new();
 	gtk_box_pack_start(GTK_BOX(statusbar), hsep, FALSE, FALSE, 2);
 
 	priv->label_account = gtk_label_new("");
 	gtk_box_pack_start(GTK_BOX(statusbar), priv->label_account, FALSE, FALSE, 0);
+
+	priv->progress_lag = gtk_progress_bar_new();
+	gtk_box_pack_start(GTK_BOX(statusbar), priv->progress_lag, FALSE, FALSE, 0);
+	gtk_widget_set_size_request(priv->progress_lag, 70, -1);
+
+	priv->toggle_scroll = gtk_toggle_button_new_with_mnemonic("Scroll");
+	WIDGET_MINIMIZE_HEIGHT(priv->toggle_scroll);
+	gtk_box_pack_start(GTK_BOX(statusbar), priv->toggle_scroll, FALSE, FALSE, 0);
 	
 	return GTK_WIDGET(statusbar);
 }
