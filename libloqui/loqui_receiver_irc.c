@@ -397,9 +397,12 @@ loqui_receiver_irc_command_quit(LoquiReceiverIRC *receiver, IRCMessage *msg)
 	}
 
 	user = loqui_account_peek_user(account, msg->nick);
-	if (user)
-		loqui_account_remove_user_from_all(account, user, FALSE, &list);
+	if (!user) {
+		loqui_account_warning(account, "Why do you know the user '%s' quit?", msg->nick);
+		return;
+	}
 
+	loqui_account_remove_user_from_all(account, user, FALSE, &list);
 	loqui_receiver_irc_joined_channel_append(receiver, msg, list, LOQUI_TEXT_TYPE_INFO, _("*** %n has quit IRC(%t)"));
 
 	g_list_free(list);
