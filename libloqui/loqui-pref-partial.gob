@@ -39,6 +39,8 @@ typedef void (*LoquiPrefPartialForeachFunc) (LoquiPrefPartial *ppref, const gcha
 %}
 class Loqui:Pref:Partial from G:Object
 {
+	public gint id; /* for sequence */
+
 	public LoquiPrefPartial * new(void) {
 		LoquiPrefPartial *ret = GET_NEW;
 		return ret;
@@ -177,5 +179,12 @@ class Loqui:Pref:Partial from G:Object
 			return;
 
 		self_changed_partial(self, key);
+	}
+
+	public void set_id(self, gint id) {
+		self->id = id;
+	}
+	public gint get_id(self) {
+		return self->id;
 	}
 }

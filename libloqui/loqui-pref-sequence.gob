@@ -166,6 +166,7 @@ class Loqui:Pref:Sequence from G:Object
 		g_free(group_name);
 		
 		loqui_pref_partial_set_pref(ppref, self->pref);
+		loqui_pref_partial_set_id(ppref, id);
 
 		return ppref;
 	}
