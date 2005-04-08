@@ -728,7 +728,7 @@ loqui_account_append_text(LoquiAccount *account,
 	msgtext = loqui_message_text_new();
 	g_object_set(G_OBJECT(msgtext),
 		     "is_remark", FALSE,
-		     "account_name", loqui_profile_account_get_name(loqui_account_get_profile(account)),
+		     "account_name", loqui_channel_entry_get_name(LOQUI_CHANNEL_ENTRY(account)),
 		     "text_type", text_type,
 		     "text", text,
 		     NULL);
