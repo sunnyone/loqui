@@ -58,8 +58,8 @@ struct _LoquiReceiverIRCPrivate
 
 LoquiModeTableItem channel_mode_table[] = {
 	{ IRC_CHANNEL_MODE_CREATOR, 'O', TRUE, TRUE, "CHANNEL_MODE_CREATOR", NULL, NULL },
-	{ IRC_CHANNEL_MODE_OPERATOR, 'o', TRUE, FALSE, "CHANNEL_MODE_OPERATOR", NULL, NULL },
-	{ IRC_CHANNEL_MODE_VOICE, 'v', TRUE, FALSE, "CHANNEL_MODE_VOICE", NULL, NULL },
+	{ IRC_CHANNEL_MODE_OPERATOR, 'o', TRUE, TRUE, "CHANNEL_MODE_OPERATOR", NULL, NULL },
+	{ IRC_CHANNEL_MODE_VOICE, 'v', TRUE, TRUE, "CHANNEL_MODE_VOICE", NULL, NULL },
 	    
 	{ IRC_CHANNEL_MODE_ANONYMOUS, 'a', FALSE,  FALSE, "CHANNEL_MODE_ANONYMOUS", NULL, NULL },
 	{ IRC_CHANNEL_MODE_INVITE_ONLY, 'i', FALSE,  FALSE, "CHANNEL_MODE_INVITE_ONLY", NULL, NULL },
@@ -575,9 +575,11 @@ loqui_receiver_irc_parse_mode_arguments(LoquiReceiverIRC *receiver, IRCMessage *
 
 		for (l = mode_item_list; l != NULL; l = l->next) {
 			mode_item = LOQUI_MODE_ITEM(l->data);
+
 			gint mode_id = mode_item->table_item->mode_id;
 			if (mode_id == IRC_CHANNEL_MODE_OPERATOR ||
 			    mode_id == IRC_CHANNEL_MODE_VOICE) {
+				g_assert(mode_item->data_str != NULL); /* should be parse error if NULL */
 				user = loqui_account_peek_user(channel->account, mode_item->data_str);
 				if (!user) {
 					loqui_account_warning(account, "User not found.");

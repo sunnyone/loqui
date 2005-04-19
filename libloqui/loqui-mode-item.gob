@@ -43,18 +43,20 @@ class Loqui:Mode:Item from G:Object
 {
 	public gboolean is_change;
 	public gboolean is_set;
-	public gchar* data_str unrefwith g_free;
+	public gchar* data_str = NULL unrefwith g_free;
 	public LoquiModeTableItem *table_item;
 
 	public Loqui:Mode:Item *
 	new(gboolean is_change, gboolean is_set, LoquiModeTableItem *table_item, gchar *data_str) {
 		Self *self;
-
+		
 		self = GET_NEW;
 		self->is_change = is_change;
 		self->is_set = is_set;
 		self->table_item = table_item;
-		self->data_str = g_strdup(data_str);
+		if (data_str)
+			self->data_str = g_strdup(data_str);
+		
 
 		return self;
 	}
@@ -62,6 +64,7 @@ class Loqui:Mode:Item from G:Object
 	public void
 	set_data_str(self, gchar *str) {
 		G_FREE_UNLESS_NULL(self->data_str);
-		self->data_str = g_strdup(self->data_str);
+		if (str)
+			self->data_str = g_strdup(str);
 	}
 }
