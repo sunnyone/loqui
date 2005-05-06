@@ -596,7 +596,10 @@ loqui_receiver_irc_parse_mode_arguments(LoquiReceiverIRC *receiver, IRCMessage *
 				} else {
 					loqui_member_set_speakable(member, mode_item->is_set);
 				}
-			} else if (mode_id == IRC_CHANNEL_MODE_CREATOR) {
+			} else if (mode_id == IRC_CHANNEL_MODE_CREATOR ||
+				   mode_id == IRC_CHANNEL_MODE_BAN_MASK ||
+				   mode_id == IRC_CHANNEL_MODE_EXCEPTION_TO_OVERIDE_BAN_MASK ||
+				   mode_id == IRC_CHANNEL_MODE_INVITATION_MASK) {
 			} else {
 				mode_item_list_used = g_list_append(mode_item_list_used, l->data);
 			}
