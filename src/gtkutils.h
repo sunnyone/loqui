@@ -61,6 +61,7 @@ gboolean gtkutils_bindings_has_matched_entry(const gchar *class_name, guint modi
 void gtkutils_tree_view_popup(GtkTreeView *tree, GdkEventButton *event, GtkMenu *menu);
 
 gboolean gtkutils_widget_is_iconified(GtkWidget *widget);
+void gtkutils_bin_remove_child_if_exist(GtkBin *bin);
 
 void gtkutils_menu_position_under_widget(GtkMenu   *menu,
 					 gint      *x,

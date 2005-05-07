@@ -239,7 +239,7 @@ loqui_channelbar_new(LoquiApp *app, GtkWidget *menu_dropdown, GtkToggleAction *t
 
 	priv->toggle_scroll = gtk_toggle_button_new();
 	gtk_action_connect_proxy(GTK_ACTION(toggle_scroll_action), priv->toggle_scroll);
-	gtk_container_remove(GTK_CONTAINER(priv->toggle_scroll), gtk_bin_get_child(GTK_BIN(priv->toggle_scroll)));
+	gtkutils_bin_remove_child_if_exist(GTK_BIN(priv->toggle_scroll));
 	image = gtk_image_new_from_stock(LOQUI_STOCK_WHETHER_SCROLL, GTK_ICON_SIZE_SMALL_TOOLBAR);
 	gtk_container_add(GTK_CONTAINER(priv->toggle_scroll), image);
 	gtk_widget_show(image);

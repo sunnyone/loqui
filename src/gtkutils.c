@@ -343,6 +343,16 @@ gtkutils_widget_is_iconified(GtkWidget *widget)
 	return gdk_window_get_state(widget->window) & GDK_WINDOW_STATE_ICONIFIED;
 }
 void
+gtkutils_bin_remove_child_if_exist(GtkBin *bin)
+{
+	GtkWidget *child;
+
+	child = gtk_bin_get_child(bin);
+	if (child)
+		gtk_container_remove(GTK_CONTAINER(bin), child);
+}
+
+void
 gtkutils_menu_position_under_widget(GtkMenu   *menu,
 				    gint      *x,
 				    gint      *y,

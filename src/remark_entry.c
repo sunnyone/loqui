@@ -270,7 +270,7 @@ remark_entry_new(LoquiApp *app, GtkToggleAction *toggle_command_action)
 
 	priv->toggle_command = gtk_toggle_button_new();
 	gtk_action_connect_proxy(GTK_ACTION(toggle_command_action), priv->toggle_command);
-	gtk_container_remove(GTK_CONTAINER(priv->toggle_command), gtk_bin_get_child(GTK_BIN(priv->toggle_command)));
+	gtkutils_bin_remove_child_if_exist(GTK_BIN((priv->toggle_command)));
 	gtk_button_set_focus_on_click(GTK_BUTTON(priv->toggle_command), FALSE);
 	g_object_get(G_OBJECT(toggle_command_action), "tooltip", &text, NULL);
 	gtk_tooltips_set_tip(app->tooltips, priv->toggle_command, text, NULL);
