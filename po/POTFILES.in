@@ -29,6 +29,9 @@ libloqui/loqui-pref-partial-private.h
 libloqui/loqui-pref-partial.c
 libloqui/loqui-pref-partial.h
 libloqui/loqui-pref-private.h
+libloqui/loqui-pref-sequence-private.h
+libloqui/loqui-pref-sequence.c
+libloqui/loqui-pref-sequence.h
 libloqui/loqui-pref.c
 libloqui/loqui-pref.h
 libloqui/loqui-receiver-ipmsg-private.h
@@ -133,8 +136,6 @@ libloqui/utils.c
 libloqui/utils.h
 src/about.c
 src/about.h
-src/account_dialog.c
-src/account_dialog.h
 src/account_list_dialog.c
 src/account_list_dialog.h
 src/channel_tree.c
@@ -145,15 +146,15 @@ src/eggtrayicon.c
 src/eggtrayicon.h
 src/gtkutils.c
 src/gtkutils.h
+src/loqui-account-dialog-private.h
+src/loqui-account-dialog.c
+src/loqui-account-dialog.h
 src/loqui-core-gtk-private.h
 src/loqui-core-gtk.c
 src/loqui-core-gtk.h
 src/loqui-general-pref-gtk-default.h
 src/loqui-general-pref-gtk-groups.h
 src/loqui-general-pref-gtk.h
-src/loqui-pref-private.h
-src/loqui-pref.c
-src/loqui-pref.h
 src/loqui-style-entry-private.h
 src/loqui-style-entry.c
 src/loqui-style-entry.h
