@@ -114,6 +114,7 @@ class Loqui:Mode:Manager from G:Object
 					goto aftererror;
 				}
 				data_str = arg_ptr->data;
+				arg_ptr = arg_ptr->next;
 			} else {
 				data_str = NULL;
 			}
