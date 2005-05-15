@@ -24,7 +24,7 @@ msgstr "受信側がCTCPメッセージを設定していません"
 
 #: libloqui/ctcp_handle.c:198
 msgid "Received CTCP %s from %s to %s: %s%s%s"
-msgstr "%sから%sへのCTCPメッセージを受信しました: %s%s%s"
+msgstr ""
 
 #: libloqui/ctcp_handle.c:213
 msgid "The CTCP request was ignored."
@@ -95,6 +95,7 @@ msgid "The account is not connected."
 msgstr "アカウントが接続されていません"
 
 #: loqui-socket-ipmsg.gob:93
+#, c-format
 msgid "Failed to convert codeset: %s"
 msgstr ""
 
@@ -104,6 +105,7 @@ msgid "Failed to convert codeset of group: %s"
 msgstr ""
 
 #: loqui-socket-ipmsg.gob:115
+#, c-format
 msgid "Invalid packet: '%s'"
 msgstr ""
 
@@ -503,10 +505,12 @@ msgid "Invalid element: why is not in profile?"
 msgstr "不正な要素: なぜ'プロフィール'に含まれていないのですか？"
 
 #: libloqui/loqui_profile_handle.c:312
+#, c-format
 msgid "Invalid param: doesn't have a key: '%s'"
 msgstr ""
 
 #: libloqui/loqui_profile_handle.c:321
+#, c-format
 msgid "Invalid param key: '%s'"
 msgstr ""
 
@@ -561,6 +565,7 @@ msgid "Invalid param: doesn't have obj"
 msgstr "無効なパラメータ: objを持っていません"
 
 #: libloqui/loqui_profile_handle.c:603
+#, c-format
 msgid "Invalid param: invalid data '%s'"
 msgstr ""
 
@@ -570,6 +575,7 @@ msgid "LoquiProfileHandle parse error: %s"
 msgstr "LoquiProfileHandle parse error: %s"
 
 #: libloqui/loqui_profile_handle.c:711
+#, c-format
 msgid "LoquiProfile parse error: %s"
 msgstr ""
 
@@ -578,6 +584,7 @@ msgid "ProfileHandle: Set element spec."
 msgstr ""
 
 #: libloqui/loqui_profile_handle.c:821
+#, c-format
 msgid "ProfileHandle: Unsupported type: %s."
 msgstr ""
 
@@ -853,6 +860,7 @@ msgid "This name seems not to be a nick."
 msgstr ""
 
 #: libloqui/loqui_sender_irc.c:614
+#, c-format
 msgid "Sent CTCP request to %s: %s"
 msgstr "%sへCTCP応答を送信しました: %s"
 
@@ -1078,6 +1086,7 @@ msgid "Connecting to login server (%s:%d)"
 msgstr "login server (%s:%d) に接続しています"
 
 #: libloqui/utils.c:176
+#, c-format
 msgid "?x flag doesn't have { in '%s'"
 msgstr ""
 
