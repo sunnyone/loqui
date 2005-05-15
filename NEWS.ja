@@ -3,7 +3,7 @@
   date: 2005-05-15
   version: 0.4.0pre1
   changes:
-    - 非Gtk部分をlibloquiとして分離(LGPLに)。 (不完全)
+    - 非Gtk部分をlibloquiとして分離。 (不完全)
     - GOBの利用。(開発者のみ)
     - automake >= 1.5, m4 の利用 (開発者のみ)
     - 一般設定の.ini形式化。
