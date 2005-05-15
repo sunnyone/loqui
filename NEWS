@@ -1,4 +1,19 @@
 --- 
+-
+  date: 2005-05-15
+  version: 0.4.0pre1
+  changes:
+    - Separated the parts not using gtk to libloqui (licensed under LGPL) (not completed)
+    - Use GOB (developer only)
+    - Use automake >= 1.5, m4 (developer only)
+    - Use .ini (KeyFile) format for general settings.
+    - Fixed the problem to reconnect when sent a QUIT message manually.
+    - Rewrote the MODE parser.
+    - Don't support gtk+-2.2 (Require gtk+-2.4)
+    - Enabled to open an URI with a single-click.
+    - Don't close buffers when parted a channel or closed a connection.
+    - Fixed some UI.
+    - Fixed some bugs.
 - 
   date: 2004-09-22
   version: 0.3.9
