@@ -1,7 +1,11 @@
-* Loqui -- IRC client for Gtk2
+Loqui -- IRC/Chat client for Gtk2
+=================================
 
-= What's this?
-This is IRC client for a Gtk2 environment.
+What's this?
+------------
+This is an IRC/Chat client for a Gtk2 environment.
 
-= How to install?
+How to install?
+---------------
 See INSTALL.
+
