@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: loqui 0.1.20\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2005-05-15 16:50+0900\n"
+"POT-Creation-Date: 2005-05-25 20:09+0900\n"
 "PO-Revision-Date: 2004-10-30 01:43+0900\n"
 "Last-Translator: Yoichi Imai <yoichi@silver-forest.com>\n"
 "Language-Team: Japanese <ja@li.org>\n"
@@ -23,6 +23,7 @@ msgid "Receiver is not set in a CTCP message"
 msgstr "受信側がCTCPメッセージを設定していません"
 
 #: libloqui/ctcp_handle.c:198
+#, c-format
 msgid "Received CTCP %s from %s to %s: %s%s%s"
 msgstr ""
 
@@ -39,72 +40,68 @@ msgstr "%sへCTCP応答を送信しました: %s"
 msgid "Invalid parameter number"
 msgstr "無効なパラメータ番号"
 
-#: loqui-account-ipmsg.gob:77 libloqui/loqui_account_irc.c:308
+#: libloqui/loqui-account-ipmsg.gob:77 libloqui/loqui_account_irc.c:308
 msgid "Already connected."
 msgstr "接続済みです。"
 
-#: loqui-account-ipmsg.gob:84
+#: libloqui/loqui-account-ipmsg.gob:84
 msgid "Failed to create socket. Is used the port?"
 msgstr "ソケットの作成に失敗しました。ポートを使用済みですか？"
 
-#: loqui-account-ipmsg.gob:91
+#: libloqui/loqui-account-ipmsg.gob:91
 msgid "Opened the socket."
 msgstr "ソケットを開きました。"
 
-#: loqui-account-ipmsg.gob:129
+#: libloqui/loqui-account-ipmsg.gob:129
 msgid "Disconnected."
 msgstr "切断されました。"
 
-#. name
-#: loqui-pref-partial.c:276 loqui-pref-sequence.c:180
+#: libloqui/loqui-pref-partial.gob:54 libloqui/loqui-pref-sequence.gob:43
 msgid "Pref"
 msgstr ""
 
-#. nick
-#: loqui-pref-partial.c:277 loqui-pref-sequence.c:181
+#: libloqui/loqui-pref-partial.gob:54 libloqui/loqui-pref-sequence.gob:43
 msgid "Pref Object"
 msgstr ""
 
-#. name
-#. nick
-#: loqui-pref-partial.c:285 loqui-pref-partial.c:286
+#: libloqui/loqui-pref-partial.gob:98 libloqui/loqui-pref-partial.gob:99
 msgid "Group name"
 msgstr ""
 
-#: loqui-receiver-ipmsg.gob:58
+#: libloqui/loqui-receiver-ipmsg.gob:58
 msgid "Invalid IP address or port"
 msgstr ""
 
-#: loqui-receiver-ipmsg.gob:62
+#: libloqui/loqui-receiver-ipmsg.gob:62
 msgid "Username is not set"
 msgstr ""
 
-#: loqui-receiver-ipmsg.gob:67
+#: libloqui/loqui-receiver-ipmsg.gob:67
 msgid "Hostname is not set"
 msgstr ""
 
-#: loqui-receiver-ipmsg.gob:346
+#: libloqui/loqui-receiver-ipmsg.gob:346
 #, c-format
 msgid ""
 "Only supports IPMessenger Protocol Version 1 (the message is version '%d')"
 msgstr ""
 
-#: loqui-sender-ipmsg.gob:116 loqui-sender-ipmsg.gob:130
-#: loqui-sender-ipmsg.gob:145 libloqui/loqui_account_irc.c:614
+#: libloqui/loqui-sender-ipmsg.gob:116 libloqui/loqui-sender-ipmsg.gob:130
+#: libloqui/loqui-sender-ipmsg.gob:145 libloqui/loqui_account_irc.c:614
 msgid "The account is not connected."
 msgstr "アカウントが接続されていません"
 
-#: loqui-socket-ipmsg.gob:93
+#: libloqui/loqui-socket-ipmsg.gob:93
 #, c-format
 msgid "Failed to convert codeset: %s"
 msgstr ""
 
-#: loqui-socket-ipmsg.gob:103
+#: libloqui/loqui-socket-ipmsg.gob:103
 #, c-format
 msgid "Failed to convert codeset of group: %s"
 msgstr ""
 
-#: loqui-socket-ipmsg.gob:115
+#: libloqui/loqui-socket-ipmsg.gob:115
 #, c-format
 msgid "Invalid packet: '%s'"
 msgstr ""
@@ -117,7 +114,7 @@ msgstr ""
 msgid "user self"
 msgstr ""
 
-#: libloqui/loqui_account.c:150 loqui-account-dialog.gob:236
+#: libloqui/loqui_account.c:150 src/loqui-account-dialog.gob:236
 msgid "Profile"
 msgstr "プロファイル"
 
@@ -321,7 +318,7 @@ msgid "Do sort or don't sort"
 msgstr ""
 
 #: libloqui/loqui_member.c:169 libloqui/loqui_member.c:170
-#: loqui-account-dialog.gob:246
+#: src/loqui-account-dialog.gob:246
 msgid "User"
 msgstr "ユーザ"
 
@@ -360,7 +357,8 @@ msgid "Account name"
 msgstr "アカウントの名前"
 
 #: libloqui/loqui_message_text.c:117 libloqui/loqui_profile_account.c:268
-#: libloqui/loqui_user.c:228 loqui-account-dialog.gob:355 src/nick_list.c:467
+#: libloqui/loqui_user.c:228 src/loqui-account-dialog.gob:355
+#: src/nick_list.c:467
 msgid "Nick"
 msgstr "Nick"
 
@@ -1145,7 +1143,7 @@ msgid "Start private talk with the user in %s"
 msgstr "%sのユーザとプライベートトークを開始する"
 
 #: src/command_dialog.c:127 src/command_dialog.c:251
-#: loqui-account-dialog.gob:252
+#: src/loqui-account-dialog.gob:252
 msgid "Nickname:"
 msgstr "ニックネーム:"
 
@@ -1211,87 +1209,87 @@ msgstr ""
 msgid "Unable to determine color: %s"
 msgstr "色の識別ができません: %s"
 
-#: loqui-account-dialog.gob:241
+#: src/loqui-account-dialog.gob:241
 msgid "Account name:"
 msgstr "アカウントの名前:"
 
-#: loqui-account-dialog.gob:243
+#: src/loqui-account-dialog.gob:243
 msgid "Connect by default"
 msgstr "デフォルトで接続する"
 
-#: loqui-account-dialog.gob:253
+#: src/loqui-account-dialog.gob:253
 msgid "User name:"
 msgstr "ユーザ名:"
 
-#: loqui-account-dialog.gob:254
+#: src/loqui-account-dialog.gob:254
 msgid "Password:"
 msgstr "パスワード:"
 
-#: loqui-account-dialog.gob:257
+#: src/loqui-account-dialog.gob:257
 msgid "Server"
 msgstr "サーバ"
 
-#: loqui-account-dialog.gob:263
+#: src/loqui-account-dialog.gob:263
 msgid "Hostname:"
 msgstr "ホスト名:"
 
-#: loqui-account-dialog.gob:264
+#: src/loqui-account-dialog.gob:264
 msgid "Port:"
 msgstr "ポート:"
 
-#: loqui-account-dialog.gob:273
+#: src/loqui-account-dialog.gob:273
 msgid "IRC"
 msgstr "IRC"
 
-#: loqui-account-dialog.gob:275
+#: src/loqui-account-dialog.gob:275
 msgid "Realname:"
 msgstr "本名:"
 
-#: loqui-account-dialog.gob:276
+#: src/loqui-account-dialog.gob:276
 msgid "User information:"
 msgstr "ユーザ情報:"
 
-#: loqui-account-dialog.gob:277
+#: src/loqui-account-dialog.gob:277
 msgid "Auto join channels:"
 msgstr "自動joinチャンネル:"
 
-#: loqui-account-dialog.gob:278
+#: src/loqui-account-dialog.gob:278
 msgid "Quit message:"
 msgstr "Quitメッセージ: "
 
-#: loqui-account-dialog.gob:292
+#: src/loqui-account-dialog.gob:292
 msgid "Code"
 msgstr "コード"
 
-#: loqui-account-dialog.gob:294
+#: src/loqui-account-dialog.gob:294
 msgid "Code convertion"
 msgstr "コード変換"
 
-#: loqui-account-dialog.gob:300
+#: src/loqui-account-dialog.gob:300
 msgid "Automatic detection by locale"
 msgstr "ロケール情報から自動判定する"
 
-#: loqui-account-dialog.gob:306
+#: src/loqui-account-dialog.gob:306
 msgid "No convertion"
 msgstr "コード変換をしない"
 
-#: loqui-account-dialog.gob:313
+#: src/loqui-account-dialog.gob:313
 msgid "Select from the table"
 msgstr "一覧から選択する"
 
-#: loqui-account-dialog.gob:333
+#: src/loqui-account-dialog.gob:333
 msgid "Specify codeset"
 msgstr "特別なコードセットを使用する"
 
-#: loqui-account-dialog.gob:343
+#: src/loqui-account-dialog.gob:343
 msgid "Codeset: "
 msgstr "コードセット: "
 
-#: loqui-account-dialog.gob:358
+#: src/loqui-account-dialog.gob:358
 msgid "List of often used nick(Separate each words with linefeeds)"
 msgstr "よく使われるNickのリスト(各語を改行で区切ってください)"
 
-#: loqui-account-dialog.gob:446
+#: src/loqui-account-dialog.gob:446
 msgid ""
 "This account's configuration and connection will be removed.\n"
 "Do you really want to remove this account?"
@@ -1299,48 +1297,42 @@ msgstr ""
 "このアカウントの設定と接続は取り除かれます。\n"
 "本当にアカウントを消しますか？"
 
-#: loqui-core-gtk.gob:119
+#: src/loqui-core-gtk.gob:119
 #, c-format
 msgid "Failed to load %s"
 msgstr "%sの読み込みに失敗しました"
 
-#: loqui-core-gtk.gob:130
+#: src/loqui-core-gtk.gob:130
 #, c-format
 msgid "Failed to save %s"
 msgstr "%sの保存に失敗しました"
 
-#: loqui-core-gtk.gob:156
+#: src/loqui-core-gtk.gob:156
 #, c-format
 msgid "Invalid \"%s\""
 msgstr ""
 
-#. name
-#: loqui-style-entry.c:140
+#: src/loqui-style-entry.gob:16
 msgid "Is color default"
 msgstr ""
 
-#. nick
-#: loqui-style-entry.c:141
+#: src/loqui-style-entry.gob:17
 msgid "Is color default or not"
 msgstr ""
 
-#. name
-#: loqui-style-entry.c:149
+#: src/loqui-style-entry.gob:23
 msgid "string as color"
 msgstr ""
 
-#. nick
-#: loqui-style-entry.c:150
+#: src/loqui-style-entry.gob:24
 msgid "String representation of color"
 msgstr ""
 
-#. name
-#: loqui-style-entry.c:158
+#: src/loqui-style-entry.gob:33
 msgid "Is font default"
 msgstr ""
 
-#. nick
-#: loqui-style-entry.c:159
+#: src/loqui-style-entry.gob:34
 msgid "Is font default or not"
 msgstr ""
 
