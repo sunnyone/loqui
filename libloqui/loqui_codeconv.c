@@ -50,7 +50,7 @@ static void loqui_codeconv_finalize(GObject *object);
 	*cd_p = (GIConv) -1; \
 }
 
-#define LOQUI_CODECONV_G_ICONV_IS_VALID(cd) (cd >= 0)
+#define LOQUI_CODECONV_G_ICONV_IS_VALID(cd) (cd != (GIConv) -1)
 
 GType
 loqui_codeconv_get_type(void)
@@ -242,7 +242,6 @@ loqui_codeconv_update(LoquiCodeConv *codeconv, GError **error)
 		break;
 	case LOQUI_CODECONV_MODE_NO_CONV:
 		item = NULL;
-		g_print("noconv\n");
 		break;
 	case LOQUI_CODECONV_MODE_BY_TABLE:
 		CHECK_TABLE_IS_SET();
