@@ -62,6 +62,8 @@ static void loqui_app_info_get_property(GObject *object, guint param_id, GValue 
 static void loqui_app_info_set_property(GObject *object, guint param_id, const GValue *value, GParamSpec *pspec);
 
 static void loqui_app_info_channel_entry_notify_is_updated_cb(LoquiChannelEntry *chent, GParamSpec *pspec, LoquiAppInfo *appinfo);
+
+static void loqui_app_info_channel_notify_is_joined_cb(LoquiChannel *channel, GParamSpec *pspec, LoquiAppInfo *appinfo);
 static void loqui_app_info_account_notify_is_connected_cb(LoquiAccount *account, GParamSpec *pspec, LoquiAppInfo *appinfo);
 static void loqui_app_info_account_notify_is_pending_reconnecting_cb(LoquiAccount *account, GParamSpec *pspec, LoquiAppInfo *appinfo);
 
@@ -275,6 +277,11 @@ loqui_app_info_account_notify_is_connected_cb(LoquiAccount *account, GParamSpec 
 }
 static void
 loqui_app_info_account_notify_is_pending_reconnecting_cb(LoquiAccount *account, GParamSpec *pspec, LoquiAppInfo *appinfo)
+{
+	loqui_app_actions_update_sensitivity_related_channel(appinfo->priv->app);
+}
+static void
+loqui_app_info_channel_notify_is_joined_cb(LoquiChannel *channel, GParamSpec *pspec, LoquiAppInfo *appinfo)
 {
 	loqui_app_actions_update_sensitivity_related_channel(appinfo->priv->app);
 }
@@ -515,6 +522,7 @@ loqui_app_info_current_channel_entry_changed(LoquiAppInfo *appinfo, LoquiChannel
 		g_signal_handlers_disconnect_by_func(old_account, loqui_app_info_account_notify_is_pending_reconnecting_cb, appinfo);
 	}
 	if (old_channel) {
+		g_signal_handlers_disconnect_by_func(old_channel, loqui_app_info_channel_notify_is_joined_cb, appinfo);
 		g_signal_handlers_disconnect_by_func(old_channel, loqui_app_info_channel_notify_name_cb, appinfo);
 		if (old_channel->channel_mode_manager) {
 			g_signal_handlers_disconnect_by_func(old_channel->channel_mode_manager, loqui_app_info_channel_mode_changed_cb, appinfo);
@@ -561,6 +569,8 @@ loqui_app_info_current_channel_entry_changed(LoquiAppInfo *appinfo, LoquiChannel
 				 G_CALLBACK(loqui_app_info_account_notify_is_pending_reconnecting_cb), appinfo);
 	}
 	if (channel) {
+		g_signal_connect(G_OBJECT(channel), "notify::is-joined",
+				 G_CALLBACK(loqui_app_info_channel_notify_is_joined_cb), appinfo);
 		g_signal_connect(G_OBJECT(channel), "notify::name",
 				 G_CALLBACK(loqui_app_info_channel_notify_name_cb), appinfo);
 		if (channel->channel_mode_manager) {
