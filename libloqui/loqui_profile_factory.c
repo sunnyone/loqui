@@ -76,6 +76,16 @@ loqui_profile_factory_get_type(void)
         return type;
 }
 
+G_CONST_RETURN gchar *
+loqui_profile_factory_get_type_name_static(LoquiProfileFactory *self)
+{
+	if (LOQUI_PROFILE_FACTORY_GET_IFACE(self)->get_type_name_static) {
+		return LOQUI_PROFILE_FACTORY_GET_IFACE(self)->get_type_name_static(self);
+	}
+
+	return NULL;
+}
+
 LoquiProfile *
 loqui_profile_factory_create_profile(LoquiProfileFactory *self)
 {

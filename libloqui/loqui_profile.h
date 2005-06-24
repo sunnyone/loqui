@@ -37,9 +37,15 @@ typedef struct _LoquiProfileIface       LoquiProfileIface;
 struct _LoquiProfileIface
 {
         GTypeInterface parent;
+
+	void (* set_type_name) (LoquiProfile *self, const gchar *type_name);
+	gchar * (* get_type_name) (LoquiProfile *self); /* dynamic */
 };
 
 GType loqui_profile_get_type(void) G_GNUC_CONST;
+
+void loqui_profile_set_type_name(LoquiProfile *self, const gchar *type_name);
+gchar *loqui_profile_get_type_name(LoquiProfile *self);
 
 G_END_DECLS
 

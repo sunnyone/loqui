@@ -1,0 +1,65 @@
+requires 2.0.0
+
+%alltop{
+/*
+ * libloqui -- Chat/IM client library for GLib <http://loqui.good-day.net/>
+ * Copyright (C) 2004 Yoichi Imai <yoichi@silver-forest.com>
+ *
+ * This Library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Library General Public License as
+ * published by the Free Software Foundation; either version 2 of the
+ * License, or (at your option) any later version.
+ *
+ * This Library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Library General Public License for more details.
+ *
+ * You should have received a copy of the GNU Library General Public
+ * License along with the Gnome Library; see the file COPYING.LIB.  If not,
+ * write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+ * Boston, MA 02111-1307, USA.
+ */
+%}
+
+%h{
+#include <loqui_profile_factory.h>
+%}
+
+%{
+#include <libloqui-intl.h>
+#include "utils.h"
+%}
+
+class Loqui:Generic:Profile:Factory from G:Object (interface Loqui:Profile:Factory)
+{
+	private gchar *name = NULL unrefwith g_free;
+	private GType type;
+
+	public Loqui:Generic:Profile:Factory *
+	new (const gchar *name, GType type) {
+		Self *self = GET_NEW;
+		selfp->name = g_strdup(name);
+		selfp->type = type;
+
+		return self;
+	}
+	
+	interface Loqui:Profile:Factory
+	private /*G_CONST_RETURN*/ gchar *
+	get_type_name_static(Loqui:Profile:Factory *factory) {
+		Self *self = SELF(factory);
+
+		return selfp->name;
+	}
+
+	interface Loqui:Profile:Factory
+	private Loqui:Profile *
+	create_profile(Loqui:Profile:Factory *factory) {
+		Self *self = SELF(factory);
+
+		LoquiProfile *profile = LOQUI_PROFILE(g_object_new(selfp->type, NULL));
+		loqui_profile_set_type_name(profile, selfp->name);
+		return profile;
+	}
+}

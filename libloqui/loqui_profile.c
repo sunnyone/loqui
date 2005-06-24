@@ -25,8 +25,9 @@
 enum {
 	LAST_SIGNAL
 };
-
+/*
 static guint loqui_profile_signals[LAST_SIGNAL] = { 0 };
+*/
 
 static void loqui_profile_base_init(gpointer object_class);
 
@@ -62,4 +63,23 @@ loqui_profile_get_type(void)
         }
 
         return type;
+}
+
+void
+loqui_profile_set_type_name(LoquiProfile *self, const gchar *type_name)
+{
+	if (LOQUI_PROFILE_GET_IFACE(self)->set_type_name) {
+		LOQUI_PROFILE_GET_IFACE(self)->set_type_name(self, type_name);
+	}
+}
+
+/* dynamic */
+gchar *
+loqui_profile_get_type_name(LoquiProfile *self)
+{
+	if (LOQUI_PROFILE_GET_IFACE(self)->get_type_name) {
+		return LOQUI_PROFILE_GET_IFACE(self)->get_type_name(self);
+	}
+
+	return NULL;
 }
