@@ -83,3 +83,19 @@ loqui_profile_get_type_name(LoquiProfile *self)
 
 	return NULL;
 }
+
+void
+loqui_profile_set_profile_value(LoquiProfile *self, const gchar *key, const GValue *value)
+{
+	if (LOQUI_PROFILE_GET_IFACE(self)->set_profile_value) {
+		LOQUI_PROFILE_GET_IFACE(self)->set_profile_value(self, key, value);
+	}
+}
+
+void
+loqui_profile_get_profile_value(LoquiProfile *self, const gchar *key, GValue *value)
+{
+	if (LOQUI_PROFILE_GET_IFACE(self)->get_profile_value) {
+		LOQUI_PROFILE_GET_IFACE(self)->get_profile_value(self, key, value);
+	}
+}
