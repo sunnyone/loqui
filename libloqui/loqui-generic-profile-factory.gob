@@ -23,7 +23,7 @@ requires 2.0.0
 %}
 
 %h{
-#include <loqui_profile_factory.h>
+#include <libloqui/loqui-profile-factory.h>
 %}
 
 %{

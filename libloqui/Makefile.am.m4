@@ -24,7 +24,7 @@ SRC_PROTOCOL_BASE_BASE = \
 	loqui_channel_buffer.c loqui_channel_buffer.h \
 	loqui_channel_entry_utils.c loqui_channel_entry_utils.h \
 	loqui-profile.c loqui-profile.h \
-	loqui_profile_factory.c loqui_profile_factory.h \
+	loqui-profile-factory.c loqui-profile-factory.h \
 	M4_SRC_PROTOCOL_BASE_BASE_GOB gob_to_built_sources(M4_SRC_PROTOCOL_BASE_BASE_GOB)
 
 define(`M4_SRC_PROTOCOL_BASE_GOB',`loqui-mode-item.gob loqui-mode-manager.gob')
