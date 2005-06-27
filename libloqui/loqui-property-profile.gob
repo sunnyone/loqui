@@ -72,7 +72,7 @@ class Loqui:Property:Profile from G:Object (interface Loqui:Profile)
 	}
 
 	interface Loqui:Profile
-	private void get_profile_key_list(LoquiProfile *profile) {
+	private GList * get_profile_key_list(LoquiProfile *profile) {
 		GParamSpec **pspec_array;
 		guint n;
 		int i;
