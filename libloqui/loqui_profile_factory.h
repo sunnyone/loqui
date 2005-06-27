@@ -23,7 +23,7 @@
 
 /* this is interface */
 #include <glib-object.h>
-#include "loqui_profile.h"
+#include <libloqui/loqui-profile.h>
 
 G_BEGIN_DECLS
 
