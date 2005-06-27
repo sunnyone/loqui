@@ -15,7 +15,7 @@ SRC_BASE_UTILITIES = \
 	loqui_marshalers.c loqui_marshalers.h \
 	lqgkeyfile.c lqgkeyfile.h
 
-define(`M4_SRC_PROTOCOL_BASE_BASE_GOB',`loqui-generic-profile-factory.gob')
+define(`M4_SRC_PROTOCOL_BASE_BASE_GOB',`loqui-generic-profile-factory.gob loqui-property-profile.gob')
 SRC_PROTOCOL_BASE_BASE = \
 	loqui_channel_entry.c loqui_channel_entry.h \
 	loqui_codeconv_tools.c loqui_codeconv_tools.h \

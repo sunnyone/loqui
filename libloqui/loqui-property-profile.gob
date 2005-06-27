@@ -1,0 +1,91 @@
+requires 2.0.0
+
+%alltop{
+/*
+ * libloqui -- Chat/IM client library for GLib <http://loqui.good-day.net/>
+ * Copyright (C) 2004 Yoichi Imai <yoichi@silver-forest.com>
+ *
+ * This Library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Library General Public License as
+ * published by the Free Software Foundation; either version 2 of the
+ * License, or (at your option) any later version.
+ *
+ * This Library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Library General Public License for more details.
+ *
+ * You should have received a copy of the GNU Library General Public
+ * License along with the Gnome Library; see the file COPYING.LIB.  If not,
+ * write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+ * Boston, MA 02111-1307, USA.
+ */
+%}
+
+%h{
+#include <libloqui/loqui_profile.h>
+%}
+
+%{
+#include "libloqui-intl.h"
+#include "utils.h"
+%}
+
+class Loqui:Property:Profile from G:Object (interface Loqui:Profile)
+{
+	public gchar *type_name = NULL unrefwith g_free;
+
+	interface Loqui:Profile
+	private gchar * get_type_name(Loqui:Profile *profile) {
+		Self *self = SELF(profile);
+
+		return self->type_name;
+	}
+
+	interface Loqui:Profile
+	private void set_type_name(Loqui:Profile *profile, const gchar *type_name) {
+		Self *self = SELF(profile);
+
+		G_FREE_UNLESS_NULL(self->type_name);
+		self->type_name = g_strdup(type_name);
+	}
+
+	interface Loqui:Profile
+	private void set_profile_value(Loqui:Profile *profile, const gchar *key, const GValue *value) {
+		g_object_set_property(G_OBJECT(profile), key, value);
+	}
+
+	interface Loqui:Profile
+	private void get_profile_value(Loqui:Profile *profile, const gchar *key, GValue *value) {
+		g_object_get_property(G_OBJECT(profile), key, value);
+	}
+
+		
+	interface Loqui:Profile
+	private GType get_profile_value_type(LoquiProfile *profile, const gchar *key, const gchar *type_hint) {
+		GParamSpec *pspec;
+
+		if ((pspec = g_object_class_find_property(G_OBJECT_GET_CLASS(profile), key)) == NULL)
+			return 0;
+
+		return pspec->value_type;
+	}
+
+	interface Loqui:Profile
+	private void get_profile_key_list(LoquiProfile *profile) {
+		GParamSpec **pspec_array;
+		guint n;
+		int i;
+		GList *list = NULL;
+
+		pspec_array = g_object_class_list_properties(G_OBJECT_GET_CLASS(profile), &n);
+		for (i = 0; i < n; i++) {
+			list = g_list_prepend(list, pspec_array[i]->name);
+		}
+
+		return list;
+	}
+}
+
+
+
