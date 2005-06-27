@@ -99,3 +99,23 @@ loqui_profile_get_profile_value(LoquiProfile *self, const gchar *key, GValue *va
 		LOQUI_PROFILE_GET_IFACE(self)->get_profile_value(self, key, value);
 	}
 }
+
+GType
+loqui_profile_get_profile_value_type(LoquiProfile *self, const gchar *key, const gchar *type_hint)
+{
+	if (LOQUI_PROFILE_GET_IFACE(self)->get_profile_value_type) {
+		return LOQUI_PROFILE_GET_IFACE(self)->get_profile_value_type(self, key, type_hint);
+	}
+
+	return 0;
+}
+
+GList *
+loqui_profile_get_profile_key_list(LoquiProfile *self)
+{
+	if (LOQUI_PROFILE_GET_IFACE(self)->get_profile_key_list) {
+		return LOQUI_PROFILE_GET_IFACE(self)->get_profile_key_list(self);
+	}
+
+	return 0;
+}
