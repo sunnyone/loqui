@@ -1,0 +1,163 @@
+requires 2.0.0
+
+%alltop{
+/*
+ * libloqui -- Chat/IM client library for GLib <http://loqui.good-day.net/>
+ * Copyright (C) 2004 Yoichi Imai <yoichi@silver-forest.com>
+ *
+ * This Library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Library General Public License as
+ * published by the Free Software Foundation; either version 2 of the
+ * License, or (at your option) any later version.
+ *
+ * This Library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Library General Public License for more details.
+ *
+ * You should have received a copy of the GNU Library General Public
+ * License along with the Gnome Library; see the file COPYING.LIB.  If not,
+ * write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+ * Boston, MA 02111-1307, USA.
+ */
+%}
+
+%{
+#undef G_LOG_DOMAIN
+#include "config.h"
+
+#include <libloqui/libloqui-intl.h>
+#include "utils.h"
+
+#include "loqui-protocol.h"
+%}
+
+%h{
+#ifndef __TYPEDEF_LOQUI_PROTOCOL__
+#define __TYPEDEF_LOQUI_PROTOCOL__
+typedef struct _LoquiProtocol LoquiProtocol;
+#endif
+
+#include <libloqui/gobject_utils.h>
+#include <libloqui/loqui_account.h>
+#include <libloqui/loqui_channel.h>
+#include <libloqui/loqui_sender.h>
+#include <libloqui/loqui_receiver.h>
+#include <libloqui/loqui_user.h>
+#include <libloqui/loqui_profile_account.h>
+#include <libloqui/loqui_codeconv.h>
+%}
+
+/* Abstract Factory */
+class Loqui:Protocol from G:Object {
+        public gchar *identifier;
+        
+        public LoquiCodeConvTableItem *codeconv_table;
+        
+        public GType type_account;
+        public GType type_channel;
+        public GType type_sender;
+        public GType type_receiver;
+        public GType type_user;
+        public GType type_profile_account;
+
+        public LoquiProtocol*
+        new(void) {
+		Self *self;
+
+		self = GET_NEW;
+
+		return self;
+        }
+
+        public void
+        set_identifier(self, const gchar *identifier) {
+        	G_FREE_UNLESS_NULL(self->identifier);
+        	if (identifier)
+        		self->identifier = g_strdup(identifier);
+        }
+
+        public /*G_CONST_RETURN*/ gchar *
+        get_identifier(self) {
+        	return self->identifier;
+        }
+
+        public void
+        set_codeconv_table(self, LoquiCodeConvTableItem *codeconv_table) {
+        	self->codeconv_table = codeconv_table;
+        }
+
+        public LoquiCodeConvTableItem *
+        get_codeconv_table(self) {
+        	return self->codeconv_table;
+        }
+
+        public LoquiAccountClass *
+        get_account_class(self) {
+        	return g_type_class_ref(self->type_account);
+        }
+
+        public LoquiChannelClass *
+        get_channel_class(self) {
+        	return g_type_class_ref(self->type_channel);
+        }
+
+        public LoquiSenderClass *
+        get_sender_class(self) {
+        	return g_type_class_ref(self->type_sender);
+        }
+
+        public LoquiReceiverClass *
+        get_receiver_class(self) {
+        	return g_type_class_ref(self->type_receiver);
+        }
+
+        public LoquiUserClass *
+        get_user_class(self) {
+        	return g_type_class_ref(self->type_user);
+        }
+
+        public LoquiProfileAccountClass *
+        get_profile_account_class(self) {
+        	return g_type_class_ref(self->type_profile_account);
+        }
+
+        public LoquiProfileAccount *
+        create_profile_account(self) {
+        	LoquiProfileAccount *profile;
+        	
+        	/* FIXME: this should be done with argument of g_object_new,
+        	   but it can't because a property will be serialized. */
+        	profile = LOQUI_PROFILE_ACCOUNT(g_object_new(self->type_profile_account, NULL));
+        	profile->protocol = self;
+        
+        	return profile;
+        }
+
+        public LoquiUser *
+        create_user(self) {
+        	return LOQUI_USER(g_object_new(self->type_user, NULL));
+        }
+
+        public LoquiAccount *
+        create_account(self, LoquiProfileAccount *profile) {
+        	return LOQUI_ACCOUNT(g_object_new(self->type_account,
+        					  "profile", profile,
+        					  NULL));
+        }
+
+        public LoquiChannel *
+        create_channel(self, LoquiAccount *account, const gchar *name, const gchar *identifier, gboolean is_joined, gboolean is_private_talk) {
+        	LoquiChannel *channel;
+
+        	channel = g_object_new(self->type_channel,
+        			       "account", account,
+        			       "name", name,
+        			       "identifier", identifier,
+        			       "is_private_talk", is_private_talk,
+        			       "is_joined", is_joined,
+        			       NULL);
+        	return channel;
+        }
+
+}
