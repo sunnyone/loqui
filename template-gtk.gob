@@ -25,7 +25,6 @@ requires 2.0.0
 %}
 
 %{
-#include "intl.h"
 #include "utils.h"
 %}
 
