@@ -20,7 +20,7 @@
  */
 #include "config.h"
 
-#include "loqui_protocol.h"
+#include "loqui-protocol.h"
 
 enum {
         LAST_SIGNAL

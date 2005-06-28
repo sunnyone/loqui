@@ -23,7 +23,7 @@
 #include <libloqui-intl.h>
 #include "loqui_profile_account.h"
 
-#include "loqui_protocol.h"
+#include "loqui-protocol.h"
 
 enum {
         LAST_SIGNAL

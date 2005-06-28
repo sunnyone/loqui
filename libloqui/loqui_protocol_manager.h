@@ -23,7 +23,7 @@
 
 #include <glib-object.h>
 
-#include "loqui_protocol.h"
+#include <libloqui/loqui-protocol.h>
 
 G_BEGIN_DECLS
 

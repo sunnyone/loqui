@@ -38,7 +38,7 @@ typedef struct _LoquiProfileAccountClass       LoquiProfileAccountClass;
 
 typedef struct _LoquiProfileAccountPrivate     LoquiProfileAccountPrivate;
 
-#include "loqui_protocol.h"
+#include <libloqui/loqui-protocol.h>
 #include "loqui_codeconv.h"
 
 struct _LoquiProfileAccount

@@ -22,7 +22,7 @@
 #define __LOQUI_PROTOCOL_IRC_H__
 
 #include <glib-object.h>
-#include "loqui_protocol.h"
+#include <libloqui/loqui-protocol.h>
 
 G_BEGIN_DECLS
 

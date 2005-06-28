@@ -29,7 +29,7 @@ SRC_PROTOCOL_BASE_BASE = \
 
 define(`M4_SRC_PROTOCOL_BASE_GOB',`loqui-mode-item.gob loqui-mode-manager.gob')
 SRC_PROTOCOL_BASE = \
-	loqui_protocol.c loqui_protocol.h \
+	loqui-protocol.c loqui-protocol.h \
 	loqui_user.c loqui_user.h \
 	loqui_profile_account.c loqui_profile_account.h \
 	loqui_channel.c loqui_channel.h \
