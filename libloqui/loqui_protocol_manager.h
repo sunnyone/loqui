@@ -61,6 +61,8 @@ LoquiProtocolManager* loqui_protocol_manager_new(void);
 void loqui_protocol_manager_register(LoquiProtocolManager *manager, LoquiProtocol *protocol);
 LoquiProtocol *loqui_protocol_manager_get_protocol(LoquiProtocolManager *manager, const gchar *identifier);
 
+GList *loqui_protocol_manager_get_protocol_list(LoquiProtocolManager *manager); /* must be freed */
+
 G_END_DECLS
 
 #endif /* __LOQUI_PROTOCOL_MANAGER_H__ */
