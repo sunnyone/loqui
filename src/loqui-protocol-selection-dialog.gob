@@ -40,23 +40,19 @@ enum {
 
 %}
 
-class Loqui:Protocol:Selection:Dialog from Gtk:Dialog
+class Loqui:Protocol:Selection:Dialog from Gtk:Message:Dialog
 {
 	private LoquiProtocolManager *protocol_manager = NULL unrefwith g_object_unref;
 	
 	private GtkWidget *combobox;
-	private GtkListStore *store; /* FIXME: should be unref'ed ? */
+	private GtkListStore *store unrefwith g_object_unref;
 
 	private void
 	add_widgets(self) {
 		GtkCellRenderer *renderer;
-		GtkWidget *label;
 		GtkWidget *vbox;
 
 		vbox = GTK_DIALOG(self)->vbox;
-
-		label = gtk_label_new(_("Choose a protocol."));
-		gtk_box_pack_start(GTK_BOX(vbox), label, TRUE, TRUE, 5);
 
 		renderer = gtk_cell_renderer_text_new();
 		selfp->combobox = gtk_combo_box_new_with_model(GTK_TREE_MODEL(selfp->store));
@@ -71,7 +67,7 @@ class Loqui:Protocol:Selection:Dialog from Gtk:Dialog
 	}
 
 	private void
-	load_protocols(self) {
+	load_protocols(self, LoquiProtocol *default_protocol) {
 		GList *list, *cur;
 		GtkTreeIter iter;
 		LoquiProtocol *protocol;
@@ -85,30 +81,49 @@ class Loqui:Protocol:Selection:Dialog from Gtk:Dialog
 					   COLUMN_NAME, loqui_protocol_get_identifier(protocol),
 					   COLUMN_PROTOCOL, protocol,
 					   -1);
+
+			if (protocol == default_protocol) {
+				gtk_combo_box_set_active_iter(GTK_COMBO_BOX(selfp->combobox), &iter);
+			}
 		}
 
 		g_list_free(list);
 	}
+	public LoquiProtocol *
+	get_protocol(self) {
+		GtkTreeIter iter;
+		LoquiProtocol *protocol;
+
+		if (!gtk_combo_box_get_active_iter(GTK_COMBO_BOX(selfp->combobox), &iter))
+			return NULL;
+		
+		gtk_tree_model_get(GTK_TREE_MODEL(selfp->store), &iter,
+				   COLUMN_PROTOCOL, &protocol, -1);
+
+		return protocol;
+	}
 
         public GtkWidget*
-        new(LoquiProtocolManager *protocol_manager) {
-		Self *self = GET_NEW;
+        new(GtkWindow *parent, LoquiProtocolManager *protocol_manager, LoquiProtocol *default_protocol) {
+		Self *self = GET_NEW_VARG("message_type", GTK_MESSAGE_QUESTION,
+					  "buttons", GTK_BUTTONS_OK_CANCEL,
+					  "title", _("Protocol Selection"),
+					  NULL);
 
 		selfp->protocol_manager = g_object_ref(protocol_manager);
 		
 		selfp->store = gtk_list_store_new(COLUMN_NUMBER,
 						  G_TYPE_STRING,
 						  LOQUI_TYPE_PROTOCOL);
-
-		gtk_window_set_title(GTK_WINDOW(self), _("Protocol Selection"));
-		gtk_dialog_add_buttons(GTK_DIALOG(self),
-				       GTK_STOCK_OK, GTK_RESPONSE_OK,
-				       GTK_STOCK_CANCEL, GTK_STOCK_CANCEL,
-				       NULL);
-
+		
+		if (parent != NULL)
+			gtk_window_set_transient_for(GTK_WINDOW(self), parent);
+		gtk_window_set_destroy_with_parent(GTK_WINDOW(self), TRUE);
+		
+		gtk_message_dialog_set_markup(GTK_MESSAGE_DIALOG(self), _("Choose a protocol."));
 		self_add_widgets(self);
 		
-		self_load_protocols(self);
+		self_load_protocols(self, default_protocol);
 
 		return GTK_WIDGET(self);
 	}
