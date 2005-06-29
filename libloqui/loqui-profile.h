@@ -56,9 +56,9 @@ gchar *loqui_profile_get_type_name(LoquiProfile *self);
 void loqui_profile_set_profile_value(LoquiProfile *self, const gchar *key, const GValue *value);
 void loqui_profile_get_profile_value(LoquiProfile *self, const gchar *key, GValue *value);
 
-GType loqui_profile_get_profile_value_type(LoquiProfile *self, const gchar *key, const gchar *type_hint);
+GType loqui_profile_get_profile_value_type(LoquiProfile *self, const gchar *key, const gchar *type_hint); /* type_hint: reserved for the future */
 
-GList *loqui_profile_get_profile_key_list(LoquiProfile *self);
+GList *loqui_profile_get_profile_key_list(LoquiProfile *self); /* List and strings are dynamically generated */
 
 G_END_DECLS
 
