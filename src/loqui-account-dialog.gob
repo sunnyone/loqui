@@ -38,6 +38,7 @@ requires 2.0.0
 #include <loqui_profile_account_irc.h>
 #include <loqui_codeconv.h>
 
+#include "loqui-protocol-selection-dialog.h"
 #include "loqui_account_irc.h"
 #include <string.h>
 
@@ -385,7 +386,10 @@ class Loqui:Account:Dialog from Gtk:Dialog {
         	gtk_box_pack_start(GTK_BOX(vbox), selfp->notebook, TRUE, TRUE, 0);
         
 		self_append_profile_page(self);
-		self_append_irc_page(self);
+		if (strcmp(loqui_protocol_get_identifier(loqui_profile_account_get_protocol(profile)), "IRC") == 0) {
+			self_append_irc_page(self);
+		}
+
 		self_append_code_page(self);
 		self_append_nick_page(self);
 
@@ -402,9 +406,23 @@ class Loqui:Account:Dialog from Gtk:Dialog {
         	LoquiProfileAccount *profile;
         	LoquiAccount *account;
         	gint response;
-        
-        	/* FIXME */
-        	profile = LOQUI_PROFILE_ACCOUNT(loqui_profile_account_irc_new());
+		LoquiProtocolSelectionDialog *protocol_dialog;
+		LoquiProtocol *protocol;
+
+		protocol = loqui_protocol_manager_get_protocol(manager->protocol_manager, "IRC"); /* FIXME */
+		protocol_dialog = LOQUI_PROTOCOL_SELECTION_DIALOG(loqui_protocol_selection_dialog_new(parent, manager->protocol_manager, protocol));
+		
+        	response = gtk_dialog_run(GTK_DIALOG(protocol_dialog));
+		if (response != GTK_RESPONSE_OK ||
+		    (protocol = loqui_protocol_selection_dialog_get_protocol(protocol_dialog)) == NULL) {
+			gtk_widget_destroy(GTK_WIDGET(protocol_dialog));
+			return;
+		}
+
+		g_object_ref(protocol);
+		gtk_widget_destroy(GTK_WIDGET(protocol_dialog));
+
+		profile = loqui_protocol_create_profile_account(protocol);
         	dialog = SELF(self_new(profile));
         	gtk_window_set_transient_for(GTK_WINDOW(dialog), parent);
         	response = gtk_dialog_run(GTK_DIALOG(dialog));
