@@ -20,7 +20,7 @@
  */
 #include "config.h"
 
-#include "loqui_profile_handle.h"
+#include "loqui-profile-handle.h"
 #include <libloqui-intl.h>
 
 #include <string.h>
