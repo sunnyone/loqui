@@ -157,6 +157,7 @@ class Loqui:Protocol from G:Object (interface Loqui:Profile:Factory) {
         	/* FIXME: this should be done with argument of g_object_new,
         	   but it can't because a property will be serialized. */
         	profile = LOQUI_PROFILE_ACCOUNT(g_object_new(self->type_profile_account, NULL));
+		loqui_profile_set_type_name(LOQUI_PROFILE(profile), loqui_protocol_get_identifier(self));
         	profile->protocol = self;
         
         	return profile;
