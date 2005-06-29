@@ -23,7 +23,7 @@ requires 2.0.0
 %}
 
 %{
-#include <libloqui-intl.h>
+#include <libloqui/libloqui-intl.h>
 #include "utils.h"
 %}
 
