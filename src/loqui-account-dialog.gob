@@ -67,7 +67,6 @@ class Loqui:Account:Dialog from Gtk:Dialog {
         private GtkWidget *entry_userinfo;
         private GtkWidget *entry_autojoin;
         private GtkWidget *entry_quit_message;
-        private gboolean is_exist_irc_page = FALSE;
 
         private GtkWidget *radio_automatic;
         private GtkWidget *radio_noconv;
@@ -174,7 +173,7 @@ class Loqui:Account:Dialog from Gtk:Dialog {
 	save(self, LoquiProfileAccount *profile) {
 		self_save_general(self, profile);
 		
-		if (LOQUI_IS_PROFILE_ACCOUNT_IRC(profile) && selfp->is_exist_irc_page) {
+		if (LOQUI_IS_PROFILE_ACCOUNT_IRC(profile)) {
 			self_load_irc(self, LOQUI_PROFILE_ACCOUNT_IRC(profile));
 		}
 	}
@@ -244,7 +243,7 @@ class Loqui:Account:Dialog from Gtk:Dialog {
 	load(self, LoquiProfileAccount *profile) {
 		self_load_general(self, profile);
 
-		if (LOQUI_IS_PROFILE_ACCOUNT_IRC(profile) && selfp->is_exist_irc_page) {
+		if (LOQUI_IS_PROFILE_ACCOUNT_IRC(profile)) {
 			self_load_irc(self, LOQUI_PROFILE_ACCOUNT_IRC(profile));
 		}
 	}
@@ -300,8 +299,6 @@ class Loqui:Account:Dialog from Gtk:Dialog {
         	gtkutils_add_label_entry(vbox, _("User information:"), &selfp->entry_userinfo, NULL);
         	gtkutils_add_label_entry(vbox, _("Auto join channels:"), &selfp->entry_autojoin, NULL);
         	gtkutils_add_label_entry(vbox, _("Quit message:"), &selfp->entry_quit_message, NULL);
-
-		selfp->is_exist_irc_page = TRUE;
 	}
 
 	private void
@@ -411,7 +408,7 @@ class Loqui:Account:Dialog from Gtk:Dialog {
         	gtk_box_pack_start(GTK_BOX(vbox), selfp->notebook, TRUE, TRUE, 0);
         
 		self_append_profile_page(self);
-		if (strcmp(loqui_protocol_get_identifier(loqui_profile_account_get_protocol(profile)), "IRC") == 0) {
+		if (LOQUI_IS_PROFILE_ACCOUNT_IRC(profile)) {
 			self_append_irc_page(self);
 		}
 
