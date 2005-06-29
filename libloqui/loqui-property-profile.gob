@@ -80,7 +80,7 @@ class Loqui:Property:Profile from G:Object (interface Loqui:Profile)
 
 		pspec_array = g_object_class_list_properties(G_OBJECT_GET_CLASS(profile), &n);
 		for (i = 0; i < n; i++) {
-			list = g_list_prepend(list, pspec_array[i]->name);
+			list = g_list_prepend(list, g_strdup(pspec_array[i]->name));
 		}
 
 		return list;
