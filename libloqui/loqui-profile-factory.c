@@ -21,6 +21,7 @@
 #include "config.h"
 
 #include "loqui-profile-factory.h"
+#include "gobject_utils.h"
 
 /*
 enum {
@@ -77,22 +78,6 @@ loqui_profile_factory_get_type(void)
         return type;
 }
 
-G_CONST_RETURN gchar *
-loqui_profile_factory_get_type_name_static(LoquiProfileFactory *self)
-{
-	if (LOQUI_PROFILE_FACTORY_GET_IFACE(self)->get_type_name_static) {
-		return LOQUI_PROFILE_FACTORY_GET_IFACE(self)->get_type_name_static(self);
-	}
+LOQUI_DEFINE_INTERFACE_METHOD_CALLER_ARG0_WITH_RETURN(LoquiProfileFactory, loqui_profile_factory, get_type_name_static, G_CONST_RETURN gchar *)
+LOQUI_DEFINE_INTERFACE_METHOD_CALLER_ARG0_WITH_RETURN(LoquiProfileFactory, loqui_profile_factory, create_profile, LoquiProfile *)
 
-	return NULL;
-}
-
-LoquiProfile *
-loqui_profile_factory_create_profile(LoquiProfileFactory *self)
-{
-	if (LOQUI_PROFILE_FACTORY_GET_IFACE(self)->create_profile) {
-		return LOQUI_PROFILE_FACTORY_GET_IFACE(self)->create_profile(self);
-	}
-
-	return NULL;
-}
