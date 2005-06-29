@@ -235,7 +235,6 @@ static void
 msn_login_conn_closed_cb(GConn *conn, MSNLogin *login)
 {
 	MSNLoginPrivate *priv;
-	GList *cur;
 	LoquiAccount *account;
 
 	priv = login->priv;
@@ -251,10 +250,8 @@ msn_login_conn_closed_cb(GConn *conn, MSNLogin *login)
 
 	loqui_account_information(LOQUI_ACCOUNT(account), _("Connection closed."));
 	loqui_user_set_away(LOQUI_ACCOUNT(account)->user_self, LOQUI_AWAY_TYPE_OFFLINE);
+	loqui_account_set_all_channel_unjoined(LOQUI_ACCOUNT(account));
 
-/*	for (cur = LOQUI_ACCOUNT(account)->channel_list; cur != NULL; cur = cur->next)
-	loqui_channel_set_is_joined(LOQUI_CHANNEL(cur->data), FALSE); */
-	
 	loqui_account_closed(LOQUI_ACCOUNT(account));
 }
 static void
