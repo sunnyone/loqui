@@ -89,7 +89,7 @@ class Loqui:Core:Gtk from Loqui:Core
 		
 		loqui_protocol_manager_register(self->protocol_manager, loqui_protocol_irc_get());
 		loqui_protocol_manager_register(self->protocol_manager, loqui_protocol_ipmsg_get());
-		loqui_protocol_manager_register(self->protocol_manager, loqui_protocol_msn_get());
+		/* loqui_protocol_manager_register(self->protocol_manager, loqui_protocol_msn_get()); */
 
 		self->account_manager = loqui_account_manager_new(self->protocol_manager);
 	}
