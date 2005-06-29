@@ -23,6 +23,7 @@
 
 #include <glib-object.h>
 #include "gobject_utils.h"
+#include <libloqui/loqui-property-profile.h>
 
 G_BEGIN_DECLS
 
@@ -39,11 +40,12 @@ typedef struct _LoquiProfileAccountClass       LoquiProfileAccountClass;
 typedef struct _LoquiProfileAccountPrivate     LoquiProfileAccountPrivate;
 
 #include <libloqui/loqui-protocol.h>
+
 #include "loqui_codeconv.h"
 
 struct _LoquiProfileAccount
 {
-        GObject parent;
+        LoquiPropertyProfile parent;
 
         LoquiProtocol *protocol;
 
@@ -69,7 +71,7 @@ struct _LoquiProfileAccount
 
 struct _LoquiProfileAccountClass
 {
-        GObjectClass parent_class;
+        LoquiPropertyProfileClass parent_class;
 };
 
 

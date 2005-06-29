@@ -55,7 +55,7 @@ struct _LoquiProfileAccountPrivate
 {
 };
 
-static GObjectClass *parent_class = NULL;
+static LoquiPropertyProfileClass *parent_class = NULL;
 
 /* static guint loqui_profile_account_signals[LAST_SIGNAL] = { 0 }; */
 
@@ -85,7 +85,7 @@ loqui_profile_account_get_type(void)
 				(GInstanceInitFunc) loqui_profile_account_init
 			};
 		
-		type = g_type_register_static(G_TYPE_OBJECT,
+		type = g_type_register_static(LOQUI_TYPE_PROPERTY_PROFILE,
 					      "LoquiProfileAccount",
 					      &our_info,
 					      0);
