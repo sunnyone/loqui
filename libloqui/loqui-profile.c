@@ -21,6 +21,7 @@
 #include "config.h"
 
 #include "loqui-profile.h"
+#include "gobject_utils.h"
 
 enum {
 	LAST_SIGNAL
@@ -29,7 +30,7 @@ enum {
 static guint loqui_profile_signals[LAST_SIGNAL] = { 0 };
 */
 
-static void loqui_profile_base_init(gpointer object_class);
+LOQUI_DEFINE_INTERFACE(LoquiProfile, loqui_profile);
 
 static void
 loqui_profile_base_init(gpointer object_class)
@@ -39,30 +40,6 @@ loqui_profile_base_init(gpointer object_class)
         if (!initialized) {
                 initialized = TRUE;
         }
-}
-
-
-GType
-loqui_profile_get_type(void)
-{
-        static GType type = 0;
-
-        if (type == 0) {
-                static const GTypeInfo info = {
-                        sizeof (LoquiProfileIface),
-                        loqui_profile_base_init,   /* base_init */
-                        NULL,   /* base_finalize */
-                        NULL,   /* class_init */
-                        NULL,   /* class_finalize */
-                        NULL,   /* class_data */
-                        0,
-                        0,      /* n_preallocs */
-                        NULL    /* instance_init */
-                };
-                type = g_type_register_static(G_TYPE_INTERFACE, "LoquiProfile", &info, 0);
-        }
-
-        return type;
 }
 
 void

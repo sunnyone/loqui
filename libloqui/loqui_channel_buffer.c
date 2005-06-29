@@ -21,6 +21,7 @@
 #include "config.h"
 
 #include "loqui_channel_buffer.h"
+#include "gobject_utils.h"
 
 enum {
 	SIGNAL_APPEND_MESSAGE_TEXT,
@@ -29,7 +30,7 @@ enum {
 
 static guint loqui_channel_buffer_signals[LAST_SIGNAL] = { 0 };
 
-static void loqui_channel_buffer_base_init(gpointer object_class);
+LOQUI_DEFINE_INTERFACE(LoquiChannelBuffer, loqui_channel_buffer);
 
 static void
 loqui_channel_buffer_base_init(gpointer object_class)
@@ -48,30 +49,6 @@ loqui_channel_buffer_base_init(gpointer object_class)
 		
                 initialized = TRUE;
         }
-}
-
-
-GType
-loqui_channel_buffer_get_type(void)
-{
-        static GType type = 0;
-
-        if (type == 0) {
-                static const GTypeInfo info = {
-                        sizeof (LoquiChannelBufferIface),
-                        loqui_channel_buffer_base_init,   /* base_init */
-                        NULL,   /* base_finalize */
-                        NULL,   /* class_init */
-                        NULL,   /* class_finalize */
-                        NULL,   /* class_data */
-                        0,
-                        0,      /* n_preallocs */
-                        NULL    /* instance_init */
-                };
-                type = g_type_register_static(G_TYPE_INTERFACE, "LoquiChannelBuffer", &info, 0);
-        }
-
-        return type;
 }
 
 void

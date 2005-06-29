@@ -77,4 +77,30 @@ void class_name_lowercase ## _set_ ## attr_name (class_name_capitalized *obj, in
   ATTR_READER_GENERIC_PROTOTYPE(return_type, class_name_capitalized, class_name_lowercase, attr_name); \
   ATTR_WRITER_GENERIC_PROTOTYPE(in_type, class_name_capitalized, class_name_lowercase, attr_name)
   
+
+#define LOQUI_DEFINE_INTERFACE(TypeName, type_name) \
+static void type_name ## _base_init(gpointer object_class); \
+GType \
+type_name ## _get_type(void) \
+{ \
+        static GType type = 0;	\
+\
+        if (type == 0) {										\
+                static const GTypeInfo info = {								\
+                        sizeof (TypeName ## Iface),						\
+                        type_name ## _base_init,   /* base_init */				\
+                        NULL,   /* base_finalize */							\
+                        NULL,   /* class_init */							\
+                        NULL,   /* class_finalize */							\
+                        NULL,   /* class_data */							\
+                        0,										\
+                        0,      /* n_preallocs */							\
+                        NULL    /* instance_init */							\
+                };											\
+                type = g_type_register_static(G_TYPE_INTERFACE, # TypeName, &info, 0);	\
+        }												\
+													\
+        return type;											\
+}
+
 #endif /* __GOBJECT_UTILS_H__ */
