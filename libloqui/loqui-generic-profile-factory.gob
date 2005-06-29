@@ -38,7 +38,9 @@ class Loqui:Generic:Profile:Factory from G:Object (interface Loqui:Profile:Facto
 
 	public Loqui:Generic:Profile:Factory *
 	new (const gchar *name, GType type) {
-		Self *self = GET_NEW;
+		Self *self;
+
+		self = GET_NEW;
 		selfp->name = g_strdup(name);
 		selfp->type = type;
 
@@ -48,7 +50,9 @@ class Loqui:Generic:Profile:Factory from G:Object (interface Loqui:Profile:Facto
 	interface Loqui:Profile:Factory
 	private /*G_CONST_RETURN*/ gchar *
 	get_type_name_static(Loqui:Profile:Factory *factory) {
-		Self *self = SELF(factory);
+		Self *self;
+
+		self = SELF(factory);
 
 		return selfp->name;
 	}
@@ -56,9 +60,11 @@ class Loqui:Generic:Profile:Factory from G:Object (interface Loqui:Profile:Facto
 	interface Loqui:Profile:Factory
 	private Loqui:Profile *
 	create_profile(Loqui:Profile:Factory *factory) {
-		Self *self = SELF(factory);
+		Self *self;
+		LoquiProfile *profile;
 
-		LoquiProfile *profile = LOQUI_PROFILE(g_object_new(selfp->type, NULL));
+		self = SELF(factory);
+		profile = LOQUI_PROFILE(g_object_new(selfp->type, NULL));
 		loqui_profile_set_type_name(profile, selfp->name);
 		return profile;
 	}
