@@ -42,57 +42,12 @@ loqui_profile_base_init(gpointer object_class)
         }
 }
 
-void
-loqui_profile_set_type_name(LoquiProfile *self, const gchar *type_name)
-{
-	if (LOQUI_PROFILE_GET_IFACE(self)->set_type_name) {
-		LOQUI_PROFILE_GET_IFACE(self)->set_type_name(self, type_name);
-	}
-}
+LOQUI_DEFINE_INTERFACE_METHOD_CALLER_ARG1(LoquiProfile, loqui_profile, set_type_name, const gchar *)
+LOQUI_DEFINE_INTERFACE_METHOD_CALLER_ARG0_WITH_RETURN(LoquiProfile, loqui_profile, get_type_name, gchar *)
 
-/* dynamic */
-gchar *
-loqui_profile_get_type_name(LoquiProfile *self)
-{
-	if (LOQUI_PROFILE_GET_IFACE(self)->get_type_name) {
-		return LOQUI_PROFILE_GET_IFACE(self)->get_type_name(self);
-	}
+LOQUI_DEFINE_INTERFACE_METHOD_CALLER_ARG2(LoquiProfile, loqui_profile, set_profile_value, const gchar *, const GValue *)
+LOQUI_DEFINE_INTERFACE_METHOD_CALLER_ARG2(LoquiProfile, loqui_profile, get_profile_value, const gchar *, GValue *)
 
-	return NULL;
-}
+LOQUI_DEFINE_INTERFACE_METHOD_CALLER_ARG2_WITH_RETURN(LoquiProfile, loqui_profile, get_profile_value_type, GType, const gchar *, const gchar *)
 
-void
-loqui_profile_set_profile_value(LoquiProfile *self, const gchar *key, const GValue *value)
-{
-	if (LOQUI_PROFILE_GET_IFACE(self)->set_profile_value) {
-		LOQUI_PROFILE_GET_IFACE(self)->set_profile_value(self, key, value);
-	}
-}
-
-void
-loqui_profile_get_profile_value(LoquiProfile *self, const gchar *key, GValue *value)
-{
-	if (LOQUI_PROFILE_GET_IFACE(self)->get_profile_value) {
-		LOQUI_PROFILE_GET_IFACE(self)->get_profile_value(self, key, value);
-	}
-}
-
-GType
-loqui_profile_get_profile_value_type(LoquiProfile *self, const gchar *key, const gchar *type_hint)
-{
-	if (LOQUI_PROFILE_GET_IFACE(self)->get_profile_value_type) {
-		return LOQUI_PROFILE_GET_IFACE(self)->get_profile_value_type(self, key, type_hint);
-	}
-
-	return 0;
-}
-
-GList *
-loqui_profile_get_profile_key_list(LoquiProfile *self)
-{
-	if (LOQUI_PROFILE_GET_IFACE(self)->get_profile_key_list) {
-		return LOQUI_PROFILE_GET_IFACE(self)->get_profile_key_list(self);
-	}
-
-	return 0;
-}
+LOQUI_DEFINE_INTERFACE_METHOD_CALLER_ARG0_WITH_RETURN(LoquiProfile, loqui_profile, get_profile_key_list, GList *)

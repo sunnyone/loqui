@@ -30,7 +30,7 @@ enum {
 
 static guint loqui_channel_buffer_signals[LAST_SIGNAL] = { 0 };
 
-LOQUI_DEFINE_INTERFACE(LoquiChannelBuffer, loqui_channel_buffer);
+LOQUI_DEFINE_INTERFACE(LoquiChannelBuffer, loqui_channel_buffer)
 
 static void
 loqui_channel_buffer_base_init(gpointer object_class)
@@ -51,8 +51,4 @@ loqui_channel_buffer_base_init(gpointer object_class)
         }
 }
 
-void
-loqui_channel_buffer_append_message_text(LoquiChannelBuffer *chbuf, LoquiMessageText *msgtext)
-{
-	g_signal_emit(chbuf, loqui_channel_buffer_signals[SIGNAL_APPEND_MESSAGE_TEXT], 0, msgtext);
-}
+LOQUI_DEFINE_SIGNAL_EMITTER_ARG1(LoquiChannelBuffer, loqui_channel_buffer, append_message_text, APPEND_MESSAGE_TEXT, LoquiMessageText *)

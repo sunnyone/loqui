@@ -103,4 +103,81 @@ type_name ## _get_type(void) \
         return type;											\
 }
 
+/* To use these signal macros, define type_name ## signals static array and add SIGNAL_ ## ENUM_NAME entries to it. */
+#define LOQUI_DEFINE_SIGNAL_EMITTER_ARG0(TypeName, type_name, signal_name, ENUM_NAME) \
+void \
+type_name ## _ ## signal_name ( TypeName *self) \
+{ \
+        g_signal_emit(self, type_name ## _signals[SIGNAL_ ## ENUM_NAME], 0); \
+}
+
+#define LOQUI_DEFINE_SIGNAL_EMITTER_ARG1(TypeName, type_name, signal_name, ENUM_NAME, arg1Type) \
+void \
+type_name ## _ ## signal_name ( TypeName *self, arg1Type arg1) \
+{ \
+        g_signal_emit(self, type_name ## _signals[SIGNAL_ ## ENUM_NAME], 0, arg1); \
+}
+
+
+#define LOQUI_DEFINE_INTERFACE_METHOD_CALLER_ARG0(TypeName, type_name, method_name) \
+void \
+type_name ## _ ## method_name ( TypeName *self) \
+{ \
+        if (!G_TYPE_INSTANCE_GET_INTERFACE(self, type_name ## _get_type(), TypeName ## Iface)->method_name(self)) { \
+                return; \
+	} \
+	G_TYPE_INSTANCE_GET_INTERFACE(self, type_name ## _get_type(), TypeName ## Iface)->method_name(self); \
+}
+
+#define LOQUI_DEFINE_INTERFACE_METHOD_CALLER_ARG1(TypeName, type_name, method_name, arg1Type) \
+void \
+type_name ## _ ## method_name ( TypeName *self, arg1Type arg1) \
+{ \
+        if (!G_TYPE_INSTANCE_GET_INTERFACE(self, type_name ## _get_type(), TypeName ## Iface)->method_name) { \
+                return; \
+	} \
+	G_TYPE_INSTANCE_GET_INTERFACE(self, type_name ## _get_type(), TypeName ## Iface)->method_name(self, arg1); \
+}
+
+#define LOQUI_DEFINE_INTERFACE_METHOD_CALLER_ARG2(TypeName, type_name, method_name, arg1Type, arg2Type) \
+void \
+type_name ## _ ## method_name ( TypeName *self, arg1Type arg1, arg2Type arg2) \
+{ \
+        if (!G_TYPE_INSTANCE_GET_INTERFACE(self, type_name ## _get_type(), TypeName ## Iface)->method_name) { \
+                return; \
+	} \
+	G_TYPE_INSTANCE_GET_INTERFACE(self, type_name ## _get_type(), TypeName ## Iface)->method_name(self, arg1, arg2); \
+}
+
+
+#define LOQUI_DEFINE_INTERFACE_METHOD_CALLER_ARG0_WITH_RETURN(TypeName, type_name, method_name, returnType) \
+returnType \
+type_name ## _ ## method_name ( TypeName *self) \
+{ \
+        if (!G_TYPE_INSTANCE_GET_INTERFACE(self, type_name ## _get_type(), TypeName ## Iface)->method_name) { \
+                return (returnType) 0; \
+	} \
+        return G_TYPE_INSTANCE_GET_INTERFACE(self, type_name ## _get_type(), TypeName ## Iface)->method_name(self); \
+}
+
+#define LOQUI_DEFINE_INTERFACE_METHOD_CALLER_ARG1_WITH_RETURN(TypeName, type_name, method_name, returnType, arg1Type) \
+returnType \
+type_name ## _ ## method_name ( TypeName *self, arg1Type arg1) \
+{ \
+        if (!G_TYPE_INSTANCE_GET_INTERFACE(self, type_name ## _get_type(), TypeName ## Iface)->method_name) { \
+                return (returnType) 0; \
+	} \
+        return G_TYPE_INSTANCE_GET_INTERFACE(self, type_name ## _get_type(), TypeName ## Iface)->method_name(self, arg1); \
+}
+
+#define LOQUI_DEFINE_INTERFACE_METHOD_CALLER_ARG2_WITH_RETURN(TypeName, type_name, method_name, returnType, arg1Type, arg2Type) \
+returnType \
+type_name ## _ ## method_name ( TypeName *self, arg1Type arg1, arg2Type arg2) \
+{ \
+        if (!G_TYPE_INSTANCE_GET_INTERFACE(self, type_name ## _get_type(), TypeName ## Iface)->method_name) { \
+                return (returnType) 0; \
+	} \
+        return G_TYPE_INSTANCE_GET_INTERFACE(self, type_name ## _get_type(), TypeName ## Iface)->method_name(self, arg1, arg2); \
+}
+
 #endif /* __GOBJECT_UTILS_H__ */
