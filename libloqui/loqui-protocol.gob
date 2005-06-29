@@ -30,6 +30,8 @@ requires 2.0.0
 #include "utils.h"
 
 #include "loqui-protocol.h"
+#include "loqui-protocol-private.h"
+
 %}
 
 %h{
@@ -46,10 +48,12 @@ typedef struct _LoquiProtocol LoquiProtocol;
 #include <libloqui/loqui_user.h>
 #include <libloqui/loqui_profile_account.h>
 #include <libloqui/loqui_codeconv.h>
+#include <libloqui/loqui-profile-factory.h>
+
 %}
 
 /* Abstract Factory */
-class Loqui:Protocol from G:Object {
+class Loqui:Protocol from G:Object (interface Loqui:Profile:Factory) {
         public gchar *identifier;
         
         public LoquiCodeConvTableItem *codeconv_table;
@@ -70,17 +74,41 @@ class Loqui:Protocol from G:Object {
 		return self;
         }
 
-        public void
-        set_identifier(self, const gchar *identifier) {
-        	G_FREE_UNLESS_NULL(self->identifier);
-        	if (identifier)
-        		self->identifier = g_strdup(identifier);
-        }
+	interface Loqui:Profile:Factory
+	private /*G_CONST_RETURN*/ gchar *
+	get_type_name_static(Loqui:Profile:Factory *factory) {
+		Self *self;
 
-        public /*G_CONST_RETURN*/ gchar *
-        get_identifier(self) {
-        	return self->identifier;
-        }
+		self = SELF(factory);
+
+		return self->identifier;
+	}
+
+	interface Loqui:Profile:Factory
+	private Loqui:Profile *
+	create_profile(Loqui:Profile:Factory *factory) {
+		Self *self;
+		LoquiProfile *profile;
+
+		self = SELF(factory);
+
+		profile = LOQUI_PROFILE(self_create_profile_account(self));
+		loqui_profile_set_type_name(profile, self->identifier);
+
+		return profile;
+	}
+
+	public void
+	set_identifier(self, const gchar *identifier) {
+		G_FREE_UNLESS_NULL(self->identifier);
+		if (identifier)
+			self->identifier = g_strdup(identifier);
+	}
+
+	public /*G_CONST_RETURN*/ gchar *
+	get_identifier(self) {
+		return self->identifier;
+	}
 
         public void
         set_codeconv_table(self, LoquiCodeConvTableItem *codeconv_table) {
