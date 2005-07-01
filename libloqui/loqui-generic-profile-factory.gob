@@ -49,7 +49,7 @@ class Loqui:Generic:Profile:Factory from G:Object (interface Loqui:Profile:Facto
 	
 	interface Loqui:Profile:Factory
 	private /*G_CONST_RETURN*/ gchar *
-	get_type_name_static(Loqui:Profile:Factory *factory) {
+	get_profile_type_name_static(Loqui:Profile:Factory *factory) {
 		Self *self;
 
 		self = SELF(factory);

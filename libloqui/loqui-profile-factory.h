@@ -39,13 +39,13 @@ struct _LoquiProfileFactoryIface
 {
         GTypeInterface parent;
 
-	gchar * (* get_type_name_static) (LoquiProfileFactory *self);
+	gchar * (* get_profile_type_name_static) (LoquiProfileFactory *self);
 	LoquiProfile * (* create_profile) (LoquiProfileFactory *self);
 };
 
 GType loqui_profile_factory_get_type(void) G_GNUC_CONST;
 
-G_CONST_RETURN gchar *loqui_profile_factory_get_type_name_static(LoquiProfileFactory *self);
+G_CONST_RETURN gchar *loqui_profile_factory_get_profile_type_name_static(LoquiProfileFactory *self);
 LoquiProfile *loqui_profile_factory_create_profile(LoquiProfileFactory *self);
 
 G_END_DECLS

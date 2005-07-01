@@ -78,6 +78,6 @@ loqui_profile_factory_get_type(void)
         return type;
 }
 
-LOQUI_DEFINE_INTERFACE_METHOD_CALLER_ARG0_WITH_RETURN(LoquiProfileFactory, loqui_profile_factory, get_type_name_static, G_CONST_RETURN gchar *)
+LOQUI_DEFINE_INTERFACE_METHOD_CALLER_ARG0_WITH_RETURN(LoquiProfileFactory, loqui_profile_factory, get_profile_type_name_static, G_CONST_RETURN gchar *)
 LOQUI_DEFINE_INTERFACE_METHOD_CALLER_ARG0_WITH_RETURN(LoquiProfileFactory, loqui_profile_factory, create_profile, LoquiProfile *)
 
