@@ -38,8 +38,8 @@ struct _LoquiProfileIface
 {
         GTypeInterface parent;
 
-	void (* set_type_name) (LoquiProfile *self, const gchar *type_name);
-	gchar * (* get_type_name) (LoquiProfile *self); /* dynamic */
+	void (* set_profile_type_name) (LoquiProfile *self, const gchar *type_name);
+	gchar * (* get_profile_type_name) (LoquiProfile *self); /* dynamic */
 	
 	void (* set_profile_value) (LoquiProfile *self, const gchar *key, const GValue *value);
 	void (* get_profile_value) (LoquiProfile *self, const gchar *key, GValue *value);
@@ -50,8 +50,8 @@ struct _LoquiProfileIface
 
 GType loqui_profile_get_type(void) G_GNUC_CONST;
 
-void loqui_profile_set_type_name(LoquiProfile *self, const gchar *type_name);
-gchar *loqui_profile_get_type_name(LoquiProfile *self);
+void loqui_profile_set_profile_type_name(LoquiProfile *self, const gchar *type_name);
+gchar *loqui_profile_get_profile_type_name(LoquiProfile *self);
 
 void loqui_profile_set_profile_value(LoquiProfile *self, const gchar *key, const GValue *value);
 void loqui_profile_get_profile_value(LoquiProfile *self, const gchar *key, GValue *value);

@@ -65,7 +65,7 @@ class Loqui:Generic:Profile:Factory from G:Object (interface Loqui:Profile:Facto
 
 		self = SELF(factory);
 		profile = LOQUI_PROFILE(g_object_new(selfp->type, NULL));
-		loqui_profile_set_type_name(profile, selfp->name);
+		loqui_profile_set_profile_type_name(profile, selfp->name);
 		return profile;
 	}
 }

@@ -36,14 +36,14 @@ class Loqui:Property:Profile from G:Object (interface Loqui:Profile)
 	public gchar *type_name = NULL unrefwith g_free;
 
 	interface Loqui:Profile
-	private gchar * get_type_name(Loqui:Profile *profile) {
+	private gchar * get_profile_type_name(Loqui:Profile *profile) {
 		Self *self = SELF(profile);
 
 		return self->type_name;
 	}
 
 	interface Loqui:Profile
-	private void set_type_name(Loqui:Profile *profile, const gchar *type_name) {
+	private void set_profile_type_name(Loqui:Profile *profile, const gchar *type_name) {
 		Self *self = SELF(profile);
 
 		G_FREE_UNLESS_NULL(self->type_name);
@@ -59,7 +59,6 @@ class Loqui:Property:Profile from G:Object (interface Loqui:Profile)
 	private void get_profile_value(Loqui:Profile *profile, const gchar *key, GValue *value) {
 		g_object_get_property(G_OBJECT(profile), key, value);
 	}
-
 		
 	interface Loqui:Profile
 	private GType get_profile_value_type(LoquiProfile *profile, const gchar *key, const gchar *type_hint) {
