@@ -89,6 +89,7 @@ SRC_LIBRARY_CORE = \
 
 BUILT_SOURCES := loqui_marshalers.c loqui_marshalers.h \
 	gob_to_built_sources(M4_SRC_LIBRARY_CORE_GOB) \
+	gob_to_built_sources(M4_SRC_PROTOCOL_BASE_BASE_GOB) \
 	gob_to_built_sources(M4_SRC_PROTOCOL_BASE_GOB) \
 	gob_to_built_sources(M4_SRC_PROTOCOL_IPMSG_GOB)
 
