@@ -26,7 +26,7 @@
 #include "loqui_user_ipmsg.h"
 /* #include "loqui_channel_ipmsg.h" */
 #include "loqui-sender-ipmsg.h"
-/* #include "loqui_receiver_ipmsg.h" */
+#include "loqui-receiver-ipmsg.h"
 #include "loqui_profile_account_ipmsg.h"
 #include "loqui_codeconv.h"
 
@@ -89,8 +89,7 @@ loqui_protocol_ipmsg_init(LoquiProtocolIPMsg *protocol)
 /*	LOQUI_PROTOCOL(protocol)->type_channel = LOQUI_TYPE_CHANNEL_IPMSG; */
 	LOQUI_PROTOCOL(protocol)->type_channel = LOQUI_TYPE_CHANNEL;
 	LOQUI_PROTOCOL(protocol)->type_sender = LOQUI_TYPE_SENDER_IPMSG;
-/*	LOQUI_PROTOCOL(protocol)->type_receiver = LOQUI_TYPE_RECEIVER_IPMSG; */
-	LOQUI_PROTOCOL(protocol)->type_receiver = LOQUI_TYPE_RECEIVER;
+	LOQUI_PROTOCOL(protocol)->type_receiver = LOQUI_TYPE_RECEIVER_IPMSG;
 	LOQUI_PROTOCOL(protocol)->type_profile_account = LOQUI_TYPE_PROFILE_ACCOUNT_IPMSG;
 
 	loqui_protocol_set_identifier(LOQUI_PROTOCOL(protocol), "IPMsg");
