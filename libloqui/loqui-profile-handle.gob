@@ -160,7 +160,7 @@ class Loqui:Profile:Handle from G:Object {
 			g_set_error(error,
 				    G_MARKUP_ERROR,
 				    G_MARKUP_ERROR_UNKNOWN_ELEMENT,
-				    _("Invalid element: the parent of '%s'.does not exist (%s)."), self_get_element_name(current->elem_type), at);
+				    _("Invalid element: the parent of '%s' does not exist (%s)."), self_get_element_name(current->elem_type), at);
 			return FALSE;
 		}
 
