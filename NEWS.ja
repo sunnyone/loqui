@@ -1,5 +1,12 @@
 --- 
 -
+  date: 2005-07-02
+  version: 0.4.0pre3
+  changes:
+    - アカウント設定ファイルの管理方法の大幅変更。
+    - IP Messengerプロトコルのサポート(実験的)。
+    - チャンネルを選択し直さないとjoined情報が更新されない問題の修正。
+-
   date: 2005-05-25
   version: 0.4.0pre2
   changes:

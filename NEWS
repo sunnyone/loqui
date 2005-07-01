@@ -1,5 +1,13 @@
 --- 
 -
+  date: 2005-07-02
+  version: 0.4.0pre3
+  changes:
+    - Changed the implementation of the management of account profiles.
+    - Supports IP Messenger protocol (Experimental).
+    - Fixed the problem the program doesn't update information of current channel about joined/parted.
+
+-
   date: 2005-05-25
   version: 0.4.0pre2
   changes:
