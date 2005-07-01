@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: loqui 0.1.20\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2005-05-25 20:09+0900\n"
-"PO-Revision-Date: 2004-10-30 01:43+0900\n"
+"POT-Creation-Date: 2005-07-02 02:32+0900\n"
+"PO-Revision-Date: 2005-07-02 02:27+0900\n"
 "Last-Translator: Yoichi Imai <yoichi@silver-forest.com>\n"
 "Language-Team: Japanese <ja@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -68,6 +68,74 @@ msgstr ""
 msgid "Group name"
 msgstr ""
 
+#: libloqui/loqui-profile-handle.gob:163
+#, c-format
+msgid "Invalid element: the parent of '%s' does not exist (%s)."
+msgstr "不正な要素: '%s'の親が存在しません (%s)"
+
+#: libloqui/loqui-profile-handle.gob:171
+#, c-format
+msgid "Invalid element: the parent of '%s' is not '%s' but '%s' (%s)"
+msgstr "不正なオブジェクト要素: '%s'の親要素が'%s'ではなく'%s'です (%s)"
+
+#: libloqui/loqui-profile-handle.gob:224 libloqui/loqui-profile-handle.gob:475
+#, c-format
+msgid "Unsupported element '%s'"
+msgstr "非対応要素: %s"
+
+#: libloqui/loqui-profile-handle.gob:239
+#, c-format
+msgid "Invalid element '%s': document element is not profile"
+msgstr "不正な要素 '%s': 文書要素がprofileではありません。"
+
+#: libloqui/loqui-profile-handle.gob:256
+msgid "Invalid content: profile has no type'"
+msgstr "不正な内容: プロフィールが型情報を持っていません"
+
+#: libloqui/loqui-profile-handle.gob:284
+#, c-format
+msgid "Invalid param: doesn't have a key: '%s'"
+msgstr ""
+
+#: libloqui/loqui-profile-handle.gob:295
+#, c-format
+msgid "Invalid param key: '%s' (line %d, char %d)"
+msgstr ""
+
+#: libloqui/loqui-profile-handle.gob:304
+#, c-format
+msgid "Element spec should be set ('%s')"
+msgstr ""
+
+#: libloqui/loqui-profile-handle.gob:370
+#, c-format
+msgid "Invalid item: invalid data '%s' (%s, item)"
+msgstr ""
+
+#: libloqui/loqui-profile-handle.gob:389
+#, c-format
+msgid "Invalid param: invalid data '%s' (type: %s)"
+msgstr ""
+
+#: libloqui/loqui-profile-handle.gob:484
+#, c-format
+msgid "Don't correspond with start tag: current: %s, queued: %s"
+msgstr ""
+
+#: libloqui/loqui-profile-handle.gob:522
+msgid "The profile element doesn't have parent element"
+msgstr ""
+
+#: libloqui/loqui-profile-handle.gob:608
+#, c-format
+msgid "LoquiProfile parse error: %s"
+msgstr ""
+
+#: libloqui/loqui-profile-handle.gob:711
+#, c-format
+msgid "ProfileHandle: Unsupported type: %s."
+msgstr ""
+
 #: libloqui/loqui-receiver-ipmsg.gob:58
 msgid "Invalid IP address or port"
 msgstr ""
@@ -114,7 +182,7 @@ msgstr ""
 msgid "user self"
 msgstr ""
 
-#: libloqui/loqui_account.c:150 src/loqui-account-dialog.gob:236
+#: libloqui/loqui_account.c:150 src/loqui-account-dialog.gob:270
 msgid "Profile"
 msgstr "プロファイル"
 
@@ -191,7 +259,7 @@ msgstr "接続しました。"
 msgid "Sent initial commands."
 msgstr "初期コマンドを送信しました。"
 
-#: libloqui/loqui_account_irc.c:436 libloqui/msn_login.c:252
+#: libloqui/loqui_account_irc.c:436 libloqui/msn_login.c:251
 msgid "Connection closed."
 msgstr ""
 
@@ -318,7 +386,7 @@ msgid "Do sort or don't sort"
 msgstr ""
 
 #: libloqui/loqui_member.c:169 libloqui/loqui_member.c:170
-#: src/loqui-account-dialog.gob:246
+#: src/loqui-account-dialog.gob:280
 msgid "User"
 msgstr "ユーザ"
 
@@ -357,7 +425,7 @@ msgid "Account name"
 msgstr "アカウントの名前"
 
 #: libloqui/loqui_message_text.c:117 libloqui/loqui_profile_account.c:268
-#: libloqui/loqui_user.c:228 src/loqui-account-dialog.gob:355
+#: libloqui/loqui_user.c:228 src/loqui-account-dialog.gob:389
 #: src/nick_list.c:467
 msgid "Nick"
 msgstr "Nick"
@@ -482,108 +550,6 @@ msgstr "Quitメッセージ"
 
 #: libloqui/loqui_profile_account_irc.c:206
 msgid "Default quit message"
-msgstr ""
-
-#: libloqui/loqui_profile_handle.c:258
-#, c-format
-msgid "Invalid element '%s': should be 'profiles'"
-msgstr "不正な要素 '%s': 'プロフィール'である必要があります"
-
-#: libloqui/loqui_profile_handle.c:272
-msgid "Invalid content: profile has no type'"
-msgstr "不正な内容: プロフィールが型情報を持っていません"
-
-#: libloqui/loqui_profile_handle.c:291
-#, c-format
-msgid "Invalid element '%s': should be 'profile'"
-msgstr "不正な要素 '%s': 'プロフィール'である必要があります"
-
-#: libloqui/loqui_profile_handle.c:301
-msgid "Invalid element: why is not in profile?"
-msgstr "不正な要素: なぜ'プロフィール'に含まれていないのですか？"
-
-#: libloqui/loqui_profile_handle.c:312
-#, c-format
-msgid "Invalid param: doesn't have a key: '%s'"
-msgstr ""
-
-#: libloqui/loqui_profile_handle.c:321
-#, c-format
-msgid "Invalid param key: '%s'"
-msgstr ""
-
-#: libloqui/loqui_profile_handle.c:343
-msgid "Invalid object element: parent is not object type"
-msgstr "不正なオブジェクト要素: 親要素がオブジェクト型ではありません"
-
-#: libloqui/loqui_profile_handle.c:353 src/prefs_general_upgrader.c:169
-#, c-format
-msgid "Invalid element: %s"
-msgstr "不正な要素: %s"
-
-#: libloqui/loqui_profile_handle.c:399
-msgid "null value array"
-msgstr ""
-
-#: libloqui/loqui_profile_handle.c:425
-msgid "object item not in value array of object"
-msgstr ""
-
-#: libloqui/loqui_profile_handle.c:443
-msgid "null object"
-msgstr ""
-
-#: libloqui/loqui_profile_handle.c:545
-msgid "Invalid item: doesn't have pspec"
-msgstr ""
-
-#: libloqui/loqui_profile_handle.c:552
-msgid "Invalid item: not list param"
-msgstr ""
-
-#: libloqui/loqui_profile_handle.c:559
-msgid "Invalid item: doesn't have value_array"
-msgstr ""
-
-#: libloqui/loqui_profile_handle.c:567
-msgid "Invalid item: can't determine element type"
-msgstr ""
-
-#: libloqui/loqui_profile_handle.c:574
-#, c-format
-msgid "Invalid item: invalid data '%s'"
-msgstr ""
-
-#: libloqui/loqui_profile_handle.c:586
-msgid "Invalid param: doesn't have pspec"
-msgstr "無効なパラメータ: pspecを持っていません"
-
-#: libloqui/loqui_profile_handle.c:596
-msgid "Invalid param: doesn't have obj"
-msgstr "無効なパラメータ: objを持っていません"
-
-#: libloqui/loqui_profile_handle.c:603
-#, c-format
-msgid "Invalid param: invalid data '%s'"
-msgstr ""
-
-#: libloqui/loqui_profile_handle.c:620
-#, c-format
-msgid "LoquiProfileHandle parse error: %s"
-msgstr "LoquiProfileHandle parse error: %s"
-
-#: libloqui/loqui_profile_handle.c:711
-#, c-format
-msgid "LoquiProfile parse error: %s"
-msgstr ""
-
-#: libloqui/loqui_profile_handle.c:764
-msgid "ProfileHandle: Set element spec."
-msgstr ""
-
-#: libloqui/loqui_profile_handle.c:821
-#, c-format
-msgid "ProfileHandle: Unsupported type: %s."
 msgstr ""
 
 #: libloqui/loqui_protocol_ipmsg.c:44 libloqui/loqui_protocol_irc.c:44
@@ -1078,7 +1044,7 @@ msgstr ""
 msgid "Sending version information..."
 msgstr ""
 
-#: libloqui/msn_login.c:307
+#: libloqui/msn_login.c:304
 #, c-format
 msgid "Connecting to login server (%s:%d)"
 msgstr "login server (%s:%d) に接続しています"
@@ -1143,7 +1109,7 @@ msgid "Start private talk with the user in %s"
 msgstr "%sのユーザとプライベートトークを開始する"
 
 #: src/command_dialog.c:127 src/command_dialog.c:251
-#: src/loqui-account-dialog.gob:252
+#: src/loqui-account-dialog.gob:286
 msgid "Nickname:"
 msgstr "ニックネーム:"
 
@@ -1209,87 +1175,87 @@ msgstr ""
 msgid "Unable to determine color: %s"
 msgstr "色の識別ができません: %s"
 
-#: src/loqui-account-dialog.gob:241
+#: src/loqui-account-dialog.gob:275
 msgid "Account name:"
 msgstr "アカウントの名前:"
 
-#: src/loqui-account-dialog.gob:243
+#: src/loqui-account-dialog.gob:277
 msgid "Connect by default"
 msgstr "デフォルトで接続する"
 
-#: src/loqui-account-dialog.gob:253
+#: src/loqui-account-dialog.gob:287
 msgid "User name:"
 msgstr "ユーザ名:"
 
-#: src/loqui-account-dialog.gob:254
+#: src/loqui-account-dialog.gob:288
 msgid "Password:"
 msgstr "パスワード:"
 
-#: src/loqui-account-dialog.gob:257
+#: src/loqui-account-dialog.gob:291
 msgid "Server"
 msgstr "サーバ"
 
-#: src/loqui-account-dialog.gob:263
+#: src/loqui-account-dialog.gob:297
 msgid "Hostname:"
 msgstr "ホスト名:"
 
-#: src/loqui-account-dialog.gob:264
+#: src/loqui-account-dialog.gob:298
 msgid "Port:"
 msgstr "ポート:"
 
-#: src/loqui-account-dialog.gob:273
+#: src/loqui-account-dialog.gob:307
 msgid "IRC"
 msgstr "IRC"
 
-#: src/loqui-account-dialog.gob:275
+#: src/loqui-account-dialog.gob:309
 msgid "Realname:"
 msgstr "本名:"
 
-#: src/loqui-account-dialog.gob:276
+#: src/loqui-account-dialog.gob:310
 msgid "User information:"
 msgstr "ユーザ情報:"
 
-#: src/loqui-account-dialog.gob:277
+#: src/loqui-account-dialog.gob:311
 msgid "Auto join channels:"
 msgstr "自動joinチャンネル:"
 
-#: src/loqui-account-dialog.gob:278
+#: src/loqui-account-dialog.gob:312
 msgid "Quit message:"
 msgstr "Quitメッセージ: "
 
-#: src/loqui-account-dialog.gob:292
+#: src/loqui-account-dialog.gob:326
 msgid "Code"
 msgstr "コード"
 
-#: src/loqui-account-dialog.gob:294
+#: src/loqui-account-dialog.gob:328
 msgid "Code convertion"
 msgstr "コード変換"
 
-#: src/loqui-account-dialog.gob:300
+#: src/loqui-account-dialog.gob:334
 msgid "Automatic detection by locale"
 msgstr "ロケール情報から自動判定する"
 
-#: src/loqui-account-dialog.gob:306
+#: src/loqui-account-dialog.gob:340
 msgid "No convertion"
 msgstr "コード変換をしない"
 
-#: src/loqui-account-dialog.gob:313
+#: src/loqui-account-dialog.gob:347
 msgid "Select from the table"
 msgstr "一覧から選択する"
 
-#: src/loqui-account-dialog.gob:333
+#: src/loqui-account-dialog.gob:367
 msgid "Specify codeset"
 msgstr "特別なコードセットを使用する"
 
-#: src/loqui-account-dialog.gob:343
+#: src/loqui-account-dialog.gob:377
 msgid "Codeset: "
 msgstr "コードセット: "
 
-#: src/loqui-account-dialog.gob:358
+#: src/loqui-account-dialog.gob:392
 msgid "List of often used nick(Separate each words with linefeeds)"
 msgstr "よく使われるNickのリスト(各語を改行で区切ってください)"
 
-#: src/loqui-account-dialog.gob:446
+#: src/loqui-account-dialog.gob:499
 msgid ""
 "This account's configuration and connection will be removed.\n"
 "Do you really want to remove this account?"
@@ -1310,6 +1276,14 @@ msgstr "%sの保存に失敗しました"
 #: src/loqui-core-gtk.gob:156
 #, c-format
 msgid "Invalid \"%s\""
+msgstr ""
+
+#: src/loqui-protocol-selection-dialog.gob:110
+msgid "Protocol Selection"
+msgstr ""
+
+#: src/loqui-protocol-selection-dialog.gob:123
+msgid "Choose a protocol."
 msgstr ""
 
 #: src/loqui-style-entry.gob:16
@@ -1974,6 +1948,11 @@ msgstr "デフォルト:"
 msgid "Title format of statusbar"
 msgstr "ステータスバーの書式指定"
 
+#: src/prefs_general_upgrader.c:169
+#, c-format
+msgid "Invalid element: %s"
+msgstr "不正な要素: %s"
+
 #: src/prefs_general_upgrader.c:178
 #, c-format
 msgid "prefs_general: Invalid attribute for entry: %s"
@@ -2021,6 +2000,21 @@ msgstr "IRCアカウント以外を使っています"
 #: src/remark_entry.c:609
 msgid "No channel is selected"
 msgstr "チャンネルが選択されていません"
+
+#~ msgid "Invalid element '%s': should be 'profiles'"
+#~ msgstr "不正な要素 '%s': 'プロフィール'である必要があります"
+
+#~ msgid "Invalid element: why is not in profile?"
+#~ msgstr "不正な要素: なぜ'プロフィール'に含まれていないのですか？"
+
+#~ msgid "Invalid param: doesn't have pspec"
+#~ msgstr "無効なパラメータ: pspecを持っていません"
+
+#~ msgid "Invalid param: doesn't have obj"
+#~ msgstr "無効なパラメータ: objを持っていません"
+
+#~ msgid "LoquiProfileHandle parse error: %s"
+#~ msgstr "LoquiProfileHandle parse error: %s"
 
 #~ msgid "_Connect Current Account"
 #~ msgstr "現在のアカウントを接続する"
