@@ -174,7 +174,7 @@ class Loqui:Account:Dialog from Gtk:Dialog {
 		self_save_general(self, profile);
 		
 		if (LOQUI_IS_PROFILE_ACCOUNT_IRC(profile)) {
-			self_load_irc(self, LOQUI_PROFILE_ACCOUNT_IRC(profile));
+			self_save_irc(self, LOQUI_PROFILE_ACCOUNT_IRC(profile));
 		}
 	}
 
@@ -199,6 +199,17 @@ class Loqui:Account:Dialog from Gtk:Dialog {
 				   LOQUI_UTILS_EMPTY_IF_NULL(loqui_profile_account_get_name(profile)));
         	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(selfp->check_use),
 					     loqui_profile_account_get_use(profile));
+
+                gtk_entry_set_text(GTK_ENTRY(selfp->entry_nick),
+                                   LOQUI_UTILS_EMPTY_IF_NULL(loqui_profile_account_get_nick(profile)));
+                gtk_entry_set_text(GTK_ENTRY(selfp->entry_username),
+                                   LOQUI_UTILS_EMPTY_IF_NULL(loqui_profile_account_get_username(profile)));
+                gtk_entry_set_text(GTK_ENTRY(selfp->entry_password),
+                                   LOQUI_UTILS_EMPTY_IF_NULL(loqui_profile_account_get_password(profile)));
+                gtk_entry_set_text(GTK_ENTRY(selfp->entry_servername),
+                                   LOQUI_UTILS_EMPTY_IF_NULL(loqui_profile_account_get_servername(profile)));
+                gtk_spin_button_set_value(GTK_SPIN_BUTTON(selfp->spin_port),
+                                          loqui_profile_account_get_port(profile));
 
 		table = loqui_protocol_get_codeconv_table(loqui_profile_account_get_protocol(profile));
         	name = loqui_profile_account_get_codeconv_item_name(profile);
