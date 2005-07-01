@@ -298,6 +298,7 @@ loqui_account_manager_load_accounts(LoquiAccountManager *account_manager)
 	LoquiProfileHandle *handle;
 	LoquiAccount *account;
 	LoquiProfileAccount *profile;
+	GList *factory_list;
 
         g_return_if_fail(account_manager != NULL);
         g_return_if_fail(LOQUI_IS_ACCOUNT_MANAGER(account_manager));
@@ -305,7 +306,11 @@ loqui_account_manager_load_accounts(LoquiAccountManager *account_manager)
         priv = account_manager->priv;
 
 	path = g_build_filename(loqui_core_get_user_dir(loqui_get_core()), ACCOUNT_CONFIG_FILENAME, NULL);
-	handle = loqui_profile_handle_new(account_manager->protocol_manager);
+
+	factory_list = loqui_protocol_manager_get_protocol_list(account_manager->protocol_manager);
+	handle = loqui_profile_handle_new(factory_list);
+	g_list_free(factory_list);
+
 	loqui_profile_handle_read_from_file(handle, &list, path);
 
 	for(cur = list; cur != NULL; cur = cur->next) {
@@ -326,6 +331,7 @@ loqui_account_manager_save_accounts(LoquiAccountManager *account_manager)
 	GList *list = NULL;
 	gchar *path;
 	LoquiProfileHandle *handle;
+	GList *factory_list;
 
         g_return_if_fail(account_manager != NULL);
         g_return_if_fail(LOQUI_IS_ACCOUNT_MANAGER(account_manager));
@@ -335,7 +341,11 @@ loqui_account_manager_save_accounts(LoquiAccountManager *account_manager)
 	}
 
 	path = g_build_filename(loqui_core_get_user_dir(loqui_get_core()), ACCOUNT_CONFIG_FILENAME, NULL);
-	handle = loqui_profile_handle_new(account_manager->protocol_manager);
+
+	factory_list = loqui_protocol_manager_get_protocol_list(account_manager->protocol_manager);
+	handle = loqui_profile_handle_new(factory_list);
+	g_list_free(factory_list);
+
 	loqui_profile_handle_write_to_file(handle, list, path);
 	g_object_unref(handle);
 	g_list_free(list);

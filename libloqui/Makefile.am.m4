@@ -72,13 +72,12 @@ SRC_PROTOCOL_MSN = \
 	loqui_account_msn.c loqui_account_msn.h \
 	msn_constants.h
 
-define(`M4_SRC_LIBRARY_CORE_GOB',`loqui-core.gob loqui-pref.gob loqui-pref-partial.gob loqui-pref-sequence.gob')dnl
+define(`M4_SRC_LIBRARY_CORE_GOB',`loqui-core.gob loqui-pref.gob loqui-pref-partial.gob loqui-pref-sequence.gob loqui-profile-handle.gob')dnl
 
 SRC_LIBRARY_CORE = \
 	libloqui-intl.h \
 	loqui_protocol_manager.c loqui_protocol_manager.h \
 	loqui_member_sort_funcs.c loqui_member_sort_funcs.h \
-	loqui-profile-handle.c loqui-profile-handle.h \
 	loqui-general-pref-groups.h loqui-general-pref-default.h \
 	loqui_account_manager.c loqui_account_manager.h \
 	loqui_account_manager_iter.c loqui_account_manager_iter.h \

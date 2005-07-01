@@ -1,0 +1,807 @@
+requires 2.0.0
+
+%alltop{
+/*
+ * libloqui -- Chat/IM client library for GLib <http://loqui.good-day.net/>
+ * Copyright (C) 2004 Yoichi Imai <yoichi@silver-forest.com>
+ *
+ * This Library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Library General Public License as
+ * published by the Free Software Foundation; either version 2 of the
+ * License, or (at your option) any later version.
+ *
+ * This Library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Library General Public License for more details.
+ *
+ * You should have received a copy of the GNU Library General Public
+ * License along with the Gnome Library; see the file COPYING.LIB.  If not,
+ * write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+ * Boston, MA 02111-1307, USA.
+ */
+%}
+
+%h{
+#include "loqui_profile_account.h"
+#include "loqui_protocol_manager.h"
+%}
+
+%{
+#undef G_LOG_DOMAIN
+#include "config.h"
+
+#include "loqui-profile-handle.h"
+#include "loqui-profile-handle-private.h"
+#include <libloqui-intl.h>
+
+#include <string.h>
+
+typedef enum {
+	ELEMENT_INVALID = 0,
+	ELEMENT_PROFILES,
+	ELEMENT_PROFILE,
+	ELEMENT_PARAM,
+	ELEMENT_LIST,
+	ELEMENT_ITEM,
+} ElementType;
+
+typedef struct _ElementSpec {
+	ElementType elem_type;
+	gchar *name;
+} ElementSpec;
+
+ElementSpec element_spec_table[] = {
+	{ ELEMENT_PROFILES, "profiles" },
+	{ ELEMENT_PROFILE, "profile" },
+	{ ELEMENT_PARAM, "param" },
+	{ ELEMENT_LIST, "list" },
+	{ ELEMENT_ITEM, "item" },
+	{ ELEMENT_INVALID, NULL },
+};
+
+typedef struct _Element {
+	ElementType elem_type;
+
+	gboolean is_skip;
+
+	LoquiProfile *profile; /* for profile */
+	gchar *key;
+
+	GValueArray *value_array; /* for list */
+
+	GParamSpec *pspec; /* for param */
+} Element;
+
+#define GET_CURRENT_ELEMENT(handle) GPOINTER_TO_INT(g_queue_peek_tail(handle->priv->element_queue))
+%}
+
+
+class Loqui:Profile:Handle from G:Object {
+        public LoquiProtocolManager *protocol_manager;
+
+        private GMarkupParseContext *context;
+        
+        private int skip_profile_count;
+        private int skip_param_count;
+        
+        private GQueue *element_queue;
+        private GList *profile_list = NULL;
+	private GList *profile_factory_list = NULL unrefwith g_list_free;
+
+	private ElementType
+	get_element_type(const gchar *str) {
+		int i;
+		for (i = 0; element_spec_table[i].elem_type != ELEMENT_INVALID; i++) {
+			if (strcmp(element_spec_table[i].name, str) == 0) {
+				return element_spec_table[i].elem_type;
+			}
+		}
+		return ELEMENT_INVALID;
+	}
+
+	private /*G_CONST_RETURN*/ gchar *
+	get_element_name(ElementType elem_type) {
+		int i;
+		for (i = 0; element_spec_table[i].elem_type != ELEMENT_INVALID; i++) {
+			if (element_spec_table[i].elem_type == elem_type) {
+				return element_spec_table[i].name;
+			}
+		}
+
+		return NULL;
+	}
+
+	private Element *
+	create_element(ElementType elem_type) {
+		Element *elem;
+
+		elem = g_new0(Element, 1);
+		elem->elem_type = elem_type;
+
+		return elem;
+	}
+	private void
+	free_element(Element *elem) {
+		if (elem->profile)
+			g_object_unref(elem->profile);
+		if (elem->value_array)
+			g_value_array_free(elem->value_array);
+		G_FREE_UNLESS_NULL(elem->key);
+
+		if (elem->pspec)
+			g_param_spec_unref(elem->pspec);
+
+		g_free(elem);
+	}
+
+	private LoquiProfileFactory *
+	get_profile_factory_by_type_name(self, const gchar *type_name) {
+		GList *cur;
+		LoquiProfileFactory *factory;
+		
+		g_return_val_if_fail(type_name != NULL, NULL);
+
+		for (cur = selfp->profile_factory_list; cur != NULL; cur = cur->next) {
+			factory = LOQUI_PROFILE_FACTORY(cur->data);
+			
+			if (strcmp(loqui_profile_factory_get_profile_type_name_static(factory), type_name) == 0)
+				return factory;
+		}
+		
+		return NULL;
+	}
+
+	private gboolean
+	validate_parent_element(Element *current, Element *parent, ElementType original_type, const gchar *at, GError **error) {
+		g_return_val_if_fail(current != NULL, FALSE);
+
+		if (parent == NULL) {
+			g_set_error(error,
+				    G_MARKUP_ERROR,
+				    G_MARKUP_ERROR_UNKNOWN_ELEMENT,
+				    _("Invalid element: the parent of '%s'.does not exist (%s)."), self_get_element_name(current->elem_type), at);
+			return FALSE;
+		}
+
+		if (parent->elem_type != original_type) {
+			g_set_error(error,
+				    G_MARKUP_ERROR,
+				    G_MARKUP_ERROR_UNKNOWN_ELEMENT,
+				    _("Invalid element: the parent of '%s' is not '%s' but '%s' (%s)"),
+				    self_get_element_name(current->elem_type), 
+				    self_get_element_name(original_type),
+				    self_get_element_name(parent->elem_type),
+				    at);
+			return FALSE;
+		}
+
+		return TRUE;
+	}
+
+	private void
+	peek_parent_grand(self, Element **current, Element **parent, Element **grand) {
+		guint n;
+
+		n = g_queue_get_length(selfp->element_queue);
+		if (current) {
+			*current = g_queue_peek_tail(selfp->element_queue);
+		}
+		if (parent) {
+			*parent = g_queue_peek_nth(selfp->element_queue, n - 2);
+		}
+		if (grand) {
+			*grand = g_queue_peek_nth(selfp->element_queue, n - 3);
+		}
+	}
+
+        private void
+        start_element_handler(GMarkupParseContext *context,
+			      const gchar         *element_name,
+			      const gchar        **attribute_names,
+			      const gchar        **attribute_values,
+			      gpointer             user_data,
+			      GError             **error) {
+		Self *self;
+
+		const gchar *type_id;
+		const gchar *key;
+		Element *parent, *elem;
+        	ElementType elem_type;
+		LoquiProfileFactory *factory;
+		GParamSpec *pspec;
+		gint line_num, char_num;
+
+                g_return_if_fail(user_data != NULL);
+                g_return_if_fail(IS_SELF(user_data));
+        
+                self = SELF(user_data);
+
+		if ((elem_type = self_get_element_type(element_name)) == ELEMENT_INVALID) {
+			g_set_error(error,
+				    G_MARKUP_ERROR,
+				    G_MARKUP_ERROR_UNKNOWN_ELEMENT,
+				    _("Unsupported element '%s'"), element_name);
+			return;
+		}
+
+		parent = g_queue_peek_tail(selfp->element_queue);
+		if (parent != NULL &&
+		    parent->is_skip) {
+			return;
+		}
+
+		if (parent == NULL &&
+		    elem_type != ELEMENT_PROFILES) {
+			g_set_error(error,
+				    G_MARKUP_ERROR,
+				    G_MARKUP_ERROR_UNKNOWN_ELEMENT,
+				    _("Invalid element '%s': document element is not profile"), element_name);
+			return;
+		}
+
+		elem = self_create_element(elem_type);
+
+		switch (elem_type) {
+		case ELEMENT_PROFILES:
+			break;
+		case ELEMENT_PROFILE:
+			if (!self_validate_parent_element(elem, parent, ELEMENT_PROFILES, "start-profile", error))
+				goto error;
+
+			if ((type_id = self_parse_attribute("type", attribute_names, attribute_values)) == NULL) {
+				g_set_error(error,
+					    G_MARKUP_ERROR,
+					    G_MARKUP_ERROR_INVALID_CONTENT,
+					    _("Invalid content: profile has no type'"));
+
+				goto error;
+			}
+			
+			if ((factory = self_get_profile_factory_by_type_name(self, type_id)) == NULL) {
+				/* g_set_error(error,
+				   G_MARKUP_ERROR,
+				   G_MARKUP_ERROR_INVALID_CONTENT,
+				   _("Invalid content: type '%s' not found'"), type_id); */
+				g_markup_parse_context_get_position(context, &line_num, &char_num);
+				g_warning("ProfileHandle: can't find a ProfileFactory for type '%s'. (line %d, char %d)", type_id, line_num, char_num);
+				elem->is_skip = TRUE;
+
+				break;
+			}
+			elem->profile = loqui_profile_factory_create_profile(factory);
+			break;
+
+		case ELEMENT_PARAM:
+			if (!self_validate_parent_element(elem, parent, ELEMENT_PROFILE, "start-param", error))
+				goto error;
+
+        		key = self_parse_attribute("key", attribute_names, attribute_values);
+        		if (!key) {
+        			g_set_error(error,
+                   			    G_MARKUP_ERROR,
+                   			    G_MARKUP_ERROR_INVALID_CONTENT,
+                   			    _("Invalid param: doesn't have a key: '%s'"), key);
+				goto error;
+        		}
+
+			if ((pspec = loqui_profile_get_profile_value_spec(parent->profile, key, NULL)) == NULL) {
+        			/* g_set_error(error,
+                   			    G_MARKUP_ERROR,
+                   			    G_MARKUP_ERROR_INVALID_CONTENT,
+                   			    _("Invalid param key")); */
+        			elem->is_skip = TRUE;
+				g_markup_parse_context_get_position(context, &line_num, &char_num);
+        			g_warning(_("Invalid param key: '%s' (line %d, char %d)"), key, line_num, char_num);
+				
+                   		break;
+        		}
+			if (G_IS_PARAM_SPEC_VALUE_ARRAY(pspec) &&
+			    G_PARAM_SPEC_VALUE_ARRAY(pspec)->element_spec == NULL) {
+				g_set_error(error,
+                   			    G_MARKUP_ERROR,
+                   			    G_MARKUP_ERROR_INVALID_CONTENT,
+                   			    _("Element spec should be set ('%s')"), element_name);
+
+				goto error;
+			}
+
+			elem->pspec = g_param_spec_ref(pspec);
+			elem->key = g_strdup(key);
+
+			break;
+		case ELEMENT_LIST:
+			if (!self_validate_parent_element(elem, parent, ELEMENT_PARAM, "start-list", error))
+				goto error;
+			
+			elem->value_array = g_value_array_new(0);
+			break;
+		case ELEMENT_ITEM:
+			break;
+		default:
+			g_assert_not_reached();
+		}
+
+		g_queue_push_tail(selfp->element_queue, elem);
+		return;
+
+	error:
+		g_free(elem);
+		return;
+        }
+
+	private void
+	text_handler           (GMarkupParseContext *context,
+				const gchar         *text,
+				gsize                text_len,
+				gpointer             user_data,
+				GError             **error) {
+		Self *self;
+
+		GValue value = {0, };
+       
+       		Element *elem, *parent, *grand;
+		GParamSpec *pspec;
+
+		g_return_if_fail(user_data != NULL);
+		g_return_if_fail(IS_SELF(user_data));
+
+		self = SELF(user_data);
+
+		self_peek_parent_grand(self, &elem, &parent, &grand);
+
+		switch(elem->elem_type) {
+		case ELEMENT_ITEM:
+			if (!self_validate_parent_element(elem, parent, ELEMENT_LIST, "text-item,parent", error))
+				return;
+			/* should be checked with start_element */
+			g_assert(parent->value_array != NULL);
+
+			if (!self_validate_parent_element(parent, grand, ELEMENT_PARAM, "text-item,grand", error))
+				return;
+			g_assert(grand->pspec && G_IS_PARAM_SPEC_VALUE_ARRAY(grand->pspec));
+			
+			pspec = G_PARAM_SPEC_VALUE_ARRAY(grand->pspec)->element_spec;
+			g_value_init(&value, G_PARAM_SPEC_VALUE_TYPE(pspec));
+			if(!self_parse_text(text, &value)) {
+				g_set_error(error,
+					    G_MARKUP_ERROR,
+					    G_MARKUP_ERROR_INVALID_CONTENT,
+					    _("Invalid item: invalid data '%s' (%s, item)"), text, g_type_name(G_PARAM_SPEC_VALUE_TYPE(pspec)));
+			}
+			g_value_array_append(parent->value_array, &value);
+			g_value_unset(&value);
+			break;
+		case ELEMENT_PARAM:
+			g_assert(elem->pspec);
+			
+			if (!self_validate_parent_element(elem, parent, ELEMENT_PROFILE, "text-param", error))
+				return;
+			if (elem->pspec && G_IS_PARAM_SPEC_VALUE_ARRAY(elem->pspec))
+				break;
+
+			pspec = elem->pspec;
+			g_value_init(&value, G_PARAM_SPEC_VALUE_TYPE(pspec));
+			if(!self_parse_text(text, &value)) {
+				g_set_error(error,
+					    G_MARKUP_ERROR,
+					    G_MARKUP_ERROR_INVALID_CONTENT,
+					    _("Invalid param: invalid data '%s' (type: %s)"), text, g_type_name(G_PARAM_SPEC_VALUE_TYPE(pspec)));
+			}
+			loqui_profile_set_profile_value(parent->profile, elem->key, &value);
+			g_value_unset(&value);
+                
+			break;
+		default:
+			break;
+		}
+	}
+
+	
+        private gboolean
+        parse_text(const gchar *text, GValue *value) {
+        	guint64 i, j;
+        	gdouble d;
+        	GValue tmp = {0, };
+        	
+        	if (G_VALUE_HOLDS_STRING(value)) {
+        		g_value_set_string(value, text);
+        		return TRUE;
+        	}
+        	if (G_VALUE_HOLDS_BOOLEAN(value)) {
+        		if (g_ascii_strcasecmp(text, "false") == 0 || strcmp(text, "0") == 0)
+        			g_value_set_boolean(value, FALSE);
+        		else
+        			g_value_set_boolean(value, TRUE);
+        		return TRUE;
+        	}
+        	
+        	if (G_VALUE_HOLDS_UCHAR(value) ||
+        	    G_VALUE_HOLDS_UINT(value) ||
+        	    G_VALUE_HOLDS_ULONG(value) ||
+        	    G_VALUE_HOLDS_ENUM(value)) {
+        		g_value_init(&tmp, G_TYPE_UINT);
+        	    	i = g_ascii_strtoull(text, NULL, 10);
+        		g_value_set_uint(&tmp, (guint) MIN(i, G_MAXUINT));
+
+        		return g_value_transform(&tmp, value);
+        	    }
+        	if (G_VALUE_HOLDS_CHAR(value) ||
+        	    G_VALUE_HOLDS_INT(value) ||
+        	    G_VALUE_HOLDS_LONG(value)) {
+        		g_value_init(&tmp, G_TYPE_INT);
+        		if(*text == '+' || *text == '-') 
+        			i = g_ascii_strtoull(text+1, NULL, 10);
+        		else
+        			i = g_ascii_strtoull(text, NULL, 10);
+        		j = (int) MIN(i, G_MAXINT);
+        		if(*text == '-')
+        			j *= -1;
+        		g_value_set_int(&tmp, j);
+
+        		return g_value_transform(&tmp, value);
+        	    }
+        	if (G_VALUE_HOLDS_FLOAT(value)) {
+        		d = g_ascii_strtod(text, NULL);
+        		g_value_set_float(value, d);
+        		return TRUE;
+        	} else if (G_VALUE_HOLDS_DOUBLE(value)) {
+        		d = g_ascii_strtod(text, NULL);
+        		g_value_set_double(value, d);
+        		return TRUE;
+        	}
+        	return FALSE;
+        	
+        }
+
+	private void
+	end_element_handler(GMarkupParseContext *context,
+			    const gchar         *element_name,
+			    gpointer             user_data,
+			    GError             **error)	{
+		Self *self;
+		ElementType elem_type;
+		Element *elem, *parent, *grand;
+		GParamSpec *pspec;
+
+		GValue value = {0, };
+
+		self = SELF(user_data);
+
+		if ((elem_type = self_get_element_type(element_name)) == ELEMENT_INVALID) {
+			g_set_error(error,
+				    G_MARKUP_ERROR,
+				    G_MARKUP_ERROR_UNKNOWN_ELEMENT,
+				    _("Unsupported element '%s'"), element_name);
+			return;
+		}
+
+		self_peek_parent_grand(self, &elem, &parent, &grand);
+		if (elem == NULL || elem->elem_type != elem_type) {
+			g_set_error(error,
+				    G_MARKUP_ERROR,
+				    G_MARKUP_ERROR_UNKNOWN_ELEMENT,
+				    _("Don't correspond with start tag: current: %s, queued: %s"), element_name, self_get_element_name(elem->elem_type));
+			return;
+		}
+		g_queue_pop_tail(selfp->element_queue);
+
+		switch (elem_type) {
+		case ELEMENT_LIST:
+			if (!self_validate_parent_element(elem, parent, ELEMENT_PARAM, "end-list,parent", error))
+				break;
+			g_assert(parent->key);
+
+			pspec = parent->pspec;
+			if (!G_IS_PARAM_SPEC_VALUE_ARRAY(pspec)) {
+				g_warning("param '%s' is not for <list>", parent->key);
+				break;
+			}
+
+			g_assert(elem->value_array);
+			
+			if (!self_validate_parent_element(parent, grand, ELEMENT_PROFILE, "end-list,profile", error))
+				break;
+			g_assert(grand->profile);
+			
+			g_value_init(&value, G_TYPE_VALUE_ARRAY);
+			g_value_set_boxed(&value, elem->value_array);
+			loqui_profile_set_profile_value(grand->profile, parent->key, &value);
+			g_value_unset(&value);
+			break;
+		case ELEMENT_PARAM:
+			break;
+		case ELEMENT_ITEM:
+			break;
+		case ELEMENT_PROFILE:
+			g_assert(elem->profile);
+			if (!parent) {
+				g_set_error(error,
+					    G_MARKUP_ERROR,
+					    G_MARKUP_ERROR_UNKNOWN_ELEMENT,
+					    _("The profile element doesn't have parent element"));
+			}
+
+				
+			if (parent && parent->elem_type == ELEMENT_PROFILES)
+				selfp->profile_list = g_list_append(selfp->profile_list, g_object_ref(elem->profile));
+			/* TODO: child profile */
+			
+			break;
+		default:
+			break;
+		}
+
+		self_free_element(elem);
+	}
+
+        private /*G_CONST_RETURN*/ gchar *
+        parse_attribute(const gchar *key, const gchar **attribute_names, const gchar **attribute_values) {
+        	gint i;
+        	
+        	for (i = 0; attribute_names[i] != NULL; i++) {
+        		if (strcmp(attribute_names[i], key) == 0)
+        			return (gchar *) attribute_values[i];
+        	}
+        	return NULL;
+        }
+
+        private void
+        clear(self) {
+        	if (selfp->context) {
+        		g_markup_parse_context_free(selfp->context);
+        		selfp->context = NULL;
+        	}
+
+        	if (selfp->element_queue) {
+			g_queue_foreach(selfp->element_queue, (GFunc) self_free_element, NULL);
+        		g_queue_free(selfp->element_queue);
+
+        		selfp->element_queue = NULL;
+        	}
+
+        	if (selfp->profile_list) {
+        		g_list_foreach(selfp->profile_list, (GFunc) g_object_unref, NULL);
+        		g_list_free(selfp->profile_list);
+
+        		selfp->profile_list = NULL;
+        	}
+        }
+	private void
+	error_handler          (GMarkupParseContext *context,
+				GError              *error,
+				gpointer             user_data)	{
+	}
+
+        public LoquiProfileHandle*
+        new(GList *profile_factory_list) {
+		Self *self;
+        
+        	self = GET_NEW;
+		selfp->profile_factory_list = g_list_copy(profile_factory_list);
+        
+                return self;
+        }
+
+        public gboolean
+        read_from_buffer(self, GList **profiles, const gchar *buf) {
+        	GError *error = NULL;
+        	
+		GMarkupParser parser = {
+			self_start_element_handler,
+			self_end_element_handler,
+			self_text_handler,
+			NULL,
+			self_error_handler
+		};
+
+        	g_return_val_if_fail(profiles != NULL, FALSE);
+        
+        	self_clear(self);
+        
+        	selfp->context = g_markup_parse_context_new(&parser, 0, self, NULL);
+        	selfp->element_queue = g_queue_new();
+
+        	selfp->profile_list = NULL;
+		
+        	if (!g_markup_parse_context_parse(selfp->context, buf, -1, &error)) {
+        		g_warning(_("LoquiProfile parse error: %s"), error->message);
+        		g_error_free(error);
+
+			*profiles = NULL;
+        		return FALSE;
+        	}
+
+        	*profiles = g_list_copy(selfp->profile_list);
+        
+        	return TRUE;
+        }
+
+        public gboolean
+        read_from_file(self, GList **profiles, const gchar *path) {
+        	gchar *contents;
+        	GError *error = NULL;
+        	gboolean result;
+        	
+        	g_return_val_if_fail(profiles != NULL, FALSE);
+        
+        	if (!g_file_get_contents(path, &contents, NULL, &error)) {
+        		if(error->code != G_FILE_ERROR_NOENT)
+        			g_warning("LoquiProfile read error %s", error->message);
+        
+        		g_error_free(error);
+        		return FALSE;
+        	}
+        	result = self_read_from_buffer(self, profiles, contents);
+        	g_free(contents);
+        	
+        	return result;
+        }
+
+        private gchar *
+        gvalue_to_xml(self, GValue *value) {
+        	GString *string;
+        	const gchar *tmp;
+        	gchar *buf;
+        	GValueArray *value_array;
+        	GValue *tmp_val;
+        	GValue val = {0, };
+        	guint i;
+		LoquiProfile *profile;
+        
+        	string = g_string_new("");
+        	if (G_VALUE_HOLDS(value, G_TYPE_VALUE_ARRAY)) {
+        		g_string_append_printf(string, "\n<list>\n");
+
+        		value_array = g_value_get_boxed(value);
+        		for (i = 0; i < value_array->n_values; i++) {
+        			g_string_append(string, "<item>");
+
+        			tmp_val = g_value_array_get_nth(value_array, i);
+        			buf = self_gvalue_to_xml(self, tmp_val);
+        			g_string_append(string, buf);
+        			g_free(buf);
+
+        			g_string_append_printf(string, "</item>\n");
+        		}
+        		g_string_append_printf(string, "</list>\n");
+        	} else if (G_VALUE_HOLDS(value, LOQUI_TYPE_PROFILE)) {
+        		profile = g_value_get_object(value);
+        		buf = self_profile_to_xml(self, profile);
+        		if (buf) {
+        			g_string_append(string, buf);
+        			g_free(buf);
+        		}
+        	} else if (G_VALUE_HOLDS_STRING(value)) {
+        		tmp = g_value_get_string(value);
+        		if (tmp) {
+        			buf = g_markup_escape_text(tmp, -1);
+        			g_string_append(string, buf);
+        			g_free(buf);
+        		}
+        	} else if (G_VALUE_HOLDS_BOOLEAN(value)) {
+        		if (g_value_get_boolean(value) == FALSE)
+        			g_string_append(string, "FALSE");
+        		else
+        			g_string_append(string, "TRUE");
+        	} else if (G_VALUE_HOLDS_LONG(value)) {
+        		g_string_append_printf(string, "%ld", g_value_get_long(value));
+        	} else if (G_VALUE_HOLDS_INT(value)) {
+        		g_string_append_printf(string, "%d", g_value_get_int(value));
+        	} else if (G_VALUE_HOLDS_UINT(value)) {
+        		g_string_append_printf(string, "%u", g_value_get_int(value));
+        #ifdef G_GINT_64_FORMAT
+        	} else if (G_VALUE_HOLDS_INT64(value)) {
+        		g_string_append_printf(string, "%" G_GINT64_FORMAT, g_value_get_int64(value));
+        #endif
+        #ifdef G_GUINT64_FORMAT
+        	} else if (G_VALUE_HOLDS_UINT64(value)) {
+        		g_string_append_printf(string, "%" G_GUINT64_FORMAT, g_value_get_uint64(value));
+        #endif
+        	} else if (G_VALUE_HOLDS_FLOAT(value)) {
+        		g_string_append_printf(string, "%f", g_value_get_float(value));
+        	} else if (G_VALUE_HOLDS_DOUBLE(value)) {
+        		g_string_append_printf(string, "%f", g_value_get_double(value));
+        	} else if (g_value_type_transformable(G_VALUE_TYPE(value), G_TYPE_LONG)) {
+        		g_value_init(&val, G_TYPE_LONG);
+        		g_value_transform(value, &val);
+        		g_string_append_printf(string, "%ld", g_value_get_long(value));
+        		g_value_unset(&val);
+        	} else {
+        		g_warning(_("ProfileHandle: Unsupported type: %s."), g_type_name(G_VALUE_TYPE(value)));
+        	}
+        
+        	return g_string_free(string, FALSE);
+        }
+
+        private gchar *
+        profile_to_xml(self, Loqui:Profile *profile (check null type)) {
+        	GString *string;
+        	gchar *tmp;
+        	GValue value = {0, };
+        	const gchar *key;
+     		GList *key_list, *cur;
+		GParamSpec *pspec;
+
+        	string = g_string_new("");
+        
+        	g_string_append_printf(string, "<profile type=\"%s\">\n", loqui_profile_get_profile_type_name(profile));
+       		
+		key_list = loqui_profile_get_profile_key_list(profile);
+		for (cur = key_list; cur != NULL; cur = cur->next) {
+        		key = cur->data;
+       			 
+        		g_string_append_printf(string, "<param key=\"%s\">", key);
+			pspec = loqui_profile_get_profile_value_spec(profile, key, NULL);
+			g_assert(pspec);
+
+			g_value_init(&value, G_PARAM_SPEC_VALUE_TYPE(pspec));
+			loqui_profile_get_profile_value(profile, key, &value);
+        
+        		tmp = self_gvalue_to_xml(self, &value);
+        		if (tmp == NULL) {
+        			g_warning("Failed to convert value.");
+				g_value_unset(&value);
+        			continue;
+        		}
+        		g_string_append(string, tmp);
+        		g_free(tmp);
+        		g_string_append_printf(string, "</param>\n");
+        
+        		g_value_unset(&value);
+        	}
+		G_LIST_FREE_WITH_ELEMENT_FREE_UNLESS_NULL(key_list);
+
+        	g_string_append(string, "</profile>\n");
+        
+        	return g_string_free(string, FALSE);
+        }
+
+        public gboolean
+        write_to_buffer(self, GList *profile_list, gchar **buf) {
+        	LoquiProfile *profile;
+        	GList *cur;
+        	GString *string;
+        	gchar *tmp;
+        
+        	string = g_string_new(NULL);
+        	g_string_printf(string, "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n");
+        	g_string_append_printf(string, "<profiles>\n");
+        
+        	for (cur = profile_list; cur != NULL; cur = cur->next) {
+        		profile = LOQUI_PROFILE(cur->data);
+        
+        		tmp = self_profile_to_xml(self, profile);
+        		g_string_append(string, tmp);
+        		g_free(tmp);
+        	}
+        	g_string_append_printf(string, "</profiles>\n");
+        
+        	*buf = g_string_free(string, FALSE);
+
+        	return TRUE;
+        }
+
+        public gboolean
+        write_to_file(self, GList *profile_list, const gchar *path) {
+        	gchar *buf;
+        	GIOChannel *io;
+        
+        
+        	if(self_write_to_buffer(self, profile_list, &buf) == FALSE)
+        		return FALSE;
+        	
+        	if((io = g_io_channel_new_file(path, "w", NULL)) == NULL) {
+        		g_warning("Failed to open profile(w)");
+        		return FALSE;
+        	}
+        	if(g_io_channel_write_chars(io, buf, -1, NULL, NULL) != G_IO_STATUS_NORMAL) {
+        		g_warning("Failed to write profile");
+        		return FALSE;
+        	}
+        	g_io_channel_unref(io);
+        
+        	return TRUE;
+        }
+
+}
