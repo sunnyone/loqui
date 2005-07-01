@@ -48,6 +48,6 @@ LOQUI_DEFINE_INTERFACE_METHOD_CALLER_ARG0_WITH_RETURN(LoquiProfile, loqui_profil
 LOQUI_DEFINE_INTERFACE_METHOD_CALLER_ARG2(LoquiProfile, loqui_profile, set_profile_value, const gchar *, const GValue *)
 LOQUI_DEFINE_INTERFACE_METHOD_CALLER_ARG2(LoquiProfile, loqui_profile, get_profile_value, const gchar *, GValue *)
 
-LOQUI_DEFINE_INTERFACE_METHOD_CALLER_ARG2_WITH_RETURN(LoquiProfile, loqui_profile, get_profile_value_type, GType, const gchar *, const gchar *)
+LOQUI_DEFINE_INTERFACE_METHOD_CALLER_ARG2_WITH_RETURN(LoquiProfile, loqui_profile, get_profile_value_spec, GParamSpec *, const gchar *, const gchar *)
 
 LOQUI_DEFINE_INTERFACE_METHOD_CALLER_ARG0_WITH_RETURN(LoquiProfile, loqui_profile, get_profile_key_list, GList *)

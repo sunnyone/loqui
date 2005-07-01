@@ -61,13 +61,8 @@ class Loqui:Property:Profile from G:Object (interface Loqui:Profile)
 	}
 		
 	interface Loqui:Profile
-	private GType get_profile_value_type(LoquiProfile *profile, const gchar *key, const gchar *type_hint) {
-		GParamSpec *pspec;
-
-		if ((pspec = g_object_class_find_property(G_OBJECT_GET_CLASS(profile), key)) == NULL)
-			return 0;
-
-		return pspec->value_type;
+	private /*G_CONST_RETURN*/ GParamSpec *get_profile_value_spec(LoquiProfile *profile, const gchar *key, const gchar *type_hint) {
+		return g_object_class_find_property(G_OBJECT_GET_CLASS(profile), key);
 	}
 
 	interface Loqui:Profile
