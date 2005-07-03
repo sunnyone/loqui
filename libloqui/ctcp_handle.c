@@ -195,7 +195,7 @@ void ctcp_handle_message(CTCPHandle *ctcp_handle, CTCPMessage *ctcp_msg, gboolea
 		}
 	}
 
-	buf = g_strdup_printf(_("Received CTCP %s from %s to %s: %s%s%s"), 
+	buf = g_strdup_printf(_("Received CTCP %1$s from %2$s to %3$s: %4$s%5$s%6$s"), 
 			      is_request ? "request" : "reply",
 			      sender,
 			      receiver,
