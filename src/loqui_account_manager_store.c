@@ -33,6 +33,7 @@ enum {
 
 struct _LoquiAccountManagerStorePrivate
 {
+	LoquiChannel *channel_to_be_removed;
 };
 
 static GObjectClass *parent_class = NULL;
@@ -503,6 +504,7 @@ loqui_account_manager_store_iter_has_child(GtkTreeModel *tree_model,
 {
 	LoquiAccountManagerStore *store;
 	LoquiAccountManagerStorePrivate *priv;
+	GList *list;
 
         g_return_val_if_fail(tree_model != NULL, FALSE);
         g_return_val_if_fail(LOQUI_IS_ACCOUNT_MANAGER_STORE(tree_model), FALSE);
@@ -512,10 +514,18 @@ loqui_account_manager_store_iter_has_child(GtkTreeModel *tree_model,
 	store = LOQUI_ACCOUNT_MANAGER_STORE(tree_model);
 	priv = store->priv;
 
-	if(LOQUI_IS_ACCOUNT(iter->user_data) &&
-	   loqui_account_get_channel_list(LOQUI_ACCOUNT(iter->user_data))) {
-		return TRUE;
+	if (!LOQUI_IS_ACCOUNT(iter->user_data))
+		return FALSE;
+
+	list = loqui_account_get_channel_list(LOQUI_ACCOUNT(iter->user_data));
+
+	/* channels.length == 1 && channels[0].removed? => doesn't have child */
+	if (list && list->data == priv->channel_to_be_removed && list->next == NULL) {
+		return FALSE;
 	}
+
+	if (list)
+		return TRUE;
 
 	return FALSE;
 }
@@ -670,26 +680,24 @@ loqui_account_manager_store_remove_channel_cb(LoquiAccount *account,
 					      LoquiChannel *channel,
 					      LoquiAccountManagerStore *store)
 {
+	LoquiAccountManagerStorePrivate *priv;
 	GtkTreePath *path;
 	GtkTreeIter iter;
+
+	priv = store->priv;
+
+	/* FIXME: ad-hoc way to avoid failing to check whether an child exists or not */
+	priv->channel_to_be_removed = channel;
 
 	iter.stamp = store->stamp;
 	iter.user_data = channel;
 	iter.user_data2 = g_list_find(loqui_account_get_channel_list(account), channel);
 	
 	g_signal_handlers_disconnect_by_func(G_OBJECT(channel), loqui_account_manager_store_channel_notify_cb, store);
-	
+
 	path = loqui_account_manager_store_get_path(GTK_TREE_MODEL(store), &iter);
 	gtk_tree_model_row_deleted(GTK_TREE_MODEL(store), path);
 	gtk_tree_path_free(path);
-}
-static void
-loqui_account_manager_store_remove_channel_after_cb(LoquiAccount *account,
-						    LoquiChannel *channel,
-						    LoquiAccountManagerStore *store)
-{
-	GtkTreePath *path;
-	GtkTreeIter iter;
 
 	iter.stamp = store->stamp;
 	iter.user_data = account;
@@ -697,7 +705,17 @@ loqui_account_manager_store_remove_channel_after_cb(LoquiAccount *account,
 
 	path = loqui_account_manager_store_get_path(GTK_TREE_MODEL(store), &iter);
 	gtk_tree_model_row_has_child_toggled(GTK_TREE_MODEL(store), path, &iter);
-	gtk_tree_path_free(path);	
+	gtk_tree_path_free(path);
+}
+static void
+loqui_account_manager_store_remove_channel_after_cb(LoquiAccount *account,
+						    LoquiChannel *channel,
+						    LoquiAccountManagerStore *store)
+{
+	LoquiAccountManagerStorePrivate *priv;
+	
+	priv = store->priv;
+	priv->channel_to_be_removed = NULL;
 }
 static void
 loqui_account_manager_store_remove_account_cb(LoquiAccountManager *manager,
