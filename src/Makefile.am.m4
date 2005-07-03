@@ -10,7 +10,7 @@ bin_PROGRAMS = loqui
 INCLUDES = -I$(includedir) -I$(top_srcdir)/libloqui -I$(top_builddir)/libloqui -I$(top_srcdir) -I$(top_builddir)
 CPPFLAGS =  $(GTK_CFLAGS) $(EXTRA_WARNING_CFLAGS) -g -DDATADIR=\""$(datadir)"\" $(GNET_CFLAGS) -Wall -Wredundant-decls -Wmissing-declarations -Wmissing-prototypes
 
-define(`M4_SRC_GOB',`loqui-core-gtk.gob loqui-style-entry.gob loqui-account-dialog.gob loqui-protocol-selection-dialog.gob')dnl
+define(`M4_SRC_GOB',`loqui-core-gtk.gob loqui-style-entry.gob loqui-account-dialog.gob loqui-protocol-selection-dialog.gob loqui-transfer-window.gob')dnl
 
 loqui_SOURCES = \
 	eggtrayicon.c eggtrayicon.h \
@@ -27,7 +27,6 @@ loqui_SOURCES = \
 	loqui_channel_buffer_gtk.c loqui_channel_buffer_gtk.h \
 	loqui_dropdown_box.c loqui_dropdown_box.h \
 	loqui_account_manager_store.c loqui_account_manager_store.h \
-	loqui-transfer-window.c loqui-transfer-window.h \
 	channel_tree.c channel_tree.h \
 	nick_list.c nick_list.h \
 	about.c about.h \
