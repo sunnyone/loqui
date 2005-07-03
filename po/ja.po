@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: loqui 0.1.20\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2005-07-02 02:32+0900\n"
+"POT-Creation-Date: 2005-07-03 19:35+0900\n"
 "PO-Revision-Date: 2005-07-02 02:27+0900\n"
 "Last-Translator: Yoichi Imai <yoichi@silver-forest.com>\n"
 "Language-Team: Japanese <ja@li.org>\n"
@@ -24,7 +24,7 @@ msgstr "受信側がCTCPメッセージを設定していません"
 
 #: libloqui/ctcp_handle.c:198
 #, c-format
-msgid "Received CTCP %s from %s to %s: %s%s%s"
+msgid "Received CTCP %1$s from %2$s to %3$s: %4$s%5$s%6$s"
 msgstr ""
 
 #: libloqui/ctcp_handle.c:213
@@ -78,60 +78,60 @@ msgstr "不正な要素: '%s'の親が存在しません (%s)"
 msgid "Invalid element: the parent of '%s' is not '%s' but '%s' (%s)"
 msgstr "不正なオブジェクト要素: '%s'の親要素が'%s'ではなく'%s'です (%s)"
 
-#: libloqui/loqui-profile-handle.gob:224 libloqui/loqui-profile-handle.gob:475
+#: libloqui/loqui-profile-handle.gob:224 libloqui/loqui-profile-handle.gob:477
 #, c-format
 msgid "Unsupported element '%s'"
 msgstr "非対応要素: %s"
 
-#: libloqui/loqui-profile-handle.gob:239
+#: libloqui/loqui-profile-handle.gob:235
 #, c-format
 msgid "Invalid element '%s': document element is not profile"
 msgstr "不正な要素 '%s': 文書要素がprofileではありません。"
 
-#: libloqui/loqui-profile-handle.gob:256
+#: libloqui/loqui-profile-handle.gob:257
 msgid "Invalid content: profile has no type'"
 msgstr "不正な内容: プロフィールが型情報を持っていません"
 
-#: libloqui/loqui-profile-handle.gob:284
+#: libloqui/loqui-profile-handle.gob:285
 #, c-format
 msgid "Invalid param: doesn't have a key: '%s'"
 msgstr ""
 
-#: libloqui/loqui-profile-handle.gob:295
+#: libloqui/loqui-profile-handle.gob:296
 #, c-format
 msgid "Invalid param key: '%s' (line %d, char %d)"
 msgstr ""
 
-#: libloqui/loqui-profile-handle.gob:304
+#: libloqui/loqui-profile-handle.gob:305
 #, c-format
 msgid "Element spec should be set ('%s')"
 msgstr ""
 
-#: libloqui/loqui-profile-handle.gob:370
+#: libloqui/loqui-profile-handle.gob:372
 #, c-format
 msgid "Invalid item: invalid data '%s' (%s, item)"
 msgstr ""
 
-#: libloqui/loqui-profile-handle.gob:389
+#: libloqui/loqui-profile-handle.gob:391
 #, c-format
 msgid "Invalid param: invalid data '%s' (type: %s)"
 msgstr ""
 
-#: libloqui/loqui-profile-handle.gob:484
+#: libloqui/loqui-profile-handle.gob:486
 #, c-format
 msgid "Don't correspond with start tag: current: %s, queued: %s"
 msgstr ""
 
-#: libloqui/loqui-profile-handle.gob:522
+#: libloqui/loqui-profile-handle.gob:529
 msgid "The profile element doesn't have parent element"
 msgstr ""
 
-#: libloqui/loqui-profile-handle.gob:608
+#: libloqui/loqui-profile-handle.gob:615
 #, c-format
 msgid "LoquiProfile parse error: %s"
 msgstr ""
 
-#: libloqui/loqui-profile-handle.gob:711
+#: libloqui/loqui-profile-handle.gob:718
 #, c-format
 msgid "ProfileHandle: Unsupported type: %s."
 msgstr ""
@@ -1310,6 +1310,86 @@ msgstr ""
 msgid "Is font default or not"
 msgstr ""
 
+#: src/loqui-transfer-window.gob:72
+msgid "Start"
+msgstr "開始"
+
+#: src/loqui-transfer-window.gob:76
+msgid "Stop"
+msgstr "停止"
+
+#: src/loqui-transfer-window.gob:80
+msgid "Info"
+msgstr "情報"
+
+#: src/loqui-transfer-window.gob:120 src/loqui_app_actions.c:177
+msgid "File Transfer Manager"
+msgstr "ファイル転送マネージャ"
+
+#: src/loqui-transfer-window.gob:143
+msgid "Information"
+msgstr "詳細情報"
+
+#: src/loqui-transfer-window.gob:163
+msgid "Filename:"
+msgstr "ファイル名:"
+
+#: src/loqui-transfer-window.gob:174
+msgid "Directory:"
+msgstr "ディレクトリ"
+
+#: src/loqui-transfer-window.gob:183
+msgid "Select..."
+msgstr "選択..."
+
+#: src/loqui-transfer-window.gob:196
+msgid "Up / Down:"
+msgstr "アップ/ダウンロード"
+
+#: src/loqui-transfer-window.gob:200
+msgid "Down"
+msgstr "ダウンロード"
+
+#: src/loqui-transfer-window.gob:206
+msgid "Status:"
+msgstr "ステータス:"
+
+#: src/loqui-transfer-window.gob:210
+msgid "Transferring"
+msgstr "転送中"
+
+#: src/loqui-transfer-window.gob:216
+msgid "Path:"
+msgstr "パス:"
+
+#: src/loqui-transfer-window.gob:220
+msgid "hoge.jpg"
+msgstr ""
+
+#: src/loqui-transfer-window.gob:226
+msgid "Progress:"
+msgstr "進捗状況:"
+
+#: src/loqui-transfer-window.gob:235
+msgid "50%"
+msgstr ""
+
+#: src/loqui-transfer-window.gob:239
+msgid "Size:"
+msgstr "サイズ:"
+
+#: src/loqui-transfer-window.gob:243
+msgid "10,243,000 / 50,222,222"
+msgstr ""
+
+#: src/loqui-transfer-window.gob:251
+msgid "Rate:"
+msgstr "レート:"
+
+#: src/loqui-transfer-window.gob:255
+msgid "50.2 KB/s"
+msgstr ""
+
 #. name, stock_id, label, accelerator, tooltip, callback
 #. see gdkkeynames.c to find key name
 #: src/loqui_app_actions.c:116
@@ -1491,10 +1571,6 @@ msgstr "バッファの選択..."
 #: src/loqui_app_actions.c:175
 msgid "Clear All Unread Flags of Buffers"
 msgstr "すべてのバッファの未読フラグをクリアする"
-
-#: src/loqui_app_actions.c:177 src/loqui_transfer_window.c:236
-msgid "File Transfer Manager"
-msgstr "ファイル転送マネージャ"
 
 #: src/loqui_app_actions.c:178
 msgid "_General Settings"
@@ -1711,82 +1787,6 @@ msgstr "未接続のアカウントです!"
 #: src/loqui_statusbar.c:394
 msgid "Change nick"
 msgstr "ニックネームの変更"
-
-#: src/loqui_transfer_window.c:250
-msgid "Start"
-msgstr "開始"
-
-#: src/loqui_transfer_window.c:254
-msgid "Stop"
-msgstr "停止"
-
-#: src/loqui_transfer_window.c:258
-msgid "Info"
-msgstr "情報"
-
-#: src/loqui_transfer_window.c:279
-msgid "Information"
-msgstr "詳細情報"
-
-#: src/loqui_transfer_window.c:299
-msgid "Filename:"
-msgstr "ファイル名:"
-
-#: src/loqui_transfer_window.c:310
-msgid "Directory:"
-msgstr "ディレクトリ"
-
-#: src/loqui_transfer_window.c:319
-msgid "Select..."
-msgstr "選択..."
-
-#: src/loqui_transfer_window.c:332
-msgid "Up / Down:"
-msgstr "アップ/ダウンロード"
-
-#: src/loqui_transfer_window.c:336
-msgid "Down"
-msgstr "ダウンロード"
-
-#: src/loqui_transfer_window.c:342
-msgid "Status:"
-msgstr "ステータス:"
-
-#: src/loqui_transfer_window.c:346
-msgid "Transferring"
-msgstr "転送中"
-
-#: src/loqui_transfer_window.c:352
-msgid "Path:"
-msgstr "パス:"
-
-#: src/loqui_transfer_window.c:356
-msgid "hoge.jpg"
-msgstr ""
-
-#: src/loqui_transfer_window.c:362
-msgid "Progress:"
-msgstr "進捗状況:"
-
-#: src/loqui_transfer_window.c:371
-msgid "50%"
-msgstr ""
-
-#: src/loqui_transfer_window.c:375
-msgid "Size:"
-msgstr "サイズ:"
-
-#: src/loqui_transfer_window.c:379
-msgid "10,243,000 / 50,222,222"
-msgstr ""
-
-#: src/loqui_transfer_window.c:387
-msgid "Rate:"
-msgstr "レート:"
-
-#: src/loqui_transfer_window.c:391
-msgid "50.2 KB/s"
-msgstr ""
 
 #: src/main.c:71
 msgid ""

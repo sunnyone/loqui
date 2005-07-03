@@ -137,6 +137,7 @@ src/loqui-general-pref-gtk-groups.h
 src/loqui-general-pref-gtk.h
 src/loqui-protocol-selection-dialog.gob
 src/loqui-style-entry.gob
+src/loqui-transfer-window.gob
 src/loqui_account_manager_store.c
 src/loqui_account_manager_store.h
 src/loqui_app.c
@@ -167,8 +168,6 @@ src/loqui_stock.c
 src/loqui_stock.h
 src/loqui_style_entry.c
 src/loqui_style_entry.h
-src/loqui_transfer_window.c
-src/loqui_transfer_window.h
 src/loqui_tray_icon.c
 src/loqui_tray_icon.h
 src/main.c
