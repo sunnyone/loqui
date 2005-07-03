@@ -2,6 +2,7 @@
 -
   date: 2005-07-03
   version: 0.4.0pre4
+  changes: 
     - Fixed the problem the program quits when all channels in a account are closed.
     - Fixed the problem to fail handling an invalid 'param' element in a account profile.
 -
