@@ -88,6 +88,9 @@ static void loqui_account_manager_store_add_account_after_cb(LoquiAccountManager
 static void loqui_account_manager_store_remove_channel_cb(LoquiAccount *account,
 							  LoquiChannel *channel,
 							  LoquiAccountManagerStore *store);
+static void loqui_account_manager_store_remove_channel_after_cb(LoquiAccount *account,
+								LoquiChannel *channel,
+								LoquiAccountManagerStore *store);
 static void loqui_account_manager_store_remove_account_cb(LoquiAccountManager *manager,
 							  LoquiAccount *account,
 							  LoquiAccountManagerStore *store);
@@ -510,9 +513,11 @@ loqui_account_manager_store_iter_has_child(GtkTreeModel *tree_model,
 	priv = store->priv;
 
 	if(LOQUI_IS_ACCOUNT(iter->user_data) &&
-	   g_list_length(loqui_account_get_channel_list(LOQUI_ACCOUNT(iter->user_data))) > 0) {
+	   loqui_account_get_channel_list(LOQUI_ACCOUNT(iter->user_data))) {
 		return TRUE;
 	}
+
+	g_print("Child not found for entry: %s!\n", loqui_channel_entry_get_name(LOQUI_CHANNEL_ENTRY(iter->user_data)));
 
 	return FALSE;
 }
@@ -656,6 +661,8 @@ loqui_account_manager_store_add_account_after_cb(LoquiAccountManager *manager,
 			       G_CALLBACK(loqui_account_manager_store_add_channel_after_cb), store);
 	g_signal_connect(G_OBJECT(account), "remove-channel",
 			 G_CALLBACK(loqui_account_manager_store_remove_channel_cb), store);
+	g_signal_connect_after(G_OBJECT(account), "remove-channel",
+			       G_CALLBACK(loqui_account_manager_store_remove_channel_after_cb), store);
 	g_signal_connect(G_OBJECT(account->user_self), "notify",
 			 G_CALLBACK(loqui_account_manager_store_user_self_notify_cb), store);
 }
@@ -677,6 +684,14 @@ loqui_account_manager_store_remove_channel_cb(LoquiAccount *account,
 	path = loqui_account_manager_store_get_path(GTK_TREE_MODEL(store), &iter);
 	gtk_tree_model_row_deleted(GTK_TREE_MODEL(store), path);
 	gtk_tree_path_free(path);
+}
+static void
+loqui_account_manager_store_remove_channel_after_cb(LoquiAccount *account,
+						    LoquiChannel *channel,
+						    LoquiAccountManagerStore *store)
+{
+	GtkTreePath *path;
+	GtkTreeIter iter;
 
 	iter.stamp = store->stamp;
 	iter.user_data = account;
@@ -684,7 +699,7 @@ loqui_account_manager_store_remove_channel_cb(LoquiAccount *account,
 
 	path = loqui_account_manager_store_get_path(GTK_TREE_MODEL(store), &iter);
 	gtk_tree_model_row_has_child_toggled(GTK_TREE_MODEL(store), path, &iter);
-	gtk_tree_path_free(path);
+	gtk_tree_path_free(path);	
 }
 static void
 loqui_account_manager_store_remove_account_cb(LoquiAccountManager *manager,
@@ -700,11 +715,15 @@ loqui_account_manager_store_remove_account_cb(LoquiAccountManager *manager,
 	iter.user_data2 = g_list_find(loqui_account_manager_get_account_list(manager), account);
 
 	channel_list = loqui_account_get_channel_list(account);
-	for (cur = channel_list; cur != NULL; cur = cur->next)
+	for (cur = channel_list; cur != NULL; cur = cur->next) {
 		loqui_account_manager_store_remove_channel_cb(account, cur->data, store);
-	
+		loqui_account_manager_store_remove_channel_after_cb(account, cur->data, store);
+	}
+
 	g_signal_handlers_disconnect_by_func(G_OBJECT(account), loqui_account_manager_store_account_notify_cb, store);
 	g_signal_handlers_disconnect_by_func(G_OBJECT(account), loqui_account_manager_store_add_channel_after_cb, store);
+	g_signal_handlers_disconnect_by_func(G_OBJECT(account), loqui_account_manager_store_remove_channel_cb, store);
+	g_signal_handlers_disconnect_by_func(G_OBJECT(account), loqui_account_manager_store_remove_channel_after_cb, store);
 	
 	path = loqui_account_manager_store_get_path(GTK_TREE_MODEL(store), &iter);
 	gtk_tree_model_row_deleted(GTK_TREE_MODEL(store), path);
