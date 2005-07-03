@@ -226,10 +226,6 @@ class Loqui:Profile:Handle from G:Object {
 		}
 
 		parent = g_queue_peek_tail(selfp->element_queue);
-		if (parent != NULL &&
-		    parent->is_skip) {
-			return;
-		}
 
 		if (parent == NULL &&
 		    elem_type != ELEMENT_PROFILES) {
@@ -241,6 +237,11 @@ class Loqui:Profile:Handle from G:Object {
 		}
 
 		elem = self_create_element(elem_type);
+		g_queue_push_tail(selfp->element_queue, elem);
+		if (parent && parent->is_skip) {
+			elem->is_skip = TRUE;
+			return;
+		}
 
 		switch (elem_type) {
 		case ELEMENT_PROFILES:
@@ -322,7 +323,6 @@ class Loqui:Profile:Handle from G:Object {
 			g_assert_not_reached();
 		}
 
-		g_queue_push_tail(selfp->element_queue, elem);
 		return;
 
 	error:
@@ -349,6 +349,8 @@ class Loqui:Profile:Handle from G:Object {
 		self = SELF(user_data);
 
 		self_peek_parent_grand(self, &elem, &parent, &grand);
+		if (elem->is_skip)
+			return;
 
 		switch(elem->elem_type) {
 		case ELEMENT_ITEM:
@@ -485,6 +487,11 @@ class Loqui:Profile:Handle from G:Object {
 			return;
 		}
 		g_queue_pop_tail(selfp->element_queue);
+
+		if (elem->is_skip) {
+			self_free_element(elem);
+			return;
+		}
 
 		switch (elem_type) {
 		case ELEMENT_LIST:
