@@ -19,7 +19,7 @@
  */
 #include "config.h"
 
-#include "loqui_transfer_window.h"
+#include "loqui-transfer-window.h"
 #include <glib/gi18n.h>
 
 enum {

@@ -36,7 +36,7 @@
 #include "account_list_dialog.h"
 
 #include "loqui_channel_text_view.h"
-#include "loqui_transfer_window.h"
+#include "loqui-transfer-window.h"
 #include "loqui_select_dialog.h"
 
 #include "loqui_channel_entry_utils.h"

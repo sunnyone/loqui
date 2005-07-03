@@ -27,7 +27,7 @@ loqui_SOURCES = \
 	loqui_channel_buffer_gtk.c loqui_channel_buffer_gtk.h \
 	loqui_dropdown_box.c loqui_dropdown_box.h \
 	loqui_account_manager_store.c loqui_account_manager_store.h \
-	loqui_transfer_window.c loqui_transfer_window.h \
+	loqui-transfer-window.c loqui-transfer-window.h \
 	channel_tree.c channel_tree.h \
 	nick_list.c nick_list.h \
 	about.c about.h \
