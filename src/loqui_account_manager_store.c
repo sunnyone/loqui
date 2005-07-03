@@ -517,8 +517,6 @@ loqui_account_manager_store_iter_has_child(GtkTreeModel *tree_model,
 		return TRUE;
 	}
 
-	g_print("Child not found for entry: %s!\n", loqui_channel_entry_get_name(LOQUI_CHANNEL_ENTRY(iter->user_data)));
-
 	return FALSE;
 }
 static gint
