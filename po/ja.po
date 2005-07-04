@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: loqui 0.1.20\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2005-07-03 19:35+0900\n"
-"PO-Revision-Date: 2005-07-02 02:27+0900\n"
+"PO-Revision-Date: 2005-07-04 15:41+0900\n"
 "Last-Translator: Yoichi Imai <yoichi@silver-forest.com>\n"
 "Language-Team: Japanese <ja@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -245,11 +245,11 @@ msgstr "%s:%dに接続しています"
 
 #: libloqui/loqui_account_irc.c:348 libloqui/msn_login.c:197
 msgid "Failed to connect."
-msgstr ""
+msgstr "接続に失敗しました。"
 
 #: libloqui/loqui_account_irc.c:350 libloqui/msn_login.c:199
 msgid "An error occured on connection."
-msgstr "接続に不明なエラーが発生しました"
+msgstr "接続に不明なエラーが発生しました。"
 
 #: libloqui/loqui_account_irc.c:380 libloqui/msn_login.c:221
 msgid "Connected."
@@ -261,11 +261,11 @@ msgstr "初期コマンドを送信しました。"
 
 #: libloqui/loqui_account_irc.c:436 libloqui/msn_login.c:251
 msgid "Connection closed."
-msgstr ""
+msgstr "切断されました。"
 
 #: libloqui/loqui_account_irc.c:578
 msgid "Terminated."
-msgstr ""
+msgstr "終了しました。"
 
 #: libloqui/loqui_account_msn.c:177
 msgid "Connecting."
@@ -1738,15 +1738,15 @@ msgstr "トピックの更新"
 
 #: src/loqui_select_dialog.c:230
 msgid "Selection Dialog"
-msgstr ""
+msgstr "選択ダイアログ"
 
 #: src/loqui_select_dialog.c:241
 msgid "Keyword:"
-msgstr ""
+msgstr "キーワード:"
 
 #: src/loqui_select_dialog.c:247
 msgid "Case sensitive"
-msgstr ""
+msgstr "大文字と小文字を区別しない"
 
 #: src/loqui_select_dialog.c:250
 msgid "Use migemo"
@@ -1754,7 +1754,7 @@ msgstr "migemoを利用する"
 
 #: src/loqui_select_dialog.c:273
 msgid "#"
-msgstr ""
+msgstr "#"
 
 #: src/loqui_select_dialog.c:287
 msgid "Channel"
@@ -1762,7 +1762,7 @@ msgstr "チャンネル"
 
 #: src/loqui_select_dialog.c:296
 msgid "Target"
-msgstr ""
+msgstr "ターゲット"
 
 #: src/loqui_select_dialog.c:307
 msgid "Account:"
@@ -1792,19 +1792,19 @@ msgstr "ニックネームの変更"
 msgid ""
 "  --no-send-status-commands don't send commands to get status (like MODE, "
 "WHO)\n"
-msgstr ""
+msgstr "  --no-send-status-commands MODE や WHO のようなステータスを取得するためのコマンドを送信しない\n"
 
 #: src/main.c:72
 msgid "  --debug                   debug mode\n"
-msgstr ""
+msgstr "  --debug                   デバッグモード\n"
 
 #: src/main.c:73
 msgid "  --show-msg                show message mode\n"
-msgstr ""
+msgstr "  --show-msg                メッセージ表示モード\n"
 
 #: src/main.c:74
 msgid "  --help                    show this help\n"
-msgstr ""
+msgstr "  --help                    ヘルプメッセージの表示\n"
 
 #. FIXME: use _default
 #: src/prefs_dialog.c:365
