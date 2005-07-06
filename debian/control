@@ -9,4 +9,7 @@ Package: loqui
 Architecture: any
 Depends: ${shlibs:Depends}
 Description: IRC/Chat client for Gtk2
- Loqui is a IRC/chat client based on gtk2, supports multiple servers and multiple protocols, has and the common buffer (a buffer to show messages on the channels that not currently selected).
+  Loqui is a IRC/chat client based on gtk2, supports multiple servers and 
+ multiple protocols, has and the common buffer (a buffer to show messages
+ on the channels that not currently selected).
+
