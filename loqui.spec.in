@@ -1,7 +1,7 @@
 %define ver @VERSION@
 %define rel 1
 
-Summary: IRC client for Gtk2
+Summary: IRC/Chat client for Gtk2
 Name: loqui
 Version: %{ver}
 Release: %{rel}

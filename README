@@ -3,7 +3,13 @@ Loqui -- IRC/Chat client for Gtk2
 
 What's this?
 ------------
-This is an IRC/Chat client for a Gtk2 environment.
+Loqui is an IRC/Chat client for a Gtk2 environment.
+
+Features
+--------
+ - Supports multiple servers.
+ - Supports multiple protocols (IRC, IP Messenger (Experimental)).
+ - The common buffer (a buffer to show messages on the channels that not currently selected).
 
 How to install?
 ---------------

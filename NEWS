@@ -1,5 +1,10 @@
 --- 
 -
+  date: 2005-07-06
+  version: 0.4.0
+  changes:
+    - Updated po.
+-
   date: 2005-07-03
   version: 0.4.0pre4
   changes: 
