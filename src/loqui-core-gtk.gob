@@ -251,7 +251,10 @@ class Loqui:Core:Gtk from Loqui:Core
 						       LOQUI_GENERAL_PREF_GTK_DEFAULT_GENERAL_CONNECT_STARTUP, NULL))
 			loqui_account_manager_connect_all_default(self->account_manager);
 	
+		gdk_threads_enter();
 		gtk_main();
+		gdk_threads_leave();
+
 		self_save_stylerc(self);
 		self_save_accelmap(self);
 
