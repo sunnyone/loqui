@@ -17,6 +17,7 @@
  * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  */
+/* Added WINDOWING ifdef  2005-07-09 by Yoichi Imai <yoichi@silver-forest.com> */
 
 #include <config.h>
 #include <string.h>
@@ -25,6 +26,8 @@
 #include "eggtrayicon.h"
 
 #include <gdk/gdkx.h>
+
+#ifdef GDK_WINDOWING_X11
 #include <X11/Xatom.h>
 
 #ifndef EGG_COMPILATION
@@ -480,3 +483,5 @@ egg_tray_icon_get_orientation (EggTrayIcon *icon)
 
   return icon->orientation;
 }
+
+#endif

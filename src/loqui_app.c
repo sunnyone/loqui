@@ -101,9 +101,6 @@ static gboolean loqui_app_focus_in_event(GtkWidget *widget, GdkEventFocus *event
 static gboolean loqui_app_focus_out_event(GtkWidget *widget, GdkEventFocus *event);
 static gboolean loqui_app_visibility_notify_event(GtkWidget *widget, GdkEventVisibility *event);
 
-static gboolean loqui_app_tray_icon_recreate_for_idle_cb(LoquiApp *app);
-static void loqui_app_tray_icon_destroy_cb(GtkWidget *widget, LoquiApp *app);
-
 static void loqui_app_restore_size(LoquiApp *app);
 static void loqui_app_save_size(LoquiApp *app);
 
@@ -208,7 +205,6 @@ loqui_app_destroy(GtkObject *object)
 	app = LOQUI_APP(object);
 	priv = app->priv;
 
-	g_signal_handlers_disconnect_by_func(app->tray_icon, loqui_app_tray_icon_destroy_cb, app);
 	G_OBJECT_UNREF_UNLESS_NULL(priv->ppref_channel_buffer);
 
 	if (GTK_OBJECT_CLASS(parent_class)->destroy)
@@ -232,7 +228,7 @@ loqui_app_finalize(GObject *object)
 		priv->common_buffer = NULL;
 	}
 
-	gtk_widget_destroy(GTK_WIDGET(app->tray_icon));
+	loqui_tray_icon_destroy(app->tray_icon);
 
 	g_signal_handlers_disconnect_by_func(G_OBJECT(app->account_manager), loqui_app_add_account_after_cb, app);
 	g_signal_handlers_disconnect_by_func(G_OBJECT(app->account_manager), loqui_app_remove_account_cb, app);
@@ -326,28 +322,6 @@ loqui_app_visibility_notify_event(GtkWidget *widget, GdkEventVisibility *event)
                return (* GTK_WIDGET_CLASS(parent_class)->visibility_notify_event) (widget, event);
 
 	return FALSE;
-}
-static gboolean
-loqui_app_tray_icon_recreate_for_idle_cb(LoquiApp *app)
-{
-	loqui_app_create_tray_icon(app);
-
-	return FALSE;
-}
-static void
-loqui_app_tray_icon_destroy_cb(GtkWidget *widget, LoquiApp *app)
-{
-	LoquiAppPrivate *priv;
-
-        g_return_if_fail(app != NULL);
-        g_return_if_fail(LOQUI_IS_APP(app));
-
-	priv = app->priv;
-
-	g_object_unref(app->tray_icon);
-	app->tray_icon = NULL;
-
-	g_idle_add((GSourceFunc) loqui_app_tray_icon_recreate_for_idle_cb, app);
 }
 gboolean
 loqui_app_has_toplevel_focus(LoquiApp *app)
@@ -501,11 +475,6 @@ loqui_app_create_tray_icon(LoquiApp *app)
 
 	menu_tray_icon = gtk_ui_manager_get_widget(app->ui_manager, "/TrayIconPopup");
 	app->tray_icon = LOQUI_TRAY_ICON(loqui_tray_icon_new(LOQUI_APP(app), GTK_MENU(menu_tray_icon)));
-	g_signal_connect(G_OBJECT(app->tray_icon), "destroy",
-			 G_CALLBACK(loqui_app_tray_icon_destroy_cb), app);
-
-	/* to avoid dieing when the tray died? */
-	g_object_ref(app->tray_icon);
 }
 static gboolean
 loqui_app_quit_idle_cb(LoquiApp *app)
@@ -1293,11 +1262,6 @@ loqui_app_channel_entry_notify_has_unread_keyword_cb(LoquiChannelEntry *chent, G
 
 	if (!loqui_channel_entry_get_has_unread_keyword(chent))
 		return;
-
-	if (!app->tray_icon) {
-		g_warning("the tray icon is not alive.");
-		return;
-	}
 
 	loqui_tray_icon_blink(app->tray_icon);
 

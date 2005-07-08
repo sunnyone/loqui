@@ -24,6 +24,8 @@
 #include <gtk/gtkplug.h>
 #include <gdk/gdkx.h>
 
+#ifdef GDK_WINDOWING_X11
+
 G_BEGIN_DECLS
 
 #define EGG_TYPE_TRAY_ICON		(egg_tray_icon_get_type ())
@@ -74,4 +76,5 @@ GtkOrientation egg_tray_icon_get_orientation (EggTrayIcon *icon);
 					    
 G_END_DECLS
 
+#endif /* GDK_WINDOWING_X11 */
 #endif /* __EGG_TRAY_ICON_H__ */
