@@ -18,7 +18,7 @@ loqui_SOURCES = \
 	main.c main.h \
 	loqui_app_actions.c loqui_app_actions.h \
 	loqui_stock.c loqui_stock.h \
-	loqui_tray_icon.c loqui_tray_icon.h \
+	loqui-tray-icon.c loqui-tray-icon.h \
 	loqui_app.c loqui_app.h \
 	loqui_app_info.c loqui_app_info.h \
 	loqui_channel_entry_store.c loqui_channel_entry_store.h \

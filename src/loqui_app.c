@@ -45,7 +45,7 @@
 #include "loqui_account_manager_store.h"
 #include "loqui_member_sort_funcs.h"
 #include "loqui_account_manager_iter.h"
-#include "loqui_tray_icon.h"
+#include "loqui-tray-icon.h"
 
 #include "embedtxt/loqui_app_ui.h"
 #include "icons/pixbufs.h"

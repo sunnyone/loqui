@@ -19,7 +19,7 @@
  */
 #include "config.h"
 
-#include "loqui_tray_icon.h"
+#include "loqui-tray-icon.h"
 #include "loqui_stock.h"
 #include "gtkutils.h"
 
