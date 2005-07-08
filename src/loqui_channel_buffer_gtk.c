@@ -440,7 +440,7 @@ loqui_channel_buffer_gtk_load_styles(LoquiChannelBufferGtk *buffer)
 #define SET_STRING_DEFAULT(key, value) loqui_pref_partial_set_default_string(priv->ppref_channel_buffer, key, value)
 
 	SET_STRING_DEFAULT("TimeColor", "blue");
-	SET_STRING_DEFAULT("InfoColor", "green3");
+	SET_STRING_DEFAULT("InfoColor", "#079107");
 	SET_STRING_DEFAULT("NormalColor", "black");
 	SET_STRING_DEFAULT("ErrorColor", "red");
 	SET_STRING_DEFAULT("NoticeColor", "#555555");
