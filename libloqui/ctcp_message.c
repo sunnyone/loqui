@@ -164,7 +164,8 @@ ctcp_message_parse_line(const gchar *line, CTCPMessage **ctcp_msg)
 	g_free(buf);
 	return TRUE;
 }
-gchar *ctcp_message_to_str(CTCPMessage *ctcp_msg)
+gchar *
+ctcp_message_to_str(CTCPMessage *ctcp_msg)
 {
 	gchar *str;
 
@@ -175,4 +176,25 @@ gchar *ctcp_message_to_str(CTCPMessage *ctcp_msg)
 			      IRCCommandChar);
 	
 	return str;
+}
+gint
+ctcp_message_count_parameters(CTCPMessage *ctcp_msg)
+{
+        g_return_val_if_fail(ctcp_msg != NULL, 0);
+        g_return_val_if_fail(IS_CTCP_MESSAGE(ctcp_msg), 0);
+
+	return loqui_utils_count_strarray((const gchar **) ctcp_msg->parameters);
+}
+
+G_CONST_RETURN gchar *
+ctcp_message_get_param(CTCPMessage *ctcp_msg, gint i)
+{
+        g_return_val_if_fail(ctcp_msg != NULL, NULL);
+        g_return_val_if_fail(IS_CTCP_MESSAGE(ctcp_msg), NULL);
+	
+	if (ctcp_message_count_parameters(ctcp_msg) <= i) {
+		return NULL;
+	}
+
+	return ctcp_msg->parameters[i];
 }

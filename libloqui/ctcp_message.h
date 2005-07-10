@@ -60,6 +60,9 @@ CTCPMessage* ctcp_message_new(const gchar *command, const gchar *argument);
 gboolean ctcp_message_parse_line(const gchar *line, CTCPMessage **ctcp_msg);
 gchar *ctcp_message_to_str(CTCPMessage *ctcp_msg);
 
+gint ctcp_message_count_parameters(CTCPMessage *ctcp_msg);
+G_CONST_RETURN gchar *ctcp_message_get_param(CTCPMessage *ctcp_msg, gint i); /* zero origin */
+
 G_END_DECLS
 
 #endif /* __CTCP_MESSAGE_H__ */
