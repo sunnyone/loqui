@@ -32,6 +32,7 @@
 
 #include <libloqui/loqui-core.h>
 #include <libloqui/loqui-static-core.h>
+#include <libloqui/loqui-transfer-item-irc.h>
 
 struct _CTCPHandlePrivate
 {
@@ -59,6 +60,8 @@ static void ctcp_handle_version(CTCPHandle *ctcp_handle, CTCPMessage *ctcp_msg, 
 static void ctcp_handle_ping(CTCPHandle *ctcp_handle, CTCPMessage *ctcp_msg, const gchar *sender);
 static void ctcp_handle_userinfo(CTCPHandle *ctcp_handle, CTCPMessage *ctcp_msg, const gchar *sender);
 static void ctcp_handle_clientinfo(CTCPHandle *ctcp_handle, CTCPMessage *ctcp_msg, const gchar *sender);
+static void ctcp_handle_dcc(CTCPHandle *ctcp_handle, CTCPMessage *ctcp_msg, const gchar *sender);
+static void ctcp_handle_dcc_send(CTCPHandle *ctcp_handle, CTCPMessage *ctcp_msg, const gchar *sender);
 
 #define SUPPORTED_CTCP_REQUEST "CLIENTINFO VERSION PING USERINFO"
 
@@ -69,7 +72,7 @@ static CTCPHandlerElement handler_table[] = {
 	{IRCCTCPUserInfo, ctcp_handle_userinfo},
 	{IRCCTCPTime, NULL},
 	{IRCCTCPFinger, NULL},
-	{IRCCTCPDCC, NULL},
+	{IRCCTCPDCC, ctcp_handle_dcc},
 	{NULL, 0}
 };
 
@@ -316,4 +319,66 @@ ctcp_handle_clientinfo(CTCPHandle *ctcp_handle, CTCPMessage *ctcp_msg, const gch
 	ctcp_reply = ctcp_message_new(IRCCTCPClientInfo, SUPPORTED_CTCP_REQUEST);
 	ctcp_handle_send_ctcp_reply(ctcp_handle, ctcp_reply, sender);
 	g_object_unref(ctcp_reply);
+}
+
+static void
+ctcp_handle_dcc(CTCPHandle *ctcp_handle, CTCPMessage *ctcp_msg, const gchar *sender)
+{
+	CTCPHandlePrivate *priv;
+	const gchar *subcommand;
+	gchar *str;
+
+        g_return_if_fail(ctcp_handle != NULL);
+        g_return_if_fail(IS_CTCP_HANDLE(ctcp_handle));
+	
+	priv = ctcp_handle->priv;
+	
+	subcommand = ctcp_message_get_param(ctcp_msg, 0);
+	if (subcommand == NULL) {
+		loqui_account_warning(priv->account, _("This DCC request doesn't have subcommand: %s"), subcommand);
+		return;
+	}
+
+	if (strcmp(subcommand, IRCDCCSend) == 0) {
+		ctcp_handle_dcc_send(ctcp_handle, ctcp_msg, sender);
+		return;
+	}
+
+	str = ctcp_message_to_str(ctcp_msg);
+	loqui_account_warning(priv->account, _("This DCC request has unsupported subcommand: %s (%s)"), subcommand, str);
+	g_free(str);
+
+}
+static void
+ctcp_handle_dcc_send(CTCPHandle *ctcp_handle, CTCPMessage *ctcp_msg, const gchar *sender)
+{
+	CTCPMessage *ctcp_reply;
+	CTCPHandlePrivate *priv;
+	LoquiTransferItem *trans_item;
+	const gchar *filename, *address, *port_str, *size_str;
+	gchar *str;
+
+	priv = ctcp_handle->priv;
+
+	str = ctcp_message_to_str(ctcp_msg);
+	if (ctcp_message_count_parameters(ctcp_msg) != 5) {
+		loqui_account_warning(priv->account, _("Invalid DCC request (invalid parameter length: %d (%s))"),
+				      ctcp_message_count_parameters(ctcp_msg), str);
+		return;
+	}
+	g_free(str);
+
+	filename = ctcp_message_get_param(ctcp_msg, 1);
+	address = ctcp_message_get_param(ctcp_msg, 2);
+	port_str = ctcp_message_get_param(ctcp_msg, 3);
+	size_str  = ctcp_message_get_param(ctcp_msg, 4);
+
+	loqui_account_information(priv->account,
+				  _("Received DCC SEND request from %s (filename: %s, host: %s, address: %s, size: %s)"),
+				  sender, filename, address, port_str, size_str);
+	
+/*	trans_item = LOQUI_TRANSFER_ITEM(loqui_transfer_item_irc_new());
+	loqui_transfer_item_set_is_upload(trans_item, FALSE);
+	loqui_transfer_item_set_filename(trans_item, FALSE); */
+
 }
