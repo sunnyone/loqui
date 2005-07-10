@@ -201,11 +201,16 @@ loqui_user_ipmsg_init(LoquiUserIPMsg *user)
 static gchar *
 loqui_user_ipmsg_get_identifier(LoquiUser *user)
 {
+	LoquiUserIPMsg *user_ipmsg;
+
         g_return_val_if_fail(user != NULL, NULL);
         g_return_val_if_fail(LOQUI_IS_USER_IPMSG(user), NULL);
 
-	return g_strdup_printf("%s:%d", LOQUI_USER_IPMSG(user)->ip_addr, LOQUI_USER_IPMSG(user)->port);
+	user_ipmsg = LOQUI_USER_IPMSG(user);
+
+	return g_strdup_printf("%s:%d", user_ipmsg->ip_addr ? user_ipmsg->ip_addr : "", user_ipmsg->port);
 }
+
 LoquiUserIPMsg*
 loqui_user_ipmsg_new(void)
 {
