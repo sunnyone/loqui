@@ -119,9 +119,6 @@ static void loqui_app_add_channel_after_cb(LoquiAccount *account, LoquiChannel *
 static void loqui_app_remove_channel_cb(LoquiAccount *account, LoquiChannel *channel, LoquiApp *app);
 static void loqui_app_remove_channel_after_cb(LoquiAccount *account, LoquiChannel *channel, LoquiApp *app);
 
-
-static void loqui_app_account_connect_after_cb(LoquiAccount *account, LoquiApp *app);
-
 static void loqui_app_channel_text_view_scrolled_to_end_cb(LoquiChannelTextView *chview, LoquiChannelEntry *chent);
 static void loqui_app_channel_text_view_notify_is_scroll_cb(LoquiChannelTextView *chview, GParamSpec *pspec, LoquiApp *app);
 static void loqui_app_channel_text_view_notify_is_scroll_common_buffer_cb(LoquiChannelTextView *chview, GParamSpec *pspec, LoquiApp *app);
@@ -1033,11 +1030,6 @@ loqui_app_is_current_channel(LoquiApp *app, LoquiChannel *channel)
 	return (loqui_app_get_current_channel(app) == channel);
 }
 static void
-loqui_app_account_connect_after_cb(LoquiAccount *account, LoquiApp *app)
-{
-	loqui_app_set_current_channel_entry(app, LOQUI_CHANNEL_ENTRY(account));
-}
-static void
 loqui_app_channel_entry_added_after(LoquiApp *app, LoquiChannelEntry *chent)
 {
 	LoquiAppPrivate *priv;
@@ -1132,8 +1124,6 @@ loqui_app_add_account_after_cb(LoquiAccountManager *manager, LoquiAccount *accou
 	loqui_channel_entry_ui_add_account(app, account, "/ChannelListPopup", "channelbar");
 	loqui_channel_entry_ui_add_account(app, account, "/TrayIconPopup/BuffersMenu", "trayicon");
 
-	g_signal_connect_after(G_OBJECT(account), "connect",
-			       G_CALLBACK(loqui_app_account_connect_after_cb), app);
 	g_signal_connect_after(G_OBJECT(account), "add-channel",
 			       G_CALLBACK(loqui_app_add_channel_after_cb), app);
 	g_signal_connect(G_OBJECT(account), "remove-channel",
