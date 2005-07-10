@@ -33,6 +33,15 @@ requires 2.0.0
 
 class Loqui:Transfer:Item:IRC from Loqui:Transfer:Item
 {
+	public Loqui:Transfer:Item:IRC *
+	new(void) {
+		Self *self;
+
+		self = GET_NEW;
+
+		return self;
+	}
+
 	override (Loqui:Transfer:Item) void
 	start (Loqui:Transfer:Item *item_p) {
 		Self *item;
