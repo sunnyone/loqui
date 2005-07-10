@@ -27,7 +27,7 @@ SRC_PROTOCOL_BASE_BASE = \
 	loqui-profile-factory.c loqui-profile-factory.h \
 	M4_SRC_PROTOCOL_BASE_BASE_GOB gob_to_built_sources(M4_SRC_PROTOCOL_BASE_BASE_GOB)
 
-define(`M4_SRC_PROTOCOL_BASE_GOB',`loqui-protocol.gob loqui-mode-item.gob loqui-mode-manager.gob')
+define(`M4_SRC_PROTOCOL_BASE_GOB',`loqui-protocol.gob loqui-mode-item.gob loqui-mode-manager.gob loqui-transfer-item.gob')
 SRC_PROTOCOL_BASE = \
 	loqui_user.c loqui_user.h \
 	loqui_profile_account.c loqui_profile_account.h \
@@ -37,7 +37,6 @@ SRC_PROTOCOL_BASE = \
 	loqui_account.c loqui_account.h \
 	loqui_message.c loqui_message.h \
 	loqui_member.c loqui_member.h \
-	loqui_transfer_item.c loqui_transfer_item.h \
 	M4_SRC_PROTOCOL_BASE_GOB gob_to_built_sources(M4_SRC_PROTOCOL_BASE_GOB)
 
 SRC_PROTOCOL_IRC = \
