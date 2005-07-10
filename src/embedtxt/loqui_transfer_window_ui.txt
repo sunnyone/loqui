@@ -1,0 +1,8 @@
+<toolbar action="Toolbar">
+ <placeholder name="Item">
+  <toolitem name="Start" action="Start" />
+  <toolitem name="Cancel" action="Cancel" />
+  <toolitem name="ToggleInfo" action="ToggleInfo" />
+ </placeholder>
+ <toolitem name="Close" action="Close" />
+</toolbar>

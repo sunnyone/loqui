@@ -1,4 +1,4 @@
-EMBEDTXT_ID = loqui_app_ui
+EMBEDTXT_ID = loqui_app_ui loqui_transfer_window_ui
 EMBEDTXT = $(EMBEDTXT_ID:%=%.txt)
 EMBEDTXT_H = $(EMBEDTXT_ID:%=%.h)
 
