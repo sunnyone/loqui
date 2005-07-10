@@ -29,9 +29,10 @@ requires 2.0.0
 
 class Loqui:Transfer:Item from G:Object
 {
-	public gchar *dirname;
-	public gchar *filename;
-	
+	public gchar *dirname = NULL unrefwith g_free;
+	public gchar *filename = NULL unrefwith g_free;
+	public gboolean is_upload;
+
 	property STRING dirname (
 		nick = _("dirname"),
 		blurb = _("Directory Name"),
@@ -40,7 +41,12 @@ class Loqui:Transfer:Item from G:Object
 		nick = _("filename"),
 		blurb = _("Filename"),
 		export, link);
-		
+	property BOOLEAN is_upload (
+		nick = _("is_upload"),
+		blurb = _("Is upload"),
+		default_value = FALSE,
+		export, link);
+
 	public Loqui:Transfer:Item *
 	new(void) {
 		Self *self;
