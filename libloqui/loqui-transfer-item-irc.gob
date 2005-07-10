@@ -22,37 +22,30 @@ requires 2.0.0
  */
 %}
 
+%h{
+#include <libloqui/loqui-transfer-item.h>
+%}
+
 %{
 #include <libloqui/libloqui-intl.h>
 #include "utils.h"
 %}
 
-class Loqui:Transfer:Item from G:Object
+class Loqui:Transfer:Item:IRC from Loqui:Transfer:Item
 {
-	public gchar *dirname;
-	public gchar *filename;
-	
-	property STRING dirname (
-		nick = _("dirname"),
-		blurb = _("Directory Name"),
-		export, link);
-	property STRING filename (
-		nick = _("filename"),
-		blurb = _("Filename"),
-		export, link);
-		
-	public Loqui:Transfer:Item *
-	new(void) {
-		Self *self;
-		
-		self = GET_NEW;
+	override (Loqui:Transfer:Item) void
+	start (Loqui:Transfer:Item *item_p) {
+		Self *item;
 
-		return self;
+		item = SELF(item_p);
+
 	}
 
-	signal last NONE (NONE)
-	void start(self);
+	override (Loqui:Transfer:Item) void
+	cancel (Loqui:Transfer:Item *item_p) {
+		Self *item;
 
-	signal last NONE (NONE)
-	void cancel(self);
+		item = SELF(item_p);
+		
+	}
 }
