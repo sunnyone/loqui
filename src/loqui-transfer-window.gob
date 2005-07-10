@@ -31,6 +31,18 @@ requires 2.0.0
 #include "loqui-transfer-window.h"
 #include "loqui-transfer-window-private.h"
 #include <glib/gi18n.h>
+#include "embedtxt/loqui_transfer_window_ui.h"
+
+static GtkActionEntry action_entries[] = {
+	{"Start", GTK_STOCK_GO_FORWARD, N_("_Start"), NULL, NULL, NULL},
+	{"Cancel", GTK_STOCK_CANCEL, N_("Cancel"), NULL, NULL, NULL},
+	{"Close", GTK_STOCK_CLOSE, N_("Close"), NULL, NULL, NULL}
+};
+
+static GtkToggleActionEntry toggle_action_entries[] = {
+        {"ToggleInfo", GTK_STOCK_PROPERTIES, N_("_Information"), NULL, NULL, NULL, FALSE},
+};
+
 %}
 
 class Loqui:Transfer:Window from Gtk:Window {
@@ -54,36 +66,43 @@ class Loqui:Transfer:Window from Gtk:Window {
         private GtkWidget *textview_log;
         private GtkWidget *statusbar;
 
+	private GtkUIManager *ui_manager unrefwith g_object_unref;
+	private GtkActionGroup *action_group;
+
 	private void
 	add_toolbar(self, GtkWidget *vbox) {
-        	GtkWidget *image;
-		GtkWidget *toolbutton_close;
-        	gint iconsize;
+		GError *error = NULL;
 
         	selfp->handlebox_toolbar = gtk_handle_box_new();
         	gtk_box_pack_start(GTK_BOX(vbox), selfp->handlebox_toolbar, FALSE, FALSE, 0);
         
-        	selfp->toolbar = gtk_toolbar_new();
-        	gtk_container_add(GTK_CONTAINER(selfp->handlebox_toolbar), selfp->toolbar);
-        	gtk_toolbar_set_style(GTK_TOOLBAR(selfp->toolbar), GTK_TOOLBAR_BOTH);
-        	iconsize = gtk_toolbar_get_icon_size(GTK_TOOLBAR(selfp->toolbar));
-        
-        	image = gtk_image_new_from_stock(GTK_STOCK_GO_FORWARD, iconsize);
-        	selfp->toolbutton_start = GTK_WIDGET(gtk_tool_button_new(image, _("Start")));
-        	gtk_container_add(GTK_CONTAINER(selfp->toolbar), selfp->toolbutton_start);
-        
-        	image = gtk_image_new_from_stock(GTK_STOCK_STOP, iconsize);
-        	selfp->toolbutton_stop = GTK_WIDGET(gtk_tool_button_new(image, _("Stop")));
-        	gtk_container_add(GTK_CONTAINER(selfp->toolbar), selfp->toolbutton_stop);
-        
-        	selfp->toggletb_info = GTK_WIDGET(gtk_toggle_tool_button_new());
-        	gtk_tool_button_set_label(GTK_TOOL_BUTTON(selfp->toggletb_info), _("Info"));
-        	image = gtk_image_new_from_stock(GTK_STOCK_PROPERTIES, iconsize);
-        	gtk_tool_button_set_icon_widget(GTK_TOOL_BUTTON(selfp->toggletb_info), image);
-        	gtk_container_add(GTK_CONTAINER(selfp->toolbar), selfp->toggletb_info);
+		if(!gtk_ui_manager_add_ui_from_string(selfp->ui_manager, embedtxt_loqui_transfer_window_ui, -1, &error))
+			g_error("Failed to load UI XML: %s", error->message);
 
-		toolbutton_close = GTK_WIDGET(gtk_tool_button_new_from_stock(GTK_STOCK_CLOSE));
-        	gtk_container_add(GTK_CONTAINER(selfp->toolbar), toolbutton_close);
+		gtk_ui_manager_ensure_update(selfp->ui_manager);
+        	gtk_container_add(GTK_CONTAINER(selfp->handlebox_toolbar), gtk_ui_manager_get_widget(selfp->ui_manager, "/Toolbar"));
+	}
+
+	private void
+	create_actions(self) {
+		selfp->ui_manager = gtk_ui_manager_new();
+
+		selfp->action_group = gtk_action_group_new("LoquiTransferWindw");
+		gtk_ui_manager_set_add_tearoffs(selfp->ui_manager, TRUE);
+		gtk_window_add_accel_group(GTK_WINDOW(self),
+					   gtk_ui_manager_get_accel_group(selfp->ui_manager));
+		
+		
+		gtk_action_group_add_actions(selfp->action_group,
+					     action_entries,
+					     G_N_ELEMENTS(action_entries),
+					     self);
+		gtk_action_group_add_toggle_actions(selfp->action_group,
+						    toggle_action_entries,
+						    G_N_ELEMENTS(toggle_action_entries),
+						    self);
+
+		gtk_ui_manager_insert_action_group(selfp->ui_manager, selfp->action_group, 0);
 	}
 
         public GtkWidget *
@@ -117,11 +136,12 @@ class Loqui:Transfer:Window from Gtk:Window {
 		self = GET_NEW;
         
         	gtk_window_set_policy(GTK_WINDOW(self), TRUE, TRUE, TRUE);
-        	gtk_window_set_title(GTK_WINDOW(self), _("File Transfer Manager"));
+        	gtk_window_set_title(GTK_WINDOW(self), _("Loqui - File Transfer Manager"));
         
         	vbox1 = gtk_vbox_new(FALSE, 0);
         	gtk_container_add(GTK_CONTAINER(self), vbox1);
 		
+		self_create_actions(self);
 		self_add_toolbar(self, vbox1);
 
         	vpaned1 = gtk_vpaned_new();
