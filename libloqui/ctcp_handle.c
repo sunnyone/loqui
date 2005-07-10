@@ -360,6 +360,7 @@ ctcp_handle_dcc_send(CTCPHandle *ctcp_handle, CTCPMessage *ctcp_msg, const gchar
 	const gchar *filename, *address, *port_str, *size_str;
 	gchar *str;
 	gchar *canon_addr;
+	gint port, size;
 
 	GInetAddr *addr;
 	guint64 d;
@@ -381,13 +382,27 @@ ctcp_handle_dcc_send(CTCPHandle *ctcp_handle, CTCPMessage *ctcp_msg, const gchar
 	port_str = ctcp_message_get_param(ctcp_msg, 3);
 	size_str  = ctcp_message_get_param(ctcp_msg, 4);
 	
-	/* FIXME: IPv6 is not supported */
-	d = g_ascii_strtoull(address, &endptr, 10);
-	if (d == 0 || d > G_MAXUINT || endptr != (address + strlen(address))) {
-		loqui_account_warning(priv->account, "Address in the DCC request is invalid to be a number: %s\n", address);
+	d = g_ascii_strtoull(port_str, &endptr, 10);
+	if (d == 0 || d > G_MAXINT || endptr != (port_str + strlen(port_str))) {
+		loqui_account_warning(priv->account, "The port in the DCC request is invalid to be a number: %s\n", port_str);
 		return;
 	}
 	
+	d = g_ascii_strtoull(size_str, &endptr, 10);
+	if (d == 0 || d > G_MAXUINT || endptr != (size_str + strlen(size_str))) {
+		loqui_account_warning(priv->account, "The size in the DCC request is invalid to be a number: %s\n", size_str);
+		return;
+	}
+	size = (gint32) d;
+
+	/* FIXME: IPv6 is not supported */
+	d = g_ascii_strtoull(address, &endptr, 10);
+	if (d == 0 || d > G_MAXUINT || endptr != (address + strlen(address))) {
+		loqui_account_warning(priv->account, "The address in the DCC request is invalid to be a number: %s\n", address);
+		return;
+	}
+	port = (gint32) d;
+
 	network_order = g_htonl((guint32) d);
 	addr = gnet_inetaddr_new_bytes((char *) &network_order, sizeof(network_order));
 	if (addr == NULL) {
@@ -400,11 +415,17 @@ ctcp_handle_dcc_send(CTCPHandle *ctcp_handle, CTCPMessage *ctcp_msg, const gchar
 	loqui_account_information(priv->account,
 				  _("Received DCC SEND request from %s (filename: %s, host: %s, port: %s, size: %s)"),
 				  sender, filename, canon_addr, port_str, size_str);
-	g_free(canon_addr);
+
+	trans_item = LOQUI_TRANSFER_ITEM(loqui_transfer_item_irc_new());
+	loqui_transfer_item_set_is_upload(trans_item, FALSE);
+	loqui_transfer_item_set_filename(trans_item, filename);
+	loqui_transfer_item_set_address(trans_item, canon_addr);
+	loqui_transfer_item_set_port(trans_item, port);
+	loqui_transfer_item_set_size(trans_item, size);
+	loqui_transfer_item_irc_set_inet_addr(LOQUI_TRANSFER_ITEM_IRC(trans_item), addr);
 
 	gnet_inetaddr_unref(addr);
+	g_free(canon_addr);
 
-/*	trans_item = LOQUI_TRANSFER_ITEM(loqui_transfer_item_irc_new());
-	loqui_transfer_item_set_is_upload(trans_item, FALSE);
-	loqui_transfer_item_set_filename(trans_item, FALSE); */
+	g_object_unref(trans_item);
 }

@@ -22,9 +22,15 @@ requires 2.0.0
  */
 %}
 
+%h{
+#include "gobject_utils.h"
+%}
+
 %{
 #include <libloqui/libloqui-intl.h>
 #include "utils.h"
+
+LOQUI_ATTR_ACCESSOR_CONST_STRING(LoquiTransferItem, loqui_transfer_item, filename);
 %}
 
 class Loqui:Transfer:Item from G:Object
@@ -32,6 +38,9 @@ class Loqui:Transfer:Item from G:Object
 	public gchar *dirname = NULL unrefwith g_free;
 	public gchar *filename = NULL unrefwith g_free;
 	public gboolean is_upload;
+	public gchar *address = NULL unrefwith g_free;
+	public gint port;
+	public gint size;
 
 	property STRING dirname (
 		nick = _("dirname"),
@@ -39,12 +48,26 @@ class Loqui:Transfer:Item from G:Object
 		export, link);
 	property STRING filename (
 		nick = _("filename"),
-		blurb = _("Filename"),
-		export, link);
+		blurb = _("Filename"))
+		set { loqui_transfer_item_set_filename(self, g_value_get_string(VAL)); }
+		get { g_value_set_string(VAL, loqui_transfer_item_get_filename(self)); };
+
 	property BOOLEAN is_upload (
 		nick = _("is_upload"),
 		blurb = _("Is upload"),
 		default_value = FALSE,
+		export, link);
+	property INT port (
+		nick = _("port"),
+		blurb = _("Port"),
+		export, link);
+	property STRING address (
+		nick = _("address"),
+		blurb = _("Address"),
+		export, link);
+	property INT size (
+		nick = _("size"),
+		blurb = _("Size"),
 		export, link);
 
 	public Loqui:Transfer:Item *
@@ -62,3 +85,7 @@ class Loqui:Transfer:Item from G:Object
 	signal last NONE (NONE)
 	void cancel(self);
 }
+
+%h{
+LOQUI_ATTR_ACCESSOR_CONST_STRING_PROTOTYPE(LoquiTransferItem, loqui_transfer_item, filename);
+%}

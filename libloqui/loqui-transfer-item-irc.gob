@@ -24,6 +24,8 @@ requires 2.0.0
 
 %h{
 #include <libloqui/loqui-transfer-item.h>
+#include <gnet.h>
+
 %}
 
 %{
@@ -33,6 +35,13 @@ requires 2.0.0
 
 class Loqui:Transfer:Item:IRC from Loqui:Transfer:Item
 {
+	public GInetAddr *inet_addr = NULL unrefwith gnet_inetaddr_unref;
+
+	property POINTER inet_addr (
+		nick = _("Addr"),
+		blurb = _("Address"),
+		export, link);
+	
 	public Loqui:Transfer:Item:IRC *
 	new(void) {
 		Self *self;
@@ -57,4 +66,5 @@ class Loqui:Transfer:Item:IRC from Loqui:Transfer:Item
 		item = SELF(item_p);
 		
 	}
+	
 }
