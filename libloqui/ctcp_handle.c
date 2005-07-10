@@ -34,6 +34,8 @@
 #include <libloqui/loqui-static-core.h>
 #include <libloqui/loqui-transfer-item-irc.h>
 
+#include <gnet.h>
+
 struct _CTCPHandlePrivate
 {
 	LoquiAccount *account;
@@ -345,18 +347,24 @@ ctcp_handle_dcc(CTCPHandle *ctcp_handle, CTCPMessage *ctcp_msg, const gchar *sen
 	}
 
 	str = ctcp_message_to_str(ctcp_msg);
-	loqui_account_warning(priv->account, _("This DCC request has unsupported subcommand: %s (%s)"), subcommand, str);
+	loqui_account_warning(priv->account, _("This DCC request has an unsupported subcommand: %s (%s)"), subcommand, str);
 	g_free(str);
 
 }
+
 static void
 ctcp_handle_dcc_send(CTCPHandle *ctcp_handle, CTCPMessage *ctcp_msg, const gchar *sender)
 {
-	CTCPMessage *ctcp_reply;
 	CTCPHandlePrivate *priv;
 	LoquiTransferItem *trans_item;
 	const gchar *filename, *address, *port_str, *size_str;
 	gchar *str;
+	gchar *canon_addr;
+
+	GInetAddr *addr;
+	guint64 d;
+	guint32 network_order;
+	gchar *endptr;
 
 	priv = ctcp_handle->priv;
 
@@ -372,13 +380,31 @@ ctcp_handle_dcc_send(CTCPHandle *ctcp_handle, CTCPMessage *ctcp_msg, const gchar
 	address = ctcp_message_get_param(ctcp_msg, 2);
 	port_str = ctcp_message_get_param(ctcp_msg, 3);
 	size_str  = ctcp_message_get_param(ctcp_msg, 4);
-
-	loqui_account_information(priv->account,
-				  _("Received DCC SEND request from %s (filename: %s, host: %s, address: %s, size: %s)"),
-				  sender, filename, address, port_str, size_str);
 	
+	/* FIXME: IPv6 is not supported */
+	d = g_ascii_strtoull(address, &endptr, 10);
+	if (d == 0 || d > G_MAXUINT || endptr != (address + strlen(address))) {
+		loqui_account_warning(priv->account, "Address in the DCC request is invalid to be a number: %s\n", address);
+		return;
+	}
+	
+	network_order = g_htonl((guint32) d);
+	addr = gnet_inetaddr_new_bytes((char *) &network_order, sizeof(network_order));
+	if (addr == NULL) {
+		loqui_account_warning(priv->account, "Address in the DCC request is invalid: %s\n", address);
+		return;
+	}
+
+	canon_addr = gnet_inetaddr_get_canonical_name(addr);
+	
+	loqui_account_information(priv->account,
+				  _("Received DCC SEND request from %s (filename: %s, host: %s, port: %s, size: %s)"),
+				  sender, filename, canon_addr, port_str, size_str);
+	g_free(canon_addr);
+
+	gnet_inetaddr_unref(addr);
+
 /*	trans_item = LOQUI_TRANSFER_ITEM(loqui_transfer_item_irc_new());
 	loqui_transfer_item_set_is_upload(trans_item, FALSE);
 	loqui_transfer_item_set_filename(trans_item, FALSE); */
-
 }
