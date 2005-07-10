@@ -25,9 +25,8 @@
 
 #include "eggtrayicon.h"
 
-#include <gdk/gdkx.h>
-
 #ifdef GDK_WINDOWING_X11
+#include <gdk/gdkx.h>
 #include <X11/Xatom.h>
 
 #ifndef EGG_COMPILATION

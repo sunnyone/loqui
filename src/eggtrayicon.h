@@ -22,9 +22,10 @@
 #define __EGG_TRAY_ICON_H__
 
 #include <gtk/gtkplug.h>
-#include <gdk/gdkx.h>
+#include <gtk/gtk.h>
 
 #ifdef GDK_WINDOWING_X11
+#include <gdk/gdkx.h>
 
 G_BEGIN_DECLS
 
