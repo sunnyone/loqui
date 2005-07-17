@@ -387,6 +387,7 @@ ctcp_handle_dcc_send(CTCPHandle *ctcp_handle, CTCPMessage *ctcp_msg, const gchar
 		loqui_account_warning(priv->account, "The port in the DCC request is invalid to be a number: %s\n", port_str);
 		return;
 	}
+	port = (gint32) d;
 	
 	d = g_ascii_strtoull(size_str, &endptr, 10);
 	if (d == 0 || d > G_MAXUINT || endptr != (size_str + strlen(size_str))) {
@@ -401,7 +402,6 @@ ctcp_handle_dcc_send(CTCPHandle *ctcp_handle, CTCPMessage *ctcp_msg, const gchar
 		loqui_account_warning(priv->account, "The address in the DCC request is invalid to be a number: %s\n", address);
 		return;
 	}
-	port = (gint32) d;
 
 	network_order = g_htonl((guint32) d);
 	addr = gnet_inetaddr_new_bytes((char *) &network_order, sizeof(network_order));
