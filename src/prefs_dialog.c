@@ -61,6 +61,9 @@ struct _PrefsDialogPrivate
 	GtkWidget *check_use_transparent_ignore;
 	GtkWidget *textview_transparent_ignore;
 
+	GtkWidget *check_use_normal_ignore;
+	GtkWidget *textview_normal_ignore;
+
 	GtkWidget *entry_browser_command;
 	GtkWidget *entry_notification_command;
 
@@ -163,8 +166,7 @@ prefs_dialog_load_settings(PrefsDialog *dialog)
 	PrefsDialogPrivate *priv;
 	GtkTextBuffer *buffer;
 	LoquiPref *general_pref;
-	GList *highlight_list;
-	GList *transparent_ignore_list;
+	GList *list;
 	gchar *buf;
 	
 	g_return_if_fail(dialog != NULL);
@@ -187,6 +189,7 @@ prefs_dialog_load_settings(PrefsDialog *dialog)
 	SET_CHECKBOX(priv->check_use_notification,  LOQUI_GENERAL_PREF_GROUP_NOTIFICATION, "UseNotification", LOQUI_GENERAL_PREF_DEFAULT_NOTIFICATION_USE_NOTIFICATION);
 	SET_CHECKBOX(priv->check_exec_notification_by_notice,
 		     LOQUI_GENERAL_PREF_GROUP_NOTIFICATION, "ExecNotificationByNotice", LOQUI_GENERAL_PREF_DEFAULT_NOTIFICATION_EXEC_NOTIFICATION_BY_NOTICE);
+	SET_CHECKBOX(priv->check_use_normal_ignore, LOQUI_GENERAL_PREF_GROUP_IGNORE, "UseNormalIgnore", LOQUI_GENERAL_PREF_DEFAULT_IGNORE_USE_NORMAL_IGNORE);
 	SET_CHECKBOX(priv->check_use_transparent_ignore, LOQUI_GENERAL_PREF_GROUP_IGNORE, "UseTransparentIgnore", LOQUI_GENERAL_PREF_DEFAULT_IGNORE_USE_TRANSPARENT_IGNORE);
 	SET_CHECKBOX(priv->check_auto_reconnect, LOQUI_GENERAL_PREF_GROUP_ACCOUNT, "AutoReconnect", LOQUI_GENERAL_PREF_DEFAULT_ACCOUNT_AUTO_RECONNECT);
 	SET_CHECKBOX(priv->check_connect_startup, LOQUI_GENERAL_PREF_GTK_GROUP_GENERAL, "ConnectStartup", LOQUI_GENERAL_PREF_GTK_DEFAULT_GENERAL_CONNECT_STARTUP);
@@ -194,17 +197,17 @@ prefs_dialog_load_settings(PrefsDialog *dialog)
 	SET_CHECKBOX(priv->check_auto_command_mode, LOQUI_GENERAL_PREF_GTK_GROUP_GENERAL, "AutoCommandMode", LOQUI_GENERAL_PREF_GTK_DEFAULT_GENERAL_AUTO_COMMAND_MODE);
 	SET_CHECKBOX(priv->check_save_log, LOQUI_GENERAL_PREF_GTK_GROUP_GENERAL, "SaveLog", LOQUI_GENERAL_PREF_GTK_DEFAULT_GENERAL_SAVE_LOG);
 
-	highlight_list = loqui_utils_string_array_to_list(loqui_pref_get_string_list(general_pref,
-										     LOQUI_GENERAL_PREF_GROUP_NOTIFICATION, "HighlightList",
-										     NULL, NULL), TRUE);
-	gtkutils_set_textview_from_string_list(GTK_TEXT_VIEW(priv->textview_highlight), highlight_list);
-	loqui_utils_free_string_list(highlight_list);
+#define LOAD_FROM_ARRAY_TO_TEXT_VIEW(_group, _key, _textview) { \
+	list = loqui_utils_string_array_to_list(loqui_pref_get_string_list(general_pref, _group, _key, NULL, NULL), TRUE);  \
+	gtkutils_set_textview_from_string_list(GTK_TEXT_VIEW(_textview), list); \
+	loqui_utils_free_string_list(list); \
+}
 
-	transparent_ignore_list = loqui_utils_string_array_to_list(loqui_pref_get_string_list(general_pref,
-											      LOQUI_GENERAL_PREF_GROUP_IGNORE, "TransparentIgnoreList",
-											      NULL, NULL), TRUE);
-	gtkutils_set_textview_from_string_list(GTK_TEXT_VIEW(priv->textview_transparent_ignore), transparent_ignore_list);
-	loqui_utils_free_string_list(transparent_ignore_list);
+	LOAD_FROM_ARRAY_TO_TEXT_VIEW(LOQUI_GENERAL_PREF_GROUP_NOTIFICATION, "HighlightList", priv->textview_highlight);
+	LOAD_FROM_ARRAY_TO_TEXT_VIEW(LOQUI_GENERAL_PREF_GROUP_IGNORE, "NormalIgnoreList", priv->textview_normal_ignore);
+	LOAD_FROM_ARRAY_TO_TEXT_VIEW(LOQUI_GENERAL_PREF_GROUP_IGNORE, "TransparentIgnoreList", priv->textview_transparent_ignore);
+
+#undef LOAD_FROM_ARRAY_TO_TEXT_VIEW
 
 
 	buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(priv->textview_title_format_title));
@@ -282,6 +285,9 @@ prefs_dialog_save_settings(PrefsDialog *dialog)
                                LOQUI_GENERAL_PREF_GROUP_PROXY, "ParsePlumRecent",
                                gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(priv->check_parse_plum_recent)));
 	loqui_pref_set_boolean(loqui_get_general_pref(),
+                               LOQUI_GENERAL_PREF_GROUP_IGNORE, "UseNormalIgnore",
+                               gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(priv->check_use_normal_ignore)));
+	loqui_pref_set_boolean(loqui_get_general_pref(),
                                LOQUI_GENERAL_PREF_GROUP_IGNORE, "UseTransparentIgnore",
                                gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(priv->check_use_transparent_ignore)));
 	loqui_pref_set_boolean(loqui_get_general_pref(),
@@ -309,25 +315,17 @@ prefs_dialog_save_settings(PrefsDialog *dialog)
 	loqui_app_set_auto_switch_scrolling_channel_buffers(priv->app, gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(priv->check_auto_switch_scrolling)));
 	loqui_app_set_auto_switch_scrolling_common_buffer(priv->app, gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(priv->check_auto_switch_scrolling_common_buffer)));
 
-
-	list = NULL;
-	gtkutils_set_string_list_from_textview(&list, GTK_TEXT_VIEW(priv->textview_highlight));
-	len = g_list_length(list);
-	strarray = loqui_utils_list_to_string_array(list, TRUE);
-	loqui_pref_set_string_list(loqui_get_general_pref(),
-				   LOQUI_GENERAL_PREF_GROUP_NOTIFICATION, "HighlightList",
-				   strarray, len);
-	g_strfreev(strarray);
-
-	list = NULL;
-	gtkutils_set_string_list_from_textview(&list,
-					       GTK_TEXT_VIEW(priv->textview_transparent_ignore));
-	len = g_list_length(list);
-	strarray = loqui_utils_list_to_string_array(list, TRUE);
-	loqui_pref_set_string_list(loqui_get_general_pref(),
-				   LOQUI_GENERAL_PREF_GROUP_IGNORE, "TransparentIgnoreList",
-				   strarray, len);
-	g_strfreev(strarray);
+#define SAVE_FROM_TEXT_VIEW_TO_ARRAY(_group, _key, _textview) { \
+	list = NULL; \
+	gtkutils_set_string_list_from_textview(&list, GTK_TEXT_VIEW(_textview)); \
+	len = g_list_length(list); \
+	strarray = loqui_utils_list_to_string_array(list, TRUE); \
+	loqui_pref_set_string_list(loqui_get_general_pref(), _group, _key, strarray, len); \
+	g_strfreev(strarray); \
+}
+	SAVE_FROM_TEXT_VIEW_TO_ARRAY(LOQUI_GENERAL_PREF_GROUP_NOTIFICATION, "HighlightList", priv->textview_highlight);
+	SAVE_FROM_TEXT_VIEW_TO_ARRAY(LOQUI_GENERAL_PREF_GROUP_IGNORE, "NormalIgnoreList", priv->textview_normal_ignore);
+	SAVE_FROM_TEXT_VIEW_TO_ARRAY(LOQUI_GENERAL_PREF_GROUP_IGNORE, "TransparentIgnoreList", priv->textview_transparent_ignore);
 
 	loqui_pref_set_string(loqui_get_general_pref(),
                               LOQUI_GENERAL_PREF_GROUP_MESSAGES, "AwayMessage",
@@ -480,6 +478,13 @@ prefs_dialog_new(LoquiApp *app)
 
 	vbox = gtk_vbox_new(FALSE, 0);
 	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), vbox, gtk_label_new(_("Ignore")));
+
+	priv->check_use_normal_ignore = gtk_check_button_new_with_label(_("Use ignore (normal) feature"));
+	gtk_box_pack_start(GTK_BOX(vbox), priv->check_use_normal_ignore, FALSE, FALSE, 0);
+
+	frame = gtkutils_create_framed_textview(&priv->textview_normal_ignore,
+						_("Nickname list to ignore (normal) ('*' and '?' can be used)"));
+	gtk_box_pack_start(GTK_BOX(vbox), frame, TRUE, TRUE, 0);
 
 	priv->check_use_transparent_ignore = gtk_check_button_new_with_label(_("Use ignore (transparent) feature"));
 	gtk_box_pack_start(GTK_BOX(vbox), priv->check_use_transparent_ignore, FALSE, FALSE, 0);
