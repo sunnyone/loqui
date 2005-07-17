@@ -6,35 +6,57 @@ msgid ""
 msgstr ""
 "Project-Id-Version: loqui 0.1.20\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2005-07-03 19:45+0900\n"
-"PO-Revision-Date: 2005-07-05 13:07+0900\n"
+"POT-Creation-Date: 2005-07-18 03:02+0900\n"
+"PO-Revision-Date: 2005-07-18 03:06+0900\n"
 "Last-Translator: Yoichi Imai <yoichi@silver-forest.com>\n"
 "Language-Team: Japanese <ja@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: libloqui/ctcp_handle.c:176
+#: libloqui/ctcp_handle.c:181
 msgid "Sender is not set in a CTCP message"
 msgstr "送信側がCTCPメッセージを設定していません"
 
-#: libloqui/ctcp_handle.c:182
+#: libloqui/ctcp_handle.c:187
 msgid "Receiver is not set in a CTCP message"
 msgstr "受信側がCTCPメッセージを設定していません"
 
-#: libloqui/ctcp_handle.c:198
+#: libloqui/ctcp_handle.c:203
 #, c-format
 msgid "Received CTCP %1$s from %2$s to %3$s: %4$s%5$s%6$s"
 msgstr ""
 
-#: libloqui/ctcp_handle.c:213
+#: libloqui/ctcp_handle.c:218
 msgid "The CTCP request was ignored."
 msgstr "CTCP要求が拒否されました"
 
-#: libloqui/ctcp_handle.c:250
+#: libloqui/ctcp_handle.c:255
 #, c-format
 msgid "Sent CTCP reply to %s: %s"
 msgstr "%sへCTCP応答を送信しました: %s"
+
+#: libloqui/ctcp_handle.c:340
+#, c-format
+msgid "This DCC request doesn't have subcommand: %s"
+msgstr ""
+
+#: libloqui/ctcp_handle.c:350
+#, c-format
+msgid "This DCC request has an unsupported subcommand: %s (%s)"
+msgstr ""
+
+#: libloqui/ctcp_handle.c:374
+#, c-format
+msgid "Invalid DCC request (invalid parameter length: %d (%s))"
+msgstr ""
+
+#: libloqui/ctcp_handle.c:416
+#, c-format
+msgid ""
+"Received DCC SEND request from %s (filename: %s, host: %s, port: %s, size: %"
+"s)"
+msgstr ""
 
 #: libloqui/irc_message.c:456
 msgid "Invalid parameter number"
@@ -55,6 +77,61 @@ msgstr "ソケットを開きました。"
 #: libloqui/loqui-account-ipmsg.gob:129
 msgid "Disconnected."
 msgstr "切断されました。"
+
+#: libloqui/loqui-message-text.gob:85 libloqui/loqui-message-text.gob:86
+msgid "Text"
+msgstr ""
+
+#: libloqui/loqui-message-text.gob:92 libloqui/loqui-message-text.gob:93
+msgid "Channel name"
+msgstr "チャンネルの名前"
+
+#: libloqui/loqui-message-text.gob:99 libloqui/loqui-message-text.gob:100
+#: libloqui/loqui_profile_account.c:263
+msgid "Account name"
+msgstr "アカウントの名前"
+
+#: libloqui/loqui-message-text.gob:106 libloqui/loqui_profile_account.c:268
+#: libloqui/loqui_user.c:228 src/loqui-account-dialog.gob:389
+#: src/nick_list.c:467
+msgid "Nick"
+msgstr "Nick"
+
+#: libloqui/loqui-message-text.gob:107
+msgid "Nickname"
+msgstr "ニックネーム"
+
+#: libloqui/loqui-message-text.gob:113
+msgid "Self?"
+msgstr ""
+
+#: libloqui/loqui-message-text.gob:114
+msgid "Whether or not the message is by myself"
+msgstr ""
+
+#: libloqui/loqui-message-text.gob:120
+msgid "Priv?"
+msgstr ""
+
+#: libloqui/loqui-message-text.gob:121
+msgid "Whether or not private message"
+msgstr ""
+
+#: libloqui/loqui-message-text.gob:127 libloqui/loqui-message-text.gob:128
+msgid "Remark?"
+msgstr ""
+
+#: libloqui/loqui-message-text.gob:134 libloqui/loqui-message-text.gob:141
+msgid "Execute notification"
+msgstr ""
+
+#: libloqui/loqui-message-text.gob:135 libloqui/loqui-message-text.gob:142
+msgid "Execute notification or not"
+msgstr ""
+
+#: libloqui/loqui-message-text.gob:148 libloqui/loqui-message-text.gob:149
+msgid "Text type"
+msgstr ""
 
 #: libloqui/loqui-pref-partial.gob:54 libloqui/loqui-pref-sequence.gob:43
 msgid "Pref"
@@ -172,6 +249,63 @@ msgstr ""
 #: libloqui/loqui-socket-ipmsg.gob:115
 #, c-format
 msgid "Invalid packet: '%s'"
+msgstr ""
+
+#: libloqui/loqui-transfer-item-irc.gob:41
+msgid "Addr"
+msgstr ""
+
+#: libloqui/loqui-transfer-item-irc.gob:42 libloqui/loqui-transfer-item.gob:66
+msgid "Address"
+msgstr ""
+
+#: libloqui/loqui-transfer-item.gob:46
+msgid "dirname"
+msgstr ""
+
+#: libloqui/loqui-transfer-item.gob:47
+msgid "Directory Name"
+msgstr ""
+
+#: libloqui/loqui-transfer-item.gob:50
+msgid "filename"
+msgstr "ファイル名"
+
+#: libloqui/loqui-transfer-item.gob:51
+msgid "Filename"
+msgstr "ファイル名"
+
+#: libloqui/loqui-transfer-item.gob:56
+msgid "is_upload"
+msgstr ""
+
+#: libloqui/loqui-transfer-item.gob:57
+msgid "Is upload"
+msgstr ""
+
+#: libloqui/loqui-transfer-item.gob:61
+msgid "port"
+msgstr "ポート"
+
+#: libloqui/loqui-transfer-item.gob:62 libloqui/loqui_user_ipmsg.c:186
+msgid "Port"
+msgstr ""
+
+#: libloqui/loqui-transfer-item.gob:65
+msgid "address"
+msgstr ""
+
+#: libloqui/loqui-transfer-item.gob:69
+msgid "size"
+msgstr "サイズ"
+
+#: libloqui/loqui-transfer-item.gob:70
+msgid "Size"
+msgstr "サイズ"
+
+#: libloqui/loqui-utils.c:176
+#, c-format
+msgid "?x flag doesn't have { in '%s'"
 msgstr ""
 
 #: libloqui/loqui_account.c:143
@@ -407,65 +541,9 @@ msgid "Last message time"
 msgstr "最終メッセージ時刻"
 
 #: libloqui/loqui_message.c:165 libloqui/loqui_message.c:166
-#: src/prefs_dialog.c:492
+#: src/prefs_dialog.c:497
 msgid "Command"
 msgstr "コマンド"
-
-#: libloqui/loqui_message_text.c:99 libloqui/loqui_message_text.c:100
-msgid "Text"
-msgstr ""
-
-#: libloqui/loqui_message_text.c:105 libloqui/loqui_message_text.c:106
-msgid "Channel name"
-msgstr "チャンネルの名前"
-
-#: libloqui/loqui_message_text.c:111 libloqui/loqui_message_text.c:112
-#: libloqui/loqui_profile_account.c:263
-msgid "Account name"
-msgstr "アカウントの名前"
-
-#: libloqui/loqui_message_text.c:117 libloqui/loqui_profile_account.c:268
-#: libloqui/loqui_user.c:228 src/loqui-account-dialog.gob:389
-#: src/nick_list.c:467
-msgid "Nick"
-msgstr "Nick"
-
-#: libloqui/loqui_message_text.c:118
-msgid "Nickname"
-msgstr "ニックネーム"
-
-#: libloqui/loqui_message_text.c:123
-msgid "Self?"
-msgstr ""
-
-#: libloqui/loqui_message_text.c:124
-msgid "Whether or not the message is by myself"
-msgstr ""
-
-#: libloqui/loqui_message_text.c:129
-msgid "Priv?"
-msgstr ""
-
-#: libloqui/loqui_message_text.c:130
-msgid "Whether or not private message"
-msgstr ""
-
-#: libloqui/loqui_message_text.c:135 libloqui/loqui_message_text.c:136
-msgid "Remark?"
-msgstr ""
-
-#: libloqui/loqui_message_text.c:141
-msgid "Execute notification"
-msgstr ""
-
-#: libloqui/loqui_message_text.c:142
-msgid "Execute notification or not"
-msgstr ""
-
-#. should use g_param_spec_enum
-#: libloqui/loqui_message_text.c:147 libloqui/loqui_message_text.c:148
-msgid "Text type"
-msgstr ""
 
 #: libloqui/loqui_profile_account.c:269
 msgid "Nickname at first"
@@ -522,33 +600,33 @@ msgstr ""
 msgid "Untitled"
 msgstr "未タイトル"
 
-#: libloqui/loqui_profile_account_irc.c:187
-#: libloqui/loqui_profile_account_irc.c:188 libloqui/loqui_user.c:246
+#: libloqui/loqui_profile_account_irc.c:184
+#: libloqui/loqui_profile_account_irc.c:185 libloqui/loqui_user.c:246
 #: libloqui/loqui_user.c:247
 msgid "Realname"
 msgstr "本名"
 
-#: libloqui/loqui_profile_account_irc.c:193
+#: libloqui/loqui_profile_account_irc.c:190
 msgid "User information"
 msgstr "ユーザ情報"
 
-#: libloqui/loqui_profile_account_irc.c:194
+#: libloqui/loqui_profile_account_irc.c:191
 msgid "User information used with CTCP USERINFO"
 msgstr ""
 
-#: libloqui/loqui_profile_account_irc.c:199
+#: libloqui/loqui_profile_account_irc.c:196
 msgid "Autojoin channels"
 msgstr "自動joinチャンネル"
 
-#: libloqui/loqui_profile_account_irc.c:200
+#: libloqui/loqui_profile_account_irc.c:197
 msgid "Channels which are joined automatically"
 msgstr "自動的にjoinされるチャンネル"
 
-#: libloqui/loqui_profile_account_irc.c:205
+#: libloqui/loqui_profile_account_irc.c:202
 msgid "Quit Message"
 msgstr "Quitメッセージ"
 
-#: libloqui/loqui_profile_account_irc.c:206
+#: libloqui/loqui_profile_account_irc.c:203
 msgid "Default quit message"
 msgstr ""
 
@@ -920,10 +998,6 @@ msgstr ""
 msgid "Group Name"
 msgstr ""
 
-#: libloqui/loqui_user_ipmsg.c:186
-msgid "Port"
-msgstr ""
-
 #: libloqui/loqui_user_ipmsg.c:187
 msgid "Port number"
 msgstr ""
@@ -1049,11 +1123,6 @@ msgstr ""
 msgid "Connecting to login server (%s:%d)"
 msgstr "login server (%s:%d) に接続しています"
 
-#: libloqui/utils.c:176
-#, c-format
-msgid "?x flag doesn't have { in '%s'"
-msgstr ""
-
 #: src/account_list_dialog.c:300
 msgid "Account List"
 msgstr "アカウントリスト"
@@ -1148,11 +1217,11 @@ msgstr "ニックネームの変更"
 msgid "New nickname of the account %s"
 msgstr "%sの新しいニックネーム"
 
-#: src/eggtrayicon.c:118
+#: src/eggtrayicon.c:120
 msgid "Orientation"
 msgstr ""
 
-#: src/eggtrayicon.c:119
+#: src/eggtrayicon.c:121
 msgid "The orientation of the tray."
 msgstr ""
 
@@ -1310,83 +1379,87 @@ msgstr ""
 msgid "Is font default or not"
 msgstr ""
 
-#: src/loqui-transfer-window.gob:72
-msgid "Start"
-msgstr "開始"
+#: src/loqui-transfer-window.gob:37
+msgid "_Start"
+msgstr "開始(_S)"
 
-#: src/loqui-transfer-window.gob:76
-msgid "Stop"
-msgstr "停止"
+#: src/loqui-transfer-window.gob:38
+msgid "Cancel"
+msgstr "キャンセル"
 
-#: src/loqui-transfer-window.gob:80
-msgid "Info"
-msgstr "情報"
+#: src/loqui-transfer-window.gob:39
+msgid "Close"
+msgstr "閉じる"
 
-#: src/loqui-transfer-window.gob:120 src/loqui_app_actions.c:177
-msgid "File Transfer Manager"
-msgstr "ファイル転送マネージャ"
+#: src/loqui-transfer-window.gob:43
+msgid "_Information"
+msgstr ""
 
-#: src/loqui-transfer-window.gob:143
+#: src/loqui-transfer-window.gob:139
+msgid "Loqui - File Transfer Manager"
+msgstr "Loqui - ファイル転送マネージャ"
+
+#: src/loqui-transfer-window.gob:163
 msgid "Information"
 msgstr "詳細情報"
 
-#: src/loqui-transfer-window.gob:163
+#: src/loqui-transfer-window.gob:183
 msgid "Filename:"
 msgstr "ファイル名:"
 
-#: src/loqui-transfer-window.gob:174
+#: src/loqui-transfer-window.gob:194
 msgid "Directory:"
 msgstr "ディレクトリ"
 
-#: src/loqui-transfer-window.gob:183
+#: src/loqui-transfer-window.gob:203
 msgid "Select..."
 msgstr "選択..."
 
-#: src/loqui-transfer-window.gob:196
+#: src/loqui-transfer-window.gob:216
 msgid "Up / Down:"
 msgstr "アップ/ダウンロード"
 
-#: src/loqui-transfer-window.gob:200
+#: src/loqui-transfer-window.gob:220
 msgid "Down"
 msgstr "ダウンロード"
 
-#: src/loqui-transfer-window.gob:206
+#: src/loqui-transfer-window.gob:226
 msgid "Status:"
 msgstr "ステータス:"
 
-#: src/loqui-transfer-window.gob:210
+#: src/loqui-transfer-window.gob:230
 msgid "Transferring"
 msgstr "転送中"
 
-#: src/loqui-transfer-window.gob:216
+#: src/loqui-transfer-window.gob:236
 msgid "Path:"
 msgstr "パス:"
 
-#: src/loqui-transfer-window.gob:220
+#: src/loqui-transfer-window.gob:240
 msgid "hoge.jpg"
 msgstr ""
 
-#: src/loqui-transfer-window.gob:226
+#: src/loqui-transfer-window.gob:246
 msgid "Progress:"
 msgstr "進捗状況:"
 
-#: src/loqui-transfer-window.gob:235
+#: src/loqui-transfer-window.gob:255
 msgid "50%"
 msgstr ""
 
-#: src/loqui-transfer-window.gob:239
+#: src/loqui-transfer-window.gob:259
 msgid "Size:"
 msgstr "サイズ:"
 
-#: src/loqui-transfer-window.gob:243
+#: src/loqui-transfer-window.gob:263
 msgid "10,243,000 / 50,222,222"
 msgstr ""
 
-#: src/loqui-transfer-window.gob:251
+#: src/loqui-transfer-window.gob:271
 msgid "Rate:"
 msgstr "レート:"
 
-#: src/loqui-transfer-window.gob:255
+#: src/loqui-transfer-window.gob:275
 msgid "50.2 KB/s"
 msgstr ""
 
@@ -1571,6 +1644,10 @@ msgstr "バッファの選択..."
 #: src/loqui_app_actions.c:175
 msgid "Clear All Unread Flags of Buffers"
 msgstr "すべてのバッファの未読フラグをクリアする"
+
+#: src/loqui_app_actions.c:177
+msgid "File Transfer Manager"
+msgstr "ファイル転送マネージャ"
 
 #: src/loqui_app_actions.c:178
 msgid "_General Settings"
@@ -1809,108 +1886,116 @@ msgid "  --help                    show this help\n"
 msgstr "  --help                    ヘルプメッセージの表示\n"
 
 #. FIXME: use _default
-#: src/prefs_dialog.c:365
+#: src/prefs_dialog.c:363
 #, c-format
 msgid "Invalid title format: default is used for %s."
 msgstr ""
 
-#: src/prefs_dialog.c:411
+#: src/prefs_dialog.c:409
 msgid "Common Preferences"
 msgstr "全般の設定"
 
-#: src/prefs_dialog.c:429
+#: src/prefs_dialog.c:427
 msgid "General"
 msgstr "全般"
 
-#: src/prefs_dialog.c:431
+#: src/prefs_dialog.c:429
 msgid "Save window/widget sizes"
 msgstr "ウィンドウとウィジットのサイズを保存する"
 
-#: src/prefs_dialog.c:433
+#: src/prefs_dialog.c:431
 msgid "Switch whether scrolling channel buffer or not automatically"
 msgstr "チャンネルバッファをスクロールするかしないかを自動的に切り替える"
 
-#: src/prefs_dialog.c:435
+#: src/prefs_dialog.c:433
 msgid "Switch whether scrolling common buffer or not automatically"
 msgstr "共通バッファをスクロールするかしないかを自動的に切り替える"
 
-#: src/prefs_dialog.c:438
+#: src/prefs_dialog.c:436
 msgid "Parse plum (an irc proxy) recent feature (Experimental)"
 msgstr "plum(IRC proxy)のrecentをパースする (実験的)"
 
-#: src/prefs_dialog.c:440
+#: src/prefs_dialog.c:438
 msgid "Reconnect automatically when connections are terminated."
 msgstr "接続が強制的に切断されたとき自動的に再接続する"
 
-#: src/prefs_dialog.c:443
+#: src/prefs_dialog.c:441
 msgid "Connect default accounts when the program started"
 msgstr "プログラム起動時にデフォルトのアカウントを接続する"
 
-#: src/prefs_dialog.c:445
+#: src/prefs_dialog.c:443
 msgid "Select a new channel automatically."
 msgstr "新しいチャンネルを自動的に選択する"
 
-#: src/prefs_dialog.c:448
+#: src/prefs_dialog.c:446
 msgid "Away message: "
 msgstr "離席メッセージ: "
 
-#: src/prefs_dialog.c:449
+#: src/prefs_dialog.c:447
 msgid "Format of time in buffers: "
 msgstr "バッファの時間表示形式"
 
-#: src/prefs_dialog.c:452
+#: src/prefs_dialog.c:450
 msgid "Max line number of a common buffer(0: unlimited): "
 msgstr "共通バッファの最大行数(0: 無制限): "
 
-#: src/prefs_dialog.c:456
+#: src/prefs_dialog.c:454
 msgid "Max line number of a channel buffer(0: unlimited): "
 msgstr "チャンネルバッファの最大行数(0: 無制限): "
 
-#: src/prefs_dialog.c:460
+#: src/prefs_dialog.c:458
 msgid "Toggle command mode automatically"
 msgstr "コマンドモードへ自動的に移行する"
 
-#: src/prefs_dialog.c:463
+#: src/prefs_dialog.c:461
 msgid "Prefix for commands: "
 msgstr "コマンド文字"
 
-#: src/prefs_dialog.c:465
+#: src/prefs_dialog.c:463
 msgid "Save logs (Experimental)"
 msgstr "ログの保存(実験的)"
 
-#: src/prefs_dialog.c:469
+#: src/prefs_dialog.c:467
 msgid "Highlight"
 msgstr "強調"
 
-#: src/prefs_dialog.c:471
+#: src/prefs_dialog.c:469
 msgid "Use notification"
 msgstr "通知を使用する"
 
-#: src/prefs_dialog.c:474
+#: src/prefs_dialog.c:472
 msgid "Execute notification by NOTICE"
 msgstr "NOTICEによって通知を実行する"
 
-#: src/prefs_dialog.c:478
+#: src/prefs_dialog.c:476
 msgid "Highlighting keywords(Separate each words with linefeeds)"
 msgstr "強調するキーワード(改行で区切って下さい)"
 
-#: src/prefs_dialog.c:482
+#: src/prefs_dialog.c:480
 msgid "Ignore"
 msgstr "無視"
 
-#: src/prefs_dialog.c:484
+#: src/prefs_dialog.c:482
+msgid "Use ignore (normal) feature"
+msgstr "無視(通常)機能を使用する"
+
+#: src/prefs_dialog.c:486
+msgid "Nickname list to ignore (normal) ('*' and '?' can be used)"
+msgstr "無視する(通常)ニックネームのリスト('*'や'?'を使用できます)"
+
+#: src/prefs_dialog.c:489
 msgid "Use ignore (transparent) feature"
 msgstr "無視(透明)機能を使用する"
 
-#: src/prefs_dialog.c:488
+#: src/prefs_dialog.c:493
 msgid "Nickname list to ignore (transparent) ('*' and '?' can be used)"
 msgstr "無視する(透明)ニックネームのリスト('*'や'?'を使用できます)"
 
-#: src/prefs_dialog.c:494
+#: src/prefs_dialog.c:499
 msgid "Browser: "
 msgstr "ブラウザ: "
 
-#: src/prefs_dialog.c:496
+#: src/prefs_dialog.c:501
 #, c-format
 msgid ""
 "An URL will be quoted and substituted with %s.\n"
@@ -1925,15 +2010,15 @@ msgstr ""
 " Browser: mozilla -remote openURL\\(%s,new-tab\\)\n"
 "  -> mozilla -remote openURL\\('http://example.com#id',new-tab\\)"
 
-#: src/prefs_dialog.c:503
+#: src/prefs_dialog.c:508
 msgid "Notification: "
 msgstr "通知: "
 
-#: src/prefs_dialog.c:506
+#: src/prefs_dialog.c:511
 msgid "Format"
 msgstr "書式指定"
 
-#: src/prefs_dialog.c:508
+#: src/prefs_dialog.c:513
 msgid ""
 "See title formatting help of the software 'foobar2000'.\n"
 "The list of variables is at loqui_app_info.c.\n"
@@ -1943,15 +2028,15 @@ msgstr ""
 "利用可能な変数のリストは、loqui_app_info.cを見てください。\n"
 "入力すればそれを使い、そうでなければデフォルト値を使用します。"
 
-#: src/prefs_dialog.c:511
+#: src/prefs_dialog.c:516
 msgid "Title format of title"
 msgstr "ウィンドウタイトルの書式指定"
 
-#: src/prefs_dialog.c:525 src/prefs_dialog.c:546
+#: src/prefs_dialog.c:530 src/prefs_dialog.c:551
 msgid "Default:"
 msgstr "デフォルト:"
 
-#: src/prefs_dialog.c:532
+#: src/prefs_dialog.c:537
 msgid "Title format of statusbar"
 msgstr "ステータスバーの書式指定"
 
@@ -2007,6 +2092,12 @@ msgstr "IRCアカウント以外を使っています"
 #: src/remark_entry.c:609
 msgid "No channel is selected"
 msgstr "チャンネルが選択されていません"
+
+#~ msgid "Stop"
+#~ msgstr "停止"
+
+#~ msgid "Info"
+#~ msgstr "情報"
 
 #~ msgid "Invalid element '%s': should be 'profiles'"
 #~ msgstr "不正な要素 '%s': 'プロフィール'である必要があります"

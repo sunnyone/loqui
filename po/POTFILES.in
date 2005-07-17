@@ -2,8 +2,6 @@ libloqui/ctcp_handle.c
 libloqui/ctcp_handle.h
 libloqui/ctcp_message.c
 libloqui/ctcp_message.h
-libloqui/gobject_utils.c
-libloqui/gobject_utils.h
 libloqui/ipmsg.h
 libloqui/ipmsg_packet.c
 libloqui/ipmsg_packet.h
@@ -16,6 +14,9 @@ libloqui/loqui-core.gob
 libloqui/loqui-general-pref-default.h
 libloqui/loqui-general-pref-groups.h
 libloqui/loqui-generic-profile-factory.gob
+libloqui/loqui-gobject-utils.c
+libloqui/loqui-gobject-utils.h
+libloqui/loqui-message-text.gob
 libloqui/loqui-mode-item.gob
 libloqui/loqui-mode-manager.gob
 libloqui/loqui-pref-partial.gob
@@ -73,8 +74,6 @@ libloqui/loqui_member_sort_funcs.c
 libloqui/loqui_member_sort_funcs.h
 libloqui/loqui_message.c
 libloqui/loqui_message.h
-libloqui/loqui_message_text.c
-libloqui/loqui_message_text.h
 libloqui/loqui_profile_account.c
 libloqui/loqui_profile_account.h
 libloqui/loqui_profile_account_ipmsg.c
