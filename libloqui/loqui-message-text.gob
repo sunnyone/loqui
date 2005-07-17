@@ -59,6 +59,7 @@ LOQUI_DEFINE_ACCESSOR_GENERIC(LoquiMessageText, loqui_message_text, is_priv, gbo
 LOQUI_DEFINE_ACCESSOR_GENERIC(LoquiMessageText, loqui_message_text, is_self, gboolean);
 LOQUI_DEFINE_ACCESSOR_GENERIC(LoquiMessageText, loqui_message_text, is_remark, gboolean);
 LOQUI_DEFINE_ACCESSOR_GENERIC(LoquiMessageText, loqui_message_text, exec_notification, gboolean);
+LOQUI_DEFINE_ACCESSOR_GENERIC(LoquiMessageText, loqui_message_text, is_ignored, gboolean);
 
 LOQUI_DEFINE_ACCESSOR_GENERIC(LoquiMessageText, loqui_message_text, text_type, LoquiTextType);
 %}
@@ -75,7 +76,8 @@ class Loqui:Message:Text from G:Object
         public gboolean is_priv = FALSE;
         public gboolean is_remark = FALSE;
         public gboolean exec_notification;
-        
+        public gboolean is_ignored = FALSE;
+
         public GList *highlight_region_list = NULL unrefwith loqui_utils_free_list_and_elements;
         public GList *uri_region_list = NULL unrefwith loqui_utils_free_list_and_elements;
 
@@ -135,6 +137,13 @@ class Loqui:Message:Text from G:Object
                 get { g_value_set_boolean(VAL, loqui_message_text_get_exec_notification(self)); }
                 set { loqui_message_text_set_exec_notification(self, g_value_get_boolean(VAL)); };
 
+        property BOOLEAN is_ignored (
+		nick = _("Execute notification"),
+		blurb = _("Execute notification or not"),
+		default_value = FALSE)
+                get { g_value_set_boolean(VAL, loqui_message_text_get_is_ignored(self)); }
+                set { loqui_message_text_set_is_ignored(self, g_value_get_boolean(VAL)); };
+
 	property UINT text_type (
 		nick = _("Text type"),
 		blurb = _("Text type"),
@@ -187,6 +196,7 @@ LOQUI_DEFINE_ACCESSOR_GENERIC_PROTOTYPE(LoquiMessageText, loqui_message_text, is
 LOQUI_DEFINE_ACCESSOR_GENERIC_PROTOTYPE(LoquiMessageText, loqui_message_text, is_priv, gboolean);
 LOQUI_DEFINE_ACCESSOR_GENERIC_PROTOTYPE(LoquiMessageText, loqui_message_text, is_remark, gboolean);
 LOQUI_DEFINE_ACCESSOR_GENERIC_PROTOTYPE(LoquiMessageText, loqui_message_text, exec_notification, gboolean);
+LOQUI_DEFINE_ACCESSOR_GENERIC_PROTOTYPE(LoquiMessageText, loqui_message_text, is_ignored, gboolean);
 
 LOQUI_DEFINE_ACCESSOR_GENERIC_PROTOTYPE(LoquiMessageText, loqui_message_text, text_type, LoquiTextType);
 %}
