@@ -15,12 +15,11 @@ SRC_BASE_UTILITIES = \
 	loqui_marshalers.c loqui_marshalers.h \
 	lqgkeyfile.c lqgkeyfile.h
 
-define(`M4_SRC_PROTOCOL_BASE_BASE_GOB',`loqui-generic-profile-factory.gob loqui-property-profile.gob')
+define(`M4_SRC_PROTOCOL_BASE_BASE_GOB',`loqui-generic-profile-factory.gob loqui-property-profile.gob loqui-message-text.gob')
 SRC_PROTOCOL_BASE_BASE = \
 	loqui_channel_entry.c loqui_channel_entry.h \
 	loqui_codeconv_tools.c loqui_codeconv_tools.h \
 	loqui_codeconv.c loqui_codeconv.h \
-	loqui-message-text.c loqui-message-text.h \
 	loqui_channel_buffer.c loqui_channel_buffer.h \
 	loqui_channel_entry_utils.c loqui_channel_entry_utils.h \
 	loqui-profile.c loqui-profile.h \

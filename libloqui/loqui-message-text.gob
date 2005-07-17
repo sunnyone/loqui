@@ -1,0 +1,192 @@
+requires 2.0.0
+
+%alltop{
+/*
+ * libloqui -- Chat/IM client library for GLib <http://loqui.good-day.net/>
+ * Copyright (C) 2004 Yoichi Imai <yoichi@silver-forest.com>
+ *
+ * This Library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Library General Public License as
+ * published by the Free Software Foundation; either version 2 of the
+ * License, or (at your option) any later version.
+ *
+ * This Library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Library General Public License for more details.
+ *
+ * You should have received a copy of the GNU Library General Public
+ * License along with the Gnome Library; see the file COPYING.LIB.  If not,
+ * write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+ * Boston, MA 02111-1307, USA.
+ */
+%}
+
+%h{
+#include <libloqui/loqui-gobject-utils.h>
+
+typedef enum {
+        LOQUI_TEXT_TYPE_NORMAL,
+        LOQUI_TEXT_TYPE_NOTICE,
+        LOQUI_TEXT_TYPE_ACTION,
+        LOQUI_TEXT_TYPE_INFO,
+        LOQUI_TEXT_TYPE_ERROR,
+        /* private */
+        LOQUI_TEXT_TYPE_TIME,
+        LOQUI_TEXT_TYPE_URI,
+        LOQUI_TEXT_TYPE_EMPHASIS,
+        LOQUI_TEXT_TYPE_TRANSPARENT,
+} LoquiTextType;
+
+/* in bytes */
+typedef struct _LoquiTextRegion {
+        gsize start; /* relative offset */
+        gsize len;
+} LoquiTextRegion;
+%}
+
+%{
+#include <libloqui/libloqui-intl.h>
+
+#include "loqui-utils.h"
+
+LOQUI_DEFINE_ACCESSOR_CONST_STRING(LoquiMessageText, loqui_message_text, text);
+LOQUI_DEFINE_ACCESSOR_CONST_STRING(LoquiMessageText, loqui_message_text, nick);
+LOQUI_DEFINE_ACCESSOR_CONST_STRING(LoquiMessageText, loqui_message_text, account_name);
+LOQUI_DEFINE_ACCESSOR_CONST_STRING(LoquiMessageText, loqui_message_text, channel_name);
+
+LOQUI_DEFINE_ACCESSOR_GENERIC(LoquiMessageText, loqui_message_text, is_priv, gboolean);
+LOQUI_DEFINE_ACCESSOR_GENERIC(LoquiMessageText, loqui_message_text, is_self, gboolean);
+LOQUI_DEFINE_ACCESSOR_GENERIC(LoquiMessageText, loqui_message_text, is_remark, gboolean);
+LOQUI_DEFINE_ACCESSOR_GENERIC(LoquiMessageText, loqui_message_text, exec_notification, gboolean);
+
+LOQUI_DEFINE_ACCESSOR_GENERIC(LoquiMessageText, loqui_message_text, text_type, LoquiTextType);
+%}
+
+class Loqui:Message:Text from G:Object
+{
+        public LoquiTextType text_type;
+        
+        public gchar *text = NULL unrefwith g_free;
+        public gchar *channel_name = NULL unrefwith g_free;
+        public gchar *account_name = NULL unrefwith g_free;
+        public gchar *nick = NULL unrefwith g_free;
+        public gboolean is_self = FALSE;
+        public gboolean is_priv = FALSE;
+        public gboolean is_remark = FALSE;
+        public gboolean exec_notification;
+        
+        public GList *highlight_region_list = NULL unrefwith loqui_utils_free_list_and_elements;
+        public GList *uri_region_list = NULL unrefwith loqui_utils_free_list_and_elements;
+
+	property STRING text (
+		nick = _("Text"),
+		blurb = _("Text"),
+		default_value = NULL)
+		get { g_value_set_string(VAL, loqui_message_text_get_text(self)); }
+	        set { loqui_message_text_set_text(self, g_value_get_string(VAL)); };
+
+	property STRING channel_name (
+		nick = _("Channel name"),
+		blurb = _("Channel name"),
+		default_value = NULL)
+		get { g_value_set_string(VAL, loqui_message_text_get_channel_name(self)); }
+	        set { loqui_message_text_set_channel_name(self, g_value_get_string(VAL)); };
+
+	property STRING account_name (
+		nick = _("Account name"),
+		blurb = _("Account name"),
+		default_value = NULL)
+		get { g_value_set_string(VAL, loqui_message_text_get_account_name(self)); }
+                set { loqui_message_text_set_account_name(self, g_value_get_string(VAL)); };
+
+	property STRING nick (
+		nick = _("Nick"),
+		blurb = _("Nickname"),
+		default_value = NULL)
+		get { g_value_set_string(VAL, loqui_message_text_get_nick(self)); }
+	        set { loqui_message_text_set_nick(self, g_value_get_string(VAL)); };
+
+	property BOOLEAN is_self (
+		nick = _("Self?"),
+		blurb = _("Whether or not the message is by myself"),
+		default_value = FALSE)
+		get { g_value_set_boolean(VAL, loqui_message_text_get_is_self(self)); }
+	        set { loqui_message_text_set_is_self(self, g_value_get_boolean(VAL)); };
+
+	property BOOLEAN is_priv (
+		nick = _("Priv?"),
+		blurb = _("Whether or not private message"),
+		default_value = FALSE)
+		get { g_value_set_boolean(VAL, loqui_message_text_get_is_priv(self)); }
+                set { loqui_message_text_set_is_priv(self, g_value_get_boolean(VAL)); };
+
+        property BOOLEAN is_remark (
+		nick = _("Remark?"),
+		blurb = _("Remark?"),
+		default_value = FALSE)
+		get { g_value_set_boolean(VAL, loqui_message_text_get_is_remark(self)); }
+                set { loqui_message_text_set_is_remark(self, g_value_get_boolean(VAL)); };
+
+        property BOOLEAN exec_notification (
+		nick = _("Execute notification"),
+		blurb = _("Execute notification or not"),
+		default_value = FALSE)
+                get { g_value_set_boolean(VAL, loqui_message_text_get_exec_notification(self)); }
+                set { loqui_message_text_set_exec_notification(self, g_value_get_boolean(VAL)); };
+
+	property UINT text_type (
+		nick = _("Text type"),
+		blurb = _("Text type"),
+		default_value = 0)
+		get { g_value_set_uint(VAL, loqui_message_text_get_text_type(self)); }
+	        set { loqui_message_text_set_text_type(self, g_value_get_uint(VAL)); };
+
+	public gchar *
+        get_nick_string(self, gboolean with_channel_name) {
+                gchar *nick_str;
+        
+                g_return_val_if_fail(LOQUI_IS_MESSAGE_TEXT(self), NULL);
+        
+                if(self->is_priv) {
+                        if(self->is_self)
+                                nick_str = g_strdup_printf(">%s< ", self->nick);
+                        else
+                                nick_str = g_strdup_printf("=%s= ", self->nick);
+                } else if (with_channel_name && self->channel_name) {
+                        if(self->is_self)
+                                nick_str = g_strdup_printf(">%s:%s< ", self->channel_name, self->nick);
+                        else
+                                nick_str = g_strdup_printf("<%s:%s> ", self->channel_name, self->nick);
+                } else {
+                        if(self->is_self)
+                                nick_str = g_strdup_printf(">%s< ", self->nick);
+                        else
+                                nick_str = g_strdup_printf("<%s> ", self->nick);
+                }
+        
+                return nick_str;
+        }
+
+	public Loqui:Message:Text *
+	new(void) {
+		Self *self;
+
+		self = 	GET_NEW;
+		return self;
+	}
+}
+
+%h{
+LOQUI_DEFINE_ACCESSOR_CONST_STRING_PROTOTYPE(LoquiMessageText, loqui_message_text, text);
+LOQUI_DEFINE_ACCESSOR_CONST_STRING_PROTOTYPE(LoquiMessageText, loqui_message_text, nick);
+LOQUI_DEFINE_ACCESSOR_CONST_STRING_PROTOTYPE(LoquiMessageText, loqui_message_text, account_name);
+LOQUI_DEFINE_ACCESSOR_CONST_STRING_PROTOTYPE(LoquiMessageText, loqui_message_text, channel_name);
+
+LOQUI_DEFINE_ACCESSOR_GENERIC_PROTOTYPE(LoquiMessageText, loqui_message_text, is_self, gboolean);
+LOQUI_DEFINE_ACCESSOR_GENERIC_PROTOTYPE(LoquiMessageText, loqui_message_text, is_priv, gboolean);
+LOQUI_DEFINE_ACCESSOR_GENERIC_PROTOTYPE(LoquiMessageText, loqui_message_text, is_remark, gboolean);
+LOQUI_DEFINE_ACCESSOR_GENERIC_PROTOTYPE(LoquiMessageText, loqui_message_text, exec_notification, gboolean);
+
+LOQUI_DEFINE_ACCESSOR_GENERIC_PROTOTYPE(LoquiMessageText, loqui_message_text, text_type, LoquiTextType);
+%}
