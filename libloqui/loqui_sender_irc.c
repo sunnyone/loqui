@@ -660,7 +660,7 @@ loqui_sender_irc_change_member_mode(LoquiSenderIRC *sender, LoquiChannel *channe
 	param_array[p] = NULL;
 
 	msg = irc_message_createv(IRCCommandMode, param_array);
-	debug_puts("Sending MODE command.\n");
+	loqui_debug_puts("Sending MODE command.\n");
 	loqui_sender_irc_send_irc_message(LOQUI_SENDER_IRC(sender), msg);
 	g_object_unref(msg);
 }

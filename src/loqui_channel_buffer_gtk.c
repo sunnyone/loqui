@@ -282,7 +282,7 @@ loqui_channel_buffer_gtk_tag_uri(GtkTextBuffer *buffer,
 	start_iter = *iter_in;
 	len = g_utf8_strlen(cur, -1);
 	if(!gtk_text_iter_backward_chars(&start_iter, len)) {
-		debug_puts("Can't backward iter for uri");
+		loqui_debug_puts("Can't backward iter for uri");
 		return;
 	}
 
@@ -290,14 +290,14 @@ loqui_channel_buffer_gtk_tag_uri(GtkTextBuffer *buffer,
 	while(*cur && utils_search_uri(cur, NULL, &start_uri, &end_uri)) {
 		len = g_utf8_strlen(cur, start_uri - cur);
 		if(len > 0 && !gtk_text_iter_forward_chars(&start_iter, len)) {
-			debug_puts("Can't forward iter to start_uri");
+			loqui_debug_puts("Can't forward iter to start_uri");
 			break;
 		}
 
 		end_iter = start_iter;
 		len = g_utf8_strlen(start_uri, end_uri - start_uri + 1);
 		if(len > 0 && !gtk_text_iter_forward_chars(&end_iter, len)) {
-			debug_puts("Can't forward iter to end_uri");
+			loqui_debug_puts("Can't forward iter to end_uri");
 			break;
 		}
 		

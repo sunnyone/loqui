@@ -504,7 +504,7 @@ class Loqui:Account:Dialog from Gtk:Dialog {
         	if (response == GTK_RESPONSE_YES) {
         		loqui_account_manager_remove_account(manager, account);
         		loqui_account_manager_save_accounts(manager);
-        		debug_puts("Removed account.");
+        		loqui_debug_puts("Removed account.");
         	}
         }
 

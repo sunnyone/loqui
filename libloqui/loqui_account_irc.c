@@ -387,15 +387,15 @@ loqui_account_irc_conn_connected_cb(GConn *conn, LoquiAccountIRC *account)
 
 	if(password && strlen(password) > 0) {
 		loqui_sender_irc_pass(sender, password);
-		debug_puts("Sending PASS...");
+		loqui_debug_puts("Sending PASS...");
 	}
 
 	loqui_sender_nick(LOQUI_SENDER(sender), nick);
-	debug_puts("Sending NICK...");
+	loqui_debug_puts("Sending NICK...");
 	loqui_user_set_nick(LOQUI_ACCOUNT(account)->user_self, nick);
 
 	loqui_sender_irc_user_raw(sender, username, realname);
-	debug_puts("Sending USER...");
+	loqui_debug_puts("Sending USER...");
 
 	loqui_account_information(LOQUI_ACCOUNT(account), _("Sent initial commands."));
 

@@ -330,7 +330,7 @@ class Loqui:Receiver:IPMsg from Loqui:Receiver
 			sendmsg_packet = cur->data;
 			if (sendmsg_packet->packet_num == orig_command_num) {
 				/* TODO: show an message to indicate to succeed to send */
-				debug_puts("Sent successfully: %d", sendmsg_packet->packet_num);
+				loqui_debug_puts("Sent successfully: %d", sendmsg_packet->packet_num);
 
 				sender->retring_sendmsg_list = g_list_delete_link(sender->retring_sendmsg_list, cur);
 				break;

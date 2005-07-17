@@ -125,7 +125,7 @@ loqui_channel_dispose(GObject *object)
 
 	G_OBJECT_UNREF_UNLESS_NULL(channel->account);
 
-	debug_puts("the channel is disposed.");
+	loqui_debug_puts("the channel is disposed.");
 
         if (G_OBJECT_CLASS(parent_class)->dispose)
                 (* G_OBJECT_CLASS(parent_class)->dispose)(object);

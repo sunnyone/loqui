@@ -302,7 +302,7 @@ irc_message_parse_line(const gchar *line)
 	utils_remove_return_code(buf);
 
 	if(buf == NULL || *buf == '\0') {
-		debug_puts("Empty line was sent by server.");
+		loqui_debug_puts("Empty line was sent by server.");
 		return NULL;
 	}
 
@@ -332,7 +332,7 @@ irc_message_parse_line(const gchar *line)
 	num = i;
 
 	if(num < 1) {
-		debug_puts("No prefix/command/parameters given: '%s'.", line);
+		loqui_debug_puts("No prefix/command/parameters given: '%s'.", line);
 		g_free(buf);
 		return NULL;
 	}

@@ -59,8 +59,8 @@
 
 #define LOQUI_UTILS_EMPTY_IF_NULL(str) (str == NULL ? "" : str)
 
-void debug_puts(const gchar *format, ...) G_GNUC_PRINTF(1, 2);
-void debug_print(const gchar *format, ...) G_GNUC_PRINTF(1, 2);
+void loqui_debug_puts(const gchar *format, ...) G_GNUC_PRINTF(1, 2);
+void loqui_debug_print(const gchar *format, ...) G_GNUC_PRINTF(1, 2);
 
 /* modify itself */
 G_CONST_RETURN gchar *utils_remove_return_code(gchar *str);

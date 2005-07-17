@@ -34,7 +34,7 @@
 
 const gchar* uri_prefix_list[] = { "http://", "https://", "ftp://", "mailto:", "ttp://", NULL };
 
-void debug_print(const gchar *format, ...)
+void loqui_debug_print(const gchar *format, ...)
 {
 	va_list args;
 	gchar *str;
@@ -48,7 +48,7 @@ void debug_print(const gchar *format, ...)
 	
 	g_free(str);	
 }
-void debug_puts(const gchar *format, ...)
+void loqui_debug_puts(const gchar *format, ...)
 {
 	va_list args;
 	gchar *str;
@@ -540,7 +540,7 @@ utils_url_decode(const gchar *str)
 			c2 = *(ptr+2);
 			if (c1 == '\0' || c2 == '\0' ||
 			    !g_ascii_isxdigit(c1) || !g_ascii_isxdigit(c2)) {
-				debug_puts("Failed to decode url: %s", str);
+				loqui_debug_puts("Failed to decode url: %s", str);
 				break;
 			} else {
 				c = (g_ascii_xdigit_value(c1) << 4) + g_ascii_xdigit_value(c2);

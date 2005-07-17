@@ -442,7 +442,7 @@ loqui_channel_text_view_get_uri_at_iter(LoquiChannelTextView *chview,
 		*uri_start_iter = *iter;
 		if (!gtk_text_iter_begins_tag(uri_start_iter, tag_link) &&
 		    !gtk_text_iter_backward_to_tag_toggle(uri_start_iter, tag_link)) {
-			debug_puts("Can't find start.");
+			loqui_debug_puts("Can't find start.");
 			return FALSE;
 		}
 	}
@@ -451,7 +451,7 @@ loqui_channel_text_view_get_uri_at_iter(LoquiChannelTextView *chview,
 		*uri_end_iter = *iter;
 		if (!gtk_text_iter_ends_tag(uri_end_iter, tag_link) &&
 		    !gtk_text_iter_forward_to_tag_toggle(uri_end_iter, tag_link)) {
-			debug_puts("Can't find end");
+			loqui_debug_puts("Can't find end");
 			return FALSE;
 		}
 	}
