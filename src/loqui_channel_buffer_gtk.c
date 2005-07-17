@@ -19,7 +19,7 @@
  */
 #include "config.h"
 
-#include <utils.h>
+#include <libloqui/loqui-utils.h>
 
 #include "loqui_channel_buffer_gtk.h"
 #include <time.h>

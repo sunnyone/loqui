@@ -19,7 +19,7 @@
  */
 #include "config.h"
 
-#include <utils.h>
+#include <libloqui/loqui-utils.h>
 
 #include "prefs_dialog.h"
 #include <glib/gi18n.h>

@@ -19,7 +19,7 @@
  */
 #include "config.h"
 #include "main.h"
-#include <utils.h>
+#include <libloqui/loqui-utils.h>
 
 #include "loqui_stock.h"
 

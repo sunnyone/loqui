@@ -22,11 +22,10 @@
 #include <loqui_account.h>
 #include <loqui_account_manager.h>
 #include <loqui_channel_entry_utils.h>
-#include <utils.h>
+#include <libloqui/loqui-utils.h>
 
 #include "loqui_app.h"
 #include "channel_tree.h"
-#include <utils.h>
 #include "nick_list.h"
 #include "loqui_channelbar.h"
 #include "loqui_statusbar.h"

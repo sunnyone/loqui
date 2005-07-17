@@ -19,7 +19,7 @@
  */
 #include "config.h"
 
-#include <utils.h>
+#include <libloqui/loqui-utils.h>
 #include <loqui_account_manager.h>
 
 #include "loqui-core-gtk.h"
