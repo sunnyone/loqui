@@ -21,7 +21,7 @@
 #include "config.h"
 
 #include "loqui_channel_buffer.h"
-#include "gobject_utils.h"
+#include "loqui-gobject-utils.h"
 
 enum {
 	SIGNAL_APPEND_MESSAGE_TEXT,

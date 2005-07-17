@@ -23,7 +23,7 @@
 
 #include <glib-object.h>
 #include "loqui_user.h"
-#include "gobject_utils.h"
+#include <libloqui/loqui-gobject-utils.h>
 
 G_BEGIN_DECLS
 

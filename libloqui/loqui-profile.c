@@ -21,7 +21,7 @@
 #include "config.h"
 
 #include "loqui-profile.h"
-#include "gobject_utils.h"
+#include "loqui-gobject-utils.h"
 
 enum {
 	LAST_SIGNAL

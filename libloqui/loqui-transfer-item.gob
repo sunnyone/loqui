@@ -23,7 +23,7 @@ requires 2.0.0
 %}
 
 %h{
-#include "gobject_utils.h"
+#include <libloqui/loqui-gobject-utils.h>
 %}
 
 %{

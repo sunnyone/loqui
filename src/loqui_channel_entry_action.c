@@ -20,7 +20,7 @@
 #include "config.h"
 
 #include "loqui_channel_entry_action.h"
-#include "gobject_utils.h"
+#include <libloqui/loqui-gobject-utils.h>
 #include <glib/gi18n.h>
 
 #include <loqui_account.h>

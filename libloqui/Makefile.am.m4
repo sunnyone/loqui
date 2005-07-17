@@ -9,7 +9,7 @@ CPPFLAGS = -g -Wall -Wredundant-decls -Wmissing-declarations -Wmissing-prototype
 SRC_BASE_UTILITIES = \
 	loqui-utils.c loqui-utils.h \
 	loqui_webutils.c loqui_webutils.h \
-	gobject_utils.c gobject_utils.h \
+	loqui-gobject-utils.c loqui-gobject-utils.h \
 	loqui_string_tokenizer.c loqui_string_tokenizer.h \
 	loqui_title_format.c loqui_title_format.h \
 	loqui_marshalers.c loqui_marshalers.h \

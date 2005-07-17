@@ -22,7 +22,7 @@
 #define __LOQUI_PROFILE_ACCOUNT_H__
 
 #include <glib-object.h>
-#include "gobject_utils.h"
+#include <libloqui/loqui-gobject-utils.h>
 #include <libloqui/loqui-property-profile.h>
 
 G_BEGIN_DECLS

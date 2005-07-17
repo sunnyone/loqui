@@ -40,7 +40,7 @@ requires 2.0.0
 typedef struct _LoquiProtocol LoquiProtocol;
 #endif
 
-#include <libloqui/gobject_utils.h>
+#include <libloqui/loqui-gobject-utils.h>
 #include <libloqui/loqui_account.h>
 #include <libloqui/loqui_channel.h>
 #include <libloqui/loqui_sender.h>
