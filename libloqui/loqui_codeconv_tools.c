@@ -251,13 +251,10 @@ loqui_codeconv_tools_utf8_from_ms_table(const gchar *str)
 	if (str == NULL)
 		return NULL;
 	len = strlen(str);
-	if (len == 0)
-		return g_strdup("");
-
 	dest = g_string_sized_new(len);
 
 	p = str;
-	do {
+	while (*p) {
 		u = g_utf8_get_char(p);
 		for (i = 0; ms_diff_table[i].ms != 0; i++) {
 			if (u == ms_diff_table[i].ms) {
@@ -265,7 +262,8 @@ loqui_codeconv_tools_utf8_from_ms_table(const gchar *str)
 			}
 		}
 		g_string_append_unichar(dest, u);
-	} while ((p = g_utf8_next_char(p)) != NULL);
+		p = g_utf8_next_char(p);
+	}
 
 	return g_string_free(dest, FALSE);
 }
@@ -282,13 +280,10 @@ loqui_codeconv_tools_utf8_to_ms_table(const gchar *str)
 	if (str == NULL)
 		return NULL;
 	len = strlen(str);
-	if (len == 0)
-		return g_strdup("");
-
 	dest = g_string_sized_new(len);
 
 	p = str;
-	do {
+	while (*p) {
 		u = g_utf8_get_char(p);
 		for (i = 0; ms_diff_table[i].ms != 0; i++) {
 			if (u == ms_diff_table[i].orig) {
@@ -296,7 +291,8 @@ loqui_codeconv_tools_utf8_to_ms_table(const gchar *str)
 			}
 		}
 		g_string_append_unichar(dest, u);
-	} while ((p = g_utf8_next_char(p)) != NULL);
+		p = g_utf8_next_char(p);
+	}
 
 	return g_string_free(dest, FALSE);
 }

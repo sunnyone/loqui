@@ -368,7 +368,7 @@ loqui_codeconv_to_server(LoquiCodeConv *codeconv, const gchar *input, GError **e
 		return g_strdup(input);
 
 #ifdef G_OS_WIN32
-	tmp = loqui_codeconv_tools_utf8_from_ms_table(tmp);
+	tmp = loqui_codeconv_tools_utf8_from_ms_table(input);
 	input = tmp;
 #endif
 
@@ -468,10 +468,6 @@ loqui_codeconv_to_local(LoquiCodeConv *codeconv, const gchar *input, GError **er
 	if(!priv->func && !LOQUI_CODECONV_G_ICONV_IS_VALID(codeconv->cd_to_local))
 		return g_strdup(input);
 
-#ifdef G_OS_WIN32
-	tmp = loqui_codeconv_tools_utf8_to_ms_table(tmp);
-	input = tmp;
-#endif
 
 	if (priv->func) {
 		buf = priv->func(codeconv, FALSE, input, error);
@@ -479,7 +475,11 @@ loqui_codeconv_to_local(LoquiCodeConv *codeconv, const gchar *input, GError **er
 		buf = loqui_codeconv_convert(codeconv, input, codeconv->cd_to_local, error);
 	}
 	
-	g_free(tmp);
+#ifdef G_OS_WIN32
+	tmp = loqui_codeconv_tools_utf8_to_ms_table(buf);
+	g_free(buf);
+	buf = tmp;
+#endif
 
 	return buf;
 
