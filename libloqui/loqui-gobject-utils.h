@@ -73,7 +73,7 @@ void class_name_lowercase ## _set_ ## attr_name (class_name_capitalized *obj, in
   LOQUI_DEFINE_READER_GENERIC(return_type, NULL, class_name_capitalized, class_name_lowercase, attr_name); \
   LOQUI_DEFINE_WRITER_POINTER(new_func, destroy_func, const gchar *, class_name_capitalized, class_name_lowercase, attr_name)
 
-#define ATTR_ACCESSOR_POINTER_PROTOTYPE(in_type, return_type, class_name_capitalized, class_name_lowercase, attr_name) \
+#define LOQUI_DEFINE_ACCESSOR_POINTER_PROTOTYPE(in_type, return_type, class_name_capitalized, class_name_lowercase, attr_name) \
   LOQUI_DEFINE_READER_GENERIC_PROTOTYPE(return_type, class_name_capitalized, class_name_lowercase, attr_name); \
   LOQUI_DEFINE_WRITER_GENERIC_PROTOTYPE(in_type, class_name_capitalized, class_name_lowercase, attr_name)
   
@@ -81,7 +81,7 @@ void class_name_lowercase ## _set_ ## attr_name (class_name_capitalized *obj, in
   LOQUI_DEFINE_ACCESSOR_POINTER(g_strdup, g_free, const gchar *, G_CONST_RETURN gchar *, class_name_capitalized, class_name_lowercase, attr_name);
 
 #define LOQUI_DEFINE_ACCESSOR_CONST_STRING_PROTOTYPE(class_name_capitalized, class_name_lowercase, attr_name) \
-  ATTR_ACCESSOR_POINTER_PROTOTYPE(const gchar *, G_CONST_RETURN gchar *, class_name_capitalized, class_name_lowercase, attr_name);
+  LOQUI_DEFINE_ACCESSOR_POINTER_PROTOTYPE(const gchar *, G_CONST_RETURN gchar *, class_name_capitalized, class_name_lowercase, attr_name);
 
 #define LOQUI_DEFINE_INTERFACE(TypeName, type_name) \
 static void type_name ## _base_init(gpointer object_class); \
