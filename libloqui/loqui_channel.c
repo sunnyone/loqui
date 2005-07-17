@@ -450,19 +450,22 @@ loqui_channel_append_remark(LoquiChannel *channel, LoquiTextType type, gboolean 
 		     "text_type", type,
 		     "is_priv", is_priv,
 		     "is_self", is_self,
+		     "is_ignored", is_ignored,
 		     "text", remark,
 		     "nick", nick,
 		     "account_name", loqui_channel_entry_get_name(LOQUI_CHANNEL_ENTRY(channel->account)),
 		     "channel_name", loqui_channel_entry_get_name(LOQUI_CHANNEL_ENTRY(channel)),
 		     "exec_notification", exec_notification,
 		     NULL);
-
-	if (type == LOQUI_TEXT_TYPE_NOTICE || is_from_server)
-		loqui_channel_entry_set_is_updated_weak(LOQUI_CHANNEL_ENTRY(channel), TRUE);
-	else
-		loqui_channel_entry_set_is_updated(LOQUI_CHANNEL_ENTRY(channel), TRUE);
 	
-	if (!is_self && !is_from_server) {
+	if (!is_ignored) {
+		if (type == LOQUI_TEXT_TYPE_NOTICE || is_from_server)
+			loqui_channel_entry_set_is_updated_weak(LOQUI_CHANNEL_ENTRY(channel), TRUE);
+		else
+			loqui_channel_entry_set_is_updated(LOQUI_CHANNEL_ENTRY(channel), TRUE);
+	}
+
+	if (!is_ignored && !is_self && !is_from_server) {
 		gchar **highlight_list;
 
 		highlight_list = loqui_pref_get_string_list(loqui_get_general_pref(),

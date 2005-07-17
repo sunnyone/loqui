@@ -533,6 +533,10 @@ loqui_channel_buffer_gtk_append_message_text(LoquiChannelBuffer *buffer_p, Loqui
 
 	buffer = LOQUI_CHANNEL_BUFFER_GTK(buffer_p);
 
+	if (loqui_message_text_get_is_ignored(msgtext)) {
+		return;
+	}
+
 	loqui_channel_buffer_gtk_append_current_time(buffer);
 	
 	type = loqui_message_text_get_text_type(msgtext);
