@@ -19,14 +19,14 @@
  */
 #include "config.h"
 #include "prefs_general_upgrader.h"
-#include "utils.h"
+#include <libloqui/loqui-utils.h>
 
 #include <stdio.h>
 #include <string.h>
 #include <errno.h>
 
 #include <glib/gi18n.h>
-#include "utils.h"
+#include <libloqui/loqui-utils.h>
 #include "loqui.h"
 
 #include "loqui-core-gtk.h"

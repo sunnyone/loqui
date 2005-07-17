@@ -21,7 +21,7 @@
 #include "config.h"
 
 #include "irc_message.h"
-#include "utils.h"
+#include "loqui-utils.h"
 #include "irc_constants.h"
 #include <libloqui-intl.h>
 

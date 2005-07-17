@@ -28,7 +28,7 @@ requires 2.0.0
 
 %{
 #include "libloqui-intl.h"
-#include "utils.h"
+#include "loqui-utils.h"
 %}
 
 class Loqui:Property:Profile from G:Object (interface Loqui:Profile)

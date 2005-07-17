@@ -27,7 +27,7 @@ requires 2.0.0
 #include "config.h"
 
 #include <libloqui-intl.h>
-#include "utils.h"
+#include "loqui-utils.h"
 #include "loqui-static-core.h"
 #include "gnet.h"
 %}

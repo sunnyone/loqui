@@ -21,7 +21,7 @@
 #include "config.h"
 
 #include "loqui_receiver_irc.h"
-#include "utils.h"
+#include "loqui-utils.h"
 
 #include "loqui_account_manager.h"
 #include "irc_constants.h"

@@ -30,7 +30,7 @@ requires 2.0.0
 
 %{
 #include <libloqui-intl.h>
-#include "utils.h"
+#include "loqui-utils.h"
 
 #include "loqui_user_ipmsg.h"
 #include "ipmsg.h"

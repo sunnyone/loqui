@@ -28,7 +28,7 @@ requires 2.0.0
 
 %{
 #include <libloqui/libloqui-intl.h>
-#include "utils.h"
+#include "loqui-utils.h"
 
 LOQUI_ATTR_ACCESSOR_CONST_STRING(LoquiTransferItem, loqui_transfer_item, filename);
 %}

@@ -29,7 +29,7 @@
 #include <string.h>
 #include "loqui_sender_irc.h"
 
-#include "utils.h"
+#include "loqui-utils.h"
 #include "loqui-static-core.h"
 
 enum {

@@ -27,7 +27,7 @@ requires 2.0.0
 %{
 #include <glib/gi18n.h>
 
-#include "utils.h"
+#include <libloqui/loqui-utils.h>
 %}
 
 class Loqui: from G:Object

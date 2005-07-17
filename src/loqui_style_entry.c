@@ -20,7 +20,7 @@
 #include "config.h"
 
 #include "loqui_style_entry.h"
-#include "utils.h"
+#include <libloqui/loqui-utils.h>
 
 #include <string.h>
 

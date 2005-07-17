@@ -21,7 +21,7 @@
 
 #include "remark_entry.h"
 #include "gdk/gdkkeysyms.h"
-#include "utils.h"
+#include <libloqui/loqui-utils.h>
 #include "gtkutils.h"
 
 #include "loqui_stock.h"

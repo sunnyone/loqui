@@ -23,7 +23,7 @@
 #include "ipmsg_packet.h"
 #include "ipmsg.h"
 #include "gobject_utils.h"
-#include "utils.h"
+#include "loqui-utils.h"
 #include "loqui-utils-ipmsg.h"
 
 #include <string.h>

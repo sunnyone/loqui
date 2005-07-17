@@ -7,7 +7,7 @@ CPPFLAGS = -g -Wall -Wredundant-decls -Wmissing-declarations -Wmissing-prototype
 	gob2 --always-private-header $<
 
 SRC_BASE_UTILITIES = \
-	utils.c utils.h \
+	loqui-utils.c loqui-utils.h \
 	loqui_webutils.c loqui_webutils.h \
 	gobject_utils.c gobject_utils.h \
 	loqui_string_tokenizer.c loqui_string_tokenizer.h \

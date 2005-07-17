@@ -22,7 +22,7 @@
 
 #include "ctcp_message.h"
 #include "irc_constants.h"
-#include "utils.h"
+#include "loqui-utils.h"
 #include <libloqui-intl.h>
 #include <string.h>
 

@@ -31,7 +31,7 @@ requires 2.0.0
 
 %{
 #include <libloqui-intl.h>
-#include "utils.h"
+#include "loqui-utils.h"
 
 #include "loqui-socket-ipmsg.h"
 #include "ipmsg_packet.h"

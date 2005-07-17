@@ -27,7 +27,7 @@
 #include <ctype.h>
 #include <locale.h>
 #include <errno.h>
-#include "utils.h"
+#include "loqui-utils.h"
 
 #include "loqui_codeconv_tools.h"
 

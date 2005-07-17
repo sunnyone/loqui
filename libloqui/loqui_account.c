@@ -22,7 +22,7 @@
 
 #include <libloqui-intl.h>
 #include "loqui_account.h"
-#include "utils.h"
+#include "loqui-utils.h"
 #include "loqui_user.h"
 #include "loqui_sender.h"
 #include "loqui-pref.h"

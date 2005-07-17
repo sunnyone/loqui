@@ -22,7 +22,7 @@
 
 #include "msn_message.h"
 #include "loqui_string_tokenizer.h"
-#include "utils.h"
+#include "loqui-utils.h"
 
 enum {
         LAST_SIGNAL

@@ -19,7 +19,7 @@
  * Boston, MA 02111-1307, USA.
  */
 #include "config.h"
-#include "utils.h"
+#include "loqui-utils.h"
 
 #include <stdio.h>
 #include <string.h>

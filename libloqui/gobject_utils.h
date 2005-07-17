@@ -21,7 +21,7 @@
 #ifndef __GOBJECT_UTILS_H__
 #define __GOBJECT_UTILS_H__
 
-#include "utils.h"
+#include <libloqui/loqui-utils.h>
 #include <glib.h>
 
 #define ATTR_READER_GENERIC(return_type, failed_value, class_name_capitalized, class_name_lowercase, attr_name) \

@@ -30,7 +30,7 @@ requires 2.0.0
 
 %{
 #include <libloqui/libloqui-intl.h>
-#include "utils.h"
+#include "loqui-utils.h"
 %}
 
 class Loqui:Transfer:Item:IRC from Loqui:Transfer:Item
