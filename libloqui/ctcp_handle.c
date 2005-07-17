@@ -424,6 +424,20 @@ ctcp_handle_dcc_send(CTCPHandle *ctcp_handle, CTCPMessage *ctcp_msg, const gchar
 	loqui_transfer_item_set_size(trans_item, size);
 	loqui_transfer_item_irc_set_inet_addr(LOQUI_TRANSFER_ITEM_IRC(trans_item), addr);
 
+	/* FIXME: quick hack to receive DCC SEND */
+	{
+		const gchar *command;
+		gchar *buf;
+
+		command = g_getenv("LOQUI_DCC_COMMAND");
+		if (command) {
+			buf = g_strdup_printf("%s %s %s %d %d %s %s", command, filename, address, port, size, canon_addr, sender);
+			if (!g_spawn_command_line_async(buf, NULL))
+				g_warning("Failed to execute DCC command");
+			g_free(buf);
+		}
+	}
+
 	gnet_inetaddr_unref(addr);
 	g_free(canon_addr);
 
