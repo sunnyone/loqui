@@ -1,5 +1,12 @@
 --- 
 -
+  date: 2005-07-18
+  version: 0.4.1
+  changes:
+    - Don't set the account buffer as the current buffer when it's connected.
+    - Implemented the 'normal ignore' feature.
+    - Made buildable on Cygwin/MinGW.
+-
   date: 2005-07-06
   version: 0.4.0
   changes:
