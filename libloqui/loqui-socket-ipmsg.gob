@@ -214,7 +214,7 @@ class Loqui:Socket:IPMsg from G:Object
 			return NULL;
 
 		tmp = gnet_inetaddr_get_canonical_name(gnet_udp_socket_get_local_inetaddr(selfp->udpsock));
-		tmp2 = g_strdup(utils_remove_ipv6_prefix_ffff(tmp));
+		tmp2 = g_strdup(loqui_utils_remove_ipv6_prefix_ffff(tmp));
 		g_free(tmp);
 
 		return tmp2;

@@ -287,7 +287,7 @@ loqui_channel_buffer_gtk_tag_uri(GtkTextBuffer *buffer,
 	}
 
 	end_iter = start_iter;
-	while(*cur && utils_search_uri(cur, NULL, &start_uri, &end_uri)) {
+	while(*cur && loqui_utils_search_uri(cur, NULL, &start_uri, &end_uri)) {
 		len = g_utf8_strlen(cur, start_uri - cur);
 		if(len > 0 && !gtk_text_iter_forward_chars(&start_iter, len)) {
 			loqui_debug_puts("Can't forward iter to start_uri");
@@ -466,7 +466,7 @@ loqui_channel_buffer_gtk_append_current_time(LoquiChannelBufferGtk *buffer)
 							 LOQUI_GENERAL_PREF_GTK_GROUP_GENERAL, "TimeFormat",
 							 LOQUI_GENERAL_PREF_GTK_DEFAULT_GENERAL_TIME_FORMAT, NULL);
 	if (time_format) {
-		buf = utils_strftime_epoch(time_format, t);
+		buf = loqui_utils_strftime_epoch(time_format, t);
 		g_free(time_format);
 	}
 

@@ -63,36 +63,36 @@ void loqui_debug_puts(const gchar *format, ...) G_GNUC_PRINTF(1, 2);
 void loqui_debug_print(const gchar *format, ...) G_GNUC_PRINTF(1, 2);
 
 /* modify itself */
-G_CONST_RETURN gchar *utils_remove_return_code(gchar *str);
+G_CONST_RETURN gchar *loqui_utils_remove_return_code(gchar *str);
 
-GList *utils_line_separated_text_to_list(gchar *str);
-gchar *utils_line_separated_text_from_list(GList *list);
+GList *loqui_utils_line_separated_text_to_list(gchar *str);
+gchar *loqui_utils_line_separated_text_from_list(GList *list);
 
-gchar *utils_get_iso8601_date_string(time_t t);
-gchar *utils_strftime(const gchar *format, struct tm *time);
-gchar *utils_strftime_epoch(const gchar *format, time_t t);
+gchar *loqui_utils_get_iso8601_date_string(time_t t);
+gchar *loqui_utils_strftime(const gchar *format, struct tm *time);
+gchar *loqui_utils_strftime_epoch(const gchar *format, time_t t);
 
 /* pairs of flag and characters, terminated with -1 */
-gchar *utils_format(const gchar *format, ...);
+gchar *loqui_utils_format(const gchar *format, ...);
 
-GList *utils_get_key_list_from_hash(GHashTable *hash_table);
-GList *utils_get_value_list_from_hash(GHashTable *hash_table);
+GList *loqui_utils_get_key_list_from_hash(GHashTable *hash_table);
+GList *loqui_utils_get_value_list_from_hash(GHashTable *hash_table);
 
 gpointer utils_get_key_from_value(GHashTable *hash_table);
 
-gboolean utils_search_uri(const gchar *buf, gchar **got_uri,
+gboolean loqui_utils_search_uri(const gchar *buf, gchar **got_uri,
 			  const gchar **start_uri, const gchar **end_uri);
 
-void utils_g_list_foreach_swapped(GList *list, GFunc func, gpointer user_data);
+void loqui_utils_g_list_foreach_swapped(GList *list, GFunc func, gpointer user_data);
 
-gboolean utils_strcase_equal(gconstpointer a, gconstpointer b);
-guint utils_strcase_hash(gconstpointer v);
+gboolean loqui_utils_strcase_equal(gconstpointer a, gconstpointer b);
+guint loqui_utils_strcase_hash(gconstpointer v);
 
-void utils_g_ptr_array_insert_sort(GPtrArray *array, gint sort_start_pos, GCompareFunc sort_func);
-gboolean utils_return_true_if_value_equals_data(gpointer key, gpointer value, gpointer data);
-gboolean utils_return_true_if_data_of_list_equals_data(gpointer key, gpointer value, gpointer data);
+void loqui_utils_g_ptr_array_insert_sort(GPtrArray *array, gint sort_start_pos, GCompareFunc sort_func);
+gboolean loqui_utils_return_true_if_value_equals_data(gpointer key, gpointer value, gpointer data);
+gboolean loqui_utils_return_true_if_data_of_list_equals_data(gpointer key, gpointer value, gpointer data);
 
-G_CONST_RETURN gchar* utils_remove_ipv6_prefix_ffff(const gchar *str);
+G_CONST_RETURN gchar* loqui_utils_remove_ipv6_prefix_ffff(const gchar *str);
 
 gboolean loqui_utils_mkdir_and_chmod(const gchar *path);
 
@@ -102,7 +102,7 @@ gchar **loqui_utils_list_to_string_array(GList *list, gboolean free_original);
 
 void loqui_utils_free_string_list(GList *list);
 
-gchar *utils_url_encode(const gchar *str);
-gchar *utils_url_decode(const gchar *str);
+gchar *loqui_utils_url_encode(const gchar *str);
+gchar *loqui_utils_url_decode(const gchar *str);
 
 #endif /* __UTILS_H__ */

@@ -419,7 +419,7 @@ loqui_channel_entry_add_real(LoquiChannelEntry *chent, LoquiMember *member)
 	g_object_ref(member);
 	g_ptr_array_add(chent->member_ptr_array, member);
 	if (chent->sort_func && chent->do_sort) {
-		utils_g_ptr_array_insert_sort(chent->member_ptr_array, chent->member_ptr_array->len - 1, chent->sort_func);
+		loqui_utils_g_ptr_array_insert_sort(chent->member_ptr_array, chent->member_ptr_array->len - 1, chent->sort_func);
 		loqui_channel_entry_update_user_hash(chent);
 	} else {
 		g_hash_table_insert(chent->user_hash, member->user, GINT_TO_POINTER(chent->member_ptr_array->len - 1 + 1));
@@ -497,7 +497,7 @@ loqui_channel_entry_member_notify_cb(LoquiMember *member, GParamSpec *pspec, Loq
 	if (chent->sort_func && chent->do_sort) {
 		g_ptr_array_remove_index(chent->member_ptr_array, loqui_channel_entry_get_member_pos(chent, member));
 		g_ptr_array_add(chent->member_ptr_array, member);
-		utils_g_ptr_array_insert_sort(chent->member_ptr_array, chent->member_ptr_array->len - 1, chent->sort_func);
+		loqui_utils_g_ptr_array_insert_sort(chent->member_ptr_array, chent->member_ptr_array->len - 1, chent->sort_func);
 		loqui_channel_entry_update_user_hash(chent);
 		g_signal_emit(chent, loqui_channel_entry_signals[SIGNAL_REORDERED], 0);
 	}
@@ -514,7 +514,7 @@ loqui_channel_entry_user_notify_cb(LoquiUser *user, GParamSpec *pspec, LoquiChan
 		member = g_ptr_array_index(chent->member_ptr_array, pos);
 		g_ptr_array_remove_index(chent->member_ptr_array, pos);
 		g_ptr_array_add(chent->member_ptr_array, member);
-		utils_g_ptr_array_insert_sort(chent->member_ptr_array, chent->member_ptr_array->len - 1, chent->sort_func);
+		loqui_utils_g_ptr_array_insert_sort(chent->member_ptr_array, chent->member_ptr_array->len - 1, chent->sort_func);
 		loqui_channel_entry_update_user_hash(chent);
 		g_signal_emit(chent, loqui_channel_entry_signals[SIGNAL_REORDERED], 0);
 	}

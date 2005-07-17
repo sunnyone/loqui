@@ -309,7 +309,7 @@ ipmsg_packet_inspect(IPMsgPacket *packet)
 	addr = ipmsg_packet_get_inetaddr(packet);
 	if (addr) {
 		addr_str = gnet_inetaddr_get_canonical_name(addr);
-		g_string_append_printf(string, "from: %s:%d, ", utils_remove_ipv6_prefix_ffff(addr_str), gnet_inetaddr_get_port(addr));
+		g_string_append_printf(string, "from: %s:%d, ", loqui_utils_remove_ipv6_prefix_ffff(addr_str), gnet_inetaddr_get_port(addr));
 		g_free(addr_str);
 	}
 
@@ -367,7 +367,7 @@ ipmsg_packet_get_ip_addr(IPMsgPacket *packet)
 		return NULL;
 
 	addr_str = gnet_inetaddr_get_canonical_name(packet->inetaddr);
-	str = g_strdup(utils_remove_ipv6_prefix_ffff(addr_str));
+	str = g_strdup(loqui_utils_remove_ipv6_prefix_ffff(addr_str));
 	g_free(addr_str);
 
 	return str;

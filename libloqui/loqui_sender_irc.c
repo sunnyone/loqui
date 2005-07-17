@@ -262,7 +262,7 @@ loqui_sender_irc_speak(LoquiSenderIRC *sender, LoquiChannel *channel, const gcha
 	LoquiUser *user_self;
 	
 	buf = g_strdup(text);
-	utils_remove_return_code(buf); /* remove last return code */
+	loqui_utils_remove_return_code(buf); /* remove last return code */
 	array = g_strsplit(buf, "\n", -1);
 	g_free(buf);
 

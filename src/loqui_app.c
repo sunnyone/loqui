@@ -1354,7 +1354,7 @@ loqui_app_append_log(LoquiApp *app, LoquiMessageText *msgtext)
         
         t = time(NULL);
         
-        filename = utils_strftime_epoch("log-%Y%m%d.txt", t);
+        filename = loqui_utils_strftime_epoch("log-%Y%m%d.txt", t);
 	path = g_build_filename(loqui_core_get_user_dir(loqui_get_core()), LOG_DIR, filename, NULL);
 	g_free(filename);
 	
@@ -1367,7 +1367,7 @@ loqui_app_append_log(LoquiApp *app, LoquiMessageText *msgtext)
 	time_format = loqui_pref_get_with_default_string(loqui_get_general_pref(),
 							 LOQUI_GENERAL_PREF_GTK_GROUP_GENERAL, "TimeFormat",
 							 LOQUI_GENERAL_PREF_GTK_DEFAULT_GENERAL_TIME_FORMAT, NULL);
-	time_str = utils_strftime_epoch(time_format, t);
+	time_str = loqui_utils_strftime_epoch(time_format, t);
 	g_free(time_format);
 
 	if (loqui_message_text_get_nick(msgtext))

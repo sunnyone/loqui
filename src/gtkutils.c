@@ -221,7 +221,7 @@ gtkutils_set_textview_from_string_list(GtkTextView *textview, GList *list)
 
 	buffer = gtk_text_view_get_buffer(textview);
 	if(list) {
-		buf = utils_line_separated_text_from_list(list);
+		buf = loqui_utils_line_separated_text_from_list(list);
 		gtk_text_buffer_set_text(GTK_TEXT_BUFFER(buffer), buf, -1);
 		g_free(buf);
 	} else {
@@ -240,7 +240,7 @@ gtkutils_set_string_list_from_textview(GList **list_ptr, GtkTextView *textview)
 	buf = gtkutils_get_text_from_textview(textview);
 
 	G_LIST_FREE_WITH_ELEMENT_FREE_UNLESS_NULL(*list_ptr);
-	*list_ptr = utils_line_separated_text_to_list(buf);
+	*list_ptr = loqui_utils_line_separated_text_to_list(buf);
 	g_free(buf);
 }
 gchar *

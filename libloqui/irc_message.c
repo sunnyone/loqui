@@ -299,7 +299,7 @@ irc_message_parse_line(const gchar *line)
 	g_return_val_if_fail(line != NULL, NULL);
 	
 	buf = g_strdup(line);
-	utils_remove_return_code(buf);
+	loqui_utils_remove_return_code(buf);
 
 	if(buf == NULL || *buf == '\0') {
 		loqui_debug_puts("Empty line was sent by server.");

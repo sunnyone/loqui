@@ -252,10 +252,10 @@ loqui_account_init(LoquiAccount *account)
 
 	/* FIXME: identifier should be case sensitive */
 	account->channel_list = NULL;
-	account->identifier_channel_table = g_hash_table_new_full(utils_strcase_hash, utils_strcase_equal, g_free, NULL);
+	account->identifier_channel_table = g_hash_table_new_full(loqui_utils_strcase_hash, loqui_utils_strcase_equal, g_free, NULL);
 
 	account->user_identifier_table = g_hash_table_new_full(g_direct_hash, g_direct_equal, NULL, g_free);
-	account->identifier_user_table = g_hash_table_new_full(utils_strcase_hash, utils_strcase_equal, g_free, NULL);
+	account->identifier_user_table = g_hash_table_new_full(loqui_utils_strcase_hash, loqui_utils_strcase_equal, g_free, NULL);
 
 	account->is_connected = FALSE;
 	account->is_pending_reconnecting = FALSE;
@@ -633,7 +633,7 @@ loqui_account_channel_notify_identifier_cb(LoquiChannel *channel, GParamSpec *ps
         g_return_if_fail(LOQUI_IS_ACCOUNT(account));
 	
 	g_hash_table_foreach_remove(account->identifier_channel_table,
-				    utils_return_true_if_data_of_list_equals_data,
+				    loqui_utils_return_true_if_data_of_list_equals_data,
 				    channel);
 
 	l = g_list_find(account->channel_list, channel);
@@ -916,7 +916,7 @@ loqui_account_remove_all_user(LoquiAccount *account)
 	g_return_if_fail(account != NULL);
         g_return_if_fail(LOQUI_IS_ACCOUNT(account));
 
-	list = utils_get_key_list_from_hash(account->user_identifier_table);
+	list = loqui_utils_get_key_list_from_hash(account->user_identifier_table);
 	for (cur = list; cur != NULL; cur = cur->next) {
 		loqui_account_remove_user_from_all(account, cur->data, TRUE, NULL);
 	}

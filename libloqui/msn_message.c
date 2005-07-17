@@ -225,7 +225,7 @@ msn_message_parse(const gchar *text)
 			msn_message_parse_payload(loqui_string_tokenizer_next_token(st, NULL), &payload_headers, &payload_body);
 			break;
 		} else {
-			list = g_list_append(list, utils_url_decode(token));
+			list = g_list_append(list, loqui_utils_url_decode(token));
 		}
 	}
 	loqui_string_tokenizer_free(st);

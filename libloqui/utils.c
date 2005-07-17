@@ -65,7 +65,7 @@ void loqui_debug_puts(const gchar *format, ...)
 }
 
 G_CONST_RETURN gchar *
-utils_remove_return_code(gchar *str)
+loqui_utils_remove_return_code(gchar *str)
 {
         register gchar *s;
 
@@ -79,7 +79,7 @@ utils_remove_return_code(gchar *str)
         return str;
 }
 
-GList *utils_line_separated_text_to_list(gchar *str)
+GList *loqui_utils_line_separated_text_to_list(gchar *str)
 {
 	gchar **str_array;
 	GList *list = NULL;
@@ -99,7 +99,7 @@ GList *utils_line_separated_text_to_list(gchar *str)
 	return list;
 }
 
-gchar *utils_line_separated_text_from_list(GList *list)
+gchar *loqui_utils_line_separated_text_from_list(GList *list)
 {
 	GString *string;
 	GList *cur;
@@ -119,7 +119,7 @@ gchar *utils_line_separated_text_from_list(GList *list)
 	return str;
 }
 
-gchar *utils_format(const gchar *format, ...)
+gchar *loqui_utils_format(const gchar *format, ...)
 {
 	va_list args;
 	GString *string;
@@ -218,9 +218,9 @@ gchar *utils_format(const gchar *format, ...)
 }
 
 gchar *
-utils_get_iso8601_date_string(time_t t)
+loqui_utils_get_iso8601_date_string(time_t t)
 {
-	return utils_strftime_epoch("%Y-%m-%d %H:%M:%S", t);
+	return loqui_utils_strftime_epoch("%Y-%m-%d %H:%M:%S", t);
 }
 
 static void
@@ -242,7 +242,7 @@ add_value_to_list_func(gpointer key, gpointer value, gpointer user_data)
 	*list_ptr = g_list_append(*list_ptr, value);
 }
 GList *
-utils_get_key_list_from_hash(GHashTable *hash_table)
+loqui_utils_get_key_list_from_hash(GHashTable *hash_table)
 {
 	GList *list = NULL;
 
@@ -253,7 +253,7 @@ utils_get_key_list_from_hash(GHashTable *hash_table)
 	return list;
 }
 GList *
-utils_get_value_list_from_hash(GHashTable *hash_table)
+loqui_utils_get_value_list_from_hash(GHashTable *hash_table)
 {
 	GList *list = NULL;
 
@@ -267,12 +267,12 @@ utils_get_value_list_from_hash(GHashTable *hash_table)
 /*
   Example:
                               v *start_uri
-  utils_search_uri("hoge hoge http://hogefuga  aaaa", &got_uri, &start_uri, &end_uri);
+  loqui_utils_search_uri("hoge hoge http://hogefuga  aaaa", &got_uri, &start_uri, &end_uri);
                                             ^*end_uri
   got_uri = "http://hoge fuga" (malloc'ed)
 */
 gboolean
-utils_search_uri(const gchar *buf, gchar **got_uri,
+loqui_utils_search_uri(const gchar *buf, gchar **got_uri,
 		 const gchar **start_uri, const gchar **end_uri)
 {
 	int i;
@@ -315,7 +315,7 @@ utils_search_uri(const gchar *buf, gchar **got_uri,
 }
 
 gchar *
-utils_strftime_epoch(const gchar *format, time_t t)
+loqui_utils_strftime_epoch(const gchar *format, time_t t)
 {
 	struct tm tm;
 	struct tm *tm_p;
@@ -327,12 +327,12 @@ utils_strftime_epoch(const gchar *format, time_t t)
 #else
 	tm_p = localtime(&t);
 #endif
-	return utils_strftime(format, tm_p);
+	return loqui_utils_strftime(format, tm_p);
 }
 
 #define TIME_DEFAULT_BUFSIZE 128
 gchar *
-utils_strftime(const gchar *format, struct tm *time)
+loqui_utils_strftime(const gchar *format, struct tm *time)
 {
 	gchar *buf, *buf2;
 	gint len, format_len;
@@ -368,7 +368,7 @@ utils_strftime(const gchar *format, struct tm *time)
 	return NULL;
 }
 void
-utils_g_list_foreach_swapped(GList *list, GFunc func, gpointer user_data)
+loqui_utils_g_list_foreach_swapped(GList *list, GFunc func, gpointer user_data)
 {
 	GList *cur;
 
@@ -377,17 +377,17 @@ utils_g_list_foreach_swapped(GList *list, GFunc func, gpointer user_data)
 }
 
 gboolean
-utils_strcase_equal(gconstpointer a, gconstpointer b)
+loqui_utils_strcase_equal(gconstpointer a, gconstpointer b)
 {
 	return (g_ascii_strcasecmp(a, b) == 0);
 }
 guint
-utils_strcase_hash(gconstpointer v)
+loqui_utils_strcase_hash(gconstpointer v)
 {
        return g_str_hash(g_ascii_strdown(v, -1));
 }
 void
-utils_g_ptr_array_insert_sort(GPtrArray *array, gint sort_start_pos, GCompareFunc sort_func)
+loqui_utils_g_ptr_array_insert_sort(GPtrArray *array, gint sort_start_pos, GCompareFunc sort_func)
 {
 	gint i, j;
 	gpointer *pdata = array->pdata;
@@ -406,12 +406,12 @@ utils_g_ptr_array_insert_sort(GPtrArray *array, gint sort_start_pos, GCompareFun
 	}
 }
 gboolean
-utils_return_true_if_value_equals_data(gpointer key, gpointer value, gpointer data)
+loqui_utils_return_true_if_value_equals_data(gpointer key, gpointer value, gpointer data)
 {
 	return (value == data);
 }
 gboolean
-utils_return_true_if_data_of_list_equals_data(gpointer key, gpointer value, gpointer data)
+loqui_utils_return_true_if_data_of_list_equals_data(gpointer key, gpointer value, gpointer data)
 {
 	GList *l;
 
@@ -421,7 +421,7 @@ utils_return_true_if_data_of_list_equals_data(gpointer key, gpointer value, gpoi
 
 /* ::ffff:127.0.0.1 -> 127.0.0.1 */
 G_CONST_RETURN gchar *
-utils_remove_ipv6_prefix_ffff(const gchar *str)
+loqui_utils_remove_ipv6_prefix_ffff(const gchar *str)
 {
 	if (strncmp(str, "::ffff:", 7) == 0) {
 		return str + 7;
@@ -503,7 +503,7 @@ loqui_utils_free_string_list(GList *list)
 }
 
 gchar *
-utils_url_encode(const gchar *str)
+loqui_utils_url_encode(const gchar *str)
 {
 	GString *string;
 	const unsigned char *c;
@@ -523,7 +523,7 @@ utils_url_encode(const gchar *str)
 	return g_string_free(string, FALSE);
 }
 gchar *
-utils_url_decode(const gchar *str)
+loqui_utils_url_decode(const gchar *str)
 {
 	GString *string;
 	const gchar *ptr;

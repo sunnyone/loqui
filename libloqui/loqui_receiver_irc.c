@@ -881,7 +881,7 @@ loqui_receiver_irc_reply_creationtime(LoquiReceiverIRC *receiver, IRCMessage *ms
 		return;
 	}
 	
-	str = utils_get_iso8601_date_string(t);
+	str = loqui_utils_get_iso8601_date_string(t);
 	if(str == NULL) {
 		loqui_account_warning(account, _("Invalid time"));
 		return;
@@ -922,7 +922,7 @@ loqui_receiver_irc_reply_topicwhotime(LoquiReceiverIRC *receiver, IRCMessage *ms
 		return;
 	}
 	
-	str = utils_get_iso8601_date_string(t);
+	str = loqui_utils_get_iso8601_date_string(t);
 	if(str == NULL) {
 		loqui_account_warning(account, _("Invalid time"));
 		return;

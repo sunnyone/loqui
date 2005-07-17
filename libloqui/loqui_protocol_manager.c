@@ -193,5 +193,5 @@ loqui_protocol_manager_get_protocol(LoquiProtocolManager *manager, const gchar *
 GList *
 loqui_protocol_manager_get_protocol_list(LoquiProtocolManager *manager)
 {
-	return utils_get_value_list_from_hash(manager->protocol_table);
+	return loqui_utils_get_value_list_from_hash(manager->protocol_table);
 }
