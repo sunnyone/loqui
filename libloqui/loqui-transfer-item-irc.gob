@@ -39,8 +39,9 @@ class Loqui:Transfer:Item:IRC from Loqui:Transfer:Item
 
 	property POINTER inet_addr (
 		nick = _("Addr"),
-		blurb = _("Address"),
-		export, link);
+		blurb = _("Address"))
+		get { g_value_set_pointer(VAL, self_get_inet_addr(self)); }
+	        set { self_set_inet_addr(self, g_value_get_pointer(VAL)); };
 	
 	public Loqui:Transfer:Item:IRC *
 	new(void) {
@@ -67,4 +68,21 @@ class Loqui:Transfer:Item:IRC from Loqui:Transfer:Item
 		
 	}
 	
+	public void
+	set_inet_addr(self, GInetAddr *addr) {
+		if (self->inet_addr) {
+			gnet_inetaddr_unref(addr);
+			self->inet_addr = NULL;
+		}
+		if (addr) {
+			self->inet_addr = addr;
+			gnet_inetaddr_ref(addr);
+		}
+	}
+
+	private GInetAddr *
+	get_inet_addr(self) {
+		return self->inet_addr;
+	}
+
 }

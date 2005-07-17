@@ -369,13 +369,13 @@ ctcp_handle_dcc_send(CTCPHandle *ctcp_handle, CTCPMessage *ctcp_msg, const gchar
 
 	priv = ctcp_handle->priv;
 
-	str = ctcp_message_to_str(ctcp_msg);
 	if (ctcp_message_count_parameters(ctcp_msg) != 5) {
+		str = ctcp_message_to_str(ctcp_msg);
 		loqui_account_warning(priv->account, _("Invalid DCC request (invalid parameter length: %d (%s))"),
 				      ctcp_message_count_parameters(ctcp_msg), str);
+		g_free(str);
 		return;
 	}
-	g_free(str);
 
 	filename = ctcp_message_get_param(ctcp_msg, 1);
 	address = ctcp_message_get_param(ctcp_msg, 2);
