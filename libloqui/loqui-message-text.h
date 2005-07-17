@@ -88,15 +88,15 @@ GType loqui_message_text_get_type (void) G_GNUC_CONST;
 
 LoquiMessageText* loqui_message_text_new(void);
 
-LOQUI_ATTR_ACCESSOR_CONST_STRING_PROTOTYPE(LoquiMessageText, loqui_message_text, text);
-LOQUI_ATTR_ACCESSOR_CONST_STRING_PROTOTYPE(LoquiMessageText, loqui_message_text, nick);
-LOQUI_ATTR_ACCESSOR_CONST_STRING_PROTOTYPE(LoquiMessageText, loqui_message_text, account_name);
-LOQUI_ATTR_ACCESSOR_CONST_STRING_PROTOTYPE(LoquiMessageText, loqui_message_text, channel_name);
+LOQUI_DEFINE_ACCESSOR_CONST_STRING_PROTOTYPE(LoquiMessageText, loqui_message_text, text);
+LOQUI_DEFINE_ACCESSOR_CONST_STRING_PROTOTYPE(LoquiMessageText, loqui_message_text, nick);
+LOQUI_DEFINE_ACCESSOR_CONST_STRING_PROTOTYPE(LoquiMessageText, loqui_message_text, account_name);
+LOQUI_DEFINE_ACCESSOR_CONST_STRING_PROTOTYPE(LoquiMessageText, loqui_message_text, channel_name);
 
-ATTR_ACCESSOR_GENERIC_PROTOTYPE(gboolean, LoquiMessageText, loqui_message_text, is_self);
-ATTR_ACCESSOR_GENERIC_PROTOTYPE(gboolean, LoquiMessageText, loqui_message_text, is_priv);
-ATTR_ACCESSOR_GENERIC_PROTOTYPE(gboolean, LoquiMessageText, loqui_message_text, is_remark);
-ATTR_ACCESSOR_GENERIC_PROTOTYPE(gboolean, LoquiMessageText, loqui_message_text, exec_notification);
+LOQUI_DEFINE_ACCESSOR_GENERIC_PROTOTYPE(gboolean, LoquiMessageText, loqui_message_text, is_self);
+LOQUI_DEFINE_ACCESSOR_GENERIC_PROTOTYPE(gboolean, LoquiMessageText, loqui_message_text, is_priv);
+LOQUI_DEFINE_ACCESSOR_GENERIC_PROTOTYPE(gboolean, LoquiMessageText, loqui_message_text, is_remark);
+LOQUI_DEFINE_ACCESSOR_GENERIC_PROTOTYPE(gboolean, LoquiMessageText, loqui_message_text, exec_notification);
 
 void loqui_message_text_set_text_type(LoquiMessageText *msgtext, LoquiTextType type);
 LoquiTextType loqui_message_text_get_text_type(LoquiMessageText *msgtext);

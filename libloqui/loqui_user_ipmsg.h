@@ -62,14 +62,14 @@ GType loqui_user_ipmsg_get_type(void) G_GNUC_CONST;
 LoquiUserIPMsg* loqui_user_ipmsg_new(void);
 
 #define LOQUI_USER_IPMSG_ACCESSOR_STRING(attr_name) \
-  ATTR_ACCESSOR_POINTER(g_strdup, g_free, const gchar *, G_CONST_RETURN gchar *, LoquiUserIPMsg, loqui_user_ipmsg, attr_name)
+  LOQUI_DEFINE_ACCESSOR_POINTER(g_strdup, g_free, const gchar *, G_CONST_RETURN gchar *, LoquiUserIPMsg, loqui_user_ipmsg, attr_name)
 #define LOQUI_USER_IPMSG_ACCESSOR_STRING_PROTOTYPE(attr_name) \
   ATTR_ACCESSOR_POINTER_PROTOTYPE(const gchar *, G_CONST_RETURN gchar *, LoquiUserIPMsg, loqui_user_ipmsg, attr_name)
 
 #define LOQUI_USER_IPMSG_ACCESSOR_GENERIC(type, attr_name) \
-  ATTR_ACCESSOR_GENERIC(type, 0, LoquiUserIPMsg, loqui_user_ipmsg, attr_name)
+  LOQUI_DEFINE_ACCESSOR_GENERIC(type, 0, LoquiUserIPMsg, loqui_user_ipmsg, attr_name)
 #define LOQUI_USER_IPMSG_ACCESSOR_GENERIC_PROTOTYPE(type, attr_name) \
-  ATTR_ACCESSOR_GENERIC_PROTOTYPE(type, LoquiUserIPMsg, loqui_user_ipmsg, attr_name)
+  LOQUI_DEFINE_ACCESSOR_GENERIC_PROTOTYPE(type, LoquiUserIPMsg, loqui_user_ipmsg, attr_name)
 
 LOQUI_USER_IPMSG_ACCESSOR_GENERIC_PROTOTYPE(gint, port);
 LOQUI_USER_IPMSG_ACCESSOR_STRING_PROTOTYPE(ip_addr);

@@ -83,7 +83,7 @@ void loqui_channel_set_is_joined(LoquiChannel *channel, gboolean is_joined);
 gboolean loqui_channel_get_is_joined(LoquiChannel *channel);
 
 #define LOQUI_CHANNEL_ACCESSOR_STRING(attr_name) \
-  ATTR_ACCESSOR_POINTER(g_strdup, g_free, const gchar *, G_CONST_RETURN gchar *, LoquiChannel, loqui_channel, attr_name)
+  LOQUI_DEFINE_ACCESSOR_POINTER(g_strdup, g_free, const gchar *, G_CONST_RETURN gchar *, LoquiChannel, loqui_channel, attr_name)
 #define LOQUI_CHANNEL_ACCESSOR_STRING_PROTOTYPE(attr_name) \
   ATTR_ACCESSOR_POINTER_PROTOTYPE(const gchar *, G_CONST_RETURN gchar *, LoquiChannel, loqui_channel, attr_name)
 

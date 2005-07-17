@@ -55,14 +55,14 @@ struct _LoquiUserIRCClass
 
 
 #define LOQUI_USER_IRC_ACCESSOR_STRING(attr_name) \
-  ATTR_ACCESSOR_POINTER(g_strdup, g_free, const gchar *, G_CONST_RETURN gchar *, LoquiUserIRC, loqui_user_irc, attr_name)
+  LOQUI_DEFINE_ACCESSOR_POINTER(g_strdup, g_free, const gchar *, G_CONST_RETURN gchar *, LoquiUserIRC, loqui_user_irc, attr_name)
 #define LOQUI_USER_IRC_ACCESSOR_STRING_PROTOTYPE(attr_name) \
   ATTR_ACCESSOR_POINTER_PROTOTYPE(const gchar *, G_CONST_RETURN gchar *, LoquiUserIRC, loqui_user_irc, attr_name)
 
 #define LOQUI_USER_IRC_ACCESSOR_GENERIC(type, attr_name) \
-  ATTR_ACCESSOR_GENERIC(type, 0, LoquiUserIRC, loqui_user_irc, attr_name)
+  LOQUI_DEFINE_ACCESSOR_GENERIC(type, 0, LoquiUserIRC, loqui_user_irc, attr_name)
 #define LOQUI_USER_IRC_ACCESSOR_GENERIC_PROTOTYPE(type, attr_name) \
-  ATTR_ACCESSOR_GENERIC_PROTOTYPE(type, LoquiUserIRC, loqui_user_irc, attr_name)
+  LOQUI_DEFINE_ACCESSOR_GENERIC_PROTOTYPE(type, LoquiUserIRC, loqui_user_irc, attr_name)
 
 GType loqui_user_irc_get_type(void) G_GNUC_CONST;
 

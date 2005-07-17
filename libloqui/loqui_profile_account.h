@@ -82,14 +82,14 @@ LoquiProfileAccount* loqui_profile_account_new(LoquiProtocol *protocol);
 LoquiProtocol*loqui_profile_account_get_protocol(LoquiProfileAccount *profile);
 
 #define LOQUI_PROFILE_ACCOUNT_ACCESSOR_STRING(attr_name) \
-  ATTR_ACCESSOR_POINTER(g_strdup, g_free, const gchar *, G_CONST_RETURN gchar *, LoquiProfileAccount, loqui_profile_account, attr_name)
+  LOQUI_DEFINE_ACCESSOR_POINTER(g_strdup, g_free, const gchar *, G_CONST_RETURN gchar *, LoquiProfileAccount, loqui_profile_account, attr_name)
 #define LOQUI_PROFILE_ACCOUNT_ACCESSOR_STRING_PROTOTYPE(attr_name) \
   ATTR_ACCESSOR_POINTER_PROTOTYPE(const gchar *, G_CONST_RETURN gchar *, LoquiProfileAccount, loqui_profile_account, attr_name)
 
 #define LOQUI_PROFILE_ACCOUNT_ACCESSOR_GENERIC(type, attr_name) \
-  ATTR_ACCESSOR_GENERIC(type, 0, LoquiProfileAccount, loqui_profile_account, attr_name)
+  LOQUI_DEFINE_ACCESSOR_GENERIC(type, 0, LoquiProfileAccount, loqui_profile_account, attr_name)
 #define LOQUI_PROFILE_ACCOUNT_ACCESSOR_GENERIC_PROTOTYPE(type, attr_name) \
-  ATTR_ACCESSOR_GENERIC_PROTOTYPE(type, LoquiProfileAccount, loqui_profile_account, attr_name)
+  LOQUI_DEFINE_ACCESSOR_GENERIC_PROTOTYPE(type, LoquiProfileAccount, loqui_profile_account, attr_name)
 
 LOQUI_PROFILE_ACCOUNT_ACCESSOR_GENERIC_PROTOTYPE(gboolean, use);
 

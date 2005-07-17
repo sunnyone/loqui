@@ -237,7 +237,7 @@ loqui_profile_account_irc_new(void)
         return profile;
 }
 
-/* ATTR_ACCESSOR_GENERIC(int, 0, LoquiProfileAccountIRC, loqui_profile_account_irc, codeset_type); */
+/* LOQUI_DEFINE_ACCESSOR_GENERIC(int, 0, LoquiProfileAccountIRC, loqui_profile_account_irc, codeset_type); */
 LOQUI_PROFILE_ACCOUNT_IRC_ACCESSOR_STRING(realname);
 LOQUI_PROFILE_ACCOUNT_IRC_ACCESSOR_STRING(userinfo);
 LOQUI_PROFILE_ACCOUNT_IRC_ACCESSOR_STRING(autojoin);
