@@ -315,7 +315,7 @@ loqui_channel_get_is_joined(LoquiChannel *channel)
 	return channel->is_joined;
 }
 
-LOQUI_CHANNEL_ACCESSOR_STRING(identifier);
+LOQUI_DEFINE_ACCESSOR_CONST_STRING(LoquiChannel, loqui_channel, identifier);
 
 void
 loqui_channel_push_user_mode_queue(LoquiChannel *channel, gboolean is_give, IRCModeFlag flag, const gchar *nick)

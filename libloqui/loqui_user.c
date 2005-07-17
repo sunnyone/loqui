@@ -401,15 +401,14 @@ loqui_user_class_get_away_type_list_real(LoquiUserClass *user_class)
 	return list;
 }
 
-LOQUI_USER_ACCESSOR_GENERIC(gint, idle_time);
-LOQUI_USER_ACCESSOR_GENERIC(gboolean, is_ignored);
-LOQUI_USER_ACCESSOR_GENERIC(LoquiAwayType, away);
-LOQUI_USER_ACCESSOR_STRING(username);
-LOQUI_USER_ACCESSOR_STRING(hostname);
-LOQUI_USER_ACCESSOR_STRING(realname);
-LOQUI_USER_ACCESSOR_STRING(servername);
-LOQUI_USER_ACCESSOR_STRING(away_message);
-
+LOQUI_DEFINE_ACCESSOR_GENERIC(gint, 0, LoquiUser, loqui_user, idle_time);
+LOQUI_DEFINE_ACCESSOR_GENERIC(gboolean, FALSE, LoquiUser, loqui_user, is_ignored);
+LOQUI_DEFINE_ACCESSOR_GENERIC(LoquiAwayType, 0, LoquiUser, loqui_user, away);
+LOQUI_DEFINE_ACCESSOR_CONST_STRING(LoquiUser, loqui_user, username);
+LOQUI_DEFINE_ACCESSOR_CONST_STRING(LoquiUser, loqui_user, hostname);
+LOQUI_DEFINE_ACCESSOR_CONST_STRING(LoquiUser, loqui_user, realname);
+LOQUI_DEFINE_ACCESSOR_CONST_STRING(LoquiUser, loqui_user, servername);
+LOQUI_DEFINE_ACCESSOR_CONST_STRING(LoquiUser, loqui_user, away_message);
 
 LoquiBasicAwayType
 loqui_user_get_basic_away(LoquiUser *user)

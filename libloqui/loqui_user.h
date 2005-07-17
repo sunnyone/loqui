@@ -95,16 +95,6 @@ struct _LoquiUserClass
 	GList* (* get_away_type_list) (LoquiUserClass *user_class);
 };
 
-#define LOQUI_USER_ACCESSOR_STRING(attr_name) \
-  LOQUI_DEFINE_ACCESSOR_POINTER(g_strdup, g_free, const gchar *, G_CONST_RETURN gchar *, LoquiUser, loqui_user, attr_name)
-#define LOQUI_USER_ACCESSOR_STRING_PROTOTYPE(attr_name) \
-  ATTR_ACCESSOR_POINTER_PROTOTYPE(const gchar *, G_CONST_RETURN gchar *, LoquiUser, loqui_user, attr_name)
-
-#define LOQUI_USER_ACCESSOR_GENERIC(type, attr_name) \
-  LOQUI_DEFINE_ACCESSOR_GENERIC(type, 0, LoquiUser, loqui_user, attr_name)
-#define LOQUI_USER_ACCESSOR_GENERIC_PROTOTYPE(type, attr_name) \
-  LOQUI_DEFINE_ACCESSOR_GENERIC_PROTOTYPE(type, LoquiUser, loqui_user, attr_name)
-
 GType loqui_user_get_type(void) G_GNUC_CONST;
 
 LoquiUser* loqui_user_new(void);
@@ -123,14 +113,14 @@ GList* loqui_user_class_get_away_type_list(LoquiUserClass *user_class); /* <Loqu
 void loqui_user_set_nick(LoquiUser *user, const gchar *nick);
 G_CONST_RETURN gchar *loqui_user_get_nick(LoquiUser *user);
 
-LOQUI_USER_ACCESSOR_GENERIC_PROTOTYPE(gint, idle_time);
-LOQUI_USER_ACCESSOR_GENERIC_PROTOTYPE(gboolean, is_ignored);
-LOQUI_USER_ACCESSOR_GENERIC_PROTOTYPE(LoquiAwayType, away);
-LOQUI_USER_ACCESSOR_STRING_PROTOTYPE(username);
-LOQUI_USER_ACCESSOR_STRING_PROTOTYPE(hostname);
-LOQUI_USER_ACCESSOR_STRING_PROTOTYPE(realname);
-LOQUI_USER_ACCESSOR_STRING_PROTOTYPE(servername);
-LOQUI_USER_ACCESSOR_STRING_PROTOTYPE(away_message);
+LOQUI_DEFINE_ACCESSOR_GENERIC_PROTOTYPE(gint, LoquiUser, loqui_user, idle_time);
+LOQUI_DEFINE_ACCESSOR_GENERIC_PROTOTYPE(gboolean, LoquiUser, loqui_user, is_ignored);
+LOQUI_DEFINE_ACCESSOR_GENERIC_PROTOTYPE(LoquiAwayType, LoquiUser, loqui_user, away);
+LOQUI_DEFINE_ACCESSOR_CONST_STRING_PROTOTYPE(LoquiUser, loqui_user, username);
+LOQUI_DEFINE_ACCESSOR_CONST_STRING_PROTOTYPE(LoquiUser, loqui_user, hostname);
+LOQUI_DEFINE_ACCESSOR_CONST_STRING_PROTOTYPE(LoquiUser, loqui_user, realname);
+LOQUI_DEFINE_ACCESSOR_CONST_STRING_PROTOTYPE(LoquiUser, loqui_user, servername);
+LOQUI_DEFINE_ACCESSOR_CONST_STRING_PROTOTYPE(LoquiUser, loqui_user, away_message);
 
 LoquiBasicAwayType loqui_user_get_basic_away(LoquiUser *user);
 

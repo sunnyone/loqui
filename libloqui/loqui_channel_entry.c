@@ -630,14 +630,6 @@ loqui_channel_entry_get_member_number(LoquiChannelEntry *chent)
 	return chent->member_ptr_array->len;
 }
 gint
-loqui_channel_entry_get_op_number(LoquiChannelEntry *chent)
-{
-        g_return_val_if_fail(chent != NULL, 0);
-        g_return_val_if_fail(LOQUI_IS_CHANNEL_ENTRY(chent), 0);
-	
-	return chent->op_number;
-}
-gint
 loqui_channel_entry_get_member_pos(LoquiChannelEntry *chent, LoquiMember *member)
 {
 	gint pos;
@@ -773,10 +765,14 @@ loqui_channel_entry_get_do_sort(LoquiChannelEntry *chent)
 
 	return chent->do_sort;
 }
-LOQUI_CHANNEL_ENTRY_ACCESSOR_STRING(topic);
-LOQUI_CHANNEL_ENTRY_ACCESSOR_STRING(name);
-LOQUI_CHANNEL_ENTRY_ACCESSOR_GENERIC(gint, position);
-LOQUI_CHANNEL_ENTRY_ACCESSOR_GENERIC(gint, id);
+
+LOQUI_DEFINE_READER_GENERIC(gint, 0, LoquiChannelEntry, loqui_channel_entry, op_number);
+
+LOQUI_DEFINE_ACCESSOR_GENERIC(gint, 0, LoquiChannelEntry, loqui_channel_entry, position);
+LOQUI_DEFINE_ACCESSOR_GENERIC(gint, 0, LoquiChannelEntry, loqui_channel_entry, id);
+
+LOQUI_DEFINE_ACCESSOR_CONST_STRING(LoquiChannelEntry, loqui_channel_entry, name);
+LOQUI_DEFINE_ACCESSOR_CONST_STRING(LoquiChannelEntry, loqui_channel_entry, topic);
 
 void
 loqui_channel_entry_append_message_text(LoquiChannelEntry *chent, LoquiMessageText *msgtext)

@@ -117,22 +117,13 @@ gboolean loqui_channel_entry_get_whether_unread(LoquiChannelEntry *chent);
 void loqui_channel_entry_set_do_sort(LoquiChannelEntry *chent, gboolean do_sort);
 gboolean loqui_channel_entry_get_do_sort(LoquiChannelEntry *chent);
 
-#define LOQUI_CHANNEL_ENTRY_ACCESSOR_STRING(attr_name) \
-  LOQUI_DEFINE_ACCESSOR_POINTER(g_strdup, g_free, const gchar *, G_CONST_RETURN gchar *, LoquiChannelEntry, loqui_channel_entry, attr_name)
-#define LOQUI_CHANNEL_ENTRY_ACCESSOR_STRING_PROTOTYPE(attr_name) \
-  ATTR_ACCESSOR_POINTER_PROTOTYPE(const gchar *, G_CONST_RETURN gchar *, LoquiChannelEntry, loqui_channel_entry, attr_name)
-
-#define LOQUI_CHANNEL_ENTRY_ACCESSOR_GENERIC(type, attr_name) \
-  LOQUI_DEFINE_ACCESSOR_GENERIC(type, 0, LoquiChannelEntry, loqui_channel_entry, attr_name)
-#define LOQUI_CHANNEL_ENTRY_ACCESSOR_GENERIC_PROTOTYPE(type, attr_name) \
-  LOQUI_DEFINE_ACCESSOR_GENERIC_PROTOTYPE(type, LoquiChannelEntry, loqui_channel_entry, attr_name)
-
 LOQUI_DEFINE_READER_GENERIC_PROTOTYPE(gint, LoquiChannelEntry, loqui_channel_entry, op_number);
 
-LOQUI_CHANNEL_ENTRY_ACCESSOR_STRING_PROTOTYPE(name);
-LOQUI_CHANNEL_ENTRY_ACCESSOR_STRING_PROTOTYPE(topic);
-LOQUI_CHANNEL_ENTRY_ACCESSOR_GENERIC_PROTOTYPE(gint, position);
-LOQUI_CHANNEL_ENTRY_ACCESSOR_GENERIC_PROTOTYPE(gint, id);
+LOQUI_DEFINE_ACCESSOR_GENERIC_PROTOTYPE(gint, LoquiChannelEntry, loqui_channel_entry, position);
+LOQUI_DEFINE_ACCESSOR_GENERIC_PROTOTYPE(gint, LoquiChannelEntry, loqui_channel_entry, id);
+
+LOQUI_DEFINE_ACCESSOR_CONST_STRING_PROTOTYPE(LoquiChannelEntry, loqui_channel_entry, name);
+LOQUI_DEFINE_ACCESSOR_CONST_STRING_PROTOTYPE(LoquiChannelEntry, loqui_channel_entry, topic);
 
 void loqui_channel_entry_append_message_text(LoquiChannelEntry *chent, LoquiMessageText *msgtext);
 

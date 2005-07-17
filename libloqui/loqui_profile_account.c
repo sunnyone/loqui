@@ -361,16 +361,21 @@ loqui_profile_account_new(LoquiProtocol *protocol)
         return profile;
 }
 
-LOQUI_PROFILE_ACCOUNT_ACCESSOR_GENERIC(gboolean, use);
-LOQUI_PROFILE_ACCOUNT_ACCESSOR_STRING(name);
-LOQUI_PROFILE_ACCOUNT_ACCESSOR_STRING(nick);
-LOQUI_PROFILE_ACCOUNT_ACCESSOR_STRING(servername);
-LOQUI_PROFILE_ACCOUNT_ACCESSOR_GENERIC(int, port);
-LOQUI_PROFILE_ACCOUNT_ACCESSOR_STRING(username);
-LOQUI_PROFILE_ACCOUNT_ACCESSOR_STRING(password);
-LOQUI_PROFILE_ACCOUNT_ACCESSOR_GENERIC(int, codeconv_mode);
-LOQUI_PROFILE_ACCOUNT_ACCESSOR_STRING(codeconv_item_name);
-LOQUI_PROFILE_ACCOUNT_ACCESSOR_STRING(codeset);
+LOQUI_DEFINE_ACCESSOR_GENERIC(gboolean, FALSE, LoquiProfileAccount, loqui_profile_account, use);
+
+LOQUI_DEFINE_ACCESSOR_CONST_STRING(LoquiProfileAccount, loqui_profile_account, name);
+
+LOQUI_DEFINE_ACCESSOR_CONST_STRING(LoquiProfileAccount, loqui_profile_account, nick);
+
+LOQUI_DEFINE_ACCESSOR_CONST_STRING(LoquiProfileAccount, loqui_profile_account, servername);
+LOQUI_DEFINE_ACCESSOR_GENERIC(int, 0, LoquiProfileAccount, loqui_profile_account, port);
+
+LOQUI_DEFINE_ACCESSOR_CONST_STRING(LoquiProfileAccount, loqui_profile_account, username);
+LOQUI_DEFINE_ACCESSOR_CONST_STRING(LoquiProfileAccount, loqui_profile_account, password);
+
+LOQUI_DEFINE_ACCESSOR_GENERIC(int, 0, LoquiProfileAccount, loqui_profile_account, codeconv_mode);
+LOQUI_DEFINE_ACCESSOR_CONST_STRING(LoquiProfileAccount, loqui_profile_account, codeconv_item_name);
+LOQUI_DEFINE_ACCESSOR_CONST_STRING(LoquiProfileAccount, loqui_profile_account, codeset);
 
 void
 loqui_profile_account_set_nick_list(LoquiProfileAccount *profile, GList *nick_list)

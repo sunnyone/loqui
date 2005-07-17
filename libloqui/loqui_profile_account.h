@@ -79,33 +79,23 @@ GType loqui_profile_account_get_type(void) G_GNUC_CONST;
 
 LoquiProfileAccount* loqui_profile_account_new(LoquiProtocol *protocol);
 
-LoquiProtocol*loqui_profile_account_get_protocol(LoquiProfileAccount *profile);
+LoquiProtocol* loqui_profile_account_get_protocol(LoquiProfileAccount *profile);
 
-#define LOQUI_PROFILE_ACCOUNT_ACCESSOR_STRING(attr_name) \
-  LOQUI_DEFINE_ACCESSOR_POINTER(g_strdup, g_free, const gchar *, G_CONST_RETURN gchar *, LoquiProfileAccount, loqui_profile_account, attr_name)
-#define LOQUI_PROFILE_ACCOUNT_ACCESSOR_STRING_PROTOTYPE(attr_name) \
-  ATTR_ACCESSOR_POINTER_PROTOTYPE(const gchar *, G_CONST_RETURN gchar *, LoquiProfileAccount, loqui_profile_account, attr_name)
+LOQUI_DEFINE_ACCESSOR_GENERIC_PROTOTYPE(gboolean, LoquiProfileAccount, loqui_profile_account, use);
 
-#define LOQUI_PROFILE_ACCOUNT_ACCESSOR_GENERIC(type, attr_name) \
-  LOQUI_DEFINE_ACCESSOR_GENERIC(type, 0, LoquiProfileAccount, loqui_profile_account, attr_name)
-#define LOQUI_PROFILE_ACCOUNT_ACCESSOR_GENERIC_PROTOTYPE(type, attr_name) \
-  LOQUI_DEFINE_ACCESSOR_GENERIC_PROTOTYPE(type, LoquiProfileAccount, loqui_profile_account, attr_name)
+LOQUI_DEFINE_ACCESSOR_CONST_STRING_PROTOTYPE(LoquiProfileAccount, loqui_profile_account, name);
 
-LOQUI_PROFILE_ACCOUNT_ACCESSOR_GENERIC_PROTOTYPE(gboolean, use);
+LOQUI_DEFINE_ACCESSOR_CONST_STRING_PROTOTYPE(LoquiProfileAccount, loqui_profile_account, nick);
 
-LOQUI_PROFILE_ACCOUNT_ACCESSOR_STRING_PROTOTYPE(name);
+LOQUI_DEFINE_ACCESSOR_CONST_STRING_PROTOTYPE(LoquiProfileAccount, loqui_profile_account, servername);
+LOQUI_DEFINE_ACCESSOR_GENERIC_PROTOTYPE(int, LoquiProfileAccount, loqui_profile_account, port);
 
-LOQUI_PROFILE_ACCOUNT_ACCESSOR_STRING_PROTOTYPE(nick);
+LOQUI_DEFINE_ACCESSOR_CONST_STRING_PROTOTYPE(LoquiProfileAccount, loqui_profile_account, username);
+LOQUI_DEFINE_ACCESSOR_CONST_STRING_PROTOTYPE(LoquiProfileAccount, loqui_profile_account, password);
 
-LOQUI_PROFILE_ACCOUNT_ACCESSOR_STRING_PROTOTYPE(servername);
-LOQUI_PROFILE_ACCOUNT_ACCESSOR_GENERIC_PROTOTYPE(int, port);
-
-LOQUI_PROFILE_ACCOUNT_ACCESSOR_STRING_PROTOTYPE(username);
-LOQUI_PROFILE_ACCOUNT_ACCESSOR_STRING_PROTOTYPE(password);
-
-LOQUI_PROFILE_ACCOUNT_ACCESSOR_GENERIC_PROTOTYPE(int, codeconv_mode);
-LOQUI_PROFILE_ACCOUNT_ACCESSOR_STRING_PROTOTYPE(codeconv_item_name);
-LOQUI_PROFILE_ACCOUNT_ACCESSOR_STRING_PROTOTYPE(codeset);
+LOQUI_DEFINE_ACCESSOR_GENERIC_PROTOTYPE(int, LoquiProfileAccount, loqui_profile_account, codeconv_mode);
+LOQUI_DEFINE_ACCESSOR_CONST_STRING_PROTOTYPE(LoquiProfileAccount, loqui_profile_account, codeconv_item_name);
+LOQUI_DEFINE_ACCESSOR_CONST_STRING_PROTOTYPE(LoquiProfileAccount, loqui_profile_account, codeset);
 
 void loqui_profile_account_set_nick_list(LoquiProfileAccount *profile, GList *nick_list);
 GList *loqui_profile_account_get_nick_list(LoquiProfileAccount *profile);

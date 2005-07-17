@@ -225,7 +225,7 @@ loqui_user_irc_new(void)
         return user;
 }
 
-LOQUI_USER_IRC_ACCESSOR_GENERIC(guint, hop_count);
-LOQUI_USER_IRC_ACCESSOR_GENERIC(gboolean, is_irc_operator);
-LOQUI_USER_IRC_ACCESSOR_STRING(server_info);
-LOQUI_USER_IRC_ACCESSOR_STRING(joined_channels_string);
+LOQUI_DEFINE_ACCESSOR_GENERIC(guint, 0, LoquiUserIRC, loqui_user_irc, hop_count);
+LOQUI_DEFINE_ACCESSOR_GENERIC(gboolean, 0, LoquiUserIRC, loqui_user_irc, is_irc_operator);
+LOQUI_DEFINE_ACCESSOR_CONST_STRING(LoquiUserIRC, loqui_user_irc, server_info);
+LOQUI_DEFINE_ACCESSOR_CONST_STRING(LoquiUserIRC, loqui_user_irc, joined_channels_string);

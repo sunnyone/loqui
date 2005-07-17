@@ -224,6 +224,6 @@ loqui_user_ipmsg_new(void)
         return user;
 }
 
-LOQUI_USER_IPMSG_ACCESSOR_GENERIC(gint, port);
-LOQUI_USER_IPMSG_ACCESSOR_STRING(ip_addr);
-LOQUI_USER_IPMSG_ACCESSOR_STRING(group_name);
+LOQUI_DEFINE_ACCESSOR_GENERIC(gint, 0, LoquiUserIPMsg, loqui_user_ipmsg, port);
+LOQUI_DEFINE_ACCESSOR_CONST_STRING(LoquiUserIPMsg, loqui_user_ipmsg, ip_addr);
+LOQUI_DEFINE_ACCESSOR_CONST_STRING(LoquiUserIPMsg, loqui_user_ipmsg, group_name);

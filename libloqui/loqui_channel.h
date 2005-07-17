@@ -82,12 +82,7 @@ gboolean loqui_channel_get_is_private_talk(LoquiChannel *channel);
 void loqui_channel_set_is_joined(LoquiChannel *channel, gboolean is_joined);
 gboolean loqui_channel_get_is_joined(LoquiChannel *channel);
 
-#define LOQUI_CHANNEL_ACCESSOR_STRING(attr_name) \
-  LOQUI_DEFINE_ACCESSOR_POINTER(g_strdup, g_free, const gchar *, G_CONST_RETURN gchar *, LoquiChannel, loqui_channel, attr_name)
-#define LOQUI_CHANNEL_ACCESSOR_STRING_PROTOTYPE(attr_name) \
-  ATTR_ACCESSOR_POINTER_PROTOTYPE(const gchar *, G_CONST_RETURN gchar *, LoquiChannel, loqui_channel, attr_name)
-
-LOQUI_CHANNEL_ACCESSOR_STRING_PROTOTYPE(identifier);
+LOQUI_DEFINE_ACCESSOR_CONST_STRING_PROTOTYPE(LoquiChannel, loqui_channel, identifier);
 
 void loqui_channel_push_user_mode_queue(LoquiChannel *channel, gboolean is_give, IRCModeFlag flag, const gchar *nick);
 void loqui_channel_flush_user_mode_queue(LoquiChannel *channel);
