@@ -25,4 +25,7 @@
 
 gchar *loqui_codeconv_tools_jis_to_utf8(LoquiCodeConv *codeconv, gboolean is_to_server, const gchar *input, GError **error);
 
+gchar *loqui_codeconv_tools_utf8_from_ms_table(const gchar *str);
+gchar *loqui_codeconv_tools_utf8_to_ms_table(const gchar *str);
+
 #endif /* __LOQUI_CODECONV_TOOLS_H__ */

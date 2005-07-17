@@ -231,3 +231,72 @@ loqui_codeconv_tools_jis_to_utf8(LoquiCodeConv *codeconv, gboolean is_to_server,
 
 	return g_string_free(string, FALSE);
 }
+
+typedef struct UnicharPair {
+	gunichar orig;
+	gunichar ms;
+} UnicharPair;
+
+UnicharPair ms_diff_table[] = { {0x301c, 0xff5e},
+				{0, 0} };
+
+gchar *
+loqui_codeconv_tools_utf8_from_ms_table(const gchar *str)
+{
+	int i, len;
+	gunichar u;
+	GString *dest;
+	const gchar *p;
+
+	if (str == NULL)
+		return NULL;
+	len = strlen(str);
+	if (len == 0)
+		return g_strdup("");
+
+	dest = g_string_sized_new(len);
+
+	p = str;
+	do {
+		u = g_utf8_get_char(p);
+		for (i = 0; ms_diff_table[i].ms != 0; i++) {
+			if (u == ms_diff_table[i].ms) {
+				u = ms_diff_table[i].orig;
+			}
+		}
+		g_string_append_unichar(dest, u);
+	} while ((p = g_utf8_next_char(p)) != NULL);
+
+	return g_string_free(dest, FALSE);
+}
+
+gchar *
+loqui_codeconv_tools_utf8_to_ms_table(const gchar *str)
+{
+
+	int i, len;
+	gunichar u;
+	GString *dest;
+	const gchar *p;
+
+	if (str == NULL)
+		return NULL;
+	len = strlen(str);
+	if (len == 0)
+		return g_strdup("");
+
+	dest = g_string_sized_new(len);
+
+	p = str;
+	do {
+		u = g_utf8_get_char(p);
+		for (i = 0; ms_diff_table[i].ms != 0; i++) {
+			if (u == ms_diff_table[i].orig) {
+				u = ms_diff_table[i].ms;
+			}
+		}
+		g_string_append_unichar(dest, u);
+	} while ((p = g_utf8_next_char(p)) != NULL);
+
+	return g_string_free(dest, FALSE);
+}

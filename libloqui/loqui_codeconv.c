@@ -208,7 +208,7 @@ gboolean
 loqui_codeconv_update(LoquiCodeConv *codeconv, GError **error)
 {
 	LoquiCodeConvPrivate *priv;
-	LoquiCodeConvTableItem *item;
+	LoquiCodeConvTableItem *item = NULL;
 
         g_return_val_if_fail(codeconv != NULL, FALSE);
         g_return_val_if_fail(LOQUI_IS_CODECONV(codeconv), FALSE);
@@ -355,6 +355,7 @@ loqui_codeconv_to_server(LoquiCodeConv *codeconv, const gchar *input, GError **e
 {
 	LoquiCodeConvPrivate *priv;
 	gchar *output;
+	gchar *tmp = NULL;
 
         g_return_val_if_fail(codeconv != NULL, NULL);
         g_return_val_if_fail(LOQUI_IS_CODECONV(codeconv), NULL);
@@ -366,12 +367,19 @@ loqui_codeconv_to_server(LoquiCodeConv *codeconv, const gchar *input, GError **e
 	if (!priv->func && !LOQUI_CODECONV_G_ICONV_IS_VALID(codeconv->cd_to_server))
 		return g_strdup(input);
 
+#ifdef G_OS_WIN32
+	tmp = loqui_codeconv_tools_utf8_from_ms_table(tmp);
+	input = tmp;
+#endif
+
 	if (priv->func) {
 		output = priv->func(codeconv, TRUE, input, error);
 	} else {
 		output = g_convert_with_iconv(input, strlen(input)+1, codeconv->cd_to_server,
 					      NULL, NULL, error);
 	}
+	
+	g_free(tmp);
 
 	return output;
 }
@@ -448,6 +456,7 @@ loqui_codeconv_to_local(LoquiCodeConv *codeconv, const gchar *input, GError **er
 {
 	LoquiCodeConvPrivate *priv;
 	gchar *buf;
+	gchar *tmp = NULL;
 	
         g_return_val_if_fail(codeconv != NULL, NULL);
         g_return_val_if_fail(LOQUI_IS_CODECONV(codeconv), NULL);
@@ -459,11 +468,19 @@ loqui_codeconv_to_local(LoquiCodeConv *codeconv, const gchar *input, GError **er
 	if(!priv->func && !LOQUI_CODECONV_G_ICONV_IS_VALID(codeconv->cd_to_local))
 		return g_strdup(input);
 
+#ifdef G_OS_WIN32
+	tmp = loqui_codeconv_tools_utf8_to_ms_table(tmp);
+	input = tmp;
+#endif
+
 	if (priv->func) {
 		buf = priv->func(codeconv, FALSE, input, error);
 	} else {
 		buf = loqui_codeconv_convert(codeconv, input, codeconv->cd_to_local, error);
 	}
 	
+	g_free(tmp);
+
 	return buf;
+
 }
