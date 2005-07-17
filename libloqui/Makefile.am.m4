@@ -20,7 +20,7 @@ SRC_PROTOCOL_BASE_BASE = \
 	loqui_channel_entry.c loqui_channel_entry.h \
 	loqui_codeconv_tools.c loqui_codeconv_tools.h \
 	loqui_codeconv.c loqui_codeconv.h \
-	loqui_message_text.c loqui_message_text.h \
+	loqui-message-text.c loqui-message-text.h \
 	loqui_channel_buffer.c loqui_channel_buffer.h \
 	loqui_channel_entry_utils.c loqui_channel_entry_utils.h \
 	loqui-profile.c loqui-profile.h \

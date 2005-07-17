@@ -26,7 +26,7 @@
 #include "loqui_member.h"
 
 #include "loqui_channel_buffer.h"
-#include "loqui_message_text.h"
+#include <libloqui/loqui-message-text.h>
 
 G_BEGIN_DECLS
 

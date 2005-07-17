@@ -23,7 +23,7 @@
 
 /* this is interface */
 #include <glib-object.h>
-#include "loqui_message_text.h"
+#include <libloqui/loqui-message-text.h>
 
 G_BEGIN_DECLS
 

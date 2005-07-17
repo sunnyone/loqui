@@ -36,7 +36,7 @@ requires 2.0.0
 #include "ipmsg.h"
 #include "loqui-account-ipmsg.h"
 #include "loqui-sender-ipmsg.h"
-#include "loqui_message_text.h"
+#include "loqui-message-text.h"
 %}
 
 %{

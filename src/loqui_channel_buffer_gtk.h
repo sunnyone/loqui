@@ -21,7 +21,7 @@
 #define __LOQUI_CHANNEL_BUFFER_GTK_H__
 
 #include <gtk/gtk.h>
-#include "loqui_message_text.h"
+#include <libloqui/loqui-message-text.h>
 #include "loqui-pref-partial.h"
 
 G_BEGIN_DECLS
