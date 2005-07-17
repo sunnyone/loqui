@@ -490,13 +490,13 @@ loqui_utils_list_to_string_array(GList *list, gboolean free_original)
 	strarray[i] = NULL;
 	
 	if (free_original)
-		loqui_utils_free_string_list(list);
+		loqui_utils_free_list_and_elements(list);
 
 	return strarray;
 }
 	
 void
-loqui_utils_free_string_list(GList *list)
+loqui_utils_free_list_and_elements(GList *list)
 {
 	g_list_foreach(list, (GFunc) g_free, NULL);
 	g_list_free(list);

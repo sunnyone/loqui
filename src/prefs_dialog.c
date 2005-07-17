@@ -200,7 +200,7 @@ prefs_dialog_load_settings(PrefsDialog *dialog)
 #define LOAD_FROM_ARRAY_TO_TEXT_VIEW(_group, _key, _textview) { \
 	list = loqui_utils_string_array_to_list(loqui_pref_get_string_list(general_pref, _group, _key, NULL, NULL), TRUE);  \
 	gtkutils_set_textview_from_string_list(GTK_TEXT_VIEW(_textview), list); \
-	loqui_utils_free_string_list(list); \
+	loqui_utils_free_list_and_elements(list); \
 }
 
 	LOAD_FROM_ARRAY_TO_TEXT_VIEW(LOQUI_GENERAL_PREF_GROUP_NOTIFICATION, "HighlightList", priv->textview_highlight);

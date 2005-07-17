@@ -100,7 +100,7 @@ gsize loqui_utils_count_strarray(const gchar **strarray);
 GList *loqui_utils_string_array_to_list(gchar **strarray, gboolean free_original);
 gchar **loqui_utils_list_to_string_array(GList *list, gboolean free_original);
 
-void loqui_utils_free_string_list(GList *list);
+void loqui_utils_free_list_and_elements(GList *list);
 
 gchar *loqui_utils_url_encode(const gchar *str);
 gchar *loqui_utils_url_decode(const gchar *str);
