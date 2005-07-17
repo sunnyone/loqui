@@ -202,7 +202,7 @@ loqui_app_destroy(GtkObject *object)
 	app = LOQUI_APP(object);
 	priv = app->priv;
 
-	G_OBJECT_UNREF_UNLESS_NULL(priv->ppref_channel_buffer);
+	LOQUI_G_OBJECT_UNREF_UNLESS_NULL(priv->ppref_channel_buffer);
 
 	if (GTK_OBJECT_CLASS(parent_class)->destroy)
                 (* GTK_OBJECT_CLASS(parent_class)->destroy) (object);
@@ -231,7 +231,7 @@ loqui_app_finalize(GObject *object)
 	g_signal_handlers_disconnect_by_func(G_OBJECT(app->account_manager), loqui_app_remove_account_cb, app);
 	g_signal_handlers_disconnect_by_func(G_OBJECT(app->account_manager), loqui_app_remove_account_after_cb, app);
 
-	G_OBJECT_UNREF_UNLESS_NULL(app->account_manager);
+	LOQUI_G_OBJECT_UNREF_UNLESS_NULL(app->account_manager);
 
 	if (G_OBJECT_CLASS(parent_class)->finalize)
                 (* G_OBJECT_CLASS(parent_class)->finalize) (object);

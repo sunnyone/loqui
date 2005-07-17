@@ -91,8 +91,8 @@ ctcp_message_finalize(GObject *object)
 
         ctcp_msg = CTCP_MESSAGE(object);
 
-	G_FREE_UNLESS_NULL(ctcp_msg->command);
-	G_FREE_UNLESS_NULL(ctcp_msg->argument);
+	LOQUI_G_FREE_UNLESS_NULL(ctcp_msg->command);
+	LOQUI_G_FREE_UNLESS_NULL(ctcp_msg->argument);
 	if(ctcp_msg->parameters) {
 		g_strfreev(ctcp_msg->parameters);
 		ctcp_msg->parameters = NULL;

@@ -118,11 +118,11 @@ loqui_profile_account_dispose(GObject *object)
 
         profile = LOQUI_PROFILE_ACCOUNT(object);
 
-	G_FREE_UNLESS_NULL(profile->name);
-	G_FREE_UNLESS_NULL(profile->nick);
-	G_FREE_UNLESS_NULL(profile->servername);
-	G_FREE_UNLESS_NULL(profile->username);
-	G_FREE_UNLESS_NULL(profile->password);
+	LOQUI_G_FREE_UNLESS_NULL(profile->name);
+	LOQUI_G_FREE_UNLESS_NULL(profile->nick);
+	LOQUI_G_FREE_UNLESS_NULL(profile->servername);
+	LOQUI_G_FREE_UNLESS_NULL(profile->username);
+	LOQUI_G_FREE_UNLESS_NULL(profile->password);
 		
         if (G_OBJECT_CLASS(parent_class)->dispose)
                 (* G_OBJECT_CLASS(parent_class)->dispose)(object);

@@ -103,10 +103,10 @@ ipmsg_packet_dispose(GObject *object)
 
         packet = IPMSG_PACKET(object);
 
-	G_FREE_UNLESS_NULL(packet->username);
-	G_FREE_UNLESS_NULL(packet->hostname);
-	G_FREE_UNLESS_NULL(packet->extra);
-	G_FREE_UNLESS_NULL(packet->group_name);
+	LOQUI_G_FREE_UNLESS_NULL(packet->username);
+	LOQUI_G_FREE_UNLESS_NULL(packet->hostname);
+	LOQUI_G_FREE_UNLESS_NULL(packet->extra);
+	LOQUI_G_FREE_UNLESS_NULL(packet->group_name);
 	
 	if (packet->inetaddr) {
 		gnet_inetaddr_unref(packet->inetaddr);

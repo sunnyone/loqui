@@ -273,7 +273,7 @@ loqui_account_finalize(GObject *object)
         account = LOQUI_ACCOUNT(object);
 	priv = account->priv;
 	
-	G_OBJECT_UNREF_UNLESS_NULL(priv->profile);
+	LOQUI_G_OBJECT_UNREF_UNLESS_NULL(priv->profile);
 
 	loqui_account_remove_all_channel(account);
 
@@ -287,10 +287,10 @@ loqui_account_finalize(GObject *object)
 	if (account->user_self) {
 		g_object_set_data(G_OBJECT(account->user_self), LOQUI_ACCOUNT_USER_SELF_ACCOUNT_KEY, NULL);
 	}
-	G_OBJECT_UNREF_UNLESS_NULL(account->user_self);
+	LOQUI_G_OBJECT_UNREF_UNLESS_NULL(account->user_self);
 
-	G_OBJECT_UNREF_UNLESS_NULL(account->sender);
-	G_OBJECT_UNREF_UNLESS_NULL(account->receiver);
+	LOQUI_G_OBJECT_UNREF_UNLESS_NULL(account->sender);
+	LOQUI_G_OBJECT_UNREF_UNLESS_NULL(account->receiver);
 
 	DESTROY_HASH_TABLE(account->identifier_channel_table);
 	DESTROY_HASH_TABLE(account->user_identifier_table);
@@ -459,7 +459,7 @@ loqui_account_set_profile(LoquiAccount *account, LoquiProfileAccount *profile)
         g_return_if_fail(account != NULL);
         g_return_if_fail(LOQUI_IS_ACCOUNT(account));
 
-	G_OBJECT_UNREF_UNLESS_NULL(account->priv->profile);
+	LOQUI_G_OBJECT_UNREF_UNLESS_NULL(account->priv->profile);
 	g_object_ref(profile);
 	account->priv->profile = profile;
 
@@ -491,7 +491,7 @@ loqui_account_set_user_self(LoquiAccount *account, LoquiUser *user_self)
 	if (account->user_self) {
 		g_object_set_data(G_OBJECT(account->user_self), LOQUI_ACCOUNT_USER_SELF_ACCOUNT_KEY, NULL);
 	}
-	G_OBJECT_UNREF_UNLESS_NULL(account->user_self);
+	LOQUI_G_OBJECT_UNREF_UNLESS_NULL(account->user_self);
 
 	g_object_ref(user_self);
 	account->user_self = user_self;
@@ -514,7 +514,7 @@ loqui_account_set_sender(LoquiAccount *account, LoquiSender *sender)
         g_return_if_fail(account != NULL);
         g_return_if_fail(LOQUI_IS_ACCOUNT(account));
 
-	G_OBJECT_UNREF_UNLESS_NULL(account->sender);
+	LOQUI_G_OBJECT_UNREF_UNLESS_NULL(account->sender);
 
 	g_object_ref(sender);
 	account->sender = sender;
@@ -533,7 +533,7 @@ loqui_account_set_receiver(LoquiAccount *account, LoquiReceiver *receiver)
         g_return_if_fail(account != NULL);
         g_return_if_fail(LOQUI_IS_ACCOUNT(account));
 
-	G_OBJECT_UNREF_UNLESS_NULL(account->receiver);
+	LOQUI_G_OBJECT_UNREF_UNLESS_NULL(account->receiver);
 
 	g_object_ref(receiver);
 	account->receiver = receiver;

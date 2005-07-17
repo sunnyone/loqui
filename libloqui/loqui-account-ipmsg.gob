@@ -82,7 +82,7 @@ class Loqui:Account:IPMsg from Loqui:Account
 
 		if (!loqui_socket_ipmsg_bind(selfp->sock)) {
 			loqui_account_warning(LOQUI_ACCOUNT(self), _("Failed to create socket. Is used the port?"));
-			G_OBJECT_UNREF_UNLESS_NULL(selfp->sock);
+			LOQUI_G_OBJECT_UNREF_UNLESS_NULL(selfp->sock);
 			return;
 		}
 	
@@ -124,7 +124,7 @@ class Loqui:Account:IPMsg from Loqui:Account
 
 		if (selfp->sock)
 			loqui_socket_ipmsg_unbind(selfp->sock);
-		G_OBJECT_UNREF_UNLESS_NULL(selfp->sock);
+		LOQUI_G_OBJECT_UNREF_UNLESS_NULL(selfp->sock);
 
 		loqui_account_append_text(account, NULL, LOQUI_TEXT_TYPE_INFO, _("Disconnected."));
 

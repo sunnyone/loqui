@@ -133,7 +133,7 @@ loqui_account_irc_dispose(GObject *object)
 		gnet_conn_unref(priv->conn);
 		priv->conn = NULL;
 	}
-	G_OBJECT_UNREF_UNLESS_NULL(priv->codeconv);
+	LOQUI_G_OBJECT_UNREF_UNLESS_NULL(priv->codeconv);
 	if (priv->msg_queue) {
 		g_queue_foreach(priv->msg_queue, (GFunc) g_object_unref, NULL);
 		g_queue_free(priv->msg_queue);

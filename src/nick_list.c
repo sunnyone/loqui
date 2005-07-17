@@ -144,12 +144,12 @@ nick_list_destroy(GtkObject *object)
         nick_list = NICK_LIST(object);
 	priv = nick_list->priv;
 
-	G_OBJECT_UNREF_UNLESS_NULL(priv->op_icon);
-	G_OBJECT_UNREF_UNLESS_NULL(priv->speak_ability_icon);	
-	G_OBJECT_UNREF_UNLESS_NULL(priv->away_icon);
-	G_OBJECT_UNREF_UNLESS_NULL(priv->busy_icon);
-	G_OBJECT_UNREF_UNLESS_NULL(priv->online_icon);
-	G_OBJECT_UNREF_UNLESS_NULL(priv->offline_icon);
+	LOQUI_G_OBJECT_UNREF_UNLESS_NULL(priv->op_icon);
+	LOQUI_G_OBJECT_UNREF_UNLESS_NULL(priv->speak_ability_icon);	
+	LOQUI_G_OBJECT_UNREF_UNLESS_NULL(priv->away_icon);
+	LOQUI_G_OBJECT_UNREF_UNLESS_NULL(priv->busy_icon);
+	LOQUI_G_OBJECT_UNREF_UNLESS_NULL(priv->online_icon);
+	LOQUI_G_OBJECT_UNREF_UNLESS_NULL(priv->offline_icon);
 
         if (GTK_OBJECT_CLASS(parent_class)->destroy)
                 (* GTK_OBJECT_CLASS(parent_class)->destroy) (object);

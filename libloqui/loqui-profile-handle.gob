@@ -127,7 +127,7 @@ class Loqui:Profile:Handle from G:Object {
 			g_object_unref(elem->profile);
 		if (elem->value_array)
 			g_value_array_free(elem->value_array);
-		G_FREE_UNLESS_NULL(elem->key);
+		LOQUI_G_FREE_UNLESS_NULL(elem->key);
 
 		if (elem->pspec)
 			g_param_spec_unref(elem->pspec);
@@ -757,7 +757,7 @@ class Loqui:Profile:Handle from G:Object {
         
         		g_value_unset(&value);
         	}
-		G_LIST_FREE_WITH_ELEMENT_FREE_UNLESS_NULL(key_list);
+		LOQUI_G_LIST_FREE_WITH_ELEMENT_FREE_UNLESS_NULL(key_list);
 
         	g_string_append(string, "</profile>\n");
         

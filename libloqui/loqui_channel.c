@@ -121,9 +121,9 @@ loqui_channel_dispose(GObject *object)
 
         channel = LOQUI_CHANNEL(object);
 
-	G_FREE_UNLESS_NULL(channel->identifier);
+	LOQUI_G_FREE_UNLESS_NULL(channel->identifier);
 
-	G_OBJECT_UNREF_UNLESS_NULL(channel->account);
+	LOQUI_G_OBJECT_UNREF_UNLESS_NULL(channel->account);
 
 	loqui_debug_puts("the channel is disposed.");
 
@@ -260,7 +260,7 @@ loqui_channel_set_account(LoquiChannel *channel, LoquiAccount *account)
 
         priv = channel->priv;
 
-	G_OBJECT_UNREF_UNLESS_NULL(channel->account);
+	LOQUI_G_OBJECT_UNREF_UNLESS_NULL(channel->account);
 
 	g_object_ref(account);
 	channel->account = account;

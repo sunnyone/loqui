@@ -182,7 +182,7 @@ loqui_style_entry_set_color_string(LoquiStyleEntry *style_entry, const gchar *co
         g_return_val_if_fail(style_entry != NULL, FALSE);
         g_return_val_if_fail(LOQUI_IS_STYLE_ENTRY(style_entry), FALSE);
 
-	G_FREE_UNLESS_NULL(style_entry->color_string);
+	LOQUI_G_FREE_UNLESS_NULL(style_entry->color_string);
 	
 	if (!color_string)
 		return FALSE;
@@ -209,7 +209,7 @@ loqui_style_entry_set_color(LoquiStyleEntry *style_entry, GdkColor color)
         g_return_if_fail(LOQUI_IS_STYLE_ENTRY(style_entry));
 	
 	memcpy(&style_entry->color, &color, sizeof(style_entry->color));
-	G_FREE_UNLESS_NULL(style_entry->color_string);
+	LOQUI_G_FREE_UNLESS_NULL(style_entry->color_string);
 	style_entry->color_string = loqui_style_entry_get_string_from_gdk_color(&color);
 }
 GdkColor
@@ -252,7 +252,7 @@ loqui_style_entry_get_font(LoquiStyleEntry *style_entry)
 void
 loqui_style_entry_set_string(LoquiStyleEntry *style_entry, const gchar *string)
 {
-	G_FREE_UNLESS_NULL(style_entry->string);
+	LOQUI_G_FREE_UNLESS_NULL(style_entry->string);
 	style_entry->string = g_strdup(string);
 }
 

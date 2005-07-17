@@ -110,10 +110,10 @@ loqui_profile_account_irc_dispose(GObject *object)
 
         profile = LOQUI_PROFILE_ACCOUNT_IRC(object);
 
-	G_FREE_UNLESS_NULL(profile->realname);
-	G_FREE_UNLESS_NULL(profile->userinfo);
-	G_FREE_UNLESS_NULL(profile->autojoin);
-	G_FREE_UNLESS_NULL(profile->codeset);
+	LOQUI_G_FREE_UNLESS_NULL(profile->realname);
+	LOQUI_G_FREE_UNLESS_NULL(profile->userinfo);
+	LOQUI_G_FREE_UNLESS_NULL(profile->autojoin);
+	LOQUI_G_FREE_UNLESS_NULL(profile->codeset);
 	
         if (G_OBJECT_CLASS(parent_class)->dispose)
                 (* G_OBJECT_CLASS(parent_class)->dispose)(object);

@@ -109,13 +109,13 @@ loqui_user_dispose(GObject *object)
 
         user = LOQUI_USER(object);
 
-	G_FREE_UNLESS_NULL(user->nick);
-	G_FREE_UNLESS_NULL(user->nick_key);
-	G_FREE_UNLESS_NULL(user->username);
-	G_FREE_UNLESS_NULL(user->hostname);
-	G_FREE_UNLESS_NULL(user->realname);
-	G_FREE_UNLESS_NULL(user->servername);
-	G_FREE_UNLESS_NULL(user->away_message);
+	LOQUI_G_FREE_UNLESS_NULL(user->nick);
+	LOQUI_G_FREE_UNLESS_NULL(user->nick_key);
+	LOQUI_G_FREE_UNLESS_NULL(user->username);
+	LOQUI_G_FREE_UNLESS_NULL(user->hostname);
+	LOQUI_G_FREE_UNLESS_NULL(user->realname);
+	LOQUI_G_FREE_UNLESS_NULL(user->servername);
+	LOQUI_G_FREE_UNLESS_NULL(user->away_message);
 
         if (G_OBJECT_CLASS(parent_class)->dispose)
                 (* G_OBJECT_CLASS(parent_class)->dispose)(object);
@@ -437,8 +437,8 @@ loqui_user_set_nick(LoquiUser *user, const gchar* nick)
 	g_return_if_fail(user != NULL);
         g_return_if_fail(LOQUI_IS_USER(user));
 
-	G_FREE_UNLESS_NULL(user->nick);
-	G_FREE_UNLESS_NULL(user->nick_key);
+	LOQUI_G_FREE_UNLESS_NULL(user->nick);
+	LOQUI_G_FREE_UNLESS_NULL(user->nick_key);
 
 	user->nick = g_strdup(nick);
 	tmp = g_ascii_strdown(nick, -1);

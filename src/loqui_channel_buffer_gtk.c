@@ -212,7 +212,7 @@ loqui_channel_buffer_gtk_finalize(GObject *object)
 
 	g_signal_handlers_disconnect_by_func(priv->ppref_channel_buffer, loqui_channel_buffer_gtk_ppref_changed_cb, channel_buffer);
 
-	G_OBJECT_UNREF_UNLESS_NULL(priv->ppref_channel_buffer);
+	LOQUI_G_OBJECT_UNREF_UNLESS_NULL(priv->ppref_channel_buffer);
 
         if (G_OBJECT_CLASS(parent_class)->finalize)
                 (* G_OBJECT_CLASS(parent_class)->finalize) (object);

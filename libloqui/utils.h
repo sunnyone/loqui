@@ -23,21 +23,21 @@
 #include <glib.h>
 #include <time.h>
 
-#define G_FREE_UNLESS_NULL(str) { \
+#define LOQUI_G_FREE_UNLESS_NULL(str) { \
  if(str != NULL) { \
     g_free(str); \
     str = NULL; \
  } \
 }
 
-#define G_OBJECT_UNREF_UNLESS_NULL(obj) { \
+#define LOQUI_G_OBJECT_UNREF_UNLESS_NULL(obj) { \
  if(obj != NULL) { \
      g_object_unref(obj); \
      obj = NULL; \
  } \
 }
 
-#define G_LIST_FREE_WITH_ELEMENT_FREE_UNLESS_NULL(list) { \
+#define LOQUI_G_LIST_FREE_WITH_ELEMENT_FREE_UNLESS_NULL(list) { \
  if(list != NULL) { \
     g_list_foreach(list, (GFunc) g_free, NULL); \
     g_list_free(list); \
@@ -45,17 +45,17 @@
  } \
 }
  
-#define DEBUG_TIMER_START(timer) { \
+#define LOQUI_DEBUG_TIMER_START(timer) { \
    timer = g_timer_new(); \
    g_timer_start(timer); \
 }
-#define DEBUG_TIMER_STOP(timer, name) { \
+#define LOQUI_DEBUG_TIMER_STOP(timer, name) { \
    g_timer_stop(timer); \
    g_print("elapsed(%s): %.7f s\n", name, g_timer_elapsed(timer, NULL)); \
    g_timer_destroy(timer); \
 }
 
-#define UTILS_MASK_BIT(src,field,is_add) ((is_add) ? (src | field) : (src & ~field))
+#define LOQUI_UTILS_MASK_BIT(src,field,is_add) ((is_add) ? (src | field) : (src & ~field))
 
 #define LOQUI_UTILS_EMPTY_IF_NULL(str) (str == NULL ? "" : str)
 

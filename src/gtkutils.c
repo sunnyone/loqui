@@ -239,7 +239,7 @@ gtkutils_set_string_list_from_textview(GList **list_ptr, GtkTextView *textview)
 
 	buf = gtkutils_get_text_from_textview(textview);
 
-	G_LIST_FREE_WITH_ELEMENT_FREE_UNLESS_NULL(*list_ptr);
+	LOQUI_G_LIST_FREE_WITH_ELEMENT_FREE_UNLESS_NULL(*list_ptr);
 	*list_ptr = loqui_utils_line_separated_text_to_list(buf);
 	g_free(buf);
 }

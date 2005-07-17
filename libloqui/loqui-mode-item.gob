@@ -63,7 +63,7 @@ class Loqui:Mode:Item from G:Object
 
 	public void
 	set_data_str(self, gchar *str) {
-		G_FREE_UNLESS_NULL(self->data_str);
+		LOQUI_G_FREE_UNLESS_NULL(self->data_str);
 		if (str)
 			self->data_str = g_strdup(str);
 	}

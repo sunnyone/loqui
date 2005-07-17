@@ -128,9 +128,9 @@ loqui_channel_entry_dispose(GObject *object)
 
         chent = LOQUI_CHANNEL_ENTRY(object);
 
-	G_FREE_UNLESS_NULL(chent->name);
-	G_FREE_UNLESS_NULL(chent->topic);
-	G_OBJECT_UNREF_UNLESS_NULL(chent->buffer);
+	LOQUI_G_FREE_UNLESS_NULL(chent->name);
+	LOQUI_G_FREE_UNLESS_NULL(chent->topic);
+	LOQUI_G_OBJECT_UNREF_UNLESS_NULL(chent->buffer);
 
 	if (chent->member_ptr_array) {
 		for (i = 0; i < chent->member_ptr_array->len; i++) {
@@ -659,7 +659,7 @@ loqui_channel_entry_set_buffer(LoquiChannelEntry *chent, LoquiChannelBuffer *buf
 
         priv = chent->priv;
 
-	G_OBJECT_UNREF_UNLESS_NULL(chent->buffer);
+	LOQUI_G_OBJECT_UNREF_UNLESS_NULL(chent->buffer);
 
 	g_object_ref(buffer);
 	chent->buffer = buffer;

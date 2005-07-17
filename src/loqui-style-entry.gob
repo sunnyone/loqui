@@ -64,7 +64,7 @@ class Loqui:Style:Entry from G:Object
 
 	
 	public gboolean set_color_string(self, const gchar *color_string) {
-	        G_FREE_UNLESS_NULL(self->color_string);
+	        LOQUI_G_FREE_UNLESS_NULL(self->color_string);
         
 		if (!color_string)
 			return FALSE;

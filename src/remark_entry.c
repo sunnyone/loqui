@@ -621,7 +621,7 @@ remark_entry_send_text(RemarkEntry *remark_entry, gboolean is_notice)
 	remark_entry_history_add(remark_entry, str);
 	g_free(str);
 	priv->current_index = 0;
-	G_FREE_UNLESS_NULL(priv->string_list->data);
+	LOQUI_G_FREE_UNLESS_NULL(priv->string_list->data);
 	
 	remark_entry_set_command_mode(remark_entry, FALSE);
 }

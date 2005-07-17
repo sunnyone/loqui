@@ -109,8 +109,8 @@ loqui_codeconv_finalize(GObject *object)
 
         codeconv = LOQUI_CODECONV(object);
 
-	G_FREE_UNLESS_NULL(codeconv->name);
-	G_FREE_UNLESS_NULL(codeconv->codeset);
+	LOQUI_G_FREE_UNLESS_NULL(codeconv->name);
+	LOQUI_G_FREE_UNLESS_NULL(codeconv->codeset);
 
         if (G_OBJECT_CLASS(parent_class)->finalize)
                 (* G_OBJECT_CLASS(parent_class)->finalize) (object);
@@ -176,7 +176,7 @@ loqui_codeconv_set_table_item_name(LoquiCodeConv *codeconv, const gchar *name)
         g_return_if_fail(codeconv != NULL);
         g_return_if_fail(LOQUI_IS_CODECONV(codeconv));
 	
-	G_FREE_UNLESS_NULL(codeconv->name);
+	LOQUI_G_FREE_UNLESS_NULL(codeconv->name);
 	codeconv->name = g_strdup(name);
 }
 G_CONST_RETURN gchar *
@@ -193,7 +193,7 @@ loqui_codeconv_set_codeset(LoquiCodeConv *codeconv, const gchar *codeset)
         g_return_if_fail(codeconv != NULL);
         g_return_if_fail(LOQUI_IS_CODECONV(codeconv));
 	
-	G_FREE_UNLESS_NULL(codeconv->codeset);
+	LOQUI_G_FREE_UNLESS_NULL(codeconv->codeset);
 	codeconv->codeset = g_strdup(codeset);
 }
 G_CONST_RETURN gchar *

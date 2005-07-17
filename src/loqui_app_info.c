@@ -128,14 +128,14 @@ loqui_app_info_dispose(GObject *object)
 
         appinfo = LOQUI_APP_INFO(object);
 
-	G_FREE_UNLESS_NULL(appinfo->cache_account_name);
-	G_FREE_UNLESS_NULL(appinfo->cache_channel_name);
-	G_FREE_UNLESS_NULL(appinfo->cache_topic);
-	G_FREE_UNLESS_NULL(appinfo->cache_member_number);
-	G_FREE_UNLESS_NULL(appinfo->cache_op_number);
-	G_FREE_UNLESS_NULL(appinfo->cache_channel_mode);
-	G_FREE_UNLESS_NULL(appinfo->cache_updated_entry_number);
-	G_FREE_UNLESS_NULL(appinfo->cache_updated_private_talk_number);
+	LOQUI_G_FREE_UNLESS_NULL(appinfo->cache_account_name);
+	LOQUI_G_FREE_UNLESS_NULL(appinfo->cache_channel_name);
+	LOQUI_G_FREE_UNLESS_NULL(appinfo->cache_topic);
+	LOQUI_G_FREE_UNLESS_NULL(appinfo->cache_member_number);
+	LOQUI_G_FREE_UNLESS_NULL(appinfo->cache_op_number);
+	LOQUI_G_FREE_UNLESS_NULL(appinfo->cache_channel_mode);
+	LOQUI_G_FREE_UNLESS_NULL(appinfo->cache_updated_entry_number);
+	LOQUI_G_FREE_UNLESS_NULL(appinfo->cache_updated_private_talk_number);
 
 	if (appinfo->ltf_title) {
 		loqui_title_format_free(appinfo->ltf_title);
@@ -322,7 +322,7 @@ loqui_app_info_new(LoquiApp *app)
 void
 loqui_app_info_update_account_name(LoquiAppInfo *appinfo, LoquiAccount *account)
 {
-	G_FREE_UNLESS_NULL(appinfo->cache_account_name);
+	LOQUI_G_FREE_UNLESS_NULL(appinfo->cache_account_name);
 	if (account)
 		appinfo->cache_account_name = g_strdup(loqui_profile_account_get_name(loqui_account_get_profile(account)));
 
@@ -331,7 +331,7 @@ loqui_app_info_update_account_name(LoquiAppInfo *appinfo, LoquiAccount *account)
 void
 loqui_app_info_update_nick(LoquiAppInfo *appinfo, LoquiAccount *account)
 {
-	G_FREE_UNLESS_NULL(appinfo->cache_nick);
+	LOQUI_G_FREE_UNLESS_NULL(appinfo->cache_nick);
 	if (account)
 		appinfo->cache_nick = g_strdup(loqui_user_get_nick(loqui_account_get_user_self(account)));
 	
@@ -355,14 +355,14 @@ loqui_app_info_update_away(LoquiAppInfo *appinfo, LoquiAccount *account)
 void
 loqui_app_info_update_channel_name(LoquiAppInfo *appinfo, LoquiChannel *channel)
 {
-	G_FREE_UNLESS_NULL(appinfo->cache_channel_name);
+	LOQUI_G_FREE_UNLESS_NULL(appinfo->cache_channel_name);
 	if (channel)
 		appinfo->cache_channel_name = g_strdup(loqui_channel_entry_get_name(LOQUI_CHANNEL_ENTRY(channel)));
 }
 void
 loqui_app_info_update_topic(LoquiAppInfo *appinfo, LoquiChannelEntry *chent)
 {
-	G_FREE_UNLESS_NULL(appinfo->cache_topic);
+	LOQUI_G_FREE_UNLESS_NULL(appinfo->cache_topic);
 	if (chent)
 		appinfo->cache_topic = g_strdup(loqui_channel_entry_get_topic(chent));
 
@@ -371,7 +371,7 @@ loqui_app_info_update_topic(LoquiAppInfo *appinfo, LoquiChannelEntry *chent)
 void
 loqui_app_info_update_member_number(LoquiAppInfo *appinfo, LoquiChannelEntry *chent)
 {
-	G_FREE_UNLESS_NULL(appinfo->cache_member_number);
+	LOQUI_G_FREE_UNLESS_NULL(appinfo->cache_member_number);
 	if (chent)
 		appinfo->cache_member_number = g_strdup_printf("%d",
 							       loqui_channel_entry_get_member_number(chent));
@@ -381,7 +381,7 @@ loqui_app_info_update_member_number(LoquiAppInfo *appinfo, LoquiChannelEntry *ch
 void
 loqui_app_info_update_op_number(LoquiAppInfo *appinfo, LoquiChannelEntry *chent)
 {
-	G_FREE_UNLESS_NULL(appinfo->cache_op_number);
+	LOQUI_G_FREE_UNLESS_NULL(appinfo->cache_op_number);
 	if (chent)
 		appinfo->cache_op_number = g_strdup_printf("%d",
 							   loqui_channel_entry_get_op_number(chent));
@@ -394,7 +394,7 @@ loqui_app_info_update_channel_mode(LoquiAppInfo *appinfo, LoquiChannel *channel)
 	if (channel)
 		g_return_if_fail(LOQUI_IS_CHANNEL(channel));
 
-	G_FREE_UNLESS_NULL(appinfo->cache_channel_mode);
+	LOQUI_G_FREE_UNLESS_NULL(appinfo->cache_channel_mode);
 	if (channel && channel->channel_mode_manager)
 		appinfo->cache_channel_mode = loqui_mode_manager_to_string(channel->channel_mode_manager);
 
@@ -403,14 +403,14 @@ loqui_app_info_update_channel_mode(LoquiAppInfo *appinfo, LoquiChannel *channel)
 void
 loqui_app_info_update_updated_entry_number(LoquiAppInfo *appinfo)
 {
-	G_FREE_UNLESS_NULL(appinfo->cache_updated_entry_number);
+	LOQUI_G_FREE_UNLESS_NULL(appinfo->cache_updated_entry_number);
 	appinfo->cache_updated_entry_number = g_strdup_printf("%d",
 							      appinfo->updated_entry_number);
 }
 void
 loqui_app_info_update_updated_private_talk_number(LoquiAppInfo *appinfo)
 {
-	G_FREE_UNLESS_NULL(appinfo->cache_updated_private_talk_number);
+	LOQUI_G_FREE_UNLESS_NULL(appinfo->cache_updated_private_talk_number);
 	appinfo->cache_updated_private_talk_number = g_strdup_printf("%d",
 								     appinfo->updated_private_talk_number);
 }

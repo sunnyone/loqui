@@ -154,11 +154,11 @@ irc_message_finalize(GObject *object)
 
         msg = IRC_MESSAGE(object);
 
-	G_FREE_UNLESS_NULL(msg->prefix);
-	G_FREE_UNLESS_NULL(msg->command);
-	G_FREE_UNLESS_NULL(msg->nick);
-	G_FREE_UNLESS_NULL(msg->user);
-	G_FREE_UNLESS_NULL(msg->host);
+	LOQUI_G_FREE_UNLESS_NULL(msg->prefix);
+	LOQUI_G_FREE_UNLESS_NULL(msg->command);
+	LOQUI_G_FREE_UNLESS_NULL(msg->nick);
+	LOQUI_G_FREE_UNLESS_NULL(msg->user);
+	LOQUI_G_FREE_UNLESS_NULL(msg->host);
 
 	if (msg->parameter) {
 		g_strfreev(msg->parameter);

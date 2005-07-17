@@ -46,7 +46,7 @@ class Loqui:Property:Profile from G:Object (interface Loqui:Profile)
 	private void set_profile_type_name(Loqui:Profile *profile, const gchar *type_name) {
 		Self *self = SELF(profile);
 
-		G_FREE_UNLESS_NULL(self->type_name);
+		LOQUI_G_FREE_UNLESS_NULL(self->type_name);
 		self->type_name = g_strdup(type_name);
 	}
 

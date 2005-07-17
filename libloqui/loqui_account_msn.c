@@ -114,7 +114,7 @@ loqui_account_msn_dispose(GObject *object)
 
         account = LOQUI_ACCOUNT_MSN(object);
 
-	G_FREE_UNLESS_NULL(account->trid_string);
+	LOQUI_G_FREE_UNLESS_NULL(account->trid_string);
 
         if (G_OBJECT_CLASS(parent_class)->dispose)
                 (* G_OBJECT_CLASS(parent_class)->dispose)(object);
@@ -203,7 +203,7 @@ loqui_account_msn_get_trid_string(LoquiAccountMSN *account)
 	g_return_val_if_fail(account != NULL, NULL);
 	g_return_val_if_fail(LOQUI_IS_ACCOUNT_MSN(account), NULL);
 
-	G_FREE_UNLESS_NULL(account->trid_string);
+	LOQUI_G_FREE_UNLESS_NULL(account->trid_string);
 
 	trid = loqui_account_msn_get_new_trid(account);
 	account->trid_string = g_strdup_printf("%d", trid);

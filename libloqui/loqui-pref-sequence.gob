@@ -46,7 +46,7 @@ class Loqui:Pref:Sequence from G:Object
 
 	public void
 	set_pref(self, LoquiPref *pref) {
-		G_OBJECT_UNREF_UNLESS_NULL(self->pref);
+		LOQUI_G_OBJECT_UNREF_UNLESS_NULL(self->pref);
 
 		if (pref) {
 			self->pref = g_object_ref(pref);
@@ -60,7 +60,7 @@ class Loqui:Pref:Sequence from G:Object
 
 	public void
 	set_prefix(self, const gchar *prefix) {
-		G_FREE_UNLESS_NULL(self->prefix);
+		LOQUI_G_FREE_UNLESS_NULL(self->prefix);
 
 		self->prefix = g_strdup(prefix);
 	}

@@ -97,7 +97,7 @@ loqui_member_dispose(GObject *object)
 
         member = LOQUI_MEMBER(object);
 
-	G_OBJECT_UNREF_UNLESS_NULL(member->user);
+	LOQUI_G_OBJECT_UNREF_UNLESS_NULL(member->user);
 
         if (G_OBJECT_CLASS(parent_class)->dispose)
                 (* G_OBJECT_CLASS(parent_class)->dispose)(object);
@@ -210,7 +210,7 @@ loqui_member_set_user(LoquiMember *member, LoquiUser *user)
         g_return_if_fail(member != NULL);
         g_return_if_fail(LOQUI_IS_MEMBER(member));
 
-	G_OBJECT_UNREF_UNLESS_NULL(member->user);
+	LOQUI_G_OBJECT_UNREF_UNLESS_NULL(member->user);
 
 	if (user) {
 		g_object_ref(user);

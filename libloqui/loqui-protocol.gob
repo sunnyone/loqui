@@ -100,7 +100,7 @@ class Loqui:Protocol from G:Object (interface Loqui:Profile:Factory) {
 
 	public void
 	set_identifier(self, const gchar *identifier) {
-		G_FREE_UNLESS_NULL(self->identifier);
+		LOQUI_G_FREE_UNLESS_NULL(self->identifier);
 		if (identifier)
 			self->identifier = g_strdup(identifier);
 	}

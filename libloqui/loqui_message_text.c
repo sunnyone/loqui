@@ -168,10 +168,10 @@ loqui_message_text_finalize(GObject *object)
 
         msgtext = LOQUI_MESSAGE_TEXT(object);
 
-	G_FREE_UNLESS_NULL(msgtext->text);
-	G_FREE_UNLESS_NULL(msgtext->channel_name);
-	G_FREE_UNLESS_NULL(msgtext->nick);
-	G_FREE_UNLESS_NULL(msgtext->account_name);
+	LOQUI_G_FREE_UNLESS_NULL(msgtext->text);
+	LOQUI_G_FREE_UNLESS_NULL(msgtext->channel_name);
+	LOQUI_G_FREE_UNLESS_NULL(msgtext->nick);
+	LOQUI_G_FREE_UNLESS_NULL(msgtext->account_name);
 
 	if (msgtext->uri_region_list) {
 		g_list_foreach(msgtext->uri_region_list, (GFunc) g_free, NULL);

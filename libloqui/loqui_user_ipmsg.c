@@ -104,8 +104,8 @@ loqui_user_ipmsg_dispose(GObject *object)
 
         user = LOQUI_USER_IPMSG(object);
 
-	G_FREE_UNLESS_NULL(user->ip_addr);
-	G_FREE_UNLESS_NULL(user->group_name);
+	LOQUI_G_FREE_UNLESS_NULL(user->ip_addr);
+	LOQUI_G_FREE_UNLESS_NULL(user->group_name);
 
         if (G_OBJECT_CLASS(parent_class)->dispose)
                 (* G_OBJECT_CLASS(parent_class)->dispose)(object);

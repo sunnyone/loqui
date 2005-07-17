@@ -138,7 +138,7 @@ loqui_account_manager_dispose(GObject *object)
 
 	loqui_account_manager_remove_all_account(account_manager);
 
-	G_OBJECT_UNREF_UNLESS_NULL(account_manager->protocol_manager);
+	LOQUI_G_OBJECT_UNREF_UNLESS_NULL(account_manager->protocol_manager);
 
         if (G_OBJECT_CLASS(parent_class)->dispose)
                 (* G_OBJECT_CLASS(parent_class)->dispose) (object);
