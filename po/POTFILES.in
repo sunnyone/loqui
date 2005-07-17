@@ -33,8 +33,12 @@ libloqui/loqui-sender-ipmsg.gob
 libloqui/loqui-socket-ipmsg.gob
 libloqui/loqui-static-core.c
 libloqui/loqui-static-core.h
+libloqui/loqui-transfer-item-irc.gob
+libloqui/loqui-transfer-item.gob
 libloqui/loqui-utils-ipmsg.c
 libloqui/loqui-utils-ipmsg.h
+libloqui/loqui-utils.c
+libloqui/loqui-utils.h
 libloqui/loqui.c
 libloqui/loqui.h
 libloqui/loqui_account.c
@@ -97,8 +101,6 @@ libloqui/loqui_string_tokenizer.c
 libloqui/loqui_string_tokenizer.h
 libloqui/loqui_title_format.c
 libloqui/loqui_title_format.h
-libloqui/loqui_transfer_item.c
-libloqui/loqui_transfer_item.h
 libloqui/loqui_user.c
 libloqui/loqui_user.h
 libloqui/loqui_user_ipmsg.c
@@ -116,8 +118,6 @@ libloqui/msn_login.c
 libloqui/msn_login.h
 libloqui/msn_message.c
 libloqui/msn_message.h
-libloqui/utils.c
-libloqui/utils.h
 src/about.c
 src/about.h
 src/account_list_dialog.c
@@ -138,6 +138,7 @@ src/loqui-general-pref-gtk.h
 src/loqui-protocol-selection-dialog.gob
 src/loqui-style-entry.gob
 src/loqui-transfer-window.gob
+src/loqui-tray-icon.gob
 src/loqui_account_manager_store.c
 src/loqui_account_manager_store.h
 src/loqui_app.c
@@ -168,8 +169,6 @@ src/loqui_stock.c
 src/loqui_stock.h
 src/loqui_style_entry.c
 src/loqui_style_entry.h
-src/loqui_tray_icon.c
-src/loqui_tray_icon.h
 src/main.c
 src/main.h
 src/nick_list.c
