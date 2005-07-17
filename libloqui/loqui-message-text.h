@@ -88,15 +88,10 @@ GType loqui_message_text_get_type (void) G_GNUC_CONST;
 
 LoquiMessageText* loqui_message_text_new(void);
 
-#define LOQUI_MESSAGE_TEXT_ACCESSOR_STRING(attr_name) \
-  ATTR_ACCESSOR_POINTER(g_strdup, g_free, const gchar *, G_CONST_RETURN gchar *, LoquiMessageText, loqui_message_text, attr_name)
-#define LOQUI_MESSAGE_TEXT_ACCESSOR_STRING_PROTOTYPE(attr_name) \
-  ATTR_ACCESSOR_POINTER_PROTOTYPE(const gchar *, G_CONST_RETURN gchar *, LoquiMessageText, loqui_message_text, attr_name)
-
-LOQUI_MESSAGE_TEXT_ACCESSOR_STRING_PROTOTYPE(text);
-LOQUI_MESSAGE_TEXT_ACCESSOR_STRING_PROTOTYPE(nick);
-LOQUI_MESSAGE_TEXT_ACCESSOR_STRING_PROTOTYPE(account_name);
-LOQUI_MESSAGE_TEXT_ACCESSOR_STRING_PROTOTYPE(channel_name);
+LOQUI_ATTR_ACCESSOR_CONST_STRING_PROTOTYPE(LoquiMessageText, loqui_message_text, text);
+LOQUI_ATTR_ACCESSOR_CONST_STRING_PROTOTYPE(LoquiMessageText, loqui_message_text, nick);
+LOQUI_ATTR_ACCESSOR_CONST_STRING_PROTOTYPE(LoquiMessageText, loqui_message_text, account_name);
+LOQUI_ATTR_ACCESSOR_CONST_STRING_PROTOTYPE(LoquiMessageText, loqui_message_text, channel_name);
 
 ATTR_ACCESSOR_GENERIC_PROTOTYPE(gboolean, LoquiMessageText, loqui_message_text, is_self);
 ATTR_ACCESSOR_GENERIC_PROTOTYPE(gboolean, LoquiMessageText, loqui_message_text, is_priv);

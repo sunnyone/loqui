@@ -286,10 +286,10 @@ loqui_message_text_new(void)
 	return message_text;
 }
 
-LOQUI_MESSAGE_TEXT_ACCESSOR_STRING(text);
-LOQUI_MESSAGE_TEXT_ACCESSOR_STRING(nick);
-LOQUI_MESSAGE_TEXT_ACCESSOR_STRING(account_name);
-LOQUI_MESSAGE_TEXT_ACCESSOR_STRING(channel_name);
+LOQUI_ATTR_ACCESSOR_CONST_STRING(LoquiMessageText, loqui_message_text, text);
+LOQUI_ATTR_ACCESSOR_CONST_STRING(LoquiMessageText, loqui_message_text, nick);
+LOQUI_ATTR_ACCESSOR_CONST_STRING(LoquiMessageText, loqui_message_text, account_name);
+LOQUI_ATTR_ACCESSOR_CONST_STRING(LoquiMessageText, loqui_message_text, channel_name);
 
 ATTR_ACCESSOR_GENERIC(gboolean, FALSE, LoquiMessageText, loqui_message_text, is_priv);
 ATTR_ACCESSOR_GENERIC(gboolean, FALSE, LoquiMessageText, loqui_message_text, is_self);
