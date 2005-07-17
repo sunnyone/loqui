@@ -382,6 +382,28 @@ loqui_channel_flush_user_mode_queue(LoquiChannel *channel)
 	priv->mode_change_queue = NULL;
 }
 
+/* FIXME: should be more efficient */
+static gboolean
+loqui_channel_search_patters(const gchar *group, const gchar *key, const gchar *body)
+{
+	gchar **array;
+	int i;
+
+	array = loqui_pref_get_string_list(loqui_get_general_pref(), group, key, NULL, NULL);
+	if (!array)
+		return FALSE;
+
+	for (i = 0; array[i] != NULL; i++) {
+		if (g_pattern_match_simple(array[i], body)) {
+			g_strfreev(array);
+			return TRUE;
+		}
+	}
+
+	g_strfreev(array);
+	return FALSE;
+}
+
 void
 loqui_channel_append_remark(LoquiChannel *channel, LoquiTextType type, gboolean is_self, const gchar *nick, const gchar *remark, gboolean is_from_server)
 {
@@ -389,6 +411,7 @@ loqui_channel_append_remark(LoquiChannel *channel, LoquiTextType type, gboolean 
 	LoquiMessageText *msgtext;
 	gchar *word;
 	int i;
+	gboolean is_transparent = FALSE, is_ignored = FALSE;
 
 	gboolean is_priv = FALSE;
 	gboolean exec_notification = TRUE && !is_from_server && !is_self;
@@ -402,24 +425,19 @@ loqui_channel_append_remark(LoquiChannel *channel, LoquiTextType type, gboolean 
 
 	/* FIXME: should be more efficient */
 	if (loqui_pref_get_with_default_boolean(loqui_get_general_pref(),
-						LOQUI_GENERAL_PREF_GROUP_IGNORE, "TransparentIgnore",
+						LOQUI_GENERAL_PREF_GROUP_IGNORE, "UseTransparentIgnore",
 						LOQUI_GENERAL_PREF_DEFAULT_IGNORE_USE_TRANSPARENT_IGNORE, NULL) && nick != NULL) {
-		gchar **ignore_list;
-
-		ignore_list = loqui_pref_get_string_list(loqui_get_general_pref(),
-							 LOQUI_GENERAL_PREF_GROUP_IGNORE, "TransparentIgnoreList",
-							 NULL, NULL);
-
-		if (ignore_list) {
-			for (i = 0; ignore_list[i] != NULL; i++) {
-				if (g_pattern_match_simple(ignore_list[i], nick))
-					type = LOQUI_TEXT_TYPE_TRANSPARENT;
-			}
-		}
-
-		g_strfreev(ignore_list);
+		is_transparent = loqui_channel_search_patters(LOQUI_GENERAL_PREF_GROUP_IGNORE, "TransparentIgnoreList", nick);
 	}
+	if (is_transparent)
+		type = LOQUI_TEXT_TYPE_TRANSPARENT;
 
+	if (loqui_pref_get_with_default_boolean(loqui_get_general_pref(),
+						LOQUI_GENERAL_PREF_GROUP_IGNORE, "UseNormalIgnore",
+						LOQUI_GENERAL_PREF_DEFAULT_IGNORE_USE_NORMAL_IGNORE, NULL) && nick != NULL) {
+		is_ignored = loqui_channel_search_patters(LOQUI_GENERAL_PREF_GROUP_IGNORE, "NormalIgnoreList", nick);
+	}
+	
 	if (type == LOQUI_TEXT_TYPE_NOTICE &&
 	    !loqui_pref_get_with_default_boolean(loqui_get_general_pref(),
 						 LOQUI_GENERAL_PREF_GROUP_NOTIFICATION, "ExecNotificationByNotice",
