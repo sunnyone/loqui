@@ -361,19 +361,19 @@ loqui_profile_account_new(LoquiProtocol *protocol)
         return profile;
 }
 
-LOQUI_DEFINE_ACCESSOR_GENERIC(gboolean, FALSE, LoquiProfileAccount, loqui_profile_account, use);
+LOQUI_DEFINE_ACCESSOR_GENERIC(LoquiProfileAccount, loqui_profile_account, use, gboolean);
 
 LOQUI_DEFINE_ACCESSOR_CONST_STRING(LoquiProfileAccount, loqui_profile_account, name);
 
 LOQUI_DEFINE_ACCESSOR_CONST_STRING(LoquiProfileAccount, loqui_profile_account, nick);
 
 LOQUI_DEFINE_ACCESSOR_CONST_STRING(LoquiProfileAccount, loqui_profile_account, servername);
-LOQUI_DEFINE_ACCESSOR_GENERIC(int, 0, LoquiProfileAccount, loqui_profile_account, port);
+LOQUI_DEFINE_ACCESSOR_GENERIC(LoquiProfileAccount, loqui_profile_account, port, int);
 
 LOQUI_DEFINE_ACCESSOR_CONST_STRING(LoquiProfileAccount, loqui_profile_account, username);
 LOQUI_DEFINE_ACCESSOR_CONST_STRING(LoquiProfileAccount, loqui_profile_account, password);
 
-LOQUI_DEFINE_ACCESSOR_GENERIC(int, 0, LoquiProfileAccount, loqui_profile_account, codeconv_mode);
+LOQUI_DEFINE_ACCESSOR_GENERIC(LoquiProfileAccount, loqui_profile_account, codeconv_mode, int);
 LOQUI_DEFINE_ACCESSOR_CONST_STRING(LoquiProfileAccount, loqui_profile_account, codeconv_item_name);
 LOQUI_DEFINE_ACCESSOR_CONST_STRING(LoquiProfileAccount, loqui_profile_account, codeset);
 

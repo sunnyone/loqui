@@ -61,7 +61,7 @@ GType loqui_user_ipmsg_get_type(void) G_GNUC_CONST;
 
 LoquiUserIPMsg* loqui_user_ipmsg_new(void);
 
-LOQUI_DEFINE_ACCESSOR_GENERIC_PROTOTYPE(gint, LoquiUserIPMsg, loqui_user_ipmsg, port);
+LOQUI_DEFINE_ACCESSOR_GENERIC_PROTOTYPE(LoquiUserIPMsg, loqui_user_ipmsg, port, gint);
 LOQUI_DEFINE_ACCESSOR_CONST_STRING_PROTOTYPE(LoquiUserIPMsg, loqui_user_ipmsg, ip_addr);
 LOQUI_DEFINE_ACCESSOR_CONST_STRING_PROTOTYPE(LoquiUserIPMsg, loqui_user_ipmsg, group_name);
 

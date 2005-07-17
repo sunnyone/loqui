@@ -81,19 +81,19 @@ LoquiProfileAccount* loqui_profile_account_new(LoquiProtocol *protocol);
 
 LoquiProtocol* loqui_profile_account_get_protocol(LoquiProfileAccount *profile);
 
-LOQUI_DEFINE_ACCESSOR_GENERIC_PROTOTYPE(gboolean, LoquiProfileAccount, loqui_profile_account, use);
+LOQUI_DEFINE_ACCESSOR_GENERIC_PROTOTYPE(LoquiProfileAccount, loqui_profile_account, use, gboolean);
 
 LOQUI_DEFINE_ACCESSOR_CONST_STRING_PROTOTYPE(LoquiProfileAccount, loqui_profile_account, name);
 
 LOQUI_DEFINE_ACCESSOR_CONST_STRING_PROTOTYPE(LoquiProfileAccount, loqui_profile_account, nick);
 
 LOQUI_DEFINE_ACCESSOR_CONST_STRING_PROTOTYPE(LoquiProfileAccount, loqui_profile_account, servername);
-LOQUI_DEFINE_ACCESSOR_GENERIC_PROTOTYPE(int, LoquiProfileAccount, loqui_profile_account, port);
+LOQUI_DEFINE_ACCESSOR_GENERIC_PROTOTYPE(LoquiProfileAccount, loqui_profile_account, port, int);
 
 LOQUI_DEFINE_ACCESSOR_CONST_STRING_PROTOTYPE(LoquiProfileAccount, loqui_profile_account, username);
 LOQUI_DEFINE_ACCESSOR_CONST_STRING_PROTOTYPE(LoquiProfileAccount, loqui_profile_account, password);
 
-LOQUI_DEFINE_ACCESSOR_GENERIC_PROTOTYPE(int, LoquiProfileAccount, loqui_profile_account, codeconv_mode);
+LOQUI_DEFINE_ACCESSOR_GENERIC_PROTOTYPE(LoquiProfileAccount, loqui_profile_account, codeconv_mode, int);
 LOQUI_DEFINE_ACCESSOR_CONST_STRING_PROTOTYPE(LoquiProfileAccount, loqui_profile_account, codeconv_item_name);
 LOQUI_DEFINE_ACCESSOR_CONST_STRING_PROTOTYPE(LoquiProfileAccount, loqui_profile_account, codeset);
 

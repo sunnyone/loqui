@@ -113,9 +113,9 @@ GList* loqui_user_class_get_away_type_list(LoquiUserClass *user_class); /* <Loqu
 void loqui_user_set_nick(LoquiUser *user, const gchar *nick);
 G_CONST_RETURN gchar *loqui_user_get_nick(LoquiUser *user);
 
-LOQUI_DEFINE_ACCESSOR_GENERIC_PROTOTYPE(gint, LoquiUser, loqui_user, idle_time);
-LOQUI_DEFINE_ACCESSOR_GENERIC_PROTOTYPE(gboolean, LoquiUser, loqui_user, is_ignored);
-LOQUI_DEFINE_ACCESSOR_GENERIC_PROTOTYPE(LoquiAwayType, LoquiUser, loqui_user, away);
+LOQUI_DEFINE_ACCESSOR_GENERIC_PROTOTYPE(LoquiUser, loqui_user, idle_time, gint);
+LOQUI_DEFINE_ACCESSOR_GENERIC_PROTOTYPE(LoquiUser, loqui_user, is_ignored, gboolean);
+LOQUI_DEFINE_ACCESSOR_GENERIC_PROTOTYPE(LoquiUser, loqui_user, away, LoquiAwayType);
 LOQUI_DEFINE_ACCESSOR_CONST_STRING_PROTOTYPE(LoquiUser, loqui_user, username);
 LOQUI_DEFINE_ACCESSOR_CONST_STRING_PROTOTYPE(LoquiUser, loqui_user, hostname);
 LOQUI_DEFINE_ACCESSOR_CONST_STRING_PROTOTYPE(LoquiUser, loqui_user, realname);

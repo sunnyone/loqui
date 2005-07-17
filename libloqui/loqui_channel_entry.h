@@ -117,10 +117,10 @@ gboolean loqui_channel_entry_get_whether_unread(LoquiChannelEntry *chent);
 void loqui_channel_entry_set_do_sort(LoquiChannelEntry *chent, gboolean do_sort);
 gboolean loqui_channel_entry_get_do_sort(LoquiChannelEntry *chent);
 
-LOQUI_DEFINE_READER_GENERIC_PROTOTYPE(gint, LoquiChannelEntry, loqui_channel_entry, op_number);
+LOQUI_DEFINE_READER_GENERIC_PROTOTYPE(LoquiChannelEntry, loqui_channel_entry, op_number, gint);
 
-LOQUI_DEFINE_ACCESSOR_GENERIC_PROTOTYPE(gint, LoquiChannelEntry, loqui_channel_entry, position);
-LOQUI_DEFINE_ACCESSOR_GENERIC_PROTOTYPE(gint, LoquiChannelEntry, loqui_channel_entry, id);
+LOQUI_DEFINE_ACCESSOR_GENERIC_PROTOTYPE(LoquiChannelEntry, loqui_channel_entry, position, gint);
+LOQUI_DEFINE_ACCESSOR_GENERIC_PROTOTYPE(LoquiChannelEntry, loqui_channel_entry, id, gint);
 
 LOQUI_DEFINE_ACCESSOR_CONST_STRING_PROTOTYPE(LoquiChannelEntry, loqui_channel_entry, name);
 LOQUI_DEFINE_ACCESSOR_CONST_STRING_PROTOTYPE(LoquiChannelEntry, loqui_channel_entry, topic);

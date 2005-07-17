@@ -291,10 +291,10 @@ LOQUI_DEFINE_ACCESSOR_CONST_STRING(LoquiMessageText, loqui_message_text, nick);
 LOQUI_DEFINE_ACCESSOR_CONST_STRING(LoquiMessageText, loqui_message_text, account_name);
 LOQUI_DEFINE_ACCESSOR_CONST_STRING(LoquiMessageText, loqui_message_text, channel_name);
 
-LOQUI_DEFINE_ACCESSOR_GENERIC(gboolean, FALSE, LoquiMessageText, loqui_message_text, is_priv);
-LOQUI_DEFINE_ACCESSOR_GENERIC(gboolean, FALSE, LoquiMessageText, loqui_message_text, is_self);
-LOQUI_DEFINE_ACCESSOR_GENERIC(gboolean, FALSE, LoquiMessageText, loqui_message_text, is_remark);
-LOQUI_DEFINE_ACCESSOR_GENERIC(gboolean, FALSE, LoquiMessageText, loqui_message_text, exec_notification);
+LOQUI_DEFINE_ACCESSOR_GENERIC(LoquiMessageText, loqui_message_text, is_priv, gboolean);
+LOQUI_DEFINE_ACCESSOR_GENERIC(LoquiMessageText, loqui_message_text, is_self, gboolean);
+LOQUI_DEFINE_ACCESSOR_GENERIC(LoquiMessageText, loqui_message_text, is_remark, gboolean);
+LOQUI_DEFINE_ACCESSOR_GENERIC(LoquiMessageText, loqui_message_text, exec_notification, gboolean);
 
 void
 loqui_message_text_set_text_type(LoquiMessageText *msgtext, LoquiTextType type)

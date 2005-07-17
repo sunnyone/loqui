@@ -766,10 +766,10 @@ loqui_channel_entry_get_do_sort(LoquiChannelEntry *chent)
 	return chent->do_sort;
 }
 
-LOQUI_DEFINE_READER_GENERIC(gint, 0, LoquiChannelEntry, loqui_channel_entry, op_number);
+LOQUI_DEFINE_READER_GENERIC(LoquiChannelEntry, loqui_channel_entry, op_number, gint);
 
-LOQUI_DEFINE_ACCESSOR_GENERIC(gint, 0, LoquiChannelEntry, loqui_channel_entry, position);
-LOQUI_DEFINE_ACCESSOR_GENERIC(gint, 0, LoquiChannelEntry, loqui_channel_entry, id);
+LOQUI_DEFINE_ACCESSOR_GENERIC(LoquiChannelEntry, loqui_channel_entry, position, gint);
+LOQUI_DEFINE_ACCESSOR_GENERIC(LoquiChannelEntry, loqui_channel_entry, id, gint);
 
 LOQUI_DEFINE_ACCESSOR_CONST_STRING(LoquiChannelEntry, loqui_channel_entry, name);
 LOQUI_DEFINE_ACCESSOR_CONST_STRING(LoquiChannelEntry, loqui_channel_entry, topic);

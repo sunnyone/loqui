@@ -24,15 +24,15 @@
 #include <libloqui/loqui-utils.h>
 #include <glib.h>
 
-#define LOQUI_DEFINE_READER_GENERIC(return_type, failed_value, class_name_capitalized, class_name_lowercase, attr_name) \
+#define LOQUI_DEFINE_READER_GENERIC(class_name_capitalized, class_name_lowercase, attr_name, return_type) \
 return_type class_name_lowercase ## _get_ ## attr_name(class_name_capitalized *obj) \
 { \
- 	g_return_val_if_fail(obj != NULL, failed_value); \
-        g_return_val_if_fail(G_TYPE_CHECK_INSTANCE_TYPE(obj, class_name_lowercase ## _get_type()), failed_value); \
+ 	g_return_val_if_fail(obj != NULL, (return_type) 0); \
+        g_return_val_if_fail(G_TYPE_CHECK_INSTANCE_TYPE(obj, class_name_lowercase ## _get_type()), (return_type) 0); \
 \
         return obj->attr_name; \
 }
-#define LOQUI_DEFINE_WRITER_GENERIC(in_type, class_name_capitalized, class_name_lowercase, attr_name) \
+#define LOQUI_DEFINE_WRITER_GENERIC(class_name_capitalized, class_name_lowercase, attr_name, in_type) \
 void class_name_lowercase ## _set_ ## attr_name(class_name_capitalized *obj, in_type foo) \
 { \
  	g_return_if_fail(obj != NULL); \
@@ -41,20 +41,20 @@ void class_name_lowercase ## _set_ ## attr_name(class_name_capitalized *obj, in_
         obj->attr_name = foo; \
         g_object_notify(G_OBJECT(obj), # attr_name); \
 }
-#define LOQUI_DEFINE_READER_GENERIC_PROTOTYPE(type, class_name_capitalized, class_name_lowercase, attr_name) \
+#define LOQUI_DEFINE_READER_GENERIC_PROTOTYPE(class_name_capitalized, class_name_lowercase, attr_name, type) \
   type class_name_lowercase ## _get_ ## attr_name(class_name_capitalized *obj)
-#define LOQUI_DEFINE_WRITER_GENERIC_PROTOTYPE(type, class_name_capitalized, class_name_lowercase, attr_name) \
+#define LOQUI_DEFINE_WRITER_GENERIC_PROTOTYPE(class_name_capitalized, class_name_lowercase, attr_name, type) \
   void class_name_lowercase ## _set_ ## attr_name(class_name_capitalized *obj, type foo)
 
-#define LOQUI_DEFINE_ACCESSOR_GENERIC(type, failed_value, class_name_capitalized, class_name_lowercase, attr_name) \
-  LOQUI_DEFINE_READER_GENERIC(type, failed_value, class_name_capitalized, class_name_lowercase, attr_name); \
-  LOQUI_DEFINE_WRITER_GENERIC(type, class_name_capitalized, class_name_lowercase, attr_name)
-#define LOQUI_DEFINE_ACCESSOR_GENERIC_PROTOTYPE(type, class_name_capitalized, class_name_lowercase, attr_name) \
-  LOQUI_DEFINE_READER_GENERIC_PROTOTYPE(type, class_name_capitalized, class_name_lowercase, attr_name); \
-  LOQUI_DEFINE_WRITER_GENERIC_PROTOTYPE(type, class_name_capitalized, class_name_lowercase, attr_name)
+#define LOQUI_DEFINE_ACCESSOR_GENERIC(class_name_capitalized, class_name_lowercase, attr_name, type) \
+  LOQUI_DEFINE_READER_GENERIC(class_name_capitalized, class_name_lowercase, attr_name, type); \
+  LOQUI_DEFINE_WRITER_GENERIC(class_name_capitalized, class_name_lowercase, attr_name, type)
+#define LOQUI_DEFINE_ACCESSOR_GENERIC_PROTOTYPE(class_name_capitalized, class_name_lowercase, attr_name, type) \
+  LOQUI_DEFINE_READER_GENERIC_PROTOTYPE(class_name_capitalized, class_name_lowercase, attr_name, type); \
+  LOQUI_DEFINE_WRITER_GENERIC_PROTOTYPE(class_name_capitalized, class_name_lowercase, attr_name, type)
 
 
-#define LOQUI_DEFINE_WRITER_POINTER(new_func, destroy_func, in_type, class_name_capitalized, class_name_lowercase, attr_name) \
+#define LOQUI_DEFINE_WRITER_POINTER(class_name_capitalized, class_name_lowercase, attr_name, in_type, new_func, destroy_func) \
 void class_name_lowercase ## _set_ ## attr_name (class_name_capitalized *obj, in_type foo) \
 { \
  	g_return_if_fail(obj != NULL); \
@@ -69,19 +69,19 @@ void class_name_lowercase ## _set_ ## attr_name (class_name_capitalized *obj, in
         g_object_notify(G_OBJECT(obj), # attr_name); \
 }
 
-#define LOQUI_DEFINE_ACCESSOR_POINTER(new_func, destroy_func, in_type, return_type, class_name_capitalized, class_name_lowercase, attr_name) \
-  LOQUI_DEFINE_READER_GENERIC(return_type, NULL, class_name_capitalized, class_name_lowercase, attr_name); \
-  LOQUI_DEFINE_WRITER_POINTER(new_func, destroy_func, const gchar *, class_name_capitalized, class_name_lowercase, attr_name)
+#define LOQUI_DEFINE_ACCESSOR_POINTER(class_name_capitalized, class_name_lowercase, attr_name, in_type, return_type, new_func, destroy_func) \
+  LOQUI_DEFINE_READER_GENERIC(class_name_capitalized, class_name_lowercase, attr_name, return_type); \
+  LOQUI_DEFINE_WRITER_POINTER(class_name_capitalized, class_name_lowercase, attr_name, const gchar *, new_func, destroy_func)
 
-#define LOQUI_DEFINE_ACCESSOR_POINTER_PROTOTYPE(in_type, return_type, class_name_capitalized, class_name_lowercase, attr_name) \
-  LOQUI_DEFINE_READER_GENERIC_PROTOTYPE(return_type, class_name_capitalized, class_name_lowercase, attr_name); \
-  LOQUI_DEFINE_WRITER_GENERIC_PROTOTYPE(in_type, class_name_capitalized, class_name_lowercase, attr_name)
+#define LOQUI_DEFINE_ACCESSOR_POINTER_PROTOTYPE(class_name_capitalized, class_name_lowercase, attr_name, in_type, return_type) \
+  LOQUI_DEFINE_READER_GENERIC_PROTOTYPE(class_name_capitalized, class_name_lowercase, attr_name, return_type); \
+  LOQUI_DEFINE_WRITER_GENERIC_PROTOTYPE(class_name_capitalized, class_name_lowercase, attr_name, in_type)
   
 #define LOQUI_DEFINE_ACCESSOR_CONST_STRING(class_name_capitalized, class_name_lowercase, attr_name) \
-  LOQUI_DEFINE_ACCESSOR_POINTER(g_strdup, g_free, const gchar *, G_CONST_RETURN gchar *, class_name_capitalized, class_name_lowercase, attr_name);
+  LOQUI_DEFINE_ACCESSOR_POINTER(class_name_capitalized, class_name_lowercase, attr_name, const gchar *, G_CONST_RETURN gchar *, g_strdup, g_free);
 
 #define LOQUI_DEFINE_ACCESSOR_CONST_STRING_PROTOTYPE(class_name_capitalized, class_name_lowercase, attr_name) \
-  LOQUI_DEFINE_ACCESSOR_POINTER_PROTOTYPE(const gchar *, G_CONST_RETURN gchar *, class_name_capitalized, class_name_lowercase, attr_name);
+  LOQUI_DEFINE_ACCESSOR_POINTER_PROTOTYPE(class_name_capitalized, class_name_lowercase, attr_name, const gchar *, G_CONST_RETURN gchar *);
 
 #define LOQUI_DEFINE_INTERFACE(TypeName, type_name) \
 static void type_name ## _base_init(gpointer object_class); \

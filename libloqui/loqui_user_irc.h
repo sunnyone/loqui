@@ -58,8 +58,8 @@ GType loqui_user_irc_get_type(void) G_GNUC_CONST;
 
 LoquiUserIRC* loqui_user_irc_new(void);
 
-LOQUI_DEFINE_ACCESSOR_GENERIC_PROTOTYPE(guint, LoquiUserIRC, loqui_user_irc, hop_count);
-LOQUI_DEFINE_ACCESSOR_GENERIC_PROTOTYPE(gboolean, LoquiUserIRC, loqui_user_irc, is_irc_operator);
+LOQUI_DEFINE_ACCESSOR_GENERIC_PROTOTYPE(LoquiUserIRC, loqui_user_irc, hop_count, guint);
+LOQUI_DEFINE_ACCESSOR_GENERIC_PROTOTYPE(LoquiUserIRC, loqui_user_irc, is_irc_operator, gboolean);
 LOQUI_DEFINE_ACCESSOR_CONST_STRING_PROTOTYPE(LoquiUserIRC, loqui_user_irc, server_info);
 LOQUI_DEFINE_ACCESSOR_CONST_STRING_PROTOTYPE(LoquiUserIRC, loqui_user_irc, joined_channels_string);
 
