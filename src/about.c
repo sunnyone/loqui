@@ -1,7 +1,7 @@
 /* -*- Mode: C; tab-width: 8; indent-tabs-mode: t; c-basic-offset: 8 -*- */
 /*
  * Loqui -- IRC client for Gtk2 <http://loqui.good-day.net/>
- * Copyright (C) 2002-2003 Yoichi Imai <yoichi@silver-forest.com>
+ * Copyright (C) 2002-2005 Yoichi Imai <yoichi@silver-forest.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,6 +27,6 @@ about_open(void)
 	gtkutils_msgbox_info(GTK_MESSAGE_INFO,
 			     "Loqui version %s\n"
 			     "IRC client for Gtk2\n"
-			     "Copyright (C) 2002-2004, Yoichi Imai <yoichi@silver-forest.com>\n"
+			     "Copyright (C) 2002-2005, Yoichi Imai <yoichi@silver-forest.com>\n"
 			     "http://loqui.good-day.net/", VERSION);
 }
