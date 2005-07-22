@@ -2,7 +2,7 @@ requires 2.0.0
 %alltop{
 /*
  * Loqui -- Chat/IM client for Gtk2 <http://loqui.good-day.net/>
- * Copyright (C) 2002-2003 Yoichi Imai <yoichi@silver-forest.com>
+ * Copyright (C) 2005 Yoichi Imai <yoichi@silver-forest.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
