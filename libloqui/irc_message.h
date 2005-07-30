@@ -77,6 +77,7 @@ IRCMessage* irc_message_new(const gchar *prefix,
 			    const gchar *command,
 			    gchar **parameter);
 gchar* irc_message_get_param(IRCMessage *msg, guint i); /* 1 <= i <= IRC_MESSAGE_MAX */ 
+gchar* irc_message_get_target(IRCMessage *msg);
 gchar* irc_message_get_last_param(IRCMessage *msg);
 gint irc_message_count_parameters(IRCMessage *msg);
 

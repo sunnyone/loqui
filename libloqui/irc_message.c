@@ -435,12 +435,19 @@ irc_message_count_parameters(IRCMessage *msg)
 	return num;
 }
 gchar *
+irc_message_get_target(IRCMessage *msg)
+{
+	if (irc_message_count_parameters(msg) == 0)
+		return 0;
+	return msg->parameter[0];
+}
+gchar *
 irc_message_get_last_param(IRCMessage *msg)
 {
 	guint num;
 	
 	num = irc_message_count_parameters(msg);
-	if(num < 1)
+	if (num < 1)
 		return NULL;
 	return msg->parameter[num-1];
 }
@@ -520,9 +527,14 @@ irc_message_format(IRCMessage *msg, const gchar *format)
 			break;
 		case 'L': /* last */
 			s = irc_message_get_last_param(msg);
-			if (s != NULL) {
+			if (s != NULL)
 				string = g_string_append(string, s);
-			}
+			cur++;
+			break;
+		case 't': /* target,msgto */
+			s = irc_message_get_target(msg);
+			if (s != NULL)
+				string = g_string_append(string, s);
 			cur++;
 			break;
 		case '%': /* %% */
