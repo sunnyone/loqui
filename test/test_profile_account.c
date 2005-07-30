@@ -1,5 +1,6 @@
 #include "test_helper.h"
 #include "loqui_profile_account.h"
+#include <libloqui/loqui_protocol_irc.h>
 
 static int
 test_profile_account_make(void)
@@ -8,7 +9,7 @@ test_profile_account_make(void)
 	GList *list = NULL;
 	GList *tmp_list;
 
-	prof = loqui_profile_account_new();
+	prof = loqui_profile_account_new(loqui_protocol_irc_get());
 	loqui_profile_account_set_nick(prof, "hoge");
 	loqui_profile_account_set_servername(prof, "example.com");
 	loqui_profile_account_set_username(prof, "user");
@@ -41,7 +42,7 @@ test_profile_account_object(void)
 	gchar *tmp;
 	gint i;
 
-	prof = loqui_profile_account_new();
+	prof = loqui_profile_account_new(loqui_protocol_irc_get());
 
 	i = 9999;
 	g_object_set(G_OBJECT(prof), "port", i, NULL);

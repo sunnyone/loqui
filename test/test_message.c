@@ -1,5 +1,4 @@
 #include "test_helper.h"
-#include <gtk/gtk.h>
 #include "loqui_message.h"
 
 static int

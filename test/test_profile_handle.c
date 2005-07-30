@@ -1,6 +1,7 @@
 #include "test_helper.h"
-#include "loqui_profile_handle.h"
+#include <libloqui/loqui-profile-handle.h>
 #include "loqui_profile_account_irc.h"
+#include "loqui_protocol_irc.h"
 
 static int
 test_profile_handle_read_simple_one(void)
@@ -8,11 +9,17 @@ test_profile_handle_read_simple_one(void)
 	LoquiProfileHandle *handle;
 	LoquiProfileAccount *prof;
 	GList *prof_list = NULL, *list;
+	LoquiProtocolManager *protocol_manager;
+	GList *factory_list;
 
 	const gchar *xml = "<accounts><account type=\"IRC\"><param key=\"use\">TRUE</param><param key=\"name\">name</param><param key=\"nick\">hoge</param><param key=\"username\">user</param><param key=\"servername\">example.com</param><param key=\"port\">3323</param><param key=\"codeset-type\">2</param><param key=\"nick_list\"><list><item>hoge_away</item><item>hoge_zzz</item></list></param></account></accounts>";
-	
-	handle = loqui_profile_handle_new();
-	loqui_profile_handle_register_type(handle, "IRC", LOQUI_TYPE_PROFILE_ACCOUNT_IRC);
+
+	protocol_manager = loqui_protocol_manager_new();
+		
+	loqui_protocol_manager_register(protocol_manager, loqui_protocol_irc_get());
+	factory_list = loqui_protocol_manager_get_protocol_list(protocol_manager);
+
+	handle = loqui_profile_handle_new(factory_list);
 	loqui_profile_handle_read_from_buffer(handle, &prof_list, xml);
 
 	g_return_val_if_fail(g_list_length(prof_list) > 0, FALSE);
@@ -33,8 +40,12 @@ test_profile_handle_read_simple_one(void)
 	g_return_val_if_fail(strcmp(g_list_nth_data(list, 0), "hoge_away") == 0, FALSE);
 	g_return_val_if_fail(strcmp(g_list_nth_data(list, 1), "hoge_zzz") == 0, FALSE);
 
+/*	g_list_foreach(factory_list, (GFunc) g_object_unref, NULL); */
+	g_list_free(factory_list);
+
 	g_object_unref(prof);
 	g_object_unref(handle);
+	g_object_unref(protocol_manager);
 
 	return TRUE;
 }
