@@ -32,4 +32,11 @@ requires 2.0.0
 
 class Loqui: from G:Object
 {
+	public Loqui: *
+	new(void) {
+		Self *self;
+
+		self = GET_NEW;
+		return self;
+	}
 }
