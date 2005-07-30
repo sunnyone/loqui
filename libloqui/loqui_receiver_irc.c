@@ -52,6 +52,7 @@ struct _LoquiReceiverIRCPrivate
 	CTCPHandle *ctcp_handle;
 
 	gboolean end_motd;
+	gboolean to_set_updated;
 
 	/* just parser */
 	LoquiModeManager *channel_mode_manager;
@@ -95,6 +96,7 @@ static void loqui_receiver_irc_inspect_message(LoquiReceiverIRC *receiver, IRCMe
 
 static void loqui_receiver_irc_command_privmsg_notice(LoquiReceiverIRC *receiver, IRCMessage *msg);
 static void loqui_receiver_irc_command_ping(LoquiReceiverIRC *receiver, IRCMessage *msg);
+static void loqui_receiver_irc_command_pong(LoquiReceiverIRC *receiver, IRCMessage *msg);
 static void loqui_receiver_irc_command_quit(LoquiReceiverIRC *receiver, IRCMessage *msg);
 static void loqui_receiver_irc_command_join(LoquiReceiverIRC *receiver, IRCMessage *msg);
 static void loqui_receiver_irc_command_part(LoquiReceiverIRC *receiver, IRCMessage *msg);
@@ -362,7 +364,8 @@ loqui_receiver_irc_command_privmsg_notice(LoquiReceiverIRC *receiver, IRCMessage
 		}
 		sender = msg->nick ? msg->nick : msg->prefix;
 		is_from_server = (msg->nick == NULL) ? TRUE : FALSE;
-		loqui_channel_append_remark(channel, type, is_self, sender, remark, is_from_server);
+
+		loqui_channel_append_remark(channel, type, is_self, sender, remark, is_from_server, priv->to_set_updated);
 
 		if (msg->nick &&
 		    (user = loqui_account_peek_user(account, msg->nick)) != NULL &&
@@ -380,6 +383,18 @@ loqui_receiver_irc_command_ping(LoquiReceiverIRC *receiver, IRCMessage *msg)
 	g_return_if_fail(LOQUI_IS_RECEIVER_IRC(receiver));
 
 	loqui_sender_irc_pong_raw(LOQUI_SENDER_IRC(loqui_account_get_sender(loqui_receiver_get_account(LOQUI_RECEIVER(receiver)))), irc_message_get_param(msg, 1));
+}
+static void
+loqui_receiver_irc_command_pong(LoquiReceiverIRC *receiver, IRCMessage *msg)
+{
+	LoquiReceiverIRCPrivate *priv;
+
+        g_return_if_fail(receiver != NULL);
+	g_return_if_fail(LOQUI_IS_RECEIVER_IRC(receiver));
+
+	priv = receiver->priv;
+
+	priv->to_set_updated = TRUE; /* for NotMarkUpdatedUntilFirstPongReceived */
 }
 static void
 loqui_receiver_irc_command_quit(LoquiReceiverIRC *receiver, IRCMessage *msg)
@@ -797,6 +812,14 @@ loqui_receiver_irc_reply_welcome(LoquiReceiverIRC *receiver, IRCMessage *msg)
 	if (autojoin && strlen(autojoin) > 0) {
 		loqui_sender_join_raw(loqui_account_get_sender(account), autojoin, NULL);
 		loqui_account_information(account, _("Sent join command for autojoin."));
+	}
+
+	/* for irc-proxy not to mark a channel as updated with the messages sent by the server initially */
+	if (loqui_pref_get_with_default_boolean(loqui_core_get_general_pref(loqui_get_core()),
+						LOQUI_GENERAL_PREF_GROUP_NOTIFICATION, "DontMarkUpdatedUntilFirstPongReceived",
+						LOQUI_GENERAL_PREF_DEFAULT_NOTIFICATION_DONT_MARK_UPDATED_UNTIL_FIRST_PONG_RECEIVED, NULL)) {
+		priv->to_set_updated = FALSE;
+		loqui_sender_irc_ping_raw(LOQUI_SENDER_IRC(loqui_account_get_sender(loqui_receiver_get_account(LOQUI_RECEIVER(receiver)))), msg->prefix);
 	}
 
 	loqui_receiver_irc_account_console_append(receiver, msg, LOQUI_TEXT_TYPE_INFO, "*** %*2");
@@ -1473,7 +1496,7 @@ loqui_receiver_irc_command(LoquiReceiverIRC *receiver, IRCMessage *msg)
 		loqui_receiver_irc_command_ping(receiver, msg);
 		return TRUE;
 	case IRC_COMMAND_PONG:
-		/* do nothing currently */
+		loqui_receiver_irc_command_pong(receiver, msg);
 		return TRUE;
 	case IRC_COMMAND_INVITE:
 		loqui_receiver_irc_account_console_append(receiver, msg, LOQUI_TEXT_TYPE_INFO, "*** You were invited to %2 by %1");
@@ -1536,4 +1559,6 @@ loqui_receiver_irc_reset(LoquiReceiverIRC *receiver)
 
 	priv->end_motd = FALSE;
 	receiver->passed_welcome = FALSE;
+
+	priv->to_set_updated = TRUE;
 }

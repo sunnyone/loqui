@@ -195,7 +195,7 @@ void ctcp_handle_message(CTCPHandle *ctcp_handle, CTCPMessage *ctcp_msg, gboolea
 						    loqui_account_irc_is_current_nick(LOQUI_ACCOUNT_IRC(account), sender),
 						    sender,
 						    ctcp_msg->argument ? ctcp_msg->argument : "",
-						    FALSE);
+						    FALSE, TRUE);
 			return;
 		}
 	}

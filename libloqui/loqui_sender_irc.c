@@ -278,7 +278,7 @@ loqui_sender_irc_speak(LoquiSenderIRC *sender, LoquiChannel *channel, const gcha
 			loqui_sender_irc_say_raw(sender, loqui_channel_get_identifier(channel), array[i]);
 
 		loqui_channel_append_remark(channel, is_notice ? LOQUI_TEXT_TYPE_NOTICE : LOQUI_TEXT_TYPE_NORMAL,
-					    TRUE, loqui_user_get_nick(user_self), array[i], FALSE);
+					    TRUE, loqui_user_get_nick(user_self), array[i], FALSE, TRUE);
 	}
 	g_strfreev(array);
 	

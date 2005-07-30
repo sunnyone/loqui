@@ -405,7 +405,7 @@ loqui_channel_search_patters(const gchar *group, const gchar *key, const gchar *
 }
 
 void
-loqui_channel_append_remark(LoquiChannel *channel, LoquiTextType type, gboolean is_self, const gchar *nick, const gchar *remark, gboolean is_from_server)
+loqui_channel_append_remark(LoquiChannel *channel, LoquiTextType type, gboolean is_self, const gchar *nick, const gchar *remark, gboolean is_from_server, gboolean to_set_updated)
 {
 	LoquiChannelPrivate *priv;
 	LoquiMessageText *msgtext;
@@ -458,7 +458,7 @@ loqui_channel_append_remark(LoquiChannel *channel, LoquiTextType type, gboolean 
 		     "exec_notification", exec_notification,
 		     NULL);
 	
-	if (!is_ignored) {
+	if (!is_ignored && to_set_updated) {
 		if (type == LOQUI_TEXT_TYPE_NOTICE || is_from_server)
 			loqui_channel_entry_set_is_updated_weak(LOQUI_CHANNEL_ENTRY(channel), TRUE);
 		else
