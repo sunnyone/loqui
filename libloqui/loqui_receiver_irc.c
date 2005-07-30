@@ -1004,15 +1004,17 @@ loqui_receiver_irc_reply_who(LoquiReceiverIRC *receiver, IRCMessage *msg)
 	LoquiReceiverIRCPrivate *priv;
 	LoquiAccount *account;
 	
-	gchar *channel_name, *username, *hostname, *server_name, *nick, *flags, *trailing;
-	gchar *away_str = NULL, *hops_str = NULL, *realname = NULL;
-	gchar *buf, *buf2, *tmp;
+	gchar *channel_name, *username, *hostname, *server_name, *nick, *flags, *last_param;
+	gchar *away_str = NULL, *realname = NULL;
+	const gchar *hops_str;
+	gchar *buf;
 	gchar op_char;
 	guint hop_count = 0;
 	LoquiChannel *channel = NULL;
 	LoquiAwayType away = LOQUI_AWAY_TYPE_UNKNOWN;
 	LoquiUser *user = NULL;
 	LoquiMember *member = NULL;
+	LoquiStringTokenizer *st;
 
         g_return_if_fail(receiver != NULL);
         g_return_if_fail(LOQUI_IS_RECEIVER_IRC(receiver));
@@ -1026,8 +1028,8 @@ loqui_receiver_irc_reply_who(LoquiReceiverIRC *receiver, IRCMessage *msg)
 	server_name = irc_message_get_param(msg, 5);
 	nick = irc_message_get_param(msg, 6);
 	flags = irc_message_get_param(msg, 7);
-	trailing = irc_message_get_param(msg, 8);
-	if (!channel_name || !username || !hostname || !server_name || !nick || !flags || !trailing) {
+	last_param = irc_message_get_last_param(msg);
+	if (!channel_name || !username || !hostname || !server_name || !nick || !flags || !last_param) {
 		loqui_account_warning(account, _("Invalid WHO reply."));
 		return;
 	}
@@ -1074,31 +1076,31 @@ loqui_receiver_irc_reply_who(LoquiReceiverIRC *receiver, IRCMessage *msg)
 		}
 	}
 
-	buf = g_strdup(trailing);
-	tmp = strchr(buf, ' ');
-	if (tmp) {
-		*tmp = '\0';
-		hops_str = buf;
+	st = loqui_string_tokenizer_new(last_param, " ");
+	
+	if (loqui_string_tokenizer_count_tokens(st) > 1) {
+		hops_str = loqui_string_tokenizer_next_token(st, NULL);
 		hop_count = (guint) g_ascii_strtoull(hops_str, NULL, 10);
-		realname = tmp + 1;
 	} else {
-		realname = buf;
+		hop_count = -1;
 	}
+	realname = g_strdup(loqui_string_tokenizer_next_token(st, NULL));
+	loqui_string_tokenizer_free(st);
+
 	if (user) {
 		loqui_user_set_realname(user, realname);
 		loqui_user_irc_set_hop_count(LOQUI_USER_IRC(user), hop_count);
 	}
 
 	if (receiver->prevent_print_who_reply_count == 0) {
-		buf2 = g_strdup_printf(_("%c%s(%s) is %s@%s (%s) on %s(%s hops) [%s]"),
+		buf = g_strdup_printf(_("%c%s(%s) is %s@%s (%s) on %s(%d hops) [%s]"),
 					op_char, nick, channel_name, username, hostname,
-					realname, server_name, hops_str ? hops_str : "?", away_str);
-		loqui_account_append_text(account, NULL, LOQUI_TEXT_TYPE_INFO, buf2);
-		g_free(buf2);
+					realname, server_name, hop_count, away_str);
+		loqui_account_append_text(account, NULL, LOQUI_TEXT_TYPE_INFO, buf);
+		g_free(buf);
 	}
-	
-	g_free(buf);
-	
+
+	g_free(realname);
 }
 static void
 loqui_receiver_irc_reply_topic(LoquiReceiverIRC *receiver, IRCMessage *msg)
