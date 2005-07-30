@@ -435,13 +435,13 @@ irc_message_count_parameters(IRCMessage *msg)
 	return num;
 }
 gchar *
-irc_message_get_trailing(IRCMessage *msg)
+irc_message_get_last_param(IRCMessage *msg)
 {
 	guint num;
-
+	
 	num = irc_message_count_parameters(msg);
 	if(num < 1)
-		return "";
+		return NULL;
 	return msg->parameter[num-1];
 }
 gchar *
@@ -465,7 +465,7 @@ irc_message_format(IRCMessage *msg, const gchar *format)
 {
 	GString *string;
 	const gchar *cur;
-	gchar *tmp, *buf;
+	gchar *tmp, *buf, *s;
 	guint64 i, end;
 
         g_return_val_if_fail(msg != NULL, NULL);
@@ -518,8 +518,11 @@ irc_message_format(IRCMessage *msg, const gchar *format)
 			string = g_string_append(string, msg->host);
 			cur++;
 			break;
-		case 't': /* trailing */
-			string = g_string_append(string, irc_message_get_trailing(msg));
+		case 'L': /* last */
+			s = irc_message_get_last_param(msg);
+			if (s != NULL) {
+				string = g_string_append(string, s);
+			}
 			cur++;
 			break;
 		case '%': /* %% */
