@@ -338,6 +338,25 @@ class Loqui:Receiver:IPMsg from Loqui:Receiver
 		}
 	}
 
+	private void command_getinfo(self, :IPMsg:Packet *packet) {
+		LoquiSenderIPMsg *sender;
+		gchar *identifier;
+		LoquiUser *user;
+
+		identifier = ipmsg_packet_get_identifier(packet);
+
+		user = loqui_account_peek_user(SELF_GET_ACCOUNT(self), identifier);
+		g_free(identifier);
+
+		loqui_account_append_text_printf(SELF_GET_ACCOUNT(self), NULL, LOQUI_TEXT_TYPE_INFO,
+						 "*** %s (%s@%s) requested version information",
+						 user ? loqui_user_get_nick(user) : "?",
+						 packet->username,
+						 packet->hostname);
+		sender = SELF_GET_SENDER_IPMSG(self);
+		loqui_sender_ipmsg_sendinfo(sender, packet->inetaddr);
+	}
+
 	public void handle(self, :IPMsg:Packet *packet (check null type)) {
 		gchar *str;
 
@@ -367,6 +386,9 @@ class Loqui:Receiver:IPMsg from Loqui:Receiver
 			return;
 		case IPMSG_RECVMSG:
 			self_command_recvmsg(self, packet);
+			return;
+		case IPMSG_GETINFO:
+			self_command_getinfo(self, packet);
 			return;
 		default:
 			break;

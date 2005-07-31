@@ -39,6 +39,9 @@ requires 2.0.0
 #include "ipmsg.h"
 
 #include "loqui-message-text.h"
+#include "loqui-core.h"
+#include "loqui-static-core.h"
+
 %}
 
 %{
@@ -259,6 +262,22 @@ class Loqui:Sender:IPMsg from Loqui:Sender
 		g_free(tmp);
 		
 		self_send_packet_with_inetaddr(self, packet, dest_inetaddr);
+		g_object_unref(packet);
+	}
+
+	public void
+	sendinfo(self, GInetAddr *dest_inetaddr) {
+		IPMsgPacket *packet;
+		gchar *version;
+
+		version = loqui_core_get_version_info(loqui_get_core());
+		packet = loqui_account_ipmsg_create_packet(SELF_GET_ACCOUNT_IPMSG(self),
+							   IPMSG_SENDINFO,
+							   version);
+		g_free(version);
+
+		self_send_packet_with_inetaddr(self, packet, dest_inetaddr);
+		g_object_unref(packet);
 	}
 
 	public LoquiSenderIPMsg *
