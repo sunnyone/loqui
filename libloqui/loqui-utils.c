@@ -384,7 +384,14 @@ loqui_utils_strcase_equal(gconstpointer a, gconstpointer b)
 guint
 loqui_utils_strcase_hash(gconstpointer v)
 {
-       return g_str_hash(g_ascii_strdown(v, -1));
+	gchar *s;
+	gulong l;
+
+	s = g_ascii_strdown(v, -1);
+	l = g_str_hash(s);
+	g_free(s);
+
+	return l;
 }
 void
 loqui_utils_g_ptr_array_insert_sort(GPtrArray *array, gint sort_start_pos, GCompareFunc sort_func)
