@@ -353,12 +353,6 @@ loqui_receiver_irc_command_privmsg_notice(LoquiReceiverIRC *receiver, IRCMessage
 	is_from_server = (msg->nick == NULL) ? TRUE : FALSE;
 
 	loqui_channel_append_remark(channel, type, is_self, sender, remark, is_from_server, priv->to_set_updated);
-	
-	if (msg->nick &&
-	    (user = loqui_account_peek_user(account, msg->nick)) != NULL &&
-	    (member = loqui_channel_entry_get_member_by_user(LOQUI_CHANNEL_ENTRY(channel), user)) != NULL) {
-		loqui_member_set_last_message_time(member, time(NULL));
-	}
 }
 static void
 loqui_receiver_irc_command_ping(LoquiReceiverIRC *receiver, IRCMessage *msg)

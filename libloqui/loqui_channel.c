@@ -412,6 +412,8 @@ loqui_channel_append_remark(LoquiChannel *channel, LoquiTextType type, gboolean 
 	gchar *word;
 	int i;
 	gboolean is_transparent = FALSE, is_ignored = FALSE;
+	LoquiUser *user;
+	LoquiMember *member;
 
 	gboolean is_priv = FALSE;
 	gboolean exec_notification = TRUE && !is_from_server && !is_self;
@@ -482,6 +484,11 @@ loqui_channel_append_remark(LoquiChannel *channel, LoquiTextType type, gboolean 
 		}
 
 		g_strfreev(highlight_list);
+	}
+	
+	if ((user = loqui_account_peek_user(loqui_channel_get_account(channel), nick)) != NULL &&
+	    (member = loqui_channel_entry_get_member_by_user(LOQUI_CHANNEL_ENTRY(channel), user)) != NULL) {
+		loqui_member_set_last_message_time(member, time(NULL));
 	}
 
 	loqui_channel_entry_append_message_text(LOQUI_CHANNEL_ENTRY(channel), msgtext);
