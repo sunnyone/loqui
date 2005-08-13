@@ -248,8 +248,8 @@ loqui_codeconv_tools_utf8_from_ms_table(const gchar *str)
 	GString *dest;
 	const gchar *p;
 
-	if (str == NULL)
-		return NULL;
+	g_return_val_if_fail(str != NULL, NULL);
+
 	len = strlen(str);
 	dest = g_string_sized_new(len);
 
@@ -271,14 +271,13 @@ loqui_codeconv_tools_utf8_from_ms_table(const gchar *str)
 gchar *
 loqui_codeconv_tools_utf8_to_ms_table(const gchar *str)
 {
-
 	int i, len;
 	gunichar u;
 	GString *dest;
 	const gchar *p;
 
-	if (str == NULL)
-		return NULL;
+	g_return_val_if_fail(str != NULL, NULL);
+
 	len = strlen(str);
 	dest = g_string_sized_new(len);
 

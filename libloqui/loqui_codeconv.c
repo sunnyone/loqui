@@ -359,11 +359,10 @@ loqui_codeconv_to_server(LoquiCodeConv *codeconv, const gchar *input, GError **e
 
         g_return_val_if_fail(codeconv != NULL, NULL);
         g_return_val_if_fail(LOQUI_IS_CODECONV(codeconv), NULL);
+	g_return_val_if_fail(input != NULL, NULL);
 
 	priv = codeconv->priv;
 
-	if (input == NULL)
-		return NULL;
 	if (!priv->func && !LOQUI_CODECONV_G_ICONV_IS_VALID(codeconv->cd_to_server))
 		return g_strdup(input);
 
@@ -456,18 +455,19 @@ loqui_codeconv_to_local(LoquiCodeConv *codeconv, const gchar *input, GError **er
 {
 	LoquiCodeConvPrivate *priv;
 	gchar *buf;
+
+#ifdef G_OS_WIN32
 	gchar *tmp = NULL;
-	
+#endif
+
         g_return_val_if_fail(codeconv != NULL, NULL);
         g_return_val_if_fail(LOQUI_IS_CODECONV(codeconv), NULL);
+	g_return_val_if_fail(input != NULL, NULL);
 
 	priv = codeconv->priv;
 
-	if(input == NULL)
-		return NULL;
 	if(!priv->func && !LOQUI_CODECONV_G_ICONV_IS_VALID(codeconv->cd_to_local))
 		return g_strdup(input);
-
 
 	if (priv->func) {
 		buf = priv->func(codeconv, FALSE, input, error);
