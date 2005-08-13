@@ -25,6 +25,7 @@
 #include "loqui_profile_account_irc.h"
 #include "loqui_sender_irc.h"
 #include "loqui_receiver_irc.h"
+#include "loqui_channel_irc.h"
 
 #include "loqui_utils_irc.h"
 #include <libloqui-intl.h>
@@ -618,4 +619,64 @@ loqui_account_irc_push_message(LoquiAccountIRC *account, IRCMessage *msg)
 	g_object_ref(msg);
 	g_queue_push_tail(priv->msg_queue, msg);
 	gnet_conn_set_watch_writable(priv->conn, TRUE);
+}
+LoquiChannel *
+loqui_account_irc_fetch_channel(LoquiAccountIRC *account, gboolean is_self, const gchar *msg_nick, const gchar *msg_target)
+{
+	LoquiAccountIRCPrivate *priv;
+	LoquiChannel *channel;
+	const gchar *name;
+	gboolean is_priv;
+
+        g_return_val_if_fail(account != NULL, NULL);
+        g_return_val_if_fail(LOQUI_IS_ACCOUNT_IRC(account), NULL);
+	g_return_val_if_fail(msg_target != NULL, NULL);
+
+	is_priv = !LOQUI_UTILS_IRC_STRING_IS_CHANNEL(msg_target);
+
+	if (is_priv)
+		name = is_self ? msg_target : msg_nick;
+	else
+		name = msg_target;
+
+	if (name == NULL)
+		return NULL;
+
+	channel = loqui_account_get_channel_by_identifier(LOQUI_ACCOUNT(account), name);
+	if (channel == NULL) {
+		if (is_priv) {
+			channel = loqui_account_irc_add_private_talk_with_nick(account, name);
+		} else {
+			channel = LOQUI_CHANNEL(loqui_channel_irc_new(LOQUI_ACCOUNT(account), name, FALSE, is_priv));
+			loqui_account_add_channel(LOQUI_ACCOUNT(account), channel);
+			g_object_unref(channel);
+		}
+	}
+	return channel;
+}
+LoquiChannel *
+loqui_account_irc_add_private_talk_with_nick(LoquiAccountIRC *account, const gchar *nick)
+{
+	LoquiAccountIRCPrivate *priv;
+	LoquiChannel *channel;
+	LoquiMember *member;
+
+        g_return_val_if_fail(account != NULL, NULL);
+        g_return_val_if_fail(LOQUI_IS_ACCOUNT_IRC(account), NULL);
+
+	priv = account->priv;
+	
+	channel = LOQUI_CHANNEL(loqui_channel_irc_new(LOQUI_ACCOUNT(account), nick, FALSE, TRUE));
+
+	member = loqui_member_new(loqui_account_get_user_self(LOQUI_ACCOUNT(account)));
+	loqui_channel_entry_add_member(LOQUI_CHANNEL_ENTRY(channel), member);
+	g_object_unref(member);
+	
+	if (!loqui_account_irc_is_current_nick(account, nick))
+		loqui_channel_irc_add_member_by_nick(LOQUI_CHANNEL_IRC(channel), nick, FALSE, FALSE, FALSE);
+
+	loqui_account_add_channel(LOQUI_ACCOUNT(account), channel);
+	g_object_unref(channel);
+
+	return channel;
 }

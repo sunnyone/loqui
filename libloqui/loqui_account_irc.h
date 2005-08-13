@@ -62,6 +62,9 @@ LoquiUserIRC* loqui_account_irc_fetch_user(LoquiAccountIRC *account, const gchar
 gboolean loqui_account_irc_is_current_nick(LoquiAccountIRC *account, const gchar *str);
 void loqui_account_irc_push_message(LoquiAccountIRC *account, IRCMessage *msg);
 
+LoquiChannel *loqui_account_irc_fetch_channel(LoquiAccountIRC *account, gboolean is_self, const gchar *msg_nick, const gchar *msg_target);
+LoquiChannel *loqui_account_irc_add_private_talk_with_nick(LoquiAccountIRC *account, const gchar *nick);
+
 G_END_DECLS
 
 #endif /* __LOQUI_ACCOUNT_IRC_H__ */

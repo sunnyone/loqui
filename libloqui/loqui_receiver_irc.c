@@ -283,13 +283,12 @@ loqui_receiver_irc_command_privmsg_notice(LoquiReceiverIRC *receiver, IRCMessage
 {
 	LoquiReceiverIRCPrivate *priv;
 	gchar *receiver_name, *sender;
-	gchar *channel_name = NULL;
 	gchar *remark;
 	LoquiAccount *account;
 	LoquiChannel *channel = NULL;
 	LoquiTextType type;
 	CTCPMessage *ctcp_msg;
-	gboolean is_self, is_priv;
+	gboolean is_self;
 	LoquiUser *user;
 	LoquiMember *member;
 	gboolean is_from_server;
@@ -303,7 +302,12 @@ loqui_receiver_irc_command_privmsg_notice(LoquiReceiverIRC *receiver, IRCMessage
 	receiver_name = irc_message_get_target(msg);
 	remark = irc_message_get_param(msg, 2);
 
-	if(remark == NULL) {
+	if (receiver_name == NULL) {
+		loqui_account_warning(account, _("This PRIVMSG/NOTICE message doesn't contain a target."));
+		return;
+	}
+
+	if (remark == NULL) {
 		loqui_account_warning(account, _("This PRIVMSG/NOTICE message doesn't contain a remark."));
 		return;
 	}
@@ -339,41 +343,21 @@ loqui_receiver_irc_command_privmsg_notice(LoquiReceiverIRC *receiver, IRCMessage
 	else
 		is_self = FALSE;
 
-	if (receiver_name != NULL) {
-		if(LOQUI_UTILS_IRC_STRING_IS_CHANNEL(receiver_name))
-			channel_name = receiver_name;
-		else
-			channel_name = is_self ? receiver_name : msg->nick;
-	}
-	
-	if (channel_name) {
-		channel = loqui_account_get_channel_by_identifier(account, channel_name);
-		if(channel == NULL) {
-			is_priv = !LOQUI_UTILS_IRC_STRING_IS_CHANNEL(channel_name);
-			channel = LOQUI_CHANNEL(loqui_channel_irc_new(account, channel_name, FALSE, is_priv));
-			if (is_priv) {
-				member = loqui_member_new(loqui_account_get_user_self(account));
-				loqui_channel_entry_add_member(LOQUI_CHANNEL_ENTRY(channel), member);
-				g_object_unref(member);
-
-				if (!is_self)
-					loqui_channel_irc_add_member_by_nick(LOQUI_CHANNEL_IRC(channel), msg->nick, FALSE, FALSE, FALSE);
-			}
-			loqui_account_add_channel(account, channel);
-			g_object_unref(channel);
-		}
-		sender = msg->nick ? msg->nick : msg->prefix;
-		is_from_server = (msg->nick == NULL) ? TRUE : FALSE;
-
-		loqui_channel_append_remark(channel, type, is_self, sender, remark, is_from_server, priv->to_set_updated);
-
-		if (msg->nick &&
-		    (user = loqui_account_peek_user(account, msg->nick)) != NULL &&
-		    (member = loqui_channel_entry_get_member_by_user(LOQUI_CHANNEL_ENTRY(channel), user)) != NULL) {
-			loqui_member_set_last_message_time(member, time(NULL));
-		}
-	} else {
+	channel = loqui_account_irc_fetch_channel(LOQUI_ACCOUNT_IRC(account), is_self, msg->nick, receiver_name);
+	if (channel == NULL) {
 		loqui_account_append_text(account, NULL, type, remark);
+		return;
+	}
+
+	sender = msg->nick ? msg->nick : msg->prefix;
+	is_from_server = (msg->nick == NULL) ? TRUE : FALSE;
+
+	loqui_channel_append_remark(channel, type, is_self, sender, remark, is_from_server, priv->to_set_updated);
+	
+	if (msg->nick &&
+	    (user = loqui_account_peek_user(account, msg->nick)) != NULL &&
+	    (member = loqui_channel_entry_get_member_by_user(LOQUI_CHANNEL_ENTRY(channel), user)) != NULL) {
+		loqui_member_set_last_message_time(member, time(NULL));
 	}
 }
 static void

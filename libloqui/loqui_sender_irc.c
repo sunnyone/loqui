@@ -73,8 +73,8 @@ static void loqui_sender_irc_quit(LoquiSender *sender, const gchar *quit_message
 static void loqui_sender_irc_join_raw(LoquiSender *sender, const gchar *target, const gchar *key);
 static void loqui_sender_irc_start_private_talk_raw(LoquiSender *sender, const gchar *target);
 
-static void loqui_sender_sent_quit(LoquiSenderIRC *sender, IRCMessage *msg);
-static void loqui_sender_sent_privmsg_notice(LoquiSenderIRC *sender, IRCMessage *msg);
+static void loqui_sender_irc_sent_quit(LoquiSenderIRC *sender, IRCMessage *msg);
+static void loqui_sender_irc_sent_privmsg_notice(LoquiSenderIRC *sender, IRCMessage *msg);
 
 /* helper */
 static void loqui_sender_irc_send_irc_message(LoquiSenderIRC *sender, IRCMessage *msg);
@@ -276,9 +276,6 @@ loqui_sender_irc_speak(LoquiSenderIRC *sender, LoquiChannel *channel, const gcha
 			loqui_sender_irc_notice_raw(sender, loqui_channel_get_identifier(channel), array[i]);
 		else
 			loqui_sender_irc_say_raw(sender, loqui_channel_get_identifier(channel), array[i]);
-
-		loqui_channel_append_remark(channel, is_notice ? LOQUI_TEXT_TYPE_NOTICE : LOQUI_TEXT_TYPE_NORMAL,
-					    TRUE, loqui_user_get_nick(user_self), array[i], FALSE, TRUE);
 	}
 	g_strfreev(array);
 	
@@ -610,10 +607,6 @@ loqui_sender_irc_ctcp_request_raw(LoquiSenderIRC *sender, const gchar *target, c
 	g_free(buf);
 	loqui_sender_irc_send_irc_message(LOQUI_SENDER_IRC(sender), msg);
 	g_object_unref(msg);
-
-	buf = g_strdup_printf(_("Sent CTCP request to %s: %s"), target, command);
-	loqui_account_append_text(loqui_sender_get_account(LOQUI_SENDER(sender)), NULL, LOQUI_TEXT_TYPE_INFO, buf);
-	g_free(buf);
 }
 void
 loqui_sender_irc_change_member_mode(LoquiSenderIRC *sender, LoquiChannel *channel,
@@ -745,11 +738,11 @@ loqui_sender_irc_message_sent(LoquiSenderIRC *sender, IRCMessage *msg)
 
 	switch (msg->response) {
 	case IRC_COMMAND_QUIT:
-		loqui_sender_sent_quit(sender, msg);
+		loqui_sender_irc_sent_quit(sender, msg);
 		break;
 	case IRC_COMMAND_PRIVMSG:
 	case IRC_COMMAND_NOTICE:
-		loqui_sender_sent_privmsg_notice(sender, msg);
+		loqui_sender_irc_sent_privmsg_notice(sender, msg);
 		break;
 	default:
 		break;
@@ -757,7 +750,7 @@ loqui_sender_irc_message_sent(LoquiSenderIRC *sender, IRCMessage *msg)
 }
 
 static void
-loqui_sender_sent_quit(LoquiSenderIRC *sender, IRCMessage *msg)
+loqui_sender_irc_sent_quit(LoquiSenderIRC *sender, IRCMessage *msg)
 {
 	LoquiAccount *account;
 
@@ -770,14 +763,50 @@ loqui_sender_sent_quit(LoquiSenderIRC *sender, IRCMessage *msg)
 }
 
 static void
-loqui_sender_sent_privmsg_notice(LoquiSenderIRC *sender, IRCMessage *msg)
+loqui_sender_irc_sent_privmsg_notice(LoquiSenderIRC *sender, IRCMessage *msg)
 {
 	LoquiAccount *account;
+	LoquiChannel *channel;
+	gchar *target;
+	gchar *remark;
+	CTCPMessage *ctcp_msg;
+	LoquiTextType type;
+	gboolean is_self, is_priv;
+	LoquiUser *user, *user_self;
+	LoquiMember *member;
+	gboolean is_notice;
+	gchar *buf;
 
         g_return_if_fail(sender != NULL);
         g_return_if_fail(LOQUI_IS_SENDER_IRC(sender));
 
 	account = loqui_sender_get_account(LOQUI_SENDER(sender));
 
-	/* TODO: append to buffer */
+	target = irc_message_get_target(msg);
+	remark = irc_message_get_param(msg, 2);
+
+	if (remark == NULL) {
+		loqui_account_warning(account, _("This PRIVMSG/NOTICE message doesn't contain a remark."));
+		return;
+	}
+
+	if (msg->response == IRC_COMMAND_PRIVMSG) {
+		if(ctcp_message_parse_line(remark, &ctcp_msg)) {
+			buf = g_strdup_printf(_("Sent CTCP request to %s: %s"), target, ctcp_msg->command);
+			loqui_account_append_text(account, NULL, LOQUI_TEXT_TYPE_INFO, buf);
+			g_free(buf);
+
+			return;
+		}
+	}
+
+	is_notice = (msg->response == IRC_COMMAND_NOTICE) ? TRUE : FALSE;
+	type = is_notice ? LOQUI_TEXT_TYPE_NOTICE : LOQUI_TEXT_TYPE_NORMAL;
+	
+	is_self = TRUE;
+
+	user_self = loqui_account_get_user_self(account);
+	channel = loqui_account_irc_fetch_channel(LOQUI_ACCOUNT_IRC(account), is_self, loqui_user_get_nick(user_self), target);
+
+	loqui_channel_append_remark(channel, type, is_self, loqui_user_get_nick(user_self), remark, FALSE, TRUE);
 }
