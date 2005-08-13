@@ -22,12 +22,31 @@ test_string_tokenizer(void)
 	return TRUE;
 }
 
+static int
+test_string_tokenizer_not_split(void)
+{
+	LoquiStringTokenizer *st;
+	const gchar *s;
+
+	st = loqui_string_tokenizer_new("testtest", " ");
+	s = loqui_string_tokenizer_next_token(st, NULL);
+
+	if (strcmp(s, "testtest") != 0) {
+		return FALSE;
+	}
+	if (loqui_string_tokenizer_next_token(st, NULL) != NULL)
+		return FALSE;
+
+	return TRUE;
+}
+
 int
 main()
 {
 	int all=0, failed=0;
 
 	DO_TEST(all, failed, test_string_tokenizer);
+	DO_TEST(all, failed, test_string_tokenizer_not_split);
 
 	SHOW_RESULT_AND_EXIT(all, failed, utils);
 }
