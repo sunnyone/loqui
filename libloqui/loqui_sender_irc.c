@@ -771,9 +771,8 @@ loqui_sender_irc_sent_privmsg_notice(LoquiSenderIRC *sender, IRCMessage *msg)
 	gchar *remark;
 	CTCPMessage *ctcp_msg;
 	LoquiTextType type;
-	gboolean is_self, is_priv;
-	LoquiUser *user, *user_self;
-	LoquiMember *member;
+	gboolean is_self;
+	LoquiUser *user_self;
 	gboolean is_notice;
 	gchar *buf;
 
@@ -809,4 +808,8 @@ loqui_sender_irc_sent_privmsg_notice(LoquiSenderIRC *sender, IRCMessage *msg)
 	channel = loqui_account_irc_fetch_channel(LOQUI_ACCOUNT_IRC(account), is_self, loqui_user_get_nick(user_self), target);
 
 	loqui_channel_append_remark(channel, type, is_self, loqui_user_get_nick(user_self), remark, FALSE, TRUE);
+
+	if (loqui_channel_get_is_private_talk(channel)) {
+		loqui_channel_set_is_joined(channel, TRUE);
+	}
 }
