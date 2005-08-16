@@ -289,8 +289,6 @@ loqui_receiver_irc_command_privmsg_notice(LoquiReceiverIRC *receiver, IRCMessage
 	LoquiTextType type;
 	CTCPMessage *ctcp_msg;
 	gboolean is_self;
-	LoquiUser *user;
-	LoquiMember *member;
 	gboolean is_from_server;
 
         g_return_if_fail(receiver != NULL);
@@ -788,8 +786,27 @@ loqui_receiver_irc_reply_welcome(LoquiReceiverIRC *receiver, IRCMessage *msg)
 
 	autojoin = loqui_profile_account_irc_get_autojoin(LOQUI_PROFILE_ACCOUNT_IRC(loqui_account_get_profile(account)));
 	if (autojoin && strlen(autojoin) > 0) {
-		loqui_sender_join_raw(loqui_account_get_sender(account), autojoin, NULL);
-		loqui_account_information(account, _("Sent join command for autojoin."));
+		LoquiStringTokenizer *st;
+		int token_num;
+		gchar *names, *keys;
+
+		st = loqui_string_tokenizer_new(autojoin, " ");
+		token_num = loqui_string_tokenizer_count_tokens(st);
+		if (token_num == 1) {
+			loqui_sender_join_raw(loqui_account_get_sender(account), autojoin, NULL);
+			loqui_account_information(account, _("Sent a command to join %s."), autojoin);
+		} else if (token_num == 2) {
+			names = g_strdup(loqui_string_tokenizer_next_token(st, NULL));
+			keys = g_strdup(loqui_string_tokenizer_next_token(st, NULL));
+	
+			loqui_sender_join_raw(loqui_account_get_sender(account), names, keys);
+			loqui_account_information(account, _("Sent a command to join %s (with the channel key(s))."), names);
+			g_free(names);
+			g_free(keys);
+		} else {
+			loqui_account_warning(account, _("The string for autojoin is invalid. It must be comma-separated, like '#a,#b,#c' or '#a,#b,#c keyA,keyB'."));
+		}
+		loqui_string_tokenizer_free(st);
 	}
 
 	/* for irc-proxy not to mark a channel as updated with the messages sent by the server initially */
