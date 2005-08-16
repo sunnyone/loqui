@@ -308,7 +308,7 @@ class Loqui:Account:Dialog from Gtk:Dialog {
         	
         	gtkutils_add_label_entry(vbox, _("Realname:"), &selfp->entry_realname, NULL);
         	gtkutils_add_label_entry(vbox, _("User information:"), &selfp->entry_userinfo, NULL);
-        	gtkutils_add_label_entry(vbox, _("Auto join channels:"), &selfp->entry_autojoin, NULL);
+        	gtkutils_add_label_entry(vbox, _("Auto join channels (ex. #a,#b,#c keyA,keyB):"), &selfp->entry_autojoin, NULL);
         	gtkutils_add_label_entry(vbox, _("Quit message:"), &selfp->entry_quit_message, NULL);
 	}
 
