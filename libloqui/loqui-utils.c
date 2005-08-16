@@ -513,7 +513,7 @@ gchar *
 loqui_utils_url_encode(const gchar *str)
 {
 	GString *string;
-	const unsigned char *c;
+	const gchar *c;
 	
 	string = g_string_sized_new(strlen(str));
 
@@ -524,7 +524,7 @@ loqui_utils_url_encode(const gchar *str)
 			   strchr("-._", *c) != NULL) {
 			g_string_append_c(string, *c);
 		} else {
-			g_string_append_printf(string, "%%%X", *c);
+			g_string_append_printf(string, "%%%X", (guchar) *c);
 		}
 	}
 	return g_string_free(string, FALSE);
