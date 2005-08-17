@@ -1,0 +1,290 @@
+requires 2.0.0
+
+%alltop{
+/*
+ * libloqui -- Chat/IM client library for GLib <http://loqui.good-day.net/>
+ * Copyright (C) 2005 Yoichi Imai <yoichi@silver-forest.com>
+ *
+ * This Library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Library General Public License as
+ * published by the Free Software Foundation; either version 2 of the
+ * License, or (at your option) any later version.
+ *
+ * This Library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Library General Public License for more details.
+ *
+ * You should have received a copy of the GNU Library General Public
+ * License along with the Gnome Library; see the file COPYING.LIB.  If not,
+ * write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+ * Boston, MA 02111-1307, USA.
+ */
+%}
+
+%h{
+#include "loqui_account.h"
+#include "loqui_channel.h"
+#include "loqui_protocol_manager.h"
+%}
+
+%{
+#undef G_LOG_DOMAIN
+#include "config.h"
+
+#include <libloqui-intl.h>
+#include "loqui-account-manager.h"
+#include "loqui_account.h"
+#include "loqui-utils.h"
+#include "loqui-profile-handle.h"
+
+#include "loqui_account_manager_iter.h"
+#include "loqui-static-core.h"
+
+#define ACCOUNT_CONFIG_FILENAME "account.xml"
+
+%}
+
+
+class Loqui:Account:Manager from G:Object {
+        public LoquiProtocolManager *protocol_manager = NULL unrefwith g_object_unref;
+        public gint max_channel_entry_id;
+
+        private GList *account_list;
+
+	override (G:Object) void
+        dispose(GObject *object) {
+		Self *self;
+
+		self = SELF(object);
+
+		self_remove_all_account(self);
+	}
+
+        public LoquiAccountManager*
+        new(LoquiProtocolManager *protocol_manager) {
+		Self *self;
+        
+		self = GET_NEW;
+        
+        	self->protocol_manager = g_object_ref(protocol_manager);
+        
+        	return self;
+        }
+
+	signal last NONE (OBJECT)
+	void add_account(self, Loqui:Account *account (check null type)) {
+        	selfp->account_list = g_list_append(selfp->account_list, g_object_ref(account));
+        
+        	g_signal_connect_after(G_OBJECT(account), "add-channel",
+        			       G_CALLBACK(self_add_channel_after_cb), self);
+        	g_signal_connect(G_OBJECT(account), "remove-channel",
+        			 G_CALLBACK(self_remove_channel_cb), self);
+        	g_signal_connect_after(G_OBJECT(account), "remove-channel",
+        			       G_CALLBACK(self_remove_channel_after_cb), self);
+        
+        	loqui_channel_entry_set_id(LOQUI_CHANNEL_ENTRY(account),
+        				   self_new_channel_entry_id(self));
+        	self_update_positions(self);
+	}
+
+	signal last NONE (OBJECT)
+	void remove_account(self, Loqui:Account *account (check null type)) {
+        	g_signal_handlers_disconnect_by_func(G_OBJECT(account), self_add_channel_after_cb, self);
+        	g_signal_handlers_disconnect_by_func(G_OBJECT(account), self_remove_channel_cb, self);
+        	g_signal_handlers_disconnect_by_func(G_OBJECT(account), self_remove_channel_after_cb, self);
+        
+        	selfp->account_list = g_list_remove(selfp->account_list, account);
+        	g_object_unref(account);
+        
+        	self_update_positions(self);
+        }
+
+        private void
+        add_channel_after_cb(LoquiAccount *account, LoquiChannel *channel, Loqui:Account:Manager *self) {
+        	loqui_channel_entry_set_id(LOQUI_CHANNEL_ENTRY(channel),
+        				   self_new_channel_entry_id(self));
+        	self_update_positions(self);
+        }
+
+        private void
+        remove_channel_cb(LoquiAccount *account, LoquiChannel *channel, Loqui:Account:Manager *self) {
+        	
+        }
+
+        private void
+        remove_channel_after_cb(LoquiAccount *account, LoquiChannel *channel, Loqui:Account:Manager *self) {
+        	self_update_positions(self);
+        }
+
+        public void
+        remove_all_account(self) {
+        	GList *list;
+        
+        	list = g_list_copy(selfp->account_list);
+		loqui_utils_g_list_foreach_swapped(list, (GFunc) self_remove_account, self);
+        	g_list_free(list);
+        }
+
+        public void
+        load_accounts(self) {
+                GList *cur, *list = NULL;
+        	gchar *path;
+        	LoquiProfileHandle *handle;
+        	LoquiAccount *account;
+        	LoquiProfileAccount *profile;
+        	GList *factory_list;
+        
+        	path = g_build_filename(loqui_core_get_user_dir(loqui_get_core()), ACCOUNT_CONFIG_FILENAME, NULL);
+        
+        	factory_list = loqui_protocol_manager_get_protocol_list(self->protocol_manager);
+        	handle = loqui_profile_handle_new(factory_list);
+        	g_list_free(factory_list);
+        
+        	loqui_profile_handle_read_from_file(handle, &list, path);
+        
+        	for(cur = list; cur != NULL; cur = cur->next) {
+        		profile = LOQUI_PROFILE_ACCOUNT(cur->data);
+        		account = loqui_protocol_create_account(profile->protocol, profile);
+        
+        		self_add_account(self, account);
+        		g_object_unref(account);
+        	}
+        	g_list_free(list);
+        	g_object_unref(handle);
+        }
+
+        public void
+        save_accounts(self) {
+                GList *cur;
+        	GList *list = NULL;
+        	gchar *path;
+        	LoquiProfileHandle *handle;
+        	GList *factory_list;
+        
+        	for(cur = selfp->account_list; cur != NULL; cur = cur->next) {
+        		list = g_list_append(list, loqui_account_get_profile(cur->data));
+        	}
+        
+        	path = g_build_filename(loqui_core_get_user_dir(loqui_get_core()), ACCOUNT_CONFIG_FILENAME, NULL);
+        
+        	factory_list = loqui_protocol_manager_get_protocol_list(self->protocol_manager);
+        	handle = loqui_profile_handle_new(factory_list);
+        	g_list_free(factory_list);
+        
+        	loqui_profile_handle_write_to_file(handle, list, path);
+        	g_object_unref(handle);
+        	g_list_free(list);
+        }
+
+	public void
+	disconnect_all(self) {
+		g_list_foreach(selfp->account_list, (GFunc) loqui_account_disconnect, NULL);
+	}
+
+	public GList *
+	get_account_list(self) {
+		return selfp->account_list;
+	}
+	
+        public void
+        connect_all_default(self) {
+        	GList *cur;
+        	LoquiAccount *account;
+        
+        	for (cur = selfp->account_list; cur != NULL; cur = cur->next) {
+        		account = LOQUI_ACCOUNT(cur->data);
+        		if (loqui_account_get_is_connected(account))
+        			continue;
+        		if (!loqui_profile_account_get_use(loqui_account_get_profile(account)))
+        			continue;
+        		
+        		loqui_account_connect(account);
+        	}
+        }
+
+        /**
+	 *  get_next_channel_entry:
+	 *  
+	 *  Returns the next channel entry.
+	 * 
+	 *  @chent: ChannelEntry or NULL
+	 *  @returns: a channel entry or NULL(not changed)
+	 */
+        public LoquiChannelEntry *
+        get_next_channel_entry(self, LoquiChannelEntry *chent, gboolean require_unread) {
+        	LoquiAccountManagerIter iter, iter_chent;
+        	gboolean is_exist;
+        	LoquiChannelEntry *tmp_chent;
+        
+        	loqui_account_manager_iter_init(self, &iter);
+        	if (chent)
+        		is_exist = loqui_account_manager_iter_set_channel_entry(&iter, chent);
+        	else
+        		is_exist = FALSE;
+        	iter_chent = iter;
+        	if (is_exist) {
+        		loqui_account_manager_iter_channel_entry_next(&iter);
+        		while ((tmp_chent = loqui_account_manager_iter_channel_entry_next(&iter))) {
+        			if (!require_unread || loqui_channel_entry_get_whether_unread(tmp_chent))
+        				return tmp_chent;
+        		}
+        	}
+        	loqui_account_manager_iter_set_first_channel_entry(&iter);			
+        	while ((tmp_chent = loqui_account_manager_iter_channel_entry_next(&iter))) {
+        		if (!require_unread || loqui_channel_entry_get_whether_unread(tmp_chent))
+        			return tmp_chent;
+        	}
+        	return NULL;
+        }
+
+        public LoquiChannelEntry *
+        get_previous_channel_entry(self, LoquiChannelEntry *chent, gboolean require_unread) {
+        	LoquiAccountManagerIter iter;
+        	gboolean is_exist;
+        	LoquiChannelEntry *tmp_chent;
+        
+        	loqui_account_manager_iter_init(self, &iter);
+        	if (chent)
+        		is_exist = loqui_account_manager_iter_set_channel_entry(&iter, chent);
+        	else
+        		is_exist = FALSE;
+        
+        	if (is_exist) {
+        		loqui_account_manager_iter_channel_entry_previous(&iter);
+        		while ((tmp_chent = loqui_account_manager_iter_channel_entry_previous(&iter))) {
+        			if (!require_unread || loqui_channel_entry_get_whether_unread(tmp_chent))
+        				return tmp_chent;
+        		}
+        	}
+        	loqui_account_manager_iter_set_last_channel_entry(&iter);			
+        	while ((tmp_chent = loqui_account_manager_iter_channel_entry_previous(&iter))) {
+        		if (!require_unread || loqui_channel_entry_get_whether_unread(tmp_chent))
+        			return tmp_chent;
+        	}
+        	return NULL;
+        }
+
+        public gint
+        new_channel_entry_id(self) {
+        	return ++self->max_channel_entry_id;
+        }
+
+        public void
+        update_positions(self) {
+        	LoquiAccountManagerIter iter;
+        	LoquiChannelEntry *chent;
+        	gint i;
+        
+        
+        	
+        	i = 0;
+        	loqui_account_manager_iter_init(self, &iter);
+        	loqui_account_manager_iter_set_first_channel_entry(&iter);
+        	while ((chent = loqui_account_manager_iter_channel_entry_next(&iter))) {
+        		loqui_channel_entry_set_position(chent, i);
+        		i++;
+        	}
+        }
+
+}
