@@ -23,7 +23,7 @@
 #include <glib/gi18n.h>
 #include "loqui_stock.h"
 #include "gtkutils.h"
-#include <loqui_account_manager.h>
+#include <libloqui/loqui-account-manager.h>
 #include "main.h"
 #include "loqui_dropdown_box.h"
 #include "command_dialog.h"

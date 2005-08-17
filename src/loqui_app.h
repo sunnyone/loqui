@@ -38,9 +38,9 @@ typedef struct _LoquiAppClass       LoquiAppClass;
 
 typedef struct _LoquiAppPrivate     LoquiAppPrivate;
 
+#include <libloqui/loqui-account-manager.h>
 #include "nick_list.h"
 #include "channel_tree.h"
-#include "loqui_account_manager.h"
 #include "loqui-tray-icon.h"
 #include "loqui_app_info.h"
 #include "loqui_channel_buffer_gtk.h"

@@ -22,7 +22,7 @@
 #define __LOQUI_ACCOUNT_MANAGER_ITER_H__
 
 #include <glib.h>
-#include "loqui_account_manager.h"
+#include "loqui-account-manager.h"
 
 typedef struct {
 	GList *cur_ac;

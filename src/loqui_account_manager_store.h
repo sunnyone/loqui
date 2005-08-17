@@ -21,7 +21,7 @@
 #define __LOQUI_ACCOUNT_MANAGER_STORE_H__
 
 #include <gtk/gtk.h>
-#include <loqui_account_manager.h>
+#include <libloqui/loqui-account-manager.h>
 
 G_BEGIN_DECLS
 

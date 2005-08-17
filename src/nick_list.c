@@ -24,7 +24,7 @@
 #include "gtkutils.h"
 #include "main.h"
 #include <irc_constants.h>
-#include <loqui_account_manager.h>
+#include <libloqui/loqui-account-manager.h>
 #include "loqui_stock.h"
 #include <loqui_sender_irc.h>
 

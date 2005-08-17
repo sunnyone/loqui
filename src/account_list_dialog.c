@@ -21,7 +21,7 @@
 
 #include "account_list_dialog.h"
 #include "loqui-account-dialog.h"
-#include <loqui_account_manager.h>
+#include <libloqui/loqui-account-manager.h>
 #include <glib/gi18n.h>
 #include <libloqui/loqui-utils.h>
 
