@@ -29,11 +29,11 @@ requires 2.0.0
 %}
 
 %{
+#include "loqui-account-manager-private.h"
 #undef G_LOG_DOMAIN
 #include "config.h"
 
 #include <libloqui-intl.h>
-#include "loqui-account-manager.h"
 #include "loqui_account.h"
 #include "loqui-utils.h"
 #include "loqui-profile-handle.h"
@@ -61,6 +61,61 @@ class Loqui:Account:Manager from G:Object {
 		self_remove_all_account(self);
 	}
 
+	/* signals */
+	signal last NONE (OBJECT)
+	void add_account(self, Loqui:Account *account (check null type)) {
+		self_add_channel_entry(self, LOQUI_CHANNEL_ENTRY(account));
+		
+        	selfp->account_list = g_list_append(selfp->account_list, g_object_ref(account));
+        
+        	g_signal_connect(G_OBJECT(account), "add-channel",
+				 G_CALLBACK(self_add_channel_cb), self);
+        	g_signal_connect_after(G_OBJECT(account), "add-channel",
+        			       G_CALLBACK(self_add_channel_after_cb), self);
+        	g_signal_connect(G_OBJECT(account), "remove-channel",
+        			 G_CALLBACK(self_remove_channel_cb), self);
+        	g_signal_connect_after(G_OBJECT(account), "remove-channel",
+        			       G_CALLBACK(self_remove_channel_after_cb), self);
+        
+		self_add_channel_entry_after(self, LOQUI_CHANNEL_ENTRY(account));
+	}
+
+	signal last NONE (OBJECT)
+	void remove_account(self, Loqui:Account *account (check null type)) {
+		self_remove_channel_entry(self, LOQUI_CHANNEL_ENTRY(account));
+
+        	g_signal_handlers_disconnect_by_func(G_OBJECT(account), self_add_channel_cb, self);
+        	g_signal_handlers_disconnect_by_func(G_OBJECT(account), self_add_channel_after_cb, self);
+        	g_signal_handlers_disconnect_by_func(G_OBJECT(account), self_remove_channel_cb, self);
+        	g_signal_handlers_disconnect_by_func(G_OBJECT(account), self_remove_channel_after_cb, self);
+        
+        	selfp->account_list = g_list_remove(selfp->account_list, account);
+        	g_object_unref(account);
+        
+		self_remove_channel_entry_after(self, LOQUI_CHANNEL_ENTRY(account));
+        }
+
+	/* utility signals */
+	signal last NONE (OBJECT)
+	void add_channel_entry(self, Loqui:Channel:Entry *chent) {
+        	loqui_channel_entry_set_id(chent, self_new_channel_entry_id(self));
+	}
+
+	signal last NONE (OBJECT)
+	void add_channel_entry_after(self, Loqui:Channel:Entry *chent) {
+        	self_update_positions(self);
+	}
+
+	signal last NONE (OBJECT)
+	void remove_channel_entry(self, Loqui:Channel:Entry *chent) {
+		
+	}
+	signal last NONE (OBJECT)
+	void remove_channel_entry_after(self, Loqui:Channel:Entry *chent) {
+        	self_update_positions(self);
+	}
+
+
         public LoquiAccountManager*
         new(LoquiProtocolManager *protocol_manager) {
 		Self *self;
@@ -72,49 +127,24 @@ class Loqui:Account:Manager from G:Object {
         	return self;
         }
 
-	signal last NONE (OBJECT)
-	void add_account(self, Loqui:Account *account (check null type)) {
-        	selfp->account_list = g_list_append(selfp->account_list, g_object_ref(account));
-        
-        	g_signal_connect_after(G_OBJECT(account), "add-channel",
-        			       G_CALLBACK(self_add_channel_after_cb), self);
-        	g_signal_connect(G_OBJECT(account), "remove-channel",
-        			 G_CALLBACK(self_remove_channel_cb), self);
-        	g_signal_connect_after(G_OBJECT(account), "remove-channel",
-        			       G_CALLBACK(self_remove_channel_after_cb), self);
-        
-        	loqui_channel_entry_set_id(LOQUI_CHANNEL_ENTRY(account),
-        				   self_new_channel_entry_id(self));
-        	self_update_positions(self);
+	private void
+	add_channel_cb(LoquiAccount *account, LoquiChannel *channel, Loqui:Account:Manager *self) {
+		self_add_channel_entry(self, LOQUI_CHANNEL_ENTRY(channel));
 	}
-
-	signal last NONE (OBJECT)
-	void remove_account(self, Loqui:Account *account (check null type)) {
-        	g_signal_handlers_disconnect_by_func(G_OBJECT(account), self_add_channel_after_cb, self);
-        	g_signal_handlers_disconnect_by_func(G_OBJECT(account), self_remove_channel_cb, self);
-        	g_signal_handlers_disconnect_by_func(G_OBJECT(account), self_remove_channel_after_cb, self);
-        
-        	selfp->account_list = g_list_remove(selfp->account_list, account);
-        	g_object_unref(account);
-        
-        	self_update_positions(self);
-        }
 
         private void
         add_channel_after_cb(LoquiAccount *account, LoquiChannel *channel, Loqui:Account:Manager *self) {
-        	loqui_channel_entry_set_id(LOQUI_CHANNEL_ENTRY(channel),
-        				   self_new_channel_entry_id(self));
-        	self_update_positions(self);
+		self_add_channel_entry_after(self, LOQUI_CHANNEL_ENTRY(channel));
         }
 
         private void
         remove_channel_cb(LoquiAccount *account, LoquiChannel *channel, Loqui:Account:Manager *self) {
-        	
+        	self_remove_channel_entry(self, LOQUI_CHANNEL_ENTRY(channel));
         }
 
         private void
         remove_channel_after_cb(LoquiAccount *account, LoquiChannel *channel, Loqui:Account:Manager *self) {
-        	self_update_positions(self);
+		self_remove_channel_entry_after(self, LOQUI_CHANNEL_ENTRY(channel));
         }
 
         public void
@@ -276,8 +306,6 @@ class Loqui:Account:Manager from G:Object {
         	LoquiChannelEntry *chent;
         	gint i;
         
-        
-        	
         	i = 0;
         	loqui_account_manager_iter_init(self, &iter);
         	loqui_account_manager_iter_set_first_channel_entry(&iter);
