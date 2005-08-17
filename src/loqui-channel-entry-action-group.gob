@@ -1,0 +1,163 @@
+requires 2.0.0
+%alltop{
+/*
+ * Loqui -- Chat/IM client for Gtk2 <http://loqui.good-day.net/>
+ * Copyright (C) 2005 Yoichi Imai <yoichi@silver-forest.com>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+ */
+%}
+
+%h{
+#include <gtk/gtk.h>
+
+#include <libloqui/loqui-account-manager.h>
+#include "loqui_channel_entry_action.h"
+#include "loqui_app.h"
+
+%}
+
+%{
+#include <glib/gi18n.h>
+
+#include <libloqui/loqui-utils.h>
+%}
+
+class Loqui:Channel:Entry:Action:Group from Gtk:Action:Group
+{
+	public Loqui:Account:Manager *account_manager = NULL unrefwith g_object_unref;
+        private Loqui:App *app = NULL unrefwith g_object_unref;
+
+	public Loqui:Channel:Entry:Action:Group *
+	new(Loqui:App *app, Loqui:Account:Manager *account_manager) {
+		Self *self;
+
+		self = GET_NEW_VARG("name", "channel-entry-group", NULL);
+		self->account_manager = g_object_ref(account_manager);
+		selfp->app = g_object_ref(app);
+
+		return self;
+	}
+
+	signal last NONE (OBJECT)
+	void add_channel_entry_action(self, Loqui:Channel:Entry:Action *ce_action) {
+		gtk_action_group_add_action(GTK_ACTION_GROUP(self), GTK_ACTION(ce_action));
+	}
+
+	signal last NONE (OBJECT)
+	void remove_channel_entry_action(self, Loqui:Channel:Entry:Action *ce_action) {
+		gtk_action_group_remove_action(GTK_ACTION_GROUP(self), GTK_ACTION(ce_action));
+	}
+
+	private void
+	add_channel_entry_after_cb(Loqui:Account:Manager *account_manager, Loqui:Channel:Entry *chent, Self *self) {
+		if (LOQUI_IS_ACCOUNT(chent)) {
+			self_create_and_add_placeholder_action(self, LOQUI_ACCOUNT(chent));
+		}
+		self_create_and_add_channel_entry_action(self, chent);
+	}
+
+	private void
+	remove_channel_entry_cb(Loqui:Account:Manager *account_manager, Loqui:Channel:Entry *chent, Self *self) {
+		LoquiChannelEntryAction *ce_action;
+		GtkAction *action;
+
+		ce_action = self_get_channel_entry_action(self, chent);
+		g_return_if_fail(ce_action != NULL);
+		self_remove_channel_entry_action(self, ce_action);
+
+		if (LOQUI_IS_ACCOUNT(chent)) {
+			action = self_get_placeholder_action(self, LOQUI_ACCOUNT(chent));
+			g_return_if_fail(action != NULL);
+			gtk_action_group_remove_action(GTK_ACTION_GROUP(self), action);
+		}
+	}
+
+        private void
+	channel_entry_action_activate_cb(Loqui:Channel:Entry:Action *action, Self *self) {
+		LoquiChannelEntry *chent;
+
+		if (!loqui_app_has_toplevel_focus(selfp->app))
+			gtk_window_present(GTK_WINDOW(selfp->app));
+
+		chent = loqui_channel_entry_action_get_channel_entry(action);
+		loqui_app_set_current_channel_entry(selfp->app, chent);
+	}
+
+	private void
+	create_and_add_channel_entry_action(self, LoquiChannelEntry *channel_entry) {
+		LoquiChannelEntryAction *ce_action;
+		gchar *ce_name;
+		
+		ce_name = self_create_channel_entry_action_name(self, channel_entry);
+
+		ce_action = loqui_channel_entry_action_new(ce_name);
+		loqui_channel_entry_action_set_channel_entry(ce_action, channel_entry);
+		g_signal_connect(G_OBJECT(ce_action), "activate", G_CALLBACK(self_channel_entry_action_activate_cb), self);
+
+		self_add_channel_entry_action(self, ce_action);
+
+		g_object_unref(ce_action);
+		g_free(ce_name);
+	}
+
+	private void
+	create_and_add_placeholder_action(self, LoquiAccount *account) {
+		GtkAction *ph_action;
+		gchar *ph_name;
+		
+		ph_name = self_create_placeholder_action_name(self, account);
+
+		ph_action = gtk_action_new(ph_name, "", NULL, NULL);
+		gtk_action_group_add_action(GTK_ACTION_GROUP(self), GTK_ACTION(ph_action));
+
+		g_object_unref(ph_action);
+		g_free(ph_name);
+	}
+
+	public gchar *
+	create_channel_entry_action_name(self, LoquiChannelEntry *chent) {
+		return g_strdup_printf("ChannelEntry-%d", loqui_channel_entry_get_id(chent));
+	}
+	
+	public gchar *
+	create_placeholder_action_name(self, LoquiAccount *account) {
+		return g_strdup_printf("Account-PlaceHolder-%d", loqui_channel_entry_get_id(LOQUI_CHANNEL_ENTRY(account)));
+	}
+	
+	public Loqui:Channel:Entry:Action *
+	get_channel_entry_action(self, LoquiChannelEntry *chent) {
+		LoquiChannelEntryAction *ce_action;
+		gchar *ce_name;
+
+		ce_name = self_create_channel_entry_action_name(self, chent);
+		ce_action = LOQUI_CHANNEL_ENTRY_ACTION(gtk_action_group_get_action(GTK_ACTION_GROUP(self), ce_name));
+		g_free(ce_name);
+
+		return ce_action;
+	}
+
+	public Gtk:Action *
+	get_placeholder_action(self, LoquiAccount *account) {
+		gchar *ph_name;
+		GtkAction *action;
+
+		ph_name = self_create_placeholder_action_name(self, account);
+		action = gtk_action_group_get_action(GTK_ACTION_GROUP(self), ph_name);
+		g_free(ph_name);
+
+		return action;
+	}
+}
