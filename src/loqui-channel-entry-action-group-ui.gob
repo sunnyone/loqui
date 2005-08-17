@@ -1,0 +1,125 @@
+requires 2.0.0
+%alltop{
+/*
+ * Loqui -- Chat/IM client for Gtk2 <http://loqui.good-day.net/>
+ * Copyright (C) 2005 Yoichi Imai <yoichi@silver-forest.com>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+ */
+%}
+
+%h{
+#include <gtk/gtk.h>
+#include "loqui-channel-entry-action-group.h"
+#include "loqui-channel-entry-ui-data.h"
+%}
+
+%{
+#include <glib/gi18n.h>
+
+#include <libloqui/loqui-utils.h>
+#include <libloqui/loqui_channel_entry_utils.h>
+%}
+
+class Loqui:Channel:Entry:Action:Group:UI from G:Object
+{
+	public GtkUIManager *ui_manager = NULL unrefwith g_object_unref;
+	public LoquiChannelEntryActionGroup *action_group = NULL unrefwith g_object_unref;
+	public gchar *ui_base_path = NULL unrefwith g_free;
+	public GHashTable *ui_data_table = {g_hash_table_new_full(g_int_hash, g_int_equal, NULL, g_object_unref)} unrefwith g_hash_table_destroy;
+
+	public Loqui:Channel:Entry:Action:Group:UI *
+	new(LoquiChannelEntryActionGroup *action_group, GtkUIManager *ui_manager, gchar *ui_base_path) {
+		Self *self;
+
+		self = GET_NEW;
+
+		self->action_group = g_object_ref(action_group);
+		self->ui_manager = g_object_ref(ui_manager);
+		self->ui_base_path = g_strdup(ui_base_path);
+
+		return self;
+	}
+	
+	private void
+	add_channel_entry_action_in_placeholder(self, LoquiChannelEntryUIData *ui_data, LoquiChannelEntryAction *ce_action) {
+		gchar *path;
+		const gchar *name;
+		LoquiAccount *account;
+		LoquiChannelEntry *chent;
+
+		chent = loqui_channel_entry_action_get_channel_entry(ce_action);
+
+		/* get parent or itself */
+		loqui_channel_entry_utils_separate(chent, &account, NULL);
+
+		name = gtk_action_get_name(GTK_ACTION(ce_action));
+		ui_data->channel_entry_merge_id = gtk_ui_manager_new_merge_id(self->ui_manager);
+		path = self_create_path_placeholder(self, account);
+		gtk_ui_manager_add_ui(self->ui_manager, ui_data->channel_entry_merge_id, path, name, name, GTK_UI_MANAGER_MENUITEM, FALSE);
+		g_free(path);
+	}
+
+	private void
+	add_channel_entry_action_after_cb(LoquiChannelEntryActionGroup *action_group, LoquiChannelEntryAction *ce_action, Self *self) {
+		LoquiChannelEntryUIData *ui_data;
+		LoquiChannelEntry *chent;
+		gchar *name;
+
+		ui_data = loqui_channel_entry_ui_data_new();
+		chent = loqui_channel_entry_action_get_channel_entry(ce_action);
+		g_hash_table_insert(self->ui_data_table, GINT_TO_POINTER(loqui_channel_entry_get_id(chent)), ui_data);
+
+		if (LOQUI_IS_ACCOUNT(chent)) {
+			ui_data->placeholder_merge_id = gtk_ui_manager_new_merge_id(self->ui_manager);
+			name = loqui_channel_entry_action_group_create_placeholder_action_name(self->action_group, LOQUI_ACCOUNT(chent));
+			gtk_ui_manager_add_ui(self->ui_manager, ui_data->placeholder_merge_id,
+					      self->ui_base_path, name, name, GTK_UI_MANAGER_PLACEHOLDER, FALSE);
+			g_free(name);
+		}
+
+		self_add_channel_entry_action_in_placeholder(self, ui_data, ce_action);
+	}
+
+	private void
+	remove_channel_entry_action_cb(LoquiChannelEntryActionGroup *action_group, LoquiChannelEntryAction *ce_action, Self *self) {
+		LoquiChannelEntryUIData *ui_data;
+		LoquiChannelEntry *chent;
+
+		chent = loqui_channel_entry_action_get_channel_entry(ce_action);
+		ui_data = g_hash_table_lookup(self->ui_data_table, GINT_TO_POINTER(loqui_channel_entry_get_id(chent)));
+		g_return_if_fail(ui_data != NULL);
+
+		gtk_ui_manager_remove_ui(self->ui_manager, ui_data->channel_entry_merge_id);
+		if (ui_data->placeholder_merge_id > 0) {
+			gtk_ui_manager_remove_ui(self->ui_manager, ui_data->placeholder_merge_id);
+		}
+
+		g_hash_table_remove(self->ui_data_table, GINT_TO_POINTER(loqui_channel_entry_get_id(chent)));
+	}
+	
+	private gchar *
+	create_path_placeholder(self, LoquiAccount *account) {
+		gchar *name, *buf;
+
+		name = loqui_channel_entry_action_group_create_placeholder_action_name(self->action_group, account);
+		buf = g_strconcat(self->ui_base_path, "/", name, NULL);
+		g_free(name);
+
+		return buf;
+	}
+
+	
+}

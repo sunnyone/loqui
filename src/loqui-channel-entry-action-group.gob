@@ -51,13 +51,13 @@ class Loqui:Channel:Entry:Action:Group from Gtk:Action:Group
 		return self;
 	}
 
-	signal last NONE (OBJECT)
-	void add_channel_entry_action(self, Loqui:Channel:Entry:Action *ce_action) {
+	signal last NONE (OBJECT) void
+	add_channel_entry_action(self, Loqui:Channel:Entry:Action *ce_action) {
 		gtk_action_group_add_action(GTK_ACTION_GROUP(self), GTK_ACTION(ce_action));
 	}
 
-	signal last NONE (OBJECT)
-	void remove_channel_entry_action(self, Loqui:Channel:Entry:Action *ce_action) {
+	signal last NONE (OBJECT) void
+	remove_channel_entry_action(self, Loqui:Channel:Entry:Action *ce_action) {
 		gtk_action_group_remove_action(GTK_ACTION_GROUP(self), GTK_ACTION(ce_action));
 	}
 
