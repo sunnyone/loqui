@@ -78,7 +78,7 @@ class Loqui:Tray:Icon from G:Object {
         			break;
         		case 3:
         			gtk_menu_popup(GTK_MENU(selfp->menu), NULL, NULL,
-        				       gtkutils_menu_position_under_or_below_widget, GTK_WIDGET(self),
+        				       gtkutils_menu_position_under_or_below_widget, GTK_WIDGET(widget),
         				       event ? event->button : 0,
         				       event ? event->time : gtk_get_current_event_time());
         			break;
