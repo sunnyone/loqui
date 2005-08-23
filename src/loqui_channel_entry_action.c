@@ -111,7 +111,9 @@ loqui_channel_entry_action_dispose(GObject *object)
         g_return_if_fail(LOQUI_IS_CHANNEL_ENTRY_ACTION(object));
 
         action = LOQUI_CHANNEL_ENTRY_ACTION(object);
-	
+
+	LOQUI_G_OBJECT_UNREF_UNLESS_NULL(action->channel_entry);
+
         if (G_OBJECT_CLASS(parent_class)->dispose)
                 (* G_OBJECT_CLASS(parent_class)->dispose)(object);
 }
@@ -298,7 +300,7 @@ loqui_channel_entry_action_set_channel_entry(LoquiChannelEntryAction *action, Lo
 					     loqui_channel_entry_action_entry_notify_id_cb, action);
 
 	if (channel_entry) {
-		action->channel_entry = channel_entry;
+		action->channel_entry = g_object_ref(channel_entry);
 		g_signal_connect(G_OBJECT(channel_entry), "notify::id",
 				 G_CALLBACK(loqui_channel_entry_action_entry_notify_id_cb), action);
 
