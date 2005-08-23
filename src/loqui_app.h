@@ -46,6 +46,8 @@ typedef struct _LoquiAppPrivate     LoquiAppPrivate;
 #include "loqui_channel_buffer_gtk.h"
 #include "loqui-transfer-window.h"
 
+#include "loqui-channel-entry-action-group.h"
+
 struct _LoquiApp
 {
         GtkWindow parent;
@@ -70,7 +72,7 @@ struct _LoquiApp
 
 	GtkActionGroup *action_group;
 	GtkUIManager *ui_manager;
-	GtkActionGroup *channel_entry_group;
+	LoquiChannelEntryActionGroup *channel_entry_action_group;
 
 	GtkTooltips *tooltips;
 

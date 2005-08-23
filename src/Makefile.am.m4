@@ -22,7 +22,6 @@ loqui_SOURCES = \
 	loqui_app_info.c loqui_app_info.h \
 	loqui_channel_entry_store.c loqui_channel_entry_store.h \
 	loqui_channel_entry_action.c loqui_channel_entry_action.h \
-	loqui_channel_entry_ui.c loqui_channel_entry_ui.h \
 	loqui_channel_buffer_gtk.c loqui_channel_buffer_gtk.h \
 	loqui_dropdown_box.c loqui_dropdown_box.h \
 	loqui_account_manager_store.c loqui_account_manager_store.h \

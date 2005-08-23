@@ -262,7 +262,7 @@ loqui_channelbar_update_channel_entry_label(LoquiChannelbar *channelbar, LoquiCh
 	priv = channelbar->priv;
 
 	if (chent) {
-		action = g_object_get_data(G_OBJECT(chent), "channel-entry-action");
+		action = GTK_ACTION(loqui_channel_entry_action_group_get_channel_entry_action(priv->app->channel_entry_action_group, chent));
 		gtk_action_connect_proxy(action, priv->label_channel_name);
 		priv->chent_action = action;
 	} else if (priv->chent_action) {
