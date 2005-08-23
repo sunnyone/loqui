@@ -105,7 +105,7 @@ class Loqui:Core:Gtk from Loqui:Core
 
 		libinfo = PARENT_HANDLER(self_core);
 		str = g_strdup_printf("Loqui version %s (%s; GTK+ %d.%d.%d)",
-				      VERSION, libinfo, GTK_MAJOR_VERSION, GTK_MINOR_VERSION, GTK_MICRO_VERSION);
+				      VERSION, libinfo, gtk_major_version, gtk_minor_version, gtk_micro_version);
 		g_free(libinfo);
 
 		return str;
