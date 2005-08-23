@@ -38,7 +38,7 @@ class Loqui:Channel:Entry:Action:Group:UI from G:Object
 	public GtkUIManager *ui_manager = NULL unrefwith g_object_unref;
 	public LoquiChannelEntryActionGroup *action_group = NULL unrefwith g_object_unref;
 	public gchar *ui_base_path = NULL unrefwith g_free;
-	public GHashTable *ui_data_table = {g_hash_table_new_full(g_int_hash, g_int_equal, NULL, g_object_unref)} unrefwith g_hash_table_destroy;
+	public GHashTable *ui_data_table = {g_hash_table_new_full(g_direct_hash, g_direct_equal, NULL, g_object_unref)} unrefwith g_hash_table_destroy;
 
 	public Loqui:Channel:Entry:Action:Group:UI *
 	new(LoquiChannelEntryActionGroup *action_group, GtkUIManager *ui_manager, gchar *ui_base_path) {
@@ -50,9 +50,26 @@ class Loqui:Channel:Entry:Action:Group:UI from G:Object
 		self->ui_manager = g_object_ref(ui_manager);
 		self->ui_base_path = g_strdup(ui_base_path);
 
+		g_signal_connect_after(G_OBJECT(self->action_group), "add_channel_entry_action",
+				       G_CALLBACK(self_add_channel_entry_action_after_cb), self);
+		g_signal_connect(G_OBJECT(self->action_group), "remove_channel_entry_action",
+				 G_CALLBACK(self_remove_channel_entry_action_cb), self);
+		
 		return self;
 	}
 	
+	override (G:Object) void
+	dispose(G:Object *object) {
+		Self *self;
+
+		self = SELF(object);
+
+		g_signal_handlers_disconnect_by_func(self->action_group, self_add_channel_entry_action_after_cb, self);
+		g_signal_handlers_disconnect_by_func(self->action_group, self_remove_channel_entry_action_cb, self);
+
+		PARENT_HANDLER(object);
+	}
+
 	private void
 	add_channel_entry_action_in_placeholder(self, LoquiChannelEntryUIData *ui_data, LoquiChannelEntryAction *ce_action) {
 		gchar *path;
@@ -121,5 +138,8 @@ class Loqui:Channel:Entry:Action:Group:UI from G:Object
 		return buf;
 	}
 
-	
+	public GtkWidget *
+	get_widget(self) {
+		return gtk_ui_manager_get_widget(self->ui_manager, self->ui_base_path);
+	}
 }
