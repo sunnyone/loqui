@@ -59,6 +59,8 @@ class Loqui:Account:Manager from G:Object {
 		self = SELF(object);
 
 		self_remove_all_account(self);
+
+		PARENT_HANDLER(object);
 	}
 
 	/* signals */
