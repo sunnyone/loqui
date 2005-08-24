@@ -1,5 +1,14 @@
 --- 
 -
+  date: 2005-08-25
+  version: 0.4.2
+  changes:
+    - The feature not to mark a channel as updated by new messages until the program received PONG at first (for some bots, optional).
+    - Fixed the handlers of some IRC miscellaneous replies.
+    - Reply GETINFO queries in IPMessenger.
+    - Supports channel keys for autojoin.
+    - Fixed the bug that the program crashes when the trayicon is right-clicked.
+-
   date: 2005-07-18
   version: 0.4.1
   changes:
