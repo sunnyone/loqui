@@ -10,6 +10,7 @@ libloqui/irc_message.c
 libloqui/irc_message.h
 libloqui/libloqui-intl.h
 libloqui/loqui-account-ipmsg.gob
+libloqui/loqui-account-manager.gob
 libloqui/loqui-core.gob
 libloqui/loqui-general-pref-default.h
 libloqui/loqui-general-pref-groups.h
@@ -46,8 +47,6 @@ libloqui/loqui_account.c
 libloqui/loqui_account.h
 libloqui/loqui_account_irc.c
 libloqui/loqui_account_irc.h
-libloqui/loqui_account_manager.c
-libloqui/loqui_account_manager.h
 libloqui/loqui_account_manager_iter.c
 libloqui/loqui_account_manager_iter.h
 libloqui/loqui_account_msn.c
@@ -130,6 +129,9 @@ src/eggtrayicon.h
 src/gtkutils.c
 src/gtkutils.h
 src/loqui-account-dialog.gob
+src/loqui-channel-entry-action-group-ui.gob
+src/loqui-channel-entry-action-group.gob
+src/loqui-channel-entry-ui-data.gob
 src/loqui-core-gtk.gob
 src/loqui-general-pref-gtk-default.h
 src/loqui-general-pref-gtk-groups.h
@@ -152,8 +154,6 @@ src/loqui_channel_entry_action.c
 src/loqui_channel_entry_action.h
 src/loqui_channel_entry_store.c
 src/loqui_channel_entry_store.h
-src/loqui_channel_entry_ui.c
-src/loqui_channel_entry_ui.h
 src/loqui_channel_text_view.c
 src/loqui_channel_text_view.h
 src/loqui_channelbar.c
