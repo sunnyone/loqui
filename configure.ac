@@ -24,6 +24,8 @@ AC_PROG_INSTALL
 AC_PROG_LN_S
 AC_PROG_MAKE_SET
 AC_PROG_LIBTOOL
+AC_CHECK_PROG(WINDRES, windres)
+AM_CONDITIONAL(HAVE_WINDRES, test x"$WINDRES" != x)
 
 # Checks for libraries.
 AM_PATH_GLIB_2_0(2.4.0,, AC_MSG_ERROR(Test for GLib failed. See the 'INSTALL' for help.), gobject)
