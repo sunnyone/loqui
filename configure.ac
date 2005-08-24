@@ -6,13 +6,13 @@ m4_define([loqui_major_version], [0])
 m4_define([loqui_minor_version], [4])
 m4_define([loqui_micro_version], [1])
 m4_define([loqui_extra_version], [+svn])
-m4_define([loqui_version], [loqui_minor_version.loqui_major_version.loqui_micro_version][loqui_extra_version])
+m4_define([loqui_version], [loqui_minor_version.loqui_major_version.loqui_micro_version[]loqui_extra_version])
 
 AC_INIT(loqui, loqui_version)
 AC_CONFIG_SRCDIR([src/main.c])
-AC_CONFIG_HEADER([config.h])
+AM_CONFIG_HEADER([config.h])
 
-AM_INIT_AUTOMAKE()
+AM_INIT_AUTOMAKE
 
 AM_MAINTAINER_MODE
 
@@ -23,7 +23,7 @@ AC_PROG_CPP
 AC_PROG_INSTALL
 AC_PROG_LN_S
 AC_PROG_MAKE_SET
-AC_PROG_RANLIB
+AC_PROG_LIBTOOL
 
 # Checks for libraries.
 AM_PATH_GLIB_2_0(2.4.0,, AC_MSG_ERROR(Test for GLib failed. See the 'INSTALL' for help.), gobject)
@@ -64,6 +64,7 @@ else
   AC_DEFINE_UNQUOTED(PACKAGE_LOCALE_DIR, "${prefix}/${DATADIRNAME}/locale")
 fi
 
+AC_DEFINE_UNQUOTED(G_LOG_DOMAIN, "$PACKAGE", [g_log domain])
 
 # Checks for library functions.
 AC_FUNC_STRFTIME
