@@ -64,8 +64,6 @@ else
   AC_DEFINE_UNQUOTED(PACKAGE_LOCALE_DIR, "${prefix}/${DATADIRNAME}/locale")
 fi
 
-AC_DEFINE_UNQUOTED(G_LOG_DOMAIN, "$PACKAGE", [g_log domain])
-
 # Checks for library functions.
 AC_FUNC_STRFTIME
 AC_CHECK_FUNCS([isascii localtime_r memmove memset mkdir setlocale strchr strpbrk strrchr strstr strtol])

@@ -23,7 +23,6 @@ requires 2.0.0
 %}
 
 %{
-#undef G_LOG_DOMAIN
 #include "config.h"
 
 #include <libloqui/libloqui-intl.h>

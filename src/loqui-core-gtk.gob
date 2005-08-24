@@ -21,7 +21,6 @@ requires 2.0.0
 %}
 
 %h{
-#undef G_LOG_DOMAIN
 #include "config.h"
 
 #include <gtk/gtk.h>

@@ -1,6 +1,6 @@
 include(loqui-am-macros.m4)dnl
 
-INCLUDES = $(GLIB_CFLAGS) $(GNET_CFLAGS) $(EXTRA_WARNING_CFLAGS) -I$(includedir) -I$(top_srcdir)
+INCLUDES = $(GLIB_CFLAGS) $(GNET_CFLAGS) $(EXTRA_WARNING_CFLAGS) -I$(includedir) -I$(top_srcdir) -DG_LOG_DOMAIN=\"libloqui\"
 CPPFLAGS = -g -Wall -Wredundant-decls -Wmissing-declarations -Wmissing-prototypes
 
 %.c %.h %-private.h: %.gob
