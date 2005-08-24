@@ -5,6 +5,14 @@ SUBDIRS = icons embedtxt
 %.c %.h %-private.h: %.gob
 	gob2 --always-private-header $<
 
+if HAVE_WINDRES
+LOQUI_RES = loqui.res
+loqui.rc:
+	echo "LOQUI ICON icons/loqui.ico" > loqui.rc
+loqui.res:
+	$(WINDRES) $< -O coff -o $@
+endif
+
 bin_PROGRAMS = loqui
 
 INCLUDES = -I$(includedir) -I$(top_srcdir)/libloqui -I$(top_builddir)/libloqui -I$(top_srcdir) -I$(top_builddir) -DG_LOG_DOMAIN=\"Loqui\"
@@ -44,4 +52,4 @@ BUILT_SOURCES := \
 	gob_to_built_sources(M4_SRC_GOB)
 
 loqui_LDADD = \
-        $(GTK_LIBS) $(GNET_LIBS) ../libloqui/libloqui.la
+        $(GTK_LIBS) $(GNET_LIBS) ../libloqui/libloqui.la $(LOQUI_RES)
