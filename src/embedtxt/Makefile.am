@@ -3,6 +3,7 @@ EMBEDTXT = $(EMBEDTXT_ID:%=%.txt)
 EMBEDTXT_H = $(EMBEDTXT_ID:%=%.h)
 
 noinst_HEADERS = $(EMBEDTXT_H)
+EXTRA_DIST = $(EMBEDTXT)
 
 %.h: %.txt
 	sed -e 's/"/\\"/g; s/^/  "/g; s/$$/\\n"/g; 1 s/^/static const gchar embedtxt_$(@:%.h=%)[] = /; $$ s/$$/;/;' $< > $@
