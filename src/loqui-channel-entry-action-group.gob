@@ -31,6 +31,10 @@ requires 2.0.0
 #include <glib/gi18n.h>
 
 #include <libloqui/loqui-utils.h>
+#include <libloqui/loqui_account_manager_iter.h>
+
+#include <gdk/gdkkeysyms.h>
+#include "loqui-core-gtk.h"
 %}
 
 %h{
@@ -55,10 +59,12 @@ class Loqui:Channel:Entry:Action:Group from Gtk:Action:Group
 		self->account_manager = g_object_ref(account_manager);
 		selfp->app = g_object_ref(app);
 
-		g_signal_connect_after(G_OBJECT(self->account_manager), "add_channel_entry",
+		g_signal_connect_after(G_OBJECT(self->account_manager), "add_channel_entry_after",
 				       G_CALLBACK(self_add_channel_entry_after_cb), self);
 		g_signal_connect(G_OBJECT(self->account_manager), "remove_channel_entry",
 				 G_CALLBACK(self_remove_channel_entry_cb), self);
+		g_signal_connect_after(G_OBJECT(self->account_manager), "remove_channel_entry_after",
+				       G_CALLBACK(self_remove_channel_entry_after_cb), self);
 
 		return self;
 	}
@@ -71,6 +77,7 @@ class Loqui:Channel:Entry:Action:Group from Gtk:Action:Group
 
 		g_signal_handlers_disconnect_by_func(self->account_manager, self_add_channel_entry_after_cb, self);
 		g_signal_handlers_disconnect_by_func(self->account_manager, self_remove_channel_entry_cb, self);
+		g_signal_handlers_disconnect_by_func(self->account_manager, self_remove_channel_entry_after_cb, self);
 
 		PARENT_HANDLER(object);
 	}
@@ -91,6 +98,8 @@ class Loqui:Channel:Entry:Action:Group from Gtk:Action:Group
 			self_create_and_add_placeholder_action(self, LOQUI_ACCOUNT(chent));
 		}
 		self_create_and_add_channel_entry_action(self, chent);
+
+		self_update_accel_keys(self);
 	}
 
 	private void
@@ -107,6 +116,11 @@ class Loqui:Channel:Entry:Action:Group from Gtk:Action:Group
 			g_return_if_fail(action != NULL);
 			gtk_action_group_remove_action(GTK_ACTION_GROUP(self), action);
 		}
+	}
+
+	private void
+	remove_channel_entry_after_cb(Loqui:Account:Manager *account_manager, Loqui:Channel:Entry *chent, Self *self) {
+		self_update_accel_keys(self);
 	}
 
         private void
@@ -183,5 +197,48 @@ class Loqui:Channel:Entry:Action:Group from Gtk:Action:Group
 		g_free(ph_name);
 
 		return action;
+	}
+
+	private void
+	update_accel_keys(self) {
+		LoquiAccountManagerIter iter;
+		LoquiChannelEntry *chent;
+
+		loqui_account_manager_iter_init(self->account_manager, &iter);
+		loqui_account_manager_iter_set_first_channel_entry(&iter);
+		while ((chent = loqui_account_manager_iter_channel_entry_next(&iter)))
+			self_set_channel_entry_accel_key(self, chent);
+	}
+
+	private void
+	set_channel_entry_accel_key(self, LoquiChannelEntry *chent) {
+		guint keyval;
+		guint modifiers;
+		gint pos;
+		gint id;
+		gchar *path;
+
+		id = loqui_channel_entry_get_id(chent);
+		if (id < 0)
+			return;
+
+		pos = loqui_channel_entry_get_position(chent);
+
+		if (0 <= pos && pos < 10) {
+			keyval = GDK_0 + pos;
+			modifiers = GDK_CONTROL_MASK;
+		} else if (10 <= pos && pos < 20) {
+			keyval = GDK_0 + pos - 10;
+			modifiers = GDK_MOD1_MASK;
+		} else {
+			keyval = 0;
+			modifiers = 0;
+		}
+	
+		if (keyval != 0) {
+			path = g_strdup_printf(SHORTCUT_CHANNEL_ENTRY_ACCEL_MAP_PREFIX "%d", id);
+			gtk_accel_map_change_entry(path, keyval, modifiers, TRUE);
+			g_free(path);
+		}
 	}
 }
