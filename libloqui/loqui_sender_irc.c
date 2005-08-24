@@ -782,7 +782,7 @@ loqui_sender_irc_sent_privmsg_notice(LoquiSenderIRC *sender, IRCMessage *msg)
 	account = loqui_sender_get_account(LOQUI_SENDER(sender));
 
 	target = irc_message_get_target(msg);
-	remark = irc_message_get_param(msg, 2);
+	remark = irc_message_get_param(msg, 1);
 
 	if (remark == NULL) {
 		loqui_account_warning(account, _("This PRIVMSG/NOTICE message doesn't contain a remark."));

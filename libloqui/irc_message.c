@@ -455,11 +455,10 @@ gchar *
 irc_message_get_param(IRCMessage *msg, guint i)
 {
 	int num;
-	g_return_val_if_fail(1 <= i && i <= IRC_MESSAGE_PARAMETER_MAX, NULL);
+	g_return_val_if_fail(0 <= i && i < IRC_MESSAGE_PARAMETER_MAX, NULL);
 
-	i--;
 	num = irc_message_count_parameters(msg);
-	if(num < i) {
+	if (num < i) {
 		g_warning(_("Invalid parameter number"));
 		return NULL;
 	}
@@ -502,10 +501,11 @@ irc_message_format(IRCMessage *msg, const gchar *format)
 		case '*': /* %*n : all params after n */
 			cur++;
 			i = g_ascii_strtoull(cur, &tmp, 10);
+			if (cur == tmp)
+				break;
 			cur = tmp;
-			if(i == 0) break;
 
-			end = irc_message_count_parameters(msg);
+			end = irc_message_count_parameters(msg) - 1;
 			for(; i < end; i++) {
 				string = g_string_append(string, irc_message_get_param(msg, i));
 				string = g_string_append_c(string, ' ');
