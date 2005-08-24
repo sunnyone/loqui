@@ -6,7 +6,7 @@ m4_define([loqui_major_version], [0])
 m4_define([loqui_minor_version], [4])
 m4_define([loqui_micro_version], [1])
 m4_define([loqui_extra_version], [+svn])
-m4_define([loqui_version], [loqui_minor_version.loqui_major_version.loqui_micro_version[]loqui_extra_version])
+m4_define([loqui_version], [loqui_major_version.loqui_minor_version.loqui_micro_version[]loqui_extra_version])
 
 AC_INIT(loqui, loqui_version)
 AC_CONFIG_SRCDIR([src/main.c])
