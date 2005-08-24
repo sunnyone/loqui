@@ -1,5 +1,5 @@
 IMAGES_ID = console online offline away busy command naruto speaker loqui loqui_hilighted whether_scroll notice
-IMAGES = $(IMAGES_ID:%=%.png)
+IMAGES = $(IMAGES_ID:%=%.png) loqui.ico
 IMAGES_H = $(IMAGES_ID:%=%.h)
 
 noinst_HEADERS = pixbufs.h $(IMAGES_H)
