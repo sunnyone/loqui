@@ -234,7 +234,7 @@ static void
 ctcp_handle_send_ctcp_reply(CTCPHandle *ctcp_handle, CTCPMessage *ctcp_msg, const gchar *target)
 {
 	CTCPHandlePrivate *priv;
-	gchar *buf, *tmp;
+	gchar *buf;
 	LoquiSender *sender;
 
         g_return_if_fail(ctcp_handle != NULL);
@@ -245,16 +245,6 @@ ctcp_handle_send_ctcp_reply(CTCPHandle *ctcp_handle, CTCPMessage *ctcp_msg, cons
 	buf = ctcp_message_to_str(ctcp_msg);
 	sender = loqui_account_get_sender(priv->account);
 	loqui_sender_irc_notice_raw(LOQUI_SENDER_IRC(sender), target, buf);
-	g_free(buf);
-
-	if(ctcp_msg->argument)
-		tmp = g_strdup_printf("%s %s", ctcp_msg->command, ctcp_msg->argument);
-	else
-		tmp = g_strdup(ctcp_msg->command);
-
-	buf = g_strdup_printf(_("Sent CTCP reply to %s: %s"), target, tmp);
-	loqui_account_append_text(priv->account, NULL, LOQUI_TEXT_TYPE_INFO, buf);
-	g_free(tmp);
 	g_free(buf);
 }
 static void

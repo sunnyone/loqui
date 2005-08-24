@@ -789,14 +789,23 @@ loqui_sender_irc_sent_privmsg_notice(LoquiSenderIRC *sender, IRCMessage *msg)
 		return;
 	}
 
-	if (msg->response == IRC_COMMAND_PRIVMSG) {
-		if(ctcp_message_parse_line(remark, &ctcp_msg)) {
-			buf = g_strdup_printf(_("Sent CTCP request to %s: %s"), target, ctcp_msg->command);
-			loqui_account_append_text(account, NULL, LOQUI_TEXT_TYPE_INFO, buf);
-			g_free(buf);
+	if (ctcp_message_parse_line(remark, &ctcp_msg)) {
+		gchar *tmp;
 
-			return;
-		}
+		if (ctcp_msg->argument)
+			tmp = g_strdup_printf("%s %s", ctcp_msg->command, ctcp_msg->argument);
+		else
+			tmp = g_strdup(ctcp_msg->command);
+
+		buf = g_strdup_printf(_("Sent CTCP %1$s to %2$s: %3$s"),
+				      msg->response == IRC_COMMAND_PRIVMSG ? _("request") : _("reply"),
+				      target, tmp);
+		g_free(tmp);
+
+		loqui_account_append_text(account, NULL, LOQUI_TEXT_TYPE_INFO, buf);
+		g_free(buf);
+
+		return;
 	}
 
 	is_notice = (msg->response == IRC_COMMAND_NOTICE) ? TRUE : FALSE;
