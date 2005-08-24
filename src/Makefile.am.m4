@@ -6,10 +6,9 @@ SUBDIRS = icons embedtxt
 	gob2 --always-private-header $<
 
 if HAVE_WINDRES
-LOQUI_RES = loqui.res
 loqui.rc:
-	echo "LOQUI ICON icons/loqui.ico" > loqui.rc
-loqui.res:
+	echo "LOQUI ICON icons/loqui.ico" > $@
+loqui.res: loqui.rc
 	$(WINDRES) $< -O coff -o $@
 endif
 
