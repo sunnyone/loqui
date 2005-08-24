@@ -3,15 +3,14 @@ SUBDIRS =  m4 libloqui src po # test
 AUTOMAKE_OPTIONS = 1.5
 
 ChangeLog:
-	svn log -v > $@
+	svn log -v $(shell svn info | sed -ne 's/^URL: //p') > $@
 
 EXTRA_DIST= autogen.sh \
 	README \
 	NEWS \
 	NEWS.ja \
-	ChangeLog \
 	COPYING \
-	ABOUT-NLS \
+	ChangeLog \
 	INSTALL \
 	loqui.spec \
 	loqui.spec.in \

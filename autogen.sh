@@ -6,6 +6,8 @@ set -e
 # ./update-makefile.sh
 # popd
 
+rm -f ChangeLog
+
 if which gob2 &>/dev/null; then
    :
 else
