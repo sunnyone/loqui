@@ -68,13 +68,15 @@ fi
 
 # Checks for library functions.
 AC_FUNC_STRFTIME
-AC_CHECK_FUNCS([isascii localtime_r memmove memset mkdir setlocale strchr strpbrk strrchr strstr strtol])
+AC_CHECK_FUNCS([isascii memset mkdir setlocale strchr strpbrk strrchr strstr strtol])
 AC_CHECK_FUNCS(bind_textdomain_codeset)
 AC_CHECK_FUNCS(localtime_r)
 
 AC_CONFIG_FILES([
 Makefile
 libloqui/Makefile
+libloqui/regex/Makefile
+libloqui/regex/pcre/Makefile
 src/Makefile
 src/icons/Makefile
 src/embedtxt/Makefile
