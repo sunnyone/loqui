@@ -1,6 +1,7 @@
 ## Process this file with automake to produce Makefile.in
 
 INCLUDES = \
+	$(GLIB_CFLAGS) \
   -DG_DISABLE_DEPRECATED
 
 noinst_LTLIBRARIES = libpcre.la

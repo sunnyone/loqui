@@ -1,6 +1,7 @@
 SUBDIRS = pcre
 
 INCLUDES = \
+  $(GLIB_CFLAGS) \
   -DG_DISABLE_DEPRECATED
 
 noinst_LTLIBRARIES = libeggregex.la
