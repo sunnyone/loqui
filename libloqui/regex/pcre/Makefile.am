@@ -14,5 +14,4 @@ libpcre_la_SOURCES = 	\
 	chartables.c \
 	pcre.c \
 	pcre.h \
-	printint.h \
 	study.c
