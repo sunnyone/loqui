@@ -47,7 +47,6 @@ AC_CHECK_HEADERS([fcntl.h libintl.h locale.h stdlib.h string.h unistd.h])
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_HEADER_STAT
-AC_HEADER_STDBOOL
 AC_C_CONST
 AC_TYPE_SIZE_T
 AC_STRUCT_TM
