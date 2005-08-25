@@ -1,5 +1,7 @@
 include(loqui-am-macros.m4)dnl
 
+SUBDIRS = regex
+
 INCLUDES = $(GLIB_CFLAGS) $(GNET_CFLAGS) $(EXTRA_WARNING_CFLAGS) -I$(includedir) -I$(top_srcdir) -DG_LOG_DOMAIN=\"libloqui\"
 CPPFLAGS = -g -Wall -Wredundant-decls -Wmissing-declarations -Wmissing-prototypes
 
@@ -104,7 +106,10 @@ libloqui_la_SOURCES =  \
 	$(SRC_PROTOCOL_MSN) \
 	$(SRC_LIBRARY_CORE)
 
-libloqui_la_LIBADD = $(GLIB_LIBS) $(GNET_LIBS)
+libloqui_la_LIBADD = \
+	$(GLIB_LIBS) \
+	$(GNET_LIBS) \
+	regex/libeggregex.la
 
 loqui_marshalers.h : loqui_marshalers.list $(GLIB_GENMARSHAL)
 	$(GLIB_GENMARSHAL) $< --header --prefix=_loqui_marshal > $@
