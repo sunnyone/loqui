@@ -206,7 +206,7 @@ ipmsg_packet_parse(const gchar *str, gint len)
 		array[i] = NULL;
 
 	buf = g_malloc(real_len + 1);
-	memmove(buf, str, real_len);
+	g_memmove(buf, str, real_len);
 	buf[real_len] = '\0';
 
 	pos = 0;

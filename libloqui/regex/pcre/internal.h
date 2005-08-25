@@ -77,24 +77,12 @@ is set. Otherwise, include an emulating function for those systems that have
 neither (there some non-Unix environments where this is the case). This assumes
 that all calls to memmove are moving strings upwards in store, which is the
 case in PCRE. */
+/* Use g_memmove in EggRegex */
+#ifdef memmove
+#undef memmove
+#endif
+#define memmove(a,b,c) g_memmove(a,b,c)
 
-#if ! HAVE_MEMMOVE
-#undef  memmove        /* some systems may have a macro */
-#if HAVE_BCOPY
-#define memmove(a, b, c) bcopy(b, a, c)
-#else  /* HAVE_BCOPY */
-void *
-_pcre_memmove(unsigned char *dest, const unsigned char *src, size_t n)
-{
-int i;
-dest += n;
-src += n;
-for (i = 0; i < n; ++i) *(--dest) =  *(--src);
-return dest;
-}
-#define memmove(a, b, c) _pcre_memmove(a, b, c)
-#endif   /* not HAVE_BCOPY */
-#endif   /* not HAVE_MEMMOVE */
 #endif   /* not VPCOMPAT */
 
 
