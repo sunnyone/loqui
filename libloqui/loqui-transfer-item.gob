@@ -41,6 +41,7 @@ class Loqui:Transfer:Item from G:Object
 	public gchar *address = NULL unrefwith g_free;
 	public gint port;
 	public gint size;
+	public gdouble percent;
 
 	property STRING dirname (
 		nick = _("dirname"),
@@ -69,6 +70,10 @@ class Loqui:Transfer:Item from G:Object
 		nick = _("size"),
 		blurb = _("Size"),
 		export, link);
+	property DOUBLE percent(
+		nick = _("percent"),
+		blurb = _("Percent"),
+		export, link);
 
 	public Loqui:Transfer:Item *
 	new(void) {
@@ -80,10 +85,72 @@ class Loqui:Transfer:Item from G:Object
 	}
 
 	signal last NONE (NONE)
-	void start(self);
+	void
+	start(self);
 
 	signal last NONE (NONE)
-	void cancel(self);
+	void
+	cancel(self);
+
+	signal first NONE (NONE)
+	void
+	completed(self);
+
+	signal last NONE (STRING)
+	void
+	info(self, const gchar *text) {
+		
+	}
+
+	signal last NONE (STRING)
+	void
+	warn(self, const gchar *text) {
+
+	}
+
+	public void
+	information(self, const gchar *format, ...) {
+		va_list args;
+		gchar *str;
+	
+		va_start(args, format);
+		str = g_strdup_vprintf(format, args);
+		va_end(args);
+		
+		self_info(self, str);
+		
+		g_free(str);
+	}
+
+	public void
+	warning(self, const gchar *format, ...) {
+		va_list args;
+		gchar *str;
+	
+		va_start(args, format);
+		str = g_strdup_vprintf(format, args);
+		va_end(args);
+		
+		self_warn(self, str);
+		
+		g_free(str);
+	}
+
+	public gchar *
+	get_path_local(self) {
+		/* TODO: convertion ? */
+		return self_get_path_raw(self);
+	}
+
+	public gchar *
+	get_path_raw(self) {
+		gchar *tmp;
+
+		tmp = g_strconcat(self->dirname, G_DIR_SEPARATOR_S, self->filename, NULL);
+
+		return tmp;
+	}
+
 }
 
 %h{

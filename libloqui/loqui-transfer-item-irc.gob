@@ -36,6 +36,9 @@ requires 2.0.0
 class Loqui:Transfer:Item:IRC from Loqui:Transfer:Item
 {
 	public GInetAddr *inet_addr = NULL unrefwith gnet_inetaddr_unref;
+	private GConn *conn = NULL unrefwith gnet_conn_unref;
+	private GIOChannel *ioch = NULL unrefwith g_io_channel_unref;
+	private gint bytes_written;
 
 	property POINTER inet_addr (
 		nick = _("Addr"),
@@ -52,22 +55,146 @@ class Loqui:Transfer:Item:IRC from Loqui:Transfer:Item
 		return self;
 	}
 
-	override (Loqui:Transfer:Item) void
+	override (Loqui:Transfer:Item)
+	void
 	start (Loqui:Transfer:Item *item_p) {
-		Self *item;
+		Self *self;
 
-		item = SELF(item_p);
+		self = SELF(item_p);
 
+		if (!loqui_transfer_item_get_is_upload(item_p)) {
+			if (selfp->conn) {
+				loqui_transfer_item_warning(LOQUI_TRANSFER_ITEM(self), _("Already started."));
+				return;
+			}
+
+			if (self_get_inet_addr(self) == NULL) {
+				loqui_transfer_item_warning(LOQUI_TRANSFER_ITEM(self), _("InetAddr is not set."));
+				return;
+			}
+
+			if (!item_p->dirname) {
+				loqui_transfer_item_warning(LOQUI_TRANSFER_ITEM(self), _("Directory name is not set."));
+				return;
+			}
+
+			if (!item_p->filename) {
+				loqui_transfer_item_warning(LOQUI_TRANSFER_ITEM(self), _("Filename is not set."));
+				return;
+			}
+
+			selfp->conn = gnet_conn_new_inetaddr(self_get_inet_addr(self), self_download_conn_cb, self);
+			gnet_conn_connect(selfp->conn);
+		} else {
+			loqui_transfer_item_warning(LOQUI_TRANSFER_ITEM(self), _("Uploading is not supported."));
+			return;
+		}
 	}
 
-	override (Loqui:Transfer:Item) void
+	override (Loqui:Transfer:Item)
+	void
 	cancel (Loqui:Transfer:Item *item_p) {
 		Self *item;
 
 		item = SELF(item_p);
 		
+		
 	}
 	
+	private void
+	download_conn_cb(GConn *conn, GConnEvent *event, gpointer user_data) {
+		Self *self;
+		
+		self = SELF(user_data);
+		
+		switch (event->type) {
+		case GNET_CONN_ERROR:
+			loqui_transfer_item_warning(LOQUI_TRANSFER_ITEM(self),
+						    _("An error occured on the connection"));
+			gnet_conn_unref(conn);
+			selfp->conn = NULL;
+
+			break;
+		case GNET_CONN_CONNECT:
+			self_download_conn_connect_cb(self, event);
+
+			break;
+		case GNET_CONN_CLOSE:
+			loqui_transfer_item_warning(LOQUI_TRANSFER_ITEM(self),
+						    _("Connection closed."));
+			break;
+
+		case GNET_CONN_TIMEOUT:
+			loqui_transfer_item_warning(LOQUI_TRANSFER_ITEM(self),
+						    _("Connection timed out."));
+			break;
+		case GNET_CONN_READ:
+			self_download_conn_read_cb(self, event);
+			break;
+		default:
+			g_assert_not_reached();
+		}
+	}
+
+	private void
+	download_conn_connect_cb(self, GConnEvent *event) {
+		gchar *path;
+		GError *error = NULL;
+
+		loqui_transfer_item_information(LOQUI_TRANSFER_ITEM(self), _("Connected."));
+		selfp->bytes_written = 0;
+
+		path = loqui_transfer_item_get_path_local(LOQUI_TRANSFER_ITEM(self));
+
+		if ((selfp->ioch = g_io_channel_new_file(path, "w", &error)) == NULL) {
+			loqui_transfer_item_warning(LOQUI_TRANSFER_ITEM(self), _("Failed to open '%s' to save: %s"), path, error->message);
+			g_error_free(error);
+			g_free(path);
+			self_reset(self);
+			return;
+		}
+
+		g_free(path);
+
+		gnet_conn_read(selfp->conn);
+	}
+			     
+	private void
+	download_conn_read_cb(self, GConnEvent *event) {
+		gsize bytes_written;
+		GError *error = NULL;
+
+		g_assert(selfp->ioch);
+		
+		if (g_io_channel_write_chars(selfp->ioch, event->buffer, event->length, &bytes_written, &error) != G_IO_STATUS_NORMAL) {
+			loqui_transfer_item_warning(LOQUI_TRANSFER_ITEM(self), _("Failed to write: %s"), error->message);
+			g_error_free(error);
+			self_reset(self);
+			return;
+		}
+		
+		selfp->bytes_written += bytes_written;
+		if (loqui_transfer_item_get_size(LOQUI_TRANSFER_ITEM(self)) <= selfp->bytes_written) {
+			loqui_transfer_item_information(LOQUI_TRANSFER_ITEM(self), _("Completed."));
+			if (g_io_channel_shutdown(selfp->ioch, TRUE, &error) != G_IO_STATUS_NORMAL) {
+				loqui_transfer_item_warning(LOQUI_TRANSFER_ITEM(self), _("Failed to close."));
+				g_error_free(error);
+				self_reset(self);
+			}
+			self_reset(self);
+		}
+	}
+
+	private void
+	reset(self) {
+		if (selfp->conn) {
+			gnet_conn_delete(selfp->conn);
+			selfp->conn = NULL;
+		}
+
+		selfp->bytes_written = 0;
+	}
+
 	public void
 	set_inet_addr(self, GInetAddr *addr) {
 		if (self->inet_addr) {
@@ -80,7 +207,7 @@ class Loqui:Transfer:Item:IRC from Loqui:Transfer:Item
 		}
 	}
 
-	private GInetAddr *
+	public GInetAddr *
 	get_inet_addr(self) {
 		return self->inet_addr;
 	}
