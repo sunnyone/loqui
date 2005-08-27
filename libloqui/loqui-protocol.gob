@@ -74,7 +74,7 @@ class Loqui:Protocol from G:Object (interface Loqui:Profile:Factory) {
         }
 
 	interface Loqui:Profile:Factory
-	private /*G_CONST_RETURN*/ gchar *
+	private const gchar *
 	get_profile_type_name_static(Loqui:Profile:Factory *factory) {
 		Self *self;
 
@@ -104,7 +104,7 @@ class Loqui:Protocol from G:Object (interface Loqui:Profile:Factory) {
 			self->identifier = g_strdup(identifier);
 	}
 
-	public /*G_CONST_RETURN*/ gchar *
+	public const gchar *
 	get_identifier(self) {
 		return self->identifier;
 	}

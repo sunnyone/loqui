@@ -115,7 +115,7 @@ class Loqui:Core from G:Object
 		}
 	}
 
-	public /*G_CONST_RETURN*/ gchar *get_user_dir(self) {
+	public const gchar *get_user_dir(self) {
 		return self->user_dir;
 	}
 

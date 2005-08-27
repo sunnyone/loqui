@@ -99,7 +99,7 @@ class Loqui:Pref:Partial from G:Object
 	 blurb = _("Group name"),
 	 default_value = NULL, link);
 
-	public /*G_CONST_RETURN*/ gchar *get_group_name(self) {
+	public const gchar *get_group_name(self) {
 		return self->group_name;
 	}
 	public void set_group_name(self, const gchar *group_name) {

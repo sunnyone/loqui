@@ -99,7 +99,7 @@ class Loqui:Profile:Handle from G:Object {
 		return ELEMENT_INVALID;
 	}
 
-	private /*G_CONST_RETURN*/ gchar *
+	private const gchar *
 	get_element_name(ElementType elem_type) {
 		int i;
 		for (i = 0; element_spec_table[i].elem_type != ELEMENT_INVALID; i++) {
@@ -541,7 +541,7 @@ class Loqui:Profile:Handle from G:Object {
 		self_free_element(elem);
 	}
 
-        private /*G_CONST_RETURN*/ gchar *
+        private const gchar *
         parse_attribute(const gchar *key, const gchar **attribute_names, const gchar **attribute_values) {
         	gint i;
         	

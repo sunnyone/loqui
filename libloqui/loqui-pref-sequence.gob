@@ -65,7 +65,7 @@ class Loqui:Pref:Sequence from G:Object
 		self->prefix = g_strdup(prefix);
 	}
 
-	public /*G_CONST_RETURN*/ gchar *
+	public const gchar *
 	get_prefix(self) {
 		return self->prefix;
 	}
