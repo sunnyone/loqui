@@ -58,7 +58,6 @@ static void loqui_channel_buffer_gtk_class_init(LoquiChannelBufferGtkClass *klas
 static void loqui_channel_buffer_gtk_init(LoquiChannelBufferGtk *channel_buffer);
 static void loqui_channel_buffer_gtk_finalize(GObject *object);
 
-static void loqui_channel_buffer_gtk_append_current_time(LoquiChannelBufferGtk *channel_buffer);
 static void loqui_channel_buffer_gtk_append(LoquiChannelBufferGtk *buffer, LoquiTextType type, gchar *str,
 					    gboolean enable_highlight);
 
@@ -451,15 +450,15 @@ loqui_channel_buffer_gtk_load_styles(LoquiChannelBufferGtk *buffer)
 
 	loqui_pref_partial_foreach(priv->ppref_channel_buffer, loqui_channel_buffer_gtk_ppref_changed_cb, buffer);
 }
-static void
-loqui_channel_buffer_gtk_append_current_time(LoquiChannelBufferGtk *buffer)
+static gchar *
+loqui_channel_buffer_gtk_get_time_string(LoquiChannelBufferGtk *buffer)
 {
 	gchar *buf = NULL;
 	time_t t;
 	gchar *time_format;
-	
-        g_return_if_fail(buffer != NULL);
-        g_return_if_fail(LOQUI_IS_CHANNEL_BUFFER_GTK(buffer));
+
+        g_return_val_if_fail(buffer != NULL, NULL);
+        g_return_val_if_fail(LOQUI_IS_CHANNEL_BUFFER_GTK(buffer), NULL);
 
 	t = time(NULL);
 	time_format = loqui_pref_get_with_default_string(loqui_get_general_pref(),
@@ -472,19 +471,50 @@ loqui_channel_buffer_gtk_append_current_time(LoquiChannelBufferGtk *buffer)
 
 	if (buf == NULL) {
 		g_warning("Failed to strftime time string");
-		return;
+		return NULL;
 	}
-	
-	loqui_channel_buffer_gtk_append(buffer, LOQUI_TEXT_TYPE_TIME, buf, FALSE);
-	g_free(buf);
+
+	return buf;
 }
 
+static const gchar *
+loqui_channel_buffer_gtk_get_tag_name(LoquiChannelBufferGtk *buffer, LoquiTextType type)
+{
+	const gchar *tag_name;
+
+        g_return_val_if_fail(buffer != NULL, NULL);
+        g_return_val_if_fail(LOQUI_IS_CHANNEL_BUFFER_GTK(buffer), NULL);
+
+	switch(type) {
+	case LOQUI_TEXT_TYPE_NOTICE:
+		tag_name = "notice";
+		break;
+	case LOQUI_TEXT_TYPE_ACTION:
+		tag_name = "action";
+		break;
+	case LOQUI_TEXT_TYPE_ERROR:
+		tag_name = "error";
+		break;
+	case LOQUI_TEXT_TYPE_INFO:
+		tag_name = "info";
+		break;
+	case LOQUI_TEXT_TYPE_TIME:
+		tag_name = "time";
+		break;
+	case LOQUI_TEXT_TYPE_TRANSPARENT:
+		tag_name = "transparent";
+		break;
+	default:
+		tag_name = "normal";
+	}
+	
+	return tag_name;
+}
 static void
-loqui_channel_buffer_gtk_append(LoquiChannelBufferGtk *buffer, LoquiTextType type, gchar *str, 
-		      gboolean enable_highlight)
+loqui_channel_buffer_gtk_append(LoquiChannelBufferGtk *buffer, LoquiTextType type, gchar *str, gboolean enable_highlight)
 {
 	GtkTextIter iter;
-	gchar *style;
+	const gchar *tag_name;
 	gchar *highlight;
 
         g_return_if_fail(buffer != NULL);
@@ -492,32 +522,11 @@ loqui_channel_buffer_gtk_append(LoquiChannelBufferGtk *buffer, LoquiTextType typ
 
 	gtk_text_buffer_get_end_iter(GTK_TEXT_BUFFER(buffer), &iter);
 
-	switch(type) {
-	case LOQUI_TEXT_TYPE_NOTICE:
-		style = "notice";
-		break;
-	case LOQUI_TEXT_TYPE_ACTION:
-		style = "action";
-		break;
-	case LOQUI_TEXT_TYPE_ERROR:
-		style = "error";
-		break;
-	case LOQUI_TEXT_TYPE_INFO:
-		style = "info";
-		break;
-	case LOQUI_TEXT_TYPE_TIME:
-		style = "time";
-		break;
-	case LOQUI_TEXT_TYPE_TRANSPARENT:
-		style = "transparent";
-		break;
-	default:
-		style = "normal";
-	}
+	tag_name = loqui_channel_buffer_gtk_get_tag_name(buffer, type);
 	highlight = enable_highlight ? "highlight-area" : NULL;
 
 	gtk_text_buffer_insert_with_tags_by_name(GTK_TEXT_BUFFER(buffer), &iter, str, -1, 
-						 style, highlight, NULL);
+						 tag_name, highlight, NULL);
 }
 static void
 loqui_channel_buffer_gtk_append_message_text(LoquiChannelBuffer *buffer_p, LoquiMessageText *msgtext)
@@ -525,6 +534,7 @@ loqui_channel_buffer_gtk_append_message_text(LoquiChannelBuffer *buffer_p, Loqui
 	gchar *buf;
 	LoquiTextType type;
 	LoquiChannelBufferGtk *buffer;
+	GtkTextIter iter;
 
         g_return_if_fail(buffer_p != NULL);
         g_return_if_fail(LOQUI_IS_CHANNEL_BUFFER_GTK(buffer_p));
@@ -537,7 +547,11 @@ loqui_channel_buffer_gtk_append_message_text(LoquiChannelBuffer *buffer_p, Loqui
 		return;
 	}
 
-	loqui_channel_buffer_gtk_append_current_time(buffer);
+	gtk_text_buffer_get_end_iter(GTK_TEXT_BUFFER(buffer), &iter);
+	if ((buf = loqui_channel_buffer_gtk_get_time_string(buffer)) != NULL) {
+		gtk_text_buffer_insert_with_tags_by_name(GTK_TEXT_BUFFER(buffer), &iter, buf, -1, "time", NULL);
+		g_free(buf);
+	}
 	
 	type = loqui_message_text_get_text_type(msgtext);
 
