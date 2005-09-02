@@ -439,7 +439,7 @@ irc_message_get_target(IRCMessage *msg)
 {
 	if (irc_message_count_parameters(msg) == 0)
 		return 0;
-	return msg->parameter[0];
+	return msg->parameter[IRC_MESSAGE_PARAM_INDEX_TARGET];
 }
 gchar *
 irc_message_get_last_param(IRCMessage *msg)

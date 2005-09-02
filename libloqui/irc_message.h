@@ -44,6 +44,8 @@ typedef struct _IRCMessagePrivate     IRCMessagePrivate;
 #define IRC_MESSAGE_IS_REPLY(msg) (msg->response < 100 || (200 < msg->response && msg->response < 400))
 #define IRC_MESSAGE_IS_ERROR(msg) ((400 < msg->response && msg->response < 1000))
 
+#define IRC_MESSAGE_PARAM_INDEX_TARGET 0
+
 struct _IRCMessage
 {
         GObject parent;
