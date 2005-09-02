@@ -190,6 +190,67 @@ loqui_receiver_irc_finalize(GObject *object)
 	g_free(receiver->priv);
 }
 
+static gboolean
+loqui_receiver_irc_validate_nick_not_null(LoquiReceiverIRC *receiver, const gchar *place, IRCMessage *msg)
+{
+	gchar *inspect;
+
+        g_return_val_if_fail(receiver != NULL, FALSE);
+        g_return_val_if_fail(LOQUI_IS_RECEIVER_IRC(receiver), FALSE);
+
+	if (msg->nick == NULL) {
+		inspect = irc_message_inspect(msg);
+		loqui_account_warning(loqui_receiver_get_account(LOQUI_RECEIVER(receiver)),
+				      _("(%1$s): The message doesn't contains a nick: %2$s"), place, inspect);
+		g_free(inspect);
+
+		return FALSE;
+	}
+
+	return TRUE;
+}
+static gboolean
+loqui_receiver_irc_validate_target_not_null(LoquiReceiverIRC *receiver, const gchar *place, IRCMessage *msg)
+{
+	gchar *inspect;
+
+        g_return_val_if_fail(receiver != NULL, FALSE);
+        g_return_val_if_fail(LOQUI_IS_RECEIVER_IRC(receiver), FALSE);
+
+	if (irc_message_get_target(msg) == NULL) {
+		inspect = irc_message_inspect(msg);
+		loqui_account_warning(loqui_receiver_get_account(LOQUI_RECEIVER(receiver)),
+				      _("(%1$s): The message doesn't contains a target (the first parameter): %2$s"), place, inspect);
+		g_free(inspect);
+
+		return FALSE;
+	}
+
+	return TRUE;
+}
+static gboolean
+loqui_receiver_irc_validate_is_channel_name(LoquiReceiverIRC *receiver, const gchar *place, IRCMessage *msg, gint index)
+{
+	gchar *inspect;
+	const gchar *str = NULL;
+
+        g_return_val_if_fail(receiver != NULL, FALSE);
+        g_return_val_if_fail(LOQUI_IS_RECEIVER_IRC(receiver), FALSE);
+
+	if ((str = irc_message_get_param(msg, index)) == NULL ||
+	    !LOQUI_UTILS_IRC_STRING_IS_CHANNEL(str)) {
+		inspect = irc_message_inspect(msg);
+		loqui_account_warning(loqui_receiver_get_account(LOQUI_RECEIVER(receiver)),
+				      _("(%1$s): msg.param[%2$d] is not a channel name(%3$s): %4$s"),
+				      place, index, str ? str : "NULL", inspect);
+		g_free(inspect);
+
+		return FALSE;
+	}
+
+	return TRUE;
+}
+
 #define PLUM_ALIAS_OF_PERCENT_PREFIX ":*.jp"
 static gboolean
 loqui_receiver_irc_parse_plum_recent(LoquiReceiverIRC *receiver, const gchar *line)
@@ -717,35 +778,29 @@ loqui_receiver_irc_command_join(LoquiReceiverIRC *receiver, IRCMessage *msg)
 	priv = receiver->priv;
 	account = loqui_receiver_get_account(LOQUI_RECEIVER(receiver));
 
-	if(msg->nick == NULL) {
-		loqui_account_warning(account, _("The message does not contain nick."));
+	if (!loqui_receiver_irc_validate_nick_not_null(receiver, "command-join", msg))
 		return;
-	}
-	name = irc_message_get_target(msg);
-	if(name == NULL) {
-		loqui_account_warning(account, _("Invalid JOIN command"));
+	if (!loqui_receiver_irc_validate_is_channel_name(receiver, "command-join", msg, IRC_MESSAGE_PARAM_INDEX_TARGET))
 		return;
-	}
 	
+	name = irc_message_get_target(msg);
+
 	channel = loqui_account_get_channel_by_identifier(account, name);
-	if(loqui_account_irc_is_current_nick(LOQUI_ACCOUNT_IRC(account), msg->nick)) {
-		if(!channel) {
-			channel = LOQUI_CHANNEL(loqui_channel_irc_new(account, name, TRUE, !LOQUI_UTILS_IRC_STRING_IS_CHANNEL(name)));
-			loqui_account_add_channel(account, channel);
-			g_object_unref(channel);
-		} else {
-			loqui_channel_set_is_joined(channel, TRUE);
-		}
+
+	/* Received a JOIN command => You have just/already joined. */
+	if (channel == NULL) {
+		channel = LOQUI_CHANNEL(loqui_channel_irc_new(account, name, TRUE, FALSE));
+		loqui_account_add_channel(account, channel);
+		g_object_unref(channel);
+
 		if(loqui_core_get_send_status_commands_mode(loqui_get_core()))
 			loqui_sender_irc_get_channel_mode(loqui_account_get_sender(account), channel);
 	} else {
-		if(!channel) {
-			loqui_account_warning(account, _("Why do you know that the user join the channel?"));
-			return;
-		}
-		loqui_channel_irc_add_member_by_nick(LOQUI_CHANNEL_IRC(channel), msg->nick, FALSE, FALSE, FALSE);
-		loqui_receiver_irc_channel_append(receiver, msg, FALSE, 0, LOQUI_TEXT_TYPE_INFO, _("*** %n (%u@%h) joined channel %L"));
+		loqui_channel_set_is_joined(channel, TRUE);
 	}
+	
+	loqui_channel_irc_add_member_by_nick(LOQUI_CHANNEL_IRC(channel), msg->nick, FALSE, FALSE, FALSE);
+	loqui_receiver_irc_channel_append(receiver, msg, FALSE, 0, LOQUI_TEXT_TYPE_INFO, _("*** %n (%u@%h) joined channel %L"));
 }
 static void
 loqui_receiver_irc_inspect_message(LoquiReceiverIRC *receiver, IRCMessage *msg)
