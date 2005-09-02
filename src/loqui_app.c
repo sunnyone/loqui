@@ -23,6 +23,7 @@
 #include <libloqui/loqui-account-manager.h>
 #include <loqui_channel_entry_utils.h>
 #include <libloqui/loqui-utils.h>
+#include <libloqui/loqui-message-text-region.h>
 
 #include "loqui_app.h"
 #include "channel_tree.h"
@@ -1220,7 +1221,7 @@ loqui_app_channel_entry_append_message_text_cb(LoquiChannelEntry *chent, LoquiMe
 	gchar *word;
 	const gchar *remark;
 	gchar *tmp;
-	LoquiTextRegion *region;
+	LoquiMessageTextRegion *region;
 	gchar *notification_command;
 	gchar **highlight_array;
 	int i;
@@ -1255,9 +1256,7 @@ loqui_app_channel_entry_append_message_text_cb(LoquiChannelEntry *chent, LoquiMe
 		if (highlight_array) {
 			for (i = 0; (word = highlight_array[i]) != NULL; i++) {
 				if ((tmp = strstr(remark, word)) != NULL) {
-					region = g_new0(LoquiTextRegion, 1);
-					region->start = tmp - remark;
-					region->len = strlen(word);
+					loqui_message_text_region_create_from_offset(msgtext, tmp - remark, word);
 					msgtext->highlight_region_list = g_list_append(msgtext->highlight_region_list, region);
 					
 					matched = TRUE;

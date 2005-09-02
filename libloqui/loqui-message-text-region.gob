@@ -1,0 +1,115 @@
+requires 2.0.0
+
+%alltop{
+/*
+ * libloqui -- Chat/IM client library for GLib <http://loqui.good-day.net/>
+ * Copyright (C) 2005 Yoichi Imai <yoichi@silver-forest.com>
+ *
+ * This Library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Library General Public License as
+ * published by the Free Software Foundation; either version 2 of the
+ * License, or (at your option) any later version.
+ *
+ * This Library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Library General Public License for more details.
+ *
+ * You should have received a copy of the GNU Library General Public
+ * License along with the Gnome Library; see the file COPYING.LIB.  If not,
+ * write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+ * Boston, MA 02111-1307, USA.
+ */
+%}
+
+%h{
+#ifndef __TYPEDEF_LOQUI_MESSAGE_TEXT__
+#define __TYPEDEF_LOQUI_MESSAGE_TEXT__
+typedef struct _LoquiMessageText LoquiMessageText;
+#endif
+
+#include <libloqui/loqui-message-text.h>
+
+%}
+
+%{
+#include <libloqui/libloqui-intl.h>
+
+#include "loqui-utils.h"
+%}
+
+class Loqui:Message:Text:Region from G:Object
+{
+	public gint start_pos;
+	public gint end_pos;
+	public Loqui:Message:Text *msgtext = NULL unref {
+		self_set_message_text(SELF(obj_self), NULL);
+	};
+
+	property INT start_pos (
+                nick = _("start_pos"),
+                blurb = _("Start Position"),
+                export, link);
+
+	property INT end_pos (
+		nick = _("end_pos"),
+		blurb = _("End Position"),
+		export, link);
+
+	public Loqui:Message:Text:Region *
+	new(void) {
+		Self *self;
+
+		self = GET_NEW;
+		return self;
+	}
+
+	public Loqui:Message:Text *
+	get_message_text(self) {
+		return self->msgtext;
+	}
+
+	public void
+	set_message_text(self, LoquiMessageText *msgtext) {
+		if (self->msgtext) {
+			g_object_remove_weak_pointer(G_OBJECT(self->msgtext), (gpointer *) &self->msgtext);
+			self->msgtext = NULL;
+		}
+		if (msgtext) {
+			self->msgtext = msgtext;
+			g_object_add_weak_pointer(G_OBJECT(self->msgtext), (gpointer) &self->msgtext);
+		}
+	}
+
+	public void
+	set_region(self, Loqui:Message:Text *msgtext, gint start, gint end) {
+		self_set_message_text(self, msgtext);
+		self_set_start_pos(self, start);
+		self_set_end_pos(self, end);
+	}
+
+	public void
+	set_region_offset(self, Loqui:Message:Text *msgtext, gint start, gint offset) {
+		self_set_message_text(self, msgtext);
+		self_set_start_pos(self, start);
+		self_set_end_pos(self, start + offset);
+	}
+
+	public Loqui:Message:Text:Region *
+	create(Loqui:Message:Text *msgtext, gint start, gint end) {
+		Self *self;
+		self = self_new();
+		self_set_region(self, msgtext, start, end);
+
+		return self;
+	}
+
+	public Loqui:Message:Text:Region *
+	create_from_offset(Loqui:Message:Text *msgtext, gint start, gint offset) {
+		Self *self;
+		self = self_new();
+		self_set_region_offset(self, msgtext, start, offset);
+
+		return self;
+	}
+}
