@@ -1,0 +1,97 @@
+requires 2.0.0
+%alltop{
+/*
+ * Loqui -- Chat/IM client for Gtk2 <http://loqui.good-day.net/>
+ * Copyright (C) 2005 Yoichi Imai <yoichi@silver-forest.com>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+ */
+%}
+
+%h{
+#include <gtk/gtk.h>
+
+#include <libloqui/loqui-notifier.h>
+%}
+
+%{
+#include <glib/gi18n.h>
+
+#include <libloqui/loqui-utils.h>
+#include <loqui.h>
+
+#include <libloqui/loqui-general-pref-default.h>
+#include <libloqui/loqui-general-pref-groups.h>
+#include "loqui-general-pref-gtk-groups.h"
+#include "loqui-general-pref-gtk-default.h"
+
+#include "gtkutils.h"
+#include "loqui-core-gtk.h"
+%}
+
+class Loqui:Notifier:Gtk from Loqui:Notifier
+{
+	public Loqui:Notifier:Gtk *
+	new(void) {
+		Self *self;
+
+		self = GET_NEW;
+		
+		return self;
+	}
+
+	private void
+	exec_notification(self, LoquiMessageText *msgtext) {
+		gchar *notification_command;
+		notification_command = loqui_pref_get_with_default_string(loqui_get_general_pref(),
+									  LOQUI_GENERAL_PREF_GTK_GROUP_COMMANDS, "NotificationCommand",
+									  LOQUI_GENERAL_PREF_GTK_DEFAULT_COMMANDS_NOTIFICATION_COMMAND, NULL);
+
+		if (notification_command && strlen(notification_command) > 0) {
+			gtkutils_exec_command_with_error_dialog(notification_command);
+		}
+		g_free(notification_command);
+	}
+
+	override (Loqui:Notifier)
+	void
+	notify_highlight(LoquiNotifier *notifier, LoquiMessageText *msgtext) {
+		Self *self;
+		LoquiApp *app;
+
+		self = SELF(notifier);
+
+		PARENT_HANDLER(notifier, msgtext);
+
+		if (loqui_message_text_get_exec_notification(msgtext) &&
+		    loqui_message_text_get_is_remark(msgtext) &&
+		    msgtext->highlight_region_list &&
+		    loqui_pref_get_with_default_boolean(loqui_get_general_pref(),
+							LOQUI_GENERAL_PREF_GROUP_NOTIFICATION, "UseNotification",
+							LOQUI_GENERAL_PREF_DEFAULT_NOTIFICATION_USE_NOTIFICATION, NULL))
+			self_exec_notification(self, msgtext);
+
+		app = loqui_core_gtk_get_app(LOQUI_CORE_GTK(loqui_get_core()));
+
+		if (loqui_message_text_get_exec_notification(msgtext) &&
+		    loqui_message_text_get_is_remark(msgtext)) {
+			loqui_tray_icon_blink(app->tray_icon);
+			if (!loqui_app_has_toplevel_focus(app))
+				loqui_tray_icon_set_hilighted(app->tray_icon, TRUE);
+		}
+
+		loqui_message_text_set_exec_notification(msgtext, FALSE);
+	}
+}

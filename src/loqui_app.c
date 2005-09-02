@@ -124,8 +124,6 @@ static void loqui_app_channel_text_view_scrolled_to_end_cb(LoquiChannelTextView 
 static void loqui_app_channel_text_view_notify_is_scroll_cb(LoquiChannelTextView *chview, GParamSpec *pspec, LoquiApp *app);
 static void loqui_app_channel_text_view_notify_is_scroll_common_buffer_cb(LoquiChannelTextView *chview, GParamSpec *pspec, LoquiApp *app);
 
-static void loqui_app_channel_entry_notify_has_unread_keyword_cb(LoquiChannelEntry *chent, GParamSpec *pspec, gpointer data);
-
 static void loqui_app_channel_entry_append_message_text_after_cb(LoquiChannelEntry *chent, LoquiMessageText *msgtext, LoquiApp *app);
 
 static void loqui_app_append_log(LoquiApp *app, LoquiMessageText *msgtext);
@@ -1074,8 +1072,6 @@ loqui_app_channel_entry_added_after(LoquiApp *app, LoquiChannelEntry *chent)
 
 	loqui_app_info_channel_entry_added(app->appinfo, chent);
 
-	g_signal_connect(G_OBJECT(chent), "notify::has-unread-keyword",
-			 G_CALLBACK(loqui_app_channel_entry_notify_has_unread_keyword_cb), app);
 	g_signal_connect_after(G_OBJECT(chent), "append-message-text",
 			       G_CALLBACK(loqui_app_channel_entry_append_message_text_after_cb), app);
 }
@@ -1100,8 +1096,6 @@ loqui_app_channel_entry_removed(LoquiApp *app, LoquiChannelEntry *chent)
 
 	store = g_object_get_data(G_OBJECT(chent), CHANNEL_ENTRY_STORE_KEY);
 	g_object_unref(store);
-
-	g_signal_handlers_disconnect_by_func(chent, loqui_app_channel_entry_notify_has_unread_keyword_cb, app);
 }
 static void
 loqui_app_add_account_after_cb(LoquiAccountManager *manager, LoquiAccount *account, LoquiApp *app)
@@ -1193,32 +1187,10 @@ loqui_app_remove_channel_cb(LoquiAccount *account, LoquiChannel *channel, LoquiA
 	loqui_app_info_channel_removed(app->appinfo, channel);
 }
 static void
-loqui_app_channel_entry_notify_has_unread_keyword_cb(LoquiChannelEntry *chent, GParamSpec *pspec, gpointer data)
-{
-	LoquiApp *app;
-	LoquiAppPrivate *priv;
-
-        g_return_if_fail(data != NULL);
-        g_return_if_fail(LOQUI_IS_APP(data));
-
-	app = LOQUI_APP(data);
-	priv = app->priv;
-
-	if (!loqui_channel_entry_get_has_unread_keyword(chent))
-		return;
-
-	loqui_tray_icon_blink(app->tray_icon);
-
-	if (!loqui_app_has_toplevel_focus(app))
-		loqui_tray_icon_set_hilighted(app->tray_icon, TRUE);
-}
-static void
 loqui_app_channel_entry_append_message_text_after_cb(LoquiChannelEntry *chent, LoquiMessageText *msgtext, LoquiApp *app)
 {
 	LoquiAppPrivate *priv;
 	GtkWidget *chview;
-	gboolean matched;
-	gchar *notification_command;
 
         g_return_if_fail(app != NULL);
         g_return_if_fail(LOQUI_IS_APP(app));
@@ -1233,26 +1205,13 @@ loqui_app_channel_entry_append_message_text_after_cb(LoquiChannelEntry *chent, L
 						LOQUI_GENERAL_PREF_GTK_DEFAULT_GENERAL_SAVE_LOG, NULL))
 		loqui_app_append_log(app, msgtext);
 
-	notification_command = loqui_pref_get_with_default_string(loqui_get_general_pref(),
-								  LOQUI_GENERAL_PREF_GTK_GROUP_COMMANDS, "NotificationCommand",
-								  LOQUI_GENERAL_PREF_GTK_DEFAULT_COMMANDS_NOTIFICATION_COMMAND, NULL);
-	if (loqui_message_text_get_exec_notification(msgtext) &&
-	    loqui_message_text_get_is_remark(msgtext) &&
-	    loqui_pref_get_with_default_boolean(loqui_get_general_pref(),
-						LOQUI_GENERAL_PREF_GROUP_NOTIFICATION, "UseNotification",
-						LOQUI_GENERAL_PREF_DEFAULT_NOTIFICATION_USE_NOTIFICATION, NULL) &&
-	    notification_command && strlen(notification_command) > 0) {
-		if (msgtext->highlight_region_list) {
-			loqui_channel_entry_set_has_unread_keyword(chent, TRUE);
-			gtkutils_exec_command_with_error_dialog(notification_command);
-		}
+	if (msgtext->highlight_region_list &&
+	    loqui_message_text_get_exec_notification(msgtext)) {
+		loqui_channel_entry_set_has_unread_keyword(chent, TRUE);
 	}
-	g_free(notification_command);
 
-	loqui_message_text_set_exec_notification(msgtext, FALSE);
 	chview = loqui_app_get_current_channel_text_view(app);
-	if (chview &&
-	    loqui_channel_text_view_get_is_scroll(LOQUI_CHANNEL_TEXT_VIEW(chview)) &&
+	if (chview && loqui_channel_text_view_get_is_scroll(LOQUI_CHANNEL_TEXT_VIEW(chview)) &&
 	    app->current_channel_entry != NULL &&
 	    loqui_channel_entry_get_buffer(chent) == loqui_channel_entry_get_buffer(app->current_channel_entry))
 		return;

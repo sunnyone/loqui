@@ -64,7 +64,7 @@ requires 2.0.0
 
 #include "loqui_stock.h"
 #include "prefs_general_upgrader.h"
-
+#include "loqui-notifier-gtk.h"
 %}
 
 class Loqui:Core:Gtk from Loqui:Core
@@ -91,6 +91,7 @@ class Loqui:Core:Gtk from Loqui:Core
 		/* loqui_protocol_manager_register(self->protocol_manager, loqui_protocol_msn_get()); */
 
 		self->account_manager = loqui_account_manager_new(self->protocol_manager);
+		loqui_core_set_notifier(LOQUI_CORE(self), LOQUI_NOTIFIER(loqui_notifier_gtk_new()));
 	}
 /*
 	override (Loqui:Core) void initialize(Loqui:Core *self (check null type)) {
@@ -258,5 +259,10 @@ class Loqui:Core:Gtk from Loqui:Core
 		self_save_accelmap(self);
 
 		self_save_general_pref(self);
+	}
+
+	public Loqui:App *
+	get_app(self) {
+		return self->app;
 	}
 }
