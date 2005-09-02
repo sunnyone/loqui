@@ -125,7 +125,15 @@ class Loqui:Core from G:Object
 	public LoquiPref *get_general_pref(self) {
 		return self->general_pref;
 	}
-	public LoquiNotification *get_notification(self) {
+
+	public void
+	set_notification(self, Loqui:Notification *notification (check type null)) {
+		LOQUI_G_OBJECT_UNREF_UNLESS_NULL(self->notification);
+		self->notification = g_object_ref(notification);
+	}
+
+	public LoquiNotification *
+	get_notification(self) {
 		return self->notification;
 	}
 }
