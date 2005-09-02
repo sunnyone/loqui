@@ -1256,7 +1256,7 @@ loqui_app_channel_entry_append_message_text_cb(LoquiChannelEntry *chent, LoquiMe
 		if (highlight_array) {
 			for (i = 0; (word = highlight_array[i]) != NULL; i++) {
 				if ((tmp = strstr(remark, word)) != NULL) {
-					loqui_message_text_region_create_from_offset(msgtext, tmp - remark, word);
+					loqui_message_text_region_create_from_offset(msgtext, tmp - remark, strlen(word));
 					msgtext->highlight_region_list = g_list_append(msgtext->highlight_region_list, region);
 					
 					matched = TRUE;
