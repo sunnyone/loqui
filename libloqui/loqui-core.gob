@@ -31,7 +31,8 @@ requires 2.0.0
 #include "gnet.h"
 %}
 %h{
-#include "loqui-pref.h"
+#include <libloqui/loqui-pref.h>
+#include <libloqui/loqui-notification.h>
 %}
 
 class Loqui:Core from G:Object
@@ -42,6 +43,8 @@ class Loqui:Core from G:Object
 	public gchar *user_dir = NULL
 	   unrefwith g_free;
 	public LoquiPref *general_pref = { loqui_pref_new(); }
+	   unrefwith g_object_unref;
+	public LoquiNotification *notification = { loqui_notification_new(); }
 	   unrefwith g_object_unref;
 
 	init(self) {
@@ -121,5 +124,8 @@ class Loqui:Core from G:Object
 
 	public LoquiPref *get_general_pref(self) {
 		return self->general_pref;
+	}
+	public LoquiNotification *get_notification(self) {
+		return self->notification;
 	}
 }

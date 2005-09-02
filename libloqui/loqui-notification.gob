@@ -1,0 +1,80 @@
+requires 2.0.0
+
+%alltop{
+/*
+ * libloqui -- Chat/IM client library for GLib <http://loqui.good-day.net/>
+ * Copyright (C) 2004 Yoichi Imai <yoichi@silver-forest.com>
+ *
+ * This Library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Library General Public License as
+ * published by the Free Software Foundation; either version 2 of the
+ * License, or (at your option) any later version.
+ *
+ * This Library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Library General Public License for more details.
+ *
+ * You should have received a copy of the GNU Library General Public
+ * License along with the Gnome Library; see the file COPYING.LIB.  If not,
+ * write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+ * Boston, MA 02111-1307, USA.
+ */
+%}
+
+%h{
+#include <libloqui/loqui-message-text.h>
+#include <libloqui/loqui-general-pref-groups.h>
+%}
+
+%{
+#include "libloqui-intl.h"
+#include "loqui-utils.h"
+
+#include "loqui-core.h"
+#include "loqui.h"
+%}
+
+class Loqui:Notification from G:Object
+{
+	public LoquiNotification *
+	new(void) {
+		LoquiNotification *ret;
+
+		ret = GET_NEW;
+		return ret;
+	}
+
+	public gboolean
+	search_highlight_regions(self, LoquiMessageText *msgtext) {
+		const gchar *remark;		
+		LoquiMessageTextRegion *region;
+		gchar **highlight_array;
+		gboolean matched;
+		gchar *word;
+		const gchar *tmp;
+		int i;
+
+		matched = FALSE;
+		remark = loqui_message_text_get_text(msgtext);
+		highlight_array = loqui_pref_get_string_list(loqui_get_general_pref(),
+							     LOQUI_GENERAL_PREF_GROUP_NOTIFICATION, "HighlightList", NULL, NULL);
+
+		if (highlight_array == NULL)
+			return FALSE;
+
+		
+		for (i = 0; (word = highlight_array[i]) != NULL; i++) {
+			if ((tmp = strstr(remark, word)) != NULL) {
+				region = loqui_message_text_region_create_from_offset(msgtext, tmp - remark, strlen(word));
+				msgtext->highlight_region_list = g_list_append(msgtext->highlight_region_list, region);
+					
+				matched = TRUE;
+			}
+		}
+		g_strfreev(highlight_array);
+
+		return matched;
+	}
+
+}
