@@ -126,7 +126,7 @@ static void loqui_app_channel_text_view_notify_is_scroll_common_buffer_cb(LoquiC
 
 static void loqui_app_channel_entry_notify_has_unread_keyword_cb(LoquiChannelEntry *chent, GParamSpec *pspec, gpointer data);
 
-static void loqui_app_channel_entry_append_message_text_cb(LoquiChannelEntry *chent, LoquiMessageText *msgtext, LoquiApp *app);
+static void loqui_app_channel_entry_append_message_text_after_cb(LoquiChannelEntry *chent, LoquiMessageText *msgtext, LoquiApp *app);
 
 static void loqui_app_append_log(LoquiApp *app, LoquiMessageText *msgtext);
 
@@ -1076,8 +1076,8 @@ loqui_app_channel_entry_added_after(LoquiApp *app, LoquiChannelEntry *chent)
 
 	g_signal_connect(G_OBJECT(chent), "notify::has-unread-keyword",
 			 G_CALLBACK(loqui_app_channel_entry_notify_has_unread_keyword_cb), app);
-	g_signal_connect(G_OBJECT(chent), "append-message-text",
-			 G_CALLBACK(loqui_app_channel_entry_append_message_text_cb), app);
+	g_signal_connect_after(G_OBJECT(chent), "append-message-text",
+			       G_CALLBACK(loqui_app_channel_entry_append_message_text_after_cb), app);
 }
 static void
 loqui_app_channel_entry_removed(LoquiApp *app, LoquiChannelEntry *chent)
@@ -1092,7 +1092,7 @@ loqui_app_channel_entry_removed(LoquiApp *app, LoquiChannelEntry *chent)
 
 	loqui_app_info_channel_entry_removed(app->appinfo, chent);
 
-	g_signal_handlers_disconnect_by_func(chent, loqui_app_channel_entry_append_message_text_cb, app);
+	g_signal_handlers_disconnect_by_func(chent, loqui_app_channel_entry_append_message_text_after_cb, app);
 
 	chview = g_object_get_data(G_OBJECT(chent), CHANNEL_TEXT_VIEW_KEY);
 	gtk_notebook_remove_page(GTK_NOTEBOOK(app->channel_notebook),
@@ -1213,7 +1213,7 @@ loqui_app_channel_entry_notify_has_unread_keyword_cb(LoquiChannelEntry *chent, G
 		loqui_tray_icon_set_hilighted(app->tray_icon, TRUE);
 }
 static void
-loqui_app_channel_entry_append_message_text_cb(LoquiChannelEntry *chent, LoquiMessageText *msgtext, LoquiApp *app)
+loqui_app_channel_entry_append_message_text_after_cb(LoquiChannelEntry *chent, LoquiMessageText *msgtext, LoquiApp *app)
 {
 	LoquiAppPrivate *priv;
 	GtkWidget *chview;
@@ -1242,9 +1242,7 @@ loqui_app_channel_entry_append_message_text_cb(LoquiChannelEntry *chent, LoquiMe
 						LOQUI_GENERAL_PREF_GROUP_NOTIFICATION, "UseNotification",
 						LOQUI_GENERAL_PREF_DEFAULT_NOTIFICATION_USE_NOTIFICATION, NULL) &&
 	    notification_command && strlen(notification_command) > 0) {
-		matched = loqui_notification_search_highlight_regions(loqui_core_get_notification(loqui_get_core()), msgtext);
-
-		if (matched) {
+		if (msgtext->highlight_region_list) {
 			loqui_channel_entry_set_has_unread_keyword(chent, TRUE);
 			gtkutils_exec_command_with_error_dialog(notification_command);
 		}

@@ -23,6 +23,8 @@
 #include <libloqui-intl.h>
 
 #include "loqui_channel_entry.h"
+#include "loqui-notification.h"
+#include "loqui.h"
 
 enum {
 	SIGNAL_ADD,
@@ -475,6 +477,8 @@ loqui_channel_entry_append_message_text_real(LoquiChannelEntry *chent, LoquiMess
 
 	g_return_if_fail(chent != NULL);
         g_return_if_fail(LOQUI_IS_CHANNEL_ENTRY(chent));
+	
+	loqui_notification_process_message_text(loqui_core_get_notification(loqui_get_core()), msgtext);
 
 	buffer = loqui_channel_entry_get_buffer(chent);
 	if (buffer) {

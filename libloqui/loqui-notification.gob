@@ -45,6 +45,20 @@ class Loqui:Notification from G:Object
 		return ret;
 	}
 
+	/* caution: 'notify' signal is used by GObject. */
+	signal last NONE (OBJECT)
+	void
+	notify_highlight(self, LoquiMessageText *msgtext);
+
+	public void
+	process_message_text(self, LoquiMessageText *msgtext) {
+		gboolean matched;
+
+		matched = self_search_highlight_regions(self, msgtext);
+		if (matched)
+			self_notify_highlight(self, msgtext);
+	}
+
 	public gboolean
 	search_highlight_regions(self, LoquiMessageText *msgtext) {
 		const gchar *remark;		
