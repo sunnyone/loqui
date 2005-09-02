@@ -509,6 +509,13 @@ loqui_utils_free_list_and_elements(GList *list)
 	g_list_free(list);
 }
 
+void
+loqui_utils_free_list_and_elements_unref(GList *list)
+{
+	g_list_foreach(list, (GFunc) g_object_unref, NULL);
+	g_list_free(list);
+}
+
 gchar *
 loqui_utils_url_encode(const gchar *str)
 {
