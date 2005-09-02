@@ -88,7 +88,6 @@ class Loqui:Notifier from G:Object
 			for (cur = remark; (tmp = strstr(cur, word)) != NULL; cur = tmp + len) {
 				region = loqui_message_text_region_create_from_offset(msgtext, tmp - remark, len);
 				msgtext->highlight_region_list = g_list_append(msgtext->highlight_region_list, region);
-				g_print("matched[%d,%d]: %s\n", tmp - remark, len, tmp);
 
 				matched = TRUE;
 			}
