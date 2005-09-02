@@ -56,7 +56,8 @@ class Loqui:Notifier from G:Object
 
 	public virtual void
 	process_message_text(self, LoquiMessageText *msgtext) {
-		if (self_search_highlight_regions(self, msgtext))
+		if (loqui_message_text_get_is_remark(msgtext) &&
+		    self_search_highlight_regions(self, msgtext))
 			self_notify_highlight(self, msgtext);
 
 		if (self_search_uri_regions(self, msgtext))
@@ -70,7 +71,8 @@ class Loqui:Notifier from G:Object
 		gchar **highlight_array;
 		gboolean matched;
 		gchar *word;
-		const gchar *tmp;
+		gsize len;
+		const gchar *tmp, *cur;
 		int i;
 
 		matched = FALSE;
@@ -81,12 +83,13 @@ class Loqui:Notifier from G:Object
 		if (highlight_array == NULL)
 			return FALSE;
 
-		
 		for (i = 0; (word = highlight_array[i]) != NULL; i++) {
-			if ((tmp = strstr(remark, word)) != NULL) {
-				region = loqui_message_text_region_create_from_offset(msgtext, tmp - remark, strlen(word));
+			len = strlen(word);
+			for (cur = remark; (tmp = strstr(cur, word)) != NULL; cur = tmp + len) {
+				region = loqui_message_text_region_create_from_offset(msgtext, tmp - remark, len);
 				msgtext->highlight_region_list = g_list_append(msgtext->highlight_region_list, region);
-				
+				g_print("matched[%d,%d]: %s\n", tmp - remark, len, tmp);
+
 				matched = TRUE;
 			}
 		}

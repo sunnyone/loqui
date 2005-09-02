@@ -129,6 +129,7 @@ class Loqui:Core from G:Object
 	public void
 	set_notifier(self, Loqui:Notifier *notifier (check type null)) {
 		LOQUI_G_OBJECT_UNREF_UNLESS_NULL(self->notifier);
+
 		self->notifier = g_object_ref(notifier);
 	}
 
