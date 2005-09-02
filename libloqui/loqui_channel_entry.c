@@ -23,7 +23,7 @@
 #include <libloqui-intl.h>
 
 #include "loqui_channel_entry.h"
-#include "loqui-notification.h"
+#include "loqui-notifier.h"
 #include "loqui.h"
 
 enum {
