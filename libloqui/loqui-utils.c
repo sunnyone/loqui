@@ -264,16 +264,17 @@ loqui_utils_get_value_list_from_hash(GHashTable *hash_table)
 	return list;
 }
 
-/*
-  Example:
-                              v *start_uri
-  loqui_utils_search_uri("hoge hoge http://hogefuga  aaaa", &got_uri, &start_uri, &end_uri);
-                                            ^*end_uri
-  got_uri = "http://hoge fuga" (malloc'ed)
-*/
+/**
+ * loqui_utils_search_uri:
+ *
+ * @buf: Buffer
+ * @got_uri:  newly-allocated uri string
+ * @start_uri: The position that uri starts.
+ * @end_uri: The position of the next character that uri ends.
+ * @returns: Whether found or not.
+ */
 gboolean
-loqui_utils_search_uri(const gchar *buf, gchar **got_uri,
-		 const gchar **start_uri, const gchar **end_uri)
+loqui_utils_search_uri(const gchar *buf, gchar **got_uri, const gchar **start_uri, const gchar **end_uri)
 {
 	int i;
 	const gchar *tmp = NULL, *tmp_start_uri = NULL, *cur, *prefix = NULL, *used_prefix = NULL;
@@ -300,7 +301,6 @@ loqui_utils_search_uri(const gchar *buf, gchar **got_uri,
 			break;
 		cur++;
 	}
-	cur--;
 
 	if(start_uri != NULL)
 		*start_uri = start_uri_ptr;
