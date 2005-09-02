@@ -6,7 +6,7 @@ INCLUDES = $(GLIB_CFLAGS) $(GNET_CFLAGS) $(EXTRA_WARNING_CFLAGS) -I$(includedir)
 CPPFLAGS = -g -Wall -Wredundant-decls -Wmissing-declarations -Wmissing-prototypes
 
 %.c %.h %-private.h: %.gob
-	gob2 -o $(srcdir) --always-private-header $<
+	gob2 --always-private-header $<
 
 SRC_BASE_UTILITIES = \
 	loqui-utils.c loqui-utils.h \

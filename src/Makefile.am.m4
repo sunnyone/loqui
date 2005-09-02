@@ -3,7 +3,7 @@ include(loqui-am-macros.m4)dnl
 SUBDIRS = icons embedtxt
 
 %.c %.h %-private.h: %.gob
-	gob2 -o $(srcdir) --always-private-header $<
+	gob2 --always-private-header $<
 
 if HAVE_WINDRES
 LOQUI_RES = loqui.res
