@@ -258,15 +258,11 @@ loqui_sender_irc_speak(LoquiSenderIRC *sender, LoquiChannel *channel, const gcha
 	gchar *buf;
 	gchar **array;
 	int i;
-	LoquiMember *member;
-	LoquiUser *user_self;
-	
+
 	buf = g_strdup(text);
 	loqui_utils_remove_return_code(buf); /* remove last return code */
 	array = g_strsplit(buf, "\n", -1);
 	g_free(buf);
-
-	user_self = loqui_account_get_user_self(loqui_sender_get_account(LOQUI_SENDER(sender)));
 
 	for(i = 0; array[i] != NULL; i++) {
 		if(strlen(array[i]) == 0)
@@ -278,9 +274,6 @@ loqui_sender_irc_speak(LoquiSenderIRC *sender, LoquiChannel *channel, const gcha
 			loqui_sender_irc_say_raw(sender, loqui_channel_get_identifier(channel), array[i]);
 	}
 	g_strfreev(array);
-	
-	member = loqui_channel_entry_get_member_by_user(LOQUI_CHANNEL_ENTRY(channel), user_self);
-	loqui_member_set_last_message_time(member, time(NULL));
 }
 static void
 loqui_sender_irc_say(LoquiSender *sender, LoquiChannel *channel, const gchar *text)
@@ -775,6 +768,7 @@ loqui_sender_irc_sent_privmsg_notice(LoquiSenderIRC *sender, IRCMessage *msg)
 	LoquiUser *user_self;
 	gboolean is_notice;
 	gchar *buf;
+	LoquiMember *member;
 
         g_return_if_fail(sender != NULL);
         g_return_if_fail(LOQUI_IS_SENDER_IRC(sender));
@@ -817,6 +811,12 @@ loqui_sender_irc_sent_privmsg_notice(LoquiSenderIRC *sender, IRCMessage *msg)
 	channel = loqui_account_irc_fetch_channel(LOQUI_ACCOUNT_IRC(account), is_self, loqui_user_get_nick(user_self), target);
 
 	loqui_channel_append_remark(channel, type, is_self, loqui_user_get_nick(user_self), remark, FALSE, TRUE);
+
+	member = loqui_channel_entry_get_member_by_user(LOQUI_CHANNEL_ENTRY(channel), user_self);
+	/* You may not have joined to the channel */
+	if (member) {
+		loqui_member_set_last_message_time(member, time(NULL));
+	}
 
 	if (loqui_channel_get_is_private_talk(channel)) {
 		loqui_channel_set_is_joined(channel, TRUE);
