@@ -25,6 +25,13 @@ requires 2.0.0
 %h{
 #include <libloqui/loqui-gobject-utils.h>
 
+#ifndef __TYPEDEF_LOQUI_MESSAGE_TEXT_REGION__
+#define __TYPEDEF_LOQUI_MESSAGE_TEXT_REGION__
+typedef struct _LoquiMessageTextRegion LoquiMessageTextRegion;
+#endif
+
+#include <libloqui/loqui-message-text-region.h>
+
 typedef enum {
         LOQUI_TEXT_TYPE_NORMAL,
         LOQUI_TEXT_TYPE_NOTICE,
@@ -37,12 +44,6 @@ typedef enum {
         LOQUI_TEXT_TYPE_EMPHASIS,
         LOQUI_TEXT_TYPE_TRANSPARENT,
 } LoquiTextType;
-
-/* in bytes */
-typedef struct _LoquiTextRegion {
-        gsize start; /* relative offset */
-        gsize len;
-} LoquiTextRegion;
 %}
 
 %{
@@ -78,8 +79,8 @@ class Loqui:Message:Text from G:Object
         public gboolean exec_notification;
         public gboolean is_ignored = FALSE;
 
-        public GList *highlight_region_list = NULL unrefwith loqui_utils_free_list_and_elements;
-        public GList *uri_region_list = NULL unrefwith loqui_utils_free_list_and_elements;
+        public GList *highlight_region_list = NULL unrefwith loqui_utils_free_list_and_elements_unref;
+        public GList *uri_region_list = NULL unrefwith loqui_utils_free_list_and_elements_unref;
 
 	property STRING text (
 		nick = _("Text"),
