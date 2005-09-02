@@ -70,10 +70,13 @@ class Loqui:Notifier:Gtk from Loqui:Notifier
 	notify_highlight(LoquiNotifier *notifier, LoquiMessageText *msgtext) {
 		Self *self;
 		LoquiApp *app;
+		gboolean exec_notification;
 
 		self = SELF(notifier);
 
 		PARENT_HANDLER(notifier, msgtext);
+
+		exec_notification = FALSE;
 
 		if (loqui_message_text_get_exec_notification(msgtext) &&
 		    loqui_message_text_get_is_remark(msgtext) &&
@@ -81,6 +84,15 @@ class Loqui:Notifier:Gtk from Loqui:Notifier
 		    loqui_pref_get_with_default_boolean(loqui_get_general_pref(),
 							LOQUI_GENERAL_PREF_GROUP_NOTIFICATION, "UseNotification",
 							LOQUI_GENERAL_PREF_DEFAULT_NOTIFICATION_USE_NOTIFICATION, NULL))
+			exec_notification = TRUE;
+
+		if (loqui_message_text_get_text_type(msgtext) == LOQUI_TEXT_TYPE_NOTICE &&
+		    !loqui_pref_get_with_default_boolean(loqui_get_general_pref(),
+							 LOQUI_GENERAL_PREF_GROUP_NOTIFICATION, "ExecNotificationByNotice",
+							 LOQUI_GENERAL_PREF_DEFAULT_NOTIFICATION_EXEC_NOTIFICATION_BY_NOTICE, NULL))
+			exec_notification = FALSE;
+
+		if (exec_notification)
 			self_exec_notification(self, msgtext);
 
 		app = loqui_core_gtk_get_app(LOQUI_CORE_GTK(loqui_get_core()));

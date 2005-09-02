@@ -440,12 +440,6 @@ loqui_channel_append_remark(LoquiChannel *channel, LoquiTextType type, gboolean 
 		is_ignored = loqui_channel_search_patters(LOQUI_GENERAL_PREF_GROUP_IGNORE, "NormalIgnoreList", nick);
 	}
 	
-	if (type == LOQUI_TEXT_TYPE_NOTICE &&
-	    !loqui_pref_get_with_default_boolean(loqui_get_general_pref(),
-						 LOQUI_GENERAL_PREF_GROUP_NOTIFICATION, "ExecNotificationByNotice",
-						 LOQUI_GENERAL_PREF_DEFAULT_NOTIFICATION_EXEC_NOTIFICATION_BY_NOTICE, NULL))
-		exec_notification = FALSE;
-
 	msgtext = loqui_message_text_new();
 	g_object_set(G_OBJECT(msgtext),
 		     "is_remark", TRUE,
