@@ -35,11 +35,11 @@ requires 2.0.0
 #include "loqui.h"
 %}
 
-class Loqui:Notification from G:Object
+class Loqui:Notifier from G:Object
 {
-	public LoquiNotification *
+	public Loqui:Notifier *
 	new(void) {
-		LoquiNotification *ret;
+		LoquiNotifier *ret;
 
 		ret = GET_NEW;
 		return ret;

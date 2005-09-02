@@ -32,7 +32,7 @@ requires 2.0.0
 %}
 %h{
 #include <libloqui/loqui-pref.h>
-#include <libloqui/loqui-notification.h>
+#include <libloqui/loqui-notifier.h>
 %}
 
 class Loqui:Core from G:Object
@@ -44,7 +44,7 @@ class Loqui:Core from G:Object
 	   unrefwith g_free;
 	public LoquiPref *general_pref = { loqui_pref_new(); }
 	   unrefwith g_object_unref;
-	public LoquiNotification *notification = { loqui_notification_new(); }
+	public LoquiNotifier *notifier = { loqui_notifier_new(); }
 	   unrefwith g_object_unref;
 
 	init(self) {
@@ -127,13 +127,13 @@ class Loqui:Core from G:Object
 	}
 
 	public void
-	set_notification(self, Loqui:Notification *notification (check type null)) {
-		LOQUI_G_OBJECT_UNREF_UNLESS_NULL(self->notification);
-		self->notification = g_object_ref(notification);
+	set_notifier(self, Loqui:Notifier *notifier (check type null)) {
+		LOQUI_G_OBJECT_UNREF_UNLESS_NULL(self->notifier);
+		self->notifier = g_object_ref(notifier);
 	}
 
-	public LoquiNotification *
-	get_notification(self) {
-		return self->notification;
+	public LoquiNotifier *
+	get_notifier(self) {
+		return self->notifier;
 	}
 }
