@@ -81,6 +81,11 @@ class Loqui:Message:Text:Region from G:Object
 		}
 	}
 
+	public gint
+	get_offset(self) {
+		return self->end_pos - self->start_pos;
+	}
+
 	public void
 	set_region(self, Loqui:Message:Text *msgtext, gint start, gint end) {
 		self_set_message_text(self, msgtext);
