@@ -57,16 +57,8 @@ static void loqui_channel_buffer_gtk_init(LoquiChannelBufferGtk *channel_buffer)
 static void loqui_channel_buffer_gtk_finalize(GObject *object);
 
 static void loqui_channel_buffer_gtk_append_message_text(LoquiChannelBuffer *buffer_p, LoquiMessageText *msgtext);
-static void loqui_channel_buffer_gtk_text_inserted_cb(GtkTextBuffer *buffer,
-					    GtkTextIter *pos,
-					    const gchar *text,
-					    gint length,
-					    gpointer data);
 
-static void loqui_channel_buffer_gtk_tag_uri(GtkTextBuffer *buffer,
-				   GtkTextIter *iter_in,
-				   const gchar *text);
-
+static void loqui_channel_buffer_gtk_tag_uri(LoquiChannelBufferGtk *buffer, GtkTextIter *iter_in, const gchar *text);
 static void loqui_channel_buffer_gtk_delete_old_lines(LoquiChannelBufferGtk *buffer);
 
 static void loqui_channel_buffer_gtk_load_styles(LoquiChannelBufferGtk *buffer);
@@ -207,7 +199,7 @@ loqui_channel_buffer_gtk_finalize(GObject *object)
 }
 
 static void
-loqui_channel_buffer_gtk_tag_uri(GtkTextBuffer *buffer,
+loqui_channel_buffer_gtk_tag_uri(LoquiChannelBufferGtk *buffer,
 				 GtkTextIter *iter_in,
 				 const gchar *text)
 {
@@ -218,11 +210,6 @@ loqui_channel_buffer_gtk_tag_uri(GtkTextBuffer *buffer,
 
 	cur = text;
 	start_iter = *iter_in;
-	len = g_utf8_strlen(cur, -1);
-	if(!gtk_text_iter_backward_chars(&start_iter, len)) {
-		loqui_debug_puts("Can't backward iter for uri");
-		return;
-	}
 
 	end_iter = start_iter;
 	while(*cur && loqui_utils_search_uri(cur, NULL, &start_uri, &end_uri)) {
@@ -239,7 +226,7 @@ loqui_channel_buffer_gtk_tag_uri(GtkTextBuffer *buffer,
 			break;
 		}
 		
-		gtk_text_buffer_apply_tag_by_name(buffer, "link", &start_iter, &end_iter);
+		gtk_text_buffer_apply_tag_by_name(GTK_TEXT_BUFFER(buffer), "link", &start_iter, &end_iter);
 
 		start_iter = end_iter;
 		cur = end_uri + 1;
@@ -279,28 +266,6 @@ loqui_channel_buffer_gtk_delete_old_lines(LoquiChannelBufferGtk *buffer)
 		}
 	}
 }
-
-static void
-loqui_channel_buffer_gtk_text_inserted_cb(GtkTextBuffer *buffer,
-					  GtkTextIter *pos,
-					  const gchar *text,
-					  gint length,
-					  gpointer data)
-{
-	LoquiChannelBufferGtk *channel_buffer;
-	LoquiChannelBufferGtkPrivate *priv;	
-	GtkTextIter tmp_iter;
-	
-	g_return_if_fail(buffer != NULL);
-	g_return_if_fail(LOQUI_IS_CHANNEL_BUFFER_GTK(buffer));
-	g_return_if_fail(g_utf8_validate(text, -1, NULL));
-	
-	channel_buffer = LOQUI_CHANNEL_BUFFER_GTK(buffer);
-	priv = channel_buffer->priv;
-	
-	tmp_iter = *pos;
-	loqui_channel_buffer_gtk_tag_uri(buffer, &tmp_iter, text);
-}
 LoquiChannelBufferGtk*
 loqui_channel_buffer_gtk_new(LoquiPrefPartial *ppref_channel_buffer)
 {
@@ -322,9 +287,6 @@ loqui_channel_buffer_gtk_new(LoquiPrefPartial *ppref_channel_buffer)
 	gtk_text_buffer_get_start_iter(textbuf, &iter);
 	gtk_text_buffer_create_mark(textbuf, "end", &iter, FALSE);
 	gtk_text_buffer_create_mark(textbuf, "hover", &iter, FALSE);
-
-	g_signal_connect_after(G_OBJECT(textbuf), "insert-text",
-			       G_CALLBACK(loqui_channel_buffer_gtk_text_inserted_cb), NULL);
 
 	loqui_channel_buffer_gtk_load_styles(channel_buffer);
 	loqui_pref_partial_connect__changed_partial(priv->ppref_channel_buffer, loqui_channel_buffer_gtk_ppref_changed_cb, channel_buffer);
@@ -447,6 +409,37 @@ loqui_channel_buffer_gtk_get_tag_name(LoquiChannelBufferGtk *buffer, LoquiTextTy
 	
 	return tag_name;
 }
+
+static void
+loqui_channel_buffer_gtk_tag_highlight_area(LoquiChannelBufferGtk *buffer, LoquiMessageText *msgtext, GtkTextIter *text_start_iter_in)
+{
+	GList *cur;
+	LoquiMessageTextRegion *region;
+	GtkTextIter text_start_iter, region_start_iter, region_end_iter;
+	gint start_pos, offset;
+	const gchar *text;
+
+	text = loqui_message_text_get_text(msgtext);
+	text_start_iter = *text_start_iter_in;
+	for (cur = msgtext->highlight_region_list; cur != NULL; cur = cur->next) {
+		region = LOQUI_MESSAGE_TEXT_REGION(cur->data);
+
+		start_pos = loqui_message_text_region_get_start_pos(region);
+		offset = loqui_message_text_region_get_offset(region);
+
+		region_start_iter = text_start_iter;
+		gtk_text_iter_forward_chars(&region_start_iter, start_pos);
+		
+		region_end_iter = region_start_iter;
+		gtk_text_iter_forward_chars(&region_end_iter, g_utf8_strlen(text + start_pos, offset));
+
+		gtk_text_buffer_apply_tag_by_name(GTK_TEXT_BUFFER(buffer),
+						  "highlight",
+						  &region_start_iter,
+						  &region_end_iter);
+	}
+}
+
 static void
 loqui_channel_buffer_gtk_append_message_text(LoquiChannelBuffer *buffer_p, LoquiMessageText *msgtext)
 {
@@ -454,13 +447,9 @@ loqui_channel_buffer_gtk_append_message_text(LoquiChannelBuffer *buffer_p, Loqui
 	const gchar *text;
 	LoquiTextType type;
 	LoquiChannelBufferGtk *buffer;
-	GtkTextIter iter, text_start_iter, region_start_iter, region_end_iter;
-	gboolean enable_highlight;
+	GtkTextIter iter, text_start_iter;
 	const gchar *tag_name;
-	LoquiMessageTextRegion *region;
-	GList *cur;
 	gsize len;
-	gint start_pos, offset;
 
         g_return_if_fail(buffer_p != NULL);
         g_return_if_fail(LOQUI_IS_CHANNEL_BUFFER_GTK(buffer_p));
@@ -502,23 +491,9 @@ loqui_channel_buffer_gtk_append_message_text(LoquiChannelBuffer *buffer_p, Loqui
 	text_start_iter = iter;
 	gtk_text_iter_backward_chars(&text_start_iter, len);
 
-	enable_highlight = loqui_message_text_get_is_remark(msgtext);
-	for (cur = msgtext->highlight_region_list; cur != NULL; cur = cur->next) {
-		region = LOQUI_MESSAGE_TEXT_REGION(cur->data);
-		
-		start_pos = loqui_message_text_region_get_start_pos(region);
-		offset = loqui_message_text_region_get_offset(region);
-
-		region_start_iter = text_start_iter;
-		gtk_text_iter_forward_chars(&region_start_iter, start_pos);
-		
-		region_end_iter = region_start_iter;
-		gtk_text_iter_forward_chars(&region_end_iter, g_utf8_strlen(text + start_pos, offset));
-
-		gtk_text_buffer_apply_tag_by_name(GTK_TEXT_BUFFER(buffer),
-						  "highlight",
-						  &region_start_iter,
-						  &region_end_iter);
+	loqui_channel_buffer_gtk_tag_uri(buffer, &text_start_iter, text);
+	if (loqui_message_text_get_is_remark(msgtext)) {
+		loqui_channel_buffer_gtk_tag_highlight_area(buffer, msgtext, &text_start_iter);
 	}
 
 	gtk_text_buffer_insert(GTK_TEXT_BUFFER(buffer), &iter, "\n", -1);
