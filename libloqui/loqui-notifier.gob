@@ -50,18 +50,22 @@ class Loqui:Notifier from G:Object
 	void
 	notify_highlight(self, LoquiMessageText *msgtext);
 
-	public void
-	process_message_text(self, LoquiMessageText *msgtext) {
-		gboolean matched;
+	signal last NONE (OBJECT)
+	void
+	notify_uri(self, LoquiMessageText *msgtext);
 
-		matched = self_search_highlight_regions(self, msgtext);
-		if (matched)
+	public virtual void
+	process_message_text(self, LoquiMessageText *msgtext) {
+		if (self_search_highlight_regions(self, msgtext))
 			self_notify_highlight(self, msgtext);
+
+		if (self_search_uri_regions(self, msgtext))
+			self_notify_uri(self, msgtext);
 	}
 
 	public gboolean
 	search_highlight_regions(self, LoquiMessageText *msgtext) {
-		const gchar *remark;		
+		const gchar *remark;
 		LoquiMessageTextRegion *region;
 		gchar **highlight_array;
 		gboolean matched;
@@ -82,7 +86,7 @@ class Loqui:Notifier from G:Object
 			if ((tmp = strstr(remark, word)) != NULL) {
 				region = loqui_message_text_region_create_from_offset(msgtext, tmp - remark, strlen(word));
 				msgtext->highlight_region_list = g_list_append(msgtext->highlight_region_list, region);
-					
+				
 				matched = TRUE;
 			}
 		}
@@ -91,4 +95,26 @@ class Loqui:Notifier from G:Object
 		return matched;
 	}
 
+	
+	public gboolean
+	search_uri_regions(self, LoquiMessageText *msgtext) {
+		const gchar *text;
+		const gchar *cur;
+		const gchar *start_uri, *end_uri;
+		LoquiMessageTextRegion *region;
+		gboolean matched = FALSE;
+
+		text = loqui_message_text_get_text(msgtext);
+		cur = text;
+
+		while (*cur && loqui_utils_search_uri(cur, NULL, &start_uri, &end_uri)) {
+			region = loqui_message_text_region_create(msgtext, start_uri - cur, end_uri - cur);
+			msgtext->uri_region_list = g_list_append(msgtext->uri_region_list, region);
+
+			matched = TRUE;
+			cur = end_uri;
+		}
+
+		return matched;
+	}
 }

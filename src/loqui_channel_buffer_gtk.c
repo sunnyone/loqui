@@ -57,8 +57,6 @@ static void loqui_channel_buffer_gtk_init(LoquiChannelBufferGtk *channel_buffer)
 static void loqui_channel_buffer_gtk_finalize(GObject *object);
 
 static void loqui_channel_buffer_gtk_append_message_text(LoquiChannelBuffer *buffer_p, LoquiMessageText *msgtext);
-
-static void loqui_channel_buffer_gtk_tag_uri(LoquiChannelBufferGtk *buffer, GtkTextIter *iter_in, const gchar *text);
 static void loqui_channel_buffer_gtk_delete_old_lines(LoquiChannelBufferGtk *buffer);
 
 static void loqui_channel_buffer_gtk_load_styles(LoquiChannelBufferGtk *buffer);
@@ -197,42 +195,6 @@ loqui_channel_buffer_gtk_finalize(GObject *object)
 
 	g_free(channel_buffer->priv);
 }
-
-static void
-loqui_channel_buffer_gtk_tag_uri(LoquiChannelBufferGtk *buffer,
-				 GtkTextIter *iter_in,
-				 const gchar *text)
-{
-	GtkTextIter start_iter, end_iter;
-	const gchar *cur;
-	glong len;
-	const gchar *start_uri, *end_uri;
-
-	cur = text;
-	start_iter = *iter_in;
-
-	end_iter = start_iter;
-	while(*cur && loqui_utils_search_uri(cur, NULL, &start_uri, &end_uri)) {
-		len = g_utf8_strlen(cur, start_uri - cur);
-		if(len > 0 && !gtk_text_iter_forward_chars(&start_iter, len)) {
-			loqui_debug_puts("Can't forward iter to start_uri");
-			break;
-		}
-
-		end_iter = start_iter;
-		len = g_utf8_strlen(start_uri, end_uri - start_uri + 1);
-		if(len > 0 && !gtk_text_iter_forward_chars(&end_iter, len)) {
-			loqui_debug_puts("Can't forward iter to end_uri");
-			break;
-		}
-		
-		gtk_text_buffer_apply_tag_by_name(GTK_TEXT_BUFFER(buffer), "link", &start_iter, &end_iter);
-
-		start_iter = end_iter;
-		cur = end_uri + 1;
-	}
-}
-
 static void
 loqui_channel_buffer_gtk_delete_old_lines(LoquiChannelBufferGtk *buffer)
 {
@@ -411,17 +373,16 @@ loqui_channel_buffer_gtk_get_tag_name(LoquiChannelBufferGtk *buffer, LoquiTextTy
 }
 
 static void
-loqui_channel_buffer_gtk_tag_highlight_area(LoquiChannelBufferGtk *buffer, LoquiMessageText *msgtext, GtkTextIter *text_start_iter_in)
+loqui_channel_buffer_gtk_tag_regions(LoquiChannelBufferGtk *buffer, GtkTextIter *text_start_iter_in, GtkTextTag *tag,
+				     const gchar *text, GList *region_list)
 {
 	GList *cur;
 	LoquiMessageTextRegion *region;
 	GtkTextIter text_start_iter, region_start_iter, region_end_iter;
 	gint start_pos, offset;
-	const gchar *text;
 
-	text = loqui_message_text_get_text(msgtext);
 	text_start_iter = *text_start_iter_in;
-	for (cur = msgtext->highlight_region_list; cur != NULL; cur = cur->next) {
+	for (cur = region_list; cur != NULL; cur = cur->next) {
 		region = LOQUI_MESSAGE_TEXT_REGION(cur->data);
 
 		start_pos = loqui_message_text_region_get_start_pos(region);
@@ -433,10 +394,7 @@ loqui_channel_buffer_gtk_tag_highlight_area(LoquiChannelBufferGtk *buffer, Loqui
 		region_end_iter = region_start_iter;
 		gtk_text_iter_forward_chars(&region_end_iter, g_utf8_strlen(text + start_pos, offset));
 
-		gtk_text_buffer_apply_tag_by_name(GTK_TEXT_BUFFER(buffer),
-						  "highlight",
-						  &region_start_iter,
-						  &region_end_iter);
+		gtk_text_buffer_apply_tag(GTK_TEXT_BUFFER(buffer), tag, &region_start_iter, &region_end_iter);
 	}
 }
 
@@ -491,9 +449,13 @@ loqui_channel_buffer_gtk_append_message_text(LoquiChannelBuffer *buffer_p, Loqui
 	text_start_iter = iter;
 	gtk_text_iter_backward_chars(&text_start_iter, len);
 
-	loqui_channel_buffer_gtk_tag_uri(buffer, &text_start_iter, text);
+	loqui_channel_buffer_gtk_tag_regions(buffer, &text_start_iter,
+					     gtk_text_tag_table_lookup(gtk_text_buffer_get_tag_table(GTK_TEXT_BUFFER(buffer)), "link"),
+					     text, msgtext->uri_region_list);
 	if (loqui_message_text_get_is_remark(msgtext)) {
-		loqui_channel_buffer_gtk_tag_highlight_area(buffer, msgtext, &text_start_iter);
+		loqui_channel_buffer_gtk_tag_regions(buffer, &text_start_iter,
+						     gtk_text_tag_table_lookup(gtk_text_buffer_get_tag_table(GTK_TEXT_BUFFER(buffer)), "highlight"),
+						     text, msgtext->highlight_region_list);
 	}
 
 	gtk_text_buffer_insert(GTK_TEXT_BUFFER(buffer), &iter, "\n", -1);
