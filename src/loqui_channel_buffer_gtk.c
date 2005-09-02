@@ -389,7 +389,7 @@ loqui_channel_buffer_gtk_tag_regions(LoquiChannelBufferGtk *buffer, GtkTextIter 
 		offset = loqui_message_text_region_get_offset(region);
 
 		region_start_iter = text_start_iter;
-		gtk_text_iter_forward_chars(&region_start_iter, start_pos);
+		gtk_text_iter_forward_chars(&region_start_iter, g_utf8_strlen(text, start_pos));
 		
 		region_end_iter = region_start_iter;
 		gtk_text_iter_forward_chars(&region_end_iter, g_utf8_strlen(text + start_pos, offset));
