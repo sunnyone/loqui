@@ -49,17 +49,12 @@ static GtkTextBufferClass *parent_class = NULL;
 
 static GtkTextTagTable *default_tag_table;
 
-static GtkTextTag *highlight_area_tag;
-
 /* static guint loqui_channel_buffer_gtk_signals[LAST_SIGNAL] = { 0 }; */
 
 static void loqui_channel_buffer_gtk_interface_buffer_init(LoquiChannelBufferIface *iface);
 static void loqui_channel_buffer_gtk_class_init(LoquiChannelBufferGtkClass *klass);
 static void loqui_channel_buffer_gtk_init(LoquiChannelBufferGtk *channel_buffer);
 static void loqui_channel_buffer_gtk_finalize(GObject *object);
-
-static void loqui_channel_buffer_gtk_append(LoquiChannelBufferGtk *buffer, LoquiTextType type, gchar *str,
-					    gboolean enable_highlight);
 
 static void loqui_channel_buffer_gtk_append_message_text(LoquiChannelBuffer *buffer_p, LoquiMessageText *msgtext);
 static void loqui_channel_buffer_gtk_text_inserted_cb(GtkTextBuffer *buffer,
@@ -72,11 +67,6 @@ static void loqui_channel_buffer_gtk_tag_uri(GtkTextBuffer *buffer,
 				   GtkTextIter *iter_in,
 				   const gchar *text);
 
-static void loqui_channel_buffer_gtk_apply_tag_cb(GtkTextBuffer *buffer,
-					GtkTextTag *tag,
-					GtkTextIter *start,
-					GtkTextIter *end,
-					gpointer user_data);
 static void loqui_channel_buffer_gtk_delete_old_lines(LoquiChannelBufferGtk *buffer);
 
 static void loqui_channel_buffer_gtk_load_styles(LoquiChannelBufferGtk *buffer);
@@ -163,9 +153,6 @@ loqui_channel_buffer_gtk_init_tags(void)
 	tag = gtk_text_tag_new("highlight");
 	g_object_set(tag, "weight", PANGO_WEIGHT_BOLD, NULL);
 	gtk_text_tag_table_add(default_tag_table, tag);
-
-	highlight_area_tag = gtk_text_tag_new("highlight-area");
-	gtk_text_tag_table_add(default_tag_table, highlight_area_tag);
 }
 
 static void
@@ -217,54 +204,6 @@ loqui_channel_buffer_gtk_finalize(GObject *object)
                 (* G_OBJECT_CLASS(parent_class)->finalize) (object);
 
 	g_free(channel_buffer->priv);
-}
-static void
-loqui_channel_buffer_gtk_apply_tag_cb(GtkTextBuffer *buffer,
-				      GtkTextTag *tag,
-				      GtkTextIter *start,
-				      GtkTextIter *end,
-				      gpointer user_data)
-{
-	LoquiChannelBufferGtk *channel_buffer;
-	LoquiChannelBufferGtkPrivate *priv;
-	GtkTextIter tmp_start, tmp_end;
-	GtkTextIter region_start, region_end;
-	gboolean matched = FALSE;
-	gchar *word;
-	gchar **highlight_array;
-	int i;
-
-	channel_buffer = LOQUI_CHANNEL_BUFFER_GTK(buffer);
-	priv = channel_buffer->priv;
-
-	if(tag != highlight_area_tag)
-		return;
-
-	tmp_end = *end;
-	highlight_array = loqui_pref_get_string_list(loqui_get_general_pref(),
-						     LOQUI_GENERAL_PREF_GROUP_NOTIFICATION, "HighlightList", NULL, NULL);
-	if (highlight_array) {
-		for(i = 0; (word = highlight_array[i]) != NULL; i++) {
-			tmp_start = *start;
-			while(gtk_text_iter_forward_search(&tmp_start,
-							   word,
-							   GTK_TEXT_SEARCH_VISIBLE_ONLY,
-							   &region_start,
-							   &region_end,
-							   &tmp_end)) {
-				gtk_text_buffer_apply_tag_by_name(buffer,
-								  "highlight",
-								  &region_start,
-								  &region_end);
-				tmp_start = region_end;
-				matched = TRUE;
-			}
-		}
-		g_strfreev(highlight_array);
-	}
-
-	gtk_text_buffer_remove_tag(buffer, tag,
-				   start, end);
 }
 
 static void
@@ -386,8 +325,6 @@ loqui_channel_buffer_gtk_new(LoquiPrefPartial *ppref_channel_buffer)
 
 	g_signal_connect_after(G_OBJECT(textbuf), "insert-text",
 			       G_CALLBACK(loqui_channel_buffer_gtk_text_inserted_cb), NULL);
-	g_signal_connect_after(G_OBJECT(textbuf), "apply-tag",
-			       G_CALLBACK(loqui_channel_buffer_gtk_apply_tag_cb), NULL);
 
 	loqui_channel_buffer_gtk_load_styles(channel_buffer);
 	loqui_pref_partial_connect__changed_partial(priv->ppref_channel_buffer, loqui_channel_buffer_gtk_ppref_changed_cb, channel_buffer);
@@ -511,30 +448,19 @@ loqui_channel_buffer_gtk_get_tag_name(LoquiChannelBufferGtk *buffer, LoquiTextTy
 	return tag_name;
 }
 static void
-loqui_channel_buffer_gtk_append(LoquiChannelBufferGtk *buffer, LoquiTextType type, gchar *str, gboolean enable_highlight)
-{
-	GtkTextIter iter;
-	const gchar *tag_name;
-	gchar *highlight;
-
-        g_return_if_fail(buffer != NULL);
-        g_return_if_fail(LOQUI_IS_CHANNEL_BUFFER_GTK(buffer));
-
-	gtk_text_buffer_get_end_iter(GTK_TEXT_BUFFER(buffer), &iter);
-
-	tag_name = loqui_channel_buffer_gtk_get_tag_name(buffer, type);
-	highlight = enable_highlight ? "highlight-area" : NULL;
-
-	gtk_text_buffer_insert_with_tags_by_name(GTK_TEXT_BUFFER(buffer), &iter, str, -1, 
-						 tag_name, highlight, NULL);
-}
-static void
 loqui_channel_buffer_gtk_append_message_text(LoquiChannelBuffer *buffer_p, LoquiMessageText *msgtext)
 {
 	gchar *buf;
+	const gchar *text;
 	LoquiTextType type;
 	LoquiChannelBufferGtk *buffer;
-	GtkTextIter iter;
+	GtkTextIter iter, text_start_iter, region_start_iter, region_end_iter;
+	gboolean enable_highlight;
+	const gchar *tag_name;
+	LoquiMessageTextRegion *region;
+	GList *cur;
+	gsize len;
+	gint start_pos, offset;
 
         g_return_if_fail(buffer_p != NULL);
         g_return_if_fail(LOQUI_IS_CHANNEL_BUFFER_GTK(buffer_p));
@@ -554,25 +480,48 @@ loqui_channel_buffer_gtk_append_message_text(LoquiChannelBuffer *buffer_p, Loqui
 	}
 	
 	type = loqui_message_text_get_text_type(msgtext);
+	tag_name = loqui_channel_buffer_gtk_get_tag_name(buffer, type);
 
 	if (loqui_channel_buffer_gtk_get_show_account_name(buffer) &&
 	    loqui_message_text_get_account_name(msgtext)) {
 		buf = g_strdup_printf("[%s] ", loqui_message_text_get_account_name(msgtext));
-		loqui_channel_buffer_gtk_append(buffer, type, buf, FALSE);
+		gtk_text_buffer_insert_with_tags_by_name(GTK_TEXT_BUFFER(buffer), &iter, buf, -1, tag_name, NULL);
 		g_free(buf);
 	}
 
 	if(loqui_message_text_get_is_remark(msgtext)) {
 		buf = loqui_message_text_get_nick_string(msgtext, loqui_channel_buffer_gtk_get_show_channel_name(buffer));
-		loqui_channel_buffer_gtk_append(buffer, type, buf, FALSE);
+		gtk_text_buffer_insert_with_tags_by_name(GTK_TEXT_BUFFER(buffer), &iter, buf, -1, tag_name, NULL);
 		g_free(buf);
 	}
 
-	buf = g_strdup_printf("%s\n", loqui_message_text_get_text(msgtext));
-	loqui_channel_buffer_gtk_append(buffer, type, buf,
-					loqui_message_text_get_is_remark(msgtext));
-	g_free(buf);
+	text = loqui_message_text_get_text(msgtext);
+	len = g_utf8_strlen(text, -1);
+	gtk_text_buffer_insert_with_tags_by_name(GTK_TEXT_BUFFER(buffer), &iter, text, -1, tag_name, NULL);
 
+	text_start_iter = iter;
+	gtk_text_iter_backward_chars(&text_start_iter, len);
+
+	enable_highlight = loqui_message_text_get_is_remark(msgtext);
+	for (cur = msgtext->highlight_region_list; cur != NULL; cur = cur->next) {
+		region = LOQUI_MESSAGE_TEXT_REGION(cur->data);
+		
+		start_pos = loqui_message_text_region_get_start_pos(region);
+		offset = loqui_message_text_region_get_offset(region);
+
+		region_start_iter = text_start_iter;
+		gtk_text_iter_forward_chars(&region_start_iter, start_pos);
+		
+		region_end_iter = region_start_iter;
+		gtk_text_iter_forward_chars(&region_end_iter, g_utf8_strlen(text + start_pos, offset));
+
+		gtk_text_buffer_apply_tag_by_name(GTK_TEXT_BUFFER(buffer),
+						  "highlight",
+						  &region_start_iter,
+						  &region_end_iter);
+	}
+
+	gtk_text_buffer_insert(GTK_TEXT_BUFFER(buffer), &iter, "\n", -1);
 	loqui_channel_buffer_gtk_delete_old_lines(buffer);
 }
 /* FIXME: this should do with max_line_number */
