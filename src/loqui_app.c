@@ -58,8 +58,8 @@
 #include <time.h>
 
 #include <loqui.h>
-#include <loqui-general-pref-default.h>
-#include <loqui-general-pref-groups.h>
+#include <libloqui/loqui-general-pref-default.h>
+#include <libloqui/loqui-general-pref-groups.h>
 #include "loqui-general-pref-gtk-groups.h"
 #include "loqui-general-pref-gtk-default.h"
 
@@ -1218,13 +1218,7 @@ loqui_app_channel_entry_append_message_text_cb(LoquiChannelEntry *chent, LoquiMe
 	LoquiAppPrivate *priv;
 	GtkWidget *chview;
 	gboolean matched;
-	gchar *word;
-	const gchar *remark;
-	gchar *tmp;
-	LoquiMessageTextRegion *region;
 	gchar *notification_command;
-	gchar **highlight_array;
-	int i;
 
         g_return_if_fail(app != NULL);
         g_return_if_fail(LOQUI_IS_APP(app));
@@ -1248,22 +1242,7 @@ loqui_app_channel_entry_append_message_text_cb(LoquiChannelEntry *chent, LoquiMe
 						LOQUI_GENERAL_PREF_GROUP_NOTIFICATION, "UseNotification",
 						LOQUI_GENERAL_PREF_DEFAULT_NOTIFICATION_USE_NOTIFICATION, NULL) &&
 	    notification_command && strlen(notification_command) > 0) {
-
-		remark = loqui_message_text_get_text(msgtext);
-		matched = FALSE;
-		highlight_array = loqui_pref_get_string_list(loqui_get_general_pref(),
-							     LOQUI_GENERAL_PREF_GROUP_NOTIFICATION, "HighlightList", NULL, NULL);
-		if (highlight_array) {
-			for (i = 0; (word = highlight_array[i]) != NULL; i++) {
-				if ((tmp = strstr(remark, word)) != NULL) {
-					loqui_message_text_region_create_from_offset(msgtext, tmp - remark, strlen(word));
-					msgtext->highlight_region_list = g_list_append(msgtext->highlight_region_list, region);
-					
-					matched = TRUE;
-				}
-			}
-			g_strfreev(highlight_array);
-		}
+		matched = loqui_notification_search_highlight_regions(loqui_core_get_notification(loqui_get_core()), msgtext);
 
 		if (matched) {
 			loqui_channel_entry_set_has_unread_keyword(chent, TRUE);
