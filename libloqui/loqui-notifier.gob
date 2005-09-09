@@ -110,7 +110,7 @@ class Loqui:Notifier from G:Object
 		cur = text;
 
 		while (*cur && loqui_utils_search_uri(cur, NULL, &start_uri, &end_uri)) {
-			region = loqui_message_text_region_create(msgtext, start_uri - cur, end_uri - cur);
+			region = loqui_message_text_region_create(msgtext, start_uri - text, end_uri - text);
 			msgtext->uri_region_list = g_list_append(msgtext->uri_region_list, region);
 
 			matched = TRUE;
