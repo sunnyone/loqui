@@ -44,7 +44,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %files -f %{name}.lang
 %defattr (-,root,root)
-%doc README COPYING INSTALL ChangeLog ABOUT-NLS AUTHORS NEWS NEWS.ja
+%doc README COPYING INSTALL ChangeLog AUTHORS NEWS NEWS.ja
 %{_bindir}/loqui
 %{_sysconfdir}/X11/applnk/Internet/loqui.desktop
 %{_datadir}/pixmaps/loqui.png
