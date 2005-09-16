@@ -70,6 +70,8 @@ static void loqui_channel_dispose(GObject *object);
 static void loqui_channel_get_property(GObject *object, guint param_id, GValue *value, GParamSpec *pspec);
 static void loqui_channel_set_property(GObject *object, guint param_id, const GValue *value, GParamSpec *pspec);
 
+static void loqui_channel_append_message_text(LoquiChannelEntry *chent, LoquiMessageText *msgtext);
+
 GType
 loqui_channel_get_type(void)
 {
@@ -185,6 +187,7 @@ static void
 loqui_channel_class_init(LoquiChannelClass *klass)
 {
         GObjectClass *object_class = G_OBJECT_CLASS(klass);
+	LoquiChannelEntryClass *chent_class = LOQUI_CHANNEL_ENTRY_CLASS(klass);
 
         parent_class = g_type_class_peek_parent(klass);
         
@@ -192,6 +195,8 @@ loqui_channel_class_init(LoquiChannelClass *klass)
         object_class->dispose = loqui_channel_dispose;
         object_class->get_property = loqui_channel_get_property;
         object_class->set_property = loqui_channel_set_property;
+
+	chent_class->append_message_text = loqui_channel_append_message_text;
 
 	g_object_class_install_property(object_class,
 					PROP_IS_JOINED,
@@ -231,6 +236,16 @@ loqui_channel_init(LoquiChannel *channel)
 	channel->channel_mode_manager = loqui_mode_manager_new(NULL);
 	g_object_set_data(G_OBJECT(channel->channel_mode_manager), "channel", channel);			  
 }
+static void
+loqui_channel_append_message_text(LoquiChannelEntry *chent, LoquiMessageText *msgtext)
+{
+	LoquiChannel *channel;
+
+	channel = LOQUI_CHANNEL(chent);
+       
+        if (LOQUI_CHANNEL_ENTRY_CLASS(parent_class)->append_message_text)
+                (* LOQUI_CHANNEL_ENTRY_CLASS(parent_class)->append_message_text)(chent, msgtext);
+}
 LoquiChannel*
 loqui_channel_new(LoquiAccount *account, const gchar *name, const gchar *identifier, gboolean is_joined, gboolean is_private_talk)
 {
@@ -249,7 +264,6 @@ loqui_channel_new(LoquiAccount *account, const gchar *name, const gchar *identif
 
         return channel;
 }
-
 void
 loqui_channel_set_account(LoquiChannel *channel, LoquiAccount *account)
 {
