@@ -1205,11 +1205,6 @@ loqui_app_channel_entry_append_message_text_after_cb(LoquiChannelEntry *chent, L
 						LOQUI_GENERAL_PREF_GTK_DEFAULT_GENERAL_SAVE_LOG, NULL))
 		loqui_app_append_log(app, msgtext);
 
-	if (msgtext->highlight_region_list &&
-	    loqui_message_text_get_exec_notification(msgtext)) {
-		loqui_channel_entry_set_has_unread_keyword(chent, TRUE);
-	}
-
 	chview = loqui_app_get_current_channel_text_view(app);
 	if (chview && loqui_channel_text_view_get_is_scroll(LOQUI_CHANNEL_TEXT_VIEW(chview)) &&
 	    app->current_channel_entry != NULL &&
