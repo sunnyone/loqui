@@ -216,7 +216,7 @@ loqui_app_info_channel_entry_notify_is_updated_cb(LoquiChannelEntry *chent, GPar
 
 	appinfo->updated_entry_number += delta;
 
-	if (LOQUI_CHANNEL(chent) && loqui_channel_get_is_private_talk(LOQUI_CHANNEL(chent)))
+	if (LOQUI_IS_CHANNEL(chent) && loqui_channel_get_is_private_talk(LOQUI_CHANNEL(chent)))
 		appinfo->updated_private_talk_number += delta;
 	
 	loqui_app_info_update_updated_entry_number(appinfo);
