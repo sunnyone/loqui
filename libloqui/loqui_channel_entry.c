@@ -26,6 +26,10 @@
 #include "loqui-notifier.h"
 #include "loqui.h"
 
+#include "loqui-static-core.h"
+#include "loqui-general-pref-default.h"
+#include "loqui-general-pref-groups.h"
+
 enum {
 	SIGNAL_ADD,
 	SIGNAL_REMOVE,
@@ -474,7 +478,7 @@ static void
 loqui_channel_entry_append_message_text_real(LoquiChannelEntry *chent, LoquiMessageText *msgtext)
 {
 	LoquiChannelBuffer *buffer;
-
+	LoquiTextType text_type;
 	g_return_if_fail(chent != NULL);
         g_return_if_fail(LOQUI_IS_CHANNEL_ENTRY(chent));
 	
@@ -485,11 +489,22 @@ loqui_channel_entry_append_message_text_real(LoquiChannelEntry *chent, LoquiMess
 		loqui_channel_buffer_append_message_text(buffer, msgtext);
 	}
 
-	if (!loqui_message_text_get_is_ignored(msgtext) && loqui_message_text_get_to_set_updated(msgtext)) {
+	if (loqui_message_text_get_is_remark(msgtext) &&
+	    !loqui_message_text_get_is_ignored(msgtext) && loqui_message_text_get_to_set_updated(msgtext)) {
 		if (loqui_message_text_get_text_type(msgtext) == LOQUI_TEXT_TYPE_NOTICE)
 			loqui_channel_entry_set_is_updated_weak(chent, TRUE);
 		else
 			loqui_channel_entry_set_is_updated(chent, TRUE);
+		
+		text_type = loqui_message_text_get_text_type(msgtext);
+		if (loqui_message_text_get_has_highlight_keyword(msgtext) &&
+		    (text_type == LOQUI_TEXT_TYPE_NORMAL ||
+		     (text_type == LOQUI_TEXT_TYPE_NOTICE &&
+		      loqui_pref_get_with_default_boolean(loqui_get_general_pref(),
+							  LOQUI_GENERAL_PREF_GROUP_NOTIFICATION, "ExecNotificationByNotice",
+							  LOQUI_GENERAL_PREF_DEFAULT_NOTIFICATION_EXEC_NOTIFICATION_BY_NOTICE, NULL)))) {
+			loqui_channel_entry_set_has_unread_keyword(chent, TRUE);
+		}
 	}
 }
 static void

@@ -467,25 +467,6 @@ loqui_channel_append_remark(LoquiChannel *channel, LoquiTextType type, gboolean 
 		     "exec_notification", exec_notification,
 		     NULL);
 	
-	if (!is_ignored && !is_self && !is_from_server) {
-		gchar **highlight_list;
-
-		highlight_list = loqui_pref_get_string_list(loqui_get_general_pref(),
-							    LOQUI_GENERAL_PREF_GROUP_NOTIFICATION, "HilightList",
-							    NULL, NULL);
-
-		if (highlight_list) {
-			for (i = 0; highlight_list[i] != NULL; i++) {
-				word = highlight_list[i];
-				if (strstr(remark, word) != NULL) {
-					loqui_channel_entry_set_has_unread_keyword(LOQUI_CHANNEL_ENTRY(channel), TRUE);
-				}
-			}
-		}
-
-		g_strfreev(highlight_list);
-	}
-	
 	loqui_channel_entry_append_message_text(LOQUI_CHANNEL_ENTRY(channel), msgtext);
 	g_object_unref(msgtext);
 }
