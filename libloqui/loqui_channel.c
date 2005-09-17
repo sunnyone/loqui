@@ -423,8 +423,6 @@ loqui_channel_append_remark(LoquiChannel *channel, LoquiTextType type, gboolean 
 {
 	LoquiChannelPrivate *priv;
 	LoquiMessageText *msgtext;
-	gchar *word;
-	int i;
 	gboolean is_transparent = FALSE, is_ignored = FALSE;
 
 	gboolean is_priv = FALSE;
