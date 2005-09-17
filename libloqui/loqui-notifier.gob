@@ -33,6 +33,10 @@ requires 2.0.0
 
 #include "loqui-core.h"
 #include "loqui.h"
+#include "regex/eggregex.h"
+
+#define HIGHLIGHT_WORD_RE_PREIX "re:"
+#define HIGHLIGHT_WORD_PLAIN_PREFIX "plain:"
 %}
 
 class Loqui:Notifier from G:Object
@@ -64,13 +68,42 @@ class Loqui:Notifier from G:Object
 			self_notify_uri(self, msgtext);
 	}
 
+	private void
+	search_highlight_word_regexp(self, LoquiMessageText *msgtext, gchar *regexp_str) {
+		EggRegex *regex;
+		GError *error;
+		const gchar *text;
+		gssize string_len;
+		gint start_pos, end_pos;
+		LoquiMessageTextRegion *region;
+
+		error = NULL;
+		if ((regex = egg_regex_new(regexp_str, 0, 0, &error)) == NULL) {
+			g_warning("Regex compile error: %s", error->message);
+			g_error_free(error);
+			return;
+		}
+
+		text = loqui_message_text_get_text(msgtext);
+		string_len = strlen(text);
+
+		while (egg_regex_match_next(regex, text, string_len, 0) > 0) {
+			egg_regex_fetch_pos(regex, text, 0, &start_pos, &end_pos);
+
+			region = loqui_message_text_region_create(msgtext, start_pos, end_pos);
+			msgtext->highlight_region_list = g_list_append(msgtext->highlight_region_list, region);
+		}
+
+		egg_regex_free(regex);
+	}
+
 	public gboolean
 	search_highlight_regions(self, LoquiMessageText *msgtext) {
 		const gchar *remark;
 		LoquiMessageTextRegion *region;
 		gchar **highlight_array;
 		gboolean matched;
-		gchar *word;
+		gchar *word, *raw;
 		gsize len;
 		const gchar *tmp, *cur;
 		int i;
@@ -83,8 +116,20 @@ class Loqui:Notifier from G:Object
 		if (highlight_array == NULL)
 			return FALSE;
 
-		for (i = 0; (word = highlight_array[i]) != NULL; i++) {
+		for (i = 0; (raw = highlight_array[i]) != NULL; i++) {
+			if (g_str_has_prefix(raw, HIGHLIGHT_WORD_RE_PREIX)) {
+				self_search_highlight_word_regexp(self, msgtext, raw + strlen(HIGHLIGHT_WORD_RE_PREIX));
+				continue;
+			}
+
+			if (g_str_has_prefix(raw, HIGHLIGHT_WORD_PLAIN_PREFIX)) {
+				word = raw + strlen(HIGHLIGHT_WORD_PLAIN_PREFIX);
+			} else {
+				word = raw;
+			}
+
 			len = strlen(word);
+
 			for (cur = remark; (tmp = strstr(cur, word)) != NULL; cur = tmp + len) {
 				region = loqui_message_text_region_create_from_offset(msgtext, tmp - remark, len);
 				msgtext->highlight_region_list = g_list_append(msgtext->highlight_region_list, region);
