@@ -426,8 +426,6 @@ loqui_channel_append_remark(LoquiChannel *channel, LoquiTextType type, gboolean 
 	gchar *word;
 	int i;
 	gboolean is_transparent = FALSE, is_ignored = FALSE;
-	LoquiUser *user;
-	LoquiMember *member;
 
 	gboolean is_priv = FALSE;
 	gboolean exec_notification = TRUE && !is_from_server && !is_self;
@@ -461,6 +459,7 @@ loqui_channel_append_remark(LoquiChannel *channel, LoquiTextType type, gboolean 
 		     "is_priv", is_priv,
 		     "is_self", is_self,
 		     "is_ignored", is_ignored,
+		     "to_set_updated", to_set_updated,
 		     "text", remark,
 		     "nick", nick,
 		     "account_name", loqui_channel_entry_get_name(LOQUI_CHANNEL_ENTRY(channel->account)),
@@ -468,13 +467,6 @@ loqui_channel_append_remark(LoquiChannel *channel, LoquiTextType type, gboolean 
 		     "exec_notification", exec_notification,
 		     NULL);
 	
-	if (!is_ignored && to_set_updated) {
-		if (type == LOQUI_TEXT_TYPE_NOTICE || is_from_server)
-			loqui_channel_entry_set_is_updated_weak(LOQUI_CHANNEL_ENTRY(channel), TRUE);
-		else
-			loqui_channel_entry_set_is_updated(LOQUI_CHANNEL_ENTRY(channel), TRUE);
-	}
-
 	if (!is_ignored && !is_self && !is_from_server) {
 		gchar **highlight_list;
 
@@ -494,11 +486,6 @@ loqui_channel_append_remark(LoquiChannel *channel, LoquiTextType type, gboolean 
 		g_strfreev(highlight_list);
 	}
 	
-	if ((user = loqui_account_peek_user(loqui_channel_get_account(channel), nick)) != NULL &&
-	    (member = loqui_channel_entry_get_member_by_user(LOQUI_CHANNEL_ENTRY(channel), user)) != NULL) {
-		loqui_member_set_last_message_time(member, time(NULL));
-	}
-
 	loqui_channel_entry_append_message_text(LOQUI_CHANNEL_ENTRY(channel), msgtext);
 	g_object_unref(msgtext);
 }

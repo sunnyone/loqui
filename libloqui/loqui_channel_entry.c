@@ -484,6 +484,13 @@ loqui_channel_entry_append_message_text_real(LoquiChannelEntry *chent, LoquiMess
 	if (buffer) {
 		loqui_channel_buffer_append_message_text(buffer, msgtext);
 	}
+
+	if (!loqui_message_text_get_is_ignored(msgtext) && loqui_message_text_get_to_set_updated(msgtext)) {
+		if (loqui_message_text_get_text_type(msgtext) == LOQUI_TEXT_TYPE_NOTICE)
+			loqui_channel_entry_set_is_updated_weak(chent, TRUE);
+		else
+			loqui_channel_entry_set_is_updated(chent, TRUE);
+	}
 }
 static void
 loqui_channel_entry_member_notify_is_channel_operator_cb(LoquiMember *member, GParamSpec *pspec, LoquiChannelEntry *chent)

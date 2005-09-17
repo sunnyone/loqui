@@ -61,6 +61,7 @@ LOQUI_DEFINE_ACCESSOR_GENERIC(LoquiMessageText, loqui_message_text, is_self, gbo
 LOQUI_DEFINE_ACCESSOR_GENERIC(LoquiMessageText, loqui_message_text, is_remark, gboolean);
 LOQUI_DEFINE_ACCESSOR_GENERIC(LoquiMessageText, loqui_message_text, exec_notification, gboolean);
 LOQUI_DEFINE_ACCESSOR_GENERIC(LoquiMessageText, loqui_message_text, is_ignored, gboolean);
+LOQUI_DEFINE_ACCESSOR_GENERIC(LoquiMessageText, loqui_message_text, to_set_updated, gboolean);
 
 LOQUI_DEFINE_ACCESSOR_GENERIC(LoquiMessageText, loqui_message_text, text_type, LoquiTextType);
 %}
@@ -78,6 +79,7 @@ class Loqui:Message:Text from G:Object
         public gboolean is_remark = FALSE;
         public gboolean exec_notification;
         public gboolean is_ignored = FALSE;
+	public gboolean to_set_updated = TRUE;
 
         public GList *highlight_region_list = NULL unrefwith loqui_utils_free_list_and_elements_unref;
         public GList *uri_region_list = NULL unrefwith loqui_utils_free_list_and_elements_unref;
@@ -139,11 +141,18 @@ class Loqui:Message:Text from G:Object
                 set { loqui_message_text_set_exec_notification(self, g_value_get_boolean(VAL)); };
 
         property BOOLEAN is_ignored (
-		nick = _("Execute notification"),
-		blurb = _("Execute notification or not"),
+		nick = _("Is ignored"),
+		blurb = _("Is ignored or not"),
 		default_value = FALSE)
                 get { g_value_set_boolean(VAL, loqui_message_text_get_is_ignored(self)); }
                 set { loqui_message_text_set_is_ignored(self, g_value_get_boolean(VAL)); };
+
+        property BOOLEAN to_set_updated (
+		nick = _("To set updated"),
+		blurb = _("To set updated or not"),
+		default_value = TRUE)
+                get { g_value_set_boolean(VAL, loqui_message_text_get_to_set_updated(self)); }
+                set { loqui_message_text_set_to_set_updated(self, g_value_get_boolean(VAL)); };
 
 	property UINT text_type (
 		nick = _("Text type"),
@@ -185,6 +194,11 @@ class Loqui:Message:Text from G:Object
 		self = 	GET_NEW;
 		return self;
 	}
+
+	public gboolean
+	get_has_highlight_keyword(self) {
+		return self->highlight_region_list != NULL ? TRUE : FALSE;
+	}
 }
 
 %h{
@@ -198,6 +212,7 @@ LOQUI_DEFINE_ACCESSOR_GENERIC_PROTOTYPE(LoquiMessageText, loqui_message_text, is
 LOQUI_DEFINE_ACCESSOR_GENERIC_PROTOTYPE(LoquiMessageText, loqui_message_text, is_remark, gboolean);
 LOQUI_DEFINE_ACCESSOR_GENERIC_PROTOTYPE(LoquiMessageText, loqui_message_text, exec_notification, gboolean);
 LOQUI_DEFINE_ACCESSOR_GENERIC_PROTOTYPE(LoquiMessageText, loqui_message_text, is_ignored, gboolean);
+LOQUI_DEFINE_ACCESSOR_GENERIC_PROTOTYPE(LoquiMessageText, loqui_message_text, to_set_updated, gboolean);
 
 LOQUI_DEFINE_ACCESSOR_GENERIC_PROTOTYPE(LoquiMessageText, loqui_message_text, text_type, LoquiTextType);
 %}
