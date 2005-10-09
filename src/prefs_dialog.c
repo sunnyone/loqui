@@ -440,8 +440,6 @@ prefs_dialog_new(LoquiApp *app)
 	priv->check_auto_switch_scrolling_common_buffer = gtk_check_button_new_with_label(_("Switch whether scrolling common buffer or not automatically"));
 	gtk_box_pack_start(GTK_BOX(vbox), priv->check_auto_switch_scrolling_common_buffer, FALSE, FALSE, 0);
 
-	priv->check_parse_plum_recent = gtk_check_button_new_with_label(_("Parse plum (an irc proxy) recent feature (Experimental)"));
-	gtk_box_pack_start(GTK_BOX(vbox), priv->check_parse_plum_recent, FALSE, FALSE, 0);
 	priv->check_auto_reconnect = gtk_check_button_new_with_label(_("Reconnect automatically when connections are terminated."));
 	gtk_box_pack_start(GTK_BOX(vbox), priv->check_auto_reconnect, FALSE, FALSE, 0);
 
@@ -469,12 +467,18 @@ prefs_dialog_new(LoquiApp *app)
 
 	priv->check_save_log = gtk_check_button_new_with_label(_("Save logs (Experimental)"));
 	gtk_box_pack_start(GTK_BOX(vbox), priv->check_save_log, FALSE, FALSE, 0);
-	
+
 	vbox = gtk_vbox_new(FALSE, 0);
-	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), vbox, gtk_label_new(_("Highlight")));
+	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), vbox, gtk_label_new(_("Proxy")));
+
+	priv->check_parse_plum_recent = gtk_check_button_new_with_label(_("Parse plum (an irc proxy) recent feature (Experimental)"));
+	gtk_box_pack_start(GTK_BOX(vbox), priv->check_parse_plum_recent, FALSE, FALSE, 0);
 
 	priv->check_treat_as_recent_log_until_first_pong_received = gtk_check_button_new_with_label(_("Treat server messages as recent logs until received a first PONG (for some irc-proxies)."));
 	gtk_box_pack_start(GTK_BOX(vbox), priv->check_treat_as_recent_log_until_first_pong_received, FALSE, FALSE, 0);
+	
+	vbox = gtk_vbox_new(FALSE, 0);
+	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), vbox, gtk_label_new(_("Highlight")));
 
 	priv->check_use_notification = gtk_check_button_new_with_label(_("Use notification"));
 	gtk_box_pack_start(GTK_BOX(vbox), priv->check_use_notification, FALSE, FALSE, 0);
