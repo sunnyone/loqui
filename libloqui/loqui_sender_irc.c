@@ -810,7 +810,7 @@ loqui_sender_irc_sent_privmsg_notice(LoquiSenderIRC *sender, IRCMessage *msg)
 	user_self = loqui_account_get_user_self(account);
 	channel = loqui_account_irc_fetch_channel(LOQUI_ACCOUNT_IRC(account), is_self, loqui_user_get_nick(user_self), target);
 
-	loqui_channel_append_remark(channel, type, is_self, loqui_user_get_nick(user_self), remark, FALSE, TRUE);
+	loqui_channel_append_remark(channel, type, is_self, loqui_user_get_nick(user_self), remark);
 
 	member = loqui_channel_entry_get_member_by_user(LOQUI_CHANNEL_ENTRY(channel), user_self);
 	/* You may not have joined to the channel */

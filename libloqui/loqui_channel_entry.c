@@ -484,8 +484,7 @@ loqui_channel_entry_append_message_text_real(LoquiChannelEntry *chent, LoquiMess
 	
 	loqui_notifier_process_message_text(loqui_core_get_notifier(loqui_get_core()), msgtext);
 
-	if (loqui_message_text_get_is_remark(msgtext) &&
-	    !loqui_message_text_get_is_ignored(msgtext) && loqui_message_text_get_to_set_updated(msgtext)) {
+	if (loqui_message_text_get_is_remark(msgtext) && !loqui_message_text_get_is_ignored(msgtext)) {
 		if (loqui_message_text_get_text_type(msgtext) == LOQUI_TEXT_TYPE_NOTICE)
 			loqui_channel_entry_set_is_updated_weak(chent, TRUE);
 		else

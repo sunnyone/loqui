@@ -287,8 +287,7 @@ class Loqui:Receiver:IPMsg from Loqui:Receiver
 						    text_type,
 						    user == user_self ? TRUE : FALSE,
 						    loqui_user_get_nick(user),
-						    packet->extra,
-						    FALSE, TRUE);
+						    packet->extra);
 			
 			if ((member = loqui_channel_entry_get_member_by_user(LOQUI_CHANNEL_ENTRY(channel), user)) != NULL) {
 				loqui_member_set_last_message_time(member, time(NULL));

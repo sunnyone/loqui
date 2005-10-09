@@ -419,14 +419,13 @@ loqui_channel_search_patters(const gchar *group, const gchar *key, const gchar *
 }
 
 void
-loqui_channel_append_remark(LoquiChannel *channel, LoquiTextType type, gboolean is_self, const gchar *nick, const gchar *remark, gboolean is_from_server, gboolean to_set_updated)
+loqui_channel_append_remark(LoquiChannel *channel, LoquiTextType type, gboolean is_self, const gchar *nick, const gchar *remark)
 {
 	LoquiChannelPrivate *priv;
 	LoquiMessageText *msgtext;
 	gboolean is_transparent = FALSE, is_ignored = FALSE;
 
 	gboolean is_priv = FALSE;
-	gboolean exec_notification = TRUE && !is_from_server && !is_self;
 
 	g_return_if_fail(channel != NULL);
 	g_return_if_fail(LOQUI_IS_CHANNEL(channel));
@@ -457,12 +456,10 @@ loqui_channel_append_remark(LoquiChannel *channel, LoquiTextType type, gboolean 
 		     "is_priv", is_priv,
 		     "is_self", is_self,
 		     "is_ignored", is_ignored,
-		     "to_set_updated", to_set_updated,
 		     "text", remark,
 		     "nick", nick,
 		     "account_name", loqui_channel_entry_get_name(LOQUI_CHANNEL_ENTRY(channel->account)),
 		     "channel_name", loqui_channel_entry_get_name(LOQUI_CHANNEL_ENTRY(channel)),
-		     "exec_notification", exec_notification,
 		     NULL);
 	
 	loqui_channel_entry_append_message_text(LOQUI_CHANNEL_ENTRY(channel), msgtext);

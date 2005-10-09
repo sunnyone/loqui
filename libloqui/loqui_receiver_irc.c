@@ -52,7 +52,7 @@ struct _LoquiReceiverIRCPrivate
 	CTCPHandle *ctcp_handle;
 
 	gboolean end_motd;
-	gboolean to_set_updated;
+	gboolean in_recent_log;
 
 	/* just parser */
 	LoquiModeManager *channel_mode_manager;
@@ -251,6 +251,16 @@ loqui_receiver_irc_validate_is_channel_name(LoquiReceiverIRC *receiver, const gc
 	return TRUE;
 }
 
+static void
+loqui_receiver_irc_append_recent_log(LoquiReceiverIRC *receiver, LoquiChannel *channel, const gchar *line)
+{
+	gchar *buf;
+
+	buf = g_strdup_printf("[LOG] %s", line);
+	loqui_channel_append_text(channel, LOQUI_TEXT_TYPE_NOTICE, buf);
+	g_free(buf);
+}
+
 #define PLUM_ALIAS_OF_PERCENT_PREFIX ":*.jp"
 static gboolean
 loqui_receiver_irc_parse_plum_recent(LoquiReceiverIRC *receiver, const gchar *line)
@@ -328,8 +338,7 @@ loqui_receiver_irc_parse_plum_recent(LoquiReceiverIRC *receiver, const gchar *li
 	g_free(converted_name);
 	g_free(buf);
 	
-	buf = g_strdup_printf("[LOG] %s", line);
-	loqui_channel_append_text(channel, LOQUI_TEXT_TYPE_NOTICE, buf);
+	loqui_receiver_irc_append_recent_log(receiver, channel, line);
 	loqui_channel_entry_set_is_updated_weak(LOQUI_CHANNEL_ENTRY(channel), TRUE);
 	g_free(buf);
 
@@ -350,7 +359,6 @@ loqui_receiver_irc_command_privmsg_notice(LoquiReceiverIRC *receiver, IRCMessage
 	LoquiTextType type;
 	CTCPMessage *ctcp_msg;
 	gboolean is_self;
-	gboolean is_from_server;
 
         g_return_if_fail(receiver != NULL);
         g_return_if_fail(LOQUI_IS_RECEIVER_IRC(receiver));
@@ -409,9 +417,12 @@ loqui_receiver_irc_command_privmsg_notice(LoquiReceiverIRC *receiver, IRCMessage
 	}
 
 	sender = msg->nick ? msg->nick : msg->prefix;
-	is_from_server = (msg->nick == NULL) ? TRUE : FALSE;
 
-	loqui_channel_append_remark(channel, type, is_self, sender, remark, is_from_server, priv->to_set_updated);
+	if (priv->in_recent_log) {
+		loqui_receiver_irc_append_recent_log(receiver, channel, remark);
+	} else {
+		loqui_channel_append_remark(channel, type, is_self, sender, remark);
+	}
 }
 static void
 loqui_receiver_irc_command_ping(LoquiReceiverIRC *receiver, IRCMessage *msg)
@@ -431,7 +442,7 @@ loqui_receiver_irc_command_pong(LoquiReceiverIRC *receiver, IRCMessage *msg)
 
 	priv = receiver->priv;
 
-	priv->to_set_updated = TRUE; /* for NotMarkUpdatedUntilFirstPongReceived */
+	priv->in_recent_log = FALSE; /* for NotMarkUpdatedUntilFirstPongReceived */
 }
 static void
 loqui_receiver_irc_command_quit(LoquiReceiverIRC *receiver, IRCMessage *msg)
@@ -860,7 +871,7 @@ loqui_receiver_irc_reply_welcome(LoquiReceiverIRC *receiver, IRCMessage *msg)
 	if (loqui_pref_get_with_default_boolean(loqui_core_get_general_pref(loqui_get_core()),
 						LOQUI_GENERAL_PREF_GROUP_NOTIFICATION, "DontMarkUpdatedUntilFirstPongReceived",
 						LOQUI_GENERAL_PREF_DEFAULT_NOTIFICATION_DONT_MARK_UPDATED_UNTIL_FIRST_PONG_RECEIVED, NULL)) {
-		priv->to_set_updated = FALSE;
+		priv->in_recent_log = TRUE;
 		loqui_sender_irc_ping_raw(LOQUI_SENDER_IRC(loqui_account_get_sender(loqui_receiver_get_account(LOQUI_RECEIVER(receiver)))), msg->prefix);
 	}
 
@@ -1604,5 +1615,5 @@ loqui_receiver_irc_reset(LoquiReceiverIRC *receiver)
 	priv->end_motd = FALSE;
 	receiver->passed_welcome = FALSE;
 
-	priv->to_set_updated = TRUE;
+	priv->in_recent_log = FALSE;
 }

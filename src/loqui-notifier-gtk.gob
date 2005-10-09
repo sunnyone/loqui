@@ -78,8 +78,8 @@ class Loqui:Notifier:Gtk from Loqui:Notifier
 
 		exec_notification = FALSE;
 
-		if (loqui_message_text_get_exec_notification(msgtext) &&
-		    loqui_message_text_get_is_remark(msgtext) &&
+		if (loqui_message_text_get_is_remark(msgtext) &&
+		    !loqui_message_text_get_is_self(msgtext) &&
 		    msgtext->highlight_region_list &&
 		    loqui_pref_get_with_default_boolean(loqui_get_general_pref(),
 							LOQUI_GENERAL_PREF_GROUP_NOTIFICATION, "UseNotification",
@@ -97,13 +97,11 @@ class Loqui:Notifier:Gtk from Loqui:Notifier
 
 		app = loqui_core_gtk_get_app(LOQUI_CORE_GTK(loqui_get_core()));
 
-		if (loqui_message_text_get_exec_notification(msgtext) &&
-		    loqui_message_text_get_is_remark(msgtext)) {
+		if (loqui_message_text_get_is_remark(msgtext) &&
+		    !loqui_message_text_get_is_self(msgtext)) {
 			loqui_tray_icon_blink(app->tray_icon);
 			if (!loqui_app_has_toplevel_focus(app))
 				loqui_tray_icon_set_hilighted(app->tray_icon, TRUE);
 		}
-
-		loqui_message_text_set_exec_notification(msgtext, FALSE);
 	}
 }

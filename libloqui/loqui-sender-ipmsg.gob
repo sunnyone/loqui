@@ -95,8 +95,7 @@ class Loqui:Sender:IPMsg from Loqui:Sender
 					    LOQUI_TEXT_TYPE_NORMAL,
 					    TRUE, 
 					    loqui_user_get_nick(user_self),
-					    text,
-					    FALSE, TRUE);
+					    text);
 	}
 
 	override (Loqui:Sender)
