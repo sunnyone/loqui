@@ -40,7 +40,7 @@ struct _PrefsDialogPrivate
 	GtkWidget *check_auto_switch_scrolling;
 	GtkWidget *check_auto_switch_scrolling_common_buffer;
 	GtkWidget *check_parse_plum_recent;
-	GtkWidget *check_dont_mark_updated_until_first_pong_received;
+	GtkWidget *check_treat_as_recent_log_until_first_pong_received;
 	GtkWidget *check_auto_reconnect;
 	GtkWidget *check_connect_startup;
 	GtkWidget *check_select_channel_joined;
@@ -187,9 +187,9 @@ prefs_dialog_load_settings(PrefsDialog *dialog)
 		     LOQUI_GENERAL_PREF_GTK_GROUP_GENERAL, "AutoSwitchScrollingCommonBuffer", LOQUI_GENERAL_PREF_GTK_DEFAULT_GENERAL_AUTO_SWITCH_SCROLLING_COMMON_BUFFER);
 	SET_CHECKBOX(priv->check_parse_plum_recent, LOQUI_GENERAL_PREF_GROUP_PROXY, "ParsePlumRecent", LOQUI_GENERAL_PREF_DEFAULT_PROXY_PARSE_PLUM_RECENT);
 	SET_CHECKBOX(priv->check_save_size,         LOQUI_GENERAL_PREF_GTK_GROUP_SIZE, "SaveSize", LOQUI_GENERAL_PREF_GTK_DEFAULT_SIZE_SAVE_SIZE);
-	SET_CHECKBOX(priv->check_dont_mark_updated_until_first_pong_received,
-		     LOQUI_GENERAL_PREF_GROUP_NOTIFICATION, "DontMarkUpdatedUntilFirstPongReceived",
-		     LOQUI_GENERAL_PREF_DEFAULT_NOTIFICATION_DONT_MARK_UPDATED_UNTIL_FIRST_PONG_RECEIVED);
+	SET_CHECKBOX(priv->check_treat_as_recent_log_until_first_pong_received,
+		     LOQUI_GENERAL_PREF_GROUP_PROXY, "TreatAsRecentLogUntilFirstPongReceived",
+		     LOQUI_GENERAL_PREF_DEFAULT_PROXY_TREAT_AS_RECENT_LOG_UNTIL_FIRST_PONG_RECEIVED);
 	SET_CHECKBOX(priv->check_use_notification,  LOQUI_GENERAL_PREF_GROUP_NOTIFICATION, "UseNotification", LOQUI_GENERAL_PREF_DEFAULT_NOTIFICATION_USE_NOTIFICATION);
 	SET_CHECKBOX(priv->check_exec_notification_by_notice,
 		     LOQUI_GENERAL_PREF_GROUP_NOTIFICATION, "ExecNotificationByNotice", LOQUI_GENERAL_PREF_DEFAULT_NOTIFICATION_EXEC_NOTIFICATION_BY_NOTICE);
@@ -301,8 +301,8 @@ prefs_dialog_save_settings(PrefsDialog *dialog)
                                LOQUI_GENERAL_PREF_GROUP_NOTIFICATION, "ExecNotificationByNotice",
                                gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(priv->check_exec_notification_by_notice)));
 	loqui_pref_set_boolean(loqui_get_general_pref(),
-                               LOQUI_GENERAL_PREF_GROUP_NOTIFICATION, "DontMarkUpdatedUntilFirstPongReceived",
-                               gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(priv->check_dont_mark_updated_until_first_pong_received)));
+                               LOQUI_GENERAL_PREF_GROUP_PROXY, "TreatAsRecentLogUntilFirstPongReceived",
+                               gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(priv->check_treat_as_recent_log_until_first_pong_received)));
 	loqui_pref_set_boolean(loqui_get_general_pref(),
                                LOQUI_GENERAL_PREF_GROUP_ACCOUNT, "AutoReconnect",
                                gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(priv->check_auto_reconnect)));
@@ -473,8 +473,8 @@ prefs_dialog_new(LoquiApp *app)
 	vbox = gtk_vbox_new(FALSE, 0);
 	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), vbox, gtk_label_new(_("Highlight")));
 
-	priv->check_dont_mark_updated_until_first_pong_received = gtk_check_button_new_with_label(_("Don't mark a channel as updated until received a first PONG (for some irc-proxies)."));
-	gtk_box_pack_start(GTK_BOX(vbox), priv->check_dont_mark_updated_until_first_pong_received, FALSE, FALSE, 0);
+	priv->check_treat_as_recent_log_until_first_pong_received = gtk_check_button_new_with_label(_("Treat server messages as recent logs until received a first PONG (for some irc-proxies)."));
+	gtk_box_pack_start(GTK_BOX(vbox), priv->check_treat_as_recent_log_until_first_pong_received, FALSE, FALSE, 0);
 
 	priv->check_use_notification = gtk_check_button_new_with_label(_("Use notification"));
 	gtk_box_pack_start(GTK_BOX(vbox), priv->check_use_notification, FALSE, FALSE, 0);
