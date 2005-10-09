@@ -20,13 +20,15 @@
 #include "config.h"
 #include "about.h"
 #include "gtkutils.h"
+#include <libloqui/loqui-core.h>
+#include <libloqui/loqui.h>
 
 void
 about_open(void)
 {
 	gtkutils_msgbox_info(GTK_MESSAGE_INFO,
-			     "Loqui version %s\n"
+			     "%s\n"
 			     "IRC client for Gtk2\n"
 			     "Copyright (C) 2002-2005, Yoichi Imai <yoichi@silver-forest.com>\n"
-			     "http://loqui.good-day.net/", VERSION);
+			     "http://loqui.good-day.net/", loqui_core_get_version_info(loqui_get_core()));
 }
