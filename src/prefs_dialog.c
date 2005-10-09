@@ -486,6 +486,11 @@ prefs_dialog_new(LoquiApp *app)
 						_("Highlighting keywords(Separate each words with linefeeds)"));
 	gtk_box_pack_start(GTK_BOX(vbox), frame, TRUE, TRUE, 0);
 
+	label = gtk_label_new(_("Special prefixes:\n"
+				" \"re:\":     Perl Compatible Regular Expression (ex. re:foo*)\n"
+				" \"plain:\":  Plain (normal) text (ex. plain:word)"));
+	gtk_box_pack_start(GTK_BOX(vbox), label, FALSE, FALSE, 0);
+
 	vbox = gtk_vbox_new(FALSE, 0);
 	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), vbox, gtk_label_new(_("Ignore")));
 
