@@ -1,1 +1,1 @@
-EXTRA_DIST = codeset.m4 gettext.m4 glibc21.m4 iconv.m4 lcmessage.m4 progtest.m4
+EXTRA_DIST = Makefile.am codeset.m4 gettext.m4 glibc21.m4 iconv.m4 isc-posix.m4 lcmessage.m4 progtest.m4
