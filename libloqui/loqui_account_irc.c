@@ -623,7 +623,6 @@ loqui_account_irc_push_message(LoquiAccountIRC *account, IRCMessage *msg)
 LoquiChannel *
 loqui_account_irc_fetch_channel(LoquiAccountIRC *account, gboolean is_self, const gchar *msg_nick, const gchar *msg_target)
 {
-	LoquiAccountIRCPrivate *priv;
 	LoquiChannel *channel;
 	const gchar *name;
 	gboolean is_priv;

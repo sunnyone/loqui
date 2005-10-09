@@ -252,11 +252,11 @@ loqui_receiver_irc_validate_is_channel_name(LoquiReceiverIRC *receiver, const gc
 }
 
 static void
-loqui_receiver_irc_append_recent_log(LoquiReceiverIRC *receiver, LoquiChannel *channel, const gchar *line)
+loqui_receiver_irc_append_recent_log(LoquiReceiverIRC *receiver, LoquiChannel *channel, const gchar *name, const gchar *line)
 {
 	gchar *buf;
 
-	buf = g_strdup_printf("[LOG] %s", line);
+	buf = g_strdup_printf("[%s] %s", name, line);
 	loqui_channel_append_text(channel, LOQUI_TEXT_TYPE_NOTICE, buf);
 	g_free(buf);
 }
@@ -338,7 +338,7 @@ loqui_receiver_irc_parse_plum_recent(LoquiReceiverIRC *receiver, const gchar *li
 	g_free(converted_name);
 	g_free(buf);
 	
-	loqui_receiver_irc_append_recent_log(receiver, channel, line);
+	loqui_receiver_irc_append_recent_log(receiver, channel, "LOG", line);
 	loqui_channel_entry_set_is_updated_weak(LOQUI_CHANNEL_ENTRY(channel), TRUE);
 	g_free(buf);
 
@@ -418,8 +418,8 @@ loqui_receiver_irc_command_privmsg_notice(LoquiReceiverIRC *receiver, IRCMessage
 
 	sender = msg->nick ? msg->nick : msg->prefix;
 
-	if (priv->in_recent_log) {
-		loqui_receiver_irc_append_recent_log(receiver, channel, remark);
+	if (priv->in_recent_log && msg->nick == NULL) {
+		loqui_receiver_irc_append_recent_log(receiver, channel, msg->prefix, remark);
 	} else {
 		loqui_channel_append_remark(channel, type, is_self, sender, remark);
 	}
@@ -442,7 +442,7 @@ loqui_receiver_irc_command_pong(LoquiReceiverIRC *receiver, IRCMessage *msg)
 
 	priv = receiver->priv;
 
-	priv->in_recent_log = FALSE; /* for NotMarkUpdatedUntilFirstPongReceived */
+	priv->in_recent_log = FALSE; /* for TreatAsRecentLogUntilFirstPongReceived */
 }
 static void
 loqui_receiver_irc_command_quit(LoquiReceiverIRC *receiver, IRCMessage *msg)
@@ -867,10 +867,10 @@ loqui_receiver_irc_reply_welcome(LoquiReceiverIRC *receiver, IRCMessage *msg)
 		loqui_string_tokenizer_free(st);
 	}
 
-	/* for irc-proxy not to mark a channel as updated with the messages sent by the server initially */
+	/* treat as "recent log" of irc-proxy with the messages sent by the server initially */
 	if (loqui_pref_get_with_default_boolean(loqui_core_get_general_pref(loqui_get_core()),
-						LOQUI_GENERAL_PREF_GROUP_NOTIFICATION, "DontMarkUpdatedUntilFirstPongReceived",
-						LOQUI_GENERAL_PREF_DEFAULT_NOTIFICATION_DONT_MARK_UPDATED_UNTIL_FIRST_PONG_RECEIVED, NULL)) {
+						LOQUI_GENERAL_PREF_GROUP_PROXY, "TreatAsRecentLogUntilFirstPongReceived",
+						LOQUI_GENERAL_PREF_DEFAULT_PROXY_TREAT_AS_RECENT_LOG_UNTIL_FIRST_PONG_RECEIVED, NULL)) {
 		priv->in_recent_log = TRUE;
 		loqui_sender_irc_ping_raw(LOQUI_SENDER_IRC(loqui_account_get_sender(loqui_receiver_get_account(LOQUI_RECEIVER(receiver)))), msg->prefix);
 	}
