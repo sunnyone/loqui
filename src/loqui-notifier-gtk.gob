@@ -75,13 +75,13 @@ class Loqui:Notifier:Gtk from Loqui:Notifier
 
 		PARENT_HANDLER(notifier, msgtext);
 
-		if (loqui_message_text_get_is_remark(msgtext) &&
-		    !loqui_message_text_get_is_self(msgtext) &&
-		    msgtext->highlight_region_list) {
+		if (!loqui_message_text_get_is_remark(msgtext) ||
+		    loqui_message_text_get_is_self(msgtext) ||
+		    msgtext->highlight_region_list == NULL) {
 			return;
 		}
-			
-		if (loqui_pref_get_with_default_boolean(loqui_get_general_pref(),
+
+		if (!loqui_pref_get_with_default_boolean(loqui_get_general_pref(),
 							LOQUI_GENERAL_PREF_GROUP_NOTIFICATION, "UseNotification",
 							LOQUI_GENERAL_PREF_DEFAULT_NOTIFICATION_USE_NOTIFICATION, NULL))
 			return;
