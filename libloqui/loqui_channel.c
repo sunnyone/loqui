@@ -418,8 +418,8 @@ loqui_channel_search_patters(const gchar *group, const gchar *key, const gchar *
 	return FALSE;
 }
 
-void
-loqui_channel_append_remark(LoquiChannel *channel, LoquiTextType type, gboolean is_self, const gchar *nick, const gchar *remark)
+LoquiMessageText *
+loqui_channel_create_remark_message_text(LoquiChannel *channel, LoquiTextType type, gboolean is_self, const gchar *nick, const gchar *remark)
 {
 	LoquiChannelPrivate *priv;
 	LoquiMessageText *msgtext;
@@ -427,8 +427,8 @@ loqui_channel_append_remark(LoquiChannel *channel, LoquiTextType type, gboolean 
 
 	gboolean is_priv = FALSE;
 
-	g_return_if_fail(channel != NULL);
-	g_return_if_fail(LOQUI_IS_CHANNEL(channel));
+	g_return_val_if_fail(channel != NULL, NULL);
+	g_return_val_if_fail(LOQUI_IS_CHANNEL(channel), NULL);
 
 	priv = channel->priv;
 
@@ -462,6 +462,14 @@ loqui_channel_append_remark(LoquiChannel *channel, LoquiTextType type, gboolean 
 		     "channel_name", loqui_channel_entry_get_name(LOQUI_CHANNEL_ENTRY(channel)),
 		     NULL);
 	
+	return msgtext;
+}
+void
+loqui_channel_append_remark(LoquiChannel *channel, LoquiTextType type, gboolean is_self, const gchar *nick, const gchar *remark)
+{
+	LoquiMessageText *msgtext;
+
+	msgtext = loqui_channel_create_remark_message_text(channel, type, is_self, nick, remark);
 	loqui_channel_entry_append_message_text(LOQUI_CHANNEL_ENTRY(channel), msgtext);
 	g_object_unref(msgtext);
 }

@@ -87,6 +87,7 @@ LOQUI_DEFINE_ACCESSOR_CONST_STRING_PROTOTYPE(LoquiChannel, loqui_channel, identi
 void loqui_channel_push_user_mode_queue(LoquiChannel *channel, gboolean is_give, IRCModeFlag flag, const gchar *nick);
 void loqui_channel_flush_user_mode_queue(LoquiChannel *channel);
 
+LoquiMessageText *loqui_channel_create_remark_message_text(LoquiChannel *channel, LoquiTextType type, gboolean is_self, const gchar *nick, const gchar *remark);
 void loqui_channel_append_remark(LoquiChannel *channel, LoquiTextType type, gboolean is_self, const gchar *nick, const gchar *remark);
 void loqui_channel_append_text(LoquiChannel *channel, LoquiTextType type, gchar *str);
 
