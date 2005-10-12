@@ -340,7 +340,6 @@ loqui_receiver_irc_parse_plum_recent(LoquiReceiverIRC *receiver, const gchar *li
 	
 	loqui_receiver_irc_append_recent_log(receiver, channel, "LOG", line);
 	loqui_channel_entry_set_is_updated_weak(LOQUI_CHANNEL_ENTRY(channel), TRUE);
-	g_free(buf);
 
 	return TRUE;
 
