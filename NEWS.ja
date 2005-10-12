@@ -1,4 +1,12 @@
 --- 
+-
+  date: 2005-10-12
+  version: 0.4.3
+  changes:
+    - 通知/新着まわりの書き直し。
+    - EggRegex (pcre + GLib wrapper) の同梱。
+    - re:接頭辞をつけることでキーワードに正規表現を利用可能にした。
+    - TreatAsRecentLogUntilFirstPongReceivedオプションをDontMarkUntilFirstPongReceivedオプションの代わりに追加。
 - date: 2005-08-25
   version: 0.4.2
   changes:
