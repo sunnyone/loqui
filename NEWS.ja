@@ -1,5 +1,11 @@
 --- 
 -
+  date: 2005-10-13
+  version: 0.4.4
+  changes:
+   - 通知が動かない問題の修正。
+   - plumのrecent parserを使うと落ちる問題の修正。
+-
   date: 2005-10-12
   version: 0.4.3
   changes:
