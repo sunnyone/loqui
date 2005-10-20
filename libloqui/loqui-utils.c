@@ -28,6 +28,7 @@
 #include <sys/stat.h>
 #include <ctype.h>
 #include <errno.h>
+#include <locale.h>
 
 #include <libloqui-intl.h>
 #include "loqui-static-core.h"
@@ -514,6 +515,23 @@ loqui_utils_free_list_and_elements_unref(GList *list)
 {
 	g_list_foreach(list, (GFunc) g_object_unref, NULL);
 	g_list_free(list);
+}
+
+gchar *
+loqui_utils_get_lc_ctype(void)
+{
+#ifdef G_OS_WIN32
+	const gchar *tmp;
+
+	if ((tmp = g_getenv("LANG")) != NULL ||
+	    (tmp = g_getenv("LC_CTYPE")) != NULL) {
+		return g_strdup(tmp);	
+	} else {
+		return g_win32_getlocale();
+	}
+#else
+	return g_strdup(setlocale(LC_CTYPE, NULL));
+#endif
 }
 
 gchar *

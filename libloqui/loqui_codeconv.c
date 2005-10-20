@@ -25,7 +25,6 @@
 #include <libloqui-intl.h>
 #include <string.h>
 #include <ctype.h>
-#include <locale.h>
 #include <errno.h>
 #include "loqui-utils.h"
 
@@ -312,21 +311,26 @@ loqui_codeconv_find_table_item_by_locale(LoquiCodeConvTableItem *table)
 	gchar *ctype;
 	int i;
 
-	ctype = setlocale(LC_CTYPE, NULL);
+	ctype = loqui_utils_get_lc_ctype();
 	for (i = 0; table[i].name; i++) {
-		if (table[i].locale == NULL) /* when the 'locale' field is NULL, selected automatically. */
+		if (table[i].locale == NULL) { /* when the 'locale' field is NULL, selected automatically. */
+			g_free(ctype);
 			return &table[i];
+		}
 
 		if (ctype == NULL)
 			continue;
 
 		if (g_str_has_prefix(ctype, table[i].locale)) {
+			g_free(ctype);
 			return &table[i];
 		}
 	}
 
+	g_free(ctype);
 	return NULL;
 }
+
 LoquiCodeConvTableItem *
 loqui_codeconv_find_table_item_by_name(LoquiCodeConvTableItem *table, const gchar *name)
 {
