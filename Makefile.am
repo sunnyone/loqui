@@ -25,3 +25,9 @@ icondir = $(datadir)/pixmaps
 desktop_DATA = loqui.desktop
 desktopdir = $(sysconfdir)/X11/applnk/Internet
 
+dist-spec: distdir
+	$(AMTAR) chof - $(distdir) | GZIP=$(GZIP_ENV) gzip -c >$(distdir).tar.gz
+	sed '/^Source:/ s/\.tar\.gz$$/\.tar\.bz2/' $(distdir)/loqui.spec > $(distdir)/loqui.spec.bzip2
+	mv $(distdir)/loqui.spec.bzip2 $(distdir)/loqui.spec
+	$(AMTAR) chof - $(distdir) | bzip2 -9 -c >$(distdir).tar.bz2
+	$(am__remove_distdir)
