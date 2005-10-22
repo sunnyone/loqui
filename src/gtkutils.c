@@ -22,6 +22,8 @@
    gtk_tree_model_find_by_column_data() is written by him. */
 /* Copyright (C) 2002 Marco Pesenti Gritti
    gtkut_menu_position_under_widget() (gul_gui_menu_position_under_widget) is written by him. */
+/* Copyright (C) 1999-2005 Hiroyuki Yamamoto
+   gtkut_get_default_font_desc() */
 
 #include "config.h"
 #include "gtkutils.h"
@@ -407,4 +409,22 @@ gtkutils_menu_position_under_or_below_widget(GtkMenu   *menu,
 		*x = CLAMP(*x, 0, MAX(0, screen_width - requisition.width));
 		*y = CLAMP(*y, 0, MAX(0, screen_height - requisition.height));
 	}
+}
+
+PangoFontDescription *
+gtkutils_get_default_font_desc(void)
+{
+        static PangoFontDescription *font_desc = NULL;
+
+        if (!font_desc) {
+                GtkWidget *window;
+
+                window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+                gtk_widget_ensure_style(window);
+                font_desc = pango_font_description_copy
+                        (window->style->font_desc);
+                gtk_object_sink(GTK_OBJECT(window));
+        }
+
+        return pango_font_description_copy(font_desc);
 }

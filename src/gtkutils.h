@@ -73,5 +73,6 @@ void gtkutils_menu_position_under_or_below_widget(GtkMenu   *menu,
 						  gint      *y,
 						  gboolean  *push_in,
 						  gpointer   user_data);
+PangoFontDescription *gtkutils_get_default_font_desc(void);
 
 #endif /* __GTKUTILS_H__ */
