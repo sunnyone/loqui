@@ -111,6 +111,9 @@ loqui_channel_buffer_gtk_init_tags(void)
 		
 	default_tag_table = gtk_text_tag_table_new();
 	
+	tag = gtk_text_tag_new("global");
+	gtk_text_tag_table_add(default_tag_table, tag);
+
 	tag = gtk_text_tag_new("time");
 	gtk_text_tag_table_add(default_tag_table, tag);
 
@@ -170,8 +173,6 @@ loqui_channel_buffer_gtk_init(LoquiChannelBufferGtk *channel_buffer)
 	priv->is_common_buffer = FALSE;
 	channel_buffer->show_account_name = FALSE;
 	channel_buffer->show_channel_name = FALSE;
-
-	
 }
 static void 
 loqui_channel_buffer_gtk_finalize(GObject *object)
@@ -235,12 +236,17 @@ loqui_channel_buffer_gtk_new(LoquiPrefPartial *ppref_channel_buffer)
 	LoquiChannelBufferGtkPrivate *priv;
 	GtkTextBuffer *textbuf;
 	GtkTextIter iter;
-	
+	GtkTextIter start_iter, end_iter;
+
 	if(default_tag_table == NULL)
 		loqui_channel_buffer_gtk_init_tags();
 
 	channel_buffer = g_object_new(loqui_channel_buffer_gtk_get_type(), "tag_table", default_tag_table, NULL);
 	priv = channel_buffer->priv;
+
+	gtk_text_buffer_get_start_iter(GTK_TEXT_BUFFER(channel_buffer), &start_iter);
+	gtk_text_buffer_get_end_iter(GTK_TEXT_BUFFER(channel_buffer), &end_iter);
+	gtk_text_buffer_apply_tag_by_name(GTK_TEXT_BUFFER(channel_buffer), "global", &start_iter, &end_iter);
 
 	priv->ppref_channel_buffer = g_object_ref(ppref_channel_buffer);
 
@@ -285,6 +291,7 @@ if (tag == NULL) { g_warning("null tag: %s\n", tag_name); } \
 	SET_STRING_IF_MATCHED("notice", "foreground", "NoticeColor");
 	SET_STRING_IF_MATCHED("link", "foreground", "LinkColor");
 	SET_STRING_IF_MATCHED("highlight", "foreground", "HighlightColor");
+	SET_STRING_IF_MATCHED("global", "font", "GlobalFont");
 
 #undef SET_STRING_IF_MATCHED
 #undef GET_TAG
@@ -294,8 +301,14 @@ static void
 loqui_channel_buffer_gtk_load_styles(LoquiChannelBufferGtk *buffer)
 {
 	LoquiChannelBufferGtkPrivate *priv;
+	PangoFontDescription *font_desc;
+	gchar *font_name;
 
 	priv = buffer->priv;
+
+	font_desc = gtkutils_get_default_font_desc();
+	font_name = pango_font_description_to_string(font_desc);
+	pango_font_description_free(font_desc);
 
 #define SET_STRING_DEFAULT(key, value) loqui_pref_partial_set_default_string(priv->ppref_channel_buffer, key, value)
 
@@ -306,6 +319,8 @@ loqui_channel_buffer_gtk_load_styles(LoquiChannelBufferGtk *buffer)
 	SET_STRING_DEFAULT("NoticeColor", "#555555");
 	SET_STRING_DEFAULT("LinkColor", "blue");
 	SET_STRING_DEFAULT("HighlightColor", "purple");
+	
+	SET_STRING_DEFAULT("GlobalFont", font_name);
 
 #undef SET_STRING_DEFAULT
 
