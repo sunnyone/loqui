@@ -399,10 +399,11 @@ egg_regex_fetch_named (EggRegex      *regex,
 {
   gchar *match;
 
-  _pcre_get_named_substring (regex->regex, 
-			     string, regex->offsets, regex->matches, 
-			     name, (const char **)&match);
-
+  if (_pcre_get_named_substring (regex->regex, 
+			         string, regex->offsets, regex->matches, 
+			         name, (const char **)&match) < 0)
+	 return NULL;
+  
   return match;
 }
 
