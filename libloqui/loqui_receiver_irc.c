@@ -47,12 +47,17 @@
 
 #include "loqui-mode-manager.h"
 
+#include "regex/eggregex.h"
+
 struct _LoquiReceiverIRCPrivate
 {
 	CTCPHandle *ctcp_handle;
 
 	gboolean end_motd;
 	gboolean in_recent_log;
+
+	EggRegex *regex_recent;
+	gboolean failed_to_compile_regex_once;
 
 	/* just parser */
 	LoquiModeManager *channel_mode_manager;
@@ -265,13 +270,16 @@ loqui_receiver_irc_append_recent_log(LoquiReceiverIRC *receiver, LoquiChannel *c
 static gboolean
 loqui_receiver_irc_parse_plum_recent(LoquiReceiverIRC *receiver, const gchar *line)
 {
-	gchar *buf, *cur, *name;
-	gchar *converted_name;
-	gchar prefix;
+	gchar *regexp_str;
+	gchar *tmp;
+	gchar *time, *pre_char_str, *from, *post_char_str, *text;
+	gchar *converted_from, *from_after;
 	LoquiChannel *channel;
 	LoquiAccount *account;
 	LoquiReceiverIRCPrivate *priv;
-	
+	GError *error = NULL;
+	gint match_result;
+
         g_return_val_if_fail(receiver != NULL, FALSE);
         g_return_val_if_fail(LOQUI_IS_RECEIVER_IRC(receiver), FALSE);
 	g_return_val_if_fail(line != NULL, FALSE);
@@ -279,73 +287,90 @@ loqui_receiver_irc_parse_plum_recent(LoquiReceiverIRC *receiver, const gchar *li
 	priv = receiver->priv;
 	account = loqui_receiver_get_account(LOQUI_RECEIVER(receiver));
 
-	cur = buf = g_strdup(line);
-
-	if(!g_ascii_isdigit(*cur) ||
-	   !g_ascii_isdigit(*(++cur)) ||
-	   *(++cur) != ':' ||
-	   !g_ascii_isdigit(*(++cur)) ||
-	   !g_ascii_isdigit(*(++cur)) ||
-	   *(++cur) != ' ')
-		goto error;
-	prefix = *(++cur);
-	if(prefix != '<' && prefix != '>' && prefix != '=')
-		goto error;
-	name = ++cur;
-
-	switch(prefix) {
-	case '<':
-		if((cur = strstr(buf, "> ")) == NULL)
-			goto error;
-		*cur = '\0';
-		
-		if((cur = strrchr(buf, ':')) == NULL)
-			goto error;
-		*cur = '\0';
-
-		break;
-	case '>':
-		if((cur = strstr(buf, "< ")) == NULL)
-			goto error;
-		*cur = '\0';
-
-		if((cur = strrchr(buf, ':')) != NULL)
-			*cur = '\0';
-
-		break;
-	case '=':
-		if((cur = strstr(buf, "= ")) == NULL)
-			goto error;
-		*cur = '\0';
-
-		break;
-	default:
-		g_assert_not_reached();
+	if (priv->failed_to_compile_regex_once) {
+		return FALSE;
 	}
 
-	if (*name == '%' && strchr(name, ':') == NULL) {
-		converted_name = g_strconcat("#", name+1, PLUM_ALIAS_OF_PERCENT_PREFIX, NULL);
+	if (priv->regex_recent == NULL) {
+		regexp_str = loqui_pref_get_with_default_string(loqui_core_get_general_pref(loqui_get_core()),
+								LOQUI_GENERAL_PREF_GROUP_PROXY, "RecentLogRegexp",
+								LOQUI_GENERAL_PREF_DEFAULT_PROXY_RECENT_LOG_REGEXP, NULL);
+		if (regexp_str == NULL) {
+			loqui_account_warning(account, _("Failed to get the regexp string for recent logs."));
+			priv->failed_to_compile_regex_once = TRUE;
+			return FALSE;
+		}
+
+		priv->regex_recent = egg_regex_new(regexp_str, 0, 0, &error);
+		g_free(regexp_str);
+
+		if (!priv->regex_recent) {
+			loqui_account_warning(account, _("Failed to compile the regexp string for recent logs: %s"), error->message);
+			g_error_free(error);
+			priv->failed_to_compile_regex_once = TRUE;
+			return FALSE;
+		}
+	}
+	
+	egg_regex_clear(priv->regex_recent);
+	match_result = egg_regex_match(priv->regex_recent, line, -1, 0);
+	if (match_result <= 0) {
+		if (match_result != -1) { /* -1 => failed to match */
+			loqui_account_warning(account, _("Unexpected error in the regex for recent logs: %d"), match_result);
+		}
+		return FALSE;
+	}
+	time = pre_char_str = from = post_char_str = text = NULL;
+	
+#define FETCH_NAMED(name, var) { \
+	var = egg_regex_fetch_named(priv->regex_recent, line, name); \
+	if (var == NULL) { \
+		loqui_account_warning(account, _("Failed to get the string for '%s' with named capture."), name); \
+		g_free(time); \
+		g_free(pre_char_str); \
+		g_free(from); \
+		g_free(post_char_str); \
+		g_free(text); \
+		return FALSE; \
+	} \
+}
+	
+	FETCH_NAMED("time", time);
+	FETCH_NAMED("pre_char", pre_char_str);
+	FETCH_NAMED("from", from);
+	FETCH_NAMED("post_char", post_char_str);
+	FETCH_NAMED("text", text);
+
+	from_after = NULL;
+	if ((tmp = strrchr(from, ':')) != NULL) {
+		from_after = tmp + 1;
+		*tmp = '\0';
+	}
+
+	if (from_after != NULL && *from_after != '\0' && *from == '%') {
+		converted_from = g_strconcat("#", from+1, PLUM_ALIAS_OF_PERCENT_PREFIX, NULL);
 	} else {
-		converted_name = g_strdup(name);
+		converted_from = g_strdup(from);
 	}
 
-	channel = loqui_account_get_channel_by_identifier(account, converted_name);
+	channel = loqui_account_get_channel_by_identifier(account, converted_from);
 	if(channel == NULL) {
-		channel = LOQUI_CHANNEL(loqui_channel_irc_new(account, converted_name, FALSE, !LOQUI_UTILS_IRC_STRING_IS_CHANNEL(converted_name)));
+		channel = LOQUI_CHANNEL(loqui_channel_irc_new(account, converted_from, FALSE, !LOQUI_UTILS_IRC_STRING_IS_CHANNEL(converted_from)));
 		loqui_account_add_channel(account, channel);
 		g_object_unref(channel);
 	}
-	g_free(converted_name);
-	g_free(buf);
+	g_free(converted_from);
 	
 	loqui_receiver_irc_append_recent_log(receiver, channel, "LOG", line);
 	loqui_channel_entry_set_is_updated_weak(LOQUI_CHANNEL_ENTRY(channel), TRUE);
 
-	return TRUE;
+	g_free(time);
+	g_free(pre_char_str);
+	g_free(from);
+	g_free(post_char_str);
+	g_free(text);
 
- error:
-	g_free(buf);
-	return FALSE;
+	return TRUE;
 }
 static void
 loqui_receiver_irc_command_privmsg_notice(LoquiReceiverIRC *receiver, IRCMessage *msg)
@@ -1615,4 +1640,10 @@ loqui_receiver_irc_reset(LoquiReceiverIRC *receiver)
 	receiver->passed_welcome = FALSE;
 
 	priv->in_recent_log = FALSE;
+
+	if (priv->regex_recent) {
+		egg_regex_free(priv->regex_recent);
+		priv->regex_recent = NULL;
+	}
+	priv->failed_to_compile_regex_once = FALSE;
 }
