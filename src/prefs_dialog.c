@@ -39,8 +39,6 @@ struct _PrefsDialogPrivate
 	GtkWidget *check_save_size;
 	GtkWidget *check_auto_switch_scrolling;
 	GtkWidget *check_auto_switch_scrolling_common_buffer;
-	GtkWidget *check_parse_plum_recent;
-	GtkWidget *check_treat_as_recent_log_until_first_pong_received;
 	GtkWidget *check_auto_reconnect;
 	GtkWidget *check_connect_startup;
 	GtkWidget *check_select_channel_joined;
@@ -54,6 +52,10 @@ struct _PrefsDialogPrivate
 	GtkWidget *entry_command_prefix;
 	
 	GtkWidget *check_save_log;
+	
+	GtkWidget *check_parse_plum_recent;
+	GtkWidget *entry_recent_log_regexp;
+	GtkWidget *check_treat_as_recent_log_until_first_pong_received;
 	
 	GtkWidget *check_use_notification;
 	GtkWidget *check_exec_notification_by_notice;
@@ -258,6 +260,12 @@ prefs_dialog_load_settings(PrefsDialog *dialog)
 	gtk_entry_set_text(GTK_ENTRY(priv->entry_command_prefix), LOQUI_UTILS_EMPTY_IF_NULL(buf));
 	g_free(buf);
 
+	buf = loqui_pref_get_with_default_string(loqui_get_general_pref(),
+						 LOQUI_GENERAL_PREF_GROUP_PROXY, "RecentLogRegexp",
+						 LOQUI_GENERAL_PREF_DEFAULT_PROXY_RECENT_LOG_REGEXP, NULL);
+	gtk_entry_set_text(GTK_ENTRY(priv->entry_recent_log_regexp), LOQUI_UTILS_EMPTY_IF_NULL(buf));
+	g_free(buf);
+
 	gtk_spin_button_set_value(GTK_SPIN_BUTTON(priv->spin_common_buffer_max_line_number),
 				  loqui_pref_get_with_default_integer(loqui_get_general_pref(),
 								      LOQUI_GENERAL_PREF_GTK_GROUP_GENERAL, "CommonBufferMaxLineNumber",
@@ -353,6 +361,10 @@ prefs_dialog_save_settings(PrefsDialog *dialog)
 	loqui_pref_set_string(loqui_get_general_pref(),
                               LOQUI_GENERAL_PREF_GTK_GROUP_GENERAL, "CommandPrefix",
                               gtk_entry_get_text(GTK_ENTRY(priv->entry_command_prefix)));
+
+	loqui_pref_set_string(loqui_get_general_pref(),
+			      LOQUI_GENERAL_PREF_GROUP_PROXY, "RecentLogRegexp",
+                              gtk_entry_get_text(GTK_ENTRY(priv->entry_recent_log_regexp)));
 
 	loqui_pref_set_integer(loqui_get_general_pref(),
                                LOQUI_GENERAL_PREF_GTK_GROUP_GENERAL, "CommonBufferMaxLineNumber",
@@ -474,6 +486,8 @@ prefs_dialog_new(LoquiApp *app)
 	priv->check_parse_plum_recent = gtk_check_button_new_with_label(_("Parse plum (an irc proxy) recent feature (Experimental)"));
 	gtk_box_pack_start(GTK_BOX(vbox), priv->check_parse_plum_recent, FALSE, FALSE, 0);
 
+	gtkutils_add_label_entry(vbox, _("Regular Expression for recent logs: "), &priv->entry_recent_log_regexp, "");
+	
 	priv->check_treat_as_recent_log_until_first_pong_received = gtk_check_button_new_with_label(_("Treat server messages as recent logs until received a first PONG (for some irc-proxies)."));
 	gtk_box_pack_start(GTK_BOX(vbox), priv->check_treat_as_recent_log_until_first_pong_received, FALSE, FALSE, 0);
 	
