@@ -303,6 +303,11 @@ loqui_channel_text_view_vadj_value_changed_cb(GtkAdjustment *adj, gpointer data)
 	if (chview->auto_switch_scrolling) {
 		loqui_channel_text_view_set_is_scroll(chview, reached_to_end);
 	}
+
+	/* FIXME: hack for win32 */
+	if (!gtk_text_buffer_get_selection_bounds(gtk_text_view_get_buffer(GTK_TEXT_VIEW(chview)), NULL, NULL)) {
+		gtk_text_view_place_cursor_onscreen(GTK_TEXT_VIEW(chview));
+	}
 }
 
 static void
