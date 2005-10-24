@@ -12,7 +12,7 @@ AC_INIT(loqui, loqui_version)
 AC_CONFIG_SRCDIR([src/main.c])
 AM_CONFIG_HEADER([config.h])
 
-AM_INIT_AUTOMAKE([dist-bzip2])
+AM_INIT_AUTOMAKE
 
 AM_MAINTAINER_MODE
 
