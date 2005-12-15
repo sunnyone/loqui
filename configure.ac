@@ -43,7 +43,7 @@ AC_SUBST(GNET_LIBS)
 
 # Checks for header files.
 AC_HEADER_STDC
-AC_CHECK_HEADERS([fcntl.h libintl.h locale.h stdlib.h string.h unistd.h])
+AC_CHECK_HEADERS([fcntl.h locale.h stdlib.h string.h unistd.h])
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_HEADER_STAT
