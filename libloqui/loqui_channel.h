@@ -24,7 +24,7 @@
 #include <glib-object.h>
 #include "loqui_channel_entry.h"
 #include "irc_constants.h"
-#include <loqui-mode-manager.h>
+#include <libloqui/loqui-mode-manager.h>
 
 G_BEGIN_DECLS
 
