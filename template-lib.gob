@@ -24,8 +24,7 @@ requires 2.0.0
 
 %{
 #include <libloqui/libloqui-intl.h>
-
-#include "loqui-utils.h"
+#include <libloqui/loqui-utils.h>
 %}
 
 class Loqui: from G:Object
