@@ -1,6 +1,6 @@
 include(loqui-am-macros.m4)dnl
 
-SUBDIRS = regex
+SUBDIRS = regex . protocols
 
 INCLUDES = $(GLIB_CFLAGS) $(GNET_CFLAGS) $(EXTRA_WARNING_CFLAGS) -I$(includedir) -I$(top_srcdir) -DG_LOG_DOMAIN=\"libloqui\"
 CPPFLAGS = -g -Wall -Wredundant-decls -Wmissing-declarations -Wmissing-prototypes
