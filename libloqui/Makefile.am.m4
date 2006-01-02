@@ -68,13 +68,6 @@ SRC_PROTOCOL_IPMSG = \
 	ipmsg_packet.c ipmsg_packet.h \
 	M4_SRC_PROTOCOL_IPMSG_GOB gob_to_built_sources(M4_SRC_PROTOCOL_IPMSG_GOB)
 
-SRC_PROTOCOL_MSN = \
-	msn_login.c msn_login.h \
-	msn_message.c msn_message.h \
-	loqui_protocol_msn.c loqui_protocol_msn.h \
-	loqui_account_msn.c loqui_account_msn.h \
-	msn_constants.h
-
 define(`M4_SRC_LIBRARY_CORE_GOB',`loqui-core.gob loqui-pref.gob loqui-pref-partial.gob loqui-pref-sequence.gob loqui-profile-handle.gob loqui-account-manager.gob loqui-notifier.gob')dnl
 
 SRC_LIBRARY_CORE = \
@@ -103,7 +96,6 @@ libloqui_la_SOURCES =  \
 	$(SRC_PROTOCOL_BASE) \
 	$(SRC_PROTOCOL_IRC) \
 	$(SRC_PROTOCOL_IPMSG) \
-	$(SRC_PROTOCOL_MSN) \
 	$(SRC_LIBRARY_CORE)
 
 libloqui_la_LIBADD = \
