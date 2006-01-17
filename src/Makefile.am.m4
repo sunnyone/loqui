@@ -48,7 +48,7 @@ loqui_SOURCES = \
 	loqui_select_dialog.c loqui_select_dialog.h \
 	prefs_general_upgrader.c prefs_general_upgrader.h \
 	loqui-general-pref-gtk.h loqui-general-pref-gtk-groups.h loqui-general-pref-gtk-default.h \
-	$(M4_SRC_GOB) gob_to_built_sources(M4_SRC_GOB)
+	M4_SRC_GOB gob_to_built_sources(M4_SRC_GOB)
 
 BUILT_SOURCES := \
 	gob_to_built_sources(M4_SRC_GOB)
