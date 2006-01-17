@@ -1,5 +1,7 @@
 #!/bin/sh
 
+M4_MAKEFILE_AM_FILES="libloqui/protocols/jabber/Makefile.am libloqui/protocols/msn/Makefile.am libloqui/Makefile.am src/Makefile.am"
+
 set -e
 
 # pushd test
@@ -21,7 +23,7 @@ libtoolize --force --copy
 
 autoheader
 
-for i in libloqui/Makefile.am src/Makefile.am; do
+for i in $M4_MAKEFILE_AM_FILES; do
   m4 -I. "$i.m4" > "$i"
 done
 
