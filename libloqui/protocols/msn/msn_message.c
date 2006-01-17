@@ -21,8 +21,8 @@
 #include "config.h"
 
 #include "msn_message.h"
-#include "loqui_string_tokenizer.h"
-#include "loqui-utils.h"
+#include <libloqui/loqui_string_tokenizer.h>
+#include <libloqui/loqui-utils.h>
 
 enum {
         LAST_SIGNAL

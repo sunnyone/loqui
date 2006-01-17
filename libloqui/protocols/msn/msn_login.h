@@ -22,7 +22,7 @@
 #define __MSN_LOGIN_H__
 
 #include <glib-object.h>
-#include "loqui_account.h"
+#include <libloqui/loqui_account.h>
 #include "msn_message.h"
 
 G_BEGIN_DECLS

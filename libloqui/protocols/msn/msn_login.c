@@ -22,10 +22,10 @@
 
 #include "msn_login.h"
 #include "msn_message.h"
-#include <libloqui-intl.h>
+#include <libloqui/libloqui-intl.h>
 #include "msn_constants.h"
 #include "loqui_account_msn.h"
-#include "loqui_profile_account.h"
+#include <libloqui/loqui_profile_account.h>
 
 #include <gnet.h>
 #include <string.h>
