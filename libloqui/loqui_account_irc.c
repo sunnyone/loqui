@@ -460,16 +460,16 @@ loqui_account_irc_conn_readline_cb(GConn *conn, const gchar *buffer, LoquiAccoun
 	if (local == NULL) {
 		loqui_account_warning(LOQUI_ACCOUNT(account), "Failed to convert codeset: (%s).", error->message);
 		g_error_free(error);
-		return;
+		goto nextline;
 	}
 
 	msg = irc_message_parse_line(local);
-	g_free(local);
-
 	if (msg == NULL) {
-		loqui_account_warning(LOQUI_ACCOUNT(account), "Failed to parse a line");
-		return;
+		loqui_account_warning(LOQUI_ACCOUNT(account), "Failed to parse a line: %s", local);
+		g_free(local);
+		goto nextline;
 	}
+	g_free(local);
 
 	if(loqui_core_get_show_msg_mode(loqui_get_core())) {
 		gchar *tmp;
@@ -482,7 +482,9 @@ loqui_account_irc_conn_readline_cb(GConn *conn, const gchar *buffer, LoquiAccoun
 	loqui_receiver_irc_response(LOQUI_RECEIVER_IRC(LOQUI_ACCOUNT(account)->receiver), msg);
 	g_object_unref(msg);
 
+nextline:
 	gnet_conn_readline(conn);
+	return;
 }
 static void
 loqui_account_irc_conn_writable_cb(GConn *conn, LoquiAccountIRC *account)
