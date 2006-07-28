@@ -1,6 +1,6 @@
 #!/bin/sh
 
-M4_MAKEFILE_AM_FILES="libloqui/protocols/jabber/Makefile.am libloqui/protocols/msn/Makefile.am libloqui/Makefile.am src/Makefile.am"
+M4_MAKEFILE_AM_FILES="libloqui/protocols/jabber/Makefile.am libloqui/Makefile.am src/Makefile.am"
 
 set -e
 
