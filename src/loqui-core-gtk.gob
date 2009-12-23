@@ -46,7 +46,6 @@ requires 2.0.0
 %{
 #include <loqui_protocol_irc.h>
 #include <loqui_protocol_ipmsg.h>
-#include <libloqui/protocols/msn/loqui_protocol_msn.h>
 
 #include <glib/gi18n.h>
 #include <libloqui/loqui-utils.h>

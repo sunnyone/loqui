@@ -1,1 +1,1 @@
-SUBDIRS = jabber msn
+SUBDIRS = jabber

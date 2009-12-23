@@ -78,7 +78,6 @@ libloqui/regex/Makefile
 libloqui/regex/pcre/Makefile
 libloqui/protocols/Makefile
 libloqui/protocols/jabber/Makefile
-libloqui/protocols/msn/Makefile
 src/Makefile
 src/icons/Makefile
 src/embedtxt/Makefile
