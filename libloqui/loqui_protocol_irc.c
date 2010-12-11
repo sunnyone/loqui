@@ -47,6 +47,13 @@ LoquiCodeConvTableItem codeconv_table[] = {
 	 loqui_codeconv_tools_jis_to_utf8,
 	 "ISO-2022-JP",	NULL,
 	},
+	{"ja-utf8",
+	 N_("Japanese (UTF-8) "),
+	 N_("UTF-8"),
+	 "ja_JP",
+	 NULL,
+	 "UTF-8",	NULL,
+	},
 	{NULL, NULL, NULL, NULL, NULL, NULL, NULL},
 };
 
