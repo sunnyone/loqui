@@ -1,8 +1,8 @@
 /* -*- Mode: C; tab-width: 8; indent-tabs-mode: t; c-basic-offset: 8 -*- */
 /*
- * Loqui TitleFormat Utility <http://loqui.good-day.net/>
+ * Loqui TitleFormat Utility <http://launchpad.net/loqui/>
  * (foobar2000's title formatting parser)
- * Copyright (C) 2004 Yoichi Imai <yoichi@silver-forest.com>
+ * Copyright (C) 2004 Yoichi Imai <sunnyone41@gmail.com>
  *
  * You can use TitleFormat on these conditions.
  * (in GPL/LGPL program, TitleFormat follows GPL/LGPL.)

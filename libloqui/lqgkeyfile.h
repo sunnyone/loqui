@@ -19,7 +19,7 @@
  * write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  *   Boston, MA 02111-1307, USA.
  */
-/* backported for glib-2.4. 2004-12-30 Yoichi Imai <yoichi@silver-forest.com>
+/* backported for glib-2.4. 2004-12-30 Yoichi Imai <sunnyone41@gmail.com>
    locale-related functions do not work. */
 
 #ifndef __LQG_KEY_FILE_H__

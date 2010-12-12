@@ -1,7 +1,7 @@
 /* -*- Mode: C; tab-width: 8; indent-tabs-mode: t; c-basic-offset: 8 -*- */
 /*
- * Loqui StringTokenizer Utility <http://loqui.good-day.net/>
- * Copyright (C) 2004 Yoichi Imai <yoichi@silver-forest.com>
+ * Loqui StringTokenizer Utility <http://launchpad.net/loqui/>
+ * Copyright (C) 2004 Yoichi Imai <sunnyone41@gmail.com>
  *
  * You can use LoquiStringTokenizer on these conditions.
  * (in GPL/LGPL program, LoquiStringTokenizer follows GPL/LGPL.)

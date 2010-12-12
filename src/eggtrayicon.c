@@ -17,7 +17,7 @@
  * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  */
-/* Added WINDOWING ifdef  2005-07-09 by Yoichi Imai <yoichi@silver-forest.com> */
+/* Added WINDOWING ifdef  2005-07-09 by Yoichi Imai <sunnyone41@gmail.com> */
 
 #include <config.h>
 #include <string.h>

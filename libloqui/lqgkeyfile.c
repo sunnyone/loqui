@@ -21,7 +21,7 @@
  *   Boston, MA 02111-1307, USA.
  */
 
-/* backported for glib-2.4. 2004-12-30 Yoichi Imai <yoichi@silver-forest.com>
+/* backported for glib-2.4. 2004-12-30 Yoichi Imai <sunnyone41@gmail.com>
    locale-related functions do not work. */
 
 #include "config.h"

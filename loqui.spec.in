@@ -6,7 +6,7 @@ Name: loqui
 Version: %{ver}
 Release: %{rel}
 Group: Applications/Internet
-Source: http://loqui.good-day.net/src/%{name}-%{ver}.tar.gz
+Source: http://launchpad.net/loqui/src/%{name}-%{ver}.tar.gz
 License: GPL
 Packager: Yoichi Imai <sunnyone41@gmail.com>
 %if %{?!suse_version: 0}%{?suse_version: 1}
