@@ -19,6 +19,8 @@ fi
 
 aclocal -I m4
 
+glib-gettextize --force --copy
+
 libtoolize --force --copy
 
 autoheader
