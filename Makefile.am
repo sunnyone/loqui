@@ -23,7 +23,7 @@ icon_DATA = loqui.png
 icondir = $(datadir)/pixmaps
 
 desktop_DATA = loqui.desktop
-desktopdir = $(distdir)/applications/
+desktopdir = $(datadir)/applications/
 
 dist-spec: distdir
 	$(AMTAR) chof - $(distdir) | GZIP=$(GZIP_ENV) gzip -c >$(distdir).tar.gz
