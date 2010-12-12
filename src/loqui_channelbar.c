@@ -35,7 +35,6 @@ struct _LoquiChannelbarPrivate
 
 	GtkWidget *dbox_buffers;
 	GtkWidget *button_channel;
-	GtkWidget *label_channel_name;
 
 	GtkWidget *label_channel_mode;
 	GtkWidget *label_user_number;
@@ -209,9 +208,6 @@ loqui_channelbar_new(LoquiApp *app, GtkWidget *menu_dropdown, GtkToggleAction *t
 			 G_CALLBACK(loqui_channelbar_channel_button_clicked_cb), channelbar);
 	gtk_tooltips_set_tip(app->tooltips, priv->button_channel, _("Join a channel with the current account"), NULL);
 
-	priv->label_channel_name = gtk_label_new("");
-	gtk_container_add(GTK_CONTAINER(priv->button_channel), priv->label_channel_name);
-
 	priv->label_channel_mode = gtk_label_new("");
 	gtk_box_pack_start(GTK_BOX(channelbar), priv->label_channel_mode, 0, 0, FALSE);
 	
@@ -261,15 +257,18 @@ loqui_channelbar_update_channel_entry_label(LoquiChannelbar *channelbar, LoquiCh
 
 	priv = channelbar->priv;
 
-	if (chent) {
-		action = GTK_ACTION(loqui_channel_entry_action_group_get_channel_entry_action(priv->app->channel_entry_action_group, chent));
-		gtk_action_connect_proxy(action, priv->label_channel_name);
-		priv->chent_action = action;
-	} else if (priv->chent_action) {
-		gtk_action_disconnect_proxy(priv->chent_action, priv->label_channel_name);
+	if (priv->chent_action) {
+		gtk_action_disconnect_proxy(priv->chent_action, priv->button_channel);
 		priv->chent_action = NULL;
 	}
+		
+	if (chent) {
+		action = GTK_ACTION(loqui_channel_entry_action_group_get_channel_entry_action(priv->app->channel_entry_action_group, chent));
+		gtk_action_connect_proxy(action, priv->button_channel);
+		priv->chent_action = action;
+	}
 }
+
 void
 loqui_channelbar_update_channel_mode(LoquiChannelbar *channelbar, LoquiChannel *channel)
 {
