@@ -1,5 +1,11 @@
 --- 
 -
+  date: 2010-12-12
+  version: 0.5.0
+  changes:
+    - New site ("ohikkoshi") release.
+    - Fixed some bugs.
+-
   date: 2005-10-13
   version: 0.4.4
   changes:

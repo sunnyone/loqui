@@ -6,9 +6,9 @@ Name: loqui
 Version: %{ver}
 Release: %{rel}
 Group: Applications/Internet
-Source: http://loqui.good-day.net/src/%{name}-%{ver}.tar.gz
+Source: http://launchpad.net/loqui/src/%{name}-%{ver}.tar.gz
 License: GPL
-Packager: Yoichi Imai <yoichi@silver-forest.com>
+Packager: Yoichi Imai <sunnyone41@gmail.com>
 %if %{?!suse_version: 0}%{?suse_version: 1}
 %define gnet2_pkg gnet
 %define add_buildreq pkgconfig, gettext
@@ -17,7 +17,7 @@ Packager: Yoichi Imai <yoichi@silver-forest.com>
 %endif
 Requires: gtk2 >= 2.4.0, %{gnet2_pkg} >= 2.0.0
 BuildRequires: gtk2-devel >= 2.4.0, %{gnet2_pkg}-devel >= 2.0.0, %{?add_buildreq: %{add_buildreq}}
-URL: http://loqui.good-day.net/
+URL: http://launchpad.net/loqui
 BuildRoot: %{_tmppath}/%{name}-%{ver}-root
 
 %description
@@ -46,7 +46,7 @@ rm -rf $RPM_BUILD_ROOT
 %defattr (-,root,root)
 %doc README COPYING INSTALL ChangeLog AUTHORS NEWS NEWS.ja
 %{_bindir}/loqui
-%{_sysconfdir}/X11/applnk/Internet/loqui.desktop
+%{_sysconfdir}/applications/loqui.desktop
 %{_datadir}/pixmaps/loqui.png
 
 %changelog

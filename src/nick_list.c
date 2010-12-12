@@ -1,7 +1,7 @@
 /* -*- Mode: C; tab-width: 8; indent-tabs-mode: t; c-basic-offset: 8 -*- */
 /*
- * Loqui -- IRC client for Gtk2 <http://loqui.good-day.net/>
- * Copyright (C) 2002-2003 Yoichi Imai <yoichi@silver-forest.com>
+ * Loqui -- IRC client for Gtk2 <http://launchpad.net/loqui/>
+ * Copyright (C) 2002-2003 Yoichi Imai <sunnyone41@gmail.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -265,6 +265,17 @@ nick_list_menu_get_selected_members(NickList *nick_list)
 
 	return member_list;
 }
+
+static void
+nick_list_unselect_all(NickList *nick_list)
+{
+	GtkTreeSelection *selection;
+	selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(nick_list));
+	if(!selection)
+		return NULL;
+	gtk_tree_selection_unselect_all(selection);
+}
+
 void
 nick_list_start_private_talk_selected(NickList *nick_list)
 {
@@ -331,7 +342,7 @@ nick_list_change_mode_selected(NickList *nick_list, gboolean is_give, IRCModeFla
 	g_slist_foreach(member_list, (GFunc) g_object_unref, NULL);
 	g_slist_free(member_list);
 	loqui_channel_flush_user_mode_queue(channel);
-	
+	nick_list_unselect_all(nick_list);
 }
 void
 nick_list_ctcp_selected(NickList *nick_list, const gchar *command)

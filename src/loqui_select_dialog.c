@@ -1,7 +1,7 @@
 /* -*- Mode: C; tab-width: 8; indent-tabs-mode: t; c-basic-offset: 8 -*- */
 /*
- * Loqui -- Chat client for Gtk2 <http://loqui.good-day.net/>
- * Copyright (C) 2004 Yoichi Imai <yoichi@silver-forest.com>
+ * Loqui -- Chat client for Gtk2 <http://launchpad.net/loqui/>
+ * Copyright (C) 2004 Yoichi Imai <sunnyone41@gmail.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by

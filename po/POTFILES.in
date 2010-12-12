@@ -17,9 +17,11 @@ libloqui/loqui-general-pref-groups.h
 libloqui/loqui-generic-profile-factory.gob
 libloqui/loqui-gobject-utils.c
 libloqui/loqui-gobject-utils.h
+libloqui/loqui-message-text-region.gob
 libloqui/loqui-message-text.gob
 libloqui/loqui-mode-item.gob
 libloqui/loqui-mode-manager.gob
+libloqui/loqui-notifier.gob
 libloqui/loqui-pref-partial.gob
 libloqui/loqui-pref-sequence.gob
 libloqui/loqui-pref.gob
@@ -49,8 +51,6 @@ libloqui/loqui_account_irc.c
 libloqui/loqui_account_irc.h
 libloqui/loqui_account_manager_iter.c
 libloqui/loqui_account_manager_iter.h
-libloqui/loqui_account_msn.c
-libloqui/loqui_account_msn.h
 libloqui/loqui_channel.c
 libloqui/loqui_channel.h
 libloqui/loqui_channel_buffer.c
@@ -85,8 +85,6 @@ libloqui/loqui_protocol_irc.c
 libloqui/loqui_protocol_irc.h
 libloqui/loqui_protocol_manager.c
 libloqui/loqui_protocol_manager.h
-libloqui/loqui_protocol_msn.c
-libloqui/loqui_protocol_msn.h
 libloqui/loqui_receiver.c
 libloqui/loqui_receiver.h
 libloqui/loqui_receiver_irc.c
@@ -111,11 +109,6 @@ libloqui/loqui_webutils.c
 libloqui/loqui_webutils.h
 libloqui/lqgkeyfile.c
 libloqui/lqgkeyfile.h
-libloqui/msn_constants.h
-libloqui/msn_login.c
-libloqui/msn_login.h
-libloqui/msn_message.c
-libloqui/msn_message.h
 src/about.c
 src/about.h
 src/account_list_dialog.c
@@ -136,6 +129,7 @@ src/loqui-core-gtk.gob
 src/loqui-general-pref-gtk-default.h
 src/loqui-general-pref-gtk-groups.h
 src/loqui-general-pref-gtk.h
+src/loqui-notifier-gtk.gob
 src/loqui-protocol-selection-dialog.gob
 src/loqui-style-entry.gob
 src/loqui-transfer-window.gob
@@ -178,3 +172,4 @@ src/prefs_general_upgrader.c
 src/prefs_general_upgrader.h
 src/remark_entry.c
 src/remark_entry.h
+libloqui/protocols/jabber/loqui-account-jabber.gob
