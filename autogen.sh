@@ -21,6 +21,8 @@ aclocal -I m4
 
 libtoolize --force --copy
 
+glib-gettextize --force --copy
+
 autoheader
 
 for i in $M4_MAKEFILE_AM_FILES; do
