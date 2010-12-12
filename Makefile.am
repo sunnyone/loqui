@@ -3,7 +3,7 @@ SUBDIRS =  m4 libloqui src po # test
 AUTOMAKE_OPTIONS = 1.5
 
 ChangeLog:
-	svn log -v $(shell svn info | sed -ne 's/^URL: //p') > $@
+	bzr log -v $(shell bzr info | sed -ne 's/^ *parent branch: //p') > $@
 
 EXTRA_DIST= autogen.sh \
 	README \
@@ -23,7 +23,7 @@ icon_DATA = loqui.png
 icondir = $(datadir)/pixmaps
 
 desktop_DATA = loqui.desktop
-desktopdir = $(sysconfdir)/X11/applnk/Internet
+desktopdir = $(distdir)/applications/
 
 dist-spec: distdir
 	$(AMTAR) chof - $(distdir) | GZIP=$(GZIP_ENV) gzip -c >$(distdir).tar.gz
