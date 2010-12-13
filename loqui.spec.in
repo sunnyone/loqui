@@ -6,7 +6,7 @@ Name: loqui
 Version: %{ver}
 Release: %{rel}
 Group: Applications/Internet
-Source: http://launchpad.net/loqui/src/%{name}-%{ver}.tar.gz
+Source0: http://launchpad.net/loqui/src/%{name}-%{ver}.tar.gz
 License: GPL
 Packager: Yoichi Imai <sunnyone41@gmail.com>
 %if %{?!suse_version: 0}%{?suse_version: 1}
@@ -17,6 +17,7 @@ Packager: Yoichi Imai <sunnyone41@gmail.com>
 %endif
 Requires: gtk2 >= 2.4.0, %{gnet2_pkg} >= 2.0.0
 BuildRequires: gtk2-devel >= 2.4.0, %{gnet2_pkg}-devel >= 2.0.0, %{?add_buildreq: %{add_buildreq}}
+BuildRequires: gob2
 URL: http://launchpad.net/loqui
 BuildRoot: %{_tmppath}/%{name}-%{ver}-root
 
@@ -50,6 +51,14 @@ rm -rf $RPM_BUILD_ROOT
 %{_datadir}/pixmaps/loqui.png
 
 %changelog
+* Sun Dec 12 2010 IWAI, Masaharu <iwaim.sub@gmail.com>
+- add BuildRequires: gob2
+
+* Sun Dec 12 2010 Yoichi Imai <sunnyone41@gmail.com>
+- update URL and Source0: moved
+- update Packager mail address
+- update desktop file path
+
 * Thu Apr  8 2004 Yoichi Imai <yoichi@silver-forest.com>
 - Added icon / desktop file.
 
