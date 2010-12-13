@@ -31,6 +31,8 @@
 
 #define EPS 0.00000001
 
+#define GOOGLE_URL "http://www.google.com/search?q=" /* TODO: make configurable */
+
 enum {
 	SIGNAL_SCROLLED_TO_END,
         LAST_SIGNAL
@@ -79,6 +81,9 @@ static gboolean loqui_channel_text_view_motion_notify_event(GtkWidget *widget, G
 static gboolean loqui_channel_text_view_visibility_notify_event(GtkWidget *widget, GdkEventVisibility *event);
 static gboolean loqui_channel_text_view_button_release_event(GtkWidget *widget, GdkEventButton *event_button);
 
+static void loqui_channel_text_view_populate_popup(GtkTextView *textview, GtkMenu *menu);
+static void loqui_channel_text_view_search_keyword_cb(GtkMenuItem *item, gpointer user_data);
+
 /* utilities */
 static gboolean loqui_channel_text_view_get_buffer_and_iter_at_event_xy(LoquiChannelTextView *chview,
 									LoquiChannelBufferGtk **buffer_gtk, GtkTextIter *iter,
@@ -92,6 +97,7 @@ static gboolean loqui_channel_text_view_get_uri_at_iter(LoquiChannelTextView *ch
 static void loqui_channel_text_view_iter_activated(LoquiChannelTextView *chview, LoquiChannelBufferGtk *buffer_gtk, GtkTextIter *iter);
 static void loqui_channel_text_view_update_hover(LoquiChannelTextView *chview, LoquiChannelBufferGtk *buffer_gtk, GtkTextIter *iter);
 static void loqui_channel_text_view_update_cursor(LoquiChannelTextView *chview, gint event_x, gint event_y);
+static void loqui_channel_text_view_execute_browser(LoquiChannelTextView *chview, gchar *uri_str);
 
 GType
 loqui_channel_text_view_get_type(void)
@@ -191,7 +197,8 @@ loqui_channel_text_view_class_init(LoquiChannelTextViewClass *klass)
 {
         GObjectClass *object_class = G_OBJECT_CLASS(klass);
 	GtkWidgetClass *widget_class = GTK_WIDGET_CLASS(klass);
-
+	GtkTextViewClass *text_view_class = GTK_TEXT_VIEW_CLASS(klass);
+	
         parent_class = g_type_class_peek_parent(klass);
         
         object_class->finalize = loqui_channel_text_view_finalize;
@@ -205,6 +212,8 @@ loqui_channel_text_view_class_init(LoquiChannelTextViewClass *klass)
 	widget_class->visibility_notify_event = loqui_channel_text_view_visibility_notify_event;
 	widget_class->button_release_event = loqui_channel_text_view_button_release_event;
 
+	text_view_class->populate_popup = loqui_channel_text_view_populate_popup;
+	
 	g_object_class_install_property(object_class,
 					PROP_IS_SCROLL,
 					g_param_spec_boolean("is_scroll",
@@ -395,6 +404,57 @@ loqui_channel_text_view_visibility_notify_event(GtkWidget *widget, GdkEventVisib
 
 	return FALSE;
 }
+
+static void
+loqui_channel_text_view_populate_popup(GtkTextView *textview, GtkMenu *menu)
+{
+	GtkWidget *menu_item;
+	
+	/* separator */
+        menu_item = gtk_menu_item_new();
+        gtk_menu_shell_append (GTK_MENU_SHELL(menu), menu_item);
+        gtk_widget_show(menu_item);
+
+        /* search */
+        menu_item = gtk_menu_item_new_with_mnemonic(_("_Search Keyword With Google"));
+        g_signal_connect(G_OBJECT(menu_item), "activate",
+                         G_CALLBACK(loqui_channel_text_view_search_keyword_cb), 
+                         textview);
+        gtk_menu_shell_append(GTK_MENU_SHELL(menu), menu_item);
+        gtk_widget_set_sensitive(GTK_WIDGET(menu_item),
+                                 gtk_text_buffer_get_has_selection(gtk_text_view_get_buffer(textview)));
+        gtk_widget_show(menu_item);
+
+	if (GTK_TEXT_VIEW_CLASS(parent_class)->populate_popup)
+               (* GTK_TEXT_VIEW_CLASS(parent_class)->populate_popup) (textview, menu);
+}
+
+static void
+loqui_channel_text_view_search_keyword_cb(GtkMenuItem *item, gpointer user_data)
+{
+	LoquiChannelTextView *chview;
+	GtkTextBuffer *buf;
+	GtkTextIter iter_start, iter_end;
+	gchar *text, *escaped_text, *uri;
+	
+	chview = LOQUI_CHANNEL_TEXT_VIEW(user_data);
+	
+	buf = gtk_text_view_get_buffer(GTK_TEXT_VIEW(chview));
+	
+	if (!gtk_text_buffer_get_selection_bounds(buf, &iter_start, &iter_end))
+		return;
+	
+	text = gtk_text_buffer_get_text(buf, &iter_start, &iter_end, FALSE);
+	escaped_text = g_uri_escape_string(text, NULL, FALSE);
+	uri = g_strdup_printf("%s%s", GOOGLE_URL, escaped_text);
+	
+	loqui_channel_text_view_execute_browser(chview, uri);
+	
+	g_free(uri);
+	g_free(escaped_text);
+	g_free(text);
+}
+
 static gboolean
 loqui_channel_text_view_get_buffer_and_iter_at_event_xy(LoquiChannelTextView *chview,
 							LoquiChannelBufferGtk **buffer_gtk, GtkTextIter *iter,
@@ -464,11 +524,27 @@ loqui_channel_text_view_get_uri_at_iter(LoquiChannelTextView *chview,
 	return TRUE;
 }
 static void
+loqui_channel_text_view_execute_browser(LoquiChannelTextView *chview, gchar *uri_str)
+{
+	gchar *browser_command;
+	
+	browser_command = loqui_pref_get_with_default_string(loqui_get_general_pref(),
+							     LOQUI_GENERAL_PREF_GTK_GROUP_COMMANDS, "BrowserCommand",
+							     LOQUI_GENERAL_PREF_GTK_DEFAULT_COMMANDS_BROWSER_COMMAND, NULL);
+	
+	if (browser_command) {
+		gtkutils_exec_command_argument_with_error_dialog(browser_command, uri_str);
+		g_free(browser_command);
+	} else {
+		g_warning(_("Failed to get the browser command."));
+	}
+}
+
+static void
 loqui_channel_text_view_iter_activated(LoquiChannelTextView *chview, LoquiChannelBufferGtk *buffer_gtk, GtkTextIter *iter)
 {
 	gchar *uri_str;
 	GtkTextIter uri_start_iter, uri_end_iter;
-	gchar *browser_command;
 
         g_return_if_fail(chview != NULL);
         g_return_if_fail(LOQUI_IS_CHANNEL_TEXT_VIEW(chview));
@@ -477,17 +553,7 @@ loqui_channel_text_view_iter_activated(LoquiChannelTextView *chview, LoquiChanne
 
 	if (loqui_channel_text_view_get_uri_at_iter(chview, buffer_gtk, iter, &uri_start_iter, &uri_end_iter)) {
 		uri_str = gtk_text_iter_get_text(&uri_start_iter, &uri_end_iter);
-
-		browser_command = loqui_pref_get_with_default_string(loqui_get_general_pref(),
-								     LOQUI_GENERAL_PREF_GTK_GROUP_COMMANDS, "BrowserCommand",
-								     LOQUI_GENERAL_PREF_GTK_DEFAULT_COMMANDS_BROWSER_COMMAND, NULL);
-		
-		if (browser_command) {
-			gtkutils_exec_command_argument_with_error_dialog(browser_command, uri_str);
-			g_free(browser_command);
-		} else {
-			g_warning(_("Failed to get the browser command."));
-		}
+		loqui_channel_text_view_execute_browser(chview, uri_str);
 		g_free(uri_str);
 	}
 }
