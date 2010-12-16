@@ -9,12 +9,16 @@ show-needless-svn-ignore: all-am
 	    echo "$$line"; \
 	done
 
-add-built-sources-to-svn-ignore:
-	@set -e;tmpname=$$(mktemp -t svn-ignore-temp.XXXXXX) && ( \
-	  ((svn propget --strict svn:ignore .; echo -n "$(BUILT_SOURCES)" | tr " " "\n") | \
+add-built-sources-to-bzr-ignore:
+	@set -e;tmpname=$$(mktemp -t bzr-ignore-temp.XXXXXX) && ( \
+	  ((cat "$(top_srcdir)/.bzrignore"; \
+	    echo -n "$(BUILT_SOURCES)" | tr " " "\n" | sed -e "s|^|$(subdir)/|") | \
 	   sort | uniq > "$$tmpname") && \
-	  svn propset svn:ignore -F "$$tmpname" . && \
-	  rm "$$tmpname" \
+	  if cmp -s "$(top_srcdir)/.bzrignore" "$$tmpname"; then \
+	    rm "$$tmpname"; \
+	  else \
+	    mv "$$tmpname" "$(top_srcdir)/.bzrignore"; \
+	  fi; \
 	)
 
 define(`gob_to_built_sources',`patsubst(`$@', `\.gob\>', `.c') \
