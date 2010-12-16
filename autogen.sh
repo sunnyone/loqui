@@ -10,7 +10,7 @@ set -e
 
 rm -f ChangeLog
 
-if which gob2 &>/dev/null; then
+if type gob2 >/dev/null 2>&1; then
    :
 else
    echo gob2 is not installed.
@@ -22,8 +22,6 @@ aclocal -I m4
 glib-gettextize --force --copy
 
 libtoolize --force --copy
-
-glib-gettextize --force --copy
 
 autoheader
 
