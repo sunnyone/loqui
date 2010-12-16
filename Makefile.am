@@ -15,7 +15,8 @@ EXTRA_DIST= autogen.sh \
 	loqui.spec \
 	loqui.spec.in \
 	loqui.desktop \
-	loqui.png
+	loqui.png \
+	loqui-am-macros.m4
 
 ACLOCAL_AMFLAGS = -I m4
 
