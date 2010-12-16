@@ -6,10 +6,11 @@ msgid ""
 msgstr ""
 "Project-Id-Version: loqui 0.1.20\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2005-10-12 17:42+0900\n"
+"POT-Creation-Date: 2010-12-17 02:30+0900\n"
 "PO-Revision-Date: 2005-10-12 17:48+0900\n"
 "Last-Translator: Yoichi Imai <yoichi@silver-forest.com>\n"
 "Language-Team: Japanese <ja@li.org>\n"
+"Language: ja\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -49,8 +50,8 @@ msgstr ""
 #: libloqui/ctcp_handle.c:405
 #, c-format
 msgid ""
-"Received DCC SEND request from %s (filename: %s, host: %s, port: %s, size: %"
-"s)"
+"Received DCC SEND request from %s (filename: %s, host: %s, port: %s, size: "
+"%s)"
 msgstr ""
 
 #: libloqui/irc_message.c:462
@@ -66,12 +67,29 @@ msgid "Failed to create socket. Is used the port?"
 msgstr "ソケットの作成に失敗しました。ポートを使用済みですか？"
 
 #: libloqui/loqui-account-ipmsg.gob:91
+#, c-format
 msgid "Opened the socket."
 msgstr "ソケットを開きました。"
 
 #: libloqui/loqui-account-ipmsg.gob:129
 msgid "Disconnected."
 msgstr "切断されました。"
+
+#: libloqui/loqui-message-text-region.gob:50
+msgid "start_pos"
+msgstr ""
+
+#: libloqui/loqui-message-text-region.gob:51
+msgid "Start Position"
+msgstr ""
+
+#: libloqui/loqui-message-text-region.gob:55
+msgid "end_pos"
+msgstr ""
+
+#: libloqui/loqui-message-text-region.gob:56
+msgid "End Position"
+msgstr ""
 
 #: libloqui/loqui-message-text.gob:84 libloqui/loqui-message-text.gob:85
 msgid "Text"
@@ -88,7 +106,7 @@ msgstr "アカウントの名前"
 
 #: libloqui/loqui-message-text.gob:105 libloqui/loqui_profile_account.c:268
 #: libloqui/loqui_user.c:228 src/loqui-account-dialog.gob:389
-#: src/nick_list.c:467
+#: src/nick_list.c:478
 msgid "Nick"
 msgstr "Nick"
 
@@ -161,6 +179,7 @@ msgid "Invalid element '%s': document element is not profile"
 msgstr "不正な要素 '%s': 文書要素がprofileではありません。"
 
 #: libloqui/loqui-profile-handle.gob:256
+#, c-format
 msgid "Invalid content: profile has no type'"
 msgstr "不正な内容: プロフィールが型情報を持っていません"
 
@@ -195,6 +214,7 @@ msgid "Don't correspond with start tag: current: %s, queued: %s"
 msgstr ""
 
 #: libloqui/loqui-profile-handle.gob:528
+#, c-format
 msgid "The profile element doesn't have parent element"
 msgstr ""
 
@@ -227,7 +247,7 @@ msgid ""
 msgstr ""
 
 #: libloqui/loqui-sender-ipmsg.gob:118 libloqui/loqui-sender-ipmsg.gob:132
-#: libloqui/loqui-sender-ipmsg.gob:147 libloqui/loqui_account_irc.c:615
+#: libloqui/loqui-sender-ipmsg.gob:147 libloqui/loqui_account_irc.c:617
 msgid "The account is not connected."
 msgstr "アカウントが接続されていません"
 
@@ -279,7 +299,6 @@ msgid "An error occured on the connection"
 msgstr "接続にエラーが発生しました。"
 
 #: libloqui/loqui-transfer-item-irc.gob:124 libloqui/loqui_account_irc.c:437
-#: libloqui/msn_login.c:251
 msgid "Connection closed."
 msgstr "切断されました。"
 
@@ -288,7 +307,6 @@ msgid "Connection timed out."
 msgstr ""
 
 #: libloqui/loqui-transfer-item-irc.gob:144 libloqui/loqui_account_irc.c:381
-#: libloqui/msn_login.c:221
 msgid "Connected."
 msgstr "接続しました。"
 
@@ -362,7 +380,7 @@ msgstr ""
 msgid "Percent"
 msgstr ""
 
-#: libloqui/loqui-utils.c:176
+#: libloqui/loqui-utils.c:177
 #, c-format
 msgid "?x flag doesn't have { in '%s'"
 msgstr ""
@@ -436,11 +454,11 @@ msgstr ""
 msgid "Connecting to %s:%d"
 msgstr "%s:%dに接続しています"
 
-#: libloqui/loqui_account_irc.c:349 libloqui/msn_login.c:197
+#: libloqui/loqui_account_irc.c:349
 msgid "Failed to connect."
 msgstr "接続に失敗しました。"
 
-#: libloqui/loqui_account_irc.c:351 libloqui/msn_login.c:199
+#: libloqui/loqui_account_irc.c:351
 msgid "An error occured on connection."
 msgstr "接続に不明なエラーが発生しました。"
 
@@ -448,13 +466,9 @@ msgstr "接続に不明なエラーが発生しました。"
 msgid "Sent initial commands."
 msgstr "初期コマンドを送信しました。"
 
-#: libloqui/loqui_account_irc.c:579
+#: libloqui/loqui_account_irc.c:581
 msgid "Terminated."
 msgstr "終了しました。"
-
-#: libloqui/loqui_account_msn.c:177
-msgid "Connecting."
-msgstr "接続しています。"
 
 #: libloqui/loqui_channel.c:204
 msgid "Joined"
@@ -592,7 +606,7 @@ msgid "Last message time"
 msgstr "最終メッセージ時刻"
 
 #: libloqui/loqui_message.c:165 libloqui/loqui_message.c:166
-#: src/prefs_dialog.c:516
+#: src/prefs_dialog.c:530
 msgid "Command"
 msgstr "コマンド"
 
@@ -693,68 +707,98 @@ msgstr ""
 msgid "ISO-2022-JP (with JIS X 0201 kana and informal characters)"
 msgstr ""
 
-#: libloqui/loqui_receiver_irc.c:204
+#: libloqui/loqui_protocol_irc.c:51
+#, fuzzy
+msgid "Japanese (UTF-8) "
+msgstr "日本語"
+
+#: libloqui/loqui_protocol_irc.c:52
+msgid "UTF-8"
+msgstr ""
+
+#: libloqui/loqui_receiver_irc.c:209
 #, c-format
 msgid "(%1$s): The message doesn't contains a nick: %2$s"
 msgstr "(%1$s): メッセージにnickが含まれていません: %2$s"
 
-#: libloqui/loqui_receiver_irc.c:223
+#: libloqui/loqui_receiver_irc.c:228
 #, c-format
 msgid ""
 "(%1$s): The message doesn't contains a target (the first parameter): %2$s"
 msgstr ""
 
-#: libloqui/loqui_receiver_irc.c:244
+#: libloqui/loqui_receiver_irc.c:249
 #, c-format
 msgid "(%1$s): msg.param[%2$d] is not a channel name(%3$s): %4$s"
 msgstr ""
 
-#: libloqui/loqui_receiver_irc.c:373
+#: libloqui/loqui_receiver_irc.c:299
+#, fuzzy
+msgid "Failed to get the regexp string for recent logs."
+msgstr "ブラウザコマンドの取得に失敗しました。"
+
+#: libloqui/loqui_receiver_irc.c:308
+#, c-format
+msgid "Failed to compile the regexp string for recent logs: %s"
+msgstr ""
+
+#. -1 => failed to match
+#: libloqui/loqui_receiver_irc.c:319
+#, c-format
+msgid "Unexpected error in the regex for recent logs: %d"
+msgstr ""
+
+#: libloqui/loqui_receiver_irc.c:328
+#, c-format
+msgid "Failed to get the string for '%s' with named capture."
+msgstr ""
+
+#: libloqui/loqui_receiver_irc.c:397
 msgid "This PRIVMSG/NOTICE message doesn't contain a target."
 msgstr "このPRIVMSG/NOTICEメッセージにはtargetが含まれていません。"
 
-#: libloqui/loqui_receiver_irc.c:378 libloqui/loqui_sender_irc.c:782
+#: libloqui/loqui_receiver_irc.c:402 libloqui/loqui_sender_irc.c:782
 msgid "This PRIVMSG/NOTICE message doesn't contain a remark."
 msgstr "このPRIVMSG/NOTICEメッセージには発言が含まれていません。"
 
-#: libloqui/loqui_receiver_irc.c:459 libloqui/loqui_receiver_irc.c:487
-#: libloqui/loqui_receiver_irc.c:530 libloqui/loqui_receiver_irc.c:584
+#: libloqui/loqui_receiver_irc.c:483 libloqui/loqui_receiver_irc.c:511
+#: libloqui/loqui_receiver_irc.c:554 libloqui/loqui_receiver_irc.c:608
 msgid "The message does not contain nick"
 msgstr "メッセージにnickが含まれていません"
 
-#: libloqui/loqui_receiver_irc.c:470
+#: libloqui/loqui_receiver_irc.c:494
 msgid "*** %n has quit IRC(%L)"
 msgstr ""
 
-#: libloqui/loqui_receiver_irc.c:493 libloqui/loqui_receiver_irc.c:536
+#: libloqui/loqui_receiver_irc.c:517 libloqui/loqui_receiver_irc.c:560
 msgid "The message does not contain the channal name"
 msgstr "メッセージにチャンネル名が含まれていません。"
 
-#: libloqui/loqui_receiver_irc.c:508
+#: libloqui/loqui_receiver_irc.c:532
 msgid "*** You have left %t (%1)"
 msgstr ""
 
-#: libloqui/loqui_receiver_irc.c:512
+#: libloqui/loqui_receiver_irc.c:536
 msgid "*** %n has just part %t(%L)"
 msgstr ""
 
-#: libloqui/loqui_receiver_irc.c:542
+#: libloqui/loqui_receiver_irc.c:566
 msgid "The KICK message doesn't contain the user to be kicked."
 msgstr ""
 
-#: libloqui/loqui_receiver_irc.c:552
+#: libloqui/loqui_receiver_irc.c:576
 msgid "*** You were kicked from %t by %n (%2)"
 msgstr ""
 
-#: libloqui/loqui_receiver_irc.c:555
+#: libloqui/loqui_receiver_irc.c:579
 msgid "*** %1 was kicked from %t by %n(%2)"
 msgstr ""
 
-#: libloqui/loqui_receiver_irc.c:590
+#: libloqui/loqui_receiver_irc.c:614
 msgid "The NICK message does not contain new nick"
 msgstr "NICKメッセージに新しいnickが含まれていません"
 
-#: libloqui/loqui_receiver_irc.c:595
+#: libloqui/loqui_receiver_irc.c:619
 msgid "*** %n is known as %t"
 msgstr ""
 
@@ -768,183 +812,183 @@ msgstr ""
 #. case IRC_USER_MODE_LOCAL_OPERATOR:
 #. case IRC_USER_MODE_RECEIVES_SERVER_NOTICES:
 #. default:
-#: libloqui/loqui_receiver_irc.c:688
+#: libloqui/loqui_receiver_irc.c:712
 msgid "User mode is not implemented."
 msgstr "ユーザーモードは実装されていません"
 
-#: libloqui/loqui_receiver_irc.c:707 libloqui/loqui_receiver_irc.c:752
+#: libloqui/loqui_receiver_irc.c:731 libloqui/loqui_receiver_irc.c:776
 msgid "The target is not found in MODE command"
 msgstr "MODEコマンドに対象が発見できません"
 
-#: libloqui/loqui_receiver_irc.c:716
+#: libloqui/loqui_receiver_irc.c:740
 #, c-format
 msgid "RPL_CHANNELMODEIS didn't return a channel name: %s"
 msgstr ""
 
-#: libloqui/loqui_receiver_irc.c:722
+#: libloqui/loqui_receiver_irc.c:746
 msgid "*** Mode for %1: %*2"
 msgstr ""
 
-#: libloqui/loqui_receiver_irc.c:741
+#: libloqui/loqui_receiver_irc.c:765
 msgid "Who can change mode?"
 msgstr "誰がモードを変えられるのです？"
 
-#: libloqui/loqui_receiver_irc.c:746
+#: libloqui/loqui_receiver_irc.c:770
 #, c-format
 msgid "Nick must not contain '%%'"
 msgstr "Nickは'%%'を含むべきではありません"
 
-#: libloqui/loqui_receiver_irc.c:759
+#: libloqui/loqui_receiver_irc.c:783
 msgid "Why can you know the change of his mode?"
 msgstr ""
 
-#: libloqui/loqui_receiver_irc.c:768
+#: libloqui/loqui_receiver_irc.c:792
 #, c-format
 msgid "*** New mode for %%t by %s: %%*1"
 msgstr ""
 
-#: libloqui/loqui_receiver_irc.c:814
+#: libloqui/loqui_receiver_irc.c:838
 msgid "*** %n (%u@%h) joined channel %L"
 msgstr ""
 
-#: libloqui/loqui_receiver_irc.c:855
+#: libloqui/loqui_receiver_irc.c:879
 #, c-format
 msgid "Sent a command to join %s."
 msgstr ""
 
-#: libloqui/loqui_receiver_irc.c:861
+#: libloqui/loqui_receiver_irc.c:885
 #, c-format
 msgid "Sent a command to join %s (with the channel key(s))."
 msgstr ""
 
-#: libloqui/loqui_receiver_irc.c:865
+#: libloqui/loqui_receiver_irc.c:889
 msgid ""
 "The string for autojoin is invalid. It must be comma-separated, like '#a,#b,"
 "#c' or '#a,#b,#c keyA,keyB'."
 msgstr ""
 
-#: libloqui/loqui_receiver_irc.c:951
+#: libloqui/loqui_receiver_irc.c:975
 msgid "Invalid CREATIONTIME reply."
 msgstr ""
 
-#: libloqui/loqui_receiver_irc.c:956 libloqui/loqui_receiver_irc.c:997
+#: libloqui/loqui_receiver_irc.c:980 libloqui/loqui_receiver_irc.c:1021
 msgid "Invalid time string"
 msgstr "無効な時間文字列"
 
-#: libloqui/loqui_receiver_irc.c:962 libloqui/loqui_receiver_irc.c:1003
+#: libloqui/loqui_receiver_irc.c:986 libloqui/loqui_receiver_irc.c:1027
 msgid "Invalid time"
 msgstr "無効な時間"
 
-#: libloqui/loqui_receiver_irc.c:966
+#: libloqui/loqui_receiver_irc.c:990
 #, c-format
 msgid "%%1 was created at %s"
 msgstr ""
 
-#: libloqui/loqui_receiver_irc.c:991
+#: libloqui/loqui_receiver_irc.c:1015
 msgid "Invalid TOPICWHOTIME reply."
 msgstr ""
 
-#: libloqui/loqui_receiver_irc.c:1007
+#: libloqui/loqui_receiver_irc.c:1031
 #, c-format
 msgid "Topic for %%2 was set by %%3 at %s"
 msgstr ""
 
-#: libloqui/loqui_receiver_irc.c:1030 libloqui/loqui_receiver_irc.c:1036
+#: libloqui/loqui_receiver_irc.c:1054 libloqui/loqui_receiver_irc.c:1060
 msgid "Invalid WHOISIDLE reply."
 msgstr ""
 
-#: libloqui/loqui_receiver_irc.c:1086
+#: libloqui/loqui_receiver_irc.c:1110
 msgid "Invalid WHO reply."
 msgstr "無効なWHOリプライ"
 
-#: libloqui/loqui_receiver_irc.c:1149
+#: libloqui/loqui_receiver_irc.c:1173
 #, c-format
 msgid "%c%s(%s) is %s@%s (%s) on %s(%d hops) [%s]"
 msgstr ""
 
-#: libloqui/loqui_receiver_irc.c:1179
+#: libloqui/loqui_receiver_irc.c:1203
 msgid "Topic for %1: %L"
 msgstr ""
 
-#: libloqui/loqui_receiver_irc.c:1203
+#: libloqui/loqui_receiver_irc.c:1227
 msgid "*** New topic on %t by %n: %L"
 msgstr ""
 
-#: libloqui/loqui_receiver_irc.c:1278
+#: libloqui/loqui_receiver_irc.c:1302
 msgid "Can't find the channel from the message"
 msgstr ""
 
-#: libloqui/loqui_receiver_irc.c:1326
+#: libloqui/loqui_receiver_irc.c:1350
 msgid "*** %1 is marked as begin AWAY, but left the message: %2"
 msgstr ""
 
-#: libloqui/loqui_receiver_irc.c:1335 libloqui/loqui_receiver_irc.c:1339
-#: libloqui/loqui_receiver_irc.c:1343
+#: libloqui/loqui_receiver_irc.c:1359 libloqui/loqui_receiver_irc.c:1363
+#: libloqui/loqui_receiver_irc.c:1367
 msgid "*** %L"
 msgstr ""
 
-#: libloqui/loqui_receiver_irc.c:1346
+#: libloqui/loqui_receiver_irc.c:1370
 msgid "*** You are inviting %1 to %2"
 msgstr ""
 
-#: libloqui/loqui_receiver_irc.c:1349
+#: libloqui/loqui_receiver_irc.c:1373
 msgid "*** %2 is running IRC version %1 (%3)"
 msgstr ""
 
-#: libloqui/loqui_receiver_irc.c:1383
+#: libloqui/loqui_receiver_irc.c:1407
 msgid "%1 is %2@%3: %L"
 msgstr ""
 
-#: libloqui/loqui_receiver_irc.c:1386
+#: libloqui/loqui_receiver_irc.c:1410
 msgid "%1 was %2@%3: %L"
 msgstr ""
 
-#: libloqui/loqui_receiver_irc.c:1389
+#: libloqui/loqui_receiver_irc.c:1413
 msgid "%1: %L"
 msgstr ""
 
-#: libloqui/loqui_receiver_irc.c:1392
+#: libloqui/loqui_receiver_irc.c:1416
 msgid "on via server %2(%L)"
 msgstr ""
 
-#: libloqui/loqui_receiver_irc.c:1398
+#: libloqui/loqui_receiver_irc.c:1422
 msgid "Banned on %1 : %2"
 msgstr ""
 
-#: libloqui/loqui_receiver_irc.c:1401
+#: libloqui/loqui_receiver_irc.c:1425
 msgid "Time: %2(%1)"
 msgstr ""
 
-#: libloqui/loqui_receiver_irc.c:1413 libloqui/loqui_receiver_irc.c:1419
+#: libloqui/loqui_receiver_irc.c:1437 libloqui/loqui_receiver_irc.c:1443
 msgid "%2"
 msgstr ""
 
-#: libloqui/loqui_receiver_irc.c:1424
+#: libloqui/loqui_receiver_irc.c:1448
 msgid "Ison: %*1"
 msgstr ""
 
-#: libloqui/loqui_receiver_irc.c:1427
+#: libloqui/loqui_receiver_irc.c:1451
 msgid "Channel List: Name(Users) Topic"
 msgstr ""
 
-#: libloqui/loqui_receiver_irc.c:1430
+#: libloqui/loqui_receiver_irc.c:1454
 msgid "%1(%2)\t%3"
 msgstr ""
 
-#: libloqui/loqui_receiver_irc.c:1433 libloqui/loqui_receiver_irc.c:1511
+#: libloqui/loqui_receiver_irc.c:1457 libloqui/loqui_receiver_irc.c:1535
 msgid "%L"
 msgstr ""
 
-#: libloqui/loqui_receiver_irc.c:1459
+#: libloqui/loqui_receiver_irc.c:1483
 msgid "%1 %L (%2)"
 msgstr ""
 
 #. [$msgto, ?, is unknown mode char to me for ...]
-#: libloqui/loqui_receiver_irc.c:1462
+#: libloqui/loqui_receiver_irc.c:1486
 msgid "%1 %2"
 msgstr ""
 
-#: libloqui/loqui_receiver_irc.c:1488
+#: libloqui/loqui_receiver_irc.c:1512
 msgid "%L: %1"
 msgstr ""
 
@@ -1110,14 +1154,17 @@ msgid "Is IRC Operator"
 msgstr ""
 
 #: libloqui/lqgkeyfile.c:344
+#, c-format
 msgid "Valid key file could not be found in data dirs"
 msgstr ""
 
 #: libloqui/lqgkeyfile.c:378
+#, c-format
 msgid "Not a regular file"
 msgstr ""
 
 #: libloqui/lqgkeyfile.c:386
+#, c-format
 msgid "File is empty"
 msgstr ""
 
@@ -1128,6 +1175,7 @@ msgid ""
 msgstr ""
 
 #: libloqui/lqgkeyfile.c:764
+#, c-format
 msgid "Key file does not start with a group"
 msgstr ""
 
@@ -1180,6 +1228,7 @@ msgid "Key file contains invalid escape sequence '%s'"
 msgstr ""
 
 #: libloqui/lqgkeyfile.c:2803
+#, c-format
 msgid "Key file contains escape character at end of line"
 msgstr ""
 
@@ -1192,15 +1241,6 @@ msgstr ""
 #, c-format
 msgid "Value '%s' cannot be interpreted as a boolean."
 msgstr ""
-
-#: libloqui/msn_login.c:230
-msgid "Sending version information..."
-msgstr ""
-
-#: libloqui/msn_login.c:304
-#, c-format
-msgid "Connecting to login server (%s:%d)"
-msgstr "login server (%s:%d) に接続しています"
 
 #: src/account_list_dialog.c:300
 msgid "Account List"
@@ -1304,12 +1344,12 @@ msgstr ""
 msgid "The orientation of the tray."
 msgstr ""
 
-#: src/gtkutils.c:161
+#: src/gtkutils.c:163
 #, c-format
 msgid "Illegal command (make sure one %%s exists)"
 msgstr "不正なコマンド (%%sの存在を確認してください)"
 
-#: src/gtkutils.c:181
+#: src/gtkutils.c:183
 #, c-format
 msgid ""
 "Error occured when executing command, \"%s\":\n"
@@ -1318,7 +1358,7 @@ msgstr ""
 "コマンド実行時にエラーが発生しました(\"%s\"):\n"
 "%s"
 
-#: src/gtkutils.c:194
+#: src/gtkutils.c:196
 #, c-format
 msgid "Unable to determine color: %s"
 msgstr "色の識別ができません: %s"
@@ -1411,17 +1451,17 @@ msgstr ""
 "このアカウントの設定と接続は取り除かれます。\n"
 "本当にアカウントを消しますか？"
 
-#: src/loqui-core-gtk.gob:119
+#: src/loqui-core-gtk.gob:118
 #, c-format
 msgid "Failed to load %s"
 msgstr "%sの読み込みに失敗しました"
 
-#: src/loqui-core-gtk.gob:130
+#: src/loqui-core-gtk.gob:129
 #, c-format
 msgid "Failed to save %s"
 msgstr "%sの保存に失敗しました"
 
-#: src/loqui-core-gtk.gob:156
+#: src/loqui-core-gtk.gob:155
 #, c-format
 msgid "Invalid \"%s\""
 msgstr ""
@@ -1859,36 +1899,41 @@ msgstr ""
 msgid "ChannelEntry"
 msgstr "チャンネルエントリ"
 
-#: src/loqui_channel_text_view.c:211
+#: src/loqui_channel_text_view.c:220
 msgid "IsScroll"
 msgstr ""
 
-#: src/loqui_channel_text_view.c:212
+#: src/loqui_channel_text_view.c:221
 msgid "Scrolling or not"
 msgstr ""
 
-#: src/loqui_channel_text_view.c:218
+#: src/loqui_channel_text_view.c:227
 msgid "Auto switch scrolling"
 msgstr ""
 
-#: src/loqui_channel_text_view.c:219
+#: src/loqui_channel_text_view.c:228
 msgid "Switch scrolling automatically"
 msgstr "スクロールするかしないかを自動的に切り替える"
 
-#: src/loqui_channel_text_view.c:484
+#. search
+#: src/loqui_channel_text_view.c:419
+msgid "_Search Keyword With Google"
+msgstr ""
+
+#: src/loqui_channel_text_view.c:539
 msgid "Failed to get the browser command."
 msgstr "ブラウザコマンドの取得に失敗しました。"
 
-#: src/loqui_channelbar.c:187 src/loqui_statusbar.c:206
+#: src/loqui_channelbar.c:186 src/loqui_statusbar.c:206
 #: src/loqui_statusbar.c:230 src/loqui_statusbar.c:336
 msgid "Not selected an account!"
 msgstr "アカウントが選択されていません!"
 
-#: src/loqui_channelbar.c:210
+#: src/loqui_channelbar.c:209
 msgid "Join a channel with the current account"
 msgstr "現在のアカウントでチャンネルに参加する"
 
-#: src/loqui_channelbar.c:236
+#: src/loqui_channelbar.c:232
 msgid "Update the topic"
 msgstr "トピックの更新"
 
@@ -1945,6 +1990,7 @@ msgid "Change nick"
 msgstr "ニックネームの変更"
 
 #: src/main.c:71
+#, c-format
 msgid ""
 "  --no-send-status-commands don't send commands to get status (like MODE, "
 "WHO)\n"
@@ -1953,145 +1999,152 @@ msgstr ""
 "マンドを送信しない\n"
 
 #: src/main.c:72
+#, c-format
 msgid "  --debug                   debug mode\n"
 msgstr "  --debug                   デバッグモード\n"
 
 #: src/main.c:73
+#, c-format
 msgid "  --show-msg                show message mode\n"
 msgstr "  --show-msg                メッセージ表示モード\n"
 
 #: src/main.c:74
+#, c-format
 msgid "  --help                    show this help\n"
 msgstr "  --help                    ヘルプメッセージの表示\n"
 
 #. FIXME: use _default
-#: src/prefs_dialog.c:370
+#: src/prefs_dialog.c:382
 #, c-format
 msgid "Invalid title format: default is used for %s."
 msgstr ""
 
-#: src/prefs_dialog.c:416
+#: src/prefs_dialog.c:428
 msgid "Common Preferences"
 msgstr "全般の設定"
 
-#: src/prefs_dialog.c:434
+#: src/prefs_dialog.c:446
 msgid "General"
 msgstr "全般"
 
-#: src/prefs_dialog.c:436
+#: src/prefs_dialog.c:448
 msgid "Save window/widget sizes"
 msgstr "ウィンドウとウィジットのサイズを保存する"
 
-#: src/prefs_dialog.c:438
+#: src/prefs_dialog.c:450
 msgid "Switch whether scrolling channel buffer or not automatically"
 msgstr "チャンネルバッファをスクロールするかしないかを自動的に切り替える"
 
-#: src/prefs_dialog.c:440
+#: src/prefs_dialog.c:452
 msgid "Switch whether scrolling common buffer or not automatically"
 msgstr "共通バッファをスクロールするかしないかを自動的に切り替える"
 
-#: src/prefs_dialog.c:443
+#: src/prefs_dialog.c:455
 msgid "Reconnect automatically when connections are terminated."
 msgstr "接続が強制的に切断されたとき自動的に再接続する"
 
-#: src/prefs_dialog.c:446
+#: src/prefs_dialog.c:458
 msgid "Connect default accounts when the program started"
 msgstr "プログラム起動時にデフォルトのアカウントを接続する"
 
-#: src/prefs_dialog.c:448
+#: src/prefs_dialog.c:460
 msgid "Select a new channel automatically."
 msgstr "新しいチャンネルを自動的に選択する"
 
-#: src/prefs_dialog.c:451
+#: src/prefs_dialog.c:463
 msgid "Away message: "
 msgstr "離席メッセージ: "
 
-#: src/prefs_dialog.c:452
+#: src/prefs_dialog.c:464
 msgid "Format of time in buffers: "
 msgstr "バッファの時間表示形式"
 
-#: src/prefs_dialog.c:455
+#: src/prefs_dialog.c:467
 msgid "Max line number of a common buffer(0: unlimited): "
 msgstr "共通バッファの最大行数(0: 無制限): "
 
-#: src/prefs_dialog.c:459
+#: src/prefs_dialog.c:471
 msgid "Max line number of a channel buffer(0: unlimited): "
 msgstr "チャンネルバッファの最大行数(0: 無制限): "
 
-#: src/prefs_dialog.c:463
+#: src/prefs_dialog.c:475
 msgid "Toggle command mode automatically"
 msgstr "コマンドモードへ自動的に移行する"
 
-#: src/prefs_dialog.c:466
+#: src/prefs_dialog.c:478
 msgid "Prefix for commands: "
 msgstr "コマンド文字"
 
-#: src/prefs_dialog.c:468
+#: src/prefs_dialog.c:480
 msgid "Save logs (Experimental)"
 msgstr "ログの保存(実験的)"
 
-#: src/prefs_dialog.c:472
+#: src/prefs_dialog.c:484
 msgid "Proxy"
 msgstr ""
 
-#: src/prefs_dialog.c:474
+#: src/prefs_dialog.c:486
 msgid "Parse plum (an irc proxy) recent feature (Experimental)"
 msgstr "plum(IRC proxy)のrecentをパースする (実験的)"
 
-#: src/prefs_dialog.c:477
+#: src/prefs_dialog.c:489
+msgid "Regular Expression for recent logs: "
+msgstr ""
+
+#: src/prefs_dialog.c:491
 msgid ""
 "Treat server messages as recent logs until received a first PONG (for some "
 "irc-proxies)."
 msgstr ""
 
-#: src/prefs_dialog.c:481
+#: src/prefs_dialog.c:495
 msgid "Highlight"
 msgstr "強調"
 
-#: src/prefs_dialog.c:483
+#: src/prefs_dialog.c:497
 msgid "Use notification"
 msgstr "通知を使用する"
 
-#: src/prefs_dialog.c:486
+#: src/prefs_dialog.c:500
 msgid "Execute notification by NOTICE"
 msgstr "NOTICEによって通知を実行する"
 
-#: src/prefs_dialog.c:490
+#: src/prefs_dialog.c:504
 msgid "Highlighting keywords(Separate each words with linefeeds)"
 msgstr "強調するキーワード(改行で区切って下さい)"
 
-#: src/prefs_dialog.c:493
+#: src/prefs_dialog.c:507
 msgid ""
 "Special prefixes:\n"
 " \"re:\":     Perl Compatible Regular Expression (ex. re:foo*)\n"
 " \"plain:\":  Plain (normal) text (ex. plain:word)"
 msgstr ""
 
-#: src/prefs_dialog.c:499
+#: src/prefs_dialog.c:513
 msgid "Ignore"
 msgstr "無視"
 
-#: src/prefs_dialog.c:501
+#: src/prefs_dialog.c:515
 msgid "Use ignore (normal) feature"
 msgstr "無視(通常)機能を使用する"
 
-#: src/prefs_dialog.c:505
+#: src/prefs_dialog.c:519
 msgid "Nickname list to ignore (normal) ('*' and '?' can be used)"
 msgstr "無視する(通常)ニックネームのリスト('*'や'?'を使用できます)"
 
-#: src/prefs_dialog.c:508
+#: src/prefs_dialog.c:522
 msgid "Use ignore (transparent) feature"
 msgstr "無視(透明)機能を使用する"
 
-#: src/prefs_dialog.c:512
+#: src/prefs_dialog.c:526
 msgid "Nickname list to ignore (transparent) ('*' and '?' can be used)"
 msgstr "無視する(透明)ニックネームのリスト('*'や'?'を使用できます)"
 
-#: src/prefs_dialog.c:518
+#: src/prefs_dialog.c:532
 msgid "Browser: "
 msgstr "ブラウザ: "
 
-#: src/prefs_dialog.c:520
+#: src/prefs_dialog.c:534
 #, c-format
 msgid ""
 "An URL will be quoted and substituted with %s.\n"
@@ -2106,15 +2159,15 @@ msgstr ""
 " Browser: mozilla -remote openURL\\(%s,new-tab\\)\n"
 "  -> mozilla -remote openURL\\('http://example.com#id',new-tab\\)"
 
-#: src/prefs_dialog.c:527
+#: src/prefs_dialog.c:541
 msgid "Notification: "
 msgstr "通知: "
 
-#: src/prefs_dialog.c:530
+#: src/prefs_dialog.c:544
 msgid "Format"
 msgstr "書式指定"
 
-#: src/prefs_dialog.c:532
+#: src/prefs_dialog.c:546
 msgid ""
 "See title formatting help of the software 'foobar2000'.\n"
 "The list of variables is at loqui_app_info.c.\n"
@@ -2124,15 +2177,15 @@ msgstr ""
 "利用可能な変数のリストは、loqui_app_info.cを見てください。\n"
 "入力すればそれを使い、そうでなければデフォルト値を使用します。"
 
-#: src/prefs_dialog.c:535
+#: src/prefs_dialog.c:549
 msgid "Title format of title"
 msgstr "ウィンドウタイトルの書式指定"
 
-#: src/prefs_dialog.c:549 src/prefs_dialog.c:570
+#: src/prefs_dialog.c:563 src/prefs_dialog.c:584
 msgid "Default:"
 msgstr "デフォルト:"
 
-#: src/prefs_dialog.c:556
+#: src/prefs_dialog.c:570
 msgid "Title format of statusbar"
 msgstr "ステータスバーの書式指定"
 
@@ -2188,6 +2241,12 @@ msgstr "IRCアカウント以外を使っています"
 #: src/remark_entry.c:609
 msgid "No channel is selected"
 msgstr "チャンネルが選択されていません"
+
+#~ msgid "Connecting."
+#~ msgstr "接続しています。"
+
+#~ msgid "Connecting to login server (%s:%d)"
+#~ msgstr "login server (%s:%d) に接続しています"
 
 #~ msgid "Sent CTCP reply to %s: %s"
 #~ msgstr "%sへCTCP応答を送信しました: %s"
