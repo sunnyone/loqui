@@ -394,8 +394,6 @@ irc_message_createv(const gchar *command, gchar *param_array[])
 	return irc_message_new(NULL, command, param_array);
 }
 
-/* FIXME: the last parameter always has : as a first character currently. 
-   it may be cause problems. */
 gchar *
 irc_message_to_string(IRCMessage *msg)
 {
@@ -418,7 +416,12 @@ irc_message_to_string(IRCMessage *msg)
 			g_string_append_c(string, ' ');
 			g_string_append(string, msg->parameter[i]);
 		}
-		g_string_append_printf(string, " :%s", msg->parameter[i]);
+		// only if the last parameter has <SPACE>(' '), add ':' (for madoka)
+		if (strchr(msg->parameter[i], ' ') == NULL) {
+			g_string_append_printf(string, " %s", msg->parameter[i]);
+		} else {
+			g_string_append_printf(string, " :%s", msg->parameter[i]);
+		}
 	}
 
 	str = string->str;
