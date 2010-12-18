@@ -54,7 +54,6 @@ requires 2.0.0
 #include <string.h>
 #include <stdlib.h>
 
-#include <gnet.h>
 #include <loqui.h>
 
 #define ACCEL_MAP_FILE "accelmaprc"
