@@ -33,7 +33,6 @@ requires 2.0.0
 
 #include "loqui-core.h"
 #include "loqui.h"
-#include "regex/eggregex.h"
 
 #define HIGHLIGHT_WORD_RE_PREIX "re:"
 #define HIGHLIGHT_WORD_PLAIN_PREFIX "plain:"
@@ -70,7 +69,8 @@ class Loqui:Notifier from G:Object
 
 	private void
 	search_highlight_word_regexp(self, LoquiMessageText *msgtext, gchar *regexp_str) {
-		EggRegex *regex;
+		GRegex *regex;
+		GMatchInfo *match_info;
 		GError *error;
 		const gchar *text;
 		gssize string_len;
@@ -78,7 +78,7 @@ class Loqui:Notifier from G:Object
 		LoquiMessageTextRegion *region;
 
 		error = NULL;
-		if ((regex = egg_regex_new(regexp_str, 0, 0, &error)) == NULL) {
+		if ((regex = g_regex_new(regexp_str, 0, 0, &error)) == NULL) {
 			g_warning("Regex compile error: %s", error->message);
 			g_error_free(error);
 			return;
@@ -87,14 +87,16 @@ class Loqui:Notifier from G:Object
 		text = loqui_message_text_get_text(msgtext);
 		string_len = strlen(text);
 
-		while (egg_regex_match_next(regex, text, string_len, 0) > 0) {
-			egg_regex_fetch_pos(regex, text, 0, &start_pos, &end_pos);
-
+		g_regex_match(regex, text, 0, &match_info);
+		while (g_match_info_matches(match_info)) {
+			g_match_info_fetch_pos(match_info, 0, &start_pos, &end_pos);
 			region = loqui_message_text_region_create(msgtext, start_pos, end_pos);
 			msgtext->highlight_region_list = g_list_append(msgtext->highlight_region_list, region);
+			g_match_info_next(match_info, NULL);
 		}
-
-		egg_regex_free(regex);
+		
+		g_match_info_free(match_info);
+		g_regex_unref(regex);
 	}
 
 	public gboolean

@@ -47,8 +47,6 @@
 
 #include "loqui-mode-manager.h"
 
-#include "regex/eggregex.h"
-
 struct _LoquiReceiverIRCPrivate
 {
 	CTCPHandle *ctcp_handle;
@@ -56,7 +54,7 @@ struct _LoquiReceiverIRCPrivate
 	gboolean end_motd;
 	gboolean in_recent_log;
 
-	EggRegex *regex_recent;
+	GRegex *regex_recent;
 	gboolean failed_to_compile_regex_once;
 
 	/* just parser */
@@ -278,7 +276,7 @@ loqui_receiver_irc_parse_plum_recent(LoquiReceiverIRC *receiver, const gchar *li
 	LoquiAccount *account;
 	LoquiReceiverIRCPrivate *priv;
 	GError *error = NULL;
-	gint match_result;
+	GMatchInfo *match_info;
 
         g_return_val_if_fail(receiver != NULL, FALSE);
         g_return_val_if_fail(LOQUI_IS_RECEIVER_IRC(receiver), FALSE);
@@ -301,7 +299,7 @@ loqui_receiver_irc_parse_plum_recent(LoquiReceiverIRC *receiver, const gchar *li
 			return FALSE;
 		}
 
-		priv->regex_recent = egg_regex_new(regexp_str, 0, 0, &error);
+		priv->regex_recent = g_regex_new(regexp_str, 0, 0, &error);
 		g_free(regexp_str);
 
 		if (!priv->regex_recent) {
@@ -312,18 +310,15 @@ loqui_receiver_irc_parse_plum_recent(LoquiReceiverIRC *receiver, const gchar *li
 		}
 	}
 	
-	egg_regex_clear(priv->regex_recent);
-	match_result = egg_regex_match(priv->regex_recent, line, -1, 0);
-	if (match_result <= 0) {
-		if (match_result != -1) { /* -1 => failed to match */
-			loqui_account_warning(account, _("Unexpected error in the regex for recent logs: %d"), match_result);
-		}
+	g_regex_match(priv->regex_recent, line, 0, &match_info);
+	if (!g_match_info_matches(match_info)) {
+		g_match_info_free(match_info);
 		return FALSE;
 	}
 	time = pre_char_str = from = post_char_str = text = NULL;
 	
 #define FETCH_NAMED(name, var) { \
-	var = egg_regex_fetch_named(priv->regex_recent, line, name); \
+	var = g_match_info_fetch_named(match_info, name); \
 	if (var == NULL) { \
 		loqui_account_warning(account, _("Failed to get the string for '%s' with named capture."), name); \
 		g_free(time); \
@@ -341,6 +336,8 @@ loqui_receiver_irc_parse_plum_recent(LoquiReceiverIRC *receiver, const gchar *li
 	FETCH_NAMED("post_char", post_char_str);
 	FETCH_NAMED("text", text);
 
+	g_match_info_free(match_info);
+	
 	from_after = NULL;
 	if ((tmp = strrchr(from, ':')) != NULL) {
 		from_after = tmp + 1;
@@ -1642,7 +1639,7 @@ loqui_receiver_irc_reset(LoquiReceiverIRC *receiver)
 	priv->in_recent_log = FALSE;
 
 	if (priv->regex_recent) {
-		egg_regex_free(priv->regex_recent);
+		g_regex_unref(priv->regex_recent);
 		priv->regex_recent = NULL;
 	}
 	priv->failed_to_compile_regex_once = FALSE;

@@ -28,9 +28,9 @@ AC_CHECK_PROG(WINDRES, windres, windres)
 AM_CONDITIONAL(HAVE_WINDRES, test x"$WINDRES" != x)
 
 # Checks for libraries.
-AM_PATH_GLIB_2_0(2.4.0,, AC_MSG_ERROR(Test for GLib failed. See the 'INSTALL' for help.), gobject)
-if test "x${glib_config_major_version}" = "x2" -a "x${glib_config_minor_version}" = "x4"; then
-   AC_DEFINE_UNQUOTED(USE_GLIB_2_4, 1, [Is using glib 2.4])
+AM_PATH_GLIB_2_0(2.22.0,, AC_MSG_ERROR(Test for GLib failed. See the 'INSTALL' for help.), gobject gio)
+if test "x${glib_config_major_version}" = "x2" -a "x${glib_config_minor_version}" = "x22"; then
+   AC_DEFINE_UNQUOTED(USE_GLIB_2_4, 1, [Is using glib 2.22])
 fi
 
 AC_PATH_PROG(GLIB_GENMARSHAL, glib-genmarshal)
@@ -74,8 +74,6 @@ AC_CHECK_FUNCS(localtime_r)
 AC_CONFIG_FILES([
 Makefile
 libloqui/Makefile
-libloqui/regex/Makefile
-libloqui/regex/pcre/Makefile
 libloqui/protocols/Makefile
 libloqui/protocols/jabber/Makefile
 src/Makefile
