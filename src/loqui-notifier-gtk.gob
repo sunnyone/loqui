@@ -60,7 +60,9 @@ class Loqui:Notifier:Gtk from Loqui:Notifier
 									  LOQUI_GENERAL_PREF_GTK_DEFAULT_COMMANDS_NOTIFICATION_COMMAND, NULL);
 
 		if (notification_command && strlen(notification_command) > 0) {
-			gtkutils_exec_command_with_error_dialog(notification_command);
+			gchar *detail = loqui_message_text_get_detail(msgtext, TRUE, TRUE);
+			gtkutils_exec_command_argument_with_error_dialog(notification_command, detail);
+			g_free(detail);
 		}
 		g_free(notification_command);
 	}

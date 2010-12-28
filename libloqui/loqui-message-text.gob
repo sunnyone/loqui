@@ -169,6 +169,26 @@ class Loqui:Message:Text from G:Object
                 return nick_str;
         }
 
+	public gchar *
+	get_detail(self, gboolean show_account, gboolean show_channel_name) {
+		gchar *nick_string;
+		GString *str;
+		
+		str = g_string_new(NULL);
+		
+		if (show_account) {
+			g_string_append_printf(str, "[%s] ", loqui_message_text_get_account_name(self));
+		}
+		
+		nick_string = loqui_message_text_get_nick_string(self, show_channel_name);
+		g_string_append(str, nick_string);
+		g_free(nick_string);
+		
+		g_string_append(str, loqui_message_text_get_text(self));
+		
+		return g_string_free(str, FALSE);
+	}
+	
 	public Loqui:Message:Text *
 	new(void) {
 		Self *self;
