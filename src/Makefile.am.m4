@@ -23,7 +23,6 @@ CPPFLAGS =  $(GTK_CFLAGS) $(EXTRA_WARNING_CFLAGS) -g -DDATADIR=\""$(datadir)"\" 
 define(`M4_SRC_GOB',`loqui-core-gtk.gob loqui-style-entry.gob loqui-account-dialog.gob loqui-protocol-selection-dialog.gob loqui-transfer-window.gob loqui-tray-icon.gob loqui-channel-entry-action-group.gob loqui-channel-entry-ui-data.gob loqui-channel-entry-action-group-ui.gob loqui-notifier-gtk.gob')dnl
 
 loqui_SOURCES = \
-	eggtrayicon.c eggtrayicon.h \
 	gtkutils.c gtkutils.h \
 	main.c main.h \
 	loqui_app_actions.c loqui_app_actions.h \

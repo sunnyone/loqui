@@ -23,7 +23,6 @@ requires 2.0.0
 
 %h{
 #include <gtk/gtk.h>
-#include "eggtrayicon.h"
 %}
 
 
@@ -50,22 +49,17 @@ typedef struct _LoquiTrayIcon LoquiTrayIcon;
 
 
 class Loqui:Tray:Icon from G:Object {
-        public GtkWidget *image;
         public gboolean is_hilighted;
         
         public LoquiApp *app;
-	public GtkWidget *eggicon;
-	public gboolean is_x11;
         private GtkMenu *menu;
+        public GtkStatusIcon *status_icon;
         
         private gint blink_count_remains;
         private gboolean blinking;
-	private guint destroy_handler_id = 0 unref {
-		g_signal_handler_disconnect(self, destroy_handler_id);
-	};
 
         private gboolean
-        button_press_event_cb(GtkWidget *widget, GdkEventButton *event, Loqui:Tray:Icon *self (check null type)) onerror FALSE {
+        button_press_event_cb(GtkStatusIcon *status_icon, GdkEventButton *event, Loqui:Tray:Icon *self (check null type)) onerror FALSE {
         	if (event->type == GDK_BUTTON_PRESS) {
         		switch (event->button) {
         		case 1:
@@ -77,7 +71,7 @@ class Loqui:Tray:Icon from G:Object {
         			break;
         		case 3:
         			gtk_menu_popup(GTK_MENU(selfp->menu), NULL, NULL,
-        				       gtkutils_menu_position_under_or_below_widget, GTK_WIDGET(widget),
+        				       gtk_status_icon_position_menu, status_icon,
         				       event ? event->button : 0,
         				       event ? event->time : gtk_get_current_event_time());
         			break;
@@ -90,16 +84,7 @@ class Loqui:Tray:Icon from G:Object {
 
         private void
         set_icon(self, gboolean is_hilighted) {
-		if (self->is_x11) {
-			if (!self->eggicon) {
-				g_warning("The egg icon is not alive.");
-				return;
-			}
-
-			gtk_image_set_from_stock(GTK_IMAGE(self->image),
-						 is_hilighted ? LOQUI_STOCK_LOQUI_HILIGHTED : LOQUI_STOCK_LOQUI,
-						 GTK_ICON_SIZE_LARGE_TOOLBAR);
-		}
+        	gtk_status_icon_set_from_stock(self->status_icon, is_hilighted ? LOQUI_STOCK_LOQUI_HILIGHTED : LOQUI_STOCK_LOQUI);
         }
 
         private gboolean
@@ -122,53 +107,6 @@ class Loqui:Tray:Icon from G:Object {
         	}
         }
 	
-	private gboolean
-	eggicon_recreate_for_idle_cb(self) {
-		self_create_eggicon(self);
-
-		return FALSE;
-	}
-
-	private void
-	eggicon_destroy_cb(GtkWidget *widget, Self *self (check null type))	{
-		g_object_unref(self->eggicon);
-		self->eggicon = NULL;
-		
-		g_idle_add((GSourceFunc) self_eggicon_recreate_for_idle_cb, self);
-	}
-
-	private void
-	create_eggicon(self) {
-#ifdef GDK_WINDOWING_X11
-        	GtkWidget *event_box;
-
-		self->eggicon = GTK_WIDGET(egg_tray_icon_new("Loqui"));
-
-		selfp->destroy_handler_id = g_signal_connect(G_OBJECT(self->eggicon), "destroy",
-							     G_CALLBACK(self_eggicon_destroy_cb), self);
-
-		/* to avoid dieing when the tray died? */
-		g_object_ref(self->eggicon);
-
-        	event_box = gtk_event_box_new();
-        	gtk_container_add(GTK_CONTAINER(self->eggicon), event_box);
-        	
-        	g_signal_connect(G_OBJECT(event_box), "button_press_event",
-        			 G_CALLBACK(self_button_press_event_cb), self);
-        
-        	self->image = gtk_image_new_from_stock(LOQUI_STOCK_LOQUI, GTK_ICON_SIZE_LARGE_TOOLBAR);
-        	gtk_container_add(GTK_CONTAINER(event_box), self->image);
-        
-        	self_set_hilighted(self, FALSE);
-        	gtk_widget_show_all(GTK_WIDGET(self->eggicon));
-#endif
-	}
-
-	private void
-	use_x11(self) {
-		self_create_eggicon(self);
-	}
-
 	public Loqui:Tray:Icon *
 	new(LoquiApp *app, GtkMenu *menu) {
 		Self *self;
@@ -177,10 +115,11 @@ class Loqui:Tray:Icon from G:Object {
         	
         	self->app = app;
         	selfp->menu = menu;
-#ifdef GDK_WINDOWING_X11
-		self_use_x11(self);
-		self->is_x11 = TRUE;
-#endif
+        	
+        	self->status_icon = gtk_status_icon_new_from_stock(LOQUI_STOCK_LOQUI);
+        	g_signal_connect(G_OBJECT(self->status_icon), "button_press_event",
+        	                 G_CALLBACK(self_button_press_event_cb), self);
+        	self_set_hilighted(self, FALSE);
 
                 return self;
         }
@@ -206,8 +145,7 @@ class Loqui:Tray:Icon from G:Object {
 
 	public void
 	destroy(self) {
-		if (self->is_x11)
-			gtk_widget_destroy(GTK_WIDGET(self->eggicon));
+		g_object_unref(self->status_icon);
 	}
 }
 
