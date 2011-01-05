@@ -221,6 +221,7 @@ class Loqui:Mode:Manager from G:Object
 		return str;
 	}
 
+	/* "table" must be terminated with mode -1 */
 	public Loqui:Mode:Manager *
 	new(LoquiModeTableItem *table) {
 		Self *self;

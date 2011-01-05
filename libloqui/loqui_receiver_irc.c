@@ -83,6 +83,7 @@ LoquiModeTableItem channel_mode_table[] = {
 	{ IRC_CHANNEL_MODE_INVITATION_MASK, 'I', TRUE, TRUE, "CHANNEL_MODE_INVITATION_MASK", NULL, NULL },
 	
 	{ IRC_CHANNEL_MODE_PRIVATE, 'p', FALSE, FALSE, "CHANNEL_MODE_PRIVATE", NULL, NULL },
+	{ -1, 0, FALSE, FALSE, NULL, NULL, NULL },
 };
 
 static LoquiReceiverClass *parent_class = NULL;
