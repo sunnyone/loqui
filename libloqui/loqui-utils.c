@@ -280,7 +280,8 @@ loqui_utils_search_uri(const gchar *buf, gchar **got_uri, const gchar **start_ur
 	int i;
 	const gchar *tmp = NULL, *tmp_start_uri = NULL, *cur, *prefix = NULL, *used_prefix = NULL;
 	const gchar *start_uri_ptr;
-
+	int parenCount;
+	
 	cur = buf;
 	for(i = 0; prefix = uri_prefix_list[i], prefix != NULL; i++) {
 		tmp = strstr(cur, prefix);
@@ -295,11 +296,19 @@ loqui_utils_search_uri(const gchar *buf, gchar **got_uri, const gchar **start_ur
 	cur = start_uri_ptr = tmp_start_uri;
 	
 	cur += strlen(used_prefix);
+	parenCount = 0;
 	while (*cur) {
-		if(!isascii(*cur) ||
-		   !g_ascii_isgraph(*cur) ||
-		   strchr("()<>\"", *cur))
+		/* special handler for () in url. ex. mypage is here (http://url(aa(bbb)a)) */
+		if (*cur == '(') {
+			parenCount++;
+		} else if (parenCount > 0 && *cur == ')') {
+			parenCount--;
+		} else if (!isascii(*cur) ||
+			!g_ascii_isgraph(*cur) ||
+			strchr("()<>\"", *cur)) {
 			break;
+		}
+		
 		cur++;
 	}
 
