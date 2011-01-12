@@ -40,7 +40,7 @@ SRC_PROTOCOL_BASE = \
 	loqui_member.c loqui_member.h \
 	M4_SRC_PROTOCOL_BASE_GOB gob_to_built_sources(M4_SRC_PROTOCOL_BASE_GOB)
 
-define(`M4_SRC_PROTOCOL_IRC_GOB',`loqui-transfer-item-irc.gob')
+dnl define(`M4_SRC_PROTOCOL_IRC_GOB',`')
 SRC_PROTOCOL_IRC = \
 	loqui_protocol_irc.c loqui_protocol_irc.h \
 	loqui_user_irc.c loqui_user_irc.h \
@@ -53,8 +53,8 @@ SRC_PROTOCOL_IRC = \
 	irc_constants.h \
 	irc_message.c irc_message.h \
 	ctcp_message.c ctcp_message.h \
-	ctcp_handle.c ctcp_handle.h \
-	M4_SRC_PROTOCOL_IRC_GOB gob_to_built_sources(M4_SRC_PROTOCOL_IRC_GOB)
+	ctcp_handle.c ctcp_handle.h
+dnl	M4_SRC_PROTOCOL_IRC_GOB gob_to_built_sources(M4_SRC_PROTOCOL_IRC_GOB)
 	
 
 define(`M4_SRC_PROTOCOL_IPMSG_GOB',`loqui-account-ipmsg.gob loqui-receiver-ipmsg.gob loqui-sender-ipmsg.gob loqui-socket-ipmsg.gob')
@@ -85,8 +85,8 @@ BUILT_SOURCES := loqui_marshalers.c loqui_marshalers.h \
 	gob_to_built_sources(M4_SRC_LIBRARY_CORE_GOB) \
 	gob_to_built_sources(M4_SRC_PROTOCOL_BASE_BASE_GOB) \
 	gob_to_built_sources(M4_SRC_PROTOCOL_BASE_GOB) \
-	gob_to_built_sources(M4_SRC_PROTOCOL_IPMSG_GOB) \
-	gob_to_built_sources(M4_SRC_PROTOCOL_IRC_GOB)
+	gob_to_built_sources(M4_SRC_PROTOCOL_IPMSG_GOB)
+dnl	gob_to_built_sources(M4_SRC_PROTOCOL_IRC_GOB)
 
 noinst_LTLIBRARIES = libloqui.la
 

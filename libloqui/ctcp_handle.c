@@ -32,9 +32,8 @@
 
 #include <libloqui/loqui-core.h>
 #include <libloqui/loqui-static-core.h>
-#include <libloqui/loqui-transfer-item-irc.h>
 
-#include <gnet.h>
+#include <gio/gio.h>
 
 struct _CTCPHandlePrivate
 {
@@ -345,13 +344,13 @@ static void
 ctcp_handle_dcc_send(CTCPHandle *ctcp_handle, CTCPMessage *ctcp_msg, const gchar *sender)
 {
 	CTCPHandlePrivate *priv;
-	LoquiTransferItem *trans_item;
+	/* LoquiTransferItem *trans_item; */
 	const gchar *filename, *address, *port_str, *size_str;
 	gchar *str;
 	gchar *canon_addr;
 	gint port, size;
 
-	GInetAddr *addr;
+	GInetAddress *addr;
 	guint64 d;
 	guint32 network_order;
 	gchar *endptr;
@@ -393,18 +392,20 @@ ctcp_handle_dcc_send(CTCPHandle *ctcp_handle, CTCPMessage *ctcp_msg, const gchar
 	}
 
 	network_order = g_htonl((guint32) d);
-	addr = gnet_inetaddr_new_bytes((char *) &network_order, sizeof(network_order));
+	addr = g_inet_address_new_from_bytes((guint8 *) &network_order, G_SOCKET_FAMILY_IPV4);
 	if (addr == NULL) {
 		loqui_account_warning(priv->account, "Address in the DCC request is invalid: %s\n", address);
 		return;
 	}
 
-	canon_addr = gnet_inetaddr_get_canonical_name(addr);
+	canon_addr = g_inet_address_to_string(addr);
 	
 	loqui_account_information(priv->account,
 				  _("Received DCC SEND request from %s (filename: %s, host: %s, port: %s, size: %s)"),
 				  sender, filename, canon_addr, port_str, size_str);
 
+	/* FIXME: create transfer item and register it to the manager */
+	/*
 	trans_item = LOQUI_TRANSFER_ITEM(loqui_transfer_item_irc_new());
 	loqui_transfer_item_set_is_upload(trans_item, FALSE);
 	loqui_transfer_item_set_filename(trans_item, filename);
@@ -412,6 +413,7 @@ ctcp_handle_dcc_send(CTCPHandle *ctcp_handle, CTCPMessage *ctcp_msg, const gchar
 	loqui_transfer_item_set_port(trans_item, port);
 	loqui_transfer_item_set_size(trans_item, size);
 	loqui_transfer_item_irc_set_inet_addr(LOQUI_TRANSFER_ITEM_IRC(trans_item), addr);
+	*/
 
 	/* FIXME: quick hack to receive DCC SEND */
 	{
@@ -427,8 +429,8 @@ ctcp_handle_dcc_send(CTCPHandle *ctcp_handle, CTCPMessage *ctcp_msg, const gchar
 		}
 	}
 
-	gnet_inetaddr_unref(addr);
 	g_free(canon_addr);
+	g_object_unref(addr);
 
-	g_object_unref(trans_item);
+	/* g_object_unref(trans_item); */
 }
