@@ -83,7 +83,7 @@ static void loqui_account_info_real(LoquiAccount *account, const gchar *str);
 
 static void loqui_account_disconnect_real(LoquiAccount *account);
 static void loqui_account_terminate_real(LoquiAccount *account);
-static void loqui_account_closed_real(LoquiAccount *account);
+static void loqui_account_closed_real(LoquiAccount *account, gboolean is_success);
 
 static void loqui_account_set_profile(LoquiAccount *account, LoquiProfileAccount *profile);
 
@@ -238,8 +238,9 @@ loqui_account_class_init(LoquiAccountClass *klass)
 						      G_SIGNAL_RUN_LAST,
 						      G_STRUCT_OFFSET(LoquiAccountClass, closed),
 						      NULL, NULL,
-						      g_cclosure_marshal_VOID__VOID,
-						      G_TYPE_NONE, 0);
+						      g_cclosure_marshal_VOID__BOOLEAN,
+						      G_TYPE_NONE, 1,
+						      G_TYPE_BOOLEAN);
 }
 static void 
 loqui_account_init(LoquiAccount *account)
@@ -409,13 +410,14 @@ loqui_account_reconnect_timeout_cb(LoquiAccount *account)
 	return FALSE;
 }
 static void
-loqui_account_closed_real(LoquiAccount *account)
+loqui_account_closed_real(LoquiAccount *account, gboolean is_success)
 {
 	LoquiAccountPrivate *priv;
 
 	priv = account->priv;
 
-	if (loqui_pref_get_with_default_boolean(loqui_get_general_pref(),
+	if (!is_success &&
+	    loqui_pref_get_with_default_boolean(loqui_get_general_pref(),
 						LOQUI_GENERAL_PREF_GROUP_ACCOUNT, "AutoReconnect",
 						LOQUI_GENERAL_PREF_DEFAULT_ACCOUNT_AUTO_RECONNECT, NULL)) {
 		if (account->reconnect_try_count <= LOQUI_ACCOUNT_RECONNECT_COUNT_MAX) {
@@ -617,12 +619,12 @@ loqui_account_cancel_pending_reconnecting(LoquiAccount *account)
 	loqui_account_set_is_pending_reconnecting(account, FALSE);
 }
 void
-loqui_account_closed(LoquiAccount *account)
+loqui_account_closed(LoquiAccount *account, gboolean is_success)
 {
         g_return_if_fail(account != NULL);
         g_return_if_fail(LOQUI_IS_ACCOUNT(account));
 
-	g_signal_emit(G_OBJECT(account), account_signals[SIGNAL_CLOSED], 0);
+	g_signal_emit(G_OBJECT(account), account_signals[SIGNAL_CLOSED], 0, is_success);
 }
 static void
 loqui_account_channel_notify_identifier_cb(LoquiChannel *channel, GParamSpec *pspec, LoquiAccount *account)

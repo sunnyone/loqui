@@ -86,9 +86,9 @@ struct _LoquiAccountClass
 	void (* warn) (LoquiAccount *account, const gchar *str);
 	void (* info) (LoquiAccount *account, const gchar *str);
 
-	/* When child class detected the connection is closed unexpectedly, this method is called.
-	   Default handler will try to reconnect if enabled. */
-	void (* closed)           (LoquiAccount *account);
+	/* Whenever child class detected the connection is closed , this method is called. 
+	   Default handler will try to reconnect if the setting enabled and is_success is false. */
+	void (* closed)           (LoquiAccount *account, gboolean is_success);
 
 	void (* add_channel)      (LoquiAccount *account,
 				   LoquiChannel *channel);
@@ -113,7 +113,7 @@ void loqui_account_force_reconnect(LoquiAccount *account);
 void loqui_account_cancel_pending_reconnecting(LoquiAccount *account);
 
 /* send signal */
-void loqui_account_closed(LoquiAccount *account);
+void loqui_account_closed(LoquiAccount *account, gboolean is_success);
 
 LoquiSender *loqui_account_get_sender(LoquiAccount *account);
 void loqui_account_set_sender(LoquiAccount *account, LoquiSender *sender);

@@ -418,7 +418,13 @@ loqui_channel_entry_add_real(LoquiChannelEntry *chent, LoquiMember *member)
         priv = chent->priv;
 
 	if (g_hash_table_lookup(chent->user_hash, member->user) != 0) {
-		g_warning("The user is already registered.");
+                gchar *identifier = loqui_user_get_identifier(member->user);
+
+		g_warning("The user (%s) is already registered to '%s'.",
+                          identifier,
+                          loqui_channel_entry_get_name(chent));
+
+                g_free(identifier);
 		return;
 	}
 

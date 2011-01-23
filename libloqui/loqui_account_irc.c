@@ -32,8 +32,9 @@
 #include "loqui-static-core.h"
 
 #include <string.h>
-#include <gnet.h>
 #include "loqui_codeconv.h"
+
+#include <gio/gio.h>
 
 enum {
         LAST_SIGNAL
@@ -46,9 +47,13 @@ enum {
 
 struct _LoquiAccountIRCPrivate
 {
-	GConn *conn;
+        GSocketClient *sock_client;
+        GSocketConnection *sock_conn;
+        
+        GDataInputStream *data_in_stream;
+        GOutputStream *out_stream;
+        
 	GQueue *msg_queue;
-	gboolean is_conn_connected;
 
 	LoquiCodeConv *codeconv;
 };
@@ -67,15 +72,16 @@ static void loqui_account_irc_dispose(GObject *object);
 static void loqui_account_irc_get_property(GObject *object, guint param_id, GValue *value, GParamSpec *pspec);
 static void loqui_account_irc_set_property(GObject *object, guint param_id, const GValue *value, GParamSpec *pspec);
 
-static void loqui_account_irc_conn_error_cb(GConn *conn, LoquiAccountIRC *account);
-static void loqui_account_irc_conn_connected_cb(GConn *conn, LoquiAccountIRC *account);
-static void loqui_account_irc_conn_closed_cb(GConn *conn, LoquiAccountIRC *account);
-static void loqui_account_irc_conn_readline_cb(GConn *conn, const gchar *buffer, LoquiAccountIRC *account);
-static void loqui_account_irc_conn_writable_cb(GConn *conn, LoquiAccountIRC *account);
+static void loqui_account_irc_sock_client_connected_cb(GSocketClient *sock_client, GAsyncResult *res, LoquiAccountIRC *account);
+static void loqui_account_irc_stream_write_cb(GOutputStream *stream, GAsyncResult *res, LoquiAccountIRC *account);
+static void loqui_account_irc_stream_readline_cb(GDataInputStream *stream, GAsyncResult *res, LoquiAccountIRC *account);
 
 static void loqui_account_irc_connect(LoquiAccount *account);
 static void loqui_account_irc_disconnect(LoquiAccount *account);
 static void loqui_account_irc_terminate(LoquiAccount *account);
+static void loqui_account_irc_closed(LoquiAccount *account, gboolean is_success);
+
+static void loqui_account_irc_flush_queue_one(LoquiAccountIRC *account);
 
 GType
 loqui_account_irc_get_type(void)
@@ -130,16 +136,17 @@ loqui_account_irc_dispose(GObject *object)
         account = LOQUI_ACCOUNT_IRC(object);
 	priv = account->priv;
 
-	if (priv->conn) {
-		gnet_conn_unref(priv->conn);
-		priv->conn = NULL;
-	}
+	LOQUI_G_OBJECT_UNREF_UNLESS_NULL(priv->sock_client);
+	LOQUI_G_OBJECT_UNREF_UNLESS_NULL(priv->sock_conn);
+	LOQUI_G_OBJECT_UNREF_UNLESS_NULL(priv->data_in_stream);
+	LOQUI_G_OBJECT_UNREF_UNLESS_NULL(priv->out_stream);
 	LOQUI_G_OBJECT_UNREF_UNLESS_NULL(priv->codeconv);
+	
 	if (priv->msg_queue) {
 		g_queue_foreach(priv->msg_queue, (GFunc) g_object_unref, NULL);
 		g_queue_free(priv->msg_queue);
+		priv->msg_queue = NULL;
 	}
-	priv->msg_queue = NULL;
 
         if (G_OBJECT_CLASS(parent_class)->dispose)
                 (* G_OBJECT_CLASS(parent_class)->dispose)(object);
@@ -188,6 +195,7 @@ loqui_account_irc_class_init(LoquiAccountIRCClass *klass)
 	account_class->connect = loqui_account_irc_connect;
 	account_class->disconnect = loqui_account_irc_disconnect;
 	account_class->terminate = loqui_account_irc_terminate;
+	account_class->closed = loqui_account_irc_closed;
 }
 static void 
 loqui_account_irc_init(LoquiAccountIRC *account_irc)
@@ -202,6 +210,11 @@ loqui_account_irc_init(LoquiAccountIRC *account_irc)
 	account = LOQUI_ACCOUNT(account_irc);
 	
 	priv->msg_queue = g_queue_new();
+	
+	priv->sock_client = NULL;
+	priv->sock_conn = NULL;
+	priv->data_in_stream = NULL;
+	priv->out_stream = NULL;
 }
 static GObject*
 loqui_account_irc_constructor(GType type, guint n_props, GObjectConstructParam *props)
@@ -267,29 +280,6 @@ loqui_account_irc_fetch_user(LoquiAccountIRC *account, const gchar *nick)
 
 	return LOQUI_USER_IRC(user);
 }
-static void
-loqui_account_irc_conn_cb(GConn *conn, GConnEvent *event, LoquiAccountIRC *account)
-{
-	switch (event->type) {
-	case GNET_CONN_ERROR:
-		loqui_account_irc_conn_error_cb(conn, account);
-		break;
-	case GNET_CONN_CONNECT:
-		loqui_account_irc_conn_connected_cb(conn, account);
-		break;
-	case GNET_CONN_CLOSE:
-		loqui_account_irc_conn_closed_cb(conn, account);
-		break;
-	case GNET_CONN_READ:
-		loqui_account_irc_conn_readline_cb(conn, event->buffer, account);
-		break;
-	case GNET_CONN_WRITABLE:
-		loqui_account_irc_conn_writable_cb(conn, account);
-		break;
-	default:
-		break;
-	} 
-}
 
 static void
 loqui_account_irc_connect(LoquiAccount *account)
@@ -327,57 +317,42 @@ loqui_account_irc_connect(LoquiAccount *account)
 		return;
 	}
 
-	priv->conn = gnet_conn_new(servername, port, (GConnFunc) loqui_account_irc_conn_cb, account);
-
+        priv->sock_client = g_socket_client_new();
+        g_socket_client_connect_to_host_async(priv->sock_client, servername, port, NULL,
+                                              (GAsyncReadyCallback) loqui_account_irc_sock_client_connected_cb, account);
+        
 	loqui_account_information(account, _("Connecting to %s:%d"), servername, port);
-
-	priv->is_conn_connected = FALSE;
-	gnet_conn_connect(priv->conn);
-}
-
-static void
-loqui_account_irc_conn_error_cb(GConn *conn, LoquiAccountIRC *account)
-{
-	LoquiAccountIRCPrivate *priv;
-
-        g_return_if_fail(account != NULL);
-        g_return_if_fail(LOQUI_IS_ACCOUNT_IRC(account));
-
-	priv = account->priv;
-
-	if (!priv->is_conn_connected) {
-		loqui_account_warning(LOQUI_ACCOUNT(account), _("Failed to connect."));
-	} else {
-		loqui_account_warning(LOQUI_ACCOUNT(account), _("An error occured on connection."));
-	}
-
-	priv->is_conn_connected = FALSE;
-	loqui_account_set_is_connected(LOQUI_ACCOUNT(account), FALSE);
-
-	if (priv->conn) {
-		gnet_conn_unref(priv->conn);
-		priv->conn = NULL;
-	}
-
-	loqui_account_closed(LOQUI_ACCOUNT(account));
+	loqui_debug_puts(_("Connecting to %s:%d"), servername, port);
 }
 static void
-loqui_account_irc_conn_connected_cb(GConn *conn, LoquiAccountIRC *account)
+loqui_account_irc_sock_client_connected_cb(GSocketClient *sock_client, GAsyncResult *res, LoquiAccountIRC *account)
 {
 	LoquiAccountIRCPrivate *priv;
 	LoquiSenderIRC *sender;
 	const gchar *password, *nick, *username, *realname;
-
+        GError *error = NULL;
+        
         g_return_if_fail(account != NULL);
         g_return_if_fail(LOQUI_IS_ACCOUNT_IRC(account));
 
 	priv = account->priv;
-
-	priv->is_conn_connected = TRUE;
-
-	/* g_io_channel_set_encoding(priv->conn->iochannel, NULL, NULL); */
-	g_io_channel_set_buffered(priv->conn->iochannel, FALSE);
-
+	
+	priv->sock_conn = g_socket_client_connect_to_host_finish(sock_client, res, &error);
+        if (priv->sock_conn == NULL) {
+		loqui_account_warning(LOQUI_ACCOUNT(account), _("Failed to connect: %s"),
+		                      error->message);
+		g_error_free(error);
+		
+		loqui_account_closed(LOQUI_ACCOUNT(account), FALSE);
+		return;
+	}
+        
+        priv->data_in_stream = g_data_input_stream_new(g_io_stream_get_input_stream(G_IO_STREAM(priv->sock_conn)));
+        
+        priv->out_stream = g_io_stream_get_output_stream(G_IO_STREAM(priv->sock_conn));
+        g_object_ref(priv->out_stream); /* GIOStraem owns out_stream */
+        
+        loqui_debug_puts(_("Connected."));
 	loqui_account_information(LOQUI_ACCOUNT(account), _("Connected."));
 	
 	password = loqui_profile_account_get_password(loqui_account_get_profile(LOQUI_ACCOUNT(account)));
@@ -386,7 +361,7 @@ loqui_account_irc_conn_connected_cb(GConn *conn, LoquiAccountIRC *account)
 	realname = loqui_profile_account_irc_get_realname(LOQUI_PROFILE_ACCOUNT_IRC(loqui_account_get_profile(LOQUI_ACCOUNT(account))));		
 	sender = LOQUI_SENDER_IRC(loqui_account_get_sender(LOQUI_ACCOUNT(account)));
 
-	if(password && strlen(password) > 0) {
+	if (password && strlen(password) > 0) {
 		loqui_sender_irc_pass(sender, password);
 		loqui_debug_puts("Sending PASS...");
 	}
@@ -402,59 +377,99 @@ loqui_account_irc_conn_connected_cb(GConn *conn, LoquiAccountIRC *account)
 
 	loqui_user_set_away(LOQUI_ACCOUNT(account)->user_self, LOQUI_AWAY_TYPE_ONLINE);
 
-	gnet_conn_readline(priv->conn);
+        g_data_input_stream_read_line_async(priv->data_in_stream,
+                                            G_PRIORITY_DEFAULT,
+                                            NULL,
+                                            (GAsyncReadyCallback) loqui_account_irc_stream_readline_cb,
+                                            account);
 }
+
 static void
-loqui_account_irc_conn_closed_cb(GConn *conn, LoquiAccountIRC *account)
+loqui_account_irc_closed(LoquiAccount *account, gboolean is_success)
 {
 	LoquiAccountIRCPrivate *priv;
-	LoquiSenderIRC *sender;
-	GList *cur;
-	gboolean sent_quit;
-	GObject *obj;
-
-        g_return_if_fail(account != NULL);
-        g_return_if_fail(LOQUI_IS_ACCOUNT_IRC(account));
-
-	priv = account->priv;
-		
-	if (priv->conn) {
-		gnet_conn_unref(priv->conn);
-		priv->conn = NULL;
-	}
-
-	while ((obj = g_queue_pop_head(priv->msg_queue)) != NULL)
-		g_object_unref(obj);
-
-	priv->is_conn_connected = FALSE;
-	loqui_account_set_is_connected(LOQUI_ACCOUNT(account), FALSE);
-	loqui_receiver_irc_reset(LOQUI_RECEIVER_IRC(LOQUI_ACCOUNT(account)->receiver));
-	
-	sender = LOQUI_SENDER_IRC(LOQUI_ACCOUNT(account)->sender);
-	sent_quit = sender->sent_quit;
-	loqui_sender_irc_reset(sender);
-
-	loqui_account_information(LOQUI_ACCOUNT(account), _("Connection closed."));
-	loqui_user_set_away(LOQUI_ACCOUNT(account)->user_self, LOQUI_AWAY_TYPE_OFFLINE);
-
-	for (cur = LOQUI_ACCOUNT(account)->channel_list; cur != NULL; cur = cur->next)
-		loqui_channel_set_is_joined(LOQUI_CHANNEL(cur->data), FALSE);
-	
-	if (!sent_quit)
-		loqui_account_closed(LOQUI_ACCOUNT(account));
-}
-static void
-loqui_account_irc_conn_readline_cb(GConn *conn, const gchar *buffer, LoquiAccountIRC *account)
-{
-	LoquiAccountIRCPrivate *priv;
-	IRCMessage *msg;
-	gchar *local;
-	GError *error = NULL;
 
         g_return_if_fail(account != NULL);
         g_return_if_fail(LOQUI_IS_ACCOUNT_IRC(account));
 	
 	priv = LOQUI_ACCOUNT_IRC(account)->priv;
+
+	loqui_account_information(LOQUI_ACCOUNT(account), _("Connection closed."));
+	
+	if (priv->out_stream) {
+		g_object_unref(priv->out_stream);
+		priv->out_stream = NULL;
+	}
+	if (priv->data_in_stream) {
+		g_object_unref(priv->data_in_stream);
+		priv->data_in_stream = NULL;
+	}
+	if (priv->sock_conn) {
+		if (!g_io_stream_is_closed(G_IO_STREAM(priv->sock_conn))) {
+			g_io_stream_close(G_IO_STREAM(priv->sock_conn), NULL, NULL); // fail-safe?
+		}
+		
+		g_object_unref(priv->sock_conn);
+		priv->sock_conn = NULL;
+	}
+	if (priv->sock_client) {
+		g_object_unref(priv->sock_client);
+		priv->sock_client = NULL;
+	}
+	
+	g_queue_foreach(priv->msg_queue, (GFunc) g_object_unref, NULL);
+
+	loqui_account_set_all_channel_unjoined(LOQUI_ACCOUNT(account));
+
+	loqui_user_set_away(loqui_account_get_user_self(LOQUI_ACCOUNT(account)), LOQUI_AWAY_TYPE_OFFLINE);
+
+	loqui_receiver_irc_reset(LOQUI_RECEIVER_IRC(LOQUI_ACCOUNT(account)->receiver));
+	loqui_sender_irc_reset(LOQUI_SENDER_IRC(LOQUI_ACCOUNT(account)->sender));
+	
+	loqui_account_set_is_connected(LOQUI_ACCOUNT(account), FALSE);
+	
+	if (LOQUI_ACCOUNT_CLASS(parent_class)->closed)
+		(* LOQUI_ACCOUNT_CLASS(parent_class)->closed) (account, is_success);
+}
+
+static void
+loqui_account_irc_stream_readline_cb(GDataInputStream *stream, GAsyncResult *res, LoquiAccountIRC *account)
+{
+	LoquiAccountIRCPrivate *priv;
+	IRCMessage *msg;
+	gchar *local;
+	GError *error = NULL;
+	gchar *buffer;
+	gsize size = 0;
+	
+        g_return_if_fail(account != NULL);
+        g_return_if_fail(LOQUI_IS_ACCOUNT_IRC(account));
+	
+	priv = LOQUI_ACCOUNT_IRC(account)->priv;
+
+	/* FIXME: This condition should be handled by cancelling.
+	   This is caused by terminate(force closing) -> connect */
+	if (priv->data_in_stream != stream) {
+		return; /* ignore */
+	}
+	
+	buffer = g_data_input_stream_read_line_finish(G_DATA_INPUT_STREAM(stream), res, &size, &error);
+	
+	if (buffer == NULL) {
+		if (error == NULL) {
+			/* EOF. just connection close */
+			loqui_account_closed(LOQUI_ACCOUNT(account), TRUE);
+		} else {
+			/* error */
+			loqui_debug_puts(_("An error occured on receiving: %s"), error->message);
+			loqui_account_warning(LOQUI_ACCOUNT(account), _("An error occured on receiving: %s"), 
+				              error->message);
+			g_error_free(error);
+			
+			loqui_account_closed(LOQUI_ACCOUNT(account), FALSE);
+		}
+		return;
+	}
 
 	local = loqui_codeconv_to_local(priv->codeconv, buffer, &error);
 	if (local == NULL) {
@@ -462,7 +477,8 @@ loqui_account_irc_conn_readline_cb(GConn *conn, const gchar *buffer, LoquiAccoun
 		g_error_free(error);
 		goto nextline;
 	}
-
+	g_free(buffer);
+	
 	msg = irc_message_parse_line(local);
 	if (msg == NULL) {
 		loqui_account_warning(LOQUI_ACCOUNT(account), "Failed to parse a line: %s", local);
@@ -471,7 +487,7 @@ loqui_account_irc_conn_readline_cb(GConn *conn, const gchar *buffer, LoquiAccoun
 	}
 	g_free(local);
 
-	if(loqui_core_get_show_msg_mode(loqui_get_core())) {
+	if (loqui_core_get_show_msg_mode(loqui_get_core())) {
 		gchar *tmp;
 
 		tmp = irc_message_inspect(msg);
@@ -483,29 +499,39 @@ loqui_account_irc_conn_readline_cb(GConn *conn, const gchar *buffer, LoquiAccoun
 	g_object_unref(msg);
 
 nextline:
-	gnet_conn_readline(conn);
+	if (g_io_stream_is_closed(G_IO_STREAM(priv->sock_conn))) {
+		loqui_account_closed(LOQUI_ACCOUNT(account), TRUE);
+		
+		return;
+	}
+	
+        g_data_input_stream_read_line_async(priv->data_in_stream,
+                                            G_PRIORITY_DEFAULT,
+                                            NULL, // TODO: cancellable
+                                            (GAsyncReadyCallback) loqui_account_irc_stream_readline_cb,
+                                            account);
+
 	return;
 }
 static void
-loqui_account_irc_conn_writable_cb(GConn *conn, LoquiAccountIRC *account)
+loqui_account_irc_flush_queue_one(LoquiAccountIRC *account)
 {
 	LoquiAccountIRCPrivate *priv;
-	IRCMessage *msg;
-	gchar *buf, *serv_str, *tmp;
+	gchar *buf, *serv_str, *line;
 	GError *error = NULL;
-
+	IRCMessage *msg;
+	
         g_return_if_fail(account != NULL);
         g_return_if_fail(LOQUI_IS_ACCOUNT_IRC(account));
-	
+        
 	priv = LOQUI_ACCOUNT_IRC(account)->priv;
-
-	if (!priv->conn || !gnet_conn_is_connected(priv->conn)) {
-		loqui_account_warning(LOQUI_ACCOUNT(account), "conn is closed.");
-		return;
-	}
+        
+        /* if has pending, skip flushing now. write_cb will flush again. */
+        if (g_output_stream_has_pending(priv->out_stream)) {
+        	return;
+        }
 
 	if ((msg = g_queue_pop_head(priv->msg_queue)) == NULL) {
-		gnet_conn_set_watch_writable(conn, FALSE);
 		return;
 	}
 
@@ -518,17 +544,15 @@ loqui_account_irc_conn_writable_cb(GConn *conn, LoquiAccountIRC *account)
 		return;
 	}
 	g_free(buf);
-
-	tmp = g_strdup_printf("%s\r\n", serv_str);
+	
+	line = g_strdup_printf("%s\r\n", serv_str);
 	g_free(serv_str);
 
-	if (g_io_channel_write_chars(priv->conn->iochannel, tmp, -1, NULL, &error) != G_IO_STATUS_NORMAL) {
-		loqui_account_warning(LOQUI_ACCOUNT(account), "Failed to send: (%s).", error->message);
-		g_error_free(error);
-		g_object_unref(msg);
-		g_free(tmp);
-		return;
-	}
+	g_output_stream_write_async(priv->out_stream, line, strlen(line),
+                                    G_PRIORITY_DEFAULT,
+                                    NULL, // TODO: cancellable
+                                    (GAsyncReadyCallback) loqui_account_irc_stream_write_cb,
+                                    account);
 
 	if (loqui_core_get_show_msg_mode(loqui_get_core())) {
 		gchar *tmp;
@@ -541,6 +565,40 @@ loqui_account_irc_conn_writable_cb(GConn *conn, LoquiAccountIRC *account)
 	loqui_sender_irc_message_sent(LOQUI_SENDER_IRC(loqui_account_get_sender(LOQUI_ACCOUNT(account))), msg);
 	g_object_unref(msg);
 }
+
+static void
+loqui_account_irc_stream_write_cb(GOutputStream *stream, GAsyncResult *res, LoquiAccountIRC *account)
+{
+	LoquiAccountIRCPrivate *priv;
+	GError *error = NULL;
+
+        g_return_if_fail(account != NULL);
+        g_return_if_fail(LOQUI_IS_ACCOUNT_IRC(account));
+	
+	priv = LOQUI_ACCOUNT_IRC(account)->priv;
+	
+	/* FIXME: This condition should be handled by cancelling.
+	   This is caused by terminate(force closing) -> connect */
+	if (priv->out_stream != stream) {
+		return; /* ignore */
+	}
+	
+	g_output_stream_write_finish(stream, res, &error);
+	
+	if (error != NULL) {
+		loqui_debug_puts(_("An error occured on sending: %s"), error->message);
+		loqui_account_warning(LOQUI_ACCOUNT(account), _("An error occured on sending: %s"), 
+		                      error->message);
+		g_error_free(error);
+		
+		loqui_account_closed(LOQUI_ACCOUNT(account), FALSE);
+		
+		return;
+	}
+	
+	loqui_account_irc_flush_queue_one(account);
+}
+
 static void
 loqui_account_irc_disconnect(LoquiAccount *account)
 {
@@ -554,7 +612,7 @@ loqui_account_irc_disconnect(LoquiAccount *account)
 	if (LOQUI_ACCOUNT_CLASS(parent_class)->disconnect)
 		(* LOQUI_ACCOUNT_CLASS(parent_class)->disconnect) (account);
 
-	if (priv->conn && LOQUI_RECEIVER_IRC(loqui_account_get_receiver(account))->passed_welcome) {
+	if (priv->sock_conn && LOQUI_RECEIVER_IRC(loqui_account_get_receiver(account))->passed_welcome) {
 		loqui_sender_quit(loqui_account_get_sender(account),
 				  loqui_profile_account_irc_get_quit_message(LOQUI_PROFILE_ACCOUNT_IRC(loqui_account_get_profile(account))));
 	} else {
@@ -574,18 +632,12 @@ loqui_account_irc_terminate(LoquiAccount *account)
 	if (LOQUI_ACCOUNT_CLASS(parent_class)->terminate)
 		(* LOQUI_ACCOUNT_CLASS(parent_class)->terminate) (account);
 
-	if (priv->conn) {
-		gnet_conn_delete(priv->conn);
-		priv->conn = NULL;
-		
-		loqui_account_information(LOQUI_ACCOUNT(account), _("Terminated."));
-		loqui_account_set_all_channel_unjoined(LOQUI_ACCOUNT(account));
+	if (priv->sock_conn) {
+		loqui_account_information(LOQUI_ACCOUNT(account), _("Terminating the connection."));
 
-		loqui_user_set_away(loqui_account_get_user_self(LOQUI_ACCOUNT(account)), LOQUI_AWAY_TYPE_OFFLINE);
+		g_io_stream_close(G_IO_STREAM(priv->sock_conn), NULL, NULL); /* TODO: check error, need async? */
 
-		loqui_account_set_is_connected(LOQUI_ACCOUNT(account), FALSE);
-		loqui_receiver_irc_reset(LOQUI_RECEIVER_IRC(LOQUI_ACCOUNT(account)->receiver));
-		loqui_sender_irc_reset(LOQUI_SENDER_IRC(LOQUI_ACCOUNT(account)->sender));
+		loqui_account_closed(LOQUI_ACCOUNT(account), TRUE);
 	}
 }
 gboolean
@@ -607,21 +659,23 @@ void
 loqui_account_irc_push_message(LoquiAccountIRC *account, IRCMessage *msg)
 {
 	LoquiAccountIRCPrivate *priv;
-
+	
         g_return_if_fail(account != NULL);
         g_return_if_fail(LOQUI_IS_ACCOUNT_IRC(account));
 
 	priv = account->priv;
 	
-	if (!priv->conn) {
+	if (!priv->sock_conn) { /* TODO: fix condition */
 		loqui_account_warning(LOQUI_ACCOUNT(account), _("The account is not connected."));
 		return;
 	}
-
+	
 	g_object_ref(msg);
 	g_queue_push_tail(priv->msg_queue, msg);
-	gnet_conn_set_watch_writable(priv->conn, TRUE);
+	
+	loqui_account_irc_flush_queue_one(account);
 }
+
 LoquiChannel *
 loqui_account_irc_fetch_channel(LoquiAccountIRC *account, gboolean is_self, const gchar *msg_nick, const gchar *msg_target)
 {
