@@ -32,7 +32,6 @@ requires 2.0.0
 #include "loqui-utils.h"
 
 #include "ipmsg_packet.h"
-#include <gnet.h>
 #include "ipmsg.h"
 
 #include <stdlib.h>
@@ -49,11 +48,11 @@ requires 2.0.0
 
 class Loqui:Socket:IPMsg from G:Object
 {
-	private GUdpSocket *udpsock unref {
+	private GSocket *udpsock unref {
 		self_unbind(self);
 	};
 
-	private GInetAddr *inetaddr_broadcast unrefwith gnet_inetaddr_unref;
+	private GInetSocketAddress *inetaddr_broadcast unrefwith g_object_unref;
 
 	private LoquiCodeConv *codeconv unrefwith g_object_unref;
 
@@ -68,7 +67,7 @@ class Loqui:Socket:IPMsg from G:Object
 		gchar buf[MAXBUF+1];
 		gsize len;
 		IPMsgPacket *packet;
-		GInetAddr *addr;
+		GSocketAddress *addr;
 		gchar *local, *local_group;
 		gint len2zero;
 		LoquiAccount *account;
@@ -77,9 +76,9 @@ class Loqui:Socket:IPMsg from G:Object
 
 		account = SELF_GET_ACCOUNT(self);
 
-		len = gnet_udp_socket_receive(selfp->udpsock, buf, MAXBUF, &addr);
-		if (len < 0) {
-			loqui_account_warning(account, "Error: receiving.");
+		len = g_socket_receive_from(selfp->udpsock, &addr, buf, MAXBUF, NULL, &error);
+		if (error != NULL) {
+			loqui_account_warning(account, "Error: receiving: %s", error->message);
 			selfp->in_watch = 0;
 			return FALSE;
 		} else if (len == 0) {
@@ -118,8 +117,9 @@ class Loqui:Socket:IPMsg from G:Object
 		}
 		g_string_free(string, TRUE);
 
-		ipmsg_packet_set_inetaddr(packet, addr);
-		gnet_inetaddr_unref(addr);
+		ipmsg_packet_set_inetaddr(packet, G_INET_SOCKET_ADDRESS(addr));
+		g_object_unref(addr);
+		
 		if (loqui_core_get_show_msg_mode(loqui_get_core())) {
 			gchar *tmp = ipmsg_packet_inspect(packet);
 			loqui_account_print_communication(SELF_GET_ACCOUNT(self), TRUE, tmp);
@@ -134,18 +134,42 @@ class Loqui:Socket:IPMsg from G:Object
 
 	public gboolean bind(self) {
 		GIOChannel *ioch;
-
-		selfp->udpsock = gnet_udp_socket_new_with_port(IPMSG_DEFAULT_PORT);
-
-		if (!selfp->udpsock)
-			return FALSE;
-
-		ioch = gnet_udp_socket_get_io_channel(selfp->udpsock);
+                GError *error = NULL;
+                GInetAddress *any_addr, *broadcast_addr;
+                GSocketAddress *bind_addrport;
+                
+		selfp->udpsock = g_socket_new(G_SOCKET_FAMILY_IPV4,
+		                              G_SOCKET_TYPE_DATAGRAM,
+		                              G_SOCKET_PROTOCOL_UDP,
+		                              NULL); /* TODO: error handling */
+		                              
+                any_addr = g_inet_address_new_any(G_SOCKET_FAMILY_IPV4);
+                bind_addrport = g_inet_socket_address_new(any_addr, IPMSG_DEFAULT_PORT);
+                g_object_unref(any_addr);
+                
+		g_socket_bind(selfp->udpsock,
+		              bind_addrport,
+		              TRUE,
+		              &error);
+		g_object_unref(bind_addrport);
+		
+		if (error != NULL) {
+		        g_object_unref(selfp->udpsock);
+		        selfp->udpsock = NULL;
+		        
+		        g_error_free(error);
+		        
+		        return FALSE;
+		}
+		
+		ioch = g_io_channel_unix_new(g_socket_get_fd(selfp->udpsock));
 		selfp->in_watch = g_io_add_watch(ioch, G_IO_IN | G_IO_ERR | G_IO_HUP | G_IO_NVAL,
 						(GIOFunc) self_watch_in_cb, self);
 
-		selfp->inetaddr_broadcast = gnet_inetaddr_new_nonblock("255.255.255.255", IPMSG_DEFAULT_PORT);
-
+                broadcast_addr = g_inet_address_new_from_string("255.255.255.255");
+		selfp->inetaddr_broadcast = G_INET_SOCKET_ADDRESS(g_inet_socket_address_new(broadcast_addr, IPMSG_DEFAULT_PORT));
+                g_object_unref(broadcast_addr);
+                
 		return TRUE;
 	}
 
@@ -158,47 +182,73 @@ class Loqui:Socket:IPMsg from G:Object
 			selfp->in_watch = 0;
 		}
 
-		gnet_udp_socket_delete(selfp->udpsock);
+                g_socket_shutdown(selfp->udpsock, TRUE, TRUE, NULL); /* TODO: error handling */
 		selfp->udpsock = NULL;
 	}
-	public void send_packet_with_inetaddr(self, IPMsgPacket *packet, GInetAddr *inetaddr) {
-		gchar *buf, *serv_str;
-		gint len;
+	public void send_packet_with_inetaddr(self, IPMsgPacket *packet, GInetSocketAddress *inetaddr) {
+	        gchar *body_local = NULL, *group_local = NULL, *body_serv = NULL, *group_serv = NULL;
 		GError *error = NULL;
-
+                GString *string;
+                
 		if (!selfp->udpsock)
 			return;
 
-		if ((buf = ipmsg_packet_to_string(packet, &len)) == NULL) {
-			g_warning("Failed to send a packet.");
-			return;
-		}
-
-		if ((serv_str = loqui_codeconv_to_server(selfp->codeconv, buf, &error)) == NULL) {
-			loqui_account_warning(SELF_GET_ACCOUNT(self), "Failed to convert codeset(%s): %s.", error->message, buf);
+                ipmsg_packet_to_string(packet, &body_local, &group_local);
+                
+		if ((body_serv = loqui_codeconv_to_server(selfp->codeconv, body_local, &error)) == NULL) {
+			loqui_account_warning(SELF_GET_ACCOUNT(self), "Failed to convert codeset(%s): %s.", error->message, body_local);
 			g_error_free(error);
-			g_free(buf);
+			g_free(body_local);
+			g_free(group_local);
 			return;
 		}
-		g_free(buf);
-
-		gnet_udp_socket_send(selfp->udpsock, serv_str, len, inetaddr);
-
+		
+		if (group_local != NULL &&
+		    ((group_serv = loqui_codeconv_to_server(selfp->codeconv, group_local, &error)) == NULL)) {
+			loqui_account_warning(SELF_GET_ACCOUNT(self), "Failed to convert codeset(%s): %s.", error->message, group_local);
+			g_error_free(error);
+			g_free(body_local);
+			g_free(group_local);
+			g_free(body_serv);
+			return;
+		}
+		
+		string = g_string_new(body_serv);
+		if (group_serv != NULL) {
+	        	g_string_append_c(string, '\0');
+		        g_string_append(string, group_serv);
+		}
+		g_free(body_serv);
+                g_free(group_serv);
+		
+                g_socket_send_to(selfp->udpsock,
+                                 G_SOCKET_ADDRESS(inetaddr),
+                                 string->str, string->len, NULL, &error);
+                /* TODO: cancellable, error handling*/
+                if (error != NULL) {
+			loqui_account_warning(SELF_GET_ACCOUNT(self), "Can't send text: %s", error->message);
+                        g_error_free(error);
+                        return;
+                }
+                g_string_free(string, TRUE);
+                
 		if (loqui_core_get_show_msg_mode(loqui_get_core())) {
 			gchar *tmp = ipmsg_packet_inspect(packet);
 			loqui_account_print_communication(SELF_GET_ACCOUNT(self), FALSE, tmp);
 			g_free(tmp);
 		}
-
-		g_free(serv_str);
 	}
 
 	public void send_packet(self, IPMsgPacket *packet, const gchar *ip_addr, gint port) {
-		GInetAddr *inetaddr;
-
-		inetaddr = gnet_inetaddr_new_nonblock(ip_addr, port);
-		self_send_packet_with_inetaddr(self, packet, inetaddr);
-		gnet_inetaddr_unref(inetaddr);
+		GInetSocketAddress *inet_sock_addr;
+                GInetAddress *inet_addr;
+                
+                inet_addr = g_inet_address_new_from_string(ip_addr);
+		inet_sock_addr = G_INET_SOCKET_ADDRESS(g_inet_socket_address_new(inet_addr, port));
+		g_object_unref(inet_addr);
+		
+		self_send_packet_with_inetaddr(self, packet, inet_sock_addr);
+                g_object_unref(inet_sock_addr);
 	}
 
 	public void send_packet_to_default(self, IPMsgPacket *packet) {
@@ -206,26 +256,13 @@ class Loqui:Socket:IPMsg from G:Object
 
 		self_send_packet_with_inetaddr(self, packet, selfp->inetaddr_broadcast);
 	}
-/*
-	public gchar *get_current_ip_addr(self) {
-		gchar *tmp, *tmp2;
-
-		if (!selfp->udpsock)
-			return NULL;
-
-		tmp = gnet_inetaddr_get_canonical_name(gnet_udp_socket_get_local_inetaddr(selfp->udpsock));
-		tmp2 = g_strdup(loqui_utils_remove_ipv6_prefix_ffff(tmp));
-		g_free(tmp);
-
-		return tmp2;
-	}
-*/
 
 	public gint get_current_port(self) {
 		if (!selfp->udpsock)
 			return 0;
 
-		return gnet_inetaddr_get_port(gnet_udp_socket_get_local_inetaddr(selfp->udpsock));
+                /* TODO: error handling */
+		return g_inet_socket_address_get_port(G_INET_SOCKET_ADDRESS(g_socket_get_local_address(selfp->udpsock, NULL)));
 	}
 
 	public LoquiSocketIPMsg *

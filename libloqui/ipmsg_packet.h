@@ -22,7 +22,7 @@
 #define __IPMSG_PACKET_H__
 
 #include <glib-object.h>
-#include <gnet.h>
+#include <gio/gio.h>
 
 G_BEGIN_DECLS
 
@@ -51,7 +51,7 @@ struct _IPMsgPacket
 
 	gchar *group_name;
 
-	GInetAddr *inetaddr;
+	GInetSocketAddress *inetaddr;
 
         IPMsgPacketPrivate *priv;
 };
@@ -67,12 +67,12 @@ GType ipmsg_packet_get_type(void) G_GNUC_CONST;
 IPMsgPacket* ipmsg_packet_new(void);
 IPMsgPacket* ipmsg_packet_parse(const gchar *str, gint len);
 
-gchar *ipmsg_packet_to_string(IPMsgPacket *packet, gint *len);
+void ipmsg_packet_to_string(IPMsgPacket *packet, gchar **body, gchar **group_name);
 gchar * ipmsg_packet_inspect(IPMsgPacket *packet);
 void ipmsg_packet_print(IPMsgPacket *packet);
 
-void ipmsg_packet_set_inetaddr(IPMsgPacket *packet, GInetAddr *inetaddr);
-GInetAddr *ipmsg_packet_get_inetaddr(IPMsgPacket *packet);
+void ipmsg_packet_set_inetaddr(IPMsgPacket *packet, GInetSocketAddress *inetaddr);
+GInetSocketAddress *ipmsg_packet_get_inetaddr(IPMsgPacket *packet);
 
 gchar *ipmsg_packet_get_ip_addr(IPMsgPacket *packet);
 gint ipmsg_packet_get_port(IPMsgPacket *packet);

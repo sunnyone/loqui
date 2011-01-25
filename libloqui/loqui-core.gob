@@ -28,7 +28,6 @@ requires 2.0.0
 #include <libloqui-intl.h>
 #include "loqui-utils.h"
 #include "loqui-static-core.h"
-#include "gnet.h"
 %}
 %h{
 #include <libloqui/loqui-pref.h>
@@ -57,8 +56,6 @@ class Loqui:Core from G:Object
 	public virtual void initialize(self) {
 		if(!g_threads_got_initialized)
 			g_thread_init (NULL);
-
-		gnet_init();
 	}
 
 	public LoquiCore * new(void) {

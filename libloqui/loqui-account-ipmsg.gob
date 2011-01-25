@@ -95,8 +95,7 @@ class Loqui:Account:IPMsg from Loqui:Account
 		user_self = loqui_account_get_user_self(LOQUI_ACCOUNT(self));
 		loqui_user_set_away(user_self, LOQUI_AWAY_TYPE_ONLINE);
 		loqui_user_set_nick(user_self, loqui_profile_account_get_nick(loqui_account_get_profile(LOQUI_ACCOUNT(self))));
-		loqui_user_set_hostname(user_self,
-					gnet_inetaddr_get_host_name());
+		loqui_user_set_hostname(user_self, g_get_host_name());
 
 		/* FIXME: can't get ?
 		   tmp = loqui_socket_ipmsg_get_current_ip_addr(selfp->sock);

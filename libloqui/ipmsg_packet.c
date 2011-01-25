@@ -109,7 +109,7 @@ ipmsg_packet_dispose(GObject *object)
 	LOQUI_G_FREE_UNLESS_NULL(packet->group_name);
 	
 	if (packet->inetaddr) {
-		gnet_inetaddr_unref(packet->inetaddr);
+		g_object_unref(packet->inetaddr);
 		packet->inetaddr = NULL;
 	}
 
@@ -271,45 +271,34 @@ ipmsg_packet_create(gint version, gint packet_num, const gchar *username, const 
 
 	return packet;
 }
-gchar *
-ipmsg_packet_to_string(IPMsgPacket *packet, gint *len)
+void
+ipmsg_packet_to_string(IPMsgPacket *packet, gchar **body, gchar **group_name)
 {
-	GString *string;
-
-	string = g_string_new(NULL);
-
 #define LENZERO_IF_NULL(str) (str ? str : "")
-	g_string_printf(string, "%d:%d:%s:%s:%d:%s",
-			packet->version,
-			packet->packet_num,
-			LENZERO_IF_NULL(packet->username),
-			LENZERO_IF_NULL(packet->hostname),
-			packet->command_num,
-			LENZERO_IF_NULL(packet->extra));
+	*body = g_strdup_printf("%d:%d:%s:%s:%d:%s",
+				packet->version,
+				packet->packet_num,
+				LENZERO_IF_NULL(packet->username),
+				LENZERO_IF_NULL(packet->hostname),
+				packet->command_num,
+				LENZERO_IF_NULL(packet->extra));
 #undef LENZERO_IF_NULL
 
 	if (packet->group_name) {
-		g_string_append_c(string, '\0');
-		g_string_append(string, packet->group_name);
+		*group_name = g_strdup(packet->group_name);
 	}
-
-	if (len != NULL)
-		*len = string->len;
-	return g_string_free(string, FALSE);
 }
+
 gchar *
 ipmsg_packet_inspect(IPMsgPacket *packet)
 {
-	GInetAddr *addr;
-	gchar *addr_str;
 	GString *string;
 
 	string = g_string_new(NULL);
 
-	addr = ipmsg_packet_get_inetaddr(packet);
-	if (addr) {
-		addr_str = gnet_inetaddr_get_canonical_name(addr);
-		g_string_append_printf(string, "from: %s:%d, ", loqui_utils_remove_ipv6_prefix_ffff(addr_str), gnet_inetaddr_get_port(addr));
+	if (packet->inetaddr) {
+		gchar *addr_str = ipmsg_packet_get_ip_addr(packet);
+		g_string_append_printf(string, "from: %s:%d, ", loqui_utils_remove_ipv6_prefix_ffff(addr_str), ipmsg_packet_get_port(packet));
 		g_free(addr_str);
 	}
 
@@ -332,22 +321,23 @@ ipmsg_packet_print(IPMsgPacket *packet)
 }
 
 void
-ipmsg_packet_set_inetaddr(IPMsgPacket *packet, GInetAddr *inetaddr)
+ipmsg_packet_set_inetaddr(IPMsgPacket *packet, GInetSocketAddress *inetaddr)
 {
         g_return_if_fail(packet != NULL);
         g_return_if_fail(IS_IPMSG_PACKET(packet));
 	
 	if (packet->inetaddr) {
-		gnet_inetaddr_unref(inetaddr);
+		g_object_unref(inetaddr);
 		packet->inetaddr = NULL;
 	}
 
 	if (inetaddr) {
-		gnet_inetaddr_ref(inetaddr);
+		g_object_ref(inetaddr);
 		packet->inetaddr = inetaddr;
 	}
 }
-GInetAddr *
+
+GInetSocketAddress *
 ipmsg_packet_get_inetaddr(IPMsgPacket *packet)
 {
         g_return_val_if_fail(packet != NULL, NULL);
@@ -366,7 +356,7 @@ ipmsg_packet_get_ip_addr(IPMsgPacket *packet)
 	if (packet->inetaddr == NULL)
 		return NULL;
 
-	addr_str = gnet_inetaddr_get_canonical_name(packet->inetaddr);
+	addr_str = g_inet_address_to_string(g_inet_socket_address_get_address(packet->inetaddr));
 	str = g_strdup(loqui_utils_remove_ipv6_prefix_ffff(addr_str));
 	g_free(addr_str);
 
@@ -381,7 +371,7 @@ ipmsg_packet_get_port(IPMsgPacket *packet)
 	if (packet->inetaddr == NULL)
 		return 0;
 
-	return gnet_inetaddr_get_port(packet->inetaddr);
+	return g_inet_socket_address_get_port(packet->inetaddr);
 }
 gchar *
 ipmsg_packet_get_identifier(IPMsgPacket *packet)

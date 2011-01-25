@@ -37,7 +37,6 @@ AC_PATH_PROG(GLIB_GENMARSHAL, glib-genmarshal)
 
 AM_PATH_GTK_2_0(2.4.0,, AC_MSG_ERROR(Test for Gtk failed. See the 'INSTALL' for help.), gthread)
 
-AM_PATH_GNET_2_0(2.0.0,, AC_MSG_ERROR(Test for GNet failed. See the 'INSTALL' for help.))
 AC_SUBST(GNET_CFLAGS)
 AC_SUBST(GNET_LIBS)
 

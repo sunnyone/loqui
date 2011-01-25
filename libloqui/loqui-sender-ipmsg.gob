@@ -26,7 +26,7 @@ requires 2.0.0
 #include "loqui_sender.h"
 #include "loqui_account.h"
 
-#include <gnet.h>
+#include <gio/gio.h>
 %}
 
 %{
@@ -137,7 +137,7 @@ class Loqui:Sender:IPMsg from Loqui:Sender
 		loqui_socket_ipmsg_send_packet(socket, packet, ip_addr, port);
 	}
 
-	private void send_packet_with_inetaddr(self, :IPMsg:Packet *packet, GInetAddr *inetaddr) {
+	private void send_packet_with_inetaddr(self, :IPMsg:Packet *packet, GInetSocketAddress *inetaddr) {
 		LoquiAccount *account;
 		LoquiSocketIPMsg *socket;
 
@@ -250,7 +250,7 @@ class Loqui:Sender:IPMsg from Loqui:Sender
 		g_timeout_add(SENDMSG_RETRY_INTERVAL, (GSourceFunc) self_sendmsg_timeout_cb, packet);
 	}
 
-	public void send_recvmsg(self, gint orig_packet_num, GInetAddr *dest_inetaddr) {
+	public void send_recvmsg(self, gint orig_packet_num, GInetSocketAddress *dest_inetaddr) {
 		IPMsgPacket *packet;
 		gchar *tmp;
 		
@@ -265,7 +265,7 @@ class Loqui:Sender:IPMsg from Loqui:Sender
 	}
 
 	public void
-	sendinfo(self, GInetAddr *dest_inetaddr) {
+	sendinfo(self, GInetSocketAddress *dest_inetaddr) {
 		IPMsgPacket *packet;
 		gchar *version;
 
