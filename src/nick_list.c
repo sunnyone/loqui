@@ -271,8 +271,8 @@ nick_list_unselect_all(NickList *nick_list)
 {
 	GtkTreeSelection *selection;
 	selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(nick_list));
-	if(!selection)
-		return NULL;
+	if (!selection)
+		return;
 	gtk_tree_selection_unselect_all(selection);
 }
 
