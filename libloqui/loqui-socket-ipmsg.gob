@@ -39,6 +39,8 @@ requires 2.0.0
 #include "loqui-static-core.h"
 #include "loqui-account-ipmsg.h"
 #include "loqui-receiver-ipmsg.h"
+
+#include <sys/socket.h>
 %}
 
 %{
@@ -137,6 +139,7 @@ class Loqui:Socket:IPMsg from G:Object
                 GError *error = NULL;
                 GInetAddress *any_addr, *broadcast_addr;
                 GSocketAddress *bind_addrport;
+                int sockfd, on_flag = 1;
                 
 		selfp->udpsock = g_socket_new(G_SOCKET_FAMILY_IPV4,
 		                              G_SOCKET_TYPE_DATAGRAM,
@@ -152,7 +155,13 @@ class Loqui:Socket:IPMsg from G:Object
 		              TRUE,
 		              &error);
 		g_object_unref(bind_addrport);
-		
+
+                /* FIXME: no methods available for SO_BROADCAST in gio... */
+                sockfd = g_socket_get_fd(selfp->udpsock);
+                if (setsockopt(sockfd, SOL_SOCKET, SO_BROADCAST, (void*) &on_flag, sizeof(on_flag)) != 0) {
+		        loqui_account_warning(SELF_GET_ACCOUNT(self), _("Failed to set SO_BROADCAST"));
+		}
+                
 		if (error != NULL) {
 		        g_object_unref(selfp->udpsock);
 		        selfp->udpsock = NULL;
