@@ -9,14 +9,8 @@ Group: Applications/Internet
 Source0: http://launchpad.net/loqui/src/%{name}-%{ver}.tar.gz
 License: GPL
 Packager: Yoichi Imai <sunnyone41@gmail.com>
-%if %{?!suse_version: 0}%{?suse_version: 1}
-%define gnet2_pkg gnet
-%define add_buildreq pkgconfig, gettext
-%else
-%define gnet2_pkg gnet2
-%endif
-Requires: gtk2 >= 2.4.0, %{gnet2_pkg} >= 2.0.0
-BuildRequires: gtk2-devel >= 2.4.0, %{gnet2_pkg}-devel >= 2.0.0, %{?add_buildreq: %{add_buildreq}}
+Requires: gtk2 >= 2.4.0, glib2 >= 2.22.0
+BuildRequires: gtk2-devel >= 2.4.0, glib2-devel >= 2.22.0
 BuildRequires: gob2
 URL: http://launchpad.net/loqui
 BuildRoot: %{_tmppath}/%{name}-%{ver}-root
