@@ -37,7 +37,6 @@ libloqui/loqui-sender-ipmsg.gob
 libloqui/loqui-socket-ipmsg.gob
 libloqui/loqui-static-core.c
 libloqui/loqui-static-core.h
-libloqui/loqui-transfer-item-irc.gob
 libloqui/loqui-transfer-item.gob
 libloqui/loqui-utils-ipmsg.c
 libloqui/loqui-utils-ipmsg.h
@@ -117,8 +116,6 @@ src/channel_tree.c
 src/channel_tree.h
 src/command_dialog.c
 src/command_dialog.h
-src/eggtrayicon.c
-src/eggtrayicon.h
 src/gtkutils.c
 src/gtkutils.h
 src/loqui-account-dialog.gob
