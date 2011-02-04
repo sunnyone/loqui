@@ -1,5 +1,12 @@
 --- 
 -
+  date: 2011-02-05
+  version: 0.5.1
+  changes:
+    - Removed gnet dependency (Now glib2 >= 2.22 is required).
+    - Fixed the bug that loqui crashes when it received an invalid channel mode.
+    - "(" and ")" are treated as URL.
+-
   date: 2010-12-12
   version: 0.5.0
   changes:
