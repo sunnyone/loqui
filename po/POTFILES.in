@@ -106,8 +106,6 @@ libloqui/loqui_utils_irc.c
 libloqui/loqui_utils_irc.h
 libloqui/loqui_webutils.c
 libloqui/loqui_webutils.h
-libloqui/lqgkeyfile.c
-libloqui/lqgkeyfile.h
 src/about.c
 src/about.h
 src/account_list_dialog.c
