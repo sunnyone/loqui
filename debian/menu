@@ -1,2 +1,0 @@
-?package(loqui):needs="X11" section="Apps/Net"\
-  title="Loqui" command="/usr/bin/loqui"
