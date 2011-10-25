@@ -6,10 +6,13 @@ ChangeLog:
 	bzr log -v $(shell bzr info | sed -ne 's/^ *parent branch: //p') > $@
 
 EXTRA_DIST= autogen.sh \
+	AUTHORS \
 	README \
 	NEWS \
 	NEWS.ja \
 	COPYING \
+	COPYING.LIB \
+	LICENSE \
 	ChangeLog \
 	INSTALL \
 	loqui.spec \
