@@ -22,10 +22,6 @@ requires 2.0.0
  */
 %}
 
-%h{
-#include "lqgkeyfile.h"
-%}
-
 
 %h{
 #ifndef __TYPEDEF_LOQUI_PREF__
@@ -37,7 +33,7 @@ typedef void (*LoquiPrefForeachFunc) (LoquiPref *pref, const gchar *group_name, 
 %}
 
 %{
-#define IS_NOT_FOUND_ERROR(tmp_err) (tmp_err->domain == LQG_KEY_FILE_ERROR && (tmp_err->code == LQG_KEY_FILE_ERROR_KEY_NOT_FOUND || tmp_err->code == LQG_KEY_FILE_ERROR_GROUP_NOT_FOUND))
+#define IS_NOT_FOUND_ERROR(tmp_err) (tmp_err->domain == G_KEY_FILE_ERROR && (tmp_err->code == G_KEY_FILE_ERROR_KEY_NOT_FOUND || tmp_err->code == G_KEY_FILE_ERROR_GROUP_NOT_FOUND))
 #define GET_WITH_DEFAULT_MACRO(_tmp, _return_type, _get_func, _group_name, _key, _default_value, _error) { \
 	GError *tmp_err = NULL;					\
 	_tmp = _get_func(self, group_name, key, &tmp_err);	\
@@ -54,8 +50,8 @@ typedef void (*LoquiPrefForeachFunc) (LoquiPref *pref, const gchar *group_name, 
 
 class Loqui:Pref from G:Object
 {
-	private LqGKeyFile *keyfile = { lqg_key_file_new() }
-	  unrefwith lqg_key_file_free;
+	private GKeyFile *keyfile = { g_key_file_new() }
+	  unrefwith g_key_file_free;
 	
 	public LoquiPref * new(void) {
 		LoquiPref *ret = GET_NEW;
@@ -66,10 +62,10 @@ class Loqui:Pref from G:Object
 	void changed(self, const gchar *group_name, const gchar *key);
 
 	public gchar **get_keys(self, const gchar *group_name, gsize *length, GError **error) {
-		return lqg_key_file_get_keys(selfp->keyfile, group_name, length, error);
+		return g_key_file_get_keys(selfp->keyfile, group_name, length, error);
 	}
 	public gchar **get_groups(self, gsize *length) {
-		return lqg_key_file_get_groups(selfp->keyfile, length);
+		return g_key_file_get_groups(selfp->keyfile, length);
 	}
 
 	public void foreach(self, LoquiPrefForeachFunc func, gpointer data) {
@@ -77,10 +73,10 @@ class Loqui:Pref from G:Object
 		gchar **keys;
 		int i, j;
 
-		groups = lqg_key_file_get_groups(selfp->keyfile, NULL);
+		groups = g_key_file_get_groups(selfp->keyfile, NULL);
 		for (i = 0; groups[i] != NULL; i++) {
 			/* the group should be exist, but continue if can't find */
-			if (!(keys = lqg_key_file_get_keys(selfp->keyfile, groups[i], NULL, NULL)))
+			if (!(keys = g_key_file_get_keys(selfp->keyfile, groups[i], NULL, NULL)))
 				continue;
 			for (j = 0; keys[j] != NULL; j++) {
 				func(self, groups[i], keys[j], data);
@@ -90,8 +86,8 @@ class Loqui:Pref from G:Object
 		g_strfreev(groups);
 	}
 
-	public gboolean load_from_file(self, const gchar *file, LqGKeyFileFlags flags, GError **error) {
-		return lqg_key_file_load_from_file(selfp->keyfile, file, flags, error);
+	public gboolean load_from_file(self, const gchar *file, GKeyFileFlags flags, GError **error) {
+		return g_key_file_load_from_file(selfp->keyfile, file, flags, error);
 	}
 	public gboolean save_to_file(self, const gchar *file, GError **error) {
 		gchar *buf;
@@ -100,7 +96,7 @@ class Loqui:Pref from G:Object
 		if ((io = g_io_channel_new_file(file, "w", error)) == NULL) {
 			return FALSE;
 		}
-		if ((buf = lqg_key_file_to_data(selfp->keyfile, NULL, error)) == NULL) {
+		if ((buf = g_key_file_to_data(selfp->keyfile, NULL, error)) == NULL) {
 			g_io_channel_unref(io);
 			return FALSE;
 		}
@@ -117,58 +113,58 @@ class Loqui:Pref from G:Object
 	}
 
 	public gchar* to_data(self, gsize *length, GError **error) {
-		return lqg_key_file_to_data(selfp->keyfile, length, error);
+		return g_key_file_to_data(selfp->keyfile, length, error);
 	}
 
 	public gchar *get_string(self, const gchar *group_name, const gchar *key, GError **error) {
-		return lqg_key_file_get_string(selfp->keyfile, group_name, key, error);
+		return g_key_file_get_string(selfp->keyfile, group_name, key, error);
 	}
 	public gint get_integer(self, const gchar *group_name, const gchar *key, GError **error) {
-		return lqg_key_file_get_integer(selfp->keyfile, group_name, key, error);
+		return g_key_file_get_integer(selfp->keyfile, group_name, key, error);
 	}
 	public gboolean get_boolean(self, const gchar *group_name, const gchar *key, GError **error) {
-		return lqg_key_file_get_boolean(selfp->keyfile, group_name, key, error);
+		return g_key_file_get_boolean(selfp->keyfile, group_name, key, error);
 	}
 	public gchar **get_string_list(self, const gchar *group_name, const gchar *key, gsize *length, GError **error) {
-		return lqg_key_file_get_string_list(selfp->keyfile, group_name, key, length, error);
+		return g_key_file_get_string_list(selfp->keyfile, group_name, key, length, error);
 	}
 	public gint *get_integer_list(self, const gchar *group_name, const gchar *key, gsize *length, GError **error) {
-		return lqg_key_file_get_integer_list(selfp->keyfile, group_name, key, length, error);
+		return g_key_file_get_integer_list(selfp->keyfile, group_name, key, length, error);
 	}
 	public gboolean *get_boolean_list(self, const gchar *group_name, const gchar *key, gsize *length, GError **error) {
-		return lqg_key_file_get_boolean_list(selfp->keyfile, group_name, key, length, error);
+		return g_key_file_get_boolean_list(selfp->keyfile, group_name, key, length, error);
 	}
 
 	public void set_string(self, const gchar *group_name, const gchar *key, const gchar *value) {
-		lqg_key_file_set_string(selfp->keyfile, group_name, key, value);
+		g_key_file_set_string(selfp->keyfile, group_name, key, value);
 		self_changed(self, group_name, key);
 	}
 	public void set_integer(self, const gchar *group_name, const gchar *key, gint value) {
-		lqg_key_file_set_integer(selfp->keyfile, group_name, key, value);
+		g_key_file_set_integer(selfp->keyfile, group_name, key, value);
 		self_changed(self, group_name, key);
 	}
 	public void set_boolean(self, const gchar *group_name, const gchar *key, gboolean value) {
-		lqg_key_file_set_boolean(selfp->keyfile, group_name, key, value);
+		g_key_file_set_boolean(selfp->keyfile, group_name, key, value);
 		self_changed(self, group_name, key);
 	}
 	public void set_string_list(self, const gchar *group_name, const gchar *key, gchar **value, gsize length) {
-		lqg_key_file_set_string_list(selfp->keyfile, group_name, key, (const gchar **) value, length);
+		g_key_file_set_string_list(selfp->keyfile, group_name, key, (const gchar **) value, length);
 		self_changed(self, group_name, key);
 	}
 	public void set_integer_list(self, const gchar *group_name, const gchar *key, gint *value, gsize length) {
-		lqg_key_file_set_integer_list(selfp->keyfile, group_name, key, value, length);
+		g_key_file_set_integer_list(selfp->keyfile, group_name, key, value, length);
 		self_changed(self, group_name, key);
 	}
 	public void set_boolean_list(self, const gchar *group_name, const gchar *key, gboolean *value, gsize length) {
-		lqg_key_file_set_boolean_list(selfp->keyfile, group_name, key, value, length);
+		g_key_file_set_boolean_list(selfp->keyfile, group_name, key, value, length);
 		self_changed(self, group_name, key);
 	}
 
 	public gboolean has_key(self, const gchar *group_name, const gchar *key, GError **error) {
-		return lqg_key_file_has_key(selfp->keyfile, group_name, key, error);
+		return g_key_file_has_key(selfp->keyfile, group_name, key, error);
 	}
 	public gboolean has_group(self, const gchar *group_name) {
-		return lqg_key_file_has_group(selfp->keyfile, group_name);
+		return g_key_file_has_group(selfp->keyfile, group_name);
 	}
 
 	public void set_default_string(self, const gchar *group_name, const gchar *key, const gchar *default_value) {

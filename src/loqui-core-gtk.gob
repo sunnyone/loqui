@@ -113,7 +113,7 @@ class Loqui:Core:Gtk from Loqui:Core
 		gchar *path;
 
 		path = self_get_stylerc_path(self);
-		if (!loqui_pref_load_from_file(self->style_pref, path, LQG_KEY_FILE_NONE, NULL)) {
+		if (!loqui_pref_load_from_file(self->style_pref, path, G_KEY_FILE_NONE, NULL)) {
 			g_warning(_("Failed to load %s"), path);
 			g_free(path);
 			return;

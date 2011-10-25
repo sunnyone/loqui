@@ -14,8 +14,7 @@ SRC_BASE_UTILITIES = \
 	loqui-gobject-utils.c loqui-gobject-utils.h \
 	loqui_string_tokenizer.c loqui_string_tokenizer.h \
 	loqui_title_format.c loqui_title_format.h \
-	loqui_marshalers.c loqui_marshalers.h \
-	lqgkeyfile.c lqgkeyfile.h
+	loqui_marshalers.c loqui_marshalers.h
 
 define(`M4_SRC_PROTOCOL_BASE_BASE_GOB',`loqui-generic-profile-factory.gob loqui-property-profile.gob loqui-message-text.gob loqui-message-text-region.gob')
 SRC_PROTOCOL_BASE_BASE = \
