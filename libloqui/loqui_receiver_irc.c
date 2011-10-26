@@ -470,9 +470,9 @@ static void
 loqui_receiver_irc_command_quit(LoquiReceiverIRC *receiver, IRCMessage *msg)
 {
 	LoquiReceiverIRCPrivate *priv;
-	GList *list;
 	LoquiUser *user;
 	LoquiAccount *account;
+	GList *list;
 
 	priv = receiver->priv;
 	account = loqui_receiver_get_account(LOQUI_RECEIVER(receiver));
@@ -529,6 +529,7 @@ loqui_receiver_irc_command_part(LoquiReceiverIRC *receiver, IRCMessage *msg)
 		if(channel) {
 			loqui_receiver_irc_channel_append(receiver, msg, FALSE, 0, LOQUI_TEXT_TYPE_INFO, _("*** You have left %t (%1)"));
 			loqui_channel_set_is_joined(channel, FALSE);
+			loqui_channel_entry_clear_member(LOQUI_CHANNEL_ENTRY(channel));
 		}
 	} else {
 		loqui_receiver_irc_channel_append(receiver, msg, FALSE, 0, LOQUI_TEXT_TYPE_INFO, _("*** %n has just part %t(%L)"));
@@ -829,7 +830,6 @@ loqui_receiver_irc_command_join(LoquiReceiverIRC *receiver, IRCMessage *msg)
 		loqui_channel_set_is_joined(channel, TRUE);
 	}
 	
-	loqui_channel_irc_add_member_by_nick(LOQUI_CHANNEL_IRC(channel), msg->nick, FALSE, FALSE, FALSE);
 	loqui_receiver_irc_channel_append(receiver, msg, FALSE, 0, LOQUI_TEXT_TYPE_INFO, _("*** %n (%u@%h) joined channel %L"));
 }
 static void

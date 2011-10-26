@@ -423,6 +423,7 @@ loqui_account_irc_closed(LoquiAccount *account, gboolean is_success)
 	
 	g_queue_foreach(priv->msg_queue, (GFunc) g_object_unref, NULL);
 
+	loqui_account_remove_all_user(LOQUI_ACCOUNT(account));
 	loqui_account_set_all_channel_unjoined(LOQUI_ACCOUNT(account));
 
 	loqui_user_set_away(loqui_account_get_user_self(LOQUI_ACCOUNT(account)), LOQUI_AWAY_TYPE_OFFLINE);
