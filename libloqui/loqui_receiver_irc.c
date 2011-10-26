@@ -852,13 +852,16 @@ loqui_receiver_irc_reply_welcome(LoquiReceiverIRC *receiver, IRCMessage *msg)
 	LoquiReceiverIRCPrivate *priv;
 	const gchar *autojoin;
 	LoquiAccount *account;
-
+	
         g_return_if_fail(receiver != NULL);
         g_return_if_fail(LOQUI_IS_RECEIVER_IRC(receiver));
 
 	priv = receiver->priv;
 	account = loqui_receiver_get_account(LOQUI_RECEIVER(receiver));
 
+	/* set the string of target to the 'user_self' */
+	loqui_user_set_nick(loqui_account_get_user_self(account), irc_message_get_target(msg));
+	
 	receiver->passed_welcome = TRUE;
 
 	autojoin = loqui_profile_account_irc_get_autojoin(LOQUI_PROFILE_ACCOUNT_IRC(loqui_account_get_profile(account)));
