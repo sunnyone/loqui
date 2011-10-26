@@ -237,10 +237,14 @@ loqui_account_irc_constructor(GType type, guint n_props, GObjectConstructParam *
 	loqui_account_set_receiver(account, LOQUI_RECEIVER(loqui_receiver_irc_new(account)));
 
 	profile = loqui_account_get_profile(account);
+	
 	user = LOQUI_USER(loqui_user_irc_new());
 	loqui_user_set_nick(user, loqui_profile_account_get_nick(profile));
 	loqui_user_set_away(user, LOQUI_AWAY_TYPE_OFFLINE);
+	
 	loqui_account_set_user_self(account, user);
+	loqui_account_add_user(account, user);
+	g_object_unref(user); /* the account has reference */
 
 	codeconv = loqui_codeconv_new();
 	loqui_codeconv_set_table(codeconv, loqui_protocol_get_codeconv_table(profile->protocol));

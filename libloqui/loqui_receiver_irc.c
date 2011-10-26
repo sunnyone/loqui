@@ -602,13 +602,13 @@ loqui_receiver_irc_command_nick(LoquiReceiverIRC *receiver, IRCMessage *msg)
 	priv = receiver->priv;
 	account = loqui_receiver_get_account(LOQUI_RECEIVER(receiver));
 
-	if(msg->nick == NULL) {
+	if (msg->nick == NULL) {
 		loqui_account_warning(account, _("The message does not contain nick"));
 		return;
 	}
 
 	nick_new = irc_message_get_target(msg);
-	if(nick_new == NULL) {
+	if (nick_new == NULL) {
 		loqui_account_warning(account, _("The NICK message does not contain new nick"));
 		return;
 	}
@@ -617,9 +617,6 @@ loqui_receiver_irc_command_nick(LoquiReceiverIRC *receiver, IRCMessage *msg)
 	loqui_receiver_irc_joined_channel_append(receiver, msg, NULL, LOQUI_TEXT_TYPE_INFO, _("*** %n is known as %t"));
 	if (user)
 		loqui_user_set_nick(user, nick_new);
-
-	if(loqui_account_irc_is_current_nick(LOQUI_ACCOUNT_IRC(account), msg->nick))
-		loqui_user_set_nick(loqui_account_get_user_self(account), nick_new);
 
 	if (!LOQUI_UTILS_IRC_STRING_IS_CHANNEL(msg->nick)) {
 		channel = loqui_account_get_channel_by_identifier(account, msg->nick);
