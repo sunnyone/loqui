@@ -416,8 +416,8 @@ irc_message_to_string(IRCMessage *msg)
 			g_string_append_c(string, ' ');
 			g_string_append(string, msg->parameter[i]);
 		}
-		// only if the last parameter has <SPACE>(' '), add ':' (for madoka)
-		if (strchr(msg->parameter[i], ' ') == NULL) {
+		// only if the last parameter has <SPACE>(' ') or empty (""), add ':' (for madoka)
+		if (strlen(msg->parameter[i]) > 0 && strchr(msg->parameter[i], ' ') == NULL) {
 			g_string_append_printf(string, " %s", msg->parameter[i]);
 		} else {
 			g_string_append_printf(string, " :%s", msg->parameter[i]);
