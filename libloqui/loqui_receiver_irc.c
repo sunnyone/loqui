@@ -830,6 +830,7 @@ loqui_receiver_irc_command_join(LoquiReceiverIRC *receiver, IRCMessage *msg)
 		loqui_channel_set_is_joined(channel, TRUE);
 	}
 	
+	loqui_channel_irc_add_member_by_nick(LOQUI_CHANNEL_IRC(channel), msg->nick, FALSE, FALSE, FALSE);
 	loqui_receiver_irc_channel_append(receiver, msg, FALSE, 0, LOQUI_TEXT_TYPE_INFO, _("*** %n (%u@%h) joined channel %L"));
 }
 static void
