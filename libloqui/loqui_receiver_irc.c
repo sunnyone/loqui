@@ -116,6 +116,7 @@ static void loqui_receiver_irc_joined_channel_append(LoquiReceiverIRC *receiver,
 
 static void loqui_receiver_irc_reply_welcome(LoquiReceiverIRC *receiver, IRCMessage *msg);
 static void loqui_receiver_irc_reply_names(LoquiReceiverIRC *receiver, IRCMessage *msg);
+static void loqui_receiver_irc_reply_notopic(LoquiReceiverIRC *receiver, IRCMessage *msg);
 static void loqui_receiver_irc_reply_topic(LoquiReceiverIRC *receiver, IRCMessage *msg);
 static void loqui_receiver_irc_reply_endofnames(LoquiReceiverIRC *receiver, IRCMessage *msg);
 static void loqui_receiver_irc_reply_channelmodeis(LoquiReceiverIRC *receiver, IRCMessage *msg);
@@ -1179,6 +1180,28 @@ loqui_receiver_irc_reply_who(LoquiReceiverIRC *receiver, IRCMessage *msg)
 	g_free(realname);
 }
 static void
+loqui_receiver_irc_reply_notopic(LoquiReceiverIRC *receiver, IRCMessage *msg)
+{
+	LoquiChannel *channel;
+	gchar *topic;
+	gchar *name;
+	LoquiAccount *account;
+
+        g_return_if_fail(receiver != NULL);
+        g_return_if_fail(LOQUI_IS_RECEIVER_IRC(receiver));
+
+	account = loqui_receiver_get_account(LOQUI_RECEIVER(receiver));
+	
+	name = irc_message_get_param(msg, 1);
+	channel = loqui_account_get_channel_by_identifier(account, name);
+	if (channel == NULL)
+		return;
+
+	loqui_channel_entry_set_topic(LOQUI_CHANNEL_ENTRY(channel), NULL);
+	loqui_receiver_irc_channel_append(receiver, msg, FALSE, 1, LOQUI_TEXT_TYPE_INFO, _("*** No topic is set for %1"));
+}
+
+static void
 loqui_receiver_irc_reply_topic(LoquiReceiverIRC *receiver, IRCMessage *msg)
 {
 	LoquiChannel *channel;
@@ -1395,6 +1418,9 @@ loqui_receiver_irc_reply(LoquiReceiverIRC *receiver, IRCMessage *msg)
 		return TRUE;
 	case IRC_RPL_TOPICWHOTIME:
 		loqui_receiver_irc_reply_topicwhotime(receiver, msg);
+		return TRUE;
+	case IRC_RPL_NOTOPIC:
+		loqui_receiver_irc_reply_notopic(receiver, msg);
 		return TRUE;
 	case IRC_RPL_TOPIC:
 		loqui_receiver_irc_reply_topic(receiver, msg);
