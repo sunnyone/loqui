@@ -758,10 +758,8 @@ loqui_receiver_irc_command_mode(LoquiReceiverIRC *receiver, IRCMessage *msg)
 		changer = msg->nick;
 	else if(msg->prefix)
 		changer = msg->prefix;
-	else {
-		loqui_account_warning(account, _("Who can change mode?"));
-		return;
-	}
+	else
+		changer = "the server"; /* NULL prefix assumes the server */
 
 	if(strchr(changer, '%')) {
 		loqui_account_warning(account, _("Nick must not contain '%%'"));
