@@ -380,6 +380,10 @@ loqui_codeconv_to_server(LoquiCodeConv *codeconv, const gchar *input, GError **e
 	} else {
 		output = g_convert_with_iconv(input, strlen(input)+1, codeconv->cd_to_server,
 					      NULL, NULL, error);
+		// if error, initialize iconv_t
+		if (error != NULL && *error != NULL) {
+			g_iconv(codeconv->cd_to_server, NULL, NULL, NULL, NULL);
+		}
 	}
 	
 	g_free(tmp);

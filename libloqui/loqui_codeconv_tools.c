@@ -82,6 +82,12 @@ loqui_codeconv_tools_jis_to_utf8(LoquiCodeConv *codeconv, gboolean is_to_server,
 
 		buf = g_convert_with_iconv(input, strlen(input)+1, codeconv->cd_to_server,
 					   NULL, NULL, error);
+		
+		// if error, initialize iconv_t
+		if (error != NULL && *error != NULL) {
+			g_iconv(codeconv->cd_to_server, NULL, NULL, NULL, NULL);
+		}
+		
 		return buf;
 	}
 
