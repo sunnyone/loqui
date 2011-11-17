@@ -898,6 +898,9 @@ loqui_receiver_irc_reply_welcome(LoquiReceiverIRC *receiver, IRCMessage *msg)
 	}
 
 	loqui_receiver_irc_account_console_append(receiver, msg, LOQUI_TEXT_TYPE_INFO, "*** %*1");
+	
+	/* reset reconnect count */
+	account->reconnect_try_count = 0;
 }
 static void
 loqui_receiver_irc_reply_names(LoquiReceiverIRC *receiver, IRCMessage *msg)
