@@ -1,5 +1,11 @@
 --- 
 -
+  date: 2011-11-19
+  version: 0.5.2
+  changes:
+    - バグ修正 (See ChangeLog, or Bug #689171, #689170, #706634, #872928, #881220)
+    - コマンドハンドラの強化 (MODE/RPL_NOTOPIC).
+-
   date: 2011-02-05
   version: 0.5.1
   changes:
