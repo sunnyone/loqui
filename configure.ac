@@ -5,7 +5,7 @@ AC_PREREQ(2.53)
 m4_define([loqui_major_version], [0])
 m4_define([loqui_minor_version], [5])
 m4_define([loqui_micro_version], [2])
-m4_define([loqui_extra_version], [])
+m4_define([loqui_extra_version], [+bzr])
 m4_define([loqui_version], [loqui_major_version.loqui_minor_version.loqui_micro_version[]loqui_extra_version])
 
 AC_INIT(loqui, loqui_version)
