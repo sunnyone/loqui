@@ -54,8 +54,10 @@ class Loqui:Core from G:Object
 	   run from loqui_init().
 	*/
 	public virtual void initialize(self) {
+#if !GLIB_CHECK_VERSION(2, 31, 0)
 		if(!g_threads_got_initialized)
 			g_thread_init (NULL);
+#endif
 	}
 
 	public LoquiCore * new(void) {
