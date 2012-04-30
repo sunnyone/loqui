@@ -1604,7 +1604,7 @@ loqui_receiver_irc_command(LoquiReceiverIRC *receiver, IRCMessage *msg)
 		loqui_receiver_irc_command_pong(receiver, msg);
 		return TRUE;
 	case IRC_COMMAND_INVITE:
-		loqui_receiver_irc_account_console_append(receiver, msg, LOQUI_TEXT_TYPE_INFO, "*** You were invited to %1 by %t");
+		loqui_receiver_irc_account_console_append(receiver, msg, LOQUI_TEXT_TYPE_INFO, "*** You were invited to %1 by %n");
 		return TRUE;
 	case IRC_COMMAND_ERROR:
 		loqui_receiver_irc_command_error(receiver, msg);
