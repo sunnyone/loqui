@@ -1,5 +1,10 @@
 --- 
 -
+  date: 2012-05-24
+  version: 0.5.3
+  changes:
+    - バグ修正 (See ChangeLog, or Bug #935284, #986432)
+-
   date: 2011-11-19
   version: 0.5.2
   changes:

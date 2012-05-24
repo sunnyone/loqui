@@ -1,9 +1,14 @@
 --- 
 -
+  date: 2012-05-24
+  version: 0.5.3
+  changes:
+    - Fixed bugs (See ChangeLog, or Bug #935284, #986432)
+-
   date: 2011-11-19
   version: 0.5.2
   changes:
-    - Fix bugs (See ChangeLog, or Bug #689171, #689170, #706634, #872928, #881220)
+    - Fixed bugs (See ChangeLog, or Bug #689171, #689170, #706634, #872928, #881220)
     - Command handler improvement (MODE/RPL_NOTOPIC).
 -
   date: 2011-02-05
