@@ -214,11 +214,11 @@ loqui_codeconv_update(LoquiCodeConv *codeconv, GError **error)
 
 	priv = codeconv->priv;
 
-	if (codeconv->cd_to_local >= 0)
+	if (LOQUI_CODECONV_G_ICONV_IS_VALID(codeconv->cd_to_local))
 		g_iconv_close(codeconv->cd_to_local);
 	LOQUI_CODECONV_G_ICONV_INVALIDATE(&codeconv->cd_to_local);
 
-	if (codeconv->cd_to_server >= 0)
+	if (LOQUI_CODECONV_G_ICONV_IS_VALID(codeconv->cd_to_server))
 		g_iconv_close(codeconv->cd_to_server);
 	LOQUI_CODECONV_G_ICONV_INVALIDATE(&codeconv->cd_to_server);
 
