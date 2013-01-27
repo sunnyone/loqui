@@ -421,7 +421,7 @@ loqui_codeconv_convert(LoquiCodeConv *codeconv, const gchar *input, GIConv cd, G
 		if(outbuf - buf > 0)
 			string = g_string_append_len(string, buf, outbuf - buf);
 
-		if(ret == -1) {
+		if(!LOQUI_CODECONV_G_ICONV_IS_VALID(ret)) {
 			switch(errno) {
 			case EILSEQ:
 				inbuf++;
@@ -442,7 +442,7 @@ loqui_codeconv_convert(LoquiCodeConv *codeconv, const gchar *input, GIConv cd, G
 				return NULL;
 			}
 		}
-	} while(ret == -1);
+	} while(!LOQUI_CODECONV_G_ICONV_IS_VALID(ret));
 
 	/* to append terminating characters */
 	outbuf = buf;
