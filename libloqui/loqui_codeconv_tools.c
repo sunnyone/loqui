@@ -74,21 +74,111 @@ loqui_codeconv_tools_jis_to_utf8(LoquiCodeConv *codeconv, gboolean is_to_server,
 	gchar *src, *dst;
 	gunichar u;
 	gsize inbytes_left, outbytes_left;
-	ISO2022JPAreaType area_type;
+	ISO2022JPAreaType area_type, expect_area_type;
 	GIConv cd;
 
+        // This feature is mainly for non-GNU iconv.
+        // For example, Solaris iconv with ISO-2022-JP doesn't use "ESC ( B" and "ESC $ B"
 	if (is_to_server) {
-		gchar *buf;
-
-		buf = g_convert_with_iconv(input, strlen(input)+1, codeconv->cd_to_server,
-					   NULL, NULL, error);
-		
-		// if error, initialize iconv_t
-		if (error != NULL && *error != NULL) {
-			g_iconv(codeconv->cd_to_server, NULL, NULL, NULL, NULL);
-		}
-		
-		return buf;
+	        cd = g_iconv_open(ICONV_EUC_JP_CODESET, "UTF-8");
+	        if (cd < 0) {
+		        g_set_error(error,
+			            LOQUI_CODECONV_ERROR,
+			            LOQUI_CODECONV_ERROR_FAILED_OPEN_ICONV,
+			            "Can't open iconv (%s)", ICONV_EUC_JP_CODESET);
+		        return NULL;
+	        }
+	        
+	        string = g_string_new(NULL);
+	        
+	        area_type = ISO_2022_JP_TYPE_ASCII;
+	        cur = input;
+	        while (*cur) {
+	                gchar *next;
+	                int srclen, dstlen;
+	                
+	                next = g_utf8_next_char(cur);
+	                if (next == NULL)
+	                        break;
+	                
+	                srclen = next - cur;
+	                memcpy(utf8char, cur, srclen);
+	                utf8char[srclen] = '\0';
+	                
+	                src = utf8char;
+                        dst = euc_jp_kanji;
+                        
+	                inbytes_left = srclen;
+	                outbytes_left = EUC_JP_CHAR_MAX_LEN;
+			if (g_iconv(cd, &src, &inbytes_left, &dst, &outbytes_left) == -1) {
+			        g_string_free(string, TRUE);
+				g_iconv_close(cd);
+			        
+				g_set_error(error,
+			                    LOQUI_CODECONV_ERROR,
+			                    LOQUI_CODECONV_ERROR_CONVERT,
+			                    "Can't convert the character: %s", utf8char);
+			        return NULL;
+			}
+			
+			dstlen = dst - euc_jp_kanji;
+			
+			// when 1-byte in EUC-JP: ascii (CAUTION: this includes '\n')
+	                // when 2-byte in EUC-JP: JIS X 0208 kanji
+	                // when 3-byte in EUC-JP: JIS hojo-kanji (currently it treats as an error)
+	                if (dstlen == 1) {
+	                        expect_area_type = ISO_2022_JP_TYPE_ASCII;
+	                } else if (dstlen == 2) {
+	                        expect_area_type = ISO_2022_JP_TYPE_JISX_0208_1983;
+	                } else {
+			        g_string_free(string, TRUE);
+				g_iconv_close(cd);
+			        
+				g_set_error(error,
+			                    LOQUI_CODECONV_ERROR,
+			                    LOQUI_CODECONV_ERROR_CONVERT,
+			                    "Invalid character length in EUC-JP(JIS): %s", utf8char);
+			        return NULL;
+	                }
+	                
+	                // append the escape sequence if neccessary
+	                if (area_type != expect_area_type) {
+	                	if (expect_area_type == ISO_2022_JP_TYPE_JISX_0208_1983) {
+	                		g_string_append_c(string, ISO_2022_ESC);
+					g_string_append_c(string, '$');
+					g_string_append_c(string, 'B');
+	                	} else {
+	                		g_string_append_c(string, ISO_2022_ESC);
+					g_string_append_c(string, '(');
+					g_string_append_c(string, 'B');
+	                	}
+	                	area_type = expect_area_type;
+	                }
+	                
+	                // append char
+	                if (expect_area_type == ISO_2022_JP_TYPE_JISX_0208_1983) {
+	                	// remove top bit
+	                	euc_jp_kanji[0] &= 0x7f;
+	                	euc_jp_kanji[1] &= 0x7f;
+	                	euc_jp_kanji[2] = '\0';
+	                	g_string_append(string, euc_jp_kanji);
+	                } else {
+	                	g_string_append_c(string, *euc_jp_kanji);
+	                }
+	                
+	                cur = next;
+	        }
+	        
+	        // back to ASCII
+	        if (area_type != ISO_2022_JP_TYPE_ASCII) {
+                	g_string_append_c(string, ISO_2022_ESC);
+                	g_string_append_c(string, '(');
+                	g_string_append_c(string, 'B');
+                }
+                
+                g_iconv_close(cd);
+                
+		return g_string_free(string, FALSE);
 	}
 
 	
