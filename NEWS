@@ -1,4 +1,8 @@
 --- 
+- date: 2013-03-18
+  version: 0.5.5
+  changes:
+    - Improved the Japanese encoding handler for Solaris iconv (Add Japanese(ISO-2022-JP) escape sequence in the code).
 - date: 2013-01-27
   version: 0.5.4
   changes:
