@@ -124,11 +124,22 @@ loqui_codeconv_tools_jis_to_utf8(LoquiCodeConv *codeconv, gboolean is_to_server,
 			dstlen = dst - euc_jp_kanji;
 			
 			// when 1-byte in EUC-JP: ascii (CAUTION: this includes '\n')
-	                // when 2-byte in EUC-JP: JIS X 0208 kanji
+	                // when 2-byte in EUC-JP: JIS X 0208 kanji / JIS X 0201 kana
 	                // when 3-byte in EUC-JP: JIS hojo-kanji (currently it treats as an error)
 	                if (dstlen == 1) {
 	                        expect_area_type = ISO_2022_JP_TYPE_ASCII;
 	                } else if (dstlen == 2) {
+	                	// halfwidth kana
+	                	if ((euc_jp_kanji[0] & 0xff) == 0x8e) {
+	                		g_string_free(string, TRUE);
+					g_iconv_close(cd);
+					
+					g_set_error(error,
+					            LOQUI_CODECONV_ERROR,
+					            LOQUI_CODECONV_ERROR_CONVERT,
+					            "Sending halfwidth-kana is not supported: %s", utf8char);
+					return NULL;
+	                	}
 	                        expect_area_type = ISO_2022_JP_TYPE_JISX_0208_1983;
 	                } else {
 			        g_string_free(string, TRUE);
@@ -140,7 +151,7 @@ loqui_codeconv_tools_jis_to_utf8(LoquiCodeConv *codeconv, gboolean is_to_server,
 			                    "Invalid character length in EUC-JP(JIS): %s", utf8char);
 			        return NULL;
 	                }
-	                
+			
 	                // append the escape sequence if neccessary
 	                if (area_type != expect_area_type) {
 	                	if (expect_area_type == ISO_2022_JP_TYPE_JISX_0208_1983) {
