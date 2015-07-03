@@ -93,7 +93,7 @@ loqui_channel_buffer_gtk_get_type(void)
 					      0);
 		g_type_add_interface_static(type, LOQUI_TYPE_CHANNEL_BUFFER, &ibuf_info);
 	}
-	
+
 	return type;
 }
 static void
@@ -105,12 +105,12 @@ static void
 loqui_channel_buffer_gtk_init_tags(void)
 {
 	GtkTextTag *tag;
-	
+
 	if(default_tag_table)
 		return;
-		
+
 	default_tag_table = gtk_text_tag_table_new();
-	
+
 	tag = gtk_text_tag_new("global");
 	gtk_text_tag_table_add(default_tag_table, tag);
 
@@ -119,12 +119,12 @@ loqui_channel_buffer_gtk_init_tags(void)
 
 	tag = gtk_text_tag_new("info");
 	gtk_text_tag_table_add(default_tag_table, tag);
-	
+
 	tag = gtk_text_tag_new("normal");
 	gtk_text_tag_table_add(default_tag_table, tag);
-	
+
 	tag = gtk_text_tag_new("error");
-	gtk_text_tag_table_add(default_tag_table, tag);	
+	gtk_text_tag_table_add(default_tag_table, tag);
 
 	tag = gtk_text_tag_new("notice");
 	gtk_text_tag_table_add(default_tag_table, tag);
@@ -135,7 +135,7 @@ loqui_channel_buffer_gtk_init_tags(void)
 
 	tag = gtk_text_tag_new("link");
 	gtk_text_tag_table_add(default_tag_table, tag);
-	
+
 	tag = gtk_text_tag_new("hover");
 	g_object_set(tag, "underline", PANGO_UNDERLINE_SINGLE, NULL);
 	gtk_text_tag_table_add(default_tag_table, tag);
@@ -154,7 +154,7 @@ loqui_channel_buffer_gtk_class_init(LoquiChannelBufferGtkClass *klass)
         GObjectClass *object_class = G_OBJECT_CLASS(klass);
 
         parent_class = g_type_class_peek_parent(klass);
-        
+
         object_class->finalize = loqui_channel_buffer_gtk_finalize;
 
 	if(default_tag_table == NULL)
@@ -174,7 +174,7 @@ loqui_channel_buffer_gtk_init(LoquiChannelBufferGtk *channel_buffer)
 	channel_buffer->show_account_name = FALSE;
 	channel_buffer->show_channel_name = FALSE;
 }
-static void 
+static void
 loqui_channel_buffer_gtk_finalize(GObject *object)
 {
 	LoquiChannelBufferGtk *channel_buffer;
@@ -203,12 +203,12 @@ loqui_channel_buffer_gtk_delete_old_lines(LoquiChannelBufferGtk *buffer)
 	GtkTextIter cut_iter_start, cut_iter_end;
 	gint line_num;
 	gint max_line_number;
-		
+
 	g_return_if_fail(buffer != NULL);
 	g_return_if_fail(LOQUI_IS_CHANNEL_BUFFER_GTK(buffer));
 
 	priv = buffer->priv;
-	
+
 	max_line_number = priv->is_common_buffer ?
 			  loqui_pref_get_with_default_integer(loqui_get_general_pref(),
 							      LOQUI_GENERAL_PREF_GTK_GROUP_GENERAL, "CommonBufferMaxLineNumber",
@@ -216,12 +216,12 @@ loqui_channel_buffer_gtk_delete_old_lines(LoquiChannelBufferGtk *buffer)
 			  loqui_pref_get_with_default_integer(loqui_get_general_pref(),
 							      LOQUI_GENERAL_PREF_GTK_GROUP_GENERAL, "ChannelBufferMaxLineNumber",
 							      LOQUI_GENERAL_PREF_GTK_DEFAULT_GENERAL_CHANNEL_BUFFER_MAX_LINE_NUMBER, NULL);
-			  
+
 	line_num = gtk_text_buffer_get_line_count(GTK_TEXT_BUFFER(buffer)) - 1; // except last return code
 	if (0 < max_line_number && line_num > max_line_number) {
 		gtk_text_buffer_get_start_iter(GTK_TEXT_BUFFER(buffer), &cut_iter_start);
 		cut_iter_end = cut_iter_start;
-		
+
 		if(gtk_text_iter_forward_lines(&cut_iter_end, line_num - max_line_number))
 			gtk_text_buffer_delete(GTK_TEXT_BUFFER(buffer), &cut_iter_start, &cut_iter_end);
 		else {
@@ -243,10 +243,6 @@ loqui_channel_buffer_gtk_new(LoquiPrefPartial *ppref_channel_buffer)
 
 	channel_buffer = g_object_new(loqui_channel_buffer_gtk_get_type(), "tag_table", default_tag_table, NULL);
 	priv = channel_buffer->priv;
-
-	gtk_text_buffer_get_start_iter(GTK_TEXT_BUFFER(channel_buffer), &start_iter);
-	gtk_text_buffer_get_end_iter(GTK_TEXT_BUFFER(channel_buffer), &end_iter);
-	gtk_text_buffer_apply_tag_by_name(GTK_TEXT_BUFFER(channel_buffer), "global", &start_iter, &end_iter);
 
 	priv->ppref_channel_buffer = g_object_ref(ppref_channel_buffer);
 
@@ -319,7 +315,7 @@ loqui_channel_buffer_gtk_load_styles(LoquiChannelBufferGtk *buffer)
 	SET_STRING_DEFAULT("NoticeColor", "#555555");
 	SET_STRING_DEFAULT("LinkColor", "blue");
 	SET_STRING_DEFAULT("HighlightColor", "purple");
-	
+
 	SET_STRING_DEFAULT("GlobalFont", font_name);
 
 #undef SET_STRING_DEFAULT
@@ -383,7 +379,7 @@ loqui_channel_buffer_gtk_get_tag_name(LoquiChannelBufferGtk *buffer, LoquiTextTy
 	default:
 		tag_name = "normal";
 	}
-	
+
 	return tag_name;
 }
 
@@ -405,7 +401,7 @@ loqui_channel_buffer_gtk_tag_regions(LoquiChannelBufferGtk *buffer, GtkTextIter 
 
 		region_start_iter = text_start_iter;
 		gtk_text_iter_forward_chars(&region_start_iter, g_utf8_strlen(text, start_pos));
-		
+
 		region_end_iter = region_start_iter;
 		gtk_text_iter_forward_chars(&region_end_iter, g_utf8_strlen(text + start_pos, offset));
 
@@ -437,29 +433,29 @@ loqui_channel_buffer_gtk_append_message_text(LoquiChannelBuffer *buffer_p, Loqui
 
 	gtk_text_buffer_get_end_iter(GTK_TEXT_BUFFER(buffer), &iter);
 	if ((buf = loqui_channel_buffer_gtk_get_time_string(buffer)) != NULL) {
-		gtk_text_buffer_insert_with_tags_by_name(GTK_TEXT_BUFFER(buffer), &iter, buf, -1, "time", NULL);
+		gtk_text_buffer_insert_with_tags_by_name(GTK_TEXT_BUFFER(buffer), &iter, buf, -1, "time", "global", NULL);
 		g_free(buf);
 	}
-	
+
 	type = loqui_message_text_get_text_type(msgtext);
 	tag_name = loqui_channel_buffer_gtk_get_tag_name(buffer, type);
 
 	if (loqui_channel_buffer_gtk_get_show_account_name(buffer) &&
 	    loqui_message_text_get_account_name(msgtext)) {
 		buf = g_strdup_printf("[%s] ", loqui_message_text_get_account_name(msgtext));
-		gtk_text_buffer_insert_with_tags_by_name(GTK_TEXT_BUFFER(buffer), &iter, buf, -1, tag_name, NULL);
+		gtk_text_buffer_insert_with_tags_by_name(GTK_TEXT_BUFFER(buffer), &iter, buf, -1, tag_name, "global", NULL);
 		g_free(buf);
 	}
 
 	if(loqui_message_text_get_is_remark(msgtext)) {
 		buf = loqui_message_text_get_nick_string(msgtext, loqui_channel_buffer_gtk_get_show_channel_name(buffer));
-		gtk_text_buffer_insert_with_tags_by_name(GTK_TEXT_BUFFER(buffer), &iter, buf, -1, tag_name, NULL);
+		gtk_text_buffer_insert_with_tags_by_name(GTK_TEXT_BUFFER(buffer), &iter, buf, -1, tag_name, "global", NULL);
 		g_free(buf);
 	}
 
 	text = loqui_message_text_get_text(msgtext);
 	len = g_utf8_strlen(text, -1);
-	gtk_text_buffer_insert_with_tags_by_name(GTK_TEXT_BUFFER(buffer), &iter, text, -1, tag_name, NULL);
+	gtk_text_buffer_insert_with_tags_by_name(GTK_TEXT_BUFFER(buffer), &iter, text, -1, tag_name, "global", NULL);
 
 	text_start_iter = iter;
 	gtk_text_iter_backward_chars(&text_start_iter, len);
@@ -481,12 +477,12 @@ void
 loqui_channel_buffer_gtk_set_whether_common_buffer(LoquiChannelBufferGtk *buffer, gboolean is_common_buffer)
 {
 	LoquiChannelBufferGtkPrivate *priv;
-	
+
         g_return_if_fail(buffer != NULL);
         g_return_if_fail(LOQUI_IS_CHANNEL_BUFFER_GTK(buffer));
 
 	priv = buffer->priv;
-	
+
 	priv->is_common_buffer = TRUE;
 }
 void
@@ -502,7 +498,7 @@ loqui_channel_buffer_gtk_get_show_account_name(LoquiChannelBufferGtk *buffer)
 {
 	g_return_val_if_fail(buffer != NULL, FALSE);
 	g_return_val_if_fail(LOQUI_IS_CHANNEL_BUFFER_GTK(buffer), FALSE);
-	
+
 	return buffer->show_account_name;
 }
 void
@@ -518,6 +514,6 @@ loqui_channel_buffer_gtk_get_show_channel_name(LoquiChannelBufferGtk *buffer)
 {
 	g_return_val_if_fail(buffer != NULL, FALSE);
 	g_return_val_if_fail(LOQUI_IS_CHANNEL_BUFFER_GTK(buffer), FALSE);
-	
+
 	return buffer->show_channel_name;
 }
