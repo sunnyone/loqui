@@ -26,6 +26,8 @@
 
 #include "loqui_stock.h"
 #include "loqui_channel_text_view.h"
+#include "loqui_statusbar.h"
+
 #include <loqui_sender.h>
 #include <loqui_sender_irc.h>
 
@@ -608,8 +610,6 @@ remark_entry_find_common_prefix(GList *matched) {
 	prefix = g_strdup(matched->data);
 	lastmatch = NULL;
 	for (cur = matched->next; cur != NULL; cur = cur->next) {
-		p1 = prefix;
-		p2 = cur->data;
 		for (p1 = prefix; *p1 != '\0'; p1 = g_utf8_next_char(p1)) {
 			u1 = g_utf8_get_char(p1);
 			for (p2 = cur->data; *p2 != '\0'; p2 = g_utf8_next_char(p2)) {
@@ -624,7 +624,7 @@ remark_entry_find_common_prefix(GList *matched) {
 			return NULL;
 		}
 
-		len = lastmatch - prefix;
+		len = lastmatch + 1 - prefix;
 		if (len < strlen(prefix)) {
 			old_prefix = prefix;
 			prefix = g_strndup(old_prefix, len);
