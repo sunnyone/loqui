@@ -41,7 +41,7 @@ enum {
 struct _LoquiStatusbarPrivate
 {
 	LoquiApp *app;
-	
+
 	GtkWidget *label_account;
 
 	GtkWidget *image_away;
@@ -56,11 +56,11 @@ struct _LoquiStatusbarPrivate
 
 	GtkWidget *progress;
 	GtkWidget *toggle_scroll_common_buffer;
-	
+
 	GtkWidget *menu_away;
 	GtkWidget *menu_preset;
-	
-	guint toggle_scroll_handler_id;	
+
+	guint toggle_scroll_handler_id;
 };
 
 static GtkStatusbarClass *parent_class = NULL;
@@ -98,13 +98,13 @@ loqui_statusbar_get_type(void)
 				0,              /* n_preallocs */
 				(GInstanceInitFunc) loqui_statusbar_init
 			};
-		
+
 		type = g_type_register_static(PARENT_TYPE,
 					      "LoquiStatusbar",
 					      &our_info,
 					      0);
 	}
-	
+
 	return type;
 }
 static void
@@ -118,7 +118,7 @@ loqui_statusbar_class_init (LoquiStatusbarClass *klass)
 	object_class->finalize = loqui_statusbar_finalize;
         gtk_object_class->destroy = loqui_statusbar_destroy;
 }
-static void 
+static void
 loqui_statusbar_init (LoquiStatusbar *statusbar)
 {
 	LoquiStatusbarPrivate *priv;
@@ -127,7 +127,7 @@ loqui_statusbar_init (LoquiStatusbar *statusbar)
 
 	statusbar->priv = priv;
 }
-static void 
+static void
 loqui_statusbar_finalize (GObject *object)
 {
 	LoquiStatusbar *statusbar;
@@ -142,7 +142,7 @@ loqui_statusbar_finalize (GObject *object)
 
 	g_free(statusbar->priv);
 }
-static void 
+static void
 loqui_statusbar_destroy (GtkObject *object)
 {
         LoquiStatusbar *statusbar;
@@ -164,13 +164,13 @@ loqui_statusbar_set_away(LoquiStatusbar *statusbar, LoquiUserClass *user_class, 
 
         g_return_if_fail(statusbar != NULL);
         g_return_if_fail(LOQUI_IS_STATUSBAR(statusbar));
-        
-        priv = statusbar->priv;	
-	
+
+        priv = statusbar->priv;
+
 	awinfo = loqui_user_class_away_type_get_info(user_class, away);
 	if (awinfo == NULL)
 		return;
-	
+
 	gtk_label_set(GTK_LABEL(priv->label_away), awinfo->nick);
 
 	stock_id = loqui_stock_get_id_from_basic_away_type(awinfo->basic_away_type);
@@ -192,7 +192,7 @@ loqui_statusbar_preset_menuitem_activated_cb(GtkWidget *widget, LoquiStatusbar *
         g_return_if_fail(statusbar != NULL);
         g_return_if_fail(LOQUI_IS_STATUSBAR(statusbar));
 
-        priv = statusbar->priv;		
+        priv = statusbar->priv;
 
 	nick = g_object_get_data(G_OBJECT(widget), "nick");
 
@@ -203,7 +203,7 @@ loqui_statusbar_preset_menuitem_activated_cb(GtkWidget *widget, LoquiStatusbar *
 	        else
 			gtkutils_msgbox_info(GTK_MESSAGE_ERROR, _("The account is not connected!"));
 	else
-		gtkutils_msgbox_info(GTK_MESSAGE_ERROR, _("Not selected an account!"));	
+		gtkutils_msgbox_info(GTK_MESSAGE_ERROR, _("Not selected an account!"));
 }
 static void
 loqui_statusbar_away_menuitem_activated_cb(GtkWidget *widget, LoquiStatusbar *statusbar)
@@ -216,7 +216,7 @@ loqui_statusbar_away_menuitem_activated_cb(GtkWidget *widget, LoquiStatusbar *st
         g_return_if_fail(statusbar != NULL);
         g_return_if_fail(LOQUI_IS_STATUSBAR(statusbar));
 
-        priv = statusbar->priv;		
+        priv = statusbar->priv;
 
 	away_type = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(widget), "away-type"));
 
@@ -227,7 +227,7 @@ loqui_statusbar_away_menuitem_activated_cb(GtkWidget *widget, LoquiStatusbar *st
 		else
 			gtkutils_msgbox_info(GTK_MESSAGE_ERROR, _("The account is not connected!"));
 	} else {
-		gtkutils_msgbox_info(GTK_MESSAGE_ERROR, _("Not selected an account!"));	
+		gtkutils_msgbox_info(GTK_MESSAGE_ERROR, _("Not selected an account!"));
 	}
 }
 
@@ -240,9 +240,9 @@ loqui_statusbar_set_preset_menu(LoquiStatusbar *statusbar, GList *nick_list)
 
         g_return_if_fail(statusbar != NULL);
         g_return_if_fail(LOQUI_IS_STATUSBAR(statusbar));
-        
-        priv = statusbar->priv;	
-     
+
+        priv = statusbar->priv;
+
 	for (cur = GTK_MENU_SHELL(priv->menu_preset)->children; cur != NULL; cur = cur->next) {
 		tmp_list = g_list_append(tmp_list, cur->data);
 	}
@@ -252,7 +252,7 @@ loqui_statusbar_set_preset_menu(LoquiStatusbar *statusbar, GList *nick_list)
 	for (cur = nick_list; cur != NULL; cur = cur->next) {
 		if (!cur->data)
 			continue;
-		
+
 		menuitem = gtk_menu_item_new_with_label(cur->data);
 		g_object_set_data_full(G_OBJECT(menuitem), "nick", g_strdup(cur->data), (GDestroyNotify) g_free);
 		g_signal_connect(G_OBJECT(menuitem), "activate",
@@ -274,7 +274,7 @@ loqui_statusbar_set_away_menu(LoquiStatusbar *statusbar, LoquiUserClass *user_cl
 
         g_return_if_fail(statusbar != NULL);
         g_return_if_fail(LOQUI_IS_STATUSBAR(statusbar));
-        
+
         priv = statusbar->priv;
 
 	for (cur = GTK_MENU_SHELL(priv->menu_away)->children; cur != NULL; cur = cur->next) {
@@ -310,7 +310,7 @@ loqui_statusbar_set_away_menu(LoquiStatusbar *statusbar, LoquiUserClass *user_cl
 		g_object_set_data(G_OBJECT(menuitem), "away-type", GINT_TO_POINTER(awinfo->away_type));
 		g_signal_connect(G_OBJECT(menuitem), "activate",
 				 G_CALLBACK(loqui_statusbar_away_menuitem_activated_cb), statusbar);
-		
+
 		if (awinfo->basic_away_type == LOQUI_BASIC_AWAY_TYPE_OFFLINE)
 			gtk_widget_set_sensitive(menuitem, FALSE);
 
@@ -328,7 +328,7 @@ loqui_statusbar_nick_button_clicked_cb(GtkWidget *widget, LoquiStatusbar *status
         g_return_if_fail(LOQUI_IS_STATUSBAR(statusbar));
 
 	priv = statusbar->priv;
-	
+
 	account = loqui_app_get_current_account(priv->app);
 	if (account)
 		command_dialog_nick(priv->app, account);
@@ -347,12 +347,12 @@ loqui_statusbar_new(LoquiApp *app, GtkToggleAction *toggle_scroll_common_buffer_
 
 	statusbar = g_object_new(loqui_statusbar_get_type(), NULL);
 	priv = statusbar->priv;
-	
+
 	priv->app = app;
-	
+
 	gtk_statusbar_set_has_resize_grip(GTK_STATUSBAR(statusbar), FALSE);
 	gtk_label_set_selectable(GTK_LABEL(GTK_STATUSBAR(statusbar)->label), TRUE);
-	
+
 	vsep = gtk_vseparator_new();
 	gtk_box_pack_start(GTK_BOX(statusbar), vsep, FALSE, FALSE, 2);
 
@@ -370,7 +370,7 @@ loqui_statusbar_new(LoquiApp *app, GtkToggleAction *toggle_scroll_common_buffer_
 	priv->button_away = gtk_button_new();
 	gtk_button_set_relief(GTK_BUTTON(priv->button_away), GTK_RELIEF_NONE);
 	gtk_box_pack_start(GTK_BOX(priv->dbox_away), priv->button_away, FALSE, FALSE, 0);
-	
+
 	hbox_away = gtk_hbox_new(FALSE, 5);
 	gtk_container_add(GTK_CONTAINER(priv->button_away), hbox_away);
 
@@ -417,7 +417,7 @@ loqui_statusbar_new(LoquiApp *app, GtkToggleAction *toggle_scroll_common_buffer_
 	gtk_tooltips_set_tip(app->tooltips, priv->toggle_scroll_common_buffer, text, NULL);
 
 	gtk_box_pack_start(GTK_BOX(statusbar), priv->toggle_scroll_common_buffer, FALSE, FALSE, 0);
-	
+
 	priv->menu_preset = gtk_menu_new();
 	loqui_dropdown_box_set_menu(LOQUI_DROPDOWN_BOX(priv->dbox_preset), priv->menu_preset);
 
@@ -435,7 +435,7 @@ loqui_statusbar_update_account_name(LoquiStatusbar *statusbar, LoquiAccount *acc
         g_return_if_fail(LOQUI_IS_STATUSBAR(statusbar));
 
         priv = statusbar->priv;
-        
+
 	gtk_label_set(GTK_LABEL(priv->label_account),
 		      account ? loqui_profile_account_get_name(loqui_account_get_profile(account)) : STRING_UNSELECTED);
 }
@@ -448,10 +448,10 @@ loqui_statusbar_update_nick(LoquiStatusbar *statusbar, LoquiAccount *account)
         g_return_if_fail(LOQUI_IS_STATUSBAR(statusbar));
 
         priv = statusbar->priv;
-        
+
         if (account == NULL) {
         	gtk_widget_set_sensitive(priv->dbox_preset, FALSE);
-        	gtk_widget_set_sensitive(priv->dbox_away, FALSE);        	
+        	gtk_widget_set_sensitive(priv->dbox_away, FALSE);
         	gtk_label_set(GTK_LABEL(priv->label_nick), STRING_UNSELECTED);
         } else if (!loqui_account_get_is_connected(account)) {
       	 	gtk_widget_set_sensitive(priv->dbox_preset, FALSE);
@@ -467,7 +467,7 @@ loqui_statusbar_update_nick(LoquiStatusbar *statusbar, LoquiAccount *account)
 void
 loqui_statusbar_update_preset_menu(LoquiStatusbar *statusbar, LoquiAccount *account)
 {
-        if (account) 
+        if (account)
         	loqui_statusbar_set_preset_menu(statusbar, loqui_profile_account_get_nick_list(loqui_account_get_profile(account)));
 }
 void
@@ -486,7 +486,7 @@ loqui_statusbar_update_away_icon(LoquiStatusbar *statusbar, LoquiAccount *accoun
 	} else {
 		away = loqui_user_get_away(loqui_account_get_user_self(account));
 	}
-        
+
 	if (account)
 		loqui_statusbar_set_away(statusbar, LOQUI_USER_GET_CLASS(loqui_account_get_user_self(account)), away);
 }
@@ -496,9 +496,9 @@ loqui_statusbar_update_current_account(LoquiStatusbar *statusbar, LoquiAccount *
 	LoquiStatusbarPrivate *priv;
         g_return_if_fail(statusbar != NULL);
         g_return_if_fail(LOQUI_IS_STATUSBAR(statusbar));
-        
+
         priv = statusbar->priv;
-        
+
 	loqui_statusbar_update_account_name(statusbar, account);
 	loqui_statusbar_update_nick(statusbar, account);
 
@@ -514,8 +514,22 @@ loqui_statusbar_set_default(LoquiStatusbar *statusbar, const gchar *str)
 
         g_return_if_fail(statusbar != NULL);
         g_return_if_fail(LOQUI_IS_STATUSBAR(statusbar));
-        	
+
 	context_id = gtk_statusbar_get_context_id(GTK_STATUSBAR(statusbar), "Default");
 	gtk_statusbar_pop(GTK_STATUSBAR(statusbar), context_id);
-	gtk_statusbar_push(GTK_STATUSBAR(statusbar), context_id, str);
+        if (str != NULL)
+	       gtk_statusbar_push(GTK_STATUSBAR(statusbar), context_id, str);
+}
+void
+loqui_statusbar_set_completion(LoquiStatusbar *statusbar, const gchar *str)
+{
+	guint context_id;
+
+        g_return_if_fail(statusbar != NULL);
+        g_return_if_fail(LOQUI_IS_STATUSBAR(statusbar));
+
+	context_id = gtk_statusbar_get_context_id(GTK_STATUSBAR(statusbar), "Completion");
+	gtk_statusbar_pop(GTK_STATUSBAR(statusbar), context_id);
+        if (str != NULL)
+	       gtk_statusbar_push(GTK_STATUSBAR(statusbar), context_id, str);
 }

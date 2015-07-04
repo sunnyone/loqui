@@ -43,7 +43,7 @@ typedef struct _LoquiStatusbarPrivate     LoquiStatusbarPrivate;
 struct _LoquiStatusbar
 {
         GtkStatusbar parent;
-        
+
         LoquiStatusbarPrivate *priv;
 };
 
@@ -60,6 +60,7 @@ GtkWidget* loqui_statusbar_new(LoquiApp *app, GtkToggleAction *toggle_scroll_act
 void loqui_statusbar_update_current_account(LoquiStatusbar *statusbar, LoquiAccount *account);
 
 void loqui_statusbar_set_default(LoquiStatusbar *statusbar, const gchar *str);
+void loqui_statusbar_set_completion(LoquiStatusbar *statusbar, const gchar *str);
 
 void loqui_statusbar_update_account_name(LoquiStatusbar *statusbar, LoquiAccount *account);
 void loqui_statusbar_update_nick(LoquiStatusbar *statusbar, LoquiAccount *account);

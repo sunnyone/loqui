@@ -43,6 +43,7 @@ enum {
 	CALL_HISTORY,
 	SCROLL_CHANNEL_TEXTVIEW,
 	SCROLL_COMMON_TEXTVIEW,
+	COMPLETE_NICK,
 
         LAST_SIGNAL
 };
@@ -97,6 +98,7 @@ static void remark_entry_send_text(RemarkEntry *remark_entry, gboolean is_notice
 static void remark_entry_call_history(RemarkEntry *entry, gint count);
 static void remark_entry_scroll_channel_textview(RemarkEntry *entry, gint pages);
 static void remark_entry_scroll_common_textview(RemarkEntry *entry, gint pages);
+static void remark_entry_complete_nick(RemarkEntry *entry);
 
 GType
 remark_entry_get_type(void)
@@ -115,13 +117,13 @@ remark_entry_get_type(void)
 				0,              /* n_preallocs */
 				(GInstanceInitFunc) remark_entry_init
 			};
-		
+
 		type = g_type_register_static(PARENT_TYPE,
 					      "RemarkEntry",
 					      &our_info,
 					      0);
 	}
-	
+
 	return type;
 }
 static void
@@ -132,13 +134,14 @@ remark_entry_class_init(RemarkEntryClass *klass)
 	GtkBindingSet *binding_set;
 
         parent_class = g_type_class_peek_parent(klass);
-        
+
         object_class->finalize = remark_entry_finalize;
         gtk_object_class->destroy = remark_entry_destroy;
 
 	klass->call_history = remark_entry_call_history;
 	klass->scroll_channel_textview = remark_entry_scroll_channel_textview;
 	klass->scroll_common_textview = remark_entry_scroll_common_textview;
+	klass->complete_nick = remark_entry_complete_nick;
 
 	GTK_WIDGET_CLASS(klass)->grab_focus = remark_entry_grab_focus;
 
@@ -166,6 +169,14 @@ remark_entry_class_init(RemarkEntryClass *klass)
 								    g_cclosure_marshal_VOID__INT,
 								    G_TYPE_NONE, 1, G_TYPE_INT);
 
+        remark_entry_signals[COMPLETE_NICK] = g_signal_new("complete_nick",
+						           G_OBJECT_CLASS_TYPE(object_class),
+							   G_SIGNAL_RUN_LAST | G_SIGNAL_ACTION,
+							   G_STRUCT_OFFSET(RemarkEntryClass, complete_nick),
+							   NULL, NULL,
+							   g_cclosure_marshal_VOID__VOID,
+							   G_TYPE_NONE, 0);
+
 	binding_set = gtk_binding_set_by_class(klass);
 
 	gtk_binding_entry_add_signal(binding_set, GDK_Up, 0,
@@ -186,8 +197,10 @@ remark_entry_class_init(RemarkEntryClass *klass)
 	gtk_binding_entry_add_signal(binding_set, GDK_Page_Down, GDK_MOD1_MASK,
 				     "scroll_common_textview", 1,
 				     G_TYPE_INT, 1);
+	gtk_binding_entry_add_signal(binding_set, GDK_Tab, 0,
+	                             "complete_nick", 0);
 }
-static void 
+static void
 remark_entry_init(RemarkEntry *remark_entry)
 {
 	RemarkEntryPrivate *priv;
@@ -199,7 +212,7 @@ remark_entry_init(RemarkEntry *remark_entry)
 
 	remark_entry->priv = priv;
 }
-static void 
+static void
 remark_entry_finalize(GObject *object)
 {
 	RemarkEntry *remark_entry;
@@ -214,7 +227,7 @@ remark_entry_finalize(GObject *object)
 
 	g_free(remark_entry->priv);
 }
-static void 
+static void
 remark_entry_destroy(GtkObject *object)
 {
         RemarkEntry *remark_entry;
@@ -232,7 +245,7 @@ remark_entry_grab_focus(GtkWidget *widget)
 {
 	RemarkEntry *entry;
 	RemarkEntryPrivate *priv;
-	
+
         g_return_if_fail(widget != NULL);
         g_return_if_fail(IS_REMARK_ENTRY(widget));
 
@@ -259,10 +272,10 @@ remark_entry_new(LoquiApp *app, GtkToggleAction *toggle_command_action)
 	GtkWidget *scwin;
 
 	remark_entry = g_object_new(remark_entry_get_type(), NULL);
-	
+
 	priv = remark_entry->priv;
 	priv->app = app;
-	
+
 	g_object_ref(toggle_command_action);
 	priv->toggle_command_action = toggle_command_action;
 
@@ -274,17 +287,17 @@ remark_entry_new(LoquiApp *app, GtkToggleAction *toggle_command_action)
 	gtk_button_set_focus_on_click(GTK_BUTTON(priv->toggle_command), FALSE);
 	g_object_get(G_OBJECT(toggle_command_action), "tooltip", &text, NULL);
 	gtk_tooltips_set_tip(app->tooltips, priv->toggle_command, text, NULL);
-			     
+
 	image = gtk_image_new_from_stock(LOQUI_STOCK_COMMAND, GTK_ICON_SIZE_BUTTON);
 	gtk_container_add(GTK_CONTAINER(priv->toggle_command), image);
 	gtk_widget_show(image);
 
 	gtk_button_set_relief(GTK_BUTTON(priv->toggle_command), GTK_RELIEF_NONE);
 	gtk_box_pack_start(GTK_BOX(hbox), priv->toggle_command, FALSE, FALSE, 0);
-	
+
 	priv->vbox = gtk_vbox_new(FALSE, 0);
 	gtk_box_pack_start(GTK_BOX(hbox), priv->vbox, TRUE, TRUE, 0);
-	
+
 	remark_entry->entry = gtk_entry_new();
 	g_signal_connect(G_OBJECT(remark_entry->entry), "activate",
 			 G_CALLBACK(remark_entry_activate_cb), remark_entry);
@@ -294,7 +307,7 @@ remark_entry_new(LoquiApp *app, GtkToggleAction *toggle_command_action)
 			 G_CALLBACK(remark_entry_entry_text_shown_cb), remark_entry);
 	g_signal_connect(G_OBJECT(remark_entry->entry), "changed",
 			 G_CALLBACK(remark_entry_entry_changed_cb), remark_entry);
-			 
+
 	gtk_box_pack_start(GTK_BOX(priv->vbox), remark_entry->entry, TRUE, TRUE, 0);
 
 	priv->hbox_text = gtk_hbox_new(FALSE, 0);
@@ -419,7 +432,7 @@ remark_entry_set_multiline(RemarkEntry *entry, gboolean is_multiline)
 		gtk_widget_hide_all(priv->hbox_text);
 		gtk_widget_show(entry->entry);
 	}
-	
+
 	gtkutils_toggle_button_with_signal_handler_blocked(GTK_TOGGLE_BUTTON(priv->toggle_multiline),
 							   priv->toggle_multiline_toggled_id,
 							   is_multiline);
@@ -445,7 +458,7 @@ remark_entry_set_command_mode(RemarkEntry *entry, gboolean command_mode)
         g_return_if_fail(entry != NULL);
         g_return_if_fail(IS_REMARK_ENTRY(entry));
 
-	priv = entry->priv;	
+	priv = entry->priv;
 
 	gtk_toggle_action_set_active(priv->toggle_command_action, command_mode);
 }
@@ -502,12 +515,12 @@ remark_entry_call_history(RemarkEntry *entry, gint count)
         g_return_if_fail(IS_REMARK_ENTRY(entry));
 
 	priv = entry->priv;
-	
+
 	length = g_list_length(priv->string_list);
-	
+
 	if (priv->current_index >= length)
 		return;
-	
+
 	dest = priv->current_index - count;
 	if (dest < 0 || length <= dest)
 		return;
@@ -516,11 +529,193 @@ remark_entry_call_history(RemarkEntry *entry, gint count)
 	if(cur->data)
 		g_free(cur->data);
 	cur->data = g_strdup(gtk_entry_get_text(GTK_ENTRY(entry->entry)));
-	
+
 	priv->current_index = dest;
 	new_str = g_list_nth_data(priv->string_list, dest);
 	gtk_entry_set_text(GTK_ENTRY(entry->entry), new_str == NULL ? "" : new_str);
 }
+
+static GList *
+remark_entry_find_completion_matches(RemarkEntry *entry, gchar *word) {
+	RemarkEntryPrivate *priv;
+	GList *candidates = NULL, *matched = NULL;
+	LoquiAccount *account;
+	LoquiChannel *channel;
+	GList *cur;
+	gchar *text;
+	int i;
+
+	g_return_if_fail(entry != NULL);
+	g_return_if_fail(IS_REMARK_ENTRY(entry));
+
+	priv = entry->priv;
+
+	// at first, collect all candidate
+
+	// channel names
+	account = loqui_app_get_current_account(priv->app);
+	if (account) {
+		GList *channel_list = loqui_account_get_channel_list(account);
+		for (cur = channel_list; cur != NULL; cur = cur->next) {
+			gchar *name;
+			g_object_get(G_OBJECT(cur->data), "name", &name, NULL);
+			candidates = g_list_append(candidates, g_strdup(name));
+		}
+	}
+
+	// nicks on the current channel
+	channel = loqui_app_get_current_channel(priv->app);
+	if (channel) {
+		LoquiMember *member;
+		gint num = loqui_channel_entry_get_member_number(LOQUI_CHANNEL_ENTRY(channel));
+		for(i = 0; i < num; i++) {
+			member = loqui_channel_entry_get_nth_member(LOQUI_CHANNEL_ENTRY(channel), i);
+			candidates = g_list_append(candidates, g_strdup(loqui_user_get_nick(loqui_member_get_user(member))));
+		}
+	}
+
+	for (cur = candidates; cur != NULL; cur = cur->next) {
+		text = cur->data;
+		if (strncmp(word, text, strlen(word)) == 0) {
+			matched = g_list_append(matched, g_strdup(text));
+		}
+	}
+
+	g_list_foreach(candidates, (GFunc) g_free, NULL);
+	g_list_free(candidates);
+
+	return matched;
+}
+
+static gchar*
+remark_entry_find_common_prefix(GList *matched) {
+	gchar *prefix;
+	gchar *p1, *p2;
+	gchar *lastmatch;
+	gchar *old_prefix;
+	gunichar u1, u2;
+	gint len;
+	GList *cur;
+
+	if (matched == NULL) {
+		return NULL;
+	}
+
+	if (matched->next == NULL) {
+		return g_strdup(matched->data);
+	}
+
+	prefix = g_strdup(matched->data);
+	lastmatch = NULL;
+	for (cur = matched->next; cur != NULL; cur = cur->next) {
+		p1 = prefix;
+		p2 = cur->data;
+		for (p1 = prefix; *p1 != '\0'; p1 = g_utf8_next_char(p1)) {
+			u1 = g_utf8_get_char(p1);
+			for (p2 = cur->data; *p2 != '\0'; p2 = g_utf8_next_char(p2)) {
+				u2 = g_utf8_get_char(p2);
+				if (u1 == u2) {
+					lastmatch = p1;
+				}
+			}
+		}
+
+		if (lastmatch == NULL) {
+			return NULL;
+		}
+
+		len = lastmatch - prefix;
+		if (len < strlen(prefix)) {
+			old_prefix = prefix;
+			prefix = g_strndup(old_prefix, len);
+			g_free(old_prefix);
+		}
+	}
+
+	return prefix;
+}
+
+static void
+remark_entry_complete_nick(RemarkEntry *entry)
+{
+	RemarkEntryPrivate *priv;
+	gint position;
+	gchar *text_before, *text_after, *text_new, *p;
+	GRegex *regex;
+	GMatchInfo *match_info;
+	GList *matched, *cur;
+	int len;
+	gchar *word;
+	gchar *common_prefix;
+
+        g_return_if_fail(entry != NULL);
+        g_return_if_fail(IS_REMARK_ENTRY(entry));
+
+	priv = entry->priv;
+
+	position = gtk_editable_get_position(GTK_EDITABLE(entry->entry));
+	text_before = gtk_editable_get_chars(GTK_EDITABLE(entry->entry), 0, position);
+	text_after = gtk_editable_get_chars(GTK_EDITABLE(entry->entry), position, -1);
+
+	// TODO: cache?
+	regex = g_regex_new("[^\\s]*\\Z", 0, 0, NULL);
+	g_regex_match(regex, text_before, 0, &match_info);
+	if (!g_match_info_matches(match_info)) {
+		g_warning("Failed to match completion regex.");
+		g_free(text_before); g_free(text_after);
+		return;
+	}
+
+	word = g_match_info_fetch(match_info, 0);
+	matched = remark_entry_find_completion_matches(entry, word);
+	len = g_list_length(matched);
+
+	common_prefix = remark_entry_find_common_prefix(matched);
+	if (common_prefix) {
+		p = text_before + strlen(text_before) - strlen(word);
+		*p = '\0';
+
+		text_new = g_strconcat(text_before, common_prefix, text_after, NULL);
+		gtk_entry_set_text(GTK_ENTRY(entry->entry), text_new);
+		g_free(text_new);
+
+		gtk_editable_set_position(GTK_EDITABLE(entry->entry),
+		           g_utf8_strlen(text_before, -1) + g_utf8_strlen(matched->data, -1));
+
+		g_free(common_prefix);
+	}
+
+	// set to statusbar if multiple entries exist.
+	if (len > 1) {
+		gboolean is_first = TRUE;
+		gchar *status_text;
+		GString *string = g_string_new(_("Completion: "));
+
+		for (cur = matched; cur != NULL; cur = cur->next) {
+			if (!is_first) {
+				g_string_append(string, ", ");
+			}
+			g_string_append(string, cur->data);
+			is_first = FALSE;
+		}
+
+		status_text = g_string_free(string, FALSE);
+		loqui_statusbar_set_completion(priv->app->statusbar, status_text);
+		g_free(status_text);
+	} else {
+		loqui_statusbar_set_completion(priv->app->statusbar, NULL);
+	}
+
+	g_list_foreach(matched, (GFunc) g_free, NULL);
+	g_list_free(matched);
+      	g_free(word);
+
+	g_match_info_free(match_info);
+	g_regex_unref(regex);
+	g_free(text_before);
+	g_free(text_after);
+}
+
 static void
 remark_entry_scroll_channel_textview(RemarkEntry *entry, gint pages)
 {
@@ -545,10 +740,10 @@ remark_entry_scroll_common_textview(RemarkEntry *entry, gint pages)
         g_return_if_fail(IS_REMARK_ENTRY(entry));
 
 	priv = entry->priv;
-	
+
 	loqui_channel_text_view_scroll(LOQUI_CHANNEL_TEXT_VIEW(priv->app->common_textview), GTK_MOVEMENT_PAGES, pages);
 }
-static void 
+static void
 remark_entry_send_text(RemarkEntry *remark_entry, gboolean is_notice)
 {
 	RemarkEntryPrivate *priv;
@@ -573,7 +768,7 @@ remark_entry_send_text(RemarkEntry *remark_entry, gboolean is_notice)
 		g_free(str);
 		return;
 	}
-	
+
 	if(!loqui_account_get_is_connected(account)) {
 		gtkutils_msgbox_info(GTK_MESSAGE_WARNING,
 				     _("Not connected with this account"));
@@ -622,7 +817,7 @@ remark_entry_send_text(RemarkEntry *remark_entry, gboolean is_notice)
 	g_free(str);
 	priv->current_index = 0;
 	LOQUI_G_FREE_UNLESS_NULL(priv->string_list->data);
-	
+
 	remark_entry_set_command_mode(remark_entry, FALSE);
 }
 static gboolean
@@ -630,7 +825,7 @@ remark_entry_entry_key_press_event_cb(GtkWidget *ewidget, GdkEventKey *event, Re
 {
         g_return_val_if_fail(remark_entry != NULL, FALSE);
         g_return_val_if_fail(IS_REMARK_ENTRY(remark_entry), FALSE);
-	
+
 	if (event->state & GDK_CONTROL_MASK) {
 		switch (event->keyval) {
 		case GDK_Return:
@@ -680,16 +875,16 @@ remark_entry_entry_changed_cb(GtkEntry *widget, RemarkEntry *remark_entry)
 {
 	RemarkEntryPrivate *priv;
 	const gchar *tmp;
-	gchar *command_prefix; 
-	
+	gchar *command_prefix;
+
         g_return_if_fail(remark_entry != NULL);
         g_return_if_fail(IS_REMARK_ENTRY(remark_entry));
 
 	priv = remark_entry->priv;
-	
+
 	if (loqui_pref_get_with_default_boolean(loqui_get_general_pref(),
 						LOQUI_GENERAL_PREF_GTK_GROUP_GENERAL, "AutoCommandMode",
-						LOQUI_GENERAL_PREF_GTK_DEFAULT_GENERAL_AUTO_COMMAND_MODE, NULL)) { 
+						LOQUI_GENERAL_PREF_GTK_DEFAULT_GENERAL_AUTO_COMMAND_MODE, NULL)) {
 		command_prefix = loqui_pref_get_with_default_string(loqui_get_general_pref(),
 								    LOQUI_GENERAL_PREF_GTK_GROUP_GENERAL, "CommandPrefix",
 								    LOQUI_GENERAL_PREF_GTK_DEFAULT_GENERAL_COMMAND_PREFIX, NULL);

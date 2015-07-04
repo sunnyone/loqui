@@ -56,6 +56,7 @@ struct _RemarkEntryClass
 					 gint pages);
 	void (* scroll_common_textview)(RemarkEntry *entry,
 					gint pages);
+        void (* complete_nick)(RemarkEntry *entry);
 };
 
 GtkType remark_entry_get_type (void) G_GNUC_CONST;
