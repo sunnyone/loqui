@@ -1,4 +1,10 @@
 --- 
+- date: 2015-07-04
+  version: 0.6.0
+  changes:
+    - GlobalFontスタイルが適用されないバグの修正
+    - Nick/チャンネル名のタブ補完の実装
+
 - date: 2013-03-18
   version: 0.5.5
   changes:

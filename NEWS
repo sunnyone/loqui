@@ -1,4 +1,10 @@
 --- 
+- date: 2015-07-04
+  version: 0.6.0
+  changes:
+    - Fixed the bug the GlobalFont style is not applied.
+    - Implemented nick/channel name tab completion.
+
 - date: 2013-03-18
   version: 0.5.5
   changes:
