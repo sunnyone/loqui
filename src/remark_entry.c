@@ -629,6 +629,7 @@ remark_entry_find_common_prefix(GList *matched) {
 		}
 
 		if (lastcmp == prefix) {
+			g_free(prefix);
 			return NULL;
 		}
 
