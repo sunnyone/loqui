@@ -1,5 +1,10 @@
 --- 
 - date: 2015-07-04
+  version: 0.6.1
+  changes:
+    - タブ補完の修正
+
+- date: 2015-07-04
   version: 0.6.0
   changes:
     - GlobalFontスタイルが適用されないバグの修正

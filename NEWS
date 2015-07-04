@@ -1,5 +1,10 @@
 --- 
 - date: 2015-07-04
+  version: 0.6.1
+  changes:
+    - Fixed tab completion.
+
+- date: 2015-07-04
   version: 0.6.0
   changes:
     - Fixed the bug the GlobalFont style is not applied.
