@@ -593,7 +593,7 @@ static gchar*
 remark_entry_find_common_prefix(GList *matched) {
 	gchar *prefix;
 	gchar *p1, *p2;
-	gchar *lastmatch;
+	gchar *lastcmp;
 	gchar *old_prefix;
 	gunichar u1, u2;
 	gint len;
@@ -608,23 +608,31 @@ remark_entry_find_common_prefix(GList *matched) {
 	}
 
 	prefix = g_strdup(matched->data);
-	lastmatch = NULL;
 	for (cur = matched->next; cur != NULL; cur = cur->next) {
-		for (p1 = prefix; *p1 != '\0'; p1 = g_utf8_next_char(p1)) {
+		lastcmp = NULL;
+		p1 = prefix;
+		p2 = cur->data;
+		while (TRUE) {
 			u1 = g_utf8_get_char(p1);
-			for (p2 = cur->data; *p2 != '\0'; p2 = g_utf8_next_char(p2)) {
-				u2 = g_utf8_get_char(p2);
-				if (u1 == u2) {
-					lastmatch = p1;
-				}
+			u2 = g_utf8_get_char(p2);
+
+			lastcmp = p1;
+			if (u1 != u2) {
+				break;
+			}
+
+			p1 = g_utf8_next_char(p1);
+			p2 = g_utf8_next_char(p2);
+			if (p1 == '\0' || p2 == '\0') {
+				break;
 			}
 		}
 
-		if (lastmatch == NULL) {
+		if (lastcmp == prefix) {
 			return NULL;
 		}
 
-		len = lastmatch + 1 - prefix;
+		len = lastcmp - prefix;
 		if (len < strlen(prefix)) {
 			old_prefix = prefix;
 			prefix = g_strndup(old_prefix, len);
