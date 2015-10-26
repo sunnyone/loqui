@@ -79,6 +79,7 @@ static void loqui_channel_text_view_buffer_insert_text_cb(GtkTextBuffer *textbuf
 							  gpointer data);
 static gboolean loqui_channel_text_view_motion_notify_event(GtkWidget *widget, GdkEventMotion *event);
 static gboolean loqui_channel_text_view_visibility_notify_event(GtkWidget *widget, GdkEventVisibility *event);
+static gboolean loqui_channel_text_view_button_press_event(GtkWidget *widget, GdkEventButton *event_button);
 static gboolean loqui_channel_text_view_button_release_event(GtkWidget *widget, GdkEventButton *event_button);
 
 static void loqui_channel_text_view_populate_popup(GtkTextView *textview, GtkMenu *menu);
@@ -94,7 +95,14 @@ static gboolean loqui_channel_text_view_get_uri_at_iter(LoquiChannelTextView *ch
 							GtkTextIter *uri_start_iter,
 							GtkTextIter *uri_end_iter);
 
-static void loqui_channel_text_view_iter_activated(LoquiChannelTextView *chview, LoquiChannelBufferGtk *buffer_gtk, GtkTextIter *iter);
+static gboolean loqui_channel_text_view_open_channel_at_iter(LoquiChannelTextView *chview,
+							     LoquiChannelBufferGtk *buffer_gtk,
+							     GtkTextIter *iter);
+
+static void loqui_channel_text_view_iter_activated(LoquiChannelTextView *chview,
+						   LoquiChannelBufferGtk *buffer_gtk,
+						   GtkTextIter *iter);
+
 static void loqui_channel_text_view_update_hover(LoquiChannelTextView *chview, LoquiChannelBufferGtk *buffer_gtk, GtkTextIter *iter);
 static void loqui_channel_text_view_update_cursor(LoquiChannelTextView *chview, gint event_x, gint event_y);
 static void loqui_channel_text_view_execute_browser(LoquiChannelTextView *chview, gchar *uri_str);
@@ -116,16 +124,16 @@ loqui_channel_text_view_get_type(void)
 				0,              /* n_preallocs */
 				(GInstanceInitFunc) loqui_channel_text_view_init
 			};
-		
+
 		type = g_type_register_static(GTK_TYPE_TEXT_VIEW,
 					      "LoquiChannelTextView",
 					      &our_info,
 					      0);
 	}
-	
+
 	return type;
 }
-static void 
+static void
 loqui_channel_text_view_finalize(GObject *object)
 {
 	LoquiChannelTextView *view;
@@ -140,7 +148,7 @@ loqui_channel_text_view_finalize(GObject *object)
 
 	g_free(view->priv);
 }
-static void 
+static void
 loqui_channel_text_view_dispose(GObject *object)
 {
 	LoquiChannelTextView *view;
@@ -156,7 +164,7 @@ loqui_channel_text_view_dispose(GObject *object)
 static void
 loqui_channel_text_view_get_property(GObject *object, guint param_id, GValue *value, GParamSpec *pspec)
 {
-        LoquiChannelTextView *view;        
+        LoquiChannelTextView *view;
 
         view = LOQUI_CHANNEL_TEXT_VIEW(object);
 
@@ -175,7 +183,7 @@ loqui_channel_text_view_get_property(GObject *object, guint param_id, GValue *va
 static void
 loqui_channel_text_view_set_property(GObject *object, guint param_id, const GValue *value, GParamSpec *pspec)
 {
-        LoquiChannelTextView *view;        
+        LoquiChannelTextView *view;
 
         view = LOQUI_CHANNEL_TEXT_VIEW(object);
 
@@ -198,9 +206,9 @@ loqui_channel_text_view_class_init(LoquiChannelTextViewClass *klass)
         GObjectClass *object_class = G_OBJECT_CLASS(klass);
 	GtkWidgetClass *widget_class = GTK_WIDGET_CLASS(klass);
 	GtkTextViewClass *text_view_class = GTK_TEXT_VIEW_CLASS(klass);
-	
+
         parent_class = g_type_class_peek_parent(klass);
-        
+
         object_class->finalize = loqui_channel_text_view_finalize;
         object_class->dispose = loqui_channel_text_view_dispose;
         object_class->get_property = loqui_channel_text_view_get_property;
@@ -210,10 +218,11 @@ loqui_channel_text_view_class_init(LoquiChannelTextViewClass *klass)
 	widget_class->key_press_event = loqui_channel_text_view_key_press_event;
 	widget_class->motion_notify_event = loqui_channel_text_view_motion_notify_event;
 	widget_class->visibility_notify_event = loqui_channel_text_view_visibility_notify_event;
+	widget_class->button_press_event = loqui_channel_text_view_button_press_event;
 	widget_class->button_release_event = loqui_channel_text_view_button_release_event;
 
 	text_view_class->populate_popup = loqui_channel_text_view_populate_popup;
-	
+
 	g_object_class_install_property(object_class,
 					PROP_IS_SCROLL,
 					g_param_spec_boolean("is_scroll",
@@ -228,7 +237,7 @@ loqui_channel_text_view_class_init(LoquiChannelTextViewClass *klass)
 							     _("Switch scrolling automatically"),
 							     TRUE,
 							     G_PARAM_READWRITE));
-	
+
         channel_text_view_signals[SIGNAL_SCROLLED_TO_END] = g_signal_new("scrolled_to_end",
 									 G_OBJECT_CLASS_TYPE(object_class),
 									 G_SIGNAL_RUN_FIRST,
@@ -237,7 +246,7 @@ loqui_channel_text_view_class_init(LoquiChannelTextViewClass *klass)
 									 g_cclosure_marshal_VOID__VOID,
 									 G_TYPE_NONE, 0);
 }
-static void 
+static void
 loqui_channel_text_view_init(LoquiChannelTextView *chview)
 {
 	LoquiChannelTextViewPrivate *priv;
@@ -245,12 +254,12 @@ loqui_channel_text_view_init(LoquiChannelTextView *chview)
 	priv = g_new0(LoquiChannelTextViewPrivate, 1);
 
 	chview->priv = priv;
-	
+
 	chview->is_scroll = TRUE;
 
 	priv->is_hand_cursor = FALSE;
 }
-static void 
+static void
 loqui_channel_text_view_destroy(GtkObject *object)
 {
         LoquiChannelTextView *view;
@@ -308,7 +317,7 @@ loqui_channel_text_view_vadj_value_changed_cb(GtkAdjustment *adj, gpointer data)
 
 	if (reached_to_end)
 		g_signal_emit(G_OBJECT(chview), channel_text_view_signals[SIGNAL_SCROLLED_TO_END], 0);
-	
+
 	if (chview->auto_switch_scrolling) {
 		loqui_channel_text_view_set_is_scroll(chview, reached_to_end);
 	}
@@ -328,13 +337,13 @@ loqui_channel_text_view_buffer_insert_text_cb(GtkTextBuffer *textbuf,
 {
         LoquiChannelTextView *chview;
 	LoquiChannelTextViewPrivate *priv;
-	
+
         g_return_if_fail(data != NULL);
         g_return_if_fail(LOQUI_IS_CHANNEL_TEXT_VIEW(data));
-	
+
 	chview = LOQUI_CHANNEL_TEXT_VIEW(data);
 	priv = chview->priv;
-	
+
 	loqui_channel_text_view_scroll_to_end_if_enabled(chview);
 }
 static gboolean
@@ -351,6 +360,33 @@ loqui_channel_text_view_motion_notify_event(GtkWidget *widget, GdkEventMotion *e
 
 	return FALSE;
 }
+
+static gboolean
+loqui_channel_text_view_button_press_event(GtkWidget *widget, GdkEventButton *event_button)
+{
+	LoquiChannelTextView *chview;
+	LoquiChannelTextViewPrivate *priv;
+	LoquiChannelBufferGtk *buffer_gtk;
+	GtkTextIter iter;
+	gboolean ret = FALSE;
+
+	chview = LOQUI_CHANNEL_TEXT_VIEW(widget);
+        priv = chview->priv;
+
+	if (event_button->button == 1 &&
+	    event_button->type == GDK_2BUTTON_PRESS &&
+	    loqui_channel_text_view_get_buffer_and_iter_at_event_xy(chview, &buffer_gtk, &iter, event_button->x, event_button->y)) {
+		if (loqui_channel_text_view_open_channel_at_iter(chview, buffer_gtk, &iter)) {
+			return TRUE; /* skip selecting the region */
+		}
+	}
+
+	if (GTK_WIDGET_CLASS(parent_class)->button_press_event)
+		ret = (* GTK_WIDGET_CLASS(parent_class)->button_press_event) (widget, event_button);
+
+	return ret;
+}
+
 static gboolean
 loqui_channel_text_view_button_release_event(GtkWidget *widget, GdkEventButton *event_button)
 {
@@ -364,22 +400,23 @@ loqui_channel_text_view_button_release_event(GtkWidget *widget, GdkEventButton *
 
 	chview = LOQUI_CHANNEL_TEXT_VIEW(widget);
         priv = chview->priv;
-	
+
 	if (GTK_WIDGET_CLASS(parent_class)->button_release_event)
 		ret = (* GTK_WIDGET_CLASS(parent_class)->button_release_event) (widget, event_button);
 
 	if (event_button->button != 1)
 		return ret;
-	
+
 	if (!loqui_channel_text_view_get_buffer_and_iter_at_event_xy(chview, &buffer_gtk, &iter, event_button->x, event_button->y))
 		return ret;
 
 	buffer = GTK_TEXT_BUFFER(buffer_gtk);
 
-	/* return if selected */
 	gtk_text_buffer_get_selection_bounds(buffer, &selected_start_iter, &selected_end_iter);
-	if (!gtk_text_iter_equal(&selected_start_iter, &selected_end_iter))
+	/* ignore a button release event for selecting a text */
+	if (!gtk_text_iter_equal(&selected_start_iter, &selected_end_iter)) {
 		return ret;
+	}
 
 	loqui_channel_text_view_iter_activated(chview, buffer_gtk, &iter);
 
@@ -398,7 +435,7 @@ loqui_channel_text_view_visibility_notify_event(GtkWidget *widget, GdkEventVisib
 
 	gdk_window_get_pointer(widget->window, &event_x, &event_y, NULL);
 	loqui_channel_text_view_update_cursor(chview, event_x, event_y);
-	
+
 	if (GTK_WIDGET_CLASS(parent_class)->visibility_notify_event)
                return (* GTK_WIDGET_CLASS(parent_class)->visibility_notify_event) (widget, event);
 
@@ -409,7 +446,7 @@ static void
 loqui_channel_text_view_populate_popup(GtkTextView *textview, GtkMenu *menu)
 {
 	GtkWidget *menu_item;
-	
+
 	/* separator */
         menu_item = gtk_menu_item_new();
         gtk_menu_shell_append (GTK_MENU_SHELL(menu), menu_item);
@@ -418,7 +455,7 @@ loqui_channel_text_view_populate_popup(GtkTextView *textview, GtkMenu *menu)
         /* search */
         menu_item = gtk_menu_item_new_with_mnemonic(_("_Search Keyword With Google"));
         g_signal_connect(G_OBJECT(menu_item), "activate",
-                         G_CALLBACK(loqui_channel_text_view_search_keyword_cb), 
+                         G_CALLBACK(loqui_channel_text_view_search_keyword_cb),
                          textview);
         gtk_menu_shell_append(GTK_MENU_SHELL(menu), menu_item);
         gtk_widget_set_sensitive(GTK_WIDGET(menu_item),
@@ -436,20 +473,20 @@ loqui_channel_text_view_search_keyword_cb(GtkMenuItem *item, gpointer user_data)
 	GtkTextBuffer *buf;
 	GtkTextIter iter_start, iter_end;
 	gchar *text, *escaped_text, *uri;
-	
+
 	chview = LOQUI_CHANNEL_TEXT_VIEW(user_data);
-	
+
 	buf = gtk_text_view_get_buffer(GTK_TEXT_VIEW(chview));
-	
+
 	if (!gtk_text_buffer_get_selection_bounds(buf, &iter_start, &iter_end))
 		return;
-	
+
 	text = gtk_text_buffer_get_text(buf, &iter_start, &iter_end, FALSE);
 	escaped_text = g_uri_escape_string(text, NULL, FALSE);
 	uri = g_strdup_printf("%s%s", GOOGLE_URL, escaped_text);
-	
+
 	loqui_channel_text_view_execute_browser(chview, uri);
-	
+
 	g_free(uri);
 	g_free(escaped_text);
 	g_free(text);
@@ -474,7 +511,7 @@ loqui_channel_text_view_get_buffer_and_iter_at_event_xy(LoquiChannelTextView *ch
 
 	*buffer_gtk = LOQUI_CHANNEL_BUFFER_GTK(buffer);
 
-	gtk_text_view_window_to_buffer_coords(GTK_TEXT_VIEW(chview), 
+	gtk_text_view_window_to_buffer_coords(GTK_TEXT_VIEW(chview),
 					      GTK_TEXT_WINDOW_WIDGET,
 					      event_x, event_y, &x, &y);
 
@@ -502,7 +539,7 @@ loqui_channel_text_view_get_uri_at_iter(LoquiChannelTextView *chview,
 
 	if (!in_uri)
 		return FALSE;
-	
+
 	if (uri_start_iter) {
 		*uri_start_iter = *iter;
 		if (!gtk_text_iter_begins_tag(uri_start_iter, tag_link) &&
@@ -527,17 +564,102 @@ static void
 loqui_channel_text_view_execute_browser(LoquiChannelTextView *chview, gchar *uri_str)
 {
 	gchar *browser_command;
-	
+
 	browser_command = loqui_pref_get_with_default_string(loqui_get_general_pref(),
 							     LOQUI_GENERAL_PREF_GTK_GROUP_COMMANDS, "BrowserCommand",
 							     LOQUI_GENERAL_PREF_GTK_DEFAULT_COMMANDS_BROWSER_COMMAND, NULL);
-	
+
 	if (browser_command) {
 		gtkutils_exec_command_argument_with_error_dialog(browser_command, uri_str);
 		g_free(browser_command);
 	} else {
 		g_warning(_("Failed to get the browser command."));
 	}
+}
+
+static gboolean
+loqui_channel_text_view_open_channel_at_iter(LoquiChannelTextView *chview,
+				   	     LoquiChannelBufferGtk *buffer_gtk,
+					     GtkTextIter *iter)
+{
+	LoquiChannelTextViewPrivate *priv;
+	GtkTextBuffer *buffer;
+	GtkTextIter start_line, end_line, account_start, account_end, channel_start, channel_end;
+	GtkTextTag *tag_account_name, *tag_channel_name;
+	gchar *account_name, *channel_name;
+	LoquiAccountManager *account_manager;
+	GList *account_list, *cur_ac;
+	GList *channel_list, *cur_ch;
+
+	buffer = GTK_TEXT_BUFFER(buffer_gtk);
+	priv = chview->priv;
+
+	tag_account_name = gtk_text_tag_table_lookup(gtk_text_buffer_get_tag_table(buffer), "account_name");
+	g_return_val_if_fail(tag_account_name != NULL, FALSE);
+
+	tag_channel_name = gtk_text_tag_table_lookup(gtk_text_buffer_get_tag_table(buffer), "channel_name");
+	g_return_val_if_fail(tag_channel_name != NULL, FALSE);
+
+	start_line = *iter;
+	gtk_text_iter_set_line_offset(&start_line, 0);
+
+	end_line = *iter;
+	gtk_text_iter_forward_line(&end_line);
+
+	account_start = start_line;
+	gtk_text_iter_forward_to_tag_toggle(&account_start, tag_account_name);
+	if (!gtk_text_iter_in_range(&account_start, &start_line, &end_line)) {
+		return FALSE;
+	}
+
+	account_end = account_start;
+	gtk_text_iter_forward_to_tag_toggle(&account_end, tag_account_name);
+	if (!gtk_text_iter_in_range(&account_end, &start_line, &end_line)) {
+		return FALSE;
+	}
+
+	account_name = gtk_text_iter_get_text(&account_start, &account_end);
+
+	channel_start = start_line;
+	gtk_text_iter_forward_to_tag_toggle(&channel_start, tag_channel_name);
+	if (!gtk_text_iter_in_range(&channel_start, &start_line, &end_line)) {
+		g_free(account_name);
+		return FALSE;
+	}
+
+	channel_end = channel_start;
+	gtk_text_iter_forward_to_tag_toggle(&channel_end, tag_channel_name);
+	if (!gtk_text_iter_in_range(&channel_end, &start_line, &end_line)) {
+		g_free(account_name);
+		return FALSE;
+	}
+
+	channel_name = gtk_text_iter_get_text(&channel_start, &channel_end);
+
+	loqui_debug_puts("Opening a channel: %s, %s", account_name, channel_name);
+
+	account_manager = loqui_app_get_account_manager(priv->app);
+	account_list = loqui_account_manager_get_account_list(account_manager);
+	for (cur_ac = account_list; cur_ac != NULL; cur_ac = cur_ac->next) {
+		const gchar *ac_name = loqui_channel_entry_get_name(LOQUI_CHANNEL_ENTRY(cur_ac->data));
+		if (strcmp(ac_name, account_name) != 0)
+			continue;
+
+		channel_list = loqui_account_get_channel_list(LOQUI_ACCOUNT(cur_ac->data));
+		for (cur_ch = channel_list; cur_ch != NULL; cur_ch = cur_ch->next) {
+			const gchar *ch_name = loqui_channel_entry_get_name(LOQUI_CHANNEL_ENTRY(cur_ch->data));
+			if (strcmp(ch_name, channel_name) == 0) {
+				loqui_app_set_current_channel_entry(priv->app, LOQUI_CHANNEL_ENTRY(cur_ch->data));
+				g_free(account_name);
+				g_free(channel_name);
+				return TRUE;
+			}
+		}
+	}
+
+	g_free(account_name);
+	g_free(channel_name);
+	return FALSE;
 }
 
 static void
@@ -612,7 +734,7 @@ loqui_channel_text_view_update_cursor(LoquiChannelTextView *chview, gint event_x
         g_return_if_fail(LOQUI_IS_CHANNEL_TEXT_VIEW(chview));
 
         priv = chview->priv;
-	
+
 	if (!loqui_channel_text_view_get_buffer_and_iter_at_event_xy(chview, &buffer_gtk, &iter, event_x, event_y))
 		return;
 
@@ -644,7 +766,7 @@ loqui_channel_text_view_new(LoquiApp *app)
 			    "editable", FALSE,
 			    "wrap_mode", GTK_WRAP_CHAR,
 			    NULL);
-	
+
         priv = chview->priv;
 	priv->app = app;
 
@@ -669,29 +791,29 @@ loqui_channel_text_view_set_channel_buffer(LoquiChannelTextView *chview, LoquiCh
 	GtkStyle *style;
 	GdkColor *transparent_color;
 	GtkTextTag *transparent_tag;
-	
+
         g_return_if_fail(chview != NULL);
         g_return_if_fail(LOQUI_IS_CHANNEL_TEXT_VIEW(chview));
         g_return_if_fail(buffer != NULL);
         g_return_if_fail(LOQUI_IS_CHANNEL_BUFFER_GTK(buffer));
-	
+
         priv = chview->priv;
-       
+
 	old_buf = gtk_text_view_get_buffer(GTK_TEXT_VIEW(chview));
 	if (old_buf)
 		g_signal_handlers_disconnect_by_func(old_buf, loqui_channel_text_view_buffer_insert_text_cb, chview);
-	
+
 	style = gtk_widget_get_style(GTK_WIDGET(chview));
 	transparent_color = &style->base[GTK_STATE_NORMAL];
 	transparent_tag = gtk_text_tag_table_lookup(gtk_text_buffer_get_tag_table(GTK_TEXT_BUFFER(buffer)),
 						    "transparent");
 	if (transparent_tag)
 		g_object_set(G_OBJECT(transparent_tag), "foreground-gdk", transparent_color, NULL);
-	
+
 	gtk_text_view_set_buffer(GTK_TEXT_VIEW(chview), GTK_TEXT_BUFFER(buffer));
 	g_signal_connect(G_OBJECT(buffer), "insert-text",
 			 G_CALLBACK(loqui_channel_text_view_buffer_insert_text_cb), chview);
-	
+
 	loqui_channel_text_view_scroll_to_end(LOQUI_CHANNEL_TEXT_VIEW(chview));
 }
 
@@ -717,7 +839,7 @@ loqui_channel_text_view_scroll_to_end_if_enabled(LoquiChannelTextView *chview)
         g_return_if_fail(LOQUI_IS_CHANNEL_TEXT_VIEW(chview));
 
 	if (chview->is_scroll)
-		loqui_channel_text_view_scroll_to_end(chview);	
+		loqui_channel_text_view_scroll_to_end(chview);
 }
 void
 loqui_channel_text_view_set_is_scroll(LoquiChannelTextView *chview, gboolean is_scroll)

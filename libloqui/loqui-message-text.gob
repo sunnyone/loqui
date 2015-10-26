@@ -67,7 +67,7 @@ LOQUI_DEFINE_ACCESSOR_GENERIC(LoquiMessageText, loqui_message_text, text_type, L
 class Loqui:Message:Text from G:Object
 {
         public LoquiTextType text_type;
-        
+
         public gchar *text = NULL unrefwith g_free;
         public gchar *channel_name = NULL unrefwith g_free;
         public gchar *account_name = NULL unrefwith g_free;
@@ -143,52 +143,81 @@ class Loqui:Message:Text from G:Object
 		get { g_value_set_uint(VAL, loqui_message_text_get_text_type(self)); }
 	        set { loqui_message_text_set_text_type(self, g_value_get_uint(VAL)); };
 
+        public gchar *
+        get_nick_string_parts(self,
+                       gboolean with_channel_name,
+                       gchar **prefix,
+                       gchar **channel_name,
+                       gchar **separator,
+                       gchar **nick,
+                       gchar **suffix) {
+
+                *nick = self->nick;
+
+                if (self->is_self) {
+                        *prefix = ">";
+                        *suffix = "< ";
+                } else if (self->is_priv) {
+                        *prefix = "=";
+                        *suffix = "= ";
+                } else {
+                        *prefix = "<";
+                        *suffix = "> ";
+                }
+
+                if (with_channel_name && self->channel_name && !self->is_priv) {
+                        *channel_name = self->channel_name;
+                        *separator = ":";
+                } else {
+                        *channel_name = NULL;
+                        *separator = NULL;
+                }
+        }
+
 	public gchar *
         get_nick_string(self, gboolean with_channel_name) {
-                gchar *nick_str;
-        
+                gchar *prefix;
+                gchar *channel_name;
+                gchar *separator;
+                gchar *nick;
+                gchar *suffix;
+                GString *nick_str;
+
                 g_return_val_if_fail(LOQUI_IS_MESSAGE_TEXT(self), NULL);
-        
-                if(self->is_priv) {
-                        if(self->is_self)
-                                nick_str = g_strdup_printf(">%s< ", self->nick);
-                        else
-                                nick_str = g_strdup_printf("=%s= ", self->nick);
-                } else if (with_channel_name && self->channel_name) {
-                        if(self->is_self)
-                                nick_str = g_strdup_printf(">%s:%s< ", self->channel_name, self->nick);
-                        else
-                                nick_str = g_strdup_printf("<%s:%s> ", self->channel_name, self->nick);
-                } else {
-                        if(self->is_self)
-                                nick_str = g_strdup_printf(">%s< ", self->nick);
-                        else
-                                nick_str = g_strdup_printf("<%s> ", self->nick);
-                }
-        
-                return nick_str;
+
+                loqui_message_text_get_nick_string_parts(self, with_channel_name, &prefix, &channel_name, &separator, &nick, &suffix);
+
+                nick_str = g_string_new(prefix);
+                if (channel_name != NULL)
+                        g_string_append(nick_str, channel_name);
+                if (separator != NULL)
+                        g_string_append(nick_str, separator);
+                g_string_append(nick_str, nick);
+                g_string_append(nick_str, suffix);
+
+                return g_string_free(nick_str, FALSE);
         }
 
 	public gchar *
 	get_detail(self, gboolean show_account, gboolean show_channel_name) {
 		gchar *nick_string;
 		GString *str;
-		
+
 		str = g_string_new(NULL);
-		
+
 		if (show_account) {
 			g_string_append_printf(str, "[%s] ", loqui_message_text_get_account_name(self));
 		}
-		
+
 		nick_string = loqui_message_text_get_nick_string(self, show_channel_name);
 		g_string_append(str, nick_string);
 		g_free(nick_string);
-		
+
 		g_string_append(str, loqui_message_text_get_text(self));
-		
+
 		return g_string_free(str, FALSE);
 	}
-	
+
 	public Loqui:Message:Text *
 	new(void) {
 		Self *self;

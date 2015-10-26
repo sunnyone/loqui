@@ -136,6 +136,12 @@ loqui_channel_buffer_gtk_init_tags(void)
 	tag = gtk_text_tag_new("link");
 	gtk_text_tag_table_add(default_tag_table, tag);
 
+	tag = gtk_text_tag_new("account_name");
+	gtk_text_tag_table_add(default_tag_table, tag);
+
+	tag = gtk_text_tag_new("channel_name");
+	gtk_text_tag_table_add(default_tag_table, tag);
+
 	tag = gtk_text_tag_new("hover");
 	g_object_set(tag, "underline", PANGO_UNDERLINE_SINGLE, NULL);
 	gtk_text_tag_table_add(default_tag_table, tag);
@@ -442,15 +448,30 @@ loqui_channel_buffer_gtk_append_message_text(LoquiChannelBuffer *buffer_p, Loqui
 
 	if (loqui_channel_buffer_gtk_get_show_account_name(buffer) &&
 	    loqui_message_text_get_account_name(msgtext)) {
-		buf = g_strdup_printf("[%s] ", loqui_message_text_get_account_name(msgtext));
-		gtk_text_buffer_insert_with_tags_by_name(GTK_TEXT_BUFFER(buffer), &iter, buf, -1, tag_name, "global", NULL);
-		g_free(buf);
+		/* Insert "[%s] " */
+	    	gtk_text_buffer_insert_with_tags_by_name(GTK_TEXT_BUFFER(buffer), &iter, "[", -1, tag_name, "global", NULL);
+	    	gtk_text_buffer_insert_with_tags_by_name(GTK_TEXT_BUFFER(buffer), &iter,
+		     loqui_message_text_get_account_name(msgtext), -1, tag_name, "global", "account_name", NULL);
+     	    	gtk_text_buffer_insert_with_tags_by_name(GTK_TEXT_BUFFER(buffer), &iter, "] ", -1, tag_name, "global", NULL);
 	}
 
-	if(loqui_message_text_get_is_remark(msgtext)) {
-		buf = loqui_message_text_get_nick_string(msgtext, loqui_channel_buffer_gtk_get_show_channel_name(buffer));
-		gtk_text_buffer_insert_with_tags_by_name(GTK_TEXT_BUFFER(buffer), &iter, buf, -1, tag_name, "global", NULL);
-		g_free(buf);
+	if (loqui_message_text_get_is_remark(msgtext)) {
+                gchar *prefix;
+                gchar *channel_name;
+                gchar *separator;
+                gchar *nick;
+                gchar *suffix;
+
+		loqui_message_text_get_nick_string_parts(msgtext, loqui_channel_buffer_gtk_get_show_channel_name(buffer),
+                      &prefix, &channel_name, &separator, &nick, &suffix);
+
+		gtk_text_buffer_insert_with_tags_by_name(GTK_TEXT_BUFFER(buffer), &iter, prefix, -1, tag_name, "global", NULL);
+		if (channel_name != NULL)
+			gtk_text_buffer_insert_with_tags_by_name(GTK_TEXT_BUFFER(buffer), &iter, channel_name, -1, tag_name, "global", "channel_name", NULL);
+		if (separator != NULL)
+			gtk_text_buffer_insert_with_tags_by_name(GTK_TEXT_BUFFER(buffer), &iter, separator, -1, tag_name, "global", NULL);
+		gtk_text_buffer_insert_with_tags_by_name(GTK_TEXT_BUFFER(buffer), &iter, nick, -1, tag_name, "global", NULL);
+		gtk_text_buffer_insert_with_tags_by_name(GTK_TEXT_BUFFER(buffer), &iter, suffix, -1, tag_name, "global", NULL);
 	}
 
 	text = loqui_message_text_get_text(msgtext);
