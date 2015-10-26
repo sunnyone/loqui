@@ -709,10 +709,10 @@ remark_entry_complete_nick(RemarkEntry *entry)
 		}
 
 		status_text = g_string_free(string, FALSE);
-		loqui_statusbar_set_completion(priv->app->statusbar, status_text);
+		loqui_statusbar_set_completion(LOQUI_STATUSBAR(priv->app->statusbar), status_text);
 		g_free(status_text);
 	} else {
-		loqui_statusbar_set_completion(priv->app->statusbar, NULL);
+		loqui_statusbar_set_completion(LOQUI_STATUSBAR(priv->app->statusbar), NULL);
 	}
 
 	g_list_foreach(matched, (GFunc) g_free, NULL);
