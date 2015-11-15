@@ -3,7 +3,7 @@ SUBDIRS =  m4 libloqui src po # test
 AUTOMAKE_OPTIONS = 1.5
 
 ChangeLog:
-	bzr log -v $(shell bzr info | sed -ne 's/^ *parent branch: //p') > $@
+	git log --name-status > $@
 
 EXTRA_DIST= autogen.sh \
 	AUTHORS \

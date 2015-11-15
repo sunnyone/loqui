@@ -1,5 +1,2 @@
 #!/bin/sh
-rm po/POTFILES.in
-for I in libloqui src `find libloqui/protocols -type d | egrep -v "/\\."`; do
-  bzr ls -V $I | egrep '\.(c|h|gob)$' >> po/POTFILES.in
-done
+git ls-tree -r --name-only HEAD | egrep '^(src|libloqui)/.*\.(c|h|gob)$' > po/POTFILES.in

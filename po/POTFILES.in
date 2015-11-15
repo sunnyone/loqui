@@ -106,6 +106,7 @@ libloqui/loqui_utils_irc.c
 libloqui/loqui_utils_irc.h
 libloqui/loqui_webutils.c
 libloqui/loqui_webutils.h
+libloqui/protocols/jabber/loqui-account-jabber.gob
 src/about.c
 src/about.h
 src/account_list_dialog.c
@@ -167,4 +168,3 @@ src/prefs_general_upgrader.c
 src/prefs_general_upgrader.h
 src/remark_entry.c
 src/remark_entry.h
-libloqui/protocols/jabber/loqui-account-jabber.gob
