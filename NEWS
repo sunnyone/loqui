@@ -1,4 +1,9 @@
 --- 
+- date: 2015-11-15
+  version: 0.6.3
+  changes:
+    - Fix crashing when clicking the channel tree.
+
 - date: 2015-10-26
   version: 0.6.2
   changes:
