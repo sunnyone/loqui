@@ -545,7 +545,7 @@ loqui_account_manager_store_iter_n_children(GtkTreeModel *tree_model,
 	if (!store->manager)
 		return -1;
 
-	if (iter->user_data == NULL)
+	if (iter == NULL || iter->user_data == NULL)
 		return g_list_length(loqui_account_manager_get_account_list(store->manager));
 	else if (LOQUI_IS_ACCOUNT(iter->user_data))
 		return g_list_length(loqui_account_get_channel_list(LOQUI_ACCOUNT(iter->user_data)));
