@@ -1,4 +1,14 @@
 --- 
+-
+  date: 2015-12-13
+  version: 0.6.4
+  changes:
+    - Show the account list dialog when launching first.
+    - Fix crashing when an account is removed.
+    - Removed protocol selection from account settings.
+    - Sending a message with Shift+Enter.
+    - Removed the unnessessary "Tools" menu.
+
 - date: 2015-11-15
   version: 0.6.3
   changes:
