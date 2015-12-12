@@ -319,7 +319,7 @@ account_list_dialog_new(LoquiAccountManager *manager, gboolean with_connect_butt
 				 G_CALLBACK(account_list_update_button_status), dialog);
 
         renderer = gtk_cell_renderer_text_new();
-        column = gtk_tree_view_column_new_with_attributes(_("Name"),
+        column = gtk_tree_view_column_new_with_attributes(_("Account name"),
 							  renderer,
 							  "text", COLUMN_NAME,
 							  NULL);
