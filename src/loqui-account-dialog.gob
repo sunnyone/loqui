@@ -439,21 +439,10 @@ class Loqui:Account:Dialog from Gtk:Dialog {
         	LoquiProfileAccount *profile;
         	LoquiAccount *account;
         	gint response;
-		LoquiProtocolSelectionDialog *protocol_dialog;
 		LoquiProtocol *protocol;
 
-		protocol = loqui_protocol_manager_get_protocol(manager->protocol_manager, "IRC"); /* FIXME */
-		protocol_dialog = LOQUI_PROTOCOL_SELECTION_DIALOG(loqui_protocol_selection_dialog_new(parent, manager->protocol_manager, protocol));
-		
-        	response = gtk_dialog_run(GTK_DIALOG(protocol_dialog));
-		if (response != GTK_RESPONSE_OK ||
-		    (protocol = loqui_protocol_selection_dialog_get_protocol(protocol_dialog)) == NULL) {
-			gtk_widget_destroy(GTK_WIDGET(protocol_dialog));
-			return;
-		}
-
-		g_object_ref(protocol);
-		gtk_widget_destroy(GTK_WIDGET(protocol_dialog));
+		/* TODO: show LoquiProtocolSelectionDialog again when another protocol is implemented. */
+		protocol = loqui_protocol_manager_get_protocol(manager->protocol_manager, "IRC");
 
 		profile = loqui_protocol_create_profile_account(protocol);
         	dialog = SELF(self_new(profile));
@@ -470,7 +459,6 @@ class Loqui:Account:Dialog from Gtk:Dialog {
         	}
 
 		g_object_unref(profile);
-		g_object_unref(protocol);
         }
 
         public void
