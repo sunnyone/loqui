@@ -60,6 +60,8 @@
 	<menuitem name="RadioNickListSortTimeAwayPowerNick" action="RadioNickListSortTimeAwayPowerNick" />
 	<menuitem name="RadioNickListSortTimePowerAwayNick" action="RadioNickListSortTimePowerAwayNick" />
       </menu>
+      <separator/>
+      <menuitem name="ShowTransferWindow" action="ShowTransferWindow" />
     </menu>
     <menu name="Buffers" action="StockBuffersMenu">
       <menuitem name="PreviousUnreadChannel" action="PreviousUnreadChannel"/>
@@ -70,9 +72,6 @@
       <separator/>
       <menuitem name="ClearAllUnreadFlags" action="ClearAllUnreadFlags" />
       <separator/>
-    </menu>
-    <menu name="Tools" action="StockToolsMenu">
-      <menuitem name="ShowTransferWindow" action="ShowTransferWindow" />
     </menu>
     <menu name="SettingsMenu" action="StockSettingsMenu">
       <menuitem name="GeneralSettings" action="GeneralSettings"/>

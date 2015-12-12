@@ -120,7 +120,6 @@ static GtkActionEntry loqui_action_entries[] =
 	{"StockUserMenu",        NULL, N_("_User"),       NULL, NULL},
 	{"StockViewMenu",        NULL, N_("_View"),       NULL, NULL},
 	{"StockBuffersMenu",     NULL, N_("_Buffers"),    NULL, NULL},
-	{"StockToolsMenu",     NULL, N_("_Tools"),    NULL, NULL},
 	{"StockSettingsMenu",    NULL, N_("_Settings"),   NULL, NULL},
 	{"StockHelpMenu",        NULL, N_("_Help"),       NULL, NULL},
 	
