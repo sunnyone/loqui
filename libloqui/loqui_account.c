@@ -868,14 +868,23 @@ loqui_account_user_notify_identifier_cb(LoquiUser *user, GParamSpec *pspec, Loqu
 void
 loqui_account_add_user(LoquiAccount *account, LoquiUser *user)
 {
+	const gchar *identifier;
+	
 	g_return_if_fail(account != NULL);
         g_return_if_fail(LOQUI_IS_ACCOUNT(account));
 
+	identifier = loqui_user_get_identifier(user);
+	
+	if (g_hash_table_lookup(account->identifier_user_table, identifier) != NULL) {
+		g_warning("The same user '%s' is added to the account '%s'.",
+			  identifier, loqui_channel_entry_get_name(LOQUI_CHANNEL_ENTRY(account)));
+	}
+	
 	g_signal_connect(G_OBJECT(user), "notify::identifier",
 			 G_CALLBACK(loqui_account_user_notify_identifier_cb), account);
 	g_object_weak_ref(G_OBJECT(user), (GWeakNotify) loqui_account_user_disposed_cb, account);
-	g_hash_table_insert(account->identifier_user_table, g_strdup(loqui_user_get_identifier(user)), user);
-	g_hash_table_insert(account->user_identifier_table, user, g_strdup(loqui_user_get_identifier(user)));	
+	g_hash_table_insert(account->identifier_user_table, g_strdup(identifier), user);
+	g_hash_table_insert(account->user_identifier_table, user, g_strdup(identifier));	
 }
 LoquiUser *
 loqui_account_peek_user(LoquiAccount *account, const gchar *identifier)
