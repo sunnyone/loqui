@@ -63,6 +63,7 @@ requires 2.0.0
 #include "loqui_stock.h"
 #include "prefs_general_upgrader.h"
 #include "loqui-notifier-gtk.h"
+
 %}
 
 class Loqui:Core:Gtk from Loqui:Core
@@ -83,7 +84,7 @@ class Loqui:Core:Gtk from Loqui:Core
 
 	init(self) {
 		self->protocol_manager = loqui_protocol_manager_new();
-		
+
 		loqui_protocol_manager_register(self->protocol_manager, loqui_protocol_irc_get());
 		loqui_protocol_manager_register(self->protocol_manager, loqui_protocol_ipmsg_get());
 		/* loqui_protocol_manager_register(self->protocol_manager, loqui_protocol_msn_get()); */
@@ -144,35 +145,35 @@ class Loqui:Core:Gtk from Loqui:Core
 	private void make_program_dir(self) {
 		const gchar *dirname;
 		gchar *log_dirname;
-	
+
 		dirname = loqui_core_get_user_dir(LOQUI_CORE(self));
 		if(!g_file_test(dirname, G_FILE_TEST_EXISTS)) {
 			loqui_utils_mkdir_and_chmod(dirname);
 		}
-		
+
 		if(!g_file_test(dirname, G_FILE_TEST_IS_DIR)) {
 			g_error(_("Invalid \"%s\""), dirname);
 		}
-		
+
 		log_dirname = g_build_filename(dirname, LOG_DIR, NULL);
 		if(!g_file_test(log_dirname, G_FILE_TEST_EXISTS))
 			loqui_utils_mkdir_and_chmod(log_dirname);
-	
+
 		g_free(log_dirname);
 	}
 
 	public void initialize_with_args(self, int *argc, char **argv[]) {
 		gchar *path;
-		
+
 		loqui_core_initialize(LOQUI_CORE(self));
 		self_make_program_dir(self);
-		
+
 		gdk_threads_init();
 
 		gtk_init(argc, argv);
 
 		loqui_stock_init();
-		
+
 		path = g_build_filename(loqui_core_get_user_dir(loqui_get_core()), "gtkrc-2.0", NULL);
 		gtk_rc_parse(path);
 		g_free(path);
@@ -188,7 +189,7 @@ class Loqui:Core:Gtk from Loqui:Core
 
 		g_free(path);
 	}
-	
+
 	private void save_accelmap(self) {
 		gchar *path;
 
@@ -212,7 +213,7 @@ class Loqui:Core:Gtk from Loqui:Core
 		loqui_pref_save_to_file(loqui_core_get_general_pref(LOQUI_CORE(self)), path, NULL);
 		g_free(path);
 	}
-	
+
 	private gboolean check_should_upgrade(self) {
 		gchar *old_path;
 		gchar *new_path;
@@ -220,14 +221,14 @@ class Loqui:Core:Gtk from Loqui:Core
 
 		old_path = g_build_filename(loqui_core_get_user_dir(LOQUI_CORE(self)), "loquirc.xml", NULL);
 		new_path = g_build_filename(loqui_core_get_user_dir(LOQUI_CORE(self)), "loquirc", NULL);
-		
+
 		b = g_file_test(old_path, G_FILE_TEST_EXISTS) && !g_file_test(new_path, G_FILE_TEST_EXISTS);
 		g_free(old_path);
 		g_free(new_path);
 
 		return b;
 	}
-					    
+
 	public void run(self) {
 		if (self_check_should_upgrade(self)) {
 			prefs_general_upgrader_upgrade();
@@ -248,8 +249,13 @@ class Loqui:Core:Gtk from Loqui:Core
 						       LOQUI_GENERAL_PREF_GTK_GROUP_GENERAL, "ConnectStartup",
 						       LOQUI_GENERAL_PREF_GTK_DEFAULT_GENERAL_CONNECT_STARTUP, NULL))
 			loqui_account_manager_connect_all_default(self->account_manager);
-	
+
 		gdk_threads_enter();
+
+		if (loqui_account_manager_get_account_list(self->account_manager) == NULL) {
+			account_list_dialog_open_for_connect(GTK_WINDOW(self->app), loqui_app_get_account_manager(self->app));
+		}
+
 		gtk_main();
 		gdk_threads_leave();
 
