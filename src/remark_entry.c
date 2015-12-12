@@ -92,7 +92,7 @@ static void remark_entry_ok_clicked_cb(GtkWidget *widget, gpointer data);
 static void remark_entry_activate_cb(GtkWidget *widget, gpointer data);
 static void remark_entry_notice_clicked_cb(GtkWidget *widget, gpointer data);
 static void remark_entry_entry_changed_cb(GtkEntry *widget, RemarkEntry *remark_entry);
-static gboolean remark_entry_entry_key_press_event_cb(GtkWidget *widget, GdkEventKey *event, RemarkEntry *remark_entry);
+static gboolean remark_entry_textview_or_entry_key_press_event_cb(GtkWidget *widget, GdkEventKey *event, RemarkEntry *remark_entry);
 
 static void remark_entry_history_add(RemarkEntry *entry, const gchar *str);
 
@@ -304,7 +304,7 @@ remark_entry_new(LoquiApp *app, GtkToggleAction *toggle_command_action)
 	g_signal_connect(G_OBJECT(remark_entry->entry), "activate",
 			 G_CALLBACK(remark_entry_activate_cb), remark_entry);
 	g_signal_connect(G_OBJECT(remark_entry->entry), "key_press_event",
-			 G_CALLBACK(remark_entry_entry_key_press_event_cb), remark_entry);
+			 G_CALLBACK(remark_entry_textview_or_entry_key_press_event_cb), remark_entry);
 	g_signal_connect(G_OBJECT(remark_entry->entry), "show",
 			 G_CALLBACK(remark_entry_entry_text_shown_cb), remark_entry);
 	g_signal_connect(G_OBJECT(remark_entry->entry), "changed",
@@ -322,6 +322,8 @@ remark_entry_new(LoquiApp *app, GtkToggleAction *toggle_command_action)
 	gtk_box_pack_start(GTK_BOX(priv->hbox_text), scwin, TRUE, TRUE, 0);
 
 	priv->textview = gtk_text_view_new();
+	g_signal_connect(G_OBJECT(priv->textview), "key_press_event",
+			 G_CALLBACK(remark_entry_textview_or_entry_key_press_event_cb), remark_entry);
 	gtk_container_add(GTK_CONTAINER(scwin), priv->textview);
 
 	image = gtk_image_new_from_stock(GTK_STOCK_OK, GTK_ICON_SIZE_BUTTON);
@@ -331,6 +333,7 @@ remark_entry_new(LoquiApp *app, GtkToggleAction *toggle_command_action)
 			 G_CALLBACK(remark_entry_ok_clicked_cb), remark_entry);
 	g_signal_connect_swapped(G_OBJECT(priv->button_ok), "clicked",
 				 G_CALLBACK(remark_entry_grab_focus), remark_entry);
+	gtk_tooltips_set_tip(app->tooltips, priv->button_ok, _("Send message (Shift+Enter)"), NULL);
 	gtk_box_pack_start(GTK_BOX(priv->hbox_text), priv->button_ok, FALSE, FALSE, 0);
 
 
@@ -829,17 +832,20 @@ remark_entry_send_text(RemarkEntry *remark_entry, gboolean is_notice)
 
 	remark_entry_set_command_mode(remark_entry, FALSE);
 }
+
 static gboolean
-remark_entry_entry_key_press_event_cb(GtkWidget *ewidget, GdkEventKey *event, RemarkEntry *remark_entry)
+remark_entry_textview_or_entry_key_press_event_cb(GtkWidget *widget, GdkEventKey *event, RemarkEntry *remark_entry)
 {
         g_return_val_if_fail(remark_entry != NULL, FALSE);
         g_return_val_if_fail(IS_REMARK_ENTRY(remark_entry), FALSE);
 
-	if (event->state & GDK_CONTROL_MASK) {
+	/* Shift + Enter: PRIVMSG, Ctrl + Enter: NOTICE */
+	if (event->state & GDK_CONTROL_MASK ||
+	    event->state & GDK_SHIFT_MASK) {
 		switch (event->keyval) {
 		case GDK_Return:
 		case GDK_KP_Enter:
-			remark_entry_send_text(remark_entry, TRUE);
+			remark_entry_send_text(remark_entry, (event->state & GDK_CONTROL_MASK) != 0);
 			return TRUE;
 		default:
 			break;
