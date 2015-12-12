@@ -243,7 +243,6 @@ loqui_account_irc_constructor(GType type, guint n_props, GObjectConstructParam *
 	loqui_user_set_away(user, LOQUI_AWAY_TYPE_OFFLINE);
 	
 	loqui_account_set_user_self(account, user);
-	loqui_account_add_user(account, user);
 	g_object_unref(user); /* the account has reference */
 
 	codeconv = loqui_codeconv_new();
