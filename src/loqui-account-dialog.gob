@@ -277,6 +277,7 @@ class Loqui:Account:Dialog from Gtk:Dialog {
         	selfp->check_use = gtk_check_button_new_with_label(_("Connect by default"));
         	gtk_box_pack_start(GTK_BOX(hbox), selfp->check_use, TRUE, TRUE, 0);
         
+		/* User */
         	frame = gtk_frame_new(_("User"));
         	gtk_box_pack_start(GTK_BOX(vbox), frame, TRUE, TRUE, 0);
         	
@@ -287,7 +288,8 @@ class Loqui:Account:Dialog from Gtk:Dialog {
         	gtkutils_add_label_entry(vbox_c, _("User name:"), &selfp->entry_username, NULL);
         	gtkutils_add_label_entry(vbox_c, _("Password:"), &selfp->entry_password, NULL);
         	gtk_entry_set_visibility(GTK_ENTRY(selfp->entry_password), FALSE);
-        
+        		
+		/* Server */
         	frame = gtk_frame_new(_("Server"));
         	gtk_box_pack_start(GTK_BOX(vbox), frame, TRUE, TRUE, 0);
         	
@@ -296,20 +298,18 @@ class Loqui:Account:Dialog from Gtk:Dialog {
         	
         	gtkutils_add_label_entry(vbox_c, _("Hostname:"), &selfp->entry_servername, NULL);
         	gtkutils_add_label_spin_button(vbox_c, _("Port:"), &selfp->spin_port, 1, 65535, 1);
-        
-	}
-
-	private void
-	append_irc_page(self) {
-		GtkWidget *vbox;
-
-        	vbox = gtk_vbox_new(FALSE, 0);
-        	gtk_notebook_append_page(GTK_NOTEBOOK(selfp->notebook), vbox, gtk_label_new(_("IRC")));
-        	
-        	gtkutils_add_label_entry(vbox, _("Realname:"), &selfp->entry_realname, NULL);
-        	gtkutils_add_label_entry(vbox, _("User information:"), &selfp->entry_userinfo, NULL);
-        	gtkutils_add_label_entry(vbox, _("Auto join channels (ex. #a,#b,#c keyA,keyB):"), &selfp->entry_autojoin, NULL);
-        	gtkutils_add_label_entry(vbox, _("Quit message:"), &selfp->entry_quit_message, NULL);
+		
+		/* IRC */
+        	frame = gtk_frame_new(_("IRC"));
+        	gtk_box_pack_start(GTK_BOX(vbox), frame, TRUE, TRUE, 0);
+		
+        	vbox_c = gtk_vbox_new(TRUE, 0);
+        	gtk_container_add(GTK_CONTAINER(frame), vbox_c);
+		
+        	gtkutils_add_label_entry(vbox_c, _("Realname:"), &selfp->entry_realname, NULL);
+        	gtkutils_add_label_entry(vbox_c, _("User information:"), &selfp->entry_userinfo, NULL);
+        	gtkutils_add_label_entry(vbox_c, _("Auto join channels (ex. #a,#b,#c keyA,keyB):"), &selfp->entry_autojoin, NULL);
+        	gtkutils_add_label_entry(vbox_c, _("Quit message:"), &selfp->entry_quit_message, NULL);
 	}
 
 	private void
@@ -419,9 +419,6 @@ class Loqui:Account:Dialog from Gtk:Dialog {
         	gtk_box_pack_start(GTK_BOX(vbox), selfp->notebook, TRUE, TRUE, 0);
         
 		self_append_profile_page(self);
-		if (LOQUI_IS_PROFILE_ACCOUNT_IRC(profile)) {
-			self_append_irc_page(self);
-		}
 
 		self_append_code_page(self);
 		self_append_nick_page(self);
