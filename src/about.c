@@ -29,6 +29,6 @@ about_open(void)
 	gtkutils_msgbox_info(GTK_MESSAGE_INFO,
 			     "%s\n"
 			     "IRC Client for Gtk2\n"
-			     "Copyright (C) 2002-2013, Yoichi Imai <sunnyone41@gmail.com>\n"
+			     "Copyright (C) 2002-2015, Yoichi Imai <sunnyone41@gmail.com>\n"
 			     "http://launchpad.net/loqui/", loqui_core_get_version_info(loqui_get_core()));
 }
