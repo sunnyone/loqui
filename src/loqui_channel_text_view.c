@@ -231,7 +231,7 @@ loqui_channel_text_view_class_init(LoquiChannelTextViewClass *klass)
 							     TRUE,
 							     G_PARAM_READWRITE));
 	g_object_class_install_property(object_class,
-					PROP_IS_SCROLL,
+					PROP_AUTO_SWITCH_SCROLLING,
 					g_param_spec_boolean("auto_switch_scrolling",
 							     _("Auto switch scrolling"),
 							     _("Switch scrolling automatically"),
