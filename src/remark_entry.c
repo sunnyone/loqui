@@ -434,7 +434,7 @@ remark_entry_set_multiline(RemarkEntry *entry, gboolean is_multiline)
 		gtk_text_buffer_get_end_iter(buffer, &end);
 		str = gtk_text_buffer_get_text(buffer, &start, &end, TRUE);
 		gtk_entry_set_text(GTK_ENTRY(entry->entry), str);
-		gtk_widget_hide_all(priv->hbox_text);
+		gtk_widget_hide(priv->hbox_text);
 		gtk_widget_show(entry->entry);
 	}
 
@@ -923,5 +923,5 @@ remark_entry_entry_text_shown_cb(GtkWidget *widget, gpointer data)
 	if(remark_entry_get_multiline(remark_entry))
 		gtk_widget_hide(remark_entry->entry);
 	else
-		gtk_widget_hide_all(priv->hbox_text);
+		gtk_widget_hide(priv->hbox_text);
 }
