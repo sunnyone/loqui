@@ -285,10 +285,10 @@ loqui_channelbar_update_channel_mode(LoquiChannelbar *channelbar, LoquiChannel *
 		buf = g_strdup_printf("[%s]", channel_mode);
 		g_free(channel_mode);
 
-		gtk_label_set(GTK_LABEL(priv->label_channel_mode), buf);
+		gtk_label_set_text(GTK_LABEL(priv->label_channel_mode), buf);
 		g_free(buf);
 	} else {
-		gtk_label_set(GTK_LABEL(priv->label_channel_mode), "");
+		gtk_label_set_text(GTK_LABEL(priv->label_channel_mode), "");
 	}
 }
 void
@@ -307,10 +307,10 @@ loqui_channelbar_update_member_number(LoquiChannelbar *channelbar, LoquiChannelE
                 user_num_all = loqui_channel_entry_get_member_number(chent);
 		user_num_op = loqui_channel_entry_get_op_number(chent);
                 buf = g_strdup_printf("(%d/%d)", user_num_op, user_num_all);
-		gtk_label_set(GTK_LABEL(priv->label_user_number), buf);
+		gtk_label_set_text(GTK_LABEL(priv->label_user_number), buf);
 		g_free(buf);
 	} else {
-		gtk_label_set(GTK_LABEL(priv->label_user_number), "");
+		gtk_label_set_text(GTK_LABEL(priv->label_user_number), "");
 	}
 
 }

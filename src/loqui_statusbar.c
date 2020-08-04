@@ -171,7 +171,7 @@ loqui_statusbar_set_away(LoquiStatusbar *statusbar, LoquiUserClass *user_class, 
 	if (awinfo == NULL)
 		return;
 
-	gtk_label_set(GTK_LABEL(priv->label_away), awinfo->nick);
+	gtk_label_set_text(GTK_LABEL(priv->label_away), awinfo->nick);
 
 	stock_id = loqui_stock_get_id_from_basic_away_type(awinfo->basic_away_type);
 	if (stock_id == NULL) {
@@ -436,7 +436,7 @@ loqui_statusbar_update_account_name(LoquiStatusbar *statusbar, LoquiAccount *acc
 
         priv = statusbar->priv;
 
-	gtk_label_set(GTK_LABEL(priv->label_account),
+	gtk_label_set_text(GTK_LABEL(priv->label_account),
 		      account ? loqui_profile_account_get_name(loqui_account_get_profile(account)) : STRING_UNSELECTED);
 }
 void
@@ -452,16 +452,16 @@ loqui_statusbar_update_nick(LoquiStatusbar *statusbar, LoquiAccount *account)
         if (account == NULL) {
         	gtk_widget_set_sensitive(priv->dbox_preset, FALSE);
         	gtk_widget_set_sensitive(priv->dbox_away, FALSE);
-        	gtk_label_set(GTK_LABEL(priv->label_nick), STRING_UNSELECTED);
+        	gtk_label_set_text(GTK_LABEL(priv->label_nick), STRING_UNSELECTED);
         } else if (!loqui_account_get_is_connected(account)) {
       	 	gtk_widget_set_sensitive(priv->dbox_preset, FALSE);
         	gtk_widget_set_sensitive(priv->dbox_away, FALSE);
-        	gtk_label_set(GTK_LABEL(priv->label_nick), STRING_DISCONNECTED);
+        	gtk_label_set_text(GTK_LABEL(priv->label_nick), STRING_DISCONNECTED);
         } else {
         	gtk_widget_set_sensitive(priv->button_nick, TRUE);
         	gtk_widget_set_sensitive(priv->dbox_preset, TRUE);
         	gtk_widget_set_sensitive(priv->dbox_away, TRUE);
-        	gtk_label_set(GTK_LABEL(priv->label_nick), loqui_user_get_nick(loqui_account_get_user_self(account)));
+        	gtk_label_set_text(GTK_LABEL(priv->label_nick), loqui_user_get_nick(loqui_account_get_user_self(account)));
         }
 }
 void
