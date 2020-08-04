@@ -52,7 +52,7 @@ struct _NickListClass
 };
 
 
-GtkType nick_list_get_type(void) G_GNUC_CONST;
+GType nick_list_get_type(void) G_GNUC_CONST;
 
 GtkWidget* nick_list_new(LoquiApp *app, GtkWidget *menu);
 

@@ -53,7 +53,7 @@ struct _LoquiChannelbarClass
 };
 
 
-GtkType loqui_channelbar_get_type (void) G_GNUC_CONST;
+GType loqui_channelbar_get_type (void) G_GNUC_CONST;
 
 GtkWidget* loqui_channelbar_new(LoquiApp *app, GtkWidget *menu_dropdown, GtkToggleAction *toggle_scroll_action);
 

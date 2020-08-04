@@ -58,7 +58,7 @@ struct _LoquiChannelBufferGtkClass
 };
 
 
-GtkType loqui_channel_buffer_gtk_get_type(void) G_GNUC_CONST;
+GType loqui_channel_buffer_gtk_get_type(void) G_GNUC_CONST;
 
 LoquiChannelBufferGtk* loqui_channel_buffer_gtk_new(LoquiPrefPartial *ppref_channel_buffer);
 

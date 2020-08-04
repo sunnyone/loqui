@@ -59,7 +59,7 @@ struct _RemarkEntryClass
         void (* complete_nick)(RemarkEntry *entry);
 };
 
-GtkType remark_entry_get_type (void) G_GNUC_CONST;
+GType remark_entry_get_type (void) G_GNUC_CONST;
 
 GtkWidget* remark_entry_new(LoquiApp *app, GtkToggleAction *toggle_command_action);
 G_CONST_RETURN gchar *remark_entry_get_text(RemarkEntry *entry);
