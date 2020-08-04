@@ -593,7 +593,8 @@ loqui_app_new(LoquiAccountManager *account_manager)
 
 	app->appinfo = loqui_app_info_new(app);
 
-	gtk_window_set_policy(GTK_WINDOW (app), TRUE, TRUE, TRUE);
+	gtk_widget_set_size_request(app, 0, 0);
+	gtk_window_set_resizable(GTK_WINDOW (app), TRUE);
 
 	/* set icon */
 	if((loqui_icon = gdk_pixbuf_new_from_inline(-1, loqui_pixbuf, FALSE, NULL)) == NULL)
