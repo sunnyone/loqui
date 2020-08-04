@@ -29,16 +29,9 @@ AM_CONDITIONAL(HAVE_WINDRES, test x"$WINDRES" != x)
 
 # Checks for libraries.
 AM_PATH_GLIB_2_0(2.22.0,, AC_MSG_ERROR(Test for GLib failed. See the 'INSTALL' for help.), gobject gio)
-if test "x${glib_config_major_version}" = "x2" -a "x${glib_config_minor_version}" = "x22"; then
-   AC_DEFINE_UNQUOTED(USE_GLIB_2_4, 1, [Is using glib 2.22])
-fi
-
 AC_PATH_PROG(GLIB_GENMARSHAL, glib-genmarshal)
 
-AM_PATH_GTK_2_0(2.4.0,, AC_MSG_ERROR(Test for Gtk failed. See the 'INSTALL' for help.), gthread)
-
-AC_SUBST(GNET_CFLAGS)
-AC_SUBST(GNET_LIBS)
+AM_PATH_GTK_3_0(3.0.0,, AC_MSG_ERROR(Test for Gtk failed. See the 'INSTALL' for help.))
 
 # Checks for header files.
 AC_HEADER_STDC
