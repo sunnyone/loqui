@@ -243,7 +243,7 @@ loqui_statusbar_set_preset_menu(LoquiStatusbar *statusbar, GList *nick_list)
 
         priv = statusbar->priv;
 
-	for (cur = GTK_MENU_SHELL(priv->menu_preset)->children; cur != NULL; cur = cur->next) {
+	for (cur = gtk_container_get_children(GTK_CONTAINER(priv->menu_preset)); cur != NULL; cur = cur->next) {
 		tmp_list = g_list_append(tmp_list, cur->data);
 	}
 	for (cur = tmp_list; cur != NULL; cur = cur->next) {
@@ -277,7 +277,7 @@ loqui_statusbar_set_away_menu(LoquiStatusbar *statusbar, LoquiUserClass *user_cl
 
         priv = statusbar->priv;
 
-	for (cur = GTK_MENU_SHELL(priv->menu_away)->children; cur != NULL; cur = cur->next) {
+	for (cur = gtk_container_get_children(GTK_CONTAINER(priv->menu_away)); cur != NULL; cur = cur->next) {
 		tmp_list = g_list_append(tmp_list, cur->data);
 	}
 	for (cur = tmp_list; cur != NULL; cur = cur->next) {
