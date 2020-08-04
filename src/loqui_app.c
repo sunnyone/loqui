@@ -100,7 +100,7 @@ static GtkWindowClass *parent_class = NULL;
 static void loqui_app_class_init(LoquiAppClass *klass);
 static void loqui_app_init(LoquiApp *app);
 static void loqui_app_finalize(GObject *object);
-static void loqui_app_destroy(GtkObject *object);
+static void loqui_app_destroy(GtkWidget *widget);
 static gboolean loqui_app_delete_event(GtkWidget *widget, GdkEventAny *event);
 static gboolean loqui_app_focus_in_event(GtkWidget *widget, GdkEventFocus *event);
 static gboolean loqui_app_focus_out_event(GtkWidget *widget, GdkEventFocus *event);
@@ -163,13 +163,12 @@ static void
 loqui_app_class_init(LoquiAppClass *klass)
 {
         GObjectClass *object_class = G_OBJECT_CLASS(klass);
-        GtkObjectClass *gtk_object_class = GTK_OBJECT_CLASS(klass);
 	GtkWidgetClass *gtk_widget_class = GTK_WIDGET_CLASS(klass);
 
         parent_class = g_type_class_peek_parent(klass);
 	
         object_class->finalize = loqui_app_finalize;
-	gtk_object_class->destroy = loqui_app_destroy;
+	gtk_widget_class->destroy = loqui_app_destroy;
 	gtk_widget_class->delete_event = loqui_app_delete_event;
 	gtk_widget_class->focus_in_event = loqui_app_focus_in_event;
 	gtk_widget_class->focus_out_event = loqui_app_focus_out_event;
@@ -186,7 +185,7 @@ loqui_app_init(LoquiApp *app)
         gtk_widget_add_events(GTK_WIDGET(app), GDK_VISIBILITY_NOTIFY_MASK);
 }
 static void
-loqui_app_destroy(GtkObject *object)
+loqui_app_destroy(GtkWidget *widget)
 {
 	LoquiApp *app;
 	LoquiAppPrivate *priv;
@@ -199,8 +198,8 @@ loqui_app_destroy(GtkObject *object)
 
 	LOQUI_G_OBJECT_UNREF_UNLESS_NULL(priv->ppref_channel_buffer);
 
-	if (GTK_OBJECT_CLASS(parent_class)->destroy)
-                (* GTK_OBJECT_CLASS(parent_class)->destroy) (object);
+	if (GTK_WIDGET_CLASS(parent_class)->destroy)
+                (* GTK_WIDGET_CLASS(parent_class)->destroy) (object);
 
 }	
 static void 
