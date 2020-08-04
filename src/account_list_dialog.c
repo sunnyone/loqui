@@ -325,7 +325,7 @@ account_list_dialog_new(LoquiAccountManager *manager, gboolean with_connect_butt
 							  NULL);
         gtk_tree_view_append_column(GTK_TREE_VIEW(priv->treeview), column);
 
-	gtk_widget_set_usize(priv->treeview, 200, 100);
+	gtk_widget_set_size_request(priv->treeview, 200, 100);
 	gtk_container_add(GTK_CONTAINER(scrolled_win), priv->treeview);
 
 	vbox = gtk_vbox_new(TRUE, 0);
