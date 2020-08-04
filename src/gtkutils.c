@@ -342,7 +342,7 @@ gtkutils_tree_view_popup(GtkTreeView *tree, GdkEventButton *event, GtkMenu *menu
 gboolean
 gtkutils_widget_is_iconified(GtkWidget *widget)
 {
-	return gdk_window_get_state(widget->window) & GDK_WINDOW_STATE_ICONIFIED;
+	return gdk_window_get_state(gtk_widget_get_window(widget)) & GDK_WINDOW_STATE_ICONIFIED;
 }
 void
 gtkutils_bin_remove_child_if_exist(GtkBin *bin)
@@ -362,13 +362,14 @@ gtkutils_menu_position_under_widget(GtkMenu   *menu,
 				    gpointer   user_data)
 {
         GtkWidget *w = GTK_WIDGET(user_data);
-        const GtkAllocation *allocation = &w->allocation;
+        GtkAllocation allocation;
+		gtk_widget_get_allocation(w, &allocation);
         gint screen_width, screen_height;
         GtkRequisition requisition;
 
-        gdk_window_get_origin(w->window, x, y);
-        *x += allocation->x;
-        *y += allocation->y + allocation->height;
+        gdk_window_get_origin(gtk_widget_get_window(w), x, y);
+        *x += allocation.x;
+        *y += allocation.y + allocation.height;
 
         gtk_widget_size_request(GTK_WIDGET (menu), &requisition);
       
@@ -388,13 +389,16 @@ gtkutils_menu_position_under_or_below_widget(GtkMenu   *menu,
 					     gpointer   user_data)
 {
         GtkWidget *w = GTK_WIDGET(user_data);
-        const GtkAllocation *allocation = &w->allocation;
+
+		GtkAllocation allocation;
+		gtk_widget_get_allocation(w, &allocation);
+
         gint screen_width, screen_height;
         GtkRequisition requisition;
 
-        gdk_window_get_origin(w->window, x, y);
-        *x += allocation->x;
-        *y += allocation->y + allocation->height;
+        gdk_window_get_origin(gtk_widget_get_window(w), x, y);
+        *x += allocation.x;
+        *y += allocation.y + allocation.height;
 
         gtk_widget_size_request(GTK_WIDGET (menu), &requisition);
       
@@ -404,7 +408,7 @@ gtkutils_menu_position_under_or_below_widget(GtkMenu   *menu,
 	/* lower area */
 	if (*y > screen_height / 2) {
 		*x = CLAMP(*x, 0, MAX(0, screen_width - requisition.width));
-		*y = CLAMP(MAX(*y - allocation->height, 0), 0, MAX(0, screen_height - requisition.height - allocation->height));
+		*y = CLAMP(MAX(*y - allocation.height, 0), 0, MAX(0, screen_height - requisition.height - allocation.height));
 	} else { /* upper area */
 		*x = CLAMP(*x, 0, MAX(0, screen_width - requisition.width));
 		*y = CLAMP(*y, 0, MAX(0, screen_height - requisition.height));
@@ -422,7 +426,7 @@ gtkutils_get_default_font_desc(void)
                 window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
                 gtk_widget_ensure_style(window);
                 font_desc = pango_font_description_copy
-                        (window->style->font_desc);
+                        (gtk_widget_get_style(window)->font_desc);
                 gtk_object_sink(GTK_OBJECT(window));
         }
 
