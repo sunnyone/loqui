@@ -132,13 +132,13 @@ static void
 remark_entry_class_init(RemarkEntryClass *klass)
 {
         GObjectClass *object_class = G_OBJECT_CLASS(klass);
-        GtkObjectClass *gtk_object_class = GTK_OBJECT_CLASS(klass);
+        GtkWidgetClass *gtk_widget_class = GTK_WIDGET_CLASS(klass);
 	GtkBindingSet *binding_set;
 
         parent_class = g_type_class_peek_parent(klass);
 
         object_class->finalize = remark_entry_finalize;
-        gtk_object_class->destroy = remark_entry_destroy;
+        gtk_widget_class->destroy = remark_entry_destroy;
 
 	klass->call_history = remark_entry_call_history;
 	klass->scroll_channel_textview = remark_entry_scroll_channel_textview;
@@ -239,8 +239,8 @@ remark_entry_destroy(GtkObject *object)
 
         remark_entry = REMARK_ENTRY(object);
 
-        if(GTK_OBJECT_CLASS(parent_class)->destroy)
-                (* GTK_OBJECT_CLASS(parent_class)->destroy) (object);
+        if(GTK_WIDGET_CLASS(parent_class)->destroy)
+                (* GTK_WIDGET_CLASS(parent_class)->destroy) (object);
 }
 static void
 remark_entry_grab_focus(GtkWidget *widget)

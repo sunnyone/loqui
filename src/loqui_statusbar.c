@@ -111,12 +111,12 @@ static void
 loqui_statusbar_class_init (LoquiStatusbarClass *klass)
 {
         GObjectClass *object_class = G_OBJECT_CLASS(klass);
-        GtkObjectClass *gtk_object_class = GTK_OBJECT_CLASS(klass);
+        GtkWidgetClass *gtk_widget_class = GTK_WIDGET_CLASS(klass);
 
         parent_class = g_type_class_peek_parent(klass);
 
 	object_class->finalize = loqui_statusbar_finalize;
-        gtk_object_class->destroy = loqui_statusbar_destroy;
+        gtk_widget_class->destroy = loqui_statusbar_destroy;
 }
 static void
 loqui_statusbar_init (LoquiStatusbar *statusbar)
@@ -152,8 +152,8 @@ loqui_statusbar_destroy (GtkObject *object)
 
         statusbar = LOQUI_STATUSBAR(object);
 
-        if (GTK_OBJECT_CLASS(parent_class)->destroy)
-                (* GTK_OBJECT_CLASS(parent_class)->destroy) (object);
+        if (GTK_WIDGET_CLASS(parent_class)->destroy)
+                (* GTK_WIDGET_CLASS(parent_class)->destroy) (object);
 }
 static void
 loqui_statusbar_set_away(LoquiStatusbar *statusbar, LoquiUserClass *user_class, LoquiAwayType away)

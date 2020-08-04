@@ -90,13 +90,12 @@ static void
 channel_tree_class_init(ChannelTreeClass *klass)
 {
         GObjectClass *object_class = G_OBJECT_CLASS(klass);
-        GtkObjectClass *gtk_object_class = GTK_OBJECT_CLASS(klass);
 	GtkWidgetClass *widget_class = GTK_WIDGET_CLASS(klass);
 
         parent_class = g_type_class_peek_parent(klass);
         
         object_class->finalize = channel_tree_finalize;
-        gtk_object_class->destroy = channel_tree_destroy;
+        widget_class->destroy = channel_tree_destroy;
 
 	widget_class->key_press_event = channel_tree_key_press_event;
 }
@@ -134,8 +133,8 @@ channel_tree_destroy(GtkObject *object)
 
         channel_tree = CHANNEL_TREE(object);
 
-        if (GTK_OBJECT_CLASS(parent_class)->destroy)
-                (* GTK_OBJECT_CLASS(parent_class)->destroy) (object);
+        if (GTK_WIDGET_CLASS(parent_class)->destroy)
+                (* GTK_WIDGET_CLASS(parent_class)->destroy) (object);
 }
 static void /* double click */
 channel_tree_row_activated_cb(ChannelTree *tree, GtkTreePath *path, GtkTreeViewColumn *col, gpointer data)

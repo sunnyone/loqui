@@ -213,7 +213,7 @@ loqui_channel_text_view_class_init(LoquiChannelTextViewClass *klass)
         object_class->dispose = loqui_channel_text_view_dispose;
         object_class->get_property = loqui_channel_text_view_get_property;
         object_class->set_property = loqui_channel_text_view_set_property;
-        GTK_OBJECT_CLASS(klass)->destroy = loqui_channel_text_view_destroy;
+        GTK_WIDGET_CLASS(klass)->destroy = loqui_channel_text_view_destroy;
 
 	widget_class->key_press_event = loqui_channel_text_view_key_press_event;
 	widget_class->motion_notify_event = loqui_channel_text_view_motion_notify_event;
@@ -269,8 +269,8 @@ loqui_channel_text_view_destroy(GtkObject *object)
 
         view = LOQUI_CHANNEL_TEXT_VIEW(object);
 
-        if (GTK_OBJECT_CLASS(parent_class)->destroy)
-                (* GTK_OBJECT_CLASS(parent_class)->destroy)(object);
+        if (GTK_WIDGET_CLASS(parent_class)->destroy)
+                (* GTK_WIDGET_CLASS(parent_class)->destroy)(object);
 }
 static gboolean
 loqui_channel_text_view_key_press_event(GtkWidget *widget,

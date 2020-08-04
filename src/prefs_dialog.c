@@ -119,12 +119,12 @@ static void
 prefs_dialog_class_init (PrefsDialogClass *klass)
 {
         GObjectClass *object_class = G_OBJECT_CLASS(klass);
-        GtkObjectClass *gtk_object_class = GTK_OBJECT_CLASS(klass);
+        GtkWidgetClass *gtk_widget_class = GTK_WIDGET_CLASS(klass);
 
         parent_class = g_type_class_peek_parent(klass);
         
         object_class->finalize = prefs_dialog_finalize;
-        gtk_object_class->destroy = prefs_dialog_destroy;
+        gtk_widget_class->destroy = prefs_dialog_destroy;
 }
 static void 
 prefs_dialog_init (PrefsDialog *prefs_dialog)
@@ -160,8 +160,8 @@ prefs_dialog_destroy (GtkObject *object)
 
         prefs_dialog = PREFS_DIALOG(object);
 
-        if (GTK_OBJECT_CLASS(parent_class)->destroy)
-                (* GTK_OBJECT_CLASS(parent_class)->destroy) (object);
+        if (GTK_WIDGET_CLASS(parent_class)->destroy)
+                (* GTK_WIDGET_CLASS(parent_class)->destroy) (object);
 }
 static void
 prefs_dialog_load_settings(PrefsDialog *dialog)

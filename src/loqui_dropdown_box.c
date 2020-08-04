@@ -144,7 +144,7 @@ loqui_dropdown_box_class_init(LoquiDropdownBoxClass *klass)
         object_class->dispose = loqui_dropdown_box_dispose;
         object_class->get_property = loqui_dropdown_box_get_property;
         object_class->set_property = loqui_dropdown_box_set_property;
-	GTK_OBJECT_CLASS(klass)->destroy = loqui_dropdown_box_destroy;
+	GTK_WIDGET_CLASS(klass)->destroy = loqui_dropdown_box_destroy;
 }
 static void 
 loqui_dropdown_box_init(LoquiDropdownBox *dbox)
@@ -165,8 +165,8 @@ loqui_dropdown_box_destroy(GtkObject *object)
 
         dbox = LOQUI_DROPDOWN_BOX(object);
 
-        if (GTK_OBJECT_CLASS(parent_class)->destroy)
-                (* GTK_OBJECT_CLASS(parent_class)->destroy)(object);
+        if (GTK_WIDGET_CLASS(parent_class)->destroy)
+                (* GTK_WIDGET_CLASS(parent_class)->destroy)(object);
 }
 static gboolean
 loqui_dropdown_box_button_press_event(GtkWidget *widget, GdkEventButton *event, gpointer data)

@@ -90,12 +90,12 @@ static void
 account_list_dialog_class_init (AccountListDialogClass *klass)
 {
         GObjectClass *object_class = G_OBJECT_CLASS(klass);
-        GtkObjectClass *gtk_object_class = GTK_OBJECT_CLASS(klass);
+        GtkWidgetClass *gtk_widget_class = GTK_WIDGET_CLASS(klass);
 
         parent_class = g_type_class_peek_parent(klass);
         
         object_class->finalize = account_list_dialog_finalize;
-        gtk_object_class->destroy = account_list_dialog_destroy;
+        gtk_widget_class->destroy = account_list_dialog_destroy;
 }
 static void 
 account_list_dialog_init (AccountListDialog *account_list_dialog)
@@ -131,8 +131,8 @@ account_list_dialog_destroy (GtkObject *object)
 
         account_list_dialog = ACCOUNT_LIST_DIALOG(object);
 
-        if (GTK_OBJECT_CLASS(parent_class)->destroy)
-                (* GTK_OBJECT_CLASS(parent_class)->destroy) (object);
+        if (GTK_WIDGET_CLASS(parent_class)->destroy)
+                (* GTK_WIDGET_CLASS(parent_class)->destroy) (object);
 }
 static void
 account_list_dialog_construct_list(AccountListDialog *dialog)

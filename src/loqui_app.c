@@ -190,16 +190,16 @@ loqui_app_destroy(GtkWidget *widget)
 	LoquiApp *app;
 	LoquiAppPrivate *priv;
 
-        g_return_if_fail(object != NULL);
-        g_return_if_fail(LOQUI_IS_APP(object));
+        g_return_if_fail(widget != NULL);
+        g_return_if_fail(LOQUI_IS_APP(widget));
 
-	app = LOQUI_APP(object);
+	app = LOQUI_APP(widget);
 	priv = app->priv;
 
 	LOQUI_G_OBJECT_UNREF_UNLESS_NULL(priv->ppref_channel_buffer);
 
 	if (GTK_WIDGET_CLASS(parent_class)->destroy)
-                (* GTK_WIDGET_CLASS(parent_class)->destroy) (object);
+                (* GTK_WIDGET_CLASS(parent_class)->destroy) (widget);
 
 }	
 static void 

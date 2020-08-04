@@ -176,7 +176,7 @@ loqui_select_dialog_class_init(LoquiSelectDialogClass *klass)
         object_class->dispose = loqui_select_dialog_dispose;
         object_class->get_property = loqui_select_dialog_get_property;
         object_class->set_property = loqui_select_dialog_set_property;
-        GTK_OBJECT_CLASS(klass)->destroy = loqui_select_dialog_destroy;
+        GTK_WIDGET_CLASS(klass)->destroy = loqui_select_dialog_destroy;
 }
 static void 
 loqui_select_dialog_init(LoquiSelectDialog *sdialog)
@@ -197,8 +197,8 @@ loqui_select_dialog_destroy(GtkObject *object)
 
         sdialog = LOQUI_SELECT_DIALOG(object);
 
-        if (GTK_OBJECT_CLASS(parent_class)->destroy)
-                (* GTK_OBJECT_CLASS(parent_class)->destroy)(object);
+        if (GTK_WIDGET_CLASS(parent_class)->destroy)
+                (* GTK_WIDGET_CLASS(parent_class)->destroy)(object);
 }
 GtkWidget *
 loqui_select_dialog_new(LoquiApp *app)

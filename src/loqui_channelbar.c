@@ -89,12 +89,12 @@ static void
 loqui_channelbar_class_init (LoquiChannelbarClass *klass)
 {
         GObjectClass *object_class = G_OBJECT_CLASS(klass);
-        GtkObjectClass *gtk_object_class = GTK_OBJECT_CLASS(klass);
+        GtkWidgetClass *gtk_widget_class = GTK_WIDGET_CLASS(klass);
 
         parent_class = g_type_class_peek_parent(klass);
         
         object_class->finalize = loqui_channelbar_finalize;
-        gtk_object_class->destroy = loqui_channelbar_destroy;
+        gtk_widget_class->destroy = loqui_channelbar_destroy;
 }
 static void 
 loqui_channelbar_init (LoquiChannelbar *channelbar)
@@ -130,8 +130,8 @@ loqui_channelbar_destroy (GtkObject *object)
 
         channelbar = LOQUI_CHANNELBAR(object);
 
-        if (GTK_OBJECT_CLASS(parent_class)->destroy)
-                (* GTK_OBJECT_CLASS(parent_class)->destroy) (object);
+        if (GTK_WIDGET_CLASS(parent_class)->destroy)
+                (* GTK_WIDGET_CLASS(parent_class)->destroy) (object);
 }
 static void
 loqui_channelbar_entry_topic_activated_cb(GtkWidget *widget, gpointer data)
