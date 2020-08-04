@@ -351,7 +351,7 @@ loqui_statusbar_new(LoquiApp *app, GtkToggleAction *toggle_scroll_common_buffer_
 	priv->app = app;
 
 	gtk_statusbar_set_has_resize_grip(GTK_STATUSBAR(statusbar), FALSE);
-	gtk_label_set_selectable(GTK_LABEL(GTK_STATUSBAR(statusbar)->label), TRUE);
+	gtk_label_set_selectable(GTK_LABEL(gtk_statusbar_get_message_area(GTK_STATUSBAR(statusbar))), TRUE);
 
 	vsep = gtk_vseparator_new();
 	gtk_box_pack_start(GTK_BOX(statusbar), vsep, FALSE, FALSE, 2);
