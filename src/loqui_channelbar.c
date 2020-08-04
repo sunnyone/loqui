@@ -234,7 +234,7 @@ loqui_channelbar_new(LoquiApp *app, GtkWidget *menu_dropdown, GtkToggleAction *t
 	priv->entry_changed = FALSE;
 
 	priv->toggle_scroll = gtk_toggle_button_new();
-	gtk_action_connect_proxy(GTK_ACTION(toggle_scroll_action), priv->toggle_scroll);
+	gtk_activatable_set_related_action(priv->toggle_scroll, GTK_ACTION(toggle_scroll_action));
 	gtkutils_bin_remove_child_if_exist(GTK_BIN(priv->toggle_scroll));
 	image = gtk_image_new_from_stock(LOQUI_STOCK_WHETHER_SCROLL, GTK_ICON_SIZE_SMALL_TOOLBAR);
 	gtk_container_add(GTK_CONTAINER(priv->toggle_scroll), image);
@@ -258,13 +258,13 @@ loqui_channelbar_update_channel_entry_label(LoquiChannelbar *channelbar, LoquiCh
 	priv = channelbar->priv;
 
 	if (priv->chent_action) {
-		gtk_action_disconnect_proxy(priv->chent_action, priv->button_channel);
+		gtk_activatable_set_related_action(priv->button_channel, NULL);
 		priv->chent_action = NULL;
 	}
 		
 	if (chent) {
 		action = GTK_ACTION(loqui_channel_entry_action_group_get_channel_entry_action(priv->app->channel_entry_action_group, chent));
-		gtk_action_connect_proxy(action, priv->button_channel);
+		gtk_activatable_set_related_action(priv->button_channel, action);
 		priv->chent_action = action;
 	}
 }

@@ -407,7 +407,7 @@ loqui_statusbar_new(LoquiApp *app, GtkToggleAction *toggle_scroll_common_buffer_
 	gtk_box_pack_start(GTK_BOX(statusbar), vsep, FALSE, FALSE, 2);
 
 	priv->toggle_scroll_common_buffer = gtk_toggle_button_new();
-	gtk_action_connect_proxy(GTK_ACTION(toggle_scroll_common_buffer_action), priv->toggle_scroll_common_buffer);
+	gtk_activatable_set_related_action(priv->toggle_scroll_common_buffer, GTK_ACTION(toggle_scroll_common_buffer_action));
 	gtkutils_bin_remove_child_if_exist(GTK_BIN((priv->toggle_scroll_common_buffer)));
 	image = gtk_image_new_from_stock(LOQUI_STOCK_WHETHER_SCROLL, LOQUI_ICON_SIZE_FONT);
 	gtk_container_add(GTK_CONTAINER(priv->toggle_scroll_common_buffer), image);

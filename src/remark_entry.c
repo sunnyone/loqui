@@ -284,7 +284,7 @@ remark_entry_new(LoquiApp *app, GtkToggleAction *toggle_command_action)
 	hbox = GTK_WIDGET(remark_entry);
 
 	priv->toggle_command = gtk_toggle_button_new();
-	gtk_action_connect_proxy(GTK_ACTION(toggle_command_action), priv->toggle_command);
+	gtk_activatable_set_related_action(priv->toggle_command, GTK_ACTION(toggle_command_action));
 	gtkutils_bin_remove_child_if_exist(GTK_BIN((priv->toggle_command)));
 	gtk_button_set_focus_on_click(GTK_BUTTON(priv->toggle_command), FALSE);
 	g_object_get(G_OBJECT(toggle_command_action), "tooltip", &text, NULL);
