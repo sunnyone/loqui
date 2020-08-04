@@ -436,23 +436,23 @@ loqui_app_grab_focus_if_key_unused(LoquiApp *app, const gchar *class_name, GdkEv
 	guint modifiers = event->state;
 
 	switch (event->keyval) {
-	case GDK_Shift_L:
-	case GDK_Shift_R:
-	case GDK_Control_L:
-	case GDK_Control_R:
-	case GDK_Caps_Lock:
-	case GDK_Shift_Lock:
-	case GDK_Meta_L:
-	case GDK_Meta_R:
-	case GDK_Alt_L:
-	case GDK_Alt_R:
-	case GDK_Super_L:
-	case GDK_Super_R:
-	case GDK_Hyper_L:
-	case GDK_Hyper_R: /* FIXME: modifiers. enough? */
-	case GDK_ISO_Left_Tab: /* FIXME: if this doesn't exist, shift + tab does not work... */
-	case GDK_Tab:
-	case GDK_Menu: /* Application key opens context menu */
+	case GDK_KEY_Shift_L:
+	case GDK_KEY_Shift_R:
+	case GDK_KEY_Control_L:
+	case GDK_KEY_Control_R:
+	case GDK_KEY_Caps_Lock:
+	case GDK_KEY_Shift_Lock:
+	case GDK_KEY_Meta_L:
+	case GDK_KEY_Meta_R:
+	case GDK_KEY_Alt_L:
+	case GDK_KEY_Alt_R:
+	case GDK_KEY_Super_L:
+	case GDK_KEY_Super_R:
+	case GDK_KEY_Hyper_L:
+	case GDK_KEY_Hyper_R: /* FIXME: modifiers. enough? */
+	case GDK_KEY_ISO_Left_Tab: /* FIXME: if this doesn't exist, shift + tab does not work... */
+	case GDK_KEY_Tab:
+	case GDK_KEY_Menu: /* Application key opens context menu */
 		found = TRUE;
 		break;
 	default:
@@ -460,7 +460,7 @@ loqui_app_grab_focus_if_key_unused(LoquiApp *app, const gchar *class_name, GdkEv
 	}
 	if (!found) {
 		gtk_widget_grab_focus(app->remark_entry);
-		if (event->keyval != GDK_space) { /* FIXME: entry is activated when space is pressed  ... */
+		if (event->keyval != GDK_KEY_space) { /* FIXME: entry is activated when space is pressed  ... */
 			gtk_widget_event(REMARK_ENTRY(app->remark_entry)->entry, (GdkEvent *) event);
 		}
 	}

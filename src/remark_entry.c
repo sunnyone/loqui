@@ -181,25 +181,25 @@ remark_entry_class_init(RemarkEntryClass *klass)
 
 	binding_set = gtk_binding_set_by_class(klass);
 
-	gtk_binding_entry_add_signal(binding_set, GDK_Up, 0,
+	gtk_binding_entry_add_signal(binding_set, GDK_KEY_Up, 0,
 				     "call_history", 1,
 				     G_TYPE_INT, -1);
-	gtk_binding_entry_add_signal(binding_set, GDK_Down, 0,
+	gtk_binding_entry_add_signal(binding_set, GDK_KEY_Down, 0,
 				     "call_history", 1,
 				     G_TYPE_INT, 1);
-	gtk_binding_entry_add_signal(binding_set, GDK_Page_Up, 0,
+	gtk_binding_entry_add_signal(binding_set, GDK_KEY_Page_Up, 0,
 				     "scroll_channel_textview", 1,
 				     G_TYPE_INT, -1);
-	gtk_binding_entry_add_signal(binding_set, GDK_Page_Down, 0,
+	gtk_binding_entry_add_signal(binding_set, GDK_KEY_Page_Down, 0,
 				     "scroll_channel_textview", 1,
 				     G_TYPE_INT, 1);
-	gtk_binding_entry_add_signal(binding_set, GDK_Page_Up, GDK_MOD1_MASK,
+	gtk_binding_entry_add_signal(binding_set, GDK_KEY_Page_Up, GDK_MOD1_MASK,
 				     "scroll_common_textview", 1,
 				     G_TYPE_INT, -1);
-	gtk_binding_entry_add_signal(binding_set, GDK_Page_Down, GDK_MOD1_MASK,
+	gtk_binding_entry_add_signal(binding_set, GDK_KEY_Page_Down, GDK_MOD1_MASK,
 				     "scroll_common_textview", 1,
 				     G_TYPE_INT, 1);
-	gtk_binding_entry_add_signal(binding_set, GDK_Tab, 0,
+	gtk_binding_entry_add_signal(binding_set, GDK_KEY_Tab, 0,
 	                             "complete_nick", 0);
 }
 static void
@@ -843,8 +843,8 @@ remark_entry_textview_or_entry_key_press_event_cb(GtkWidget *widget, GdkEventKey
 	if (event->state & GDK_CONTROL_MASK ||
 	    event->state & GDK_SHIFT_MASK) {
 		switch (event->keyval) {
-		case GDK_Return:
-		case GDK_KP_Enter:
+		case GDK_KEY_Return:
+		case GDK_KEY_KP_Enter:
 			remark_entry_send_text(remark_entry, (event->state & GDK_CONTROL_MASK) != 0);
 			return TRUE;
 		default:

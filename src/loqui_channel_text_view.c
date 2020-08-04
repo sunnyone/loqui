@@ -279,8 +279,8 @@ loqui_channel_text_view_key_press_event(GtkWidget *widget,
 	GtkTextBuffer *buffer;
 	GtkTextIter iter;
 
-	if (event->keyval == GDK_Return ||
-	    event->keyval == GDK_KP_Enter) {
+	if (event->keyval == GDK_KEY_Return ||
+	    event->keyval == GDK_KEY_KP_Enter) {
 		buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(widget));
 		gtk_text_buffer_get_iter_at_mark(buffer, &iter,
 						 gtk_text_buffer_get_insert(buffer));
