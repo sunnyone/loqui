@@ -48,7 +48,7 @@ enum {
 static void account_list_dialog_class_init(AccountListDialogClass *klass);
 static void account_list_dialog_init(AccountListDialog *account_list_dialog);
 static void account_list_dialog_finalize(GObject *object);
-static void account_list_dialog_destroy(GtkObject *object);
+static void account_list_dialog_destroy(GtkWidget *object);
 
 static void account_list_dialog_construct_list(AccountListDialog *dialog);
 static LoquiAccount* account_list_dialog_get_selected_account(AccountListDialog *dialog);
@@ -122,7 +122,7 @@ account_list_dialog_finalize (GObject *object)
 	g_free(account_list_dialog->priv);
 }
 static void 
-account_list_dialog_destroy (GtkObject *object)
+account_list_dialog_destroy (GtkWidget *object)
 {
         AccountListDialog *account_list_dialog;
 

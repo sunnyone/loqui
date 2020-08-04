@@ -49,7 +49,7 @@ static GtkTreeViewClass *parent_class = NULL;
 static void nick_list_class_init(NickListClass *klass);
 static void nick_list_init(NickList *nick_list);
 static void nick_list_finalize(GObject *object);
-static void nick_list_destroy(GtkObject *object);
+static void nick_list_destroy(GtkWidget *object);
 
 static void nick_list_create_icons(NickList *list);
 
@@ -133,7 +133,7 @@ nick_list_finalize (GObject *object)
 	g_free(nick_list->priv);
 }
 static void 
-nick_list_destroy(GtkObject *object)
+nick_list_destroy(GtkWidget *object)
 {
         NickList *nick_list;
 	NickListPrivate *priv;

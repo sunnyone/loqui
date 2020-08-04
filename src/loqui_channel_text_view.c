@@ -67,7 +67,7 @@ static void loqui_channel_text_view_dispose(GObject *object);
 static void loqui_channel_text_view_get_property(GObject *object, guint param_id, GValue *value, GParamSpec *pspec);
 static void loqui_channel_text_view_set_property(GObject *object, guint param_id, const GValue *value, GParamSpec *pspec);
 
-static void loqui_channel_text_view_destroy(GtkObject *object);
+static void loqui_channel_text_view_destroy(GtkWidget *object);
 
 static void loqui_channel_text_view_vadj_value_changed_cb(GtkAdjustment *adj, gpointer data);
 static gboolean loqui_channel_text_view_key_press_event(GtkWidget *widget,
@@ -260,7 +260,7 @@ loqui_channel_text_view_init(LoquiChannelTextView *chview)
 	priv->is_hand_cursor = FALSE;
 }
 static void
-loqui_channel_text_view_destroy(GtkObject *object)
+loqui_channel_text_view_destroy(GtkWidget *object)
 {
         LoquiChannelTextView *view;
 

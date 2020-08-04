@@ -82,7 +82,7 @@ static GtkDialogClass *parent_class = NULL;
 static void prefs_dialog_class_init(PrefsDialogClass *klass);
 static void prefs_dialog_init(PrefsDialog *prefs_dialog);
 static void prefs_dialog_finalize(GObject *object);
-static void prefs_dialog_destroy(GtkObject *object);
+static void prefs_dialog_destroy(GtkWidget *object);
 
 static void prefs_dialog_load_settings(PrefsDialog *dialog);
 static void prefs_dialog_save_settings(PrefsDialog *dialog);
@@ -151,7 +151,7 @@ prefs_dialog_finalize (GObject *object)
 	g_free(prefs_dialog->priv);
 }
 static void 
-prefs_dialog_destroy (GtkObject *object)
+prefs_dialog_destroy (GtkWidget *object)
 {
         PrefsDialog *prefs_dialog;
 

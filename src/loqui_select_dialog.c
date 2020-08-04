@@ -72,7 +72,7 @@ static void loqui_select_dialog_dispose(GObject *object);
 static void loqui_select_dialog_get_property(GObject *object, guint param_id, GValue *value, GParamSpec *pspec);
 static void loqui_select_dialog_set_property(GObject *object, guint param_id, const GValue *value, GParamSpec *pspec);
 
-static void loqui_select_dialog_destroy(GtkObject *object);
+static void loqui_select_dialog_destroy(GtkWidget *object);
 GType
 loqui_select_dialog_get_type(void)
 {
@@ -188,7 +188,7 @@ loqui_select_dialog_init(LoquiSelectDialog *sdialog)
 	sdialog->priv = priv;
 }
 static void 
-loqui_select_dialog_destroy(GtkObject *object)
+loqui_select_dialog_destroy(GtkWidget *object)
 {
         LoquiSelectDialog *sdialog;
 

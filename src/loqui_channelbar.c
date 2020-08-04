@@ -53,7 +53,7 @@ static GtkHBoxClass *parent_class = NULL;
 static void loqui_channelbar_class_init(LoquiChannelbarClass *klass);
 static void loqui_channelbar_init(LoquiChannelbar *channelbar);
 static void loqui_channelbar_finalize(GObject *object);
-static void loqui_channelbar_destroy(GtkObject *object);
+static void loqui_channelbar_destroy(GtkWidget *object);
 
 static void loqui_channelbar_entry_topic_activated_cb(GtkWidget *widget, gpointer data);
 static void loqui_channelbar_entry_changed_cb(GtkWidget *widget, gpointer data);
@@ -121,7 +121,7 @@ loqui_channelbar_finalize (GObject *object)
 	g_free(channelbar->priv);
 }
 static void 
-loqui_channelbar_destroy (GtkObject *object)
+loqui_channelbar_destroy (GtkWidget *object)
 {
         LoquiChannelbar *channelbar;
 

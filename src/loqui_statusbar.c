@@ -71,7 +71,7 @@ static GtkStatusbarClass *parent_class = NULL;
 static void loqui_statusbar_class_init(LoquiStatusbarClass *klass);
 static void loqui_statusbar_init(LoquiStatusbar *statusbar);
 static void loqui_statusbar_finalize(GObject *object);
-static void loqui_statusbar_destroy(GtkObject *object);
+static void loqui_statusbar_destroy(GtkWidget *object);
 
 static void loqui_statusbar_set_preset_menu(LoquiStatusbar *statusbar, GList *nick_list);
 
@@ -143,7 +143,7 @@ loqui_statusbar_finalize (GObject *object)
 	g_free(statusbar->priv);
 }
 static void
-loqui_statusbar_destroy (GtkObject *object)
+loqui_statusbar_destroy (GtkWidget *object)
 {
         LoquiStatusbar *statusbar;
 

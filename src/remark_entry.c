@@ -83,7 +83,7 @@ static guint remark_entry_signals[LAST_SIGNAL] = { 0 };
 static void remark_entry_class_init(RemarkEntryClass *klass);
 static void remark_entry_init(RemarkEntry *remark_entry);
 static void remark_entry_finalize(GObject *object);
-static void remark_entry_destroy(GtkObject *object);
+static void remark_entry_destroy(GtkWidget *object);
 static void remark_entry_grab_focus(GtkWidget *widget);
 
 static void remark_entry_entry_text_shown_cb(GtkWidget *widget, gpointer data);
@@ -230,7 +230,7 @@ remark_entry_finalize(GObject *object)
 	g_free(remark_entry->priv);
 }
 static void
-remark_entry_destroy(GtkObject *object)
+remark_entry_destroy(GtkWidget *object)
 {
         RemarkEntry *remark_entry;
 

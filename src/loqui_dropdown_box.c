@@ -47,7 +47,7 @@ static void loqui_dropdown_box_dispose(GObject *object);
 static void loqui_dropdown_box_get_property(GObject *object, guint param_id, GValue *value, GParamSpec *pspec);
 static void loqui_dropdown_box_set_property(GObject *object, guint param_id, const GValue *value, GParamSpec *pspec);
 
-static void loqui_dropdown_box_destroy(GtkObject *object);
+static void loqui_dropdown_box_destroy(GtkWidget *object);
 
 static void loqui_dropdown_box_menu_deactivated_cb(GtkWidget *widget, LoquiDropdownBox *dropdown_box);
 static void loqui_dropdown_box_detacher(GtkWidget *widget, GtkMenu *menu);
@@ -156,7 +156,7 @@ loqui_dropdown_box_init(LoquiDropdownBox *dbox)
 	dbox->priv = priv;
 }
 static void 
-loqui_dropdown_box_destroy(GtkObject *object)
+loqui_dropdown_box_destroy(GtkWidget *object)
 {
         LoquiDropdownBox *dbox;
 

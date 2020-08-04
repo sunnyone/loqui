@@ -46,7 +46,7 @@ static GtkTreeViewClass *parent_class = NULL;
 static void channel_tree_class_init(ChannelTreeClass *klass);
 static void channel_tree_init(ChannelTree *channel_tree);
 static void channel_tree_finalize(GObject *object);
-static void channel_tree_destroy(GtkObject *object);
+static void channel_tree_destroy(GtkWidget *object);
 
 static void channel_tree_row_activated_cb(ChannelTree *tree, GtkTreePath *path, GtkTreeViewColumn *col, gpointer data);
 static void channel_tree_row_selected_cb(GtkTreeSelection *selection, gpointer data);
@@ -124,7 +124,7 @@ channel_tree_finalize(GObject *object)
 	g_free(channel_tree->priv);
 }
 static void 
-channel_tree_destroy(GtkObject *object)
+channel_tree_destroy(GtkWidget *object)
 {
         ChannelTree *channel_tree;
 
