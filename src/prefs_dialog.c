@@ -440,7 +440,7 @@ prefs_dialog_new(LoquiApp *app)
 	priv->app = app;
 
 	notebook = gtk_notebook_new();
-	gtk_box_pack_start(GTK_BOX(GTK_DIALOG(dialog)->vbox), notebook, TRUE, TRUE, 5);
+	gtk_box_pack_start(GTK_BOX(gtk_dialog_get_content_area(GTK_DIALOG(dialog))), notebook, TRUE, TRUE, 5);
 
 	vbox = gtk_vbox_new(FALSE, 0);
 	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), vbox, gtk_label_new(_("General")));
@@ -591,7 +591,7 @@ prefs_dialog_new(LoquiApp *app)
 
 	prefs_dialog_load_settings(dialog);
 
-	gtk_widget_show_all(GTK_WIDGET(GTK_DIALOG(dialog)->vbox));
+	gtk_widget_show_all(GTK_WIDGET(gtk_dialog_get_content_area(GTK_DIALOG(dialog))));
 
 	return GTK_WIDGET(dialog);
 }

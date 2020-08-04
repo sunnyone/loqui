@@ -78,16 +78,16 @@ command_dialog_join(LoquiApp *app, LoquiAccount *account)
 
 	buf = g_strdup_printf(_("Join a channel with the account %s"), loqui_channel_entry_get_name(LOQUI_CHANNEL_ENTRY(account)));
 	label = gtk_label_new(buf);
-	gtk_box_pack_start(GTK_BOX(GTK_DIALOG(dialog)->vbox), label, FALSE, FALSE, 0);
+	gtk_box_pack_start(GTK_BOX(gtk_dialog_get_content_area(GTK_DIALOG(dialog))), label, FALSE, FALSE, 0);
 	g_free(buf);
 
-	gtkutils_add_label_entry(GTK_DIALOG(dialog)->vbox, _("Channel name:"), &entry_name, NULL);
+	gtkutils_add_label_entry(gtk_dialog_get_content_area(GTK_DIALOG(dialog)), _("Channel name:"), &entry_name, NULL);
 	gtk_entry_set_activates_default(GTK_ENTRY(entry_name), TRUE);
 
-	gtkutils_add_label_entry(GTK_DIALOG(dialog)->vbox, _("Channel key (if any):"), &entry_key, NULL);
+	gtkutils_add_label_entry(gtk_dialog_get_content_area(GTK_DIALOG(dialog)), _("Channel key (if any):"), &entry_key, NULL);
 	gtk_entry_set_activates_default(GTK_ENTRY(entry_key), TRUE);
 
-	gtk_widget_show_all(GTK_DIALOG(dialog)->vbox);
+	gtk_widget_show_all(gtk_dialog_get_content_area(GTK_DIALOG(dialog)));
 	result = gtk_dialog_run(GTK_DIALOG(dialog));
 
 	if (result == GTK_RESPONSE_OK) {
@@ -121,13 +121,13 @@ command_dialog_private_talk(LoquiApp *app, LoquiAccount *account)
 
 	buf = g_strdup_printf(_("Start private talk with the user in %s"), loqui_channel_entry_get_name(LOQUI_CHANNEL_ENTRY(account)));
 	label = gtk_label_new(buf);
-	gtk_box_pack_start(GTK_BOX(GTK_DIALOG(dialog)->vbox), label, FALSE, FALSE, 0);
+	gtk_box_pack_start(GTK_BOX(gtk_dialog_get_content_area(GTK_DIALOG(dialog))), label, FALSE, FALSE, 0);
 	g_free(buf);
 
-	gtkutils_add_label_entry(GTK_DIALOG(dialog)->vbox, _("Nickname:"), &entry_name, NULL);
+	gtkutils_add_label_entry(gtk_dialog_get_content_area(GTK_DIALOG(dialog)), _("Nickname:"), &entry_name, NULL);
 	gtk_entry_set_activates_default(GTK_ENTRY(entry_name), TRUE);
 
-	gtk_widget_show_all(GTK_DIALOG(dialog)->vbox);
+	gtk_widget_show_all(gtk_dialog_get_content_area(GTK_DIALOG(dialog)));
 	result = gtk_dialog_run(GTK_DIALOG(dialog));
 
 	if (result == GTK_RESPONSE_OK) {
@@ -162,13 +162,13 @@ command_dialog_part(LoquiApp *app, LoquiAccount *account, LoquiChannel *channel)
 			      loqui_channel_entry_get_name(LOQUI_CHANNEL_ENTRY(account)));
 
 	label = gtk_label_new(buf);
-	gtk_box_pack_start(GTK_BOX(GTK_DIALOG(dialog)->vbox), label, FALSE, FALSE, 0);
+	gtk_box_pack_start(GTK_BOX(gtk_dialog_get_content_area(GTK_DIALOG(dialog))), label, FALSE, FALSE, 0);
 	g_free(buf);
 
-	gtkutils_add_label_entry(GTK_DIALOG(dialog)->vbox, _("Part message:"), &entry, NULL);
+	gtkutils_add_label_entry(gtk_dialog_get_content_area(GTK_DIALOG(dialog)), _("Part message:"), &entry, NULL);
 	gtk_entry_set_activates_default(GTK_ENTRY(entry), TRUE);
 
-	gtk_widget_show_all(GTK_DIALOG(dialog)->vbox);
+	gtk_widget_show_all(gtk_dialog_get_content_area(GTK_DIALOG(dialog)));
 	result = gtk_dialog_run(GTK_DIALOG(dialog));
 
 	if (result == GTK_RESPONSE_OK) {
@@ -206,13 +206,13 @@ command_dialog_topic(LoquiApp *app, LoquiAccount *account, LoquiChannel *channel
 			      loqui_channel_entry_get_name(LOQUI_CHANNEL_ENTRY(account)));
 
 	label = gtk_label_new(buf);
-	gtk_box_pack_start(GTK_BOX(GTK_DIALOG(dialog)->vbox), label, FALSE, FALSE, 0);
+	gtk_box_pack_start(GTK_BOX(gtk_dialog_get_content_area(GTK_DIALOG(dialog))), label, FALSE, FALSE, 0);
 	g_free(buf);
 
-	gtkutils_add_label_entry(GTK_DIALOG(dialog)->vbox, _("Topic:"), &entry, loqui_channel_entry_get_topic(LOQUI_CHANNEL_ENTRY(channel)));
+	gtkutils_add_label_entry(gtk_dialog_get_content_area(GTK_DIALOG(dialog)), _("Topic:"), &entry, loqui_channel_entry_get_topic(LOQUI_CHANNEL_ENTRY(channel)));
 	gtk_entry_set_activates_default(GTK_ENTRY(entry), TRUE);
 
-	gtk_widget_show_all(GTK_DIALOG(dialog)->vbox);
+	gtk_widget_show_all(gtk_dialog_get_content_area(GTK_DIALOG(dialog)));
 	result = gtk_dialog_run(GTK_DIALOG(dialog));
 
 	if (result == GTK_RESPONSE_OK) {
@@ -245,13 +245,13 @@ command_dialog_nick(LoquiApp *app, LoquiAccount *account)
 
 	buf = g_strdup_printf(_("New nickname of the account %s"), loqui_channel_entry_get_name(LOQUI_CHANNEL_ENTRY(account)));
 	label = gtk_label_new(buf);
-	gtk_box_pack_start(GTK_BOX(GTK_DIALOG(dialog)->vbox), label, FALSE, FALSE, 0);
+	gtk_box_pack_start(GTK_BOX(gtk_dialog_get_content_area(GTK_DIALOG(dialog))), label, FALSE, FALSE, 0);
 	g_free(buf);
 
-	gtkutils_add_label_entry(GTK_DIALOG(dialog)->vbox, _("Nickname:"), &entry, loqui_user_get_nick(loqui_account_get_user_self(account)));
+	gtkutils_add_label_entry(gtk_dialog_get_content_area(GTK_DIALOG(dialog)), _("Nickname:"), &entry, loqui_user_get_nick(loqui_account_get_user_self(account)));
 	gtk_entry_set_activates_default(GTK_ENTRY(entry), TRUE);
 
-	gtk_widget_show_all(GTK_DIALOG(dialog)->vbox);
+	gtk_widget_show_all(gtk_dialog_get_content_area(GTK_DIALOG(dialog)));
 	result = gtk_dialog_run(GTK_DIALOG(dialog));
 
 	if (result == GTK_RESPONSE_OK) {

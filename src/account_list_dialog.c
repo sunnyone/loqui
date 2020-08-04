@@ -304,7 +304,7 @@ account_list_dialog_new(LoquiAccountManager *manager, gboolean with_connect_butt
 			       NULL);
 
 	hbox = gtk_hbox_new(FALSE, 0);
-	gtk_box_pack_start(GTK_BOX(GTK_DIALOG(dialog)->vbox), hbox, TRUE, TRUE, 5);
+	gtk_box_pack_start(GTK_BOX(gtk_dialog_get_content_area(GTK_DIALOG(dialog))), hbox, TRUE, TRUE, 5);
 
 	scrolled_win = gtk_scrolled_window_new(NULL, NULL);
 	gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled_win), 
@@ -350,7 +350,7 @@ account_list_dialog_new(LoquiAccountManager *manager, gboolean with_connect_butt
 		gtk_dialog_add_button(GTK_DIALOG(dialog), 
 				      _("Connect"), ACCOUNT_LIST_DIALOG_RESPONSE_CONNECT);
 
-	gtk_widget_show_all(GTK_WIDGET(GTK_DIALOG(dialog)->vbox));
+	gtk_widget_show_all(gtk_dialog_get_content_area(GTK_DIALOG(dialog)));
 
 	account_list_update_button_status(dialog, selection);
 	return GTK_WIDGET(dialog);

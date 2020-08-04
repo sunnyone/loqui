@@ -52,7 +52,7 @@ class Loqui:Protocol:Selection:Dialog from Gtk:Message:Dialog
 		GtkCellRenderer *renderer;
 		GtkWidget *vbox;
 
-		vbox = GTK_DIALOG(self)->vbox;
+		vbox = gtk_dialog_get_content_area(GTK_DIALOG(self));
 
 		renderer = gtk_cell_renderer_text_new();
 		selfp->combobox = gtk_combo_box_new_with_model(GTK_TREE_MODEL(selfp->store));

@@ -413,7 +413,7 @@ class Loqui:Account:Dialog from Gtk:Dialog {
         			 G_CALLBACK(loqui_account_dialog_response_cb),
         			 self);
         
-        	vbox = GTK_DIALOG(self)->vbox;
+        	vbox = gtk_dialog_get_content_area(GTK_DIALOG(self));
         	
         	selfp->notebook = gtk_notebook_new();
         	gtk_box_pack_start(GTK_BOX(vbox), selfp->notebook, TRUE, TRUE, 0);

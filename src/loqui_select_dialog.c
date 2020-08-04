@@ -233,7 +233,7 @@ loqui_select_dialog_new(LoquiApp *app)
 			       GTK_STOCK_OK, GTK_RESPONSE_OK,
 			       NULL);
 
-	dialog_vbox = GTK_DIALOG(sdialog)->vbox;
+	dialog_vbox = gtk_dialog_get_content_area(GTK_DIALOG(sdialog));
 
 	hbox1 = gtk_hbox_new(FALSE, 0);
 	gtk_box_pack_start(GTK_BOX(dialog_vbox), hbox1, FALSE, FALSE, 5);
