@@ -49,9 +49,9 @@ gtkutils_msgbox_info(GtkMessageType icon, const gchar *format, ...)
 					GTK_BUTTONS_CLOSE,
 					"%s", buf);
 	
-	g_signal_connect_swapped (GTK_OBJECT (dialog), "response",
+	g_signal_connect_swapped (G_OBJECT (dialog), "response",
 				  G_CALLBACK (gtk_widget_destroy),
-				  GTK_OBJECT (dialog));
+				  G_OBJECT (dialog));
 	
 	gtk_widget_show_all(dialog);
 
@@ -427,7 +427,7 @@ gtkutils_get_default_font_desc(void)
                 gtk_widget_ensure_style(window);
                 font_desc = pango_font_description_copy
                         (gtk_widget_get_style(window)->font_desc);
-                gtk_object_sink(GTK_OBJECT(window));
+                g_object_ref_sink(window);
         }
 
         return pango_font_description_copy(font_desc);
