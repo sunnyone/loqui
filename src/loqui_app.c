@@ -649,7 +649,7 @@ loqui_app_new(LoquiAccountManager *account_manager)
 }
 
 	hpaned = gtk_hpaned_new();
-	gtk_box_pack_start_defaults(GTK_BOX(vbox), hpaned);
+	gtk_box_pack_start(GTK_BOX(vbox), hpaned, TRUE, TRUE, 0);
 
 	app->statusbar = loqui_statusbar_new(app,
 					     GTK_TOGGLE_ACTION(gtk_action_group_get_action(app->action_group, LOQUI_ACTION_TOGGLE_SCROLL_COMMON_BUFFER)));
@@ -665,7 +665,7 @@ loqui_app_new(LoquiAccountManager *account_manager)
 	app->channel_notebook = gtk_notebook_new();
 	gtk_notebook_set_show_tabs(GTK_NOTEBOOK(app->channel_notebook), FALSE);
 	gtk_notebook_set_show_border(GTK_NOTEBOOK(app->channel_notebook), FALSE);
-	gtk_box_pack_start_defaults(GTK_BOX(vbox), app->channel_notebook);
+	gtk_box_pack_start(GTK_BOX(vbox), app->channel_notebook, TRUE, TRUE, 0);
 
 	app->remark_entry = remark_entry_new(app, GTK_TOGGLE_ACTION(toggle_command_action));
 	gtk_box_pack_end(GTK_BOX(vbox), app->remark_entry, FALSE, FALSE, 0);
