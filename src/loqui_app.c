@@ -363,16 +363,18 @@ loqui_app_save_size(LoquiApp *app)
                                LOQUI_GENERAL_PREF_GTK_GROUP_SIZE, "WindowHeight",
                                height);
 	
+	GtkAllocation allocation;
+	gtk_widget_get_allocation(app->common_textview, &allocation);
 	loqui_pref_set_integer(loqui_get_general_pref(),
                                LOQUI_GENERAL_PREF_GTK_GROUP_SIZE, "CommonBufferHeight",
-                               app->common_textview->allocation.height);
+                               allocation.height);
 
 	loqui_pref_set_integer(loqui_get_general_pref(),
                                LOQUI_GENERAL_PREF_GTK_GROUP_SIZE, "ChannelTreeHeight",
-                               GTK_WIDGET(app->channel_tree)->allocation.height);
+                               allocation.height);
 	loqui_pref_set_integer(loqui_get_general_pref(),
                                LOQUI_GENERAL_PREF_GTK_GROUP_SIZE, "ChannelTreeWidth",
-                               GTK_WIDGET(app->channel_tree)->allocation.width);
+                               allocation.width);
 }
 static void
 loqui_app_restore_size(LoquiApp *app)
