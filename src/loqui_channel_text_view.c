@@ -313,7 +313,7 @@ loqui_channel_text_view_vadj_value_changed_cb(GtkAdjustment *adj, gpointer data)
 	chview = LOQUI_CHANNEL_TEXT_VIEW(data);
 
 	/* upper - page_size is max virtually. */
-	reached_to_end = (ABS(adj->upper - adj->page_size - adj->value) < EPS);
+	reached_to_end = (ABS(gtk_adjustment_get_upper(adj) - gtk_adjustment_get_page_size(adj) - gtk_adjustment_get_value(adj)) < EPS);
 
 	if (reached_to_end)
 		g_signal_emit(G_OBJECT(chview), channel_text_view_signals[SIGNAL_SCROLLED_TO_END], 0);
