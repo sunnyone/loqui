@@ -391,7 +391,7 @@ loqui_statusbar_new(LoquiApp *app, GtkToggleAction *toggle_scroll_common_buffer_
 	g_signal_connect(G_OBJECT(priv->button_nick), "clicked",
 			 G_CALLBACK(loqui_statusbar_nick_button_clicked_cb), statusbar);
 	gtk_button_set_relief(GTK_BUTTON(priv->button_nick), GTK_RELIEF_NONE);
-	gtk_tooltips_set_tip(app->tooltips, priv->button_nick, _("Change nick"), NULL);
+	gtk_widget_set_tooltip_text(priv->button_nick, _("Change nick"));
 	gtk_box_pack_start(GTK_BOX(priv->dbox_preset), priv->button_nick, FALSE, FALSE, 0);
 
 	priv->label_nick = gtk_label_new("");
@@ -414,7 +414,7 @@ loqui_statusbar_new(LoquiApp *app, GtkToggleAction *toggle_scroll_common_buffer_
 	gtk_widget_show(image);
 	gtk_button_set_focus_on_click(GTK_BUTTON(priv->toggle_scroll_common_buffer), FALSE);
 	g_object_get(G_OBJECT(toggle_scroll_common_buffer_action), "tooltip", &text, NULL);
-	gtk_tooltips_set_tip(app->tooltips, priv->toggle_scroll_common_buffer, text, NULL);
+	gtk_widget_set_tooltip_text(priv->toggle_scroll_common_buffer, text);
 
 	gtk_box_pack_start(GTK_BOX(statusbar), priv->toggle_scroll_common_buffer, FALSE, FALSE, 0);
 

@@ -288,7 +288,7 @@ remark_entry_new(LoquiApp *app, GtkToggleAction *toggle_command_action)
 	gtkutils_bin_remove_child_if_exist(GTK_BIN((priv->toggle_command)));
 	gtk_button_set_focus_on_click(GTK_BUTTON(priv->toggle_command), FALSE);
 	g_object_get(G_OBJECT(toggle_command_action), "tooltip", &text, NULL);
-	gtk_tooltips_set_tip(app->tooltips, priv->toggle_command, text, NULL);
+	gtk_widget_set_tooltip_text(priv->toggle_command, text);
 
 	image = gtk_image_new_from_stock(LOQUI_STOCK_COMMAND, GTK_ICON_SIZE_BUTTON);
 	gtk_container_add(GTK_CONTAINER(priv->toggle_command), image);
@@ -333,7 +333,7 @@ remark_entry_new(LoquiApp *app, GtkToggleAction *toggle_command_action)
 			 G_CALLBACK(remark_entry_ok_clicked_cb), remark_entry);
 	g_signal_connect_swapped(G_OBJECT(priv->button_ok), "clicked",
 				 G_CALLBACK(remark_entry_grab_focus), remark_entry);
-	gtk_tooltips_set_tip(app->tooltips, priv->button_ok, _("Send message (Shift+Enter)"), NULL);
+	gtk_widget_set_tooltip_text(priv->button_ok, _("Send message (Shift+Enter)"));
 	gtk_box_pack_start(GTK_BOX(priv->hbox_text), priv->button_ok, FALSE, FALSE, 0);
 
 
@@ -342,7 +342,7 @@ remark_entry_new(LoquiApp *app, GtkToggleAction *toggle_command_action)
 	gtk_container_add(GTK_CONTAINER(priv->button_notice), image);
 	g_signal_connect(G_OBJECT(priv->button_notice), "clicked",
 			 G_CALLBACK(remark_entry_notice_clicked_cb), remark_entry);
-	gtk_tooltips_set_tip(app->tooltips, priv->button_notice, _("Send message with NOTICE command (Ctrl+Enter)"), NULL);
+	gtk_widget_set_tooltip_text(priv->button_notice, _("Send message with NOTICE command (Ctrl+Enter)"));
 	gtk_button_set_focus_on_click(GTK_BUTTON(priv->button_notice), FALSE);
 	gtk_box_pack_start(GTK_BOX(hbox), priv->button_notice, FALSE, FALSE, 0);
 
@@ -352,7 +352,7 @@ remark_entry_new(LoquiApp *app, GtkToggleAction *toggle_command_action)
 	priv->toggle_multiline_toggled_id = g_signal_connect(G_OBJECT(priv->toggle_multiline), "toggled",
 						  	     G_CALLBACK(remark_entry_entry_multiline_toggled_cb), remark_entry);
 	gtk_button_set_focus_on_click(GTK_BUTTON(priv->toggle_multiline), FALSE);
-	gtk_tooltips_set_tip(app->tooltips, priv->toggle_multiline, _("Toggle multiline mode"), NULL);
+	gtk_widget_set_tooltip_text(priv->toggle_multiline, _("Toggle multiline mode"));
 	gtk_box_pack_start(GTK_BOX(hbox), priv->toggle_multiline, FALSE, FALSE, 0);
 
 	/* TODO: color palette

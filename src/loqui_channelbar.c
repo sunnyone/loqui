@@ -206,7 +206,7 @@ loqui_channelbar_new(LoquiApp *app, GtkWidget *menu_dropdown, GtkToggleAction *t
 	gtk_box_pack_start(GTK_BOX(priv->dbox_buffers), priv->button_channel, FALSE, FALSE, 0);
 	g_signal_connect(G_OBJECT(priv->button_channel), "clicked",
 			 G_CALLBACK(loqui_channelbar_channel_button_clicked_cb), channelbar);
-	gtk_tooltips_set_tip(app->tooltips, priv->button_channel, _("Join a channel with the current account"), NULL);
+	gtk_widget_set_tooltip_text(priv->button_channel, _("Join a channel with the current account"));
 
 	priv->label_channel_mode = gtk_label_new("");
 	gtk_box_pack_start(GTK_BOX(channelbar), priv->label_channel_mode, 0, 0, FALSE);
@@ -229,7 +229,7 @@ loqui_channelbar_new(LoquiApp *app, GtkWidget *menu_dropdown, GtkToggleAction *t
 	gtk_container_add(GTK_CONTAINER(priv->button_ok), image);
 	gtk_box_pack_start(GTK_BOX(channelbar), priv->button_ok, FALSE, FALSE, 0);
 	gtk_widget_set_sensitive(priv->button_ok, FALSE);
-	gtk_tooltips_set_tip(app->tooltips, priv->button_ok, _("Update the topic"), NULL);
+	gtk_widget_set_tooltip_text(priv->button_ok, _("Update the topic"));
 
 	priv->entry_changed = FALSE;
 
@@ -241,7 +241,7 @@ loqui_channelbar_new(LoquiApp *app, GtkWidget *menu_dropdown, GtkToggleAction *t
 	gtk_widget_show(image);
 	gtk_button_set_focus_on_click(GTK_BUTTON(priv->toggle_scroll), FALSE);
 	g_object_get(G_OBJECT(toggle_scroll_action), "tooltip", &text, NULL);
-	gtk_tooltips_set_tip(app->tooltips, priv->toggle_scroll, text, NULL);
+	gtk_widget_set_tooltip_text(priv->toggle_scroll, text);
 	gtk_box_pack_start(GTK_BOX(channelbar), priv->toggle_scroll, FALSE, FALSE, 0);
 
 	return GTK_WIDGET(channelbar);
