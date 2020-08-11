@@ -343,14 +343,16 @@ loqui_statusbar_new(LoquiApp *app, GtkToggleAction *toggle_scroll_common_buffer_
 	GtkWidget *vsep;
 	GtkWidget *hbox_away;
 	GtkWidget *image;
+	GtkWidget *message_area;
 	gchar *text;
-
+	
 	statusbar = g_object_new(loqui_statusbar_get_type(), NULL);
 	priv = statusbar->priv;
 
 	priv->app = app;
 
-	gtk_label_set_selectable(GTK_LABEL(gtk_statusbar_get_message_area(GTK_STATUSBAR(statusbar))), TRUE);
+	message_area = gtk_statusbar_get_message_area(GTK_STATUSBAR(statusbar));
+	gtk_label_set_selectable(GTK_LABEL(gtk_container_get_children(message_area)->data), TRUE);
 
 	vsep = gtk_vseparator_new();
 	gtk_box_pack_start(GTK_BOX(statusbar), vsep, FALSE, FALSE, 2);
