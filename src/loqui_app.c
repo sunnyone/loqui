@@ -365,18 +365,15 @@ loqui_app_save_size(LoquiApp *app)
                                LOQUI_GENERAL_PREF_GTK_GROUP_SIZE, "WindowHeight",
                                height);
 
-	GtkAllocation allocation;
-	gtk_widget_get_allocation(app->common_textview, &allocation);
 	loqui_pref_set_integer(loqui_get_general_pref(),
-                               LOQUI_GENERAL_PREF_GTK_GROUP_SIZE, "CommonBufferHeight",
-                               allocation.height);
-
+                               LOQUI_GENERAL_PREF_GTK_GROUP_SIZE, "HPanedPosition",
+                               gtk_paned_get_position(priv->hpaned));
 	loqui_pref_set_integer(loqui_get_general_pref(),
-                               LOQUI_GENERAL_PREF_GTK_GROUP_SIZE, "ChannelTreeHeight",
-                               allocation.height);
+                               LOQUI_GENERAL_PREF_GTK_GROUP_SIZE, "VPanedLeftPosition",
+                               gtk_paned_get_position(priv->vpaned_left));
 	loqui_pref_set_integer(loqui_get_general_pref(),
-                               LOQUI_GENERAL_PREF_GTK_GROUP_SIZE, "ChannelTreeWidth",
-                               allocation.width);
+                               LOQUI_GENERAL_PREF_GTK_GROUP_SIZE, "VPanedRightPosition",
+                               gtk_paned_get_position(priv->vpaned_right));
 }
 static void
 loqui_app_restore_size(LoquiApp *app)
@@ -395,18 +392,18 @@ loqui_app_restore_size(LoquiApp *app)
 									LOQUI_GENERAL_PREF_GTK_GROUP_SIZE, "WindowHeight",
 									LOQUI_GENERAL_PREF_GTK_DEFAULT_SIZE_WINDOW_HEIGHT, NULL));
 
-	gtk_widget_set_size_request(app->common_textview, -1,
-			     loqui_pref_get_with_default_integer(loqui_get_general_pref(),
-								 LOQUI_GENERAL_PREF_GTK_GROUP_SIZE, "CommonBufferHeight",
-								 LOQUI_GENERAL_PREF_GTK_DEFAULT_SIZE_COMMON_BUFFER_HEIGHT, NULL));
-
-	gtk_widget_set_size_request(GTK_WIDGET(app->channel_tree),
-			     loqui_pref_get_with_default_integer(loqui_get_general_pref(),
-								 LOQUI_GENERAL_PREF_GTK_GROUP_SIZE, "ChannelTreeWidth",
-								 LOQUI_GENERAL_PREF_GTK_DEFAULT_SIZE_CHANNEL_TREE_WIDTH, NULL),
-			     loqui_pref_get_with_default_integer(loqui_get_general_pref(),
-								 LOQUI_GENERAL_PREF_GTK_GROUP_SIZE, "ChannelTreeHeight",
-								 LOQUI_GENERAL_PREF_GTK_DEFAULT_SIZE_CHANNEL_TREE_HEIGHT, NULL));
+	gtk_paned_set_position(priv->hpaned,
+			       loqui_pref_get_with_default_integer(loqui_get_general_pref(),
+								   LOQUI_GENERAL_PREF_GTK_GROUP_SIZE, "HPanedPosition",
+								   LOQUI_GENERAL_PREF_GTK_DEFAULT_SIZE_HPANED_POSITION, NULL));
+	gtk_paned_set_position(priv->vpaned_left,
+			       loqui_pref_get_with_default_integer(loqui_get_general_pref(),
+								   LOQUI_GENERAL_PREF_GTK_GROUP_SIZE, "VPanedLeftPosition",
+								   LOQUI_GENERAL_PREF_GTK_DEFAULT_SIZE_VPANED_LEFT_POSITION, NULL));
+	gtk_paned_set_position(priv->vpaned_right,
+			       loqui_pref_get_with_default_integer(loqui_get_general_pref(),
+								   LOQUI_GENERAL_PREF_GTK_GROUP_SIZE, "VPanedRightPosition",
+								   LOQUI_GENERAL_PREF_GTK_DEFAULT_SIZE_VPANED_RIGHT_POSITION, NULL));
 }
 
 static void
