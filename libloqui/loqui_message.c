@@ -1,6 +1,6 @@
 /* -*- Mode: C; tab-width: 8; indent-tabs-mode: t; c-basic-offset: 8 -*- */
 /*
- * libloqui -- Chat/IM library with GNet/GObject <http://launchpad.net/loqui/>
+ * libloqui -- Chat/IM client library for GLib
  * Copyright (C) 2004 Yoichi Imai <sunnyone41@gmail.com>
  *
  * This Library is free software; you can redistribute it and/or

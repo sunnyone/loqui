@@ -1,11 +1,11 @@
 /* -*- Mode: C; tab-width: 8; indent-tabs-mode: t; c-basic-offset: 8 -*- */
 /*
- * Loqui StringTokenizer Utility <http://launchpad.net/loqui/>
+ * Loqui StringTokenizer Utility
  * Copyright (C) 2004 Yoichi Imai <sunnyone41@gmail.com>
  *
  * You can use LoquiStringTokenizer on these conditions.
  * (in GPL/LGPL program, LoquiStringTokenizer follows GPL/LGPL.)
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
  * are met:
@@ -48,7 +48,7 @@ loqui_string_tokenizer_new(const gchar *str, const gchar *delimiters)
 	st->orig_ptr = g_strdup(str);
 	st->delimiters = g_strdup(delimiters);
 	st->cur = st->orig_ptr;
-	
+
 	st->delimiter = '\0';
 	st->delimiter_peek = '\0';
 	st->next_token_peek = NULL;
@@ -83,7 +83,7 @@ loqui_string_tokenizer_set_delimiters(LoquiStringTokenizer *st, const gchar *del
 
 	g_free(st->next_token_peek);
 	st->next_token_peek = NULL;
-	
+
 	g_free(st->next_token);
 	st->next_token = NULL;
 
@@ -209,7 +209,7 @@ loqui_string_tokenizer_count_tokens(LoquiStringTokenizer *st)
 	while (tmp != '\0' && (tmp = strpbrk(tmp, st->delimiters)) != NULL) {
 		count++;
 		tmp++;
-	} 
+	}
 
 	return count;
 }
