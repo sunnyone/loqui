@@ -90,6 +90,10 @@ struct _LoquiAppPrivate
 	LoquiChannelEntryActionGroupUI *trayicon_ui;
 
 	GCompareFunc sort_func;
+
+	GtkPaned *hpaned;
+	GtkPaned *vpaned_left;
+	GtkPaned *vpaned_right;
 };
 
 static GtkWindowClass *parent_class = NULL;
@@ -572,8 +576,6 @@ loqui_app_new(LoquiAccountManager *account_manager)
 	GtkWidget *nick_list;
 
 	GtkWidget *vbox;
-	GtkWidget *hpaned;
-	GtkWidget *vpaned;
 	GtkWidget *scrolled_win;
 
 	GtkWidget *menu_channelbar;
@@ -644,19 +646,19 @@ loqui_app_new(LoquiAccountManager *account_manager)
 	gtk_container_add(GTK_CONTAINER(s), w); \
 }
 
-	hpaned = gtk_hpaned_new();
-	gtk_box_pack_start(GTK_BOX(vbox), hpaned, TRUE, TRUE, 0);
+	priv->hpaned = gtk_hpaned_new();
+	gtk_box_pack_start(GTK_BOX(vbox), priv->hpaned, TRUE, TRUE, 0);
 
 	app->statusbar = loqui_statusbar_new(app,
 					     GTK_TOGGLE_ACTION(gtk_action_group_get_action(app->action_group, LOQUI_ACTION_TOGGLE_SCROLL_COMMON_BUFFER)));
 	gtk_box_pack_start(GTK_BOX(vbox), app->statusbar, FALSE, FALSE, 1);
 
 	/* left side */
-	vpaned = gtk_vpaned_new();
-	gtk_paned_pack1(GTK_PANED(hpaned), vpaned, TRUE, TRUE);
+	priv->vpaned_left = gtk_vpaned_new();
+	gtk_paned_pack1(GTK_PANED(priv->hpaned), priv->vpaned_left, TRUE, TRUE);
 
 	vbox = gtk_vbox_new(FALSE, 0);
-	gtk_paned_pack1(GTK_PANED(vpaned), vbox, TRUE, TRUE);
+	gtk_paned_pack1(GTK_PANED(priv->vpaned_left), vbox, TRUE, TRUE);
 
 	app->channel_notebook = gtk_notebook_new();
 	gtk_notebook_set_show_tabs(GTK_NOTEBOOK(app->channel_notebook), FALSE);
@@ -673,16 +675,16 @@ loqui_app_new(LoquiAccountManager *account_manager)
 											      LOQUI_GENERAL_PREF_GTK_DEFAULT_GENERAL_AUTO_SWITCH_SCROLLING_COMMON_BUFFER, NULL));
 	g_signal_connect(G_OBJECT(app->common_textview), "notify::is-scroll",
 			 G_CALLBACK(loqui_app_channel_text_view_notify_is_scroll_common_buffer_cb), app);
-	gtk_paned_pack2(GTK_PANED(vpaned), LOQUI_CHANNEL_TEXT_VIEW(app->common_textview)->scrolled_window, FALSE, TRUE);
+	gtk_paned_pack2(GTK_PANED(priv->vpaned_left), LOQUI_CHANNEL_TEXT_VIEW(app->common_textview)->scrolled_window, FALSE, TRUE);
 
 	/* right side */
-	vpaned = gtk_vpaned_new();
-	gtk_paned_pack2(GTK_PANED(hpaned), vpaned, FALSE, TRUE);
+	priv->vpaned_right = gtk_vpaned_new();
+	gtk_paned_pack2(GTK_PANED(priv->hpaned), priv->vpaned_right, FALSE, TRUE);
 
 	menu_nick_list = gtk_ui_manager_get_widget(app->ui_manager, "/NickListPopup");
 	nick_list = nick_list_new(app, menu_nick_list);
 	SET_SCROLLED_WINDOW(scrolled_win, nick_list, GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
-	gtk_paned_pack1(GTK_PANED(vpaned), scrolled_win, TRUE, TRUE);
+	gtk_paned_pack1(GTK_PANED(priv->vpaned_right), scrolled_win, TRUE, TRUE);
 
 	manager_store = loqui_account_manager_store_new(loqui_app_get_account_manager(app));
 
@@ -692,7 +694,7 @@ loqui_app_new(LoquiAccountManager *account_manager)
 					GTK_MENU(gtk_ui_manager_get_widget(app->ui_manager, "/PrivateTalkPopup")));
 	gtk_tree_view_set_model(GTK_TREE_VIEW(channel_tree), GTK_TREE_MODEL(manager_store));
 	SET_SCROLLED_WINDOW(scrolled_win, channel_tree, GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
-	gtk_paned_pack2(GTK_PANED(vpaned), scrolled_win, FALSE, TRUE);
+	gtk_paned_pack2(GTK_PANED(priv->vpaned_right), scrolled_win, FALSE, TRUE);
 
 	app->channel_tree = CHANNEL_TREE(channel_tree);
 	app->nick_list = NICK_LIST(nick_list);
