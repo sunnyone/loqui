@@ -771,7 +771,8 @@ loqui_channel_text_view_new(LoquiApp *app)
 	priv->app = app;
 
 	chview->scrolled_window = gtk_scrolled_window_new(NULL, NULL);
-        gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(chview->scrolled_window), GTK_POLICY_NEVER, GTK_POLICY_ALWAYS);
+	// FIXME: horizontal scrollbar policy should be NEVER, but it seems not to work with GtkPaned
+        gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(chview->scrolled_window), GTK_POLICY_AUTOMATIC, GTK_POLICY_ALWAYS);
 	gtk_container_add(GTK_CONTAINER(chview->scrolled_window), GTK_WIDGET(chview));
 
 	g_signal_connect(G_OBJECT(gtk_scrollable_get_vadjustment(chview)), "value-changed",
