@@ -134,7 +134,9 @@ class Loqui:Transfer:Window from Gtk:Window {
 		
 		self = GET_NEW;
         
-        	gtk_window_set_policy(GTK_WINDOW(self), TRUE, TRUE, TRUE);
+        	gtk_widget_set_size_request(self, 0, 0);
+			gtk_window_set_resizable(GTK_WINDOW (self), TRUE);
+
         	gtk_window_set_title(GTK_WINDOW(self), _("Loqui - File Transfer Manager"));
         
         	vbox1 = gtk_vbox_new(FALSE, 0);

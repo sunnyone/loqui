@@ -72,8 +72,6 @@
 
 struct _LoquiAppPrivate
 {
-	GtkWidget *handlebox_channelbar;
-
 	LoquiMessageText *last_msgtext;
 	LoquiChannelBufferGtk *common_buffer;
 
@@ -90,8 +88,12 @@ struct _LoquiAppPrivate
 	LoquiChannelEntryActionGroupUI *buffers_ui;
 	LoquiChannelEntryActionGroupUI *channelbar_ui;
 	LoquiChannelEntryActionGroupUI *trayicon_ui;
-	
+
 	GCompareFunc sort_func;
+
+	GtkPaned *hpaned;
+	GtkPaned *vpaned_left;
+	GtkPaned *vpaned_right;
 };
 
 static GtkWindowClass *parent_class = NULL;
@@ -100,7 +102,7 @@ static GtkWindowClass *parent_class = NULL;
 static void loqui_app_class_init(LoquiAppClass *klass);
 static void loqui_app_init(LoquiApp *app);
 static void loqui_app_finalize(GObject *object);
-static void loqui_app_destroy(GtkObject *object);
+static void loqui_app_destroy(GtkWidget *widget);
 static gboolean loqui_app_delete_event(GtkWidget *widget, GdkEventAny *event);
 static gboolean loqui_app_focus_in_event(GtkWidget *widget, GdkEventFocus *event);
 static gboolean loqui_app_focus_out_event(GtkWidget *widget, GdkEventFocus *event);
@@ -150,32 +152,31 @@ loqui_app_get_type(void)
 				0,              /* n_preallocs */
 				(GInstanceInitFunc) loqui_app_init
 			};
-		
+
 		type = g_type_register_static(PARENT_TYPE,
 					      "LoquiApp",
 					      &our_info,
 					      0);
 	}
-	
+
 	return type;
 }
 static void
 loqui_app_class_init(LoquiAppClass *klass)
 {
         GObjectClass *object_class = G_OBJECT_CLASS(klass);
-        GtkObjectClass *gtk_object_class = GTK_OBJECT_CLASS(klass);
 	GtkWidgetClass *gtk_widget_class = GTK_WIDGET_CLASS(klass);
 
         parent_class = g_type_class_peek_parent(klass);
-	
+
         object_class->finalize = loqui_app_finalize;
-	gtk_object_class->destroy = loqui_app_destroy;
+	gtk_widget_class->destroy = loqui_app_destroy;
 	gtk_widget_class->delete_event = loqui_app_delete_event;
 	gtk_widget_class->focus_in_event = loqui_app_focus_in_event;
 	gtk_widget_class->focus_out_event = loqui_app_focus_out_event;
 	gtk_widget_class->visibility_notify_event = loqui_app_visibility_notify_event;
 }
-static void 
+static void
 loqui_app_init(LoquiApp *app)
 {
 	LoquiAppPrivate *priv;
@@ -186,24 +187,24 @@ loqui_app_init(LoquiApp *app)
         gtk_widget_add_events(GTK_WIDGET(app), GDK_VISIBILITY_NOTIFY_MASK);
 }
 static void
-loqui_app_destroy(GtkObject *object)
+loqui_app_destroy(GtkWidget *widget)
 {
 	LoquiApp *app;
 	LoquiAppPrivate *priv;
 
-        g_return_if_fail(object != NULL);
-        g_return_if_fail(LOQUI_IS_APP(object));
+        g_return_if_fail(widget != NULL);
+        g_return_if_fail(LOQUI_IS_APP(widget));
 
-	app = LOQUI_APP(object);
+	app = LOQUI_APP(widget);
 	priv = app->priv;
 
 	LOQUI_G_OBJECT_UNREF_UNLESS_NULL(priv->ppref_channel_buffer);
 
-	if (GTK_OBJECT_CLASS(parent_class)->destroy)
-                (* GTK_OBJECT_CLASS(parent_class)->destroy) (object);
+	if (GTK_WIDGET_CLASS(parent_class)->destroy)
+                (* GTK_WIDGET_CLASS(parent_class)->destroy) (widget);
 
-}	
-static void 
+}
+static void
 loqui_app_finalize(GObject *object)
 {
 	LoquiApp *app;
@@ -214,7 +215,7 @@ loqui_app_finalize(GObject *object)
 
         app = LOQUI_APP(object);
 	priv = app->priv;
-	
+
 	if(priv->common_buffer) {
 		g_object_unref(priv->common_buffer);
 		priv->common_buffer = NULL;
@@ -272,11 +273,11 @@ loqui_app_focus_in_event(GtkWidget *widget, GdkEventFocus *event)
 
 	app = LOQUI_APP(widget);
 	priv = app->priv;
-	
+
 	priv->has_toplevel_focus = TRUE;
 
 	loqui_tray_icon_set_hilighted(app->tray_icon, FALSE);
-	
+
 	if (GTK_WIDGET_CLASS(parent_class)->focus_in_event)
                return (* GTK_WIDGET_CLASS(parent_class)->focus_in_event) (widget, event);
 
@@ -363,17 +364,16 @@ loqui_app_save_size(LoquiApp *app)
 	loqui_pref_set_integer(loqui_get_general_pref(),
                                LOQUI_GENERAL_PREF_GTK_GROUP_SIZE, "WindowHeight",
                                height);
-	
-	loqui_pref_set_integer(loqui_get_general_pref(),
-                               LOQUI_GENERAL_PREF_GTK_GROUP_SIZE, "CommonBufferHeight",
-                               app->common_textview->allocation.height);
 
 	loqui_pref_set_integer(loqui_get_general_pref(),
-                               LOQUI_GENERAL_PREF_GTK_GROUP_SIZE, "ChannelTreeHeight",
-                               GTK_WIDGET(app->channel_tree)->allocation.height);
+                               LOQUI_GENERAL_PREF_GTK_GROUP_SIZE, "HPanedPosition",
+                               gtk_paned_get_position(priv->hpaned));
 	loqui_pref_set_integer(loqui_get_general_pref(),
-                               LOQUI_GENERAL_PREF_GTK_GROUP_SIZE, "ChannelTreeWidth",
-                               GTK_WIDGET(app->channel_tree)->allocation.width);
+                               LOQUI_GENERAL_PREF_GTK_GROUP_SIZE, "VPanedLeftPosition",
+                               gtk_paned_get_position(priv->vpaned_left));
+	loqui_pref_set_integer(loqui_get_general_pref(),
+                               LOQUI_GENERAL_PREF_GTK_GROUP_SIZE, "VPanedRightPosition",
+                               gtk_paned_get_position(priv->vpaned_right));
 }
 static void
 loqui_app_restore_size(LoquiApp *app)
@@ -392,18 +392,18 @@ loqui_app_restore_size(LoquiApp *app)
 									LOQUI_GENERAL_PREF_GTK_GROUP_SIZE, "WindowHeight",
 									LOQUI_GENERAL_PREF_GTK_DEFAULT_SIZE_WINDOW_HEIGHT, NULL));
 
-	gtk_widget_set_usize(app->common_textview, -1,
-			     loqui_pref_get_with_default_integer(loqui_get_general_pref(),
-								 LOQUI_GENERAL_PREF_GTK_GROUP_SIZE, "CommonBufferHeight",
-								 LOQUI_GENERAL_PREF_GTK_DEFAULT_SIZE_COMMON_BUFFER_HEIGHT, NULL));
-
-	gtk_widget_set_usize(GTK_WIDGET(app->channel_tree),
-			     loqui_pref_get_with_default_integer(loqui_get_general_pref(),
-								 LOQUI_GENERAL_PREF_GTK_GROUP_SIZE, "ChannelTreeWidth",
-								 LOQUI_GENERAL_PREF_GTK_DEFAULT_SIZE_CHANNEL_TREE_WIDTH, NULL),
-			     loqui_pref_get_with_default_integer(loqui_get_general_pref(),
-								 LOQUI_GENERAL_PREF_GTK_GROUP_SIZE, "ChannelTreeHeight",
-								 LOQUI_GENERAL_PREF_GTK_DEFAULT_SIZE_CHANNEL_TREE_HEIGHT, NULL));
+	gtk_paned_set_position(priv->hpaned,
+			       loqui_pref_get_with_default_integer(loqui_get_general_pref(),
+								   LOQUI_GENERAL_PREF_GTK_GROUP_SIZE, "HPanedPosition",
+								   LOQUI_GENERAL_PREF_GTK_DEFAULT_SIZE_HPANED_POSITION, NULL));
+	gtk_paned_set_position(priv->vpaned_left,
+			       loqui_pref_get_with_default_integer(loqui_get_general_pref(),
+								   LOQUI_GENERAL_PREF_GTK_GROUP_SIZE, "VPanedLeftPosition",
+								   LOQUI_GENERAL_PREF_GTK_DEFAULT_SIZE_VPANED_LEFT_POSITION, NULL));
+	gtk_paned_set_position(priv->vpaned_right,
+			       loqui_pref_get_with_default_integer(loqui_get_general_pref(),
+								   LOQUI_GENERAL_PREF_GTK_GROUP_SIZE, "VPanedRightPosition",
+								   LOQUI_GENERAL_PREF_GTK_DEFAULT_SIZE_VPANED_RIGHT_POSITION, NULL));
 }
 
 static void
@@ -413,7 +413,7 @@ loqui_app_channel_text_view_scrolled_to_end_cb(LoquiChannelTextView *chview, Loq
         g_return_if_fail(LOQUI_IS_CHANNEL_TEXT_VIEW(chview));
         g_return_if_fail(chent != NULL);
         g_return_if_fail(LOQUI_IS_CHANNEL_ENTRY(chent));
-	
+
 	loqui_channel_entry_set_as_read(chent);
 }
 static void
@@ -435,23 +435,23 @@ loqui_app_grab_focus_if_key_unused(LoquiApp *app, const gchar *class_name, GdkEv
 	guint modifiers = event->state;
 
 	switch (event->keyval) {
-	case GDK_Shift_L:
-	case GDK_Shift_R:
-	case GDK_Control_L:
-	case GDK_Control_R:
-	case GDK_Caps_Lock:
-	case GDK_Shift_Lock:
-	case GDK_Meta_L:
-	case GDK_Meta_R:
-	case GDK_Alt_L:
-	case GDK_Alt_R:
-	case GDK_Super_L:
-	case GDK_Super_R:
-	case GDK_Hyper_L:
-	case GDK_Hyper_R: /* FIXME: modifiers. enough? */
-	case GDK_ISO_Left_Tab: /* FIXME: if this doesn't exist, shift + tab does not work... */
-	case GDK_Tab:
-	case GDK_Menu: /* Application key opens context menu */
+	case GDK_KEY_Shift_L:
+	case GDK_KEY_Shift_R:
+	case GDK_KEY_Control_L:
+	case GDK_KEY_Control_R:
+	case GDK_KEY_Caps_Lock:
+	case GDK_KEY_Shift_Lock:
+	case GDK_KEY_Meta_L:
+	case GDK_KEY_Meta_R:
+	case GDK_KEY_Alt_L:
+	case GDK_KEY_Alt_R:
+	case GDK_KEY_Super_L:
+	case GDK_KEY_Super_R:
+	case GDK_KEY_Hyper_L:
+	case GDK_KEY_Hyper_R: /* FIXME: modifiers. enough? */
+	case GDK_KEY_ISO_Left_Tab: /* FIXME: if this doesn't exist, shift + tab does not work... */
+	case GDK_KEY_Tab:
+	case GDK_KEY_Menu: /* Application key opens context menu */
 		found = TRUE;
 		break;
 	default:
@@ -459,7 +459,7 @@ loqui_app_grab_focus_if_key_unused(LoquiApp *app, const gchar *class_name, GdkEv
 	}
 	if (!found) {
 		gtk_widget_grab_focus(app->remark_entry);
-		if (event->keyval != GDK_space) { /* FIXME: entry is activated when space is pressed  ... */
+		if (event->keyval != GDK_KEY_space) { /* FIXME: entry is activated when space is pressed  ... */
 			gtk_widget_event(REMARK_ENTRY(app->remark_entry)->entry, (GdkEvent *) event);
 		}
 	}
@@ -496,7 +496,7 @@ loqui_app_account_notify_is_connected_cb_for_quit(LoquiAccount *account, GParamS
 	g_return_if_fail(loqui_account_get_is_connected(account) == FALSE);
 
 	priv = app->priv;
-	
+
 	priv->remained_account_num--;
 
 	if (priv->remained_account_num <= 0) {
@@ -535,7 +535,7 @@ loqui_app_disconnect_all_account_for_quit(LoquiApp *app)
 
 	for (cur = list; cur != NULL; cur = cur->next) {
 		account = LOQUI_ACCOUNT(cur->data);
-		
+
 		if (!loqui_account_get_is_connected(account))
 			continue;
 
@@ -573,10 +573,8 @@ loqui_app_new(LoquiAccountManager *account_manager)
 	GtkWidget *nick_list;
 
 	GtkWidget *vbox;
-	GtkWidget *hpaned;
-	GtkWidget *vpaned;
 	GtkWidget *scrolled_win;
-	
+
 	GtkWidget *menu_channelbar;
 	GtkWidget *menu_nick_list;
 
@@ -592,7 +590,8 @@ loqui_app_new(LoquiAccountManager *account_manager)
 
 	app->appinfo = loqui_app_info_new(app);
 
-	gtk_window_set_policy(GTK_WINDOW (app), TRUE, TRUE, TRUE);
+	gtk_widget_set_size_request(app, 0, 0);
+	gtk_window_set_resizable(GTK_WINDOW (app), TRUE);
 
 	/* set icon */
 	if((loqui_icon = gdk_pixbuf_new_from_inline(-1, loqui_pixbuf, FALSE, NULL)) == NULL)
@@ -626,10 +625,6 @@ loqui_app_new(LoquiAccountManager *account_manager)
 	gtk_ui_manager_ensure_update(app->ui_manager);
 	gtk_box_pack_start(GTK_BOX(vbox), gtk_ui_manager_get_widget(app->ui_manager, "/menubar"), FALSE, FALSE, 0);
 
-	app->tooltips = gtk_tooltips_new();
-
-	priv->handlebox_channelbar = gtk_handle_box_new();
-	gtk_box_pack_start(GTK_BOX(vbox), priv->handlebox_channelbar, FALSE, FALSE, 0);
 
 	priv->buffers_ui = loqui_channel_entry_action_group_ui_new(app->channel_entry_action_group, app->ui_manager, "/menubar/Buffers");
 	priv->channelbar_ui = loqui_channel_entry_action_group_ui_new(app->channel_entry_action_group, app->ui_manager, "/ChannelListPopup");
@@ -638,7 +633,7 @@ loqui_app_new(LoquiAccountManager *account_manager)
 	menu_channelbar = loqui_channel_entry_action_group_ui_get_widget(priv->channelbar_ui);
 	app->channelbar = loqui_channelbar_new(app, menu_channelbar,
 					       GTK_TOGGLE_ACTION(gtk_action_group_get_action(app->action_group, LOQUI_ACTION_TOGGLE_SCROLL)));
-	gtk_container_add(GTK_CONTAINER(priv->handlebox_channelbar), app->channelbar);
+	gtk_box_pack_start(GTK_BOX(vbox), app->channelbar, FALSE, FALSE, 0);
 
 #define SET_SCROLLED_WINDOW(s, w, vpolicy, hpolicy) \
 { \
@@ -648,24 +643,24 @@ loqui_app_new(LoquiAccountManager *account_manager)
 	gtk_container_add(GTK_CONTAINER(s), w); \
 }
 
-	hpaned = gtk_hpaned_new();
-	gtk_box_pack_start_defaults(GTK_BOX(vbox), hpaned);
+	priv->hpaned = gtk_hpaned_new();
+	gtk_box_pack_start(GTK_BOX(vbox), priv->hpaned, TRUE, TRUE, 0);
 
 	app->statusbar = loqui_statusbar_new(app,
 					     GTK_TOGGLE_ACTION(gtk_action_group_get_action(app->action_group, LOQUI_ACTION_TOGGLE_SCROLL_COMMON_BUFFER)));
-	gtk_box_pack_start(GTK_BOX(vbox), app->statusbar, FALSE, FALSE, 1);	
-	
+	gtk_box_pack_start(GTK_BOX(vbox), app->statusbar, FALSE, FALSE, 1);
+
 	/* left side */
-	vpaned = gtk_vpaned_new();
-	gtk_paned_pack1(GTK_PANED(hpaned), vpaned, TRUE, TRUE);
-	
+	priv->vpaned_left = gtk_vpaned_new();
+	gtk_paned_pack1(GTK_PANED(priv->hpaned), priv->vpaned_left, TRUE, TRUE);
+
 	vbox = gtk_vbox_new(FALSE, 0);
-	gtk_paned_pack1(GTK_PANED(vpaned), vbox, TRUE, TRUE);
+	gtk_paned_pack1(GTK_PANED(priv->vpaned_left), vbox, TRUE, TRUE);
 
 	app->channel_notebook = gtk_notebook_new();
 	gtk_notebook_set_show_tabs(GTK_NOTEBOOK(app->channel_notebook), FALSE);
 	gtk_notebook_set_show_border(GTK_NOTEBOOK(app->channel_notebook), FALSE);
-	gtk_box_pack_start_defaults(GTK_BOX(vbox), app->channel_notebook);
+	gtk_box_pack_start(GTK_BOX(vbox), app->channel_notebook, TRUE, TRUE, 0);
 
 	app->remark_entry = remark_entry_new(app, GTK_TOGGLE_ACTION(toggle_command_action));
 	gtk_box_pack_end(GTK_BOX(vbox), app->remark_entry, FALSE, FALSE, 0);
@@ -677,27 +672,27 @@ loqui_app_new(LoquiAccountManager *account_manager)
 											      LOQUI_GENERAL_PREF_GTK_DEFAULT_GENERAL_AUTO_SWITCH_SCROLLING_COMMON_BUFFER, NULL));
 	g_signal_connect(G_OBJECT(app->common_textview), "notify::is-scroll",
 			 G_CALLBACK(loqui_app_channel_text_view_notify_is_scroll_common_buffer_cb), app);
-	gtk_paned_pack2(GTK_PANED(vpaned), LOQUI_CHANNEL_TEXT_VIEW(app->common_textview)->scrolled_window, FALSE, TRUE);
+	gtk_paned_pack2(GTK_PANED(priv->vpaned_left), LOQUI_CHANNEL_TEXT_VIEW(app->common_textview)->scrolled_window, FALSE, TRUE);
 
 	/* right side */
-	vpaned = gtk_vpaned_new();
-	gtk_paned_pack2(GTK_PANED(hpaned), vpaned, FALSE, TRUE);
-	
+	priv->vpaned_right = gtk_vpaned_new();
+	gtk_paned_pack2(GTK_PANED(priv->hpaned), priv->vpaned_right, FALSE, TRUE);
+
 	menu_nick_list = gtk_ui_manager_get_widget(app->ui_manager, "/NickListPopup");
 	nick_list = nick_list_new(app, menu_nick_list);
 	SET_SCROLLED_WINDOW(scrolled_win, nick_list, GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
-	gtk_paned_pack1(GTK_PANED(vpaned), scrolled_win, TRUE, TRUE);	
+	gtk_paned_pack1(GTK_PANED(priv->vpaned_right), scrolled_win, TRUE, TRUE);
 
 	manager_store = loqui_account_manager_store_new(loqui_app_get_account_manager(app));
-	
+
 	channel_tree = channel_tree_new(app,
 					GTK_MENU(gtk_ui_manager_get_widget(app->ui_manager, "/AccountPopup")),
 					GTK_MENU(gtk_ui_manager_get_widget(app->ui_manager, "/ChannelPopup")),
 					GTK_MENU(gtk_ui_manager_get_widget(app->ui_manager, "/PrivateTalkPopup")));
 	gtk_tree_view_set_model(GTK_TREE_VIEW(channel_tree), GTK_TREE_MODEL(manager_store));
-	SET_SCROLLED_WINDOW(scrolled_win, channel_tree, GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC); 
-	gtk_paned_pack2(GTK_PANED(vpaned), scrolled_win, FALSE, TRUE);
-	
+	SET_SCROLLED_WINDOW(scrolled_win, channel_tree, GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
+	gtk_paned_pack2(GTK_PANED(priv->vpaned_right), scrolled_win, FALSE, TRUE);
+
 	app->channel_tree = CHANNEL_TREE(channel_tree);
 	app->nick_list = NICK_LIST(nick_list);
 
@@ -815,10 +810,10 @@ loqui_app_set_show_channelbar(LoquiApp *app, gboolean show)
 
 	priv = app->priv;
 
-	if(show)
-		gtk_widget_show(priv->handlebox_channelbar);
+	if (show)
+		gtk_widget_show(app->channelbar);
 	else
-		gtk_widget_hide(priv->handlebox_channelbar);
+		gtk_widget_hide(app->channelbar);
 
 	loqui_pref_set_boolean(loqui_get_general_pref(),
                                LOQUI_GENERAL_PREF_GTK_GROUP_VISIBILITY, "ShowChannelbar",
@@ -847,7 +842,7 @@ loqui_app_get_current_widget_editing_status(LoquiApp *app, gboolean *cutable, gb
 	widget = gtk_window_get_focus(GTK_WINDOW(app));
 
 	if(GTK_IS_ENTRY(widget)) {
-		editable = TRUE;		
+		editable = TRUE;
 		selected = gtk_editable_get_selection_bounds(GTK_EDITABLE(widget), NULL, NULL);
 
 		*cutable = editable && selected;
@@ -914,11 +909,11 @@ loqui_app_set_current_channel_entry(LoquiApp *app, LoquiChannelEntry *chent)
         g_return_if_fail(LOQUI_IS_APP(app));
 	g_return_if_fail(chent != NULL);
 	g_return_if_fail(LOQUI_IS_CHANNEL_ENTRY(chent));
-	
+
 	priv = app->priv;
 
 	old_chent = app->current_channel_entry;
-	
+
 	if (old_chent) {
 		chview = g_object_get_data(G_OBJECT(old_chent), CHANNEL_TEXT_VIEW_KEY);
 		g_assert(chview != NULL);
@@ -929,13 +924,13 @@ loqui_app_set_current_channel_entry(LoquiApp *app, LoquiChannelEntry *chent)
 						     loqui_app_channel_text_view_notify_is_scroll_cb,
 						     app);
 	}
-	
+
 	loqui_channel_entry_utils_separate(chent, &account, &channel);
 
 	app->current_channel_entry = chent;
 
 	chview = g_object_get_data(G_OBJECT(chent), CHANNEL_TEXT_VIEW_KEY);
-	
+
 	g_signal_connect(G_OBJECT(chview), "scrolled_to_end",
 			 G_CALLBACK(loqui_app_channel_text_view_scrolled_to_end_cb), chent);
 	g_signal_connect(G_OBJECT(chview), "notify::is-scroll",
@@ -983,7 +978,7 @@ LoquiAccount *
 loqui_app_get_current_account(LoquiApp *app)
 {
 	LoquiAccount *account;
-	
+
 	loqui_channel_entry_utils_separate(app->current_channel_entry, &account, NULL);
 
 	return account;
@@ -1199,7 +1194,7 @@ loqui_app_channel_entry_append_message_text_after_cb(LoquiChannelEntry *chent, L
 
 	if (priv->last_msgtext == msgtext)
 		return;
-		
+
 	if (loqui_pref_get_with_default_boolean(loqui_get_general_pref(),
 						LOQUI_GENERAL_PREF_GTK_GROUP_GENERAL, "SaveLog",
 						LOQUI_GENERAL_PREF_GTK_DEFAULT_GENERAL_SAVE_LOG, NULL))
@@ -1210,7 +1205,7 @@ loqui_app_channel_entry_append_message_text_after_cb(LoquiChannelEntry *chent, L
 	    app->current_channel_entry != NULL &&
 	    loqui_channel_entry_get_buffer(chent) == loqui_channel_entry_get_buffer(app->current_channel_entry))
 		return;
-	
+
 	loqui_channel_buffer_append_message_text(LOQUI_CHANNEL_BUFFER(priv->common_buffer), msgtext);
 
 	if (priv->last_msgtext)
@@ -1234,19 +1229,19 @@ loqui_app_append_log(LoquiApp *app, LoquiMessageText *msgtext)
 
         g_return_if_fail(app != NULL);
         g_return_if_fail(LOQUI_IS_APP(app));
-        
+
         t = time(NULL);
-        
+
         filename = loqui_utils_strftime_epoch("log-%Y%m%d.txt", t);
 	path = g_build_filename(loqui_core_get_user_dir(loqui_get_core()), LOG_DIR, filename, NULL);
 	g_free(filename);
-	
+
 	if ((io = g_io_channel_new_file(path, "a", NULL)) == NULL) {
 		g_warning("Can't open log file(%s)", path);
 		g_free(path);
 		return;
 	}
-	
+
 	time_format = loqui_pref_get_with_default_string(loqui_get_general_pref(),
 							 LOQUI_GENERAL_PREF_GTK_GROUP_GENERAL, "TimeFormat",
 							 LOQUI_GENERAL_PREF_GTK_DEFAULT_GENERAL_TIME_FORMAT, NULL);
@@ -1257,19 +1252,19 @@ loqui_app_append_log(LoquiApp *app, LoquiMessageText *msgtext)
 		nick = loqui_message_text_get_nick_string(msgtext, TRUE);
 	else
 		nick = g_strdup("");
-	
+
 	account_name = loqui_message_text_get_account_name(msgtext);
-	
+
 	if (account_name)
 		buf = g_strdup_printf("%s[%s] %s\n", time_str, account_name, loqui_message_text_get_text(msgtext));
 	else
 		buf = g_strdup_printf("%s%s%s\n", time_str, nick, loqui_message_text_get_text(msgtext));
 	g_free(time_str);
 	g_free(nick);
-		
+
 	if (g_io_channel_write_chars(io, buf, -1, NULL, NULL) == 0)
 		g_warning("Can't write log(%s)", path);
-	
+
 	g_free(path);
 	g_free(buf);
 	g_io_channel_unref(io);
@@ -1283,7 +1278,7 @@ loqui_app_set_nick_list_sort_type(LoquiApp *app, PrefSortType sort_type)
 
         g_return_if_fail(app != NULL);
         g_return_if_fail(LOQUI_IS_APP(app));
-        
+
 	priv = app->priv;
 
 	switch (sort_type) {
@@ -1318,7 +1313,7 @@ loqui_app_set_nick_list_sort_type(LoquiApp *app, PrefSortType sort_type)
 		g_print("Invalid sort type: %d", sort_type);
 		priv->sort_func = NULL;
 	}
-	
+
 	loqui_account_manager_iter_init(loqui_app_get_account_manager(app), &iter);
 	loqui_account_manager_iter_set_first_channel_entry(&iter);
 	while ((chent = loqui_account_manager_iter_channel_entry_next(&iter)))

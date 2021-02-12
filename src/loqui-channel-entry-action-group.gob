@@ -225,10 +225,10 @@ class Loqui:Channel:Entry:Action:Group from Gtk:Action:Group
 		pos = loqui_channel_entry_get_position(chent);
 
 		if (0 <= pos && pos < 10) {
-			keyval = GDK_0 + pos;
+			keyval = GDK_KEY_0 + pos;
 			modifiers = GDK_CONTROL_MASK;
 		} else if (10 <= pos && pos < 20) {
-			keyval = GDK_0 + pos - 10;
+			keyval = GDK_KEY_0 + pos - 10;
 			modifiers = GDK_MOD1_MASK;
 		} else {
 			keyval = 0;

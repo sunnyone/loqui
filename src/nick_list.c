@@ -49,7 +49,7 @@ static GtkTreeViewClass *parent_class = NULL;
 static void nick_list_class_init(NickListClass *klass);
 static void nick_list_init(NickList *nick_list);
 static void nick_list_finalize(GObject *object);
-static void nick_list_destroy(GtkObject *object);
+static void nick_list_destroy(GtkWidget *object);
 
 static void nick_list_create_icons(NickList *list);
 
@@ -99,13 +99,12 @@ static void
 nick_list_class_init (NickListClass *klass)
 {
         GObjectClass *object_class = G_OBJECT_CLASS(klass);
-        GtkObjectClass *gtk_object_class = GTK_OBJECT_CLASS(klass);
 	GtkWidgetClass *widget_class = GTK_WIDGET_CLASS(klass);
 
         parent_class = g_type_class_peek_parent(klass);
         
         object_class->finalize = nick_list_finalize;
-        gtk_object_class->destroy = nick_list_destroy;
+        widget_class->destroy = nick_list_destroy;
 
 	widget_class->key_press_event = nick_list_key_press_event;
 }
@@ -134,7 +133,7 @@ nick_list_finalize (GObject *object)
 	g_free(nick_list->priv);
 }
 static void 
-nick_list_destroy(GtkObject *object)
+nick_list_destroy(GtkWidget *object)
 {
         NickList *nick_list;
 	NickListPrivate *priv;
@@ -151,8 +150,8 @@ nick_list_destroy(GtkObject *object)
 	LOQUI_G_OBJECT_UNREF_UNLESS_NULL(priv->online_icon);
 	LOQUI_G_OBJECT_UNREF_UNLESS_NULL(priv->offline_icon);
 
-        if (GTK_OBJECT_CLASS(parent_class)->destroy)
-                (* GTK_OBJECT_CLASS(parent_class)->destroy) (object);
+        if (GTK_WIDGET_CLASS(parent_class)->destroy)
+                (* GTK_WIDGET_CLASS(parent_class)->destroy) (object);
 }
 static void
 nick_list_create_icons(NickList *list)

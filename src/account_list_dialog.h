@@ -51,7 +51,7 @@ struct _AccountListDialogClass
 
 #define ACCOUNT_LIST_DIALOG_RESPONSE_CONNECT 1
 
-GtkType account_list_dialog_get_type (void) G_GNUC_CONST;
+GType account_list_dialog_get_type (void) G_GNUC_CONST;
 
 GtkWidget* account_list_dialog_new(LoquiAccountManager *manager, gboolean with_connect_button);
 

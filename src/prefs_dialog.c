@@ -82,7 +82,7 @@ static GtkDialogClass *parent_class = NULL;
 static void prefs_dialog_class_init(PrefsDialogClass *klass);
 static void prefs_dialog_init(PrefsDialog *prefs_dialog);
 static void prefs_dialog_finalize(GObject *object);
-static void prefs_dialog_destroy(GtkObject *object);
+static void prefs_dialog_destroy(GtkWidget *object);
 
 static void prefs_dialog_load_settings(PrefsDialog *dialog);
 static void prefs_dialog_save_settings(PrefsDialog *dialog);
@@ -119,12 +119,12 @@ static void
 prefs_dialog_class_init (PrefsDialogClass *klass)
 {
         GObjectClass *object_class = G_OBJECT_CLASS(klass);
-        GtkObjectClass *gtk_object_class = GTK_OBJECT_CLASS(klass);
+        GtkWidgetClass *gtk_widget_class = GTK_WIDGET_CLASS(klass);
 
         parent_class = g_type_class_peek_parent(klass);
         
         object_class->finalize = prefs_dialog_finalize;
-        gtk_object_class->destroy = prefs_dialog_destroy;
+        gtk_widget_class->destroy = prefs_dialog_destroy;
 }
 static void 
 prefs_dialog_init (PrefsDialog *prefs_dialog)
@@ -151,7 +151,7 @@ prefs_dialog_finalize (GObject *object)
 	g_free(prefs_dialog->priv);
 }
 static void 
-prefs_dialog_destroy (GtkObject *object)
+prefs_dialog_destroy (GtkWidget *object)
 {
         PrefsDialog *prefs_dialog;
 
@@ -160,8 +160,8 @@ prefs_dialog_destroy (GtkObject *object)
 
         prefs_dialog = PREFS_DIALOG(object);
 
-        if (GTK_OBJECT_CLASS(parent_class)->destroy)
-                (* GTK_OBJECT_CLASS(parent_class)->destroy) (object);
+        if (GTK_WIDGET_CLASS(parent_class)->destroy)
+                (* GTK_WIDGET_CLASS(parent_class)->destroy) (object);
 }
 static void
 prefs_dialog_load_settings(PrefsDialog *dialog)
@@ -440,7 +440,7 @@ prefs_dialog_new(LoquiApp *app)
 	priv->app = app;
 
 	notebook = gtk_notebook_new();
-	gtk_box_pack_start(GTK_BOX(GTK_DIALOG(dialog)->vbox), notebook, TRUE, TRUE, 5);
+	gtk_box_pack_start(GTK_BOX(gtk_dialog_get_content_area(GTK_DIALOG(dialog))), notebook, TRUE, TRUE, 5);
 
 	vbox = gtk_vbox_new(FALSE, 0);
 	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), vbox, gtk_label_new(_("General")));
@@ -591,7 +591,7 @@ prefs_dialog_new(LoquiApp *app)
 
 	prefs_dialog_load_settings(dialog);
 
-	gtk_widget_show_all(GTK_WIDGET(GTK_DIALOG(dialog)->vbox));
+	gtk_widget_show_all(GTK_WIDGET(gtk_dialog_get_content_area(GTK_DIALOG(dialog))));
 
 	return GTK_WIDGET(dialog);
 }

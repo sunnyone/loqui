@@ -162,7 +162,7 @@ loqui_channel_entry_action_connect_proxy(GtkAction *action, GtkWidget *proxy)
 
 	if (GTK_IS_LABEL(proxy)) {
 		g_object_get(G_OBJECT(ce_action), "label", &label, NULL);
-		gtk_label_set(GTK_LABEL(proxy), label);
+		gtk_label_set_text(GTK_LABEL(proxy), label);
 	}
 	(* parent_class->connect_proxy) (action, proxy);
 	loqui_channel_entry_action_set_label_color(ce_action);

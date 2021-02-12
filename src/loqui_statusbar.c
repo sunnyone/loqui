@@ -71,7 +71,7 @@ static GtkStatusbarClass *parent_class = NULL;
 static void loqui_statusbar_class_init(LoquiStatusbarClass *klass);
 static void loqui_statusbar_init(LoquiStatusbar *statusbar);
 static void loqui_statusbar_finalize(GObject *object);
-static void loqui_statusbar_destroy(GtkObject *object);
+static void loqui_statusbar_destroy(GtkWidget *object);
 
 static void loqui_statusbar_set_preset_menu(LoquiStatusbar *statusbar, GList *nick_list);
 
@@ -111,12 +111,12 @@ static void
 loqui_statusbar_class_init (LoquiStatusbarClass *klass)
 {
         GObjectClass *object_class = G_OBJECT_CLASS(klass);
-        GtkObjectClass *gtk_object_class = GTK_OBJECT_CLASS(klass);
+        GtkWidgetClass *gtk_widget_class = GTK_WIDGET_CLASS(klass);
 
         parent_class = g_type_class_peek_parent(klass);
 
 	object_class->finalize = loqui_statusbar_finalize;
-        gtk_object_class->destroy = loqui_statusbar_destroy;
+        gtk_widget_class->destroy = loqui_statusbar_destroy;
 }
 static void
 loqui_statusbar_init (LoquiStatusbar *statusbar)
@@ -143,7 +143,7 @@ loqui_statusbar_finalize (GObject *object)
 	g_free(statusbar->priv);
 }
 static void
-loqui_statusbar_destroy (GtkObject *object)
+loqui_statusbar_destroy (GtkWidget *object)
 {
         LoquiStatusbar *statusbar;
 
@@ -152,8 +152,8 @@ loqui_statusbar_destroy (GtkObject *object)
 
         statusbar = LOQUI_STATUSBAR(object);
 
-        if (GTK_OBJECT_CLASS(parent_class)->destroy)
-                (* GTK_OBJECT_CLASS(parent_class)->destroy) (object);
+        if (GTK_WIDGET_CLASS(parent_class)->destroy)
+                (* GTK_WIDGET_CLASS(parent_class)->destroy) (object);
 }
 static void
 loqui_statusbar_set_away(LoquiStatusbar *statusbar, LoquiUserClass *user_class, LoquiAwayType away)
@@ -171,7 +171,7 @@ loqui_statusbar_set_away(LoquiStatusbar *statusbar, LoquiUserClass *user_class, 
 	if (awinfo == NULL)
 		return;
 
-	gtk_label_set(GTK_LABEL(priv->label_away), awinfo->nick);
+	gtk_label_set_text(GTK_LABEL(priv->label_away), awinfo->nick);
 
 	stock_id = loqui_stock_get_id_from_basic_away_type(awinfo->basic_away_type);
 	if (stock_id == NULL) {
@@ -243,7 +243,7 @@ loqui_statusbar_set_preset_menu(LoquiStatusbar *statusbar, GList *nick_list)
 
         priv = statusbar->priv;
 
-	for (cur = GTK_MENU_SHELL(priv->menu_preset)->children; cur != NULL; cur = cur->next) {
+	for (cur = gtk_container_get_children(GTK_CONTAINER(priv->menu_preset)); cur != NULL; cur = cur->next) {
 		tmp_list = g_list_append(tmp_list, cur->data);
 	}
 	for (cur = tmp_list; cur != NULL; cur = cur->next) {
@@ -277,7 +277,7 @@ loqui_statusbar_set_away_menu(LoquiStatusbar *statusbar, LoquiUserClass *user_cl
 
         priv = statusbar->priv;
 
-	for (cur = GTK_MENU_SHELL(priv->menu_away)->children; cur != NULL; cur = cur->next) {
+	for (cur = gtk_container_get_children(GTK_CONTAINER(priv->menu_away)); cur != NULL; cur = cur->next) {
 		tmp_list = g_list_append(tmp_list, cur->data);
 	}
 	for (cur = tmp_list; cur != NULL; cur = cur->next) {
@@ -343,15 +343,16 @@ loqui_statusbar_new(LoquiApp *app, GtkToggleAction *toggle_scroll_common_buffer_
 	GtkWidget *vsep;
 	GtkWidget *hbox_away;
 	GtkWidget *image;
+	GtkWidget *message_area;
 	gchar *text;
-
+	
 	statusbar = g_object_new(loqui_statusbar_get_type(), NULL);
 	priv = statusbar->priv;
 
 	priv->app = app;
 
-	gtk_statusbar_set_has_resize_grip(GTK_STATUSBAR(statusbar), FALSE);
-	gtk_label_set_selectable(GTK_LABEL(GTK_STATUSBAR(statusbar)->label), TRUE);
+	message_area = gtk_statusbar_get_message_area(GTK_STATUSBAR(statusbar));
+	gtk_label_set_selectable(GTK_LABEL(gtk_container_get_children(message_area)->data), TRUE);
 
 	vsep = gtk_vseparator_new();
 	gtk_box_pack_start(GTK_BOX(statusbar), vsep, FALSE, FALSE, 2);
@@ -391,7 +392,7 @@ loqui_statusbar_new(LoquiApp *app, GtkToggleAction *toggle_scroll_common_buffer_
 	g_signal_connect(G_OBJECT(priv->button_nick), "clicked",
 			 G_CALLBACK(loqui_statusbar_nick_button_clicked_cb), statusbar);
 	gtk_button_set_relief(GTK_BUTTON(priv->button_nick), GTK_RELIEF_NONE);
-	gtk_tooltips_set_tip(app->tooltips, priv->button_nick, _("Change nick"), NULL);
+	gtk_widget_set_tooltip_text(priv->button_nick, _("Change nick"));
 	gtk_box_pack_start(GTK_BOX(priv->dbox_preset), priv->button_nick, FALSE, FALSE, 0);
 
 	priv->label_nick = gtk_label_new("");
@@ -407,14 +408,14 @@ loqui_statusbar_new(LoquiApp *app, GtkToggleAction *toggle_scroll_common_buffer_
 	gtk_box_pack_start(GTK_BOX(statusbar), vsep, FALSE, FALSE, 2);
 
 	priv->toggle_scroll_common_buffer = gtk_toggle_button_new();
-	gtk_action_connect_proxy(GTK_ACTION(toggle_scroll_common_buffer_action), priv->toggle_scroll_common_buffer);
+	gtk_activatable_set_related_action(priv->toggle_scroll_common_buffer, GTK_ACTION(toggle_scroll_common_buffer_action));
 	gtkutils_bin_remove_child_if_exist(GTK_BIN((priv->toggle_scroll_common_buffer)));
 	image = gtk_image_new_from_stock(LOQUI_STOCK_WHETHER_SCROLL, LOQUI_ICON_SIZE_FONT);
 	gtk_container_add(GTK_CONTAINER(priv->toggle_scroll_common_buffer), image);
 	gtk_widget_show(image);
 	gtk_button_set_focus_on_click(GTK_BUTTON(priv->toggle_scroll_common_buffer), FALSE);
 	g_object_get(G_OBJECT(toggle_scroll_common_buffer_action), "tooltip", &text, NULL);
-	gtk_tooltips_set_tip(app->tooltips, priv->toggle_scroll_common_buffer, text, NULL);
+	gtk_widget_set_tooltip_text(priv->toggle_scroll_common_buffer, text);
 
 	gtk_box_pack_start(GTK_BOX(statusbar), priv->toggle_scroll_common_buffer, FALSE, FALSE, 0);
 
@@ -436,7 +437,7 @@ loqui_statusbar_update_account_name(LoquiStatusbar *statusbar, LoquiAccount *acc
 
         priv = statusbar->priv;
 
-	gtk_label_set(GTK_LABEL(priv->label_account),
+	gtk_label_set_text(GTK_LABEL(priv->label_account),
 		      account ? loqui_profile_account_get_name(loqui_account_get_profile(account)) : STRING_UNSELECTED);
 }
 void
@@ -452,16 +453,16 @@ loqui_statusbar_update_nick(LoquiStatusbar *statusbar, LoquiAccount *account)
         if (account == NULL) {
         	gtk_widget_set_sensitive(priv->dbox_preset, FALSE);
         	gtk_widget_set_sensitive(priv->dbox_away, FALSE);
-        	gtk_label_set(GTK_LABEL(priv->label_nick), STRING_UNSELECTED);
+        	gtk_label_set_text(GTK_LABEL(priv->label_nick), STRING_UNSELECTED);
         } else if (!loqui_account_get_is_connected(account)) {
       	 	gtk_widget_set_sensitive(priv->dbox_preset, FALSE);
         	gtk_widget_set_sensitive(priv->dbox_away, FALSE);
-        	gtk_label_set(GTK_LABEL(priv->label_nick), STRING_DISCONNECTED);
+        	gtk_label_set_text(GTK_LABEL(priv->label_nick), STRING_DISCONNECTED);
         } else {
         	gtk_widget_set_sensitive(priv->button_nick, TRUE);
         	gtk_widget_set_sensitive(priv->dbox_preset, TRUE);
         	gtk_widget_set_sensitive(priv->dbox_away, TRUE);
-        	gtk_label_set(GTK_LABEL(priv->label_nick), loqui_user_get_nick(loqui_account_get_user_self(account)));
+        	gtk_label_set_text(GTK_LABEL(priv->label_nick), loqui_user_get_nick(loqui_account_get_user_self(account)));
         }
 }
 void

@@ -83,7 +83,7 @@ static guint remark_entry_signals[LAST_SIGNAL] = { 0 };
 static void remark_entry_class_init(RemarkEntryClass *klass);
 static void remark_entry_init(RemarkEntry *remark_entry);
 static void remark_entry_finalize(GObject *object);
-static void remark_entry_destroy(GtkObject *object);
+static void remark_entry_destroy(GtkWidget *object);
 static void remark_entry_grab_focus(GtkWidget *widget);
 
 static void remark_entry_entry_text_shown_cb(GtkWidget *widget, gpointer data);
@@ -132,13 +132,13 @@ static void
 remark_entry_class_init(RemarkEntryClass *klass)
 {
         GObjectClass *object_class = G_OBJECT_CLASS(klass);
-        GtkObjectClass *gtk_object_class = GTK_OBJECT_CLASS(klass);
+        GtkWidgetClass *gtk_widget_class = GTK_WIDGET_CLASS(klass);
 	GtkBindingSet *binding_set;
 
         parent_class = g_type_class_peek_parent(klass);
 
         object_class->finalize = remark_entry_finalize;
-        gtk_object_class->destroy = remark_entry_destroy;
+        gtk_widget_class->destroy = remark_entry_destroy;
 
 	klass->call_history = remark_entry_call_history;
 	klass->scroll_channel_textview = remark_entry_scroll_channel_textview;
@@ -181,25 +181,25 @@ remark_entry_class_init(RemarkEntryClass *klass)
 
 	binding_set = gtk_binding_set_by_class(klass);
 
-	gtk_binding_entry_add_signal(binding_set, GDK_Up, 0,
+	gtk_binding_entry_add_signal(binding_set, GDK_KEY_Up, 0,
 				     "call_history", 1,
 				     G_TYPE_INT, -1);
-	gtk_binding_entry_add_signal(binding_set, GDK_Down, 0,
+	gtk_binding_entry_add_signal(binding_set, GDK_KEY_Down, 0,
 				     "call_history", 1,
 				     G_TYPE_INT, 1);
-	gtk_binding_entry_add_signal(binding_set, GDK_Page_Up, 0,
+	gtk_binding_entry_add_signal(binding_set, GDK_KEY_Page_Up, 0,
 				     "scroll_channel_textview", 1,
 				     G_TYPE_INT, -1);
-	gtk_binding_entry_add_signal(binding_set, GDK_Page_Down, 0,
+	gtk_binding_entry_add_signal(binding_set, GDK_KEY_Page_Down, 0,
 				     "scroll_channel_textview", 1,
 				     G_TYPE_INT, 1);
-	gtk_binding_entry_add_signal(binding_set, GDK_Page_Up, GDK_MOD1_MASK,
+	gtk_binding_entry_add_signal(binding_set, GDK_KEY_Page_Up, GDK_MOD1_MASK,
 				     "scroll_common_textview", 1,
 				     G_TYPE_INT, -1);
-	gtk_binding_entry_add_signal(binding_set, GDK_Page_Down, GDK_MOD1_MASK,
+	gtk_binding_entry_add_signal(binding_set, GDK_KEY_Page_Down, GDK_MOD1_MASK,
 				     "scroll_common_textview", 1,
 				     G_TYPE_INT, 1);
-	gtk_binding_entry_add_signal(binding_set, GDK_Tab, 0,
+	gtk_binding_entry_add_signal(binding_set, GDK_KEY_Tab, 0,
 	                             "complete_nick", 0);
 }
 static void
@@ -230,7 +230,7 @@ remark_entry_finalize(GObject *object)
 	g_free(remark_entry->priv);
 }
 static void
-remark_entry_destroy(GtkObject *object)
+remark_entry_destroy(GtkWidget *object)
 {
         RemarkEntry *remark_entry;
 
@@ -239,8 +239,8 @@ remark_entry_destroy(GtkObject *object)
 
         remark_entry = REMARK_ENTRY(object);
 
-        if(GTK_OBJECT_CLASS(parent_class)->destroy)
-                (* GTK_OBJECT_CLASS(parent_class)->destroy) (object);
+        if(GTK_WIDGET_CLASS(parent_class)->destroy)
+                (* GTK_WIDGET_CLASS(parent_class)->destroy) (object);
 }
 static void
 remark_entry_grab_focus(GtkWidget *widget)
@@ -284,11 +284,11 @@ remark_entry_new(LoquiApp *app, GtkToggleAction *toggle_command_action)
 	hbox = GTK_WIDGET(remark_entry);
 
 	priv->toggle_command = gtk_toggle_button_new();
-	gtk_action_connect_proxy(GTK_ACTION(toggle_command_action), priv->toggle_command);
+	gtk_activatable_set_related_action(priv->toggle_command, GTK_ACTION(toggle_command_action));
 	gtkutils_bin_remove_child_if_exist(GTK_BIN((priv->toggle_command)));
 	gtk_button_set_focus_on_click(GTK_BUTTON(priv->toggle_command), FALSE);
 	g_object_get(G_OBJECT(toggle_command_action), "tooltip", &text, NULL);
-	gtk_tooltips_set_tip(app->tooltips, priv->toggle_command, text, NULL);
+	gtk_widget_set_tooltip_text(priv->toggle_command, text);
 
 	image = gtk_image_new_from_stock(LOQUI_STOCK_COMMAND, GTK_ICON_SIZE_BUTTON);
 	gtk_container_add(GTK_CONTAINER(priv->toggle_command), image);
@@ -333,7 +333,7 @@ remark_entry_new(LoquiApp *app, GtkToggleAction *toggle_command_action)
 			 G_CALLBACK(remark_entry_ok_clicked_cb), remark_entry);
 	g_signal_connect_swapped(G_OBJECT(priv->button_ok), "clicked",
 				 G_CALLBACK(remark_entry_grab_focus), remark_entry);
-	gtk_tooltips_set_tip(app->tooltips, priv->button_ok, _("Send message (Shift+Enter)"), NULL);
+	gtk_widget_set_tooltip_text(priv->button_ok, _("Send message (Shift+Enter)"));
 	gtk_box_pack_start(GTK_BOX(priv->hbox_text), priv->button_ok, FALSE, FALSE, 0);
 
 
@@ -342,7 +342,7 @@ remark_entry_new(LoquiApp *app, GtkToggleAction *toggle_command_action)
 	gtk_container_add(GTK_CONTAINER(priv->button_notice), image);
 	g_signal_connect(G_OBJECT(priv->button_notice), "clicked",
 			 G_CALLBACK(remark_entry_notice_clicked_cb), remark_entry);
-	gtk_tooltips_set_tip(app->tooltips, priv->button_notice, _("Send message with NOTICE command (Ctrl+Enter)"), NULL);
+	gtk_widget_set_tooltip_text(priv->button_notice, _("Send message with NOTICE command (Ctrl+Enter)"));
 	gtk_button_set_focus_on_click(GTK_BUTTON(priv->button_notice), FALSE);
 	gtk_box_pack_start(GTK_BOX(hbox), priv->button_notice, FALSE, FALSE, 0);
 
@@ -352,7 +352,7 @@ remark_entry_new(LoquiApp *app, GtkToggleAction *toggle_command_action)
 	priv->toggle_multiline_toggled_id = g_signal_connect(G_OBJECT(priv->toggle_multiline), "toggled",
 						  	     G_CALLBACK(remark_entry_entry_multiline_toggled_cb), remark_entry);
 	gtk_button_set_focus_on_click(GTK_BUTTON(priv->toggle_multiline), FALSE);
-	gtk_tooltips_set_tip(app->tooltips, priv->toggle_multiline, _("Toggle multiline mode"), NULL);
+	gtk_widget_set_tooltip_text(priv->toggle_multiline, _("Toggle multiline mode"));
 	gtk_box_pack_start(GTK_BOX(hbox), priv->toggle_multiline, FALSE, FALSE, 0);
 
 	/* TODO: color palette
@@ -434,7 +434,7 @@ remark_entry_set_multiline(RemarkEntry *entry, gboolean is_multiline)
 		gtk_text_buffer_get_end_iter(buffer, &end);
 		str = gtk_text_buffer_get_text(buffer, &start, &end, TRUE);
 		gtk_entry_set_text(GTK_ENTRY(entry->entry), str);
-		gtk_widget_hide_all(priv->hbox_text);
+		gtk_widget_hide(priv->hbox_text);
 		gtk_widget_show(entry->entry);
 	}
 
@@ -843,8 +843,8 @@ remark_entry_textview_or_entry_key_press_event_cb(GtkWidget *widget, GdkEventKey
 	if (event->state & GDK_CONTROL_MASK ||
 	    event->state & GDK_SHIFT_MASK) {
 		switch (event->keyval) {
-		case GDK_Return:
-		case GDK_KP_Enter:
+		case GDK_KEY_Return:
+		case GDK_KEY_KP_Enter:
 			remark_entry_send_text(remark_entry, (event->state & GDK_CONTROL_MASK) != 0);
 			return TRUE;
 		default:
@@ -923,5 +923,5 @@ remark_entry_entry_text_shown_cb(GtkWidget *widget, gpointer data)
 	if(remark_entry_get_multiline(remark_entry))
 		gtk_widget_hide(remark_entry->entry);
 	else
-		gtk_widget_hide_all(priv->hbox_text);
+		gtk_widget_hide(priv->hbox_text);
 }

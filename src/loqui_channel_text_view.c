@@ -67,7 +67,7 @@ static void loqui_channel_text_view_dispose(GObject *object);
 static void loqui_channel_text_view_get_property(GObject *object, guint param_id, GValue *value, GParamSpec *pspec);
 static void loqui_channel_text_view_set_property(GObject *object, guint param_id, const GValue *value, GParamSpec *pspec);
 
-static void loqui_channel_text_view_destroy(GtkObject *object);
+static void loqui_channel_text_view_destroy(GtkWidget *object);
 
 static void loqui_channel_text_view_vadj_value_changed_cb(GtkAdjustment *adj, gpointer data);
 static gboolean loqui_channel_text_view_key_press_event(GtkWidget *widget,
@@ -213,7 +213,7 @@ loqui_channel_text_view_class_init(LoquiChannelTextViewClass *klass)
         object_class->dispose = loqui_channel_text_view_dispose;
         object_class->get_property = loqui_channel_text_view_get_property;
         object_class->set_property = loqui_channel_text_view_set_property;
-        GTK_OBJECT_CLASS(klass)->destroy = loqui_channel_text_view_destroy;
+        GTK_WIDGET_CLASS(klass)->destroy = loqui_channel_text_view_destroy;
 
 	widget_class->key_press_event = loqui_channel_text_view_key_press_event;
 	widget_class->motion_notify_event = loqui_channel_text_view_motion_notify_event;
@@ -260,7 +260,7 @@ loqui_channel_text_view_init(LoquiChannelTextView *chview)
 	priv->is_hand_cursor = FALSE;
 }
 static void
-loqui_channel_text_view_destroy(GtkObject *object)
+loqui_channel_text_view_destroy(GtkWidget *object)
 {
         LoquiChannelTextView *view;
 
@@ -269,8 +269,8 @@ loqui_channel_text_view_destroy(GtkObject *object)
 
         view = LOQUI_CHANNEL_TEXT_VIEW(object);
 
-        if (GTK_OBJECT_CLASS(parent_class)->destroy)
-                (* GTK_OBJECT_CLASS(parent_class)->destroy)(object);
+        if (GTK_WIDGET_CLASS(parent_class)->destroy)
+                (* GTK_WIDGET_CLASS(parent_class)->destroy)(object);
 }
 static gboolean
 loqui_channel_text_view_key_press_event(GtkWidget *widget,
@@ -279,8 +279,8 @@ loqui_channel_text_view_key_press_event(GtkWidget *widget,
 	GtkTextBuffer *buffer;
 	GtkTextIter iter;
 
-	if (event->keyval == GDK_Return ||
-	    event->keyval == GDK_KP_Enter) {
+	if (event->keyval == GDK_KEY_Return ||
+	    event->keyval == GDK_KEY_KP_Enter) {
 		buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(widget));
 		gtk_text_buffer_get_iter_at_mark(buffer, &iter,
 						 gtk_text_buffer_get_insert(buffer));
@@ -313,7 +313,7 @@ loqui_channel_text_view_vadj_value_changed_cb(GtkAdjustment *adj, gpointer data)
 	chview = LOQUI_CHANNEL_TEXT_VIEW(data);
 
 	/* upper - page_size is max virtually. */
-	reached_to_end = (ABS(adj->upper - adj->page_size - adj->value) < EPS);
+	reached_to_end = (ABS(gtk_adjustment_get_upper(adj) - gtk_adjustment_get_page_size(adj) - gtk_adjustment_get_value(adj)) < EPS);
 
 	if (reached_to_end)
 		g_signal_emit(G_OBJECT(chview), channel_text_view_signals[SIGNAL_SCROLLED_TO_END], 0);
@@ -433,7 +433,7 @@ loqui_channel_text_view_visibility_notify_event(GtkWidget *widget, GdkEventVisib
 
 	chview = LOQUI_CHANNEL_TEXT_VIEW(widget);
 
-	gdk_window_get_pointer(widget->window, &event_x, &event_y, NULL);
+	gdk_window_get_pointer(gtk_widget_get_window(widget), &event_x, &event_y, NULL);
 	loqui_channel_text_view_update_cursor(chview, event_x, event_y);
 
 	if (GTK_WIDGET_CLASS(parent_class)->visibility_notify_event)
@@ -752,7 +752,7 @@ loqui_channel_text_view_update_cursor(LoquiChannelTextView *chview, gint event_x
 		priv->is_hand_cursor = FALSE;
 	}
 
-	gdk_window_get_pointer(GTK_WIDGET(chview)->window, NULL, NULL, NULL);
+	gdk_window_get_pointer(gtk_widget_get_window(GTK_WIDGET(chview)), NULL, NULL, NULL);
 
 	loqui_channel_text_view_update_hover(chview, buffer_gtk, &iter);
 }
@@ -771,10 +771,11 @@ loqui_channel_text_view_new(LoquiApp *app)
 	priv->app = app;
 
 	chview->scrolled_window = gtk_scrolled_window_new(NULL, NULL);
-        gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(chview->scrolled_window), GTK_POLICY_NEVER, GTK_POLICY_ALWAYS);
+	// FIXME: horizontal scrollbar policy should be NEVER, but it seems not to work with GtkPaned
+        gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(chview->scrolled_window), GTK_POLICY_AUTOMATIC, GTK_POLICY_ALWAYS);
 	gtk_container_add(GTK_CONTAINER(chview->scrolled_window), GTK_WIDGET(chview));
 
-	g_signal_connect(G_OBJECT(GTK_TEXT_VIEW(chview)->vadjustment), "value-changed",
+	g_signal_connect(G_OBJECT(gtk_scrollable_get_vadjustment(chview)), "value-changed",
 			 G_CALLBACK(loqui_channel_text_view_vadj_value_changed_cb), chview);
 
 	priv->hand_cursor = gdk_cursor_new(GDK_HAND2);

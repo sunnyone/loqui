@@ -27,11 +27,11 @@
 G_BEGIN_DECLS
 
 #define LOQUI_TYPE_APP                 (loqui_app_get_type ())
-#define LOQUI_APP(obj)                 (GTK_CHECK_CAST ((obj), LOQUI_TYPE_APP, LoquiApp))
-#define LOQUI_APP_CLASS(klass)         (GTK_CHECK_CLASS_CAST ((klass), LOQUI_TYPE_APP, LoquiAppClass))
-#define LOQUI_IS_APP(obj)              (GTK_CHECK_TYPE ((obj), LOQUI_TYPE_APP))
-#define LOQUI_IS_APP_CLASS(klass)      (GTK_CHECK_CLASS_TYPE ((klass), LOQUI_TYPE_APP))
-#define LOQUI_APP_GET_CLASS(obj)       (GTK_CHECK_GET_CLASS ((obj), LOQUI_TYPE_APP, LoquiAppClass))
+#define LOQUI_APP(obj)                 (G_TYPE_CHECK_INSTANCE_CAST ((obj), LOQUI_TYPE_APP, LoquiApp))
+#define LOQUI_APP_CLASS(klass)         (G_TYPE_CHECK_CLASS_CAST ((klass), LOQUI_TYPE_APP, LoquiAppClass))
+#define LOQUI_IS_APP(obj)              (G_TYPE_CHECK_INSTANCE_TYPE ((obj), LOQUI_TYPE_APP))
+#define LOQUI_IS_APP_CLASS(klass)      (G_TYPE_CHECK_CLASS_TYPE ((klass), LOQUI_TYPE_APP))
+#define LOQUI_APP_GET_CLASS(obj)       (G_TYPE_INSTANCE_GET_CLASS ((obj), LOQUI_TYPE_APP, LoquiAppClass))
 
 typedef struct _LoquiApp            LoquiApp;
 typedef struct _LoquiAppClass       LoquiAppClass;
@@ -73,8 +73,6 @@ struct _LoquiApp
 	GtkActionGroup *action_group;
 	GtkUIManager *ui_manager;
 	LoquiChannelEntryActionGroup *channel_entry_action_group;
-
-	GtkTooltips *tooltips;
 
 	GtkWidget *channelbar;
 	GtkWidget *statusbar;

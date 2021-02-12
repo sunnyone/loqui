@@ -53,7 +53,7 @@ static GtkHBoxClass *parent_class = NULL;
 static void loqui_channelbar_class_init(LoquiChannelbarClass *klass);
 static void loqui_channelbar_init(LoquiChannelbar *channelbar);
 static void loqui_channelbar_finalize(GObject *object);
-static void loqui_channelbar_destroy(GtkObject *object);
+static void loqui_channelbar_destroy(GtkWidget *object);
 
 static void loqui_channelbar_entry_topic_activated_cb(GtkWidget *widget, gpointer data);
 static void loqui_channelbar_entry_changed_cb(GtkWidget *widget, gpointer data);
@@ -89,12 +89,12 @@ static void
 loqui_channelbar_class_init (LoquiChannelbarClass *klass)
 {
         GObjectClass *object_class = G_OBJECT_CLASS(klass);
-        GtkObjectClass *gtk_object_class = GTK_OBJECT_CLASS(klass);
+        GtkWidgetClass *gtk_widget_class = GTK_WIDGET_CLASS(klass);
 
         parent_class = g_type_class_peek_parent(klass);
         
         object_class->finalize = loqui_channelbar_finalize;
-        gtk_object_class->destroy = loqui_channelbar_destroy;
+        gtk_widget_class->destroy = loqui_channelbar_destroy;
 }
 static void 
 loqui_channelbar_init (LoquiChannelbar *channelbar)
@@ -121,7 +121,7 @@ loqui_channelbar_finalize (GObject *object)
 	g_free(channelbar->priv);
 }
 static void 
-loqui_channelbar_destroy (GtkObject *object)
+loqui_channelbar_destroy (GtkWidget *object)
 {
         LoquiChannelbar *channelbar;
 
@@ -130,8 +130,8 @@ loqui_channelbar_destroy (GtkObject *object)
 
         channelbar = LOQUI_CHANNELBAR(object);
 
-        if (GTK_OBJECT_CLASS(parent_class)->destroy)
-                (* GTK_OBJECT_CLASS(parent_class)->destroy) (object);
+        if (GTK_WIDGET_CLASS(parent_class)->destroy)
+                (* GTK_WIDGET_CLASS(parent_class)->destroy) (object);
 }
 static void
 loqui_channelbar_entry_topic_activated_cb(GtkWidget *widget, gpointer data)
@@ -206,7 +206,7 @@ loqui_channelbar_new(LoquiApp *app, GtkWidget *menu_dropdown, GtkToggleAction *t
 	gtk_box_pack_start(GTK_BOX(priv->dbox_buffers), priv->button_channel, FALSE, FALSE, 0);
 	g_signal_connect(G_OBJECT(priv->button_channel), "clicked",
 			 G_CALLBACK(loqui_channelbar_channel_button_clicked_cb), channelbar);
-	gtk_tooltips_set_tip(app->tooltips, priv->button_channel, _("Join a channel with the current account"), NULL);
+	gtk_widget_set_tooltip_text(priv->button_channel, _("Join a channel with the current account"));
 
 	priv->label_channel_mode = gtk_label_new("");
 	gtk_box_pack_start(GTK_BOX(channelbar), priv->label_channel_mode, 0, 0, FALSE);
@@ -229,19 +229,19 @@ loqui_channelbar_new(LoquiApp *app, GtkWidget *menu_dropdown, GtkToggleAction *t
 	gtk_container_add(GTK_CONTAINER(priv->button_ok), image);
 	gtk_box_pack_start(GTK_BOX(channelbar), priv->button_ok, FALSE, FALSE, 0);
 	gtk_widget_set_sensitive(priv->button_ok, FALSE);
-	gtk_tooltips_set_tip(app->tooltips, priv->button_ok, _("Update the topic"), NULL);
+	gtk_widget_set_tooltip_text(priv->button_ok, _("Update the topic"));
 
 	priv->entry_changed = FALSE;
 
 	priv->toggle_scroll = gtk_toggle_button_new();
-	gtk_action_connect_proxy(GTK_ACTION(toggle_scroll_action), priv->toggle_scroll);
+	gtk_activatable_set_related_action(priv->toggle_scroll, GTK_ACTION(toggle_scroll_action));
 	gtkutils_bin_remove_child_if_exist(GTK_BIN(priv->toggle_scroll));
 	image = gtk_image_new_from_stock(LOQUI_STOCK_WHETHER_SCROLL, GTK_ICON_SIZE_SMALL_TOOLBAR);
 	gtk_container_add(GTK_CONTAINER(priv->toggle_scroll), image);
 	gtk_widget_show(image);
 	gtk_button_set_focus_on_click(GTK_BUTTON(priv->toggle_scroll), FALSE);
 	g_object_get(G_OBJECT(toggle_scroll_action), "tooltip", &text, NULL);
-	gtk_tooltips_set_tip(app->tooltips, priv->toggle_scroll, text, NULL);
+	gtk_widget_set_tooltip_text(priv->toggle_scroll, text);
 	gtk_box_pack_start(GTK_BOX(channelbar), priv->toggle_scroll, FALSE, FALSE, 0);
 
 	return GTK_WIDGET(channelbar);
@@ -258,13 +258,13 @@ loqui_channelbar_update_channel_entry_label(LoquiChannelbar *channelbar, LoquiCh
 	priv = channelbar->priv;
 
 	if (priv->chent_action) {
-		gtk_action_disconnect_proxy(priv->chent_action, priv->button_channel);
+		gtk_activatable_set_related_action(priv->button_channel, NULL);
 		priv->chent_action = NULL;
 	}
 		
 	if (chent) {
 		action = GTK_ACTION(loqui_channel_entry_action_group_get_channel_entry_action(priv->app->channel_entry_action_group, chent));
-		gtk_action_connect_proxy(action, priv->button_channel);
+		gtk_activatable_set_related_action(priv->button_channel, action);
 		priv->chent_action = action;
 	}
 }
@@ -285,10 +285,10 @@ loqui_channelbar_update_channel_mode(LoquiChannelbar *channelbar, LoquiChannel *
 		buf = g_strdup_printf("[%s]", channel_mode);
 		g_free(channel_mode);
 
-		gtk_label_set(GTK_LABEL(priv->label_channel_mode), buf);
+		gtk_label_set_text(GTK_LABEL(priv->label_channel_mode), buf);
 		g_free(buf);
 	} else {
-		gtk_label_set(GTK_LABEL(priv->label_channel_mode), "");
+		gtk_label_set_text(GTK_LABEL(priv->label_channel_mode), "");
 	}
 }
 void
@@ -307,10 +307,10 @@ loqui_channelbar_update_member_number(LoquiChannelbar *channelbar, LoquiChannelE
                 user_num_all = loqui_channel_entry_get_member_number(chent);
 		user_num_op = loqui_channel_entry_get_op_number(chent);
                 buf = g_strdup_printf("(%d/%d)", user_num_op, user_num_all);
-		gtk_label_set(GTK_LABEL(priv->label_user_number), buf);
+		gtk_label_set_text(GTK_LABEL(priv->label_user_number), buf);
 		g_free(buf);
 	} else {
-		gtk_label_set(GTK_LABEL(priv->label_user_number), "");
+		gtk_label_set_text(GTK_LABEL(priv->label_user_number), "");
 	}
 
 }
