@@ -1,18 +1,18 @@
 %define ver @VERSION@
 %define rel 1
 
-Summary: IRC/Chat client for Gtk2
+Summary: IRC/Chat client for Gtk
 Name: loqui
 Version: %{ver}
 Release: %{rel}
 Group: Applications/Internet
-Source0: http://launchpad.net/loqui/src/%{name}-%{ver}.tar.gz
+Source0: https://github.com/sunnyone/loqui/releases/download/%{ver}/loqui-%{name}-%{ver}.tar.gz
 License: GPL
 Packager: Yoichi Imai <sunnyone41@gmail.com>
-Requires: gtk2 >= 2.4.0, glib2 >= 2.22.0
-BuildRequires: gtk2-devel >= 2.4.0, glib2-devel >= 2.22.0
+Requires: gtk3 >= 3.0.0
+BuildRequires: gtk3-devel >= 3.0.0
 BuildRequires: gob2
-URL: http://launchpad.net/loqui
+URL: http://loqui.sunnyone.org
 BuildRoot: %{_tmppath}/%{name}-%{ver}-root
 
 %description
@@ -45,6 +45,10 @@ rm -rf $RPM_BUILD_ROOT
 %{_datadir}/pixmaps/loqui.png
 
 %changelog
+* Fri Feb 12 2021 Yoichi Imai <sunnyone41@gmail.com>
+- Depends gtk3
+- Change urls
+
 * Sun Dec 12 2010 IWAI, Masaharu <iwaim.sub@gmail.com>
 - add BuildRequires: gob2
 

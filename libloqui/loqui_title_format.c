@@ -1,11 +1,11 @@
 /* -*- Mode: C; tab-width: 8; indent-tabs-mode: t; c-basic-offset: 8 -*- */
 /*
- * Loqui TitleFormat Utility <http://launchpad.net/loqui/>
+ * Loqui TitleFormat Utility
  * Copyright (C) 2004 Yoichi Imai <sunnyone41@gmail.com>
  *
  * You can use TitleFormat on these conditions.
  * (in GPL/LGPL program, TitleFormat follows GPL/LGPL.)
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
  * are met:
@@ -118,7 +118,7 @@ static gboolean
 loqui_title_format_validate_symbol_name(const gchar *name)
 {
 	const gchar* s;
-	
+
 	s = name;
 	while(*s != '\0') {
 		if(!strchr(G_CSET_A_2_Z G_CSET_a_2_z G_CSET_DIGITS "-_", *s))
@@ -149,7 +149,7 @@ loqui_title_format_string_to_int(const gchar *str)
 
 	i = g_ascii_strtoull(tmp, NULL, 0);
 	g_free(buf);
-	
+
 	return m * (gint) i;
 }
 
@@ -169,7 +169,7 @@ loqui_title_format_string_is_true(const gchar *str)
 
 	if (strlen(tmp) == 0)
 		return FALSE;
-	
+
 	if (*tmp == '-')
 		tmp++;
 
@@ -207,7 +207,7 @@ loqui_title_format_parse_function(LoquiTitleFormat *ltf, LoquiStringTokenizer *s
 		return FALSE;
 	}
 
-	
+
 	node = tf_item_node_new(LOQUI_TITLE_FORMAT_NODE_FUNCTION, func_name, NULL);
 	g_node_insert_after(parent, sibling, node);
 
@@ -314,7 +314,7 @@ loqui_title_format_remove_comment(const gchar *text, gchar **result)
 	gchar *buf;
 
 	buf = g_strdup(text);
-	
+
 	if ((tmp = strstr(buf, "//")) != NULL) {
 		is_include_comment = TRUE;
 		*tmp = '\0';
@@ -345,7 +345,7 @@ loqui_title_format_parse_internal(LoquiTitleFormat *ltf, LoquiStringTokenizer *s
 		is_include_comment = loqui_title_format_remove_comment(token, &tmp);
 		node = tf_item_node_new(LOQUI_TITLE_FORMAT_NODE_TEXT, NULL, tmp);
 		g_free(tmp);
-		
+
 		g_node_insert_after(parent, sibling, node);
 		sibling = node;
 
@@ -426,8 +426,8 @@ loqui_title_format_parse_internal(LoquiTitleFormat *ltf, LoquiStringTokenizer *s
                                             "Unterminated quotation");
 				return FALSE;
 			}
-			
-			
+
+
 			node = tf_item_node_new(LOQUI_TITLE_FORMAT_NODE_TEXT, NULL, text);
 			g_node_insert_after(parent, sibling, node);
 			sibling = node;
@@ -598,7 +598,7 @@ loqui_title_format_get_function_argument(LoquiTitleFormat *ltf, GNode *func_node
 
 	string = g_string_new(NULL);
 	loqui_title_format_fetch_internal(ltf, arg_node->children, string, var_set);
-	
+
 	return g_string_free(string, FALSE);
 }
 
@@ -729,7 +729,7 @@ loqui_title_format_function_grater(LoquiTitleFormat *ltf, GNode *node)
 {
 	gchar *tmp;
 	gint i1, i2;
-	
+
 	tmp = loqui_title_format_get_function_argument(ltf, node, 1, NULL);
 	i1 = loqui_title_format_string_to_int(tmp);
 	g_free(tmp);
@@ -754,11 +754,11 @@ loqui_title_format_function_num(LoquiTitleFormat *ltf, GNode *node)
 	tmp = loqui_title_format_get_function_argument(ltf, node, 1, NULL);
 	num = loqui_title_format_string_to_int(tmp);
 	g_free(tmp);
-	
+
 	tmp = loqui_title_format_get_function_argument(ltf, node, 2, NULL);
 	length = loqui_title_format_string_to_int(tmp);
 	g_free(tmp);
-	
+
 	format = g_strdup_printf("%%.%dd", length);
 	buf = g_strdup_printf(format, num);
 	g_free(format);
@@ -778,13 +778,13 @@ loqui_title_format_function_pad(LoquiTitleFormat *ltf, GNode *node)
 	gchar *str, *tmp, *padstr;
 	gint i, length, remain;
 	gunichar pc;
-	
+
 	str = loqui_title_format_get_function_argument(ltf, node, 1, NULL);
 
 	tmp = loqui_title_format_get_function_argument(ltf, node, 2, NULL);
 	length = loqui_title_format_string_to_int(tmp);
 	g_free(tmp);
-	
+
 	if (tmp == 0)
 		return str;
 

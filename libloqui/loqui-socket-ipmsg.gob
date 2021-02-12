@@ -2,7 +2,7 @@ requires 2.0.0
 
 %alltop{
 /*
- * libloqui -- Chat/IM client library for GLib <http://launchpad.net/loqui/>
+ * libloqui -- Chat/IM client library for GLib
  * Copyright (C) 2004 Yoichi Imai <sunnyone41@gmail.com>
  *
  * This Library is free software; you can redistribute it and/or
