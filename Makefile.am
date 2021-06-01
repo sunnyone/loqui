@@ -24,7 +24,7 @@ EXTRA_DIST= autogen.sh \
 ACLOCAL_AMFLAGS = -I m4
 
 icon_DATA = loqui.png
-icondir = $(datadir)/pixmaps
+icondir = $(datadir)/icons/hicolor/48x48/apps
 
 desktop_DATA = loqui.desktop
 desktopdir = $(datadir)/applications/
